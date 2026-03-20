@@ -4,6 +4,21 @@ import 'package:jnigen/jnigen.dart';
 
 void main(List<String> args) {
   final packageRoot = Platform.script;
+  final localKosherJavaSources =
+      packageRoot.resolve('java/src/main/java').toFilePath();
+  final siblingKosherJavaSources =
+      packageRoot.resolve('../../zmanim-modern/src/main/java').toFilePath();
+
+  // Prefer sources vendored in this repository for CI stability.
+  final sourcePath = Directory(localKosherJavaSources).existsSync()
+      ? localKosherJavaSources
+      : siblingKosherJavaSources;
+  if (!Directory(sourcePath).existsSync()) {
+    throw FileSystemException(
+      'Could not find Java sources for jnigen. Checked: '
+      '$localKosherJavaSources and $siblingKosherJavaSources',
+    );
+  }
 
   generateJniBindings(
     Config(
@@ -16,7 +31,7 @@ void main(List<String> args) {
         ),
       ),
       // Optional. List of directories that contain the source files for which to generate bindings.
-      sourcePath: [packageRoot.resolve('../../zmanim-modern/src/main/java')],
+      sourcePath: [Uri.directory(sourcePath)],
       // Required. List of classes or packages for which bindings should be generated.
       classes: [
         // KosherJava

@@ -12,12 +12,14 @@ git subtree pull --prefix=test/java  https://github.com/KosherJava/zmanim <branc
 # Cargo Prerequisites
 cargo install cargo-expand
 cargo install flutter_rust_bridge_codegen
-# Dart Prerequisites
 
+# Dart Prerequisites
 dart pub get
 dart run jni:setup
+
 # Java Prerequisites
-# Ensure JAVA_HOME is set, Maven is installed, and that `JAVA_HOME\bin\server` is in the PATH
+# Ensure Java is installed, JAVA_HOME is set, Maven is installed
+# Ensure that `JAVA_HOME\bin\server` is in the PATH on Windows
 ```
 
 # Generate the Rust Bindings code
