@@ -228,12 +228,15 @@ fn is_same_gregorian_day<Tz: TimeZone>(
 
     Some(gdate_local) == hdate_greg
 }
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 struct MoladData {
     hours: i64,
     minutes: i64,
     chalakim: i64,
+    date: Date<Gregorian>,
 }
-fn _get_molad(date: &Date<Hebrew>) -> Option<(Date<Gregorian>, MoladData)> {
+fn _get_molad(date: &Date<Hebrew>) -> Option<MoladData> {
     let chalakim_since_molad_tohu =
         chalakim_since_molad_tohu(date.extended_year(), date.hebrew_month());
     let abs_date = JEWISH_EPOCH + (chalakim_since_molad_tohu / CHALAKIM_PER_DAY);
@@ -250,25 +253,23 @@ fn _get_molad(date: &Date<Hebrew>) -> Option<(Date<Gregorian>, MoladData)> {
             .ok()?;
     }
     hours = (hours + 18) % 24;
-    Some((
-        gregorian_date,
-        MoladData {
-            hours,
-            minutes,
-            chalakim,
-        },
-    ))
+    Some(MoladData {
+        date: gregorian_date,
+        hours,
+        minutes,
+        chalakim,
+    })
 }
 // Molad and Kiddush Levana
 fn months_molad(date: &Date<Hebrew>) -> Option<DateTime<Utc>> {
     use chrono::TimeZone;
 
-    let (molad, molad_data) = _get_molad(date)?;
+    let molad_data = _get_molad(date)?;
 
     // Get the Gregorian date components from molad JewishCalendar
-    let year = molad.extended_year();
-    let month = molad.month().month_number(); // Convert from 0-based to 1-based
-    let day = molad.day_of_month().0 as u32;
+    let year = molad_data.date.extended_year();
+    let month = molad_data.date.month().month_number(); // Convert from 0-based to 1-based
+    let day = molad_data.date.day_of_month().0 as u32;
 
     let molad_seconds = molad_data.chalakim as f64 * 10.0 / 3.0;
     let seconds = molad_seconds as u32;

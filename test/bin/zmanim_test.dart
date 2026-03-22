@@ -54,6 +54,12 @@ enum TestOption<V> implements OptionDefinition<V> {
     max: 100000,
     defaultsTo: 1000,
     envName: 'TEST_ITERATIONS',
+  )),
+  allowNullMismatch(FlagOption(
+    argName: 'allow-null-mismatch',
+    argAbbrev: 'n',
+    helpText: 'Do not fail the test if one of the zmanim is null',
+    defaultsTo: false,
   ));
 
   const TestOption(this.option);
@@ -75,6 +81,9 @@ Future<void> main(List<String> args) async {
   final methodFilter = configuration.optionalValue(TestOption.methodFilter);
   print("Method filter: $methodFilter");
 
+  final allowNullMismatch = configuration.value(TestOption.allowNullMismatch);
+  print("Allow null mismatch: $allowNullMismatch");
+
   // Initialize Rust library
   await RustLib.init(
       externalLibrary: await loadExternalLibrary(ExternalLibraryLoaderConfig(
@@ -92,8 +101,13 @@ Future<void> main(List<String> args) async {
   final rustTimezones = timezones().toSet();
   final validTimezones = javaTimezones.intersection(rustTimezones).toList();
   final zmanimPresets = presets()
-      .where((e) => methodFilter == null || e.name().contains(methodFilter))
+      .where((e) =>
+          methodFilter == null ||
+          e.name().toLowerCase().contains(methodFilter.toLowerCase()))
       .toList();
+  if (zmanimPresets.isEmpty) {
+    throw Exception("No zmanim presets found");
+  }
 
   for (var iteration = 0; iteration < iterations; iteration++) {
     for (final zman in zmanimPresets) {
@@ -102,7 +116,7 @@ Future<void> main(List<String> args) async {
         iteration: iteration,
         validTimezones: validTimezones,
       );
-      test(testCase);
+      test(testCase, allowNullMismatch: allowNullMismatch);
     }
   }
   print("All tests passed");
@@ -161,7 +175,7 @@ TestCase randomTestCase(
 /// Test a given TestCase
 /// Throws an exception if the test fails
 /// Returns true if the test passes, false if the test was skipped
-bool test(TestCase testCase) {
+bool test(TestCase testCase, {required bool allowNullMismatch}) {
   final javaZman = calculateJavaZman(testCase);
   final rustZman = calculateRustZman(testCase);
 
@@ -169,6 +183,9 @@ bool test(TestCase testCase) {
     case (null, null):
       return false;
     case (null, ZmanResult()) || (ZmanResult(), null):
+      if (allowNullMismatch) {
+        return false;
+      }
       // Zmanim related to Chametz are only returned by Java if it is Erev Pesach,
       // However, Rust will return the zmanim for any date.
       if (testCase.zmanName.contains("Chametz")) {
