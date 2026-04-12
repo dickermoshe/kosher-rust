@@ -1,6 +1,6 @@
 /*
  * Zmanim Java API
- * Copyright (C) 2011 - 2024 Eliyahu Hershfeld
+ * Copyright (C) 2011 - 2026 Eliyahu Hershfeld
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
  * Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option)
@@ -15,7 +15,7 @@
  */
 package com.kosherjava.zmanim.hebrewcalendar;
 
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.EnumMap;
 
 /**
@@ -37,7 +37,7 @@ import java.util.EnumMap;
  * @see JewishDate
  * @see JewishCalendar
  * 
- * @author &copy; Eliyahu Hershfeld 2011 - 2024
+ * @author &copy; Eliyahu Hershfeld 2011 - 2026
  */
 public class HebrewDateFormatter {
 	
@@ -69,7 +69,7 @@ public class HebrewDateFormatter {
 	/**
 	 * The internal DateFormat.&nbsp; See {@link #isLongWeekFormat()} and {@link #setLongWeekFormat(boolean)}.
 	 */
-	private SimpleDateFormat weekFormat = null;
+	private DateTimeFormatter weekFormat;
 	
 	/**
 	 * List of transliterated parshiyos using the default <em>Ashkenazi</em> pronunciation.&nbsp; The formatParsha method
@@ -122,7 +122,7 @@ public class HebrewDateFormatter {
 	 * Default constructor sets the {@link EnumMap}s of Hebrew and default transliterated parshiyos.
 	 */
 	public HebrewDateFormatter() {
-		weekFormat = new SimpleDateFormat("EEEE");
+		weekFormat = DateTimeFormatter.ofPattern("EEEE");
 		transliteratedParshaMap = new EnumMap<>(JewishCalendar.Parsha.class);
 		transliteratedParshaMap.put(JewishCalendar.Parsha.NONE, "");
 		transliteratedParshaMap.put(JewishCalendar.Parsha.BERESHIS, "Bereshis");
@@ -294,9 +294,9 @@ public class HebrewDateFormatter {
 	public void setLongWeekFormat(boolean longWeekFormat) {
 		this.longWeekFormat = longWeekFormat;
 		if (longWeekFormat) {
-			weekFormat = new SimpleDateFormat("EEEE");
+			weekFormat = DateTimeFormatter.ofPattern("EEEE");
 		} else {
-			weekFormat = new SimpleDateFormat("EEE");
+			weekFormat = DateTimeFormatter.ofPattern("EEE");
 		}
 	}
 
