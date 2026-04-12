@@ -14,7 +14,7 @@ A collection of Rust crates for Jewish calendar computations: astronomical calcu
 
 ## License
 
-See each crate for its respective license.
+See each crate for their respective licenses.
 
 ## Acknowledgments
 
