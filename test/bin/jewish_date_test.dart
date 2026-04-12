@@ -11,30 +11,30 @@ import 'package:jni/jni.dart';
 
 import 'package:config/config.dart';
 
-/// Constants used in testing
+/// Default max difference in milliseconds
+const DEFAULT_MAX_DIFF_MS = 30000;
+
+/// Maximum Gregorian year to test
+const MAX_GREGORIAN_YEAR = 2100;
+
+/// Minimum Gregorian year to test
+const MIN_GREGORIAN_YEAR = 1900;
+
+/// Maximum Jewish year to test
+const MAX_JEWISH_YEAR = MAX_GREGORIAN_YEAR + 3760;
+
+/// Minimum Jewish year to test
+const MIN_JEWISH_YEAR = MIN_GREGORIAN_YEAR + 3760;
+
 const HOURS_MS = 60 * 60 * 1000;
 const MINUTES_MS = 60 * 1000;
 const SECONDS_MS = 1000;
 
-/// Default max difference in milliseconds
-const DEFAULT_MAX_DIFF_MS = 30000;
-
-const MAX_GREGORIAN_YEAR = 2040;
-const MIN_GREGORIAN_YEAR = 1900;
-
-const MAX_JEWISH_YEAR = MAX_GREGORIAN_YEAR + 3760;
-const MIN_JEWISH_YEAR = MIN_GREGORIAN_YEAR + 3760;
-
 /// Global random instance
 late Random random;
 
-/// Default seed is the current time in milliseconds since epoch
 int defaultSeed() => DateTime.now().millisecondsSinceEpoch;
 
-/// Options are defineable as enums as well as regular lists.
-///
-/// The enum approach is more distinct and type safe.
-/// The list approach is more dynamic and permits non-const initialization.
 enum TestOption<V> implements OptionDefinition<V> {
   seed(IntOption(
     argName: 'seed',
@@ -63,8 +63,8 @@ Future<void> main(List<String> args) async {
   final configuration = Configuration.resolve(
       options: TestOption.values, args: args, env: Platform.environment);
   final seed = configuration.value(TestOption.seed);
-  random = Random(seed);
   print("Seed: $seed");
+  random = Random(seed);
 
   final iterations = configuration.value(TestOption.iterations);
   print("Iterations: $iterations");
@@ -80,6 +80,7 @@ Future<void> main(List<String> args) async {
   // Initialize Java runtime
   Jni.spawn(classPath: ["./java/target/zmanim-2.6.0-SNAPSHOT.jar"]);
 
+  // Run the tests
   for (var iteration = 0; iteration < iterations; iteration++) {
     testGregorianDateToJewishDate();
     testJewishDateToGregorianDate();

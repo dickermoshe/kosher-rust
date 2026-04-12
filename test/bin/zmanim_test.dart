@@ -12,32 +12,47 @@ import 'package:test_with_java/src/test_case.dart';
 
 import 'package:config/config.dart';
 
-/// Constants used in testing
+/// Default max allowed difference in milliseconds
+const DEFAULT_MAX_DIFF_MS = 30000;
+
+/// Maximum year to test
+const MAX_YEAR = 2100;
+
+/// Minimum year to test
+const MIN_YEAR = 1900;
+
 const HOURS_MS = 60 * 60 * 1000;
 const MINUTES_MS = 60 * 1000;
 const SECONDS_MS = 1000;
 
-/// Default max difference in milliseconds
-const DEFAULT_MAX_DIFF_MS = 30000;
+/// Regression tests that must run every execution.
+/// Keep each entry as a serializable test case map.
+final List<Map<String, dynamic>> regressionTests = [
+  {
+    'iteration': -1,
+    'year': 2026,
+    'month': 1,
+    'day': 3,
+    'latitude': 39.36463,
+    'longitude': -76.70222,
+    'elevation': 0.0,
+    'timezone': 'America/New_York',
+    'zman': 'getSofZmanKidushLevanaBetweenMoldos',
+    'ateretTorahSunsetOffsetMinutes': 0,
+    'candleLightingOffsetMinutes': 18,
+    'useAstronomicalChatzosForOtherZmanim': false,
+    'useElevation': false,
+  },
+];
 
-const MAX_YEAR = 2040;
-const MIN_YEAR = 1900;
-
-/// Global random instance
 late Random random;
-
-/// Default seed is the current time in milliseconds since epoch
 int defaultSeed() => DateTime.now().millisecondsSinceEpoch;
 
-/// Options are defineable as enums as well as regular lists.
-///
-/// The enum approach is more distinct and type safe.
-/// The list approach is more dynamic and permits non-const initialization.
 enum TestOption<V> implements OptionDefinition<V> {
   seed(IntOption(
     argName: 'seed',
     argAbbrev: 's',
-    helpText: 'The seed to use for the random number generator',
+    helpText: 'The seed to use for the Random instance',
     min: 0,
     fromDefault: defaultSeed,
   )),
@@ -72,8 +87,8 @@ Future<void> main(List<String> args) async {
   final configuration = Configuration.resolve(
       options: TestOption.values, args: args, env: Platform.environment);
   final seed = configuration.value(TestOption.seed);
-  random = Random(seed);
   print("Seed: $seed");
+  random = Random(seed);
 
   final iterations = configuration.value(TestOption.iterations);
   print("Iterations: $iterations");
@@ -100,6 +115,8 @@ Future<void> main(List<String> args) async {
       ZoneId.getAvailableZoneIds()!.map((e) => e!.toDartString()).toSet();
   final rustTimezones = timezones().toSet();
   final validTimezones = javaTimezones.intersection(rustTimezones).toList();
+
+  // Get a filtered list of zmanim presets if a method filter is provided
   final zmanimPresets = presets()
       .where((e) =>
           methodFilter == null ||
@@ -109,9 +126,18 @@ Future<void> main(List<String> args) async {
     throw Exception("No zmanim presets found");
   }
 
+  // Run the regression tests
+  runRegressionTests(
+    regressionTests: regressionTests,
+    zmanimPresets: zmanimPresets,
+    validTimezones: validTimezones,
+    allowNullMismatch: allowNullMismatch,
+  );
+
+  // Run the random tests
   for (var iteration = 0; iteration < iterations; iteration++) {
     for (final zman in zmanimPresets) {
-      final testCase = randomTestCase(
+      final testCase = createRandomTestCase(
         zman: zman,
         iteration: iteration,
         validTimezones: validTimezones,
@@ -123,13 +149,33 @@ Future<void> main(List<String> args) async {
   exit(0);
 }
 
+void runRegressionTests({
+  required List<Map<String, dynamic>> regressionTests,
+  required List<ZmanimPreset> zmanimPresets,
+  required List<String> validTimezones,
+  required bool allowNullMismatch,
+}) {
+  if (regressionTests.isEmpty) {
+    return;
+  }
+
+  for (final regressionMap in regressionTests) {
+    final testCase = TestCase.fromMap(regressionMap, zmanimPresets);
+    if (!validTimezones.contains(testCase.timezone)) {
+      throw Exception(
+          "Regression test has unsupported timezone: ${testCase.timezone}");
+    }
+    test(testCase, allowNullMismatch: allowNullMismatch);
+  }
+}
+
 /// Convert a year to a timestamp in seconds
 double yearToTimestamp(int year) {
   return (year - 1970) * 365.25 * 24 * 60 * 60;
 }
 
 /// Generate a random TestCase for a given zman
-TestCase randomTestCase(
+TestCase createRandomTestCase(
     {required ZmanimPreset zman,
     required int iteration,
     required List<String> validTimezones}) {
@@ -146,7 +192,7 @@ TestCase randomTestCase(
 
   // if the timezone for this location is not valid, try again
   if (!validTimezones.contains(tz)) {
-    return randomTestCase(
+    return createRandomTestCase(
         zman: zman, iteration: iteration, validTimezones: validTimezones);
   }
   final randomElevation = random.getDouble(0.0, 4000.0);
@@ -172,81 +218,9 @@ TestCase randomTestCase(
   );
 }
 
-/// Test a given TestCase
-/// Throws an exception if the test fails
-/// Returns true if the test passes, false if the test was skipped
-bool test(TestCase testCase, {required bool allowNullMismatch}) {
-  final javaZman = calculateJavaZman(testCase);
-  final rustZman = calculateRustZman(testCase);
-
-  switch ((javaZman, rustZman)) {
-    case (null, null):
-      return false;
-    case (null, ZmanResult()) || (ZmanResult(), null):
-      if (allowNullMismatch) {
-        return false;
-      }
-      // Zmanim related to Chametz are only returned by Java if it is Erev Pesach,
-      // However, Rust will return the zmanim for any date.
-      if (testCase.zmanName.contains("Chametz")) {
-        return false;
-      }
-      throw FailedTest.nullMismatch(testCase, javaZman, rustZman);
-    case (ZmanResult javaZman, ZmanResult rustZman):
-      final difference = (javaZman.timestampMs - rustZman.timestampMs).abs();
-      if (difference > DEFAULT_MAX_DIFF_MS) {
-        throw FailedTest.differenceTooLarge(
-            testCase, difference, DEFAULT_MAX_DIFF_MS, javaZman, rustZman);
-      }
-      return true;
-  }
-  throw StateError('Unreachable');
-}
-
-/// A custom exception for failed tests.
-class FailedTest implements Exception {
-  final TestCase testCase;
-  final String message;
-  FailedTest(this.testCase, this.message);
-  static FailedTest nullMismatch(
-      TestCase testCase, ZmanResult? javaZman, ZmanResult? rustZman) {
-    final message = [
-      "Java: ${javaZman?.toDebugString()}",
-      "Rust: ${rustZman?.toDebugString()}",
-      "Test Case: ${testCase.toJson()}",
-    ].join("\n");
-    return FailedTest(testCase, message);
-  }
-
-  static FailedTest differenceTooLarge(TestCase testCase, int difference,
-      int maxDiffMs, ZmanResult javaZman, ZmanResult rustZman) {
-    final message = [
-      "Difference too large: $difference ms. Max allowed: $maxDiffMs ms.",
-      "Difference: ${formatDifference(difference)}",
-      "Java: ${javaZman.toDebugString()}",
-      "Rust: ${rustZman.toDebugString()}",
-      "Test Case: ${testCase.toJson()}",
-    ].join("\n");
-    return FailedTest(testCase, message);
-  }
-
-  @override
-  String toString() => message;
-}
-
-/// A result from the zman calculation.
-class ZmanResult {
-  final String formattedDate;
-  final int timestampMs;
-  ZmanResult(this.formattedDate, this.timestampMs);
-  String toDebugString() {
-    return "Zman: $formattedDate ($timestampMs)";
-  }
-}
-
 /// Calculate the zman using the Java library. Returns null if the zman could not be calculated.
 ZmanResult? calculateJavaZman(TestCase testCase) {
-  /// There is an off error with JNI where we will get a JniException
+  /// There is an strange bug in JNI where we will get a JniException
   /// for seemingly no reason. We should try up to 3 times to get the result.
   for (final i in Iterable.generate(3)) {
     try {
@@ -315,6 +289,77 @@ ZmanResult? calculateRustZman(TestCase testCase) {
   }
   final (formattedDate, timestampMs) = result;
   return ZmanResult(formattedDate, timestampMs);
+}
+
+/// Test a given TestCase
+/// Throws an exception if the test fails
+/// Returns true if the test passes, false if the test was skipped
+bool test(TestCase testCase, {required bool allowNullMismatch}) {
+  final javaZman = calculateJavaZman(testCase);
+  final rustZman = calculateRustZman(testCase);
+  switch ((javaZman, rustZman)) {
+    case (null, null):
+      return false;
+    case (null, ZmanResult()) || (ZmanResult(), null):
+      if (allowNullMismatch) {
+        return false;
+      }
+      // Zmanim related to Chametz are only returned by Java if it is Erev Pesach,
+      // However, Rust will return the zmanim for any date.
+      if (testCase.zmanName.contains("Chametz")) {
+        return false;
+      }
+      throw FailedTest.nullMismatch(testCase, javaZman, rustZman);
+    case (ZmanResult javaZman, ZmanResult rustZman):
+      final difference = (javaZman.timestampMs - rustZman.timestampMs).abs();
+      if (difference > DEFAULT_MAX_DIFF_MS) {
+        throw FailedTest.differenceTooLarge(
+            testCase, difference, DEFAULT_MAX_DIFF_MS, javaZman, rustZman);
+      }
+      return true;
+  }
+  throw StateError('Unreachable');
+}
+
+/// A custom exception for failed tests.
+class FailedTest implements Exception {
+  final TestCase testCase;
+  final String message;
+  FailedTest(this.testCase, this.message);
+  static FailedTest nullMismatch(
+      TestCase testCase, ZmanResult? javaZman, ZmanResult? rustZman) {
+    final message = [
+      "Java: ${javaZman?.toDebugString()}",
+      "Rust: ${rustZman?.toDebugString()}",
+      "Test Case: ${testCase.toJson()}",
+    ].join("\n");
+    return FailedTest(testCase, message);
+  }
+
+  static FailedTest differenceTooLarge(TestCase testCase, int difference,
+      int maxDiffMs, ZmanResult javaZman, ZmanResult rustZman) {
+    final message = [
+      "Difference too large: $difference ms. Max allowed: $maxDiffMs ms.",
+      "Difference: ${formatDifference(difference)}",
+      "Java: ${javaZman.toDebugString()}",
+      "Rust: ${rustZman.toDebugString()}",
+      "Test Case: ${testCase.toJson()}",
+    ].join("\n");
+    return FailedTest(testCase, message);
+  }
+
+  @override
+  String toString() => message;
+}
+
+/// A result from the zman calculation.
+class ZmanResult {
+  final String formattedDate;
+  final int timestampMs;
+  ZmanResult(this.formattedDate, this.timestampMs);
+  String toDebugString() {
+    return "Zman: $formattedDate ($timestampMs)";
+  }
 }
 
 /// Format a difference in milliseconds as a human readable string.
