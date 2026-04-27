@@ -4,7 +4,7 @@ import 'package:test_with_java/src/rust/api.dart';
 
 final JsonEncoder _encoder = new JsonEncoder.withIndent('  ');
 
-class TestCase {
+class ZmanTestCase {
   final int iteration;
   final int year;
   final int month;
@@ -20,7 +20,7 @@ class TestCase {
   final bool useElevation;
   String? _name;
 
-  TestCase(
+  ZmanTestCase(
       {required this.iteration,
       required this.year,
       required this.month,
@@ -54,9 +54,9 @@ class TestCase {
     });
   }
 
-  static TestCase fromMap(
+  static ZmanTestCase fromMap(
       Map<String, dynamic> data, List<ZmanimPreset> zmanimPresets) {
-    return TestCase(
+    return ZmanTestCase(
       iteration: data['iteration'],
       year: data['year'],
       month: data['month'],
@@ -74,7 +74,7 @@ class TestCase {
     );
   }
 
-  static TestCase fromJson(String json, List<ZmanimPreset> zmanimPresets) {
+  static ZmanTestCase fromJson(String json, List<ZmanimPreset> zmanimPresets) {
     return fromMap(jsonDecode(json), zmanimPresets);
   }
 

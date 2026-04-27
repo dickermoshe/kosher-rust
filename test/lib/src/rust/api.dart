@@ -6,7 +6,7 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `create_clamped_hebrew_date`, `java_holiday_index_to_rust`
+// These functions are ignored because they are not marked as `pub`: `java_holiday_index_to_rust`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `FINDER`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `deref`, `initialize`
 
@@ -18,7 +18,11 @@ String findTimezone({required double longitude, required double latitude}) =>
 /// Get all the timezones supported by the library
 List<String> timezones() => RustLib.instance.api.crateApiTimezones();
 
+/// Get all the ZmanimPresets supported by the library
+List<ZmanimPreset> presets() => RustLib.instance.api.crateApiPresets();
+
 /// Calculate a zman at a given location and date
+/// Returns the zman as a human readable string and the timestamp in milliseconds, or None if the zman could not be calculated
 (String, PlatformInt64)? calculateZman(
         {required PlatformInt64 ateretTorahSunsetOffsetMinutes,
         required PlatformInt64 candleLightingOffsetMinutes,
@@ -47,9 +51,6 @@ List<String> timezones() => RustLib.instance.api.crateApiTimezones();
         useElevation: useElevation,
         zman: zman);
 
-/// Get all the ZmanimPresets supported by the library
-List<ZmanimPreset> presets() => RustLib.instance.api.crateApiPresets();
-
 (int, int, int)? jewishDateToGregorianDate(
         {required int year, required int month, required int day}) =>
     RustLib.instance.api
@@ -64,7 +65,7 @@ List<ZmanimPreset> presets() => RustLib.instance.api.crateApiPresets();
         {required int year,
         required int month,
         required int day,
-        required PlatformInt64 daysToAdd}) =>
+        required int daysToAdd}) =>
     RustLib.instance.api.crateApiAddDaysToJewishDate(
         year: year, month: month, day: day, daysToAdd: daysToAdd);
 
@@ -101,8 +102,6 @@ void testJewishCalendar(
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ZmanimPreset>>
 abstract class ZmanimPreset implements RustOpaqueInterface {
-  /// Get the name of the ZmanimPreset
-  /// This is also the method name in the Java side
   String name();
 }
 

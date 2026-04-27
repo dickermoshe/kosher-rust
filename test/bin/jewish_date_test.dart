@@ -8,6 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:test_with_java/src/rust/api.dart';
 import 'package:test_with_java/src/rust/frb_generated.dart';
 import 'package:jni/jni.dart';
+import 'package:test_with_java/src/init.dart';
 
 import 'package:config/config.dart';
 
@@ -25,15 +26,6 @@ const MAX_JEWISH_YEAR = MAX_GREGORIAN_YEAR + 3760;
 
 /// Minimum Jewish year to test
 const MIN_JEWISH_YEAR = MIN_GREGORIAN_YEAR + 3760;
-
-const HOURS_MS = 60 * 60 * 1000;
-const MINUTES_MS = 60 * 1000;
-const SECONDS_MS = 1000;
-
-/// Global random instance
-late Random random;
-
-int defaultSeed() => DateTime.now().millisecondsSinceEpoch;
 
 enum TestOption<V> implements OptionDefinition<V> {
   seed(IntOption(
@@ -99,12 +91,12 @@ double yearToTimestamp(int year) {
   return (year - 1970) * 365.25 * 24 * 60 * 60;
 }
 
-/// Return a random Jewish date between MIN_YEAR and MAX_YEAR
-/// The returned date is not guaranteed to be valid, but it will be between MIN_YEAR and MAX_YEAR
+/// Return a random Jewish date between MIN_YEAR and MAX_YEAR.
+/// The returned date is not guaranteed to be valid.
 (int, int, int) randomJewishDate() {
   final year =
       random.nextInt(MAX_JEWISH_YEAR - MIN_JEWISH_YEAR + 1) + MIN_JEWISH_YEAR;
-  final month = random.nextInt(12) + 1;
+  final month = random.nextInt(13) + 1;
   final day = random.nextInt(30) + 1;
   return (year, month, day);
 }
@@ -336,6 +328,18 @@ void testAddYearsToJewishDate() {
 
 void testRandomJewishCalendar() {
   final (year, month, day) = randomJewishDate();
+  final rustDate =
+      jewishDateToGregorianDate(year: year, month: month, day: day);
+  final javaDate = javaJewishDateToGregorianDate(year, month, day);
+  testDates(
+      date: (year, month, day),
+      targetDateType: "Gregorian",
+      javaDate: javaDate,
+      rustDate: rustDate);
+  if (rustDate == null && javaDate == null) {
+    return;
+  }
+
   final inIsrael = random.nextBool();
   final useModernHolidays = random.nextBool();
   final calendar = JewishCalendar.new$5(year, month, day, inIsrael);

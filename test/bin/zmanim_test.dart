@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
+import 'package:test_with_java/src/constants.dart';
 import 'package:test_with_java/src/java/kosher_java.g.dart';
 import 'package:test_with_java/src/rnd.dart';
-import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:test_with_java/src/rust/api.dart';
-import 'package:test_with_java/src/rust/frb_generated.dart';
 import 'package:jni/jni.dart';
-import 'package:test_with_java/src/test_case.dart';
+import 'package:test_with_java/src/zman_test_case.dart';
+import 'package:test_with_java/src/init.dart';
 
 import 'package:config/config.dart';
 
@@ -21,9 +20,8 @@ const MAX_YEAR = 2100;
 /// Minimum year to test
 const MIN_YEAR = 1900;
 
-const HOURS_MS = 60 * 60 * 1000;
-const MINUTES_MS = 60 * 1000;
-const SECONDS_MS = 1000;
+/// Maximum attempts to find a random point with a timezone supported by both runtimes.
+const MAX_TIMEZONE_ATTEMPTS = 1000;
 
 /// Regression tests that must run every execution.
 /// Keep each entry as a serializable test case map.
@@ -44,9 +42,6 @@ final List<Map<String, dynamic>> regressionTests = [
     'useElevation': false,
   },
 ];
-
-late Random random;
-int defaultSeed() => DateTime.now().millisecondsSinceEpoch;
 
 enum TestOption<V> implements OptionDefinition<V> {
   seed(IntOption(
@@ -87,8 +82,6 @@ Future<void> main(List<String> args) async {
   final configuration = Configuration.resolve(
       options: TestOption.values, args: args, env: Platform.environment);
   final seed = configuration.value(TestOption.seed);
-  print("Seed: $seed");
-  random = Random(seed);
 
   final iterations = configuration.value(TestOption.iterations);
   print("Iterations: $iterations");
@@ -99,16 +92,7 @@ Future<void> main(List<String> args) async {
   final allowNullMismatch = configuration.value(TestOption.allowNullMismatch);
   print("Allow null mismatch: $allowNullMismatch");
 
-  // Initialize Rust library
-  await RustLib.init(
-      externalLibrary: await loadExternalLibrary(ExternalLibraryLoaderConfig(
-    stem: 'test_with_java',
-    ioDirectory: '../target/release/',
-    webPrefix: 'pkg/',
-  )));
-
-  // Initialize Java runtime
-  Jni.spawn(classPath: ["./java/target/zmanim-2.6.0-SNAPSHOT.jar"]);
+  await init(seed: seed);
 
   // Get a list of the timezones that are supported by both Java and Rust
   final javaTimezones =
@@ -117,22 +101,24 @@ Future<void> main(List<String> args) async {
   final validTimezones = javaTimezones.intersection(rustTimezones).toList();
 
   // Get a filtered list of zmanim presets if a method filter is provided
-  final zmanimPresets = presets()
+  final allZmanimPresets = presets();
+  final zmanimPresets = allZmanimPresets
       .where((e) =>
           methodFilter == null ||
           e.name().toLowerCase().contains(methodFilter.toLowerCase()))
       .toList();
-  if (zmanimPresets.isEmpty) {
-    throw Exception("No zmanim presets found");
-  }
 
   // Run the regression tests
   runRegressionTests(
     regressionTests: regressionTests,
-    zmanimPresets: zmanimPresets,
+    zmanimPresets: allZmanimPresets,
     validTimezones: validTimezones,
     allowNullMismatch: allowNullMismatch,
   );
+
+  if (zmanimPresets.isEmpty) {
+    throw Exception("No zmanim presets found");
+  }
 
   // Run the random tests
   for (var iteration = 0; iteration < iterations; iteration++) {
@@ -160,7 +146,7 @@ void runRegressionTests({
   }
 
   for (final regressionMap in regressionTests) {
-    final testCase = TestCase.fromMap(regressionMap, zmanimPresets);
+    final testCase = ZmanTestCase.fromMap(regressionMap, zmanimPresets);
     if (!validTimezones.contains(testCase.timezone)) {
       throw Exception(
           "Regression test has unsupported timezone: ${testCase.timezone}");
@@ -175,51 +161,56 @@ double yearToTimestamp(int year) {
 }
 
 /// Generate a random TestCase for a given zman
-TestCase createRandomTestCase(
+ZmanTestCase createRandomTestCase(
     {required ZmanimPreset zman,
     required int iteration,
     required List<String> validTimezones}) {
-  /// Create a random timestamp in seconds between the minimum and maximum year
-  final timestamp =
-      random.getDouble(yearToTimestamp(MIN_YEAR), yearToTimestamp(MAX_YEAR));
-  final randomDateTime =
-      DateTime.fromMillisecondsSinceEpoch((timestamp * 1000).toInt());
-
   final maxLatitude = maxLatitudeForZman(zman);
-  final randomLatitude = random.getDouble(-maxLatitude, maxLatitude);
-  final randomLongitude = random.getDouble(-180.0, 180.0);
-  final tz = findTimezone(longitude: randomLongitude, latitude: randomLatitude);
 
-  // if the timezone for this location is not valid, try again
-  if (!validTimezones.contains(tz)) {
-    return createRandomTestCase(
-        zman: zman, iteration: iteration, validTimezones: validTimezones);
+  for (var attempt = 0; attempt < MAX_TIMEZONE_ATTEMPTS; attempt++) {
+    /// Create a random timestamp in seconds between the minimum and maximum year
+    final timestamp =
+        random.getDouble(yearToTimestamp(MIN_YEAR), yearToTimestamp(MAX_YEAR));
+    final randomDateTime =
+        DateTime.fromMillisecondsSinceEpoch((timestamp * 1000).toInt());
+    final randomLatitude = random.getDouble(-maxLatitude, maxLatitude);
+    final randomLongitude = random.getDouble(-180.0, 180.0);
+    final tz =
+        findTimezone(longitude: randomLongitude, latitude: randomLatitude);
+
+    if (!validTimezones.contains(tz)) {
+      continue;
+    }
+
+    final randomElevation = random.getDouble(0.0, 4000.0);
+    final randomUseElevation = random.nextBool();
+    final randomAteretTorahSunsetOffsetMinutes = random.nextInt(60);
+    final randomCandleLightingOffsetMinutes = random.nextInt(60);
+    final randomUseAstronomicalChatzosForOtherZmanim = random.nextBool();
+    return ZmanTestCase(
+      iteration: iteration,
+      year: randomDateTime.year,
+      month: randomDateTime.month,
+      day: randomDateTime.day,
+      latitude: randomLatitude,
+      longitude: randomLongitude,
+      elevation: randomElevation,
+      timezone: tz,
+      zman: zman,
+      ateretTorahSunsetOffsetMinutes: randomAteretTorahSunsetOffsetMinutes,
+      candleLightingOffsetMinutes: randomCandleLightingOffsetMinutes,
+      useAstronomicalChatzosForOtherZmanim:
+          randomUseAstronomicalChatzosForOtherZmanim,
+      useElevation: randomUseElevation,
+    );
   }
-  final randomElevation = random.getDouble(0.0, 4000.0);
-  final randomUseElevation = random.nextBool();
-  final randomAteretTorahSunsetOffsetMinutes = random.nextInt(60);
-  final randomCandleLightingOffsetMinutes = random.nextInt(60);
-  final randomUseAstronomicalChatzosForOtherZmanim = random.nextBool();
-  return TestCase(
-    iteration: iteration,
-    year: randomDateTime.year,
-    month: randomDateTime.month,
-    day: randomDateTime.day,
-    latitude: randomLatitude,
-    longitude: randomLongitude,
-    elevation: randomElevation,
-    timezone: tz,
-    zman: zman,
-    ateretTorahSunsetOffsetMinutes: randomAteretTorahSunsetOffsetMinutes,
-    candleLightingOffsetMinutes: randomCandleLightingOffsetMinutes,
-    useAstronomicalChatzosForOtherZmanim:
-        randomUseAstronomicalChatzosForOtherZmanim,
-    useElevation: randomUseElevation,
-  );
+
+  throw Exception(
+      "Failed to find a supported timezone after $MAX_TIMEZONE_ATTEMPTS attempts");
 }
 
 /// Calculate the zman using the Java library. Returns null if the zman could not be calculated.
-ZmanResult? calculateJavaZman(TestCase testCase) {
+ZmanResult? calculateJavaZman(ZmanTestCase testCase) {
   /// There is an strange bug in JNI where we will get a JniException
   /// for seemingly no reason. We should try up to 3 times to get the result.
   for (final i in Iterable.generate(3)) {
@@ -238,7 +229,8 @@ ZmanResult? calculateJavaZman(TestCase testCase) {
       // They will only be functionally equivalent if `useAstronomicalChatzos` is set to true.
       calendar.setUseAstronomicalChatzos(true);
       calendar.setUseAstronomicalChatzosForOtherZmanim(
-          testCase.useAstronomicalChatzosForOtherZmanim);
+        testCase.useAstronomicalChatzosForOtherZmanim,
+      );
       calendar.setAteretTorahSunsetOffset(
           testCase.ateretTorahSunsetOffsetMinutes.toDouble());
       calendar.setLocalDate(localDate);
@@ -268,7 +260,7 @@ ZmanResult? calculateJavaZman(TestCase testCase) {
 
 /// Calculate the zman using the Rust library
 /// Returns null if the zman could not be calculated.
-ZmanResult? calculateRustZman(TestCase testCase) {
+ZmanResult? calculateRustZman(ZmanTestCase testCase) {
   final result = calculateZman(
     useElevation: testCase.useElevation,
     ateretTorahSunsetOffsetMinutes: testCase.ateretTorahSunsetOffsetMinutes,
@@ -294,7 +286,7 @@ ZmanResult? calculateRustZman(TestCase testCase) {
 /// Test a given TestCase
 /// Throws an exception if the test fails
 /// Returns true if the test passes, false if the test was skipped
-bool test(TestCase testCase, {required bool allowNullMismatch}) {
+bool test(ZmanTestCase testCase, {required bool allowNullMismatch}) {
   final javaZman = calculateJavaZman(testCase);
   final rustZman = calculateRustZman(testCase);
   switch ((javaZman, rustZman)) {
@@ -323,11 +315,11 @@ bool test(TestCase testCase, {required bool allowNullMismatch}) {
 
 /// A custom exception for failed tests.
 class FailedTest implements Exception {
-  final TestCase testCase;
+  final ZmanTestCase testCase;
   final String message;
   FailedTest(this.testCase, this.message);
   static FailedTest nullMismatch(
-      TestCase testCase, ZmanResult? javaZman, ZmanResult? rustZman) {
+      ZmanTestCase testCase, ZmanResult? javaZman, ZmanResult? rustZman) {
     final message = [
       "Java: ${javaZman?.toDebugString()}",
       "Rust: ${rustZman?.toDebugString()}",
@@ -336,7 +328,7 @@ class FailedTest implements Exception {
     return FailedTest(testCase, message);
   }
 
-  static FailedTest differenceTooLarge(TestCase testCase, int difference,
+  static FailedTest differenceTooLarge(ZmanTestCase testCase, int difference,
       int maxDiffMs, ZmanResult javaZman, ZmanResult rustZman) {
     final message = [
       "Difference too large: $difference ms. Max allowed: $maxDiffMs ms.",

@@ -117,7 +117,7 @@ fn wire__crate__api__add_days_to_jewish_date_impl(
             let api_year = <i32>::sse_decode(&mut deserializer);
             let api_month = <u8>::sse_decode(&mut deserializer);
             let api_day = <u8>::sse_decode(&mut deserializer);
-            let api_days_to_add = <i64>::sse_decode(&mut deserializer);
+            let api_days_to_add = <i32>::sse_decode(&mut deserializer);
             deserializer.end();
             transform_result_sse::<_, ()>((move || {
                 let output_ok = Result::<_, ()>::Ok(crate::api::add_days_to_jewish_date(

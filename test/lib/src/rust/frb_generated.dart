@@ -85,7 +85,7 @@ abstract class RustLibApi extends BaseApi {
       {required int year,
       required int month,
       required int day,
-      required PlatformInt64 daysToAdd});
+      required int daysToAdd});
 
   (int, int, int)? crateApiAddMonthsToJewishDate(
       {required int year,
@@ -198,14 +198,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       {required int year,
       required int month,
       required int day,
-      required PlatformInt64 daysToAdd}) {
+      required int daysToAdd}) {
     return handler.executeSync(SyncTask(
       callFfi: () {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_i_32(year, serializer);
         sse_encode_u_8(month, serializer);
         sse_encode_u_8(day, serializer);
-        sse_encode_i_64(daysToAdd, serializer);
+        sse_encode_i_32(daysToAdd, serializer);
         return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2)!;
       },
       codec: SseCodec(
@@ -1315,8 +1315,6 @@ class ZmanimPresetImpl extends RustOpaque implements ZmanimPreset {
         RustLib.instance.api.rust_arc_decrement_strong_count_ZmanimPresetPtr,
   );
 
-  /// Get the name of the ZmanimPreset
-  /// This is also the method name in the Java side
   String name() => RustLib.instance.api.crateApiZmanimPresetName(
         that: this,
       );

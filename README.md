@@ -16,9 +16,3 @@ A collection of Rust crates for Jewish calendar computations: astronomical calcu
 
 See each crate for their respective licenses.
 
-## Acknowledgments
-
-- **[KosherJava](https://github.com/KosherJava/zmanim)** by Eliyahu Hershfeld — The reference implementation for zmanim and Hebrew calendar calculations
-- **[ICU4X](https://github.com/unicode-org/icu4x)** — Provides the underlying Hebrew calendar engine via `icu_calendar`
-- **[freespa](https://github.com/IEK-5/freespa)** — The C solar position algorithm that `astronomical-calculator` is ported from
-- **[tzfile](https://crates.io/crates/tzfile)** — The basis for the `embedded-tz` TZif parser
