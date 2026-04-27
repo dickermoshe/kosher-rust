@@ -66,12 +66,12 @@ pub static SEA_LEVEL_SUNSET: ZmanPreset<'static> =
 /// *Alos* as a fixed `60` minutes before sunrise.
 pub static ALOS_60_MINUTES: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-60)),
-    "getAlos60",
+    "getAlos60Minutes",
 );
 /// *Alos* as a fixed `72` minutes before sunrise.
 pub static ALOS_72_MINUTES: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
-    "getAlos72",
+    "getAlos72Minutes",
 );
 /// *Alos* as `72 zmaniyos` minutes before sunrise (1.2 *shaos zmaniyos*).
 pub static ALOS_72_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
@@ -81,7 +81,7 @@ pub static ALOS_72_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
 /// *Alos* as a fixed `90` minutes before sunrise.
 pub static ALOS_90_MINUTES: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-90)),
-    "getAlos90",
+    "getAlos90Minutes",
 );
 /// *Alos* as `90 zmaniyos` minutes before sunrise (1.5 *shaos zmaniyos*).
 pub static ALOS_90_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
@@ -91,7 +91,7 @@ pub static ALOS_90_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
 /// *Alos* as a fixed `96` minutes before sunrise.
 pub static ALOS_96_MINUTES: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-96)),
-    "getAlos96",
+    "getAlos96Minutes",
 );
 /// *Alos* as `96 zmaniyos` minutes before sunrise (1.6 *shaos zmaniyos*).
 pub static ALOS_96_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
@@ -101,7 +101,7 @@ pub static ALOS_96_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
 /// *Alos* as a fixed `120` minutes before sunrise.
 pub static ALOS_120_MINUTES: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-120)),
-    "getAlos120",
+    "getAlos120Minutes",
 );
 /// *Alos* as `120 zmaniyos` minutes before sunrise (2.0 *shaos zmaniyos*).
 pub static ALOS_120_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
@@ -217,7 +217,7 @@ pub static MINCHA_GEDOLA_SUNRISE_SUNSET: ZmanPreset<'static> = ZmanPreset::new(
         &ZmanPrimitive::ConfiguredSunset,
         true,
     ),
-    "getMinchaGedola",
+    "getMinchaGedolaGRA",
 );
 /// Mincha gedola: `6.5` shaos after alos `16.1°` (or `0.5` shaah after chatzos if configured).
 pub static MINCHA_GEDOLA_16_POINT_1_DEGREES: ZmanPreset<'static> = ZmanPreset::new(
@@ -267,11 +267,6 @@ pub static MINCHA_GEDOLA_BAAL_HATANYA: ZmanPreset<'static> = ZmanPreset::new(
     "getMinchaGedolaBaalHatanya",
 );
 
-/// Mincha gedola: later of Baal HaTanya mincha gedola and `30` minutes after solar transit.
-pub static MINCHA_GEDOLA_BAAL_HATANYA_GREATER_THAN_30: ZmanPreset<'static> = ZmanPreset::new(
-    ZmanPrimitive::MinchaGedolaBaalHatanyaGreaterThan30,
-    "getMinchaGedolaBaalHatanyaGreaterThan30",
-);
 /// Mincha gedola: `30` minutes after fixed local chatzos (12:00 local mean time).
 pub static MINCHA_GEDOLA_GRA_FIXED_LOCAL_CHATZOS_30_MINUTES: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::LocalMeanTime(12.0), Duration::minutes(30)),
@@ -1178,8 +1173,8 @@ pub static TCHILAS_ZMAN_KIDUSH_LEVANA_7_DAYS: ZmanPreset<'static> = ZmanPreset::
 /// The time of the molad (new moon) for the current date's Hebrew month.
 pub static MOLAD: ZmanPreset<'static> = ZmanPreset::new(ZmanPrimitive::Molad, "getZmanMolad");
 
-/// An array of all the presets.
-pub static ALL: [&ZmanPreset<'static>; 156] = [
+/// An array containing all the presets.
+pub static ALL: [&ZmanPreset<'static>; 155] = [
     &ELEVATION_ADJUSTED_SUNRISE,
     &SEA_LEVEL_SUNRISE,
     &ELEVATION_ADJUSTED_SUNSET,
@@ -1217,7 +1212,6 @@ pub static ALL: [&ZmanPreset<'static>; 156] = [
     &MINCHA_GEDOLA_AHAVAT_SHALOM,
     &MINCHA_GEDOLA_ATERET_TORAH,
     &MINCHA_GEDOLA_BAAL_HATANYA,
-    &MINCHA_GEDOLA_BAAL_HATANYA_GREATER_THAN_30,
     &MINCHA_GEDOLA_GRA_FIXED_LOCAL_CHATZOS_30_MINUTES,
     &MINCHA_GEDOLA_GREATER_THAN_30,
     &MINCHA_KETANA_SUNRISE_SUNSET,

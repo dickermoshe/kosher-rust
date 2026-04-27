@@ -4,19 +4,12 @@ import 'package:jnigen/jnigen.dart';
 
 void main(List<String> args) {
   final packageRoot = Platform.script;
-  final localKosherJavaSources =
-      packageRoot.resolve('java/src/main/java').toFilePath();
-  final siblingKosherJavaSources =
-      packageRoot.resolve('../../zmanim-modern/src/main/java').toFilePath();
+  final sourcePath = packageRoot.resolve('java/src/main/java').toFilePath();
 
-  // Prefer sources vendored in this repository for CI stability.
-  final sourcePath = Directory(localKosherJavaSources).existsSync()
-      ? localKosherJavaSources
-      : siblingKosherJavaSources;
   if (!Directory(sourcePath).existsSync()) {
     throw FileSystemException(
       'Could not find Java sources for jnigen. Checked: '
-      '$localKosherJavaSources and $siblingKosherJavaSources',
+      '$sourcePath',
     );
   }
 

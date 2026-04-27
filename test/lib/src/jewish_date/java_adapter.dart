@@ -44,7 +44,7 @@ DateTuple? javaAddDaysToJewishDate(
   for (final _ in Iterable.generate(3)) {
     try {
       final jewishDate = JewishDate.new$1(year, month, day);
-      jewishDate.addDays(daysToAdd);
+      jewishDate.plusDays(daysToAdd);
       return (
         jewishDate.getJewishYear(),
         jewishDate.getJewishMonth(),
@@ -76,7 +76,8 @@ DateTuple? javaAddMonthsToJewishDate(
   for (final _ in Iterable.generate(3)) {
     try {
       final jewishDate = JewishDate.new$1(year, month, day);
-      jewishDate.addMonths(monthsToAdd);
+
+      jewishDate.plusMonths(monthsToAdd);
       return (
         jewishDate.getJewishYear(),
         jewishDate.getJewishMonth(),
@@ -93,7 +94,7 @@ DateTuple? javaAddYearsToJewishDate(
     try {
       final jewishDate = JewishDate.new$1(year, month, day);
       // Skips to Adar II in a leap year.
-      jewishDate.addYears(yearsToAdd, false);
+      jewishDate.plusYears(yearsToAdd, false);
       return (
         jewishDate.getJewishYear(),
         jewishDate.getJewishMonth(),
