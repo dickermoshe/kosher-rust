@@ -286,7 +286,7 @@ pub static MINCHA_KETANA_SUNRISE_SUNSET: ZmanPreset<'static> = ZmanPreset::new(
         &ZmanPrimitive::ConfiguredSunset,
         true,
     ),
-    "getMinchaKetana",
+    "getMinchaKetanaGRA",
 );
 /// Mincha ketana: `9.5` shaos after alos `16.1°` (or `3.5` shaos after chatzos if configured).
 pub static MINCHA_KETANA_16_POINT_1_DEGREES: ZmanPreset<'static> = ZmanPreset::new(
@@ -373,7 +373,7 @@ pub static PLAG_HAMINCHA_SUNRISE_SUNSET: ZmanPreset<'static> = ZmanPreset::new(
         &ZmanPrimitive::ConfiguredSunset,
         true,
     ),
-    "getPlagHamincha",
+    "getPlagHaminchaGRA",
 );
 
 /// Plag hamincha (Ahavat Shalom): `1.25` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
@@ -657,7 +657,7 @@ pub static SOF_ZMAN_SHMA_MGA: ZmanPreset<'static> = ZmanPreset::new(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
         true,
     ),
-    "getSofZmanShmaMGA",
+    "getSofZmanShmaMGA72Minutes",
 );
 /// Sof zman shma: `3` shaos after alos `19.8°` (or half-day based if configured).
 pub static SOF_ZMAN_SHMA_MGA_19_POINT_8_DEGREES: ZmanPreset<'static> = ZmanPreset::new(
@@ -858,7 +858,7 @@ pub static SOF_ZMAN_TFILA_MGA: ZmanPreset<'static> = ZmanPreset::new(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
         true,
     ),
-    "getSofZmanTfilaMGA",
+    "getSofZmanTfilaMGA72Minutes",
 );
 /// Sof zman tfila: `4` shaos after alos `19.8°` (or half-day based if configured).
 pub static SOF_ZMAN_TFILA_MGA_19_POINT_8_DEGREES: ZmanPreset<'static> = ZmanPreset::new(
@@ -991,17 +991,17 @@ pub static TZAIS_DEGREES_8_POINT_5: ZmanPreset<'static> = ZmanPreset::new(
 /// Tzais: `50` minutes after sunset.
 pub static TZAIS_MINUTES_50: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(50)),
-    "getTzais50",
+    "getTzais50Minutes",
 );
 /// Tzais: `60` minutes after sunset.
 pub static TZAIS_MINUTES_60: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(60)),
-    "getTzais60",
+    "getTzais60Minutes",
 );
 /// Tzais: `72` minutes after sunset.
 pub static TZAIS_MINUTES_72: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
-    "getTzais72",
+    "getTzais72Minutes",
 );
 /// Tzais: `72 zmaniyos` minutes after sunset (1.2 *shaos zmaniyos*).
 pub static TZAIS_72_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
@@ -1011,7 +1011,7 @@ pub static TZAIS_72_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
 /// Tzais: `90` minutes after sunset.
 pub static TZAIS_MINUTES_90: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(90)),
-    "getTzais90",
+    "getTzais90Minutes",
 );
 /// Tzais: `90 zmaniyos` minutes after sunset (1.5 *shaos zmaniyos*).
 pub static TZAIS_90_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
@@ -1021,7 +1021,7 @@ pub static TZAIS_90_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
 /// Tzais: `96` minutes after sunset.
 pub static TZAIS_MINUTES_96: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(96)),
-    "getTzais96",
+    "getTzais96Minutes",
 );
 /// Tzais: `96 zmaniyos` minutes after sunset (1.6 *shaos zmaniyos*).
 pub static TZAIS_96_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
@@ -1031,7 +1031,7 @@ pub static TZAIS_96_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
 /// Tzais: `120` minutes after sunset.
 pub static TZAIS_MINUTES_120: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(120)),
-    "getTzais120",
+    "getTzais120Minutes",
 );
 /// Tzais: `120 zmaniyos` minutes after sunset (2.0 *shaos zmaniyos*).
 pub static TZAIS_120_ZMANIS: ZmanPreset<'static> = ZmanPreset::new(
@@ -1081,21 +1081,17 @@ pub static TZAIS_GEONIM_DEGREES_5_POINT_95: ZmanPreset<'static> = ZmanPreset::ne
     ZmanPrimitive::SunsetOffsetByDegrees(5.95),
     "getTzaisGeonim5Point95Degrees",
 );
-/// Tzais (Geonim): when the sun is `4.61°` below the geometric horizon (after sunset).
-pub static TZAIS_GEONIM_DEGREES_4_POINT_61: ZmanPreset<'static> = ZmanPreset::new(
-    ZmanPrimitive::SunsetOffsetByDegrees(4.61),
-    "getTzaisGeonim4Point61Degrees",
+/// Tzais (Geonim): when the sun is `4.66°` below the geometric horizon (after sunset).
+pub static TZAIS_GEONIM_DEGREES_4_POINT_66: ZmanPreset<'static> = ZmanPreset::new(
+    ZmanPrimitive::SunsetOffsetByDegrees(4.66),
+    "getTzaisGeonim4Point66Degrees",
 );
-/// Tzais (Geonim): when the sun is `4.37°` below the geometric horizon (after sunset).
-pub static TZAIS_GEONIM_DEGREES_4_POINT_37: ZmanPreset<'static> = ZmanPreset::new(
-    ZmanPrimitive::SunsetOffsetByDegrees(4.37),
-    "getTzaisGeonim4Point37Degrees",
+/// Tzais (Geonim): when the sun is `4.42°` below the geometric horizon (after sunset).
+pub static TZAIS_GEONIM_DEGREES_4_POINT_42: ZmanPreset<'static> = ZmanPreset::new(
+    ZmanPrimitive::SunsetOffsetByDegrees(4.42),
+    "getTzaisGeonim4Point42Degrees",
 );
-/// Tzais (Geonim): when the sun is `5.88°` below the geometric horizon (after sunset).
-pub static TZAIS_GEONIM_DEGREES_5_POINT_88: ZmanPreset<'static> = ZmanPreset::new(
-    ZmanPrimitive::SunsetOffsetByDegrees(5.88),
-    "getTzaisGeonim5Point88Degrees",
-);
+
 /// Tzais (Geonim): when the sun is `4.8°` below the geometric horizon (after sunset).
 pub static TZAIS_GEONIM_DEGREES_4_POINT_8: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::SunsetOffsetByDegrees(4.8),
@@ -1173,8 +1169,8 @@ pub static TCHILAS_ZMAN_KIDUSH_LEVANA_7_DAYS: ZmanPreset<'static> = ZmanPreset::
 /// The time of the molad (new moon) for the current date's Hebrew month.
 pub static MOLAD: ZmanPreset<'static> = ZmanPreset::new(ZmanPrimitive::Molad, "getZmanMolad");
 
-/// An array containing all the presets.
-pub static ALL: [&ZmanPreset<'static>; 155] = [
+/// An array of all the presets.
+pub static ALL: [&ZmanPreset<'static>; 154] = [
     &ELEVATION_ADJUSTED_SUNRISE,
     &SEA_LEVEL_SUNRISE,
     &ELEVATION_ADJUSTED_SUNSET,
@@ -1315,9 +1311,8 @@ pub static ALL: [&ZmanPreset<'static>; 155] = [
     &TZAIS_GEONIM_DEGREES_3_POINT_7,
     &TZAIS_GEONIM_DEGREES_3_POINT_8,
     &TZAIS_GEONIM_DEGREES_5_POINT_95,
-    &TZAIS_GEONIM_DEGREES_4_POINT_61,
-    &TZAIS_GEONIM_DEGREES_4_POINT_37,
-    &TZAIS_GEONIM_DEGREES_5_POINT_88,
+    &TZAIS_GEONIM_DEGREES_4_POINT_66,
+    &TZAIS_GEONIM_DEGREES_4_POINT_42,
     &TZAIS_GEONIM_DEGREES_4_POINT_8,
     &TZAIS_GEONIM_DEGREES_6_POINT_45,
     &TZAIS_GEONIM_DEGREES_7_POINT_083,

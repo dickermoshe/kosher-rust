@@ -25,6 +25,21 @@ final List<Map<String, dynamic>> regressionTests = [
     'useAstronomicalChatzosForOtherZmanim': false,
     'useElevation': false,
   },
+  {
+    "iteration": 741,
+    "year": 2058,
+    "month": 7,
+    "day": 31,
+    "latitude": -18.88480386694347,
+    "longitude": -174.522379072958,
+    "elevation": 2671.332842032057,
+    "timezone": "Pacific/Tongatapu",
+    "zman": "getSofZmanShmaMGA90MinutesToFixedLocalChatzos",
+    "ateretTorahSunsetOffsetMinutes": 19,
+    "candleLightingOffsetMinutes": 6,
+    "useAstronomicalChatzosForOtherZmanim": true,
+    "useElevation": false
+  }
 ];
 
 List<String> resolveValidTimezones() {

@@ -210,7 +210,7 @@ fn is_same_day<Tz: TimeZone>(hdate: &Date<Hebrew>, gdate: &DateTime<Utc>, tz: &T
     // Compare Hebrew date components
     hdate.day_of_month().0 == hebrew_date_from_gdate.day_of_month().0
         && hdate.hebrew_month() == hebrew_date_from_gdate.hebrew_month()
-        && hdate.extended_year() == hebrew_date_from_gdate.extended_year()
+        && hdate.year().extended_year() == hebrew_date_from_gdate.year().extended_year()
 }
 
 fn is_same_gregorian_day<Tz: TimeZone>(
@@ -221,8 +221,8 @@ fn is_same_gregorian_day<Tz: TimeZone>(
     let gdate_local = tz.from_utc_datetime(&gdate.naive_utc()).date_naive();
     let gregorian_date = hdate.gregorian_date();
     let hdate_greg = NaiveDate::from_ymd_opt(
-        gregorian_date.extended_year(),
-        gregorian_date.month().month_number() as u32,
+        gregorian_date.year().extended_year(),
+        gregorian_date.month().number() as u32,
         gregorian_date.day_of_month().0 as u32,
     );
 
@@ -238,7 +238,7 @@ struct MoladData {
 }
 fn _get_molad(date: &Date<Hebrew>) -> Option<MoladData> {
     let chalakim_since_molad_tohu =
-        chalakim_since_molad_tohu(date.extended_year(), date.hebrew_month());
+        chalakim_since_molad_tohu(date.year().extended_year(), date.hebrew_month());
     let abs_date = JEWISH_EPOCH + (chalakim_since_molad_tohu / CHALAKIM_PER_DAY);
     let mut gregorian_date = abs_date_to_gregorian_date(abs_date)?;
     let conjunction_day = chalakim_since_molad_tohu / CHALAKIM_PER_DAY;
@@ -267,8 +267,8 @@ fn months_molad(date: &Date<Hebrew>) -> Option<DateTime<Utc>> {
     let molad_data = _get_molad(date)?;
 
     // Get the Gregorian date components from molad JewishCalendar
-    let year = molad_data.date.extended_year();
-    let month = molad_data.date.month().month_number(); // Convert from 0-based to 1-based
+    let year = molad_data.date.year().extended_year();
+    let month = molad_data.date.month().number(); // Convert from 0-based to 1-based
     let day = molad_data.date.day_of_month().0 as u32;
 
     let molad_seconds = molad_data.chalakim as f64 * 10.0 / 3.0;
