@@ -34,7 +34,7 @@ final List<Map<String, dynamic>> regressionTests = [
     "longitude": -174.522379072958,
     "elevation": 2671.332842032057,
     "timezone": "Pacific/Tongatapu",
-    "zman": "getSofZmanShmaMGA90MinutesToFixedLocalChatzos",
+    "zman": "getFixedLocalChatzos",
     "ateretTorahSunsetOffsetMinutes": 19,
     "candleLightingOffsetMinutes": 6,
     "useAstronomicalChatzosForOtherZmanim": true,

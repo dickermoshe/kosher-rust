@@ -273,12 +273,6 @@ pub static MINCHA_GEDOLA_GRA_FIXED_LOCAL_CHATZOS_30_MINUTES: ZmanPreset<'static>
     "getMinchaGedolaGRAFixedLocalChatzos30Minutes",
 );
 
-/// Mincha gedola: later of [`MINCHA_GEDOLA_SUNRISE_SUNSET`] and [`MINCHA_GEDOLA_MINUTES_30`].
-pub static MINCHA_GEDOLA_GREATER_THAN_30: ZmanPreset<'static> = ZmanPreset::new(
-    ZmanPrimitive::MinchaGedolaGreaterThan30,
-    "getMinchaGedolaGreaterThan30",
-);
-
 /// Mincha ketana: `9.5` shaos after sunrise (or `3.5` shaos after chatzos if configured).
 pub static MINCHA_KETANA_SUNRISE_SUNSET: ZmanPreset<'static> = ZmanPreset::new(
     ZmanPrimitive::MinchaKetana(
@@ -1170,7 +1164,7 @@ pub static TCHILAS_ZMAN_KIDUSH_LEVANA_7_DAYS: ZmanPreset<'static> = ZmanPreset::
 pub static MOLAD: ZmanPreset<'static> = ZmanPreset::new(ZmanPrimitive::Molad, "getZmanMolad");
 
 /// An array of all the presets.
-pub static ALL: [&ZmanPreset<'static>; 154] = [
+pub static ALL: [&ZmanPreset<'static>; 153] = [
     &ELEVATION_ADJUSTED_SUNRISE,
     &SEA_LEVEL_SUNRISE,
     &ELEVATION_ADJUSTED_SUNSET,
@@ -1209,7 +1203,6 @@ pub static ALL: [&ZmanPreset<'static>; 154] = [
     &MINCHA_GEDOLA_ATERET_TORAH,
     &MINCHA_GEDOLA_BAAL_HATANYA,
     &MINCHA_GEDOLA_GRA_FIXED_LOCAL_CHATZOS_30_MINUTES,
-    &MINCHA_GEDOLA_GREATER_THAN_30,
     &MINCHA_KETANA_SUNRISE_SUNSET,
     &MINCHA_KETANA_16_POINT_1_DEGREES,
     &MINCHA_KETANA_MINUTES_72,
