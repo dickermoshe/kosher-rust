@@ -69,6 +69,21 @@ final List<Map<String, dynamic>> regressionTests = [
     "candleLightingOffsetMinutes": 6,
     "useAstronomicalChatzosForOtherZmanim": true,
     "useElevation": false
+  },
+  {
+    "iteration": -1,
+    "year": 2037,
+    "month": 12,
+    "day": 29,
+    "latitude": -32.93056753553307,
+    "longitude": -125.36776050346323,
+    "elevation": 940.4531699881416,
+    "timezone": "Etc/GMT+8",
+    "zman": "getSofZmanShma3HoursBeforeChatzos",
+    "ateretTorahSunsetOffsetMinutes": 21,
+    "candleLightingOffsetMinutes": 9,
+    "useAstronomicalChatzosForOtherZmanim": true,
+    "useElevation": false
   }
 ];
 
