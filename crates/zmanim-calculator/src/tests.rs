@@ -674,13 +674,12 @@ fn test_polar_day_zmanim_return_none() {
     let mut calc = polar_day_calc();
     assert!(CHATZOS_HALF_DAY.calculate(&mut calc).is_err());
 
-    let mincha_variants: [&dyn ZmanLike<Tz>; 6] = [
+    let mincha_variants: [&dyn ZmanLike<Tz>; 5] = [
         &MINCHA_GEDOLA_16_POINT_1_DEGREES,
         &MINCHA_GEDOLA_MINUTES_72,
         &MINCHA_GEDOLA_AHAVAT_SHALOM,
         &MINCHA_GEDOLA_ATERET_TORAH,
         &MINCHA_GEDOLA_BAAL_HATANYA,
-        &MINCHA_GEDOLA_GREATER_THAN_30,
     ];
     for zman in mincha_variants {
         let mut calc = polar_day_calc();

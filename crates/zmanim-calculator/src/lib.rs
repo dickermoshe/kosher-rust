@@ -1,4 +1,4 @@
-#![no_std]
+#![cfg_attr(not(feature = "_java_testing"), no_std)]
 #![warn(missing_docs)]
 //! Calculate zmanim (Jewish halachic times) using KosherJava-style concepts and naming.
 //!
@@ -45,3 +45,9 @@ pub mod prelude {
     pub use crate::types::error::ZmanimError;
     pub use crate::types::location::Location;
 }
+
+#[cfg(feature = "_java_testing")]
+#[allow(warnings, missing_docs)]
+#[allow(clippy::all, clippy::pedantic, clippy::nursery)]
+/// Java bindings for KosherJava.
+pub mod java_bindings;
