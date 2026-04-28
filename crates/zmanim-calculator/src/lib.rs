@@ -18,6 +18,8 @@
 //! clone independently.
 #[cfg(test)]
 mod tests;
+#[cfg(all(test, feature = "_java_testing"))]
+mod java_tests;
 mod types {
     /// Configuration types for zmanim calculations.
     pub mod config;

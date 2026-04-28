@@ -25,7 +25,7 @@ defmt = { workspace = true, optional = true }
 core_maths.workspace = true
 hebrew_holiday_calendar.workspace = true
 thiserror.workspace = true
-jni = { version = "0.22.4", optional = true }
+jni = { version = "0.22.4", optional = true, features = ["invocation"] }
 
 [dev-dependencies]
 chrono = { workspace = true, features = ["std"] }
