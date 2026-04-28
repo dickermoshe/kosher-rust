@@ -2,7 +2,7 @@
 
 # Astronomical Calculator
 
-A high-precision Rust library for calculating solar position, sunrise/sunset times, and related astronomical phenomena. Based on VSOP87 theory (ported from [freespa](https://github.com/IEK-5/freespa)), it accounts for atmospheric refraction, parallax, nutation, and aberration. The library is `no_std` compatible and validated against both the original C implementation and [Skyfield](https://rhodesmill.org/skyfield/).
+A high-precision Rust library for calculating solar position, sunrise/sunset times, and related astronomical phenomena. Based on VSOP87 theory (ported from [freespa](https://github.com/IEK-5/freespa)), it accounts for parallax, nutation, aberration, and atmospheric refraction for selected solar event calculations. The library is `no_std` compatible and validated against both the original C implementation and [Skyfield](https://rhodesmill.org/skyfield/).
 
 [![Crates.io](https://img.shields.io/crates/v/astronomical-calculator.svg)](https://crates.io/crates/astronomical-calculator)
 [![Documentation](https://docs.rs/astronomical-calculator/badge.svg)](https://docs.rs/astronomical-calculator)
@@ -47,7 +47,7 @@ let mut calc = AstronomicalCalculator::new(
     Refraction::ApSolposBennetNA, // refraction model
 ).unwrap();
 
-// Get current solar position
+// Get current geometric solar position
 let position = calc.get_solar_position();
 println!("Zenith: {:.2}°", position.zenith.to_degrees());
 println!("Azimuth: {:.2}°", position.azimuth.to_degrees());

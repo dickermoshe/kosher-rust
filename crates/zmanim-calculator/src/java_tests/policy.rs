@@ -1,0 +1,101 @@
+//! Settings for Java comparison tests.
+//!
+//! These values keep the random tests useful without spending most failures on
+//! known edge cases.
+
+use std::env;
+
+pub(crate) const DEFAULT_RANDOM_PARITY_ITERATIONS: u64 = 10_000;
+pub(crate) const RANDOM_YEAR_START: i32 = 1900;
+pub(crate) const RANDOM_YEAR_END: i32 = 2100;
+pub(crate) const MAX_TIMEZONE_ATTEMPTS: u32 = 1_000;
+pub(crate) const MAX_RANDOM_ELEVATION_METERS: f64 = 1.0;
+
+const DEFAULT_MAX_DIFF_MS: i64 = 10_000;
+const EDGE_CASE_MAX_DIFF_MS: i64 = 30_000;
+
+/// How many random cases to run for each latitude group.
+pub(crate) fn random_parity_iterations() -> u64 {
+    read_env_u64(
+        "ZMANIM_JAVA_PARITY_ITERATIONS",
+        DEFAULT_RANDOM_PARITY_ITERATIONS,
+    )
+}
+
+/// Seed for random test cases.
+///
+/// Set `ZMANIM_JAVA_PARITY_SEED` to replay a failure.
+pub(crate) fn random_parity_seed() -> u64 {
+    match env::var("ZMANIM_JAVA_PARITY_SEED") {
+        Ok(value) => value
+            .parse::<u64>()
+            .unwrap_or_else(|_| panic!("invalid ZMANIM_JAVA_PARITY_SEED value: {value}")),
+        Err(env::VarError::NotPresent) => rand::random::<u64>(),
+        Err(err) => panic!("failed to read ZMANIM_JAVA_PARITY_SEED: {err}"),
+    }
+}
+
+/// How far north or south random cases may go for this preset.
+pub(crate) fn max_latitude_for_preset(preset_name: &str) -> f64 {
+    // Some zmanim get noisy near the poles, so test them closer to normal use.
+    match preset_name {
+        "getChatzos" => 85.0,
+        "getSunriseWithElevation"
+        | "getSeaLevelSunrise"
+        | "getSunsetWithElevation"
+        | "getSeaLevelSunset"
+        | "getChatzosAsHalfDay"
+        | "getFixedLocalChatzos" => 60.0,
+        _ => 40.0,
+    }
+}
+
+/// Biggest allowed Java/Rust time difference.
+pub(crate) fn max_allowed_difference_ms(preset_name: &str) -> i64 {
+    match preset_name {
+        "getSunriseWithElevation"
+        | "getSeaLevelSunrise"
+        | "getSunsetWithElevation"
+        | "getSeaLevelSunset"
+        // Java's getChatzos uses NOAACalculator's two-pass solar-noon approximation,
+        // which can drift beyond 10s from Rust's SPA/VSOP-style solar transit on
+        // historical dates.
+        | "getChatzos"
+        // | "getChatzosAsHalfDay"
+        // | "getSofZmanShma3HoursBeforeChatzos"
+        // | "getMinchaGedola30Minutes"
+        // | "getMinchaGedolaAhavatShalom"
+        // | "getMinchaGedolaGRA"
+        // | "getMinchaGedola16Point1Degrees"
+        // | "getSofZmanTfila2HoursBeforeChatzos"
+        // | "getMinchaGedola72Minutes"
+        // | "getMinchaGedolaBaalHatanya"
+        | "getFixedLocalChatzos" => EDGE_CASE_MAX_DIFF_MS,
+        _ => DEFAULT_MAX_DIFF_MS,
+    }
+}
+
+/// Cases where Java and Rust are allowed to disagree about whether a zman exists.
+pub(crate) fn allows_intentional_null_mismatch(preset_name: &str) -> bool {
+    matches!(
+        preset_name,
+        "getSofZmanAchilasChametzGRA"
+            | "getSofZmanAchilasChametzMGA72Minutes"
+            | "getSofZmanAchilasChametzMGA16Point1Degrees"
+            | "getSofZmanAchilasChametzBaalHatanya"
+            | "getSofZmanBiurChametzGRA"
+            | "getSofZmanBiurChametzMGA72Minutes"
+            | "getSofZmanBiurChametzMGA16Point1Degrees"
+            | "getSofZmanBiurChametzBaalHatanya"
+    )
+}
+
+fn read_env_u64(var_name: &str, default: u64) -> u64 {
+    match env::var(var_name) {
+        Ok(value) => value
+            .parse::<u64>()
+            .unwrap_or_else(|_| panic!("invalid {var_name} value: {value}")),
+        Err(env::VarError::NotPresent) => default,
+        Err(err) => panic!("failed to read {var_name}: {err}"),
+    }
+}

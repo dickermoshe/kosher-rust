@@ -19,9 +19,9 @@ use crate::{
     molad::MoladCalendar,
     prelude::ZmanimCalculator,
     presets::{
-        ALOS_16_POINT_1_DEGREES, MINCHA_GEDOLA_BAAL_HATANYA, MINCHA_GEDOLA_MINUTES_30,
-        MINCHA_GEDOLA_SUNRISE_SUNSET, TZAIS_GEONIM_DEGREES_3_POINT_7,
-        TZAIS_GEONIM_DEGREES_3_POINT_8,
+        ALOS_16_POINT_1_DEGREES, CHATZOS_ASTRONOMICAL, CHATZOS_HALF_DAY,
+        MINCHA_GEDOLA_BAAL_HATANYA, MINCHA_GEDOLA_MINUTES_30, MINCHA_GEDOLA_SUNRISE_SUNSET,
+        TZAIS_GEONIM_DEGREES_3_POINT_7, TZAIS_GEONIM_DEGREES_3_POINT_8,
     },
     types::error::{IntoDateTimeResult, ZmanimError},
 };
@@ -41,6 +41,8 @@ pub enum ZmanPrimitive<'a> {
     ConfiguredSunset,
     /// Solar transit (local apparent noon / astronomical chatzos).
     SolarTransit,
+    /// Chatzos using the configured mode (astronomical or half-day).
+    ConfiguredChatzos,
     /// Sunset at the configured location/date.
     ElevationAdjustedSunset,
     /// Sunset at sea level (no elevation adjustment).
@@ -418,6 +420,18 @@ impl<'a, Tz: TimeZone> ZmanLike<Tz> for ZmanPrimitive<'a> {
                 date.molad(tz)
                     .map(|i| i.0.to_utc())
                     .ok_or(ZmanimError::TimeConversionError)
+            }
+            ZmanPrimitive::ConfiguredChatzos => {
+                if calculator.config.use_astronomical_chatzos_for_other_zmanim {
+                    CHATZOS_ASTRONOMICAL.calculate(calculator)
+                } else {
+                    let chatzos = CHATZOS_HALF_DAY.calculate(calculator);
+                    match chatzos {
+                        Ok(chatzos) => Ok(chatzos),
+                        // Fallback to astronomical chatzos if half-day chatzos is not available.
+                        Err(_) => CHATZOS_ASTRONOMICAL.calculate(calculator),
+                    }
+                }
             }
         }
     }

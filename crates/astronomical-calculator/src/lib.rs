@@ -3,8 +3,9 @@
 //! A high-precision library for calculating solar position, sunrise/sunset times, and related astronomical phenomena.
 //!
 //! This library provides accurate calculations of the Sun's position and timing of solar events for any location
-//! on Earth. It accounts for atmospheric refraction, parallax, nutation, aberration, and other astronomical
-//! phenomena that affect solar position calculations.
+//! on Earth. It accounts for parallax, nutation, aberration, and other astronomical phenomena that affect solar
+//! position calculations. Atmospheric refraction is handled by selected solar event calculations; see
+//! [`Refraction`] for model-specific behavior.
 //!
 //! This is a Rust port of the [freespa](https://github.com/IEK-5/freespa) library, based on VSOP87 theory.
 //! The library is `no_std` compatible, making it suitable for embedded systems and constrained environments.
@@ -393,8 +394,8 @@ impl AstronomicalCalculator {
     }
     /// Returns the topocentric solar position (zenith and azimuth angles).
     ///
-    /// Computes the Sun's position as seen from the observer's location, accounting for
-    /// atmospheric refraction, parallax, nutation, and aberration.
+    /// Computes the Sun's geometric position as seen from the observer's location, accounting for
+    /// parallax, nutation, and aberration. Atmospheric refraction is not applied to this value.
     ///
     /// # Returns
     ///
@@ -659,20 +660,20 @@ impl AstronomicalCalculator {
         degrees: f64,
         geometric: bool,
     ) -> Result<SolarEventResult, CalculationError> {
-        let prev_midnight = self.get_prev_solar_midnight()?;
-        let transit = self.get_solar_transit()?;
-
-        let z1 = self
-            ._get_prev_solar_midnight()
-            .map(|i| i.position.zenith)
-            .unwrap_or(PI / 2.0);
-        let z2 = self._get_solar_transit()?.position.zenith;
+        let prev_midnight = self._get_prev_solar_midnight()?;
+        let transit = self._get_solar_transit()?;
 
         let dip = if geometric { 0.0 } else { self.compute_dip() };
 
         let target_zenith = dip + PI / 2.0 + PI * degrees / 180.0;
 
-        self.find_solar_event(prev_midnight, transit, z1, z2, target_zenith)
+        self.find_solar_event(
+            prev_midnight.timestamp,
+            transit.timestamp,
+            prev_midnight.position.zenith,
+            transit.position.zenith,
+            target_zenith,
+        )
     }
 
     /// Get sunset time offset by degrees below the horizon.
@@ -1127,6 +1128,7 @@ pub struct SolarPosition {
 /// - `ApSolposBennetNA`: Bennett refraction model optimized for accuracy and matches closer with The Nautical Almanac.
 ///   Recommended for precision astronomical calculations.
 /// - `NoRefraction`: No refraction
+/// - `NOAA`: NOAA's fixed sunrise/sunset refraction term.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Refraction {
     /// Bennett refraction model
@@ -1135,13 +1137,13 @@ pub enum Refraction {
     ApSolposBennetNA,
     /// No refraction
     NoRefraction,
-    /// NOAA refraction model, suitable for most applications
+    /// NOAA's fixed 34 arcminute sunrise/sunset refraction term.
     NOAA,
 }
 
 impl Refraction {
     /// Refraction term added to true sunrise/sunset zenith targets.
-    /// This should not be used for other zenith angles and only used for sunrise/sunset.
+    /// This should not be used for other zenith angles and is only used for sunrise/sunset.
     fn sunrise_sunset_refraction(self) -> f64 {
         match self {
             Refraction::NOAA => (34.0_f64 / 60.0_f64).to_radians(),
@@ -1510,11 +1512,6 @@ fn find_solar_time(
     longitude: f64,
 ) -> Result<i64, CalculationError> {
     let mut jd = JulianDate::from_unix_time(timestamp, delta_t, delta_ut1)?;
-    #[cfg(test)]
-    {
-        extern crate std;
-        std::println!("jd: {:?}", jd);
-    }
     let mut datetime = true_solar_time(unix_to_datetime(timestamp)?, delta_t, delta_ut1, longitude)?;
 
     // Calculate initial time offset
@@ -1569,7 +1566,7 @@ fn julian_date_to_unix(jd: &JulianDate) -> i64 {
 /// Convert DateTime<Utc> to Unix timestamp
 fn datetime_to_unix(datetime: DateTime<Utc>) -> i64 {
     let jd = JulianDate::new(datetime, None, 0.0);
-    ((jd.jd - JD0) * 86400.0).round() as i64 + ETJD0
+    julian_date_to_unix(&jd)
 }
 
 /// Julian date and related time values for astronomical calculations.

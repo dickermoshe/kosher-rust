@@ -16,10 +16,10 @@
 //! `calculate` takes `&mut self` so repeated calculations can reuse intermediate state.
 //! If Rust borrow rules are awkward for your call pattern, clone the calculator and use each
 //! clone independently.
-#[cfg(test)]
-mod tests;
 #[cfg(all(test, feature = "_java_testing"))]
 mod java_tests;
+#[cfg(test)]
+mod tests;
 mod types {
     /// Configuration types for zmanim calculations.
     pub mod config;

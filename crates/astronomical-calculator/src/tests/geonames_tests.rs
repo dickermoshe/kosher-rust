@@ -1,5 +1,6 @@
 use crate::*;
 use chrono::prelude::*;
+use rand::RngExt;
 use serde::Deserialize;
 
 extern crate std;
@@ -54,7 +55,6 @@ fn test_geonames_csv_transit() {
     use chrono::TimeZone;
     use chrono_tz::Tz;
     use csv::ReaderBuilder;
-    use rand::Rng;
     use std::fs::File;
     use std::io::BufReader;
     #[allow(unused)]
@@ -96,7 +96,7 @@ fn test_geonames_csv_transit() {
     let file = File::open("test_data/cities.csv").expect("Failed to open CSV file");
     let mut rdr = ReaderBuilder::new().has_headers(true).from_reader(BufReader::new(file));
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     // Process each row
     for (index, result) in rdr.deserialize().enumerate() {
@@ -120,9 +120,9 @@ fn test_geonames_csv_transit() {
         let tz: Tz = row.timezone.parse().unwrap();
 
         // Generate a random input time between 1900 and 2100
-        let year = rng.gen_range(1900..=2100);
-        let month = rng.gen_range(1..=12);
-        let day = rng.gen_range(1..=28); // Use 28 to avoid month-end issues
+        let year = rng.random_range(1900..=2100);
+        let month = rng.random_range(1..=12);
+        let day = rng.random_range(1..=28); // Use 28 to avoid month-end issues
 
         // Create a naive datetime at midday
         let dt = tz.with_ymd_and_hms(year, month, day, 12, 0, 0).unwrap();
