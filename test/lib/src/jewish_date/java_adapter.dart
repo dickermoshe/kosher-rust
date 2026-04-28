@@ -27,7 +27,7 @@ DateTuple? javaJewishDateToGregorianDate(int year, int month, int day) {
       final jewishDate = JewishDate.new$1(year, month, day);
       final localDate = jewishDate.getLocalDate();
       if (localDate == null) {
-        continue;
+        return null;
       }
       return (
         localDate.getYear(),
@@ -44,7 +44,9 @@ DateTuple? javaAddDaysToJewishDate(
   for (final _ in Iterable.generate(3)) {
     try {
       final jewishDate = JewishDate.new$1(year, month, day);
-      jewishDate.plusDays(daysToAdd);
+      if (daysToAdd != 0) {
+        jewishDate.plusDays(daysToAdd);
+      }
       return (
         jewishDate.getJewishYear(),
         jewishDate.getJewishMonth(),
@@ -77,7 +79,11 @@ DateTuple? javaAddMonthsToJewishDate(
     try {
       final jewishDate = JewishDate.new$1(year, month, day);
 
-      jewishDate.plusMonths(monthsToAdd);
+      if (monthsToAdd > 0) {
+        jewishDate.plusMonths(monthsToAdd);
+      } else if (monthsToAdd < 0) {
+        jewishDate.minusMonths(-monthsToAdd);
+      }
       return (
         jewishDate.getJewishYear(),
         jewishDate.getJewishMonth(),
@@ -93,8 +99,12 @@ DateTuple? javaAddYearsToJewishDate(
   for (final _ in Iterable.generate(3)) {
     try {
       final jewishDate = JewishDate.new$1(year, month, day);
-      // Skips to Adar II in a leap year.
-      jewishDate.plusYears(yearsToAdd, false);
+      if (yearsToAdd > 0) {
+        // Skips to Adar II in a leap year.
+        jewishDate.plusYears(yearsToAdd, false);
+      } else if (yearsToAdd < 0) {
+        jewishDate.minusYears(-yearsToAdd, false);
+      }
       return (
         jewishDate.getJewishYear(),
         jewishDate.getJewishMonth(),
@@ -130,7 +140,8 @@ JavaJewishCalendarTestResults? javaJewishCalendarSnapshot({
 
       final getUpcomingParshah = _getParshaIndex(calendar.getUpcomingParshah());
       if (getUpcomingParshah == null) {
-        continue;
+        throw StateError(
+            'Java returned null upcoming parshah for a valid JewishCalendar');
       }
 
       return JavaJewishCalendarTestResults(

@@ -12,6 +12,36 @@ const maxTimezoneAttempts = 1000;
 final List<Map<String, dynamic>> regressionTests = [
   {
     'iteration': -1,
+    'year': 2024,
+    'month': 4,
+    'day': 22,
+    'latitude': 31.778,
+    'longitude': 35.235,
+    'elevation': 754.0,
+    'timezone': 'Asia/Jerusalem',
+    'zman': 'getSofZmanAchilasChametzGRA',
+    'ateretTorahSunsetOffsetMinutes': 0,
+    'candleLightingOffsetMinutes': 18,
+    'useAstronomicalChatzosForOtherZmanim': false,
+    'useElevation': false,
+  },
+  {
+    'iteration': -1,
+    'year': 2024,
+    'month': 4,
+    'day': 22,
+    'latitude': 31.778,
+    'longitude': 35.235,
+    'elevation': 754.0,
+    'timezone': 'Asia/Jerusalem',
+    'zman': 'getSofZmanBiurChametzGRA',
+    'ateretTorahSunsetOffsetMinutes': 0,
+    'candleLightingOffsetMinutes': 18,
+    'useAstronomicalChatzosForOtherZmanim': false,
+    'useElevation': false,
+  },
+  {
+    'iteration': -1,
     'year': 2026,
     'month': 1,
     'day': 3,
@@ -60,10 +90,11 @@ ZmanTestCase createRandomTestCase(
   final maxLatitude = maxLatitudeForZman(zman);
 
   for (var attempt = 0; attempt < maxTimezoneAttempts; attempt++) {
-    final timestamp = random.getDouble(
-        yearToTimestamp(minGregorianYear), yearToTimestamp(maxGregorianYear));
-    final randomDateTime =
-        DateTime.fromMillisecondsSinceEpoch((timestamp * 1000).toInt());
+    final randomDateTime = randomGregorianDateTimeUtc(
+      minGregorianYear: minGregorianYear,
+      maxGregorianYear: maxGregorianYear,
+      random: random,
+    );
     final randomLatitude = random.getDouble(-maxLatitude, maxLatitude);
     final randomLongitude = random.getDouble(-180.0, 180.0);
     final tz =

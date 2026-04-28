@@ -19,6 +19,10 @@ lazy_static! {
     static ref FINDER: DefaultFinder = DefaultFinder::new();
 }
 
+fn hebrew_month_from_number(month: u8) -> Option<HebrewMonth> {
+    HebrewMonth::try_from(month).ok()
+}
+
 #[frb(sync)]
 /// Find the timezone for a given longitude and latitude
 pub fn find_timezone(longitude: f64, latitude: f64) -> String {
@@ -83,7 +87,7 @@ pub fn calculate_zman(
 
 #[frb(sync)]
 pub fn jewish_date_to_gregorian_date(year: i32, month: u8, day: u8) -> Option<(i32, u8, u8)> {
-    let date = Date::<Hebrew>::from_hebrew_date(year, HebrewMonth::try_from(month).unwrap(), day)?;
+    let date = Date::<Hebrew>::from_hebrew_date(year, hebrew_month_from_number(month)?, day)?;
     let gregorian_date = date.to_calendar(Gregorian);
     Some((
         gregorian_date.year().extended_year(),
@@ -93,7 +97,7 @@ pub fn jewish_date_to_gregorian_date(year: i32, month: u8, day: u8) -> Option<(i
 }
 #[frb(sync)]
 pub fn gregorian_date_to_jewish_date(year: i32, month: u8, day: u8) -> Option<(i32, u8, u8)> {
-    let date = Date::<Gregorian>::try_new_gregorian(year, month, day).unwrap();
+    let date = Date::<Gregorian>::try_new_gregorian(year, month, day).ok()?;
     let hebrew_date = date.to_calendar(Hebrew);
     Some((
         hebrew_date.year().extended_year(),
@@ -108,12 +112,11 @@ pub fn add_days_to_jewish_date(
     day: u8,
     days_to_add: i32,
 ) -> Option<(i32, u8, u8)> {
-    let mut date =
-        Date::<Hebrew>::from_hebrew_date(year, HebrewMonth::try_from(month).unwrap(), day)?;
+    let mut date = Date::<Hebrew>::from_hebrew_date(year, hebrew_month_from_number(month)?, day)?;
     let mut options = DateAddOptions::default();
     options.overflow = Some(Overflow::Constrain);
     date.try_add_with_options(DateDuration::for_days(days_to_add), options)
-        .unwrap();
+        .ok()?;
     Some((
         date.year().extended_year(),
         date.hebrew_month().into(),
@@ -127,12 +130,11 @@ pub fn add_months_to_jewish_date(
     day: u8,
     months_to_add: i32,
 ) -> Option<(i32, u8, u8)> {
-    let mut date =
-        Date::<Hebrew>::from_hebrew_date(year, HebrewMonth::try_from(month).unwrap(), day)?;
+    let mut date = Date::<Hebrew>::from_hebrew_date(year, hebrew_month_from_number(month)?, day)?;
     let mut options = DateAddOptions::default();
     options.overflow = Some(Overflow::Constrain);
     date.try_add_with_options(DateDuration::for_months(months_to_add), options)
-        .unwrap();
+        .ok()?;
     Some((
         date.year().extended_year(),
         date.hebrew_month().into(),
@@ -146,12 +148,11 @@ pub fn add_years_to_jewish_date(
     day: u8,
     years_to_add: i32,
 ) -> Option<(i32, u8, u8)> {
-    let mut date =
-        Date::<Hebrew>::from_hebrew_date(year, HebrewMonth::try_from(month).unwrap(), day)?;
+    let mut date = Date::<Hebrew>::from_hebrew_date(year, hebrew_month_from_number(month)?, day)?;
     let mut options = DateAddOptions::default();
     options.overflow = Some(Overflow::Constrain);
     date.try_add_with_options(DateDuration::for_years(years_to_add), options)
-        .unwrap();
+        .ok()?;
 
     Some((
         date.year().extended_year(),
@@ -170,7 +171,8 @@ pub fn test_jewish_calendar(
     java: JavaJewishCalendarTestResults,
 ) {
     let hebrew_date =
-        Date::<Hebrew>::from_hebrew_date(year, HebrewMonth::try_from(month).unwrap(), day).unwrap();
+        Date::<Hebrew>::from_hebrew_date(year, hebrew_month_from_number(month).unwrap(), day)
+            .unwrap();
 
     assert_eq!(
         hebrew_date.is_assur_bemelacha(in_israel),
@@ -302,6 +304,7 @@ impl JavaJewishCalendarTestResults {
 }
 fn java_holiday_index_to_rust(index: i32) -> Option<Holiday> {
     match index {
+        -1 => None,
         0 => Some(Holiday::ErevPesach),
         1 => Some(Holiday::Pesach),
         2 => Some(Holiday::CholHamoedPesach),
@@ -340,6 +343,6 @@ fn java_holiday_index_to_rust(index: i32) -> Option<Holiday> {
         35 => Some(Holiday::IsruChag),
         36 => Some(Holiday::YomKippurKatan),
         37 => Some(Holiday::Behab),
-        _ => None, // Unknown or not mapped
+        _ => panic!("Unmapped Java holiday index: {index}"),
     }
 }

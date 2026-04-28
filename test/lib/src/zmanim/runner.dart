@@ -4,8 +4,8 @@ import 'package:test_with_java/src/zmanim/cases.dart';
 import 'package:test_with_java/src/zmanim/java_adapter.dart';
 import 'package:test_with_java/src/zmanim/models.dart';
 
-/// Default max allowed difference in milliseconds.
-const defaultMaxDiffMs = 30000;
+const defaultMaxDiffMs = 10000;
+const edgeCaseMaxDiffMs = 30000;
 
 void runZmanimTests({
   required int iterations,
@@ -93,12 +93,13 @@ bool runSingleZmanimParityTest(
       }
       throw FailedZmanTest.nullMismatch(testCase, javaZman, rustZman);
     case (ZmanResult javaZman, ZmanResult rustZman):
+      final maxDiffMs = _maxAllowedDifferenceMs(testCase.zmanName);
       final difference = (javaZman.timestampMs - rustZman.timestampMs).abs();
-      if (difference > defaultMaxDiffMs) {
+      if (difference > maxDiffMs) {
         throw FailedZmanTest.differenceTooLarge(
           testCase,
           difference,
-          defaultMaxDiffMs,
+          maxDiffMs,
           javaZman,
           rustZman,
         );
@@ -106,6 +107,21 @@ bool runSingleZmanimParityTest(
       return true;
   }
   throw StateError('Unreachable');
+}
+
+int _maxAllowedDifferenceMs(String zmanName) {
+  switch (zmanName) {
+    case 'getSunriseWithElevation':
+    case 'getSeaLevelSunrise':
+    case 'getSunsetWithElevation':
+    case 'getSeaLevelSunset':
+    case 'getChatzos':
+    case 'getChatzosAsHalfDay':
+    case 'getFixedLocalChatzos':
+      return edgeCaseMaxDiffMs;
+    default:
+      return defaultMaxDiffMs;
+  }
 }
 
 ZmanResult? _calculateRustZman(ZmanTestCase testCase) {

@@ -9,6 +9,8 @@ void runJewishDateTests({
   required int minGregorianYear,
   required int maxGregorianYear,
 }) {
+  _runJewishDateRegressionTests();
+
   for (var iteration = 0; iteration < iterations; iteration++) {
     _testGregorianDateToJewishDate(
       minGregorianYear: minGregorianYear,
@@ -38,6 +40,122 @@ void runJewishDateTests({
       minGregorianYear: minGregorianYear,
       maxGregorianYear: maxGregorianYear,
     );
+  }
+}
+
+void _runJewishDateRegressionTests() {
+  for (final (year, month, day) in gregorianRegressionDates) {
+    final rustResult =
+        gregorianDateToJewishDate(year: year, month: month, day: day);
+    final javaResult = javaGregorianDateToJewishDate(year, month, day);
+    assertDateResultsMatch(
+      inputDate: (year, month, day),
+      targetDateType: "Jewish",
+      javaDate: javaResult,
+      rustDate: rustResult,
+    );
+  }
+
+  for (final date in [
+    ...jewishRegressionDates,
+    ...invalidJewishRegressionDates
+  ]) {
+    _assertJewishDateOperations(date);
+  }
+}
+
+void _assertJewishDateOperations((int, int, int) date) {
+  final (year, month, day) = date;
+  final rustGregorian =
+      jewishDateToGregorianDate(year: year, month: month, day: day);
+  final javaGregorian = javaJewishDateToGregorianDate(year, month, day);
+  assertDateResultsMatch(
+    inputDate: date,
+    targetDateType: "Gregorian",
+    javaDate: javaGregorian,
+    rustDate: rustGregorian,
+  );
+  if (rustGregorian == null && javaGregorian == null) {
+    return;
+  }
+
+  for (final dayOffset in jewishDayOffsets) {
+    final rustResult = addDaysToJewishDate(
+      year: year,
+      month: month,
+      day: day,
+      daysToAdd: dayOffset,
+    );
+    final javaResult = dayOffset >= 0
+        ? javaAddDaysToJewishDate(year, month, day, dayOffset)
+        : javaMinusDaysToJewishDate(year, month, day, -dayOffset);
+    assertDateResultsMatch(
+      inputDate: date,
+      targetDateType: "Jewish after adding $dayOffset days",
+      javaDate: javaResult,
+      rustDate: rustResult,
+    );
+  }
+
+  for (final monthOffset in jewishMonthOffsets) {
+    final rustResult = addMonthsToJewishDate(
+      year: year,
+      month: month,
+      day: day,
+      monthsToAdd: monthOffset,
+    );
+    final javaResult = javaAddMonthsToJewishDate(year, month, day, monthOffset);
+    assertDateResultsMatch(
+      inputDate: date,
+      targetDateType: "Jewish after adding $monthOffset months",
+      javaDate: javaResult,
+      rustDate: rustResult,
+    );
+  }
+
+  for (final yearOffset in jewishYearOffsets) {
+    final rustResult = addYearsToJewishDate(
+      year: year,
+      month: month,
+      day: day,
+      yearsToAdd: yearOffset,
+    );
+    final javaResult = javaAddYearsToJewishDate(year, month, day, yearOffset);
+    assertDateResultsMatch(
+      inputDate: date,
+      targetDateType: "Jewish after adding $yearOffset years",
+      javaDate: javaResult,
+      rustDate: rustResult,
+    );
+  }
+
+  for (final inIsrael in [false, true]) {
+    for (final useModernHolidays in [false, true]) {
+      final javaSnapshot = javaJewishCalendarSnapshot(
+        year: year,
+        month: month,
+        day: day,
+        inIsrael: inIsrael,
+        useModernHolidays: useModernHolidays,
+      );
+      if (javaSnapshot == null) {
+        throw Exception(
+          "Could not produce Java JewishCalendar snapshot for ${(
+            year,
+            month,
+            day
+          )}",
+        );
+      }
+      testJewishCalendar(
+        year: year,
+        month: month,
+        day: day,
+        inIsrael: inIsrael,
+        useModernHolidays: useModernHolidays,
+        java: javaSnapshot,
+      );
+    }
   }
 }
 
