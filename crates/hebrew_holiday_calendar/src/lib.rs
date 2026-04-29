@@ -41,7 +41,7 @@ mod parshas;
 use crate::parshas::*;
 use chrono::Weekday;
 use icu_calendar::options::DateAddOptions;
-use icu_calendar::types::{DateDuration, MonthCode, Weekday as IcuWeekday};
+use icu_calendar::types::{DateDuration, Month, Weekday as IcuWeekday};
 use icu_calendar::{cal::Hebrew, Date, Gregorian};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
@@ -147,52 +147,46 @@ pub trait HebrewHolidayCalendar {
 
     /// Creates a new Hebrew date from a year, month, and day.
     fn from_hebrew_date(year: i32, month: HebrewMonth, day: u8) -> Option<Date<Hebrew>> {
-        let is_leap_year =
-            Date::try_new_from_codes(Some("am"), year, MonthCode("M01".parse().ok()?), 1, Hebrew)
-                .ok()?
-                .is_in_leap_year();
+        let is_leap_year = Date::try_new_hebrew_v2(year, TISHREI, 1)
+            .ok()?
+            .is_in_leap_year();
 
-        let month_code: MonthCode = match is_leap_year {
-            true => {
-                let month_code_str = match month {
-                    HebrewMonth::Tishrei => "M01",
-                    HebrewMonth::Cheshvan => "M02",
-                    HebrewMonth::Kislev => "M03",
-                    HebrewMonth::Teves => "M04",
-                    HebrewMonth::Shevat => "M05",
-                    HebrewMonth::Adar => "M05L",
-                    HebrewMonth::AdarII => "M06",
-                    HebrewMonth::Nissan => "M07",
-                    HebrewMonth::Iyar => "M08",
-                    HebrewMonth::Sivan => "M09",
-                    HebrewMonth::Tammuz => "M10",
-                    HebrewMonth::Av => "M11",
-                    HebrewMonth::Elul => "M12",
-                };
-
-                MonthCode(month_code_str.parse().ok()?)
-            }
+        let month_code: Month = match is_leap_year {
+            true => match month {
+                HebrewMonth::Tishrei => TISHREI,
+                HebrewMonth::Cheshvan => ḤESHVAN,
+                HebrewMonth::Kislev => KISLEV,
+                HebrewMonth::Teves => TEVET,
+                HebrewMonth::Shevat => SHEVAT,
+                HebrewMonth::Adar => ADARI,
+                HebrewMonth::AdarII => ADAR,
+                HebrewMonth::Nissan => NISAN,
+                HebrewMonth::Iyar => IYYAR,
+                HebrewMonth::Sivan => SIVAN,
+                HebrewMonth::Tammuz => TAMMUZ,
+                HebrewMonth::Av => AV,
+                HebrewMonth::Elul => ELUL,
+            },
             false => {
-                let month_code_str = match month {
-                    HebrewMonth::Tishrei => "M01",
-                    HebrewMonth::Cheshvan => "M02",
-                    HebrewMonth::Kislev => "M03",
-                    HebrewMonth::Teves => "M04",
-                    HebrewMonth::Shevat => "M05",
-                    HebrewMonth::Adar => "M06",
-                    HebrewMonth::Nissan => "M07",
-                    HebrewMonth::Iyar => "M08",
-                    HebrewMonth::Sivan => "M09",
-                    HebrewMonth::Tammuz => "M10",
-                    HebrewMonth::Av => "M11",
-                    HebrewMonth::Elul => "M12",
-                    _ => return None,
-                };
-                MonthCode(month_code_str.parse().ok()?)
+                match month {
+                    HebrewMonth::Tishrei => TISHREI,
+                    HebrewMonth::Cheshvan => ḤESHVAN,
+                    HebrewMonth::Kislev => KISLEV,
+                    HebrewMonth::Teves => TEVET,
+                    HebrewMonth::Shevat => SHEVAT,
+                    HebrewMonth::Adar => ADAR,
+                    HebrewMonth::Nissan => NISAN,
+                    HebrewMonth::Iyar => IYYAR,
+                    HebrewMonth::Sivan => SIVAN,
+                    HebrewMonth::Tammuz => TAMMUZ,
+                    HebrewMonth::Av => AV,
+                    HebrewMonth::Elul => ELUL,
+                    _ => return None, // AdarII is not a valid month in non-leap years
+                }
             }
         };
 
-        let hebrew_date = Date::try_new_from_codes(Some("am"), year, month_code, day, Hebrew);
+        let hebrew_date = Date::try_new_hebrew_v2(year, month_code, day);
 
         let hebrew_date = hebrew_date.ok()?;
         Some(hebrew_date)
@@ -200,7 +194,7 @@ pub trait HebrewHolidayCalendar {
 }
 
 fn get_parsha_list(&date: &Date<Hebrew>, in_israel: bool) -> Option<ParshaList> {
-    let rosh_hashana_day_of_week = (get_hebrew_elapsed_days(date.extended_year()) + 1) % 7;
+    let rosh_hashana_day_of_week = (get_hebrew_elapsed_days(date.year().extended_year()) + 1) % 7;
     let rosh_hashana_day_of_week = match rosh_hashana_day_of_week {
         0 => Some(Weekday::Sat),
         1 => Some(Weekday::Sun),
@@ -211,8 +205,8 @@ fn get_parsha_list(&date: &Date<Hebrew>, in_israel: bool) -> Option<ParshaList> 
         6 => Some(Weekday::Fri),
         _ => None,
     }?;
-    let is_kislev_short = Date::<Hebrew>::is_kislev_short(date.extended_year());
-    let is_cheshvan_long = Date::<Hebrew>::is_cheshvan_long(date.extended_year());
+    let is_kislev_short = Date::<Hebrew>::is_kislev_short(date.year().extended_year());
+    let is_cheshvan_long = Date::<Hebrew>::is_cheshvan_long(date.year().extended_year());
 
     if date.is_in_leap_year() {
         match rosh_hashana_day_of_week {
@@ -425,23 +419,35 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
     }
     #[inline]
     fn hebrew_month(&self) -> HebrewMonth {
-        let month_code = self.month().formatting_code.0;
-        match month_code.as_str() {
-            "M01" => HebrewMonth::Tishrei,
-            "M02" => HebrewMonth::Cheshvan,
-            "M03" => HebrewMonth::Kislev,
-            "M04" => HebrewMonth::Teves,
-            "M05" => HebrewMonth::Shevat,
-            "M05L" => HebrewMonth::Adar,
-            "M06" => HebrewMonth::Adar,
-            "M06L" => HebrewMonth::AdarII,
-            "M07" => HebrewMonth::Nissan,
-            "M08" => HebrewMonth::Iyar,
-            "M09" => HebrewMonth::Sivan,
-            "M10" => HebrewMonth::Tammuz,
-            "M11" => HebrewMonth::Av,
-            "M12" => HebrewMonth::Elul,
-            _ => unreachable!(),
+        let month_code = self.month().to_input();
+        if month_code == TISHREI {
+            HebrewMonth::Tishrei
+        } else if month_code == ḤESHVAN {
+            HebrewMonth::Cheshvan
+        } else if month_code == KISLEV {
+            HebrewMonth::Kislev
+        } else if month_code == TEVET {
+            HebrewMonth::Teves
+        } else if month_code == SHEVAT {
+            HebrewMonth::Shevat
+        } else if month_code == ADARI {
+            HebrewMonth::Adar
+        } else if month_code == ADAR {
+            HebrewMonth::AdarII
+        } else if month_code == NISAN {
+            HebrewMonth::Nissan
+        } else if month_code == IYYAR {
+            HebrewMonth::Iyar
+        } else if month_code == SIVAN {
+            HebrewMonth::Sivan
+        } else if month_code == TAMMUZ {
+            HebrewMonth::Tammuz
+        } else if month_code == AV {
+            HebrewMonth::Av
+        } else if month_code == ELUL {
+            HebrewMonth::Elul
+        } else {
+            unreachable!()
         }
     }
 
@@ -451,7 +457,7 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
     }
     #[inline]
     fn chrono_day_of_week(&self) -> chrono::Weekday {
-        let weekday = self.day_of_week();
+        let weekday = self.weekday();
         match weekday {
             IcuWeekday::Sunday => Weekday::Sun,
             IcuWeekday::Monday => Weekday::Mon,
@@ -531,7 +537,7 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
 
         let parsha_list = get_parsha_list(self, in_israel)?;
 
-        let rosh_hashana_day_of_week = get_hebrew_elapsed_days(self.extended_year()) % 7;
+        let rosh_hashana_day_of_week = get_hebrew_elapsed_days(self.year().extended_year()) % 7;
         let day = rosh_hashana_day_of_week + self.day_of_year().0 as i32;
         parsha_list[(day / 7) as usize]
     }
@@ -543,7 +549,7 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
 
         let month = self.hebrew_month();
         let day = self.day_of_month().0;
-        let is_leap = Date::<Hebrew>::is_hebrew_leap_year(self.extended_year());
+        let is_leap = Date::<Hebrew>::is_hebrew_leap_year(self.year().extended_year());
 
         // Shkalim
         if ((month == HebrewMonth::Shevat && !is_leap) || (month == HebrewMonth::Adar && is_leap))
@@ -622,7 +628,7 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
 
         // Create a new calendar for the upcoming Shabbos
         let (mut current_year, mut current_month, mut current_day) = add_days_to_hebrew_date(
-            self.extended_year(),
+            self.year().extended_year(),
             self.hebrew_month(),
             self.day_of_month().0,
             days_to_shabbos,
@@ -655,7 +661,7 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
 
         if month == HebrewMonth::Kislev {
             Some(day - 24)
-        } else if Self::is_kislev_short(self.extended_year()) {
+        } else if Self::is_kislev_short(self.year().extended_year()) {
             Some(day + 5)
         } else {
             Some(day + 6)
@@ -678,6 +684,19 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
     }
 }
 
+pub static TISHREI: Month = Month::new(1);
+pub static ḤESHVAN: Month = Month::new(2);
+pub static KISLEV: Month = Month::new(3);
+pub static TEVET: Month = Month::new(4);
+pub static SHEVAT: Month = Month::new(5);
+pub static ADARI: Month = Month::leap(5);
+pub static ADAR: Month = Month::new(6);
+pub static NISAN: Month = Month::new(7);
+pub static IYYAR: Month = Month::new(8);
+pub static SIVAN: Month = Month::new(9);
+pub static TAMMUZ: Month = Month::new(10);
+pub static AV: Month = Month::new(11);
+pub static ELUL: Month = Month::new(12);
 /// Represents the weekly Torah readings (parshiyot) and special Shabbatot.
 ///
 /// This enum includes all 54 Torah portions from the annual cycle, combined readings
@@ -1004,7 +1023,8 @@ impl Holiday {
                 if month == HebrewMonth::Kislev && day >= 25 {
                     return true;
                 } else if month == HebrewMonth::Teves {
-                    let is_kislev_short = Date::<Hebrew>::is_kislev_short(date.extended_year());
+                    let is_kislev_short =
+                        Date::<Hebrew>::is_kislev_short(date.year().extended_year());
                     let max_teves_day = if is_kislev_short { 3 } else { 2 };
                     return day <= max_teves_day;
                 }
@@ -1149,7 +1169,7 @@ impl Holiday {
                     || (month == HebrewMonth::Sivan && day < 6)
             }),
             Holiday::BirchasHachamah => HolidayRule::Custom(|date, _in_israel| {
-                let elapsed_days = get_hebrew_elapsed_days(date.extended_year());
+                let elapsed_days = get_hebrew_elapsed_days(date.year().extended_year());
                 let elapsed_days = elapsed_days + date.day_of_year().0 as i32;
                 let cycle_length = 10227i32;
                 (elapsed_days % cycle_length) == 172
@@ -1438,7 +1458,7 @@ mod tests {
         let date = Date::<Hebrew>::from_hebrew_date(5784, HebrewMonth::Tishrei, 1).unwrap();
         assert_eq!(date.day_of_month().0, 1);
         assert_eq!(date.hebrew_month(), HebrewMonth::Tishrei);
-        assert_eq!(date.extended_year(), 5784);
+        assert_eq!(date.year().extended_year(), 5784);
     }
 
     #[test]

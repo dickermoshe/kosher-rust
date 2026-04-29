@@ -2,6 +2,7 @@
 
 use std::error::Error;
 
+use chrono::{Datelike, NaiveDate};
 use hebrew_holiday_calendar::{HebrewHolidayCalendar, HebrewMonth, Holiday};
 use icu_calendar::{
     cal::Hebrew,
@@ -55,6 +56,29 @@ const INVALID_JEWISH_REGRESSION_DATES: &[DateTuple] = &[
     DateTuple::new(5784, 7, 31),
 ];
 
+const JEWISH_YEAR_REGRESSION_YEARS: &[i32] =
+    &[5660, 5701, 5765, 5782, 5783, 5784, 5785, 5801, 5861];
+
+const CALENDAR_EDGE_FIXTURE_DATES: &[DateTuple] = &[
+    DateTuple::new(5784, 1, 14),  // Erev Pesach / taanis bechoros edge years.
+    DateTuple::new(5784, 1, 16),  // Israel vs diaspora Pesach divergence.
+    DateTuple::new(5784, 1, 22),  // Isru chag in Israel.
+    DateTuple::new(5784, 3, 6),   // Shavuos.
+    DateTuple::new(5784, 7, 1),   // Rosh Hashana.
+    DateTuple::new(5784, 7, 10),  // Yom Kippur.
+    DateTuple::new(5784, 7, 15),  // Succos.
+    DateTuple::new(5784, 7, 22),  // Shemini Atzeres.
+    DateTuple::new(5784, 7, 23),  // Simchas Torah (chutz).
+    DateTuple::new(5784, 9, 30),  // Chanukah boundary in Kislev.
+    DateTuple::new(5784, 10, 1),  // Chanukah in Teves.
+    DateTuple::new(5784, 12, 14), // Purim Katan (leap year Adar I).
+    DateTuple::new(5784, 13, 14), // Purim (leap year Adar II).
+    DateTuple::new(5785, 2, 29),  // Cheshvan long/short clamp boundary.
+    DateTuple::new(5785, 3, 30),  // Kislev boundary.
+    DateTuple::new(5785, 8, 29),  // Erev Rosh Chodesh / yom kippur katan pattern.
+    DateTuple::new(5785, 8, 30),  // Rosh Chodesh.
+];
+
 const JEWISH_DAY_OFFSETS: &[i32] = &[0, 1, -1, 29, -29, 365, -365];
 const JEWISH_MONTH_OFFSETS: &[i32] = &[0, 1, -1, 6, -6, 12];
 const JEWISH_YEAR_OFFSETS: &[i32] = &[0, 1, -1, 5, -5];
@@ -74,6 +98,27 @@ impl DateTuple {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct JewishCalendarSnapshot {
+    is_yom_tov: bool,
+    is_yom_tov_assur_bemelacha: bool,
+    is_erev_yom_tov: bool,
+    is_erev_yom_tov_sheni: bool,
+    is_chol_hamoed: bool,
+    is_chol_hamoed_pesach: bool,
+    is_chol_hamoed_succos: bool,
+    is_pesach: bool,
+    is_shavuos: bool,
+    is_succos: bool,
+    is_shmini_atzeres: bool,
+    is_simchas_torah: bool,
+    is_rosh_hashana: bool,
+    is_yom_kippur: bool,
+    is_taanis: bool,
+    is_tisha_bav: bool,
+    is_chanukah: bool,
+    is_purim: bool,
+    is_isru_chag: bool,
+    is_erev_rosh_chodesh: bool,
+    is_tomorrow_shabbos_or_yom_tov: bool,
     is_birkas_hachamah: bool,
     parshah: Option<i32>,
     upcoming_parshah: i32,
@@ -92,6 +137,30 @@ struct JewishCalendarSnapshot {
     day_of_omer: Option<u8>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct JewishDateSnapshot {
+    day_of_week: i32,
+    abs_date: i32,
+    days_in_jewish_month: i32,
+    days_in_jewish_year: i32,
+    static_days_in_jewish_year: i32,
+    days_since_start_of_jewish_year: i32,
+    jewish_calendar_elapsed_days: i32,
+    is_jewish_leap_year: bool,
+    is_cheshvan_long: bool,
+    is_kislev_short: bool,
+    cheshvan_kislev_kviah: i32,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct JewishYearSnapshot {
+    days_in_jewish_year: i32,
+    jewish_calendar_elapsed_days: i32,
+    is_jewish_leap_year: bool,
+    is_cheshvan_long: bool,
+    is_kislev_short: bool,
+}
+
 /// Runs the Hebrew-date Java parity suite ported from the Dart harness.
 pub(crate) fn test_hebrew_date_parity() -> Result<(), Box<dyn Error>> {
     run_regression_tests()?;
@@ -107,6 +176,8 @@ pub(crate) fn test_hebrew_date_parity() -> Result<(), Box<dyn Error>> {
         let context = format!("seed={seed} iteration={iteration}");
         test_random_gregorian_to_jewish_date(&mut rng, &context)?;
         test_random_jewish_to_gregorian_date(&mut rng, &context)?;
+        test_random_jewish_date_snapshot(&mut rng, &context)?;
+        test_random_jewish_year_snapshot(&mut rng, &context)?;
         test_random_add_days_to_jewish_date(&mut rng, &context)?;
         test_random_minus_days_to_jewish_date(&mut rng, &context)?;
         test_random_add_months_to_jewish_date(&mut rng, &context)?;
@@ -131,9 +202,16 @@ fn run_regression_tests() -> Result<(), Box<dyn Error>> {
     for &date in JEWISH_REGRESSION_DATES
         .iter()
         .chain(INVALID_JEWISH_REGRESSION_DATES.iter())
+        .chain(CALENDAR_EDGE_FIXTURE_DATES.iter())
     {
         assert_jewish_date_operations(date, "regression")?;
     }
+
+    for &year in JEWISH_YEAR_REGRESSION_YEARS {
+        assert_jewish_year_snapshot_matches(year, "regression")?;
+    }
+
+    run_mapped_holiday_fixture_tests()?;
 
     Ok(())
 }
@@ -145,6 +223,8 @@ fn assert_jewish_date_operations(date: DateTuple, context: &str) -> Result<(), B
     if java_gregorian.is_none() && rust_gregorian.is_none() {
         return Ok(());
     }
+
+    assert_jewish_date_snapshots_match(date, context)?;
 
     for &day_offset in JEWISH_DAY_OFFSETS {
         let java = if day_offset >= 0 {
@@ -176,7 +256,14 @@ fn assert_jewish_date_operations(date: DateTuple, context: &str) -> Result<(), B
             date,
             &format!("Jewish after adding {year_offset} years"),
             java_add_years_to_jewish_date(date, year_offset)?,
-            rust_add_years_to_jewish_date(date, year_offset),
+            rust_add_years_to_jewish_date_with_adar(date, year_offset, false),
+            context,
+        );
+        assert_date_results_match(
+            date,
+            &format!("Jewish after adding {year_offset} years (adar aleph)"),
+            java_add_years_to_jewish_date_with_adar(date, year_offset, true)?,
+            rust_add_years_to_jewish_date_with_adar(date, year_offset, true),
             context,
         );
     }
@@ -218,6 +305,20 @@ fn test_random_jewish_to_gregorian_date(
         context,
     );
     Ok(())
+}
+
+fn test_random_jewish_date_snapshot(rng: &mut StdRng, context: &str) -> Result<(), Box<dyn Error>> {
+    let date = random_jewish_date(rng);
+    if rust_jewish_date_to_gregorian_date(date).is_some() {
+        assert_jewish_date_snapshots_match(date, context)?;
+    }
+    Ok(())
+}
+
+fn test_random_jewish_year_snapshot(rng: &mut StdRng, context: &str) -> Result<(), Box<dyn Error>> {
+    let year =
+        rng.random_range((DEFAULT_MIN_GREGORIAN_YEAR + 3760)..=(DEFAULT_MAX_GREGORIAN_YEAR + 3760));
+    assert_jewish_year_snapshot_matches(year, context)
 }
 
 fn test_random_add_days_to_jewish_date(
@@ -278,7 +379,14 @@ fn test_random_add_years_to_jewish_date(
         date,
         &format!("Jewish after adding {years_to_add} years"),
         java_add_years_to_jewish_date(date, years_to_add)?,
-        rust_add_years_to_jewish_date(date, years_to_add),
+        rust_add_years_to_jewish_date_with_adar(date, years_to_add, false),
+        context,
+    );
+    assert_date_results_match(
+        date,
+        &format!("Jewish after adding {years_to_add} years (adar aleph)"),
+        java_add_years_to_jewish_date_with_adar(date, years_to_add, true)?,
+        rust_add_years_to_jewish_date_with_adar(date, years_to_add, true),
         context,
     );
     Ok(())
@@ -318,6 +426,78 @@ fn assert_calendar_snapshots_match(
         "JewishCalendar snapshot mismatch for {date:?} in_israel={in_israel} use_modern_holidays={use_modern_holidays}\n{context}"
     );
     Ok(())
+}
+
+fn assert_jewish_date_snapshots_match(
+    date: DateTuple,
+    context: &str,
+) -> Result<(), Box<dyn Error>> {
+    let java = java_jewish_date_snapshot(date)?
+        .unwrap_or_else(|| panic!("Java could not produce JewishDate snapshot for {date:?}"));
+    let rust = rust_jewish_date_snapshot(date)
+        .unwrap_or_else(|| panic!("Rust could not produce JewishDate snapshot for {date:?}"));
+    assert_eq!(
+        rust, java,
+        "JewishDate snapshot mismatch for {date:?}\n{context}"
+    );
+    Ok(())
+}
+
+fn assert_jewish_year_snapshot_matches(year: i32, context: &str) -> Result<(), Box<dyn Error>> {
+    let java = java_jewish_year_snapshot(year)?
+        .unwrap_or_else(|| panic!("Java could not produce Jewish year snapshot for {year}"));
+    let rust = rust_jewish_year_snapshot(year)
+        .unwrap_or_else(|| panic!("Rust could not produce Jewish year snapshot for {year}"));
+    assert_eq!(
+        rust, java,
+        "Jewish year snapshot mismatch for year={year}\n{context}"
+    );
+    Ok(())
+}
+
+fn run_mapped_holiday_fixture_tests() -> Result<(), Box<dyn Error>> {
+    for holiday in Holiday::all() {
+        if java_holiday_index_for(*holiday).is_none() {
+            continue;
+        }
+        let Some((date, in_israel, use_modern_holidays)) = find_holiday_fixture(*holiday) else {
+            panic!("Could not find fixture date for holiday {holiday:?}");
+        };
+        assert_calendar_snapshots_match(
+            date,
+            in_israel,
+            use_modern_holidays,
+            &format!("mapped-holiday fixture {holiday:?}"),
+        )?;
+    }
+    Ok(())
+}
+
+fn find_holiday_fixture(holiday: Holiday) -> Option<(DateTuple, bool, bool)> {
+    let min_jewish_year = DEFAULT_MIN_GREGORIAN_YEAR + 3760;
+    let max_jewish_year = DEFAULT_MAX_GREGORIAN_YEAR + 3760;
+    for year in min_jewish_year..=max_jewish_year {
+        for month in 1..=13 {
+            for day in 1..=30 {
+                let date = DateTuple::new(year, month, day);
+                let Some(hebrew) = rust_hebrew_date(date) else {
+                    continue;
+                };
+                for in_israel in [false, true] {
+                    for use_modern_holidays in [false, true] {
+                        let holidays = hebrew
+                            .holidays(in_israel, use_modern_holidays)
+                            .copied()
+                            .collect::<Vec<Holiday>>();
+                        if holidays.contains(&holiday) {
+                            return Some((date, in_israel, use_modern_holidays));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    None
 }
 
 fn assert_date_results_match(
@@ -385,6 +565,47 @@ fn rust_jewish_date_to_gregorian_date(date: DateTuple) -> Option<DateTuple> {
     ))
 }
 
+fn rust_jewish_date_snapshot(date: DateTuple) -> Option<JewishDateSnapshot> {
+    let hebrew = rust_hebrew_date(date)?;
+    let gregorian = hebrew.to_calendar(Gregorian);
+    let gregorian_date = NaiveDate::from_ymd_opt(
+        gregorian.year().extended_year(),
+        u32::from(gregorian.month().number()),
+        u32::from(gregorian.day_of_month().0),
+    )?;
+    let abs_date = gregorian_date.num_days_from_ce();
+    let year = hebrew.year().extended_year();
+
+    Some(JewishDateSnapshot {
+        day_of_week: rust_java_day_of_week(&hebrew),
+        abs_date,
+        days_in_jewish_month: i32::from(Date::<Hebrew>::days_in_hebrew_month(
+            year,
+            hebrew.hebrew_month(),
+        )),
+        days_in_jewish_year: Date::<Hebrew>::days_in_hebrew_year(year),
+        static_days_in_jewish_year: Date::<Hebrew>::days_in_hebrew_year(year),
+        days_since_start_of_jewish_year: i32::from(hebrew.day_of_year().0),
+        jewish_calendar_elapsed_days: rust_jewish_calendar_elapsed_days(year),
+        is_jewish_leap_year: is_hebrew_leap_year(year),
+        is_cheshvan_long: Date::<Hebrew>::is_cheshvan_long(year),
+        is_kislev_short: Date::<Hebrew>::is_kislev_short(year),
+        cheshvan_kislev_kviah: rust_cheshvan_kislev_kviah(year),
+    })
+}
+
+fn rust_jewish_year_snapshot(year: i32) -> Option<JewishYearSnapshot> {
+    // Use a valid date in the target year as a guard for invalid years.
+    Date::<Hebrew>::from_hebrew_date(year, HebrewMonth::Tishrei, 1)?;
+    Some(JewishYearSnapshot {
+        days_in_jewish_year: Date::<Hebrew>::days_in_hebrew_year(year),
+        jewish_calendar_elapsed_days: rust_jewish_calendar_elapsed_days(year),
+        is_jewish_leap_year: is_hebrew_leap_year(year),
+        is_cheshvan_long: Date::<Hebrew>::is_cheshvan_long(year),
+        is_kislev_short: Date::<Hebrew>::is_kislev_short(year),
+    })
+}
+
 fn rust_add_days_to_jewish_date(date: DateTuple, days_to_add: i32) -> Option<DateTuple> {
     let mut hebrew = rust_hebrew_date(date)?;
     hebrew
@@ -431,7 +652,11 @@ fn rust_add_months_to_jewish_date(date: DateTuple, months_to_add: i32) -> Option
     Some(clamped_hebrew_date(year, month, date.day)?)
 }
 
-fn rust_add_years_to_jewish_date(date: DateTuple, years_to_add: i32) -> Option<DateTuple> {
+fn rust_add_years_to_jewish_date_with_adar(
+    date: DateTuple,
+    years_to_add: i32,
+    use_adar_aleph_for_leap_year: bool,
+) -> Option<DateTuple> {
     rust_hebrew_date(date)?;
 
     let target_year = date.year + years_to_add;
@@ -439,12 +664,46 @@ fn rust_add_years_to_jewish_date(date: DateTuple, years_to_add: i32) -> Option<D
         && !is_hebrew_leap_year(date.year)
         && is_hebrew_leap_year(target_year)
     {
-        13
+        if use_adar_aleph_for_leap_year {
+            12
+        } else {
+            13
+        }
     } else {
         date.month.min(last_month_of_hebrew_year(target_year))
     };
 
     Some(clamped_hebrew_date(target_year, month, date.day)?)
+}
+
+fn rust_java_day_of_week(date: &Date<Hebrew>) -> i32 {
+    match date.weekday() {
+        icu_calendar::types::Weekday::Sunday => 1,
+        icu_calendar::types::Weekday::Monday => 2,
+        icu_calendar::types::Weekday::Tuesday => 3,
+        icu_calendar::types::Weekday::Wednesday => 4,
+        icu_calendar::types::Weekday::Thursday => 5,
+        icu_calendar::types::Weekday::Friday => 6,
+        icu_calendar::types::Weekday::Saturday => 7,
+    }
+}
+
+fn rust_cheshvan_kislev_kviah(year: i32) -> i32 {
+    if Date::<Hebrew>::is_cheshvan_long(year) && !Date::<Hebrew>::is_kislev_short(year) {
+        2
+    } else if !Date::<Hebrew>::is_cheshvan_long(year) && Date::<Hebrew>::is_kislev_short(year) {
+        0
+    } else {
+        1
+    }
+}
+
+fn rust_jewish_calendar_elapsed_days(year: i32) -> i32 {
+    // JewishCalendar#getJewishCalendarElapsedDays is defined as days elapsed to Tishrei of the given year.
+    (1..year)
+        .map(Date::<Hebrew>::days_in_hebrew_year)
+        .sum::<i32>()
+        + 1
 }
 
 fn rust_hebrew_date(date: DateTuple) -> Option<Date<Hebrew>> {
@@ -496,6 +755,36 @@ fn rust_jewish_calendar_snapshot(
         .collect::<Vec<Holiday>>();
 
     Some(JewishCalendarSnapshot {
+        is_yom_tov: rust_is_yom_tov(&rust_holidays),
+        is_yom_tov_assur_bemelacha: rust_is_yom_tov_assur_bemelacha(
+            &rust_holidays,
+            hebrew.chrono_day_of_week(),
+        ),
+        is_erev_yom_tov: rust_is_erev_yom_tov(&hebrew, in_israel),
+        is_erev_yom_tov_sheni: rust_is_erev_yom_tov_sheni(&hebrew, in_israel),
+        is_chol_hamoed: rust_holidays.contains(&Holiday::CholHamoedPesach)
+            || rust_holidays.contains(&Holiday::CholHamoedSuccos)
+            || rust_holidays.contains(&Holiday::HoshanaRabbah),
+        is_chol_hamoed_pesach: rust_holidays.contains(&Holiday::CholHamoedPesach),
+        is_chol_hamoed_succos: rust_holidays.contains(&Holiday::CholHamoedSuccos)
+            || rust_holidays.contains(&Holiday::HoshanaRabbah),
+        is_pesach: rust_holidays.contains(&Holiday::Pesach)
+            || rust_holidays.contains(&Holiday::CholHamoedPesach),
+        is_shavuos: rust_holidays.contains(&Holiday::Shavuos),
+        is_succos: rust_holidays.contains(&Holiday::Succos)
+            || rust_holidays.contains(&Holiday::CholHamoedSuccos)
+            || rust_holidays.contains(&Holiday::HoshanaRabbah),
+        is_shmini_atzeres: rust_holidays.contains(&Holiday::SheminiAtzeres),
+        is_simchas_torah: rust_holidays.contains(&Holiday::SimchasTorah),
+        is_rosh_hashana: rust_holidays.contains(&Holiday::RoshHashana),
+        is_yom_kippur: rust_holidays.contains(&Holiday::YomKippur),
+        is_taanis: rust_holidays.iter().any(|holiday| holiday.is_fast_day()),
+        is_tisha_bav: rust_holidays.contains(&Holiday::TishahBav),
+        is_chanukah: rust_holidays.contains(&Holiday::Chanukah),
+        is_purim: rust_holidays.contains(&Holiday::Purim),
+        is_isru_chag: rust_holidays.contains(&Holiday::IsruChag),
+        is_erev_rosh_chodesh: rust_is_erev_rosh_chodesh(&hebrew),
+        is_tomorrow_shabbos_or_yom_tov: rust_is_tomorrow_shabbos_or_yom_tov(&hebrew, in_israel),
         is_birkas_hachamah: rust_holidays.contains(&Holiday::BirchasHachamah),
         parshah: hebrew.todays_parsha(in_israel).map(|parsha| parsha as i32),
         upcoming_parshah: hebrew.upcoming_parsha(in_israel) as i32,
@@ -513,6 +802,112 @@ fn rust_jewish_calendar_snapshot(
         is_shabbos_mevorchim: rust_holidays.contains(&Holiday::ShabbosMevarchim),
         day_of_omer: hebrew.day_of_the_omer(),
     })
+}
+
+fn rust_is_yom_tov(holidays: &[Holiday]) -> bool {
+    holidays.iter().any(|holiday| {
+        matches!(
+            holiday,
+            Holiday::Pesach
+                | Holiday::CholHamoedPesach
+                | Holiday::PesachSheni
+                | Holiday::Shavuos
+                | Holiday::TuBav
+                | Holiday::RoshHashana
+                | Holiday::YomKippur
+                | Holiday::Succos
+                | Holiday::CholHamoedSuccos
+                | Holiday::HoshanaRabbah
+                | Holiday::SheminiAtzeres
+                | Holiday::SimchasTorah
+                | Holiday::Chanukah
+                | Holiday::TuBshvat
+                | Holiday::Purim
+                | Holiday::ShushanPurim
+                | Holiday::PurimKatan
+                | Holiday::YomHaShoah
+                | Holiday::YomHazikaron
+                | Holiday::YomHaatzmaut
+                | Holiday::YomYerushalayim
+                | Holiday::LagBomer
+                | Holiday::ShushanPurimKatan
+        )
+    })
+}
+
+fn rust_is_erev_yom_tov(date: &Date<Hebrew>, in_israel: bool) -> bool {
+    let today_holidays = date
+        .holidays(in_israel, false)
+        .copied()
+        .collect::<Vec<Holiday>>();
+    if today_holidays.iter().any(|holiday| {
+        matches!(
+            holiday,
+            Holiday::ErevPesach
+                | Holiday::ErevShavuos
+                | Holiday::ErevRoshHashana
+                | Holiday::ErevYomKippur
+                | Holiday::ErevSuccos
+                | Holiday::HoshanaRabbah
+        )
+    }) {
+        return true;
+    }
+
+    let next_day = date
+        .try_added_with_options(DateDuration::for_days(1), constrained_date_add_options())
+        .expect("adding one day to valid Hebrew date should work");
+    let next_holidays = next_day
+        .holidays(in_israel, false)
+        .copied()
+        .collect::<Vec<Holiday>>();
+    today_holidays.contains(&Holiday::CholHamoedPesach) && next_holidays.contains(&Holiday::Pesach)
+}
+
+fn rust_is_erev_yom_tov_sheni(date: &Date<Hebrew>, in_israel: bool) -> bool {
+    let next_day = date
+        .try_added_with_options(DateDuration::for_days(1), constrained_date_add_options())
+        .expect("adding one day to valid Hebrew date should work");
+    let today_holidays = date
+        .holidays(in_israel, false)
+        .copied()
+        .collect::<Vec<Holiday>>();
+    let next_holidays = next_day
+        .holidays(in_israel, false)
+        .copied()
+        .collect::<Vec<Holiday>>();
+    rust_is_yom_tov(&next_holidays)
+        && rust_is_yom_tov_assur_bemelacha(&next_holidays, next_day.chrono_day_of_week())
+        && today_holidays
+            .iter()
+            .any(|holiday| holiday.is_assur_bemelacha())
+}
+
+fn rust_is_yom_tov_assur_bemelacha(holidays: &[Holiday], _weekday: chrono::Weekday) -> bool {
+    holidays.iter().any(|holiday| holiday.is_assur_bemelacha())
+}
+
+fn rust_is_erev_rosh_chodesh(date: &Date<Hebrew>) -> bool {
+    if date
+        .holidays(false, false)
+        .any(|holiday| holiday == &Holiday::RoshChodesh)
+    {
+        return false;
+    }
+    let next_day = date
+        .try_added_with_options(DateDuration::for_days(1), constrained_date_add_options())
+        .expect("adding one day to valid Hebrew date should work");
+    let mut next_holidays = next_day.holidays(false, false);
+    let is_next_rosh_chodesh = next_holidays.any(|holiday| holiday == &Holiday::RoshChodesh);
+    is_next_rosh_chodesh
+        && !(date.hebrew_month() == HebrewMonth::Elul && date.day_of_month().0 == 29)
+}
+
+fn rust_is_tomorrow_shabbos_or_yom_tov(date: &Date<Hebrew>, in_israel: bool) -> bool {
+    let next_day = date
+        .try_added_with_options(DateDuration::for_days(1), constrained_date_add_options())
+        .expect("adding one day to valid Hebrew date should work");
+    next_day.is_assur_bemelacha(in_israel)
 }
 
 fn java_gregorian_date_to_jewish_date(
@@ -581,17 +976,69 @@ fn java_add_years_to_jewish_date(
     date: DateTuple,
     years_to_add: i32,
 ) -> Result<Option<DateTuple>, Box<dyn Error>> {
+    java_add_years_to_jewish_date_with_adar(date, years_to_add, false)
+}
+
+fn java_add_years_to_jewish_date_with_adar(
+    date: DateTuple,
+    years_to_add: i32,
+    use_adar_aleph_for_leap_year: bool,
+) -> Result<Option<DateTuple>, Box<dyn Error>> {
     if years_to_add == 0 {
         java_jewish_identity(date)
     } else if years_to_add > 0 {
         java_shift_jewish_date(date, |env, jewish_date| {
-            jewish_date.plus_years(env, years_to_add, bool_to_jboolean(false))
+            jewish_date.plus_years(
+                env,
+                years_to_add,
+                bool_to_jboolean(use_adar_aleph_for_leap_year),
+            )
         })
     } else {
         java_shift_jewish_date(date, |env, jewish_date| {
-            jewish_date.minus_years(env, -years_to_add, bool_to_jboolean(false))
+            jewish_date.minus_years(
+                env,
+                -years_to_add,
+                bool_to_jboolean(use_adar_aleph_for_leap_year),
+            )
         })
     }
+}
+
+fn java_jewish_date_snapshot(
+    date: DateTuple,
+) -> Result<Option<JewishDateSnapshot>, Box<dyn Error>> {
+    with_java_result(|env| {
+        let jewish_date = new_java_jewish_date(env, date)?;
+        let year = jewish_date.get_jewish_year(env)?;
+        Ok(Some(JewishDateSnapshot {
+            day_of_week: jewish_date.get_day_of_week(env)?,
+            abs_date: jewish_date.get_abs_date(env)?,
+            days_in_jewish_month: jewish_date.get_days_in_jewish_month(env)?,
+            days_in_jewish_year: jewish_date.get_days_in_jewish_year(env)?,
+            static_days_in_jewish_year: JewishDate::get_days_in_jewish_year_int(env, year)?,
+            days_since_start_of_jewish_year: jewish_date
+                .get_days_since_start_of_jewish_year(env)?,
+            jewish_calendar_elapsed_days: JewishDate::get_jewish_calendar_elapsed_days(env, year)?,
+            is_jewish_leap_year: jewish_date.is_jewish_leap_year(env)?,
+            is_cheshvan_long: jewish_date.is_cheshvan_long(env)?,
+            is_kislev_short: jewish_date.is_kislev_short(env)?,
+            cheshvan_kislev_kviah: jewish_date.get_cheshvan_kislev_kviah(env)?,
+        }))
+    })
+}
+
+fn java_jewish_year_snapshot(year: i32) -> Result<Option<JewishYearSnapshot>, Box<dyn Error>> {
+    with_java_result(|env| {
+        let jewish_date = JewishDate::new3(env, year, 7, 1)?;
+        Ok(Some(JewishYearSnapshot {
+            days_in_jewish_year: JewishDate::get_days_in_jewish_year_int(env, year)?,
+            jewish_calendar_elapsed_days: JewishDate::get_jewish_calendar_elapsed_days(env, year)?,
+            is_jewish_leap_year: jewish_date.is_jewish_leap_year(env)?,
+            is_cheshvan_long: jewish_date.is_cheshvan_long(env)?,
+            is_kislev_short: jewish_date.is_kislev_short(env)?,
+        }))
+    })
 }
 
 fn java_shift_jewish_date<F>(date: DateTuple, shift: F) -> Result<Option<DateTuple>, Box<dyn Error>>
@@ -634,6 +1081,27 @@ fn java_jewish_calendar_snapshot(
         let special_shabbos = calendar.get_special_shabbos(env)?;
 
         Ok(Some(JewishCalendarSnapshot {
+            is_yom_tov: calendar.is_yom_tov(env)?,
+            is_yom_tov_assur_bemelacha: calendar.is_yom_tov_assur_bemelacha(env)?,
+            is_erev_yom_tov: calendar.is_erev_yom_tov(env)?,
+            is_erev_yom_tov_sheni: calendar.is_erev_yom_tov_sheni(env)?,
+            is_chol_hamoed: calendar.is_chol_hamoed(env)?,
+            is_chol_hamoed_pesach: calendar.is_chol_hamoed_pesach(env)?,
+            is_chol_hamoed_succos: calendar.is_chol_hamoed_succos(env)?,
+            is_pesach: calendar.is_pesach(env)?,
+            is_shavuos: calendar.is_shavuos(env)?,
+            is_succos: calendar.is_succos(env)?,
+            is_shmini_atzeres: calendar.is_shmini_atzeres(env)?,
+            is_simchas_torah: calendar.is_simchas_torah(env)?,
+            is_rosh_hashana: calendar.is_rosh_hashana(env)?,
+            is_yom_kippur: calendar.is_yom_kippur(env)?,
+            is_taanis: calendar.is_taanis(env)?,
+            is_tisha_bav: calendar.is_tisha_bav(env)?,
+            is_chanukah: calendar.is_chanukah(env)?,
+            is_purim: calendar.is_purim(env)?,
+            is_isru_chag: calendar.is_isru_chag(env)?,
+            is_erev_rosh_chodesh: calendar.is_erev_rosh_chodesh(env)?,
+            is_tomorrow_shabbos_or_yom_tov: calendar.is_tomorrow_shabbos_or_yom_tov(env)?,
             is_birkas_hachamah: calendar.is_birkas_hachamah(env)?,
             parshah: java_parsha_index(env, parshah)?,
             upcoming_parshah: java_parsha_index(env, upcoming_parshah)?
