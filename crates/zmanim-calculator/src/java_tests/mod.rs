@@ -18,6 +18,7 @@
 //! known Java/Rust behavioral difference live in [`policy`].
 
 mod cases;
+mod hebrew_dates;
 mod jni;
 mod parity;
 mod policy;
@@ -82,4 +83,9 @@ pub(crate) fn test_preset_in_jerusalem(
         preset,
         None,
     )
+}
+
+#[test]
+fn test_hebrew_date_parity() -> Result<(), Box<dyn Error>> {
+    hebrew_dates::test_hebrew_date_parity()
 }

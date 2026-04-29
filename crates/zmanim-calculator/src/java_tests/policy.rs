@@ -102,7 +102,7 @@ pub(crate) fn allows_intentional_null_mismatch(preset_name: &str) -> bool {
 }
 
 /// Reads an unsigned integer from the environment, or returns the default.
-fn read_env_u64(var_name: &str, default: u64) -> u64 {
+pub(crate) fn read_env_u64(var_name: &str, default: u64) -> u64 {
     match env::var(var_name) {
         Ok(value) => value
             .parse::<u64>()

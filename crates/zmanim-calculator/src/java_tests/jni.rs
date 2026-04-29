@@ -28,7 +28,7 @@ static JVM: OnceLock<JavaVM> = OnceLock::new();
 ///
 /// JNI permits only one JVM per process, so the test harness initializes it once
 /// with the local KosherJava jar on the classpath and reuses it for every case.
-fn java_vm() -> &'static JavaVM {
+pub(crate) fn java_vm() -> &'static JavaVM {
     JVM.get_or_init(|| {
         let java_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("java")
@@ -43,6 +43,15 @@ fn java_vm() -> &'static JavaVM {
             .expect("failed to build JVM init args");
         JavaVM::new(args).expect("failed to create JVM for java parity tests")
     })
+}
+
+/// Initializes generated Java bindings for the current JNI environment.
+pub(crate) fn init_bindings(env: &mut jni::Env<'_>) -> Result<(), Box<dyn Error>> {
+    let loader = JClassLoader::get_system_class_loader(env)?;
+    let loader_context = LoaderContext::Loader(&loader);
+    jni::__test_bindings_init(env, &loader_context);
+    crate::java_bindings::jni_init(env, &loader_context)?;
+    Ok(())
 }
 
 static JAVA_SUPPORTED_TIMEZONES: OnceLock<HashSet<String>> = OnceLock::new();
@@ -97,10 +106,7 @@ pub(crate) fn calculate_java_zman(
 ) -> Result<Option<ZmanResult>, Box<dyn Error>> {
     java_vm().attach_current_thread(
         |env: &mut jni::Env<'_>| -> Result<Option<ZmanResult>, Box<dyn Error>> {
-            let loader = JClassLoader::get_system_class_loader(env)?;
-            let loader_context = LoaderContext::Loader(&loader);
-            jni::__test_bindings_init(env, &loader_context);
-            crate::java_bindings::jni_init(env, &loader_context)?;
+            init_bindings(env)?;
 
             let timezone = env.new_string(case.timezone)?;
             let timezone = env
@@ -181,7 +187,7 @@ pub(crate) fn calculate_java_zman(
     )
 }
 
-fn new_local_date<'local>(
+pub(crate) fn new_local_date<'local>(
     env: &mut jni::Env<'local>,
     year: i32,
     month: i32,
@@ -221,7 +227,7 @@ fn formatted_instant<'local>(
     Ok(text.to_string())
 }
 
-fn bool_to_jboolean(value: bool) -> jboolean {
+pub(crate) fn bool_to_jboolean(value: bool) -> jboolean {
     if value {
         JNI_TRUE
     } else {
