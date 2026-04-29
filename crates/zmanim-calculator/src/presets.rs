@@ -9,12 +9,12 @@ use crate::prelude::ZmanimCalculator;
 
 use crate::types::error::ZmanimError;
 
-#[cfg(feature = "_java_testing")]
+#[cfg(test)]
 use self::java::JavaCalc;
 use crate::{calculator::ZmanLike, primitive_zman::ZmanPrimitive};
 use chrono::{DateTime, Duration, Utc};
 
-#[cfg(feature = "_java_testing")]
+#[cfg(test)]
 mod java {
     //! Java parity-test hooks for preset definitions.
     //!
@@ -99,10 +99,10 @@ mod java {
 pub struct ZmanPreset<'a> {
     /// The underlying low-level computation definition for this preset.
     pub(crate) event: ZmanPrimitive<'a>,
-    #[cfg(feature = "_java_testing")]
+    #[cfg(test)]
     /// The KosherJava-style preset name used by parity tests.
     pub name: &'a str,
-    #[cfg(feature = "_java_testing")]
+    #[cfg(test)]
     pub(crate) calc: java::JavaCalc,
 }
 
@@ -125,10 +125,6 @@ macro_rules! count_presets {
 }
 
 /// Defines the public preset statics and the [`ALL`] registry from one list.
-///
-/// Add new presets here instead of manually updating [`ALL`]. The `java`
-/// expression is only compiled for `_java_testing`, but every entry should still
-/// name the matching KosherJava method so parity tests can call the typed binding.
 macro_rules! define_presets {
     (
         $(
@@ -145,9 +141,9 @@ macro_rules! define_presets {
             #[allow(deprecated)]
             pub static $name: ZmanPreset<'static> = ZmanPreset {
                 event: $event,
-                #[cfg(feature = "_java_testing")]
+                #[cfg(test)]
                 name: $java_fn_name,
-                #[cfg(feature = "_java_testing")]
+                #[cfg(test)]
                 calc: $java_calc,
             };
         )+
@@ -155,6 +151,31 @@ macro_rules! define_presets {
         /// An array of all the presets.
         #[allow(deprecated)]
         pub static ALL: [&ZmanPreset<'static>; count_presets!($($name),+)] = [$(&$name),+];
+
+        #[cfg(test)]
+        #[allow(deprecated)]
+        #[allow(non_snake_case)]
+        mod java_parity_tests {
+            $(
+                #[allow(non_snake_case)]
+                mod $name {
+                    #[test]
+                    fn standard() -> Result<(), Box<dyn std::error::Error>> {
+                        crate::java_tests::test_preset_in_jerusalem(&super::super::$name)
+                    }
+
+                    #[test]
+                    fn regressions() {
+                        crate::java_tests::test_regressions(&super::super::$name);
+                    }
+
+                    #[test]
+                    fn random() -> Result<(), Box<dyn std::error::Error>> {
+                        crate::java_tests::test_preset(&super::super::$name)
+                    }
+                }
+            )+
+        }
     };
 }
 

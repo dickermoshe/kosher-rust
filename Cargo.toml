@@ -6,7 +6,7 @@ members = [
     "crates/limudim-calendar",
     "crates/limudim-calendar/limudim-wasm",
     "crates/zmanim-calculator",
-    "test/rust",
+
 ]
 resolver = "2"
 

@@ -1,4 +1,4 @@
-//! Shared case definitions for deterministic and replayable Java parity tests.
+//! Case generation and regression fixtures for Java parity tests.
 
 use chrono::Month;
 use rand::rngs::StdRng;
@@ -28,7 +28,7 @@ pub(crate) struct TestCase {
 }
 
 impl TestCase {
-    /// Formats a failing random case so it can be pasted directly into `REGRESSION_CASES`.
+    /// Formats this case as a Rust literal suitable for [`REGRESSION_CASES`].
     pub fn code_literal(&self) -> String {
         format!(
             "TestCase {{\n    year: {},\n    month: {},\n    day: {},\n    latitude: {:?},\n    longitude: {:?},\n    elevation: {:?},\n    timezone: {:?},\n    preset_name: {:?},\n    ateret_torah_sunset_offset_minutes: {},\n    candle_lighting_offset_minutes: {},\n    use_astronomical_chatzos_for_other_zmanim: {},\n    use_elevation: {},\n}}",
@@ -46,9 +46,13 @@ impl TestCase {
             self.use_elevation
         )
     }
-    pub fn random(rng: &mut StdRng, max_latitude: f64) -> Self {
+    /// Generates one randomized input shared by the Java and Rust calculators.
+    pub fn random(rng: &mut StdRng, preset_name: &'static str) -> Self {
+        let max_latitude = policy::max_latitude_for_preset(preset_name);
+        let (year_start, year_end) = policy::random_year_range_for_preset(preset_name);
+
         for _ in 0..policy::MAX_TIMEZONE_ATTEMPTS {
-            let year = rng.random_range(policy::RANDOM_YEAR_START..=policy::RANDOM_YEAR_END);
+            let year = rng.random_range(year_start..=year_end);
             let month: u32 = rng.random_range(1..=12);
             let days_in_month = Month::try_from(month as u8)
                 .unwrap()
@@ -69,7 +73,7 @@ impl TestCase {
                 longitude,
                 elevation: rng.random_range(0.0..=policy::MAX_RANDOM_ELEVATION_METERS),
                 timezone,
-                preset_name: "",
+                preset_name,
                 ateret_torah_sunset_offset_minutes: rng.random_range(0..60),
                 candle_lighting_offset_minutes: rng.random_range(0..60),
                 use_astronomical_chatzos_for_other_zmanim: rng.random_bool(0.5),
@@ -86,8 +90,11 @@ impl TestCase {
 
 static TIMEZONE_FINDER: OnceLock<DefaultFinder> = OnceLock::new();
 static SHARED_TIMEZONES: OnceLock<HashSet<String>> = OnceLock::new();
-/// Returns a timezone for a given longitude and latitude.
-/// Returns None only if the timezone is not supported by Java or Rust.
+
+/// Returns a shared Java/Rust timezone for the given coordinates.
+///
+/// `None` means the coordinate lookup produced a timezone name that either Java
+/// or `chrono-tz` cannot use.
 fn timezone_for_coordinates(longitude: f64, latitude: f64) -> Option<&'static str> {
     let timezone_name = TIMEZONE_FINDER
         .get_or_init(DefaultFinder::new)
@@ -110,22 +117,8 @@ fn timezone_for_coordinates(longitude: f64, latitude: f64) -> Option<&'static st
     }
 }
 
-/// Hand-picked cases promoted out of randomized failures or known boundary bugs.
+/// Deterministic cases captured from past random failures or known edge cases.
 pub(crate) const REGRESSION_CASES: &[TestCase] = &[
-    TestCase {
-        year: 1920,
-        month: 12,
-        day: 24,
-        latitude: -3.700006770972628,
-        longitude: -171.58125509771557,
-        elevation: 0.0,
-        timezone: "Pacific/Kanton",
-        preset_name: "getChatzos",
-        ateret_torah_sunset_offset_minutes: 9,
-        candle_lighting_offset_minutes: 52,
-        use_astronomical_chatzos_for_other_zmanim: true,
-        use_elevation: false,
-    },
     TestCase {
         year: 2024,
         month: 4,

@@ -1,4 +1,9 @@
-// //! Calls KosherJava through JNI.
+//! JNI bridge used by the Java parity tests.
+//!
+//! This module owns the JVM lifecycle and the object setup needed to ask
+//! KosherJava for one preset result.  The rest of the parity harness should not
+//! need to know about class loaders, generated JNI bindings, or Java object
+//! construction details.
 
 use std::{collections::HashSet, env::join_paths, error::Error, path::PathBuf, sync::OnceLock};
 
@@ -19,6 +24,10 @@ use super::cases::TestCase;
 
 static JVM: OnceLock<JavaVM> = OnceLock::new();
 
+/// Returns the process-wide JVM used by all parity tests.
+///
+/// JNI permits only one JVM per process, so the test harness initializes it once
+/// with the local KosherJava jar on the classpath and reuses it for every case.
 fn java_vm() -> &'static JavaVM {
     JVM.get_or_init(|| {
         let java_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -38,7 +47,10 @@ fn java_vm() -> &'static JavaVM {
 
 static JAVA_SUPPORTED_TIMEZONES: OnceLock<HashSet<String>> = OnceLock::new();
 
-/// Returns the timezones known to Java.
+/// Returns the timezone IDs known to the Java runtime.
+///
+/// Random case generation intersects this set with `chrono-tz` so timezone-name
+/// compatibility does not masquerade as a zman calculation mismatch.
 pub(crate) fn java_supported_timezones() -> &'static HashSet<String> {
     JAVA_SUPPORTED_TIMEZONES.get_or_init(|| {
         java_vm()
@@ -75,6 +87,10 @@ pub(crate) fn java_supported_timezones() -> &'static HashSet<String> {
     })
 }
 
+/// Calculates one preset with KosherJava for a parity [`TestCase`].
+///
+/// The returned timestamp is in epoch milliseconds for comparison, while the
+/// formatted value is only for human-readable failure messages.
 pub(crate) fn calculate_java_zman(
     case: TestCase,
     zman: &'static ZmanPreset<'static>,
@@ -106,6 +122,13 @@ pub(crate) fn calculate_java_zman(
                 &timezone,
             )?;
             let calendar = ComprehensiveZmanimCalendar::new_geo_location(env, location)?;
+            let local_date = new_local_date(env, case.year, case.month as i32, case.day as i32)?;
+            env.call_method(
+                &calendar,
+                jni_str!("setLocalDate"),
+                jni_sig!("(Ljava/time/LocalDate;)V"),
+                &[JValue::Object(&local_date)],
+            )?;
             env.call_method(
                 &calendar,
                 jni_str!("setUseElevation"),

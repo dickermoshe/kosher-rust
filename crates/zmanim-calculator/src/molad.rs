@@ -1,4 +1,4 @@
-use chrono::{DateTime, Datelike, NaiveDate, TimeZone, Utc};
+use chrono::{DateTime, NaiveDate, TimeZone, Utc};
 use hebrew_holiday_calendar::{HebrewHolidayCalendar, HebrewMonth};
 use icu_calendar::{
     cal::Hebrew,
@@ -94,7 +94,7 @@ impl MoladCalendar for Date<Gregorian> {
             return None;
         }
         let molad = months_molad(&hebrew)? + chrono::Duration::hours(24 * 15);
-        if is_same_day(&hebrew, &molad, tz) {
+        if is_same_gregorian_day(&hebrew, &molad, tz) {
             return Some((molad.with_timezone(tz), hebrew.hebrew_month()));
         }
         None
@@ -111,7 +111,7 @@ impl MoladCalendar for Date<Gregorian> {
         }
         let molad = months_molad(&hebrew)? + chrono::Duration::hours(72);
 
-        if is_same_day(&hebrew, &molad, tz) {
+        if is_same_gregorian_day(&hebrew, &molad, tz) {
             return Some((molad.with_timezone(tz), hebrew.hebrew_month()));
         }
 
@@ -123,7 +123,7 @@ impl MoladCalendar for Date<Gregorian> {
                 .try_added_with_options(DateDuration::for_months(1), add_option)
                 .ok()?;
             let molad = months_molad(&new)? + chrono::Duration::hours(72);
-            if is_same_day(&new, &molad, tz) {
+            if is_same_gregorian_day(&hebrew, &molad, tz) {
                 return Some((molad.with_timezone(tz), new.hebrew_month()));
             }
         }
@@ -140,7 +140,7 @@ impl MoladCalendar for Date<Gregorian> {
             return None;
         }
         let molad = months_molad(&hebrew)? + chrono::Duration::hours(168);
-        if is_same_day(&hebrew, &molad, tz) {
+        if is_same_gregorian_day(&hebrew, &molad, tz) {
             return Some((molad.with_timezone(tz), hebrew.hebrew_month()));
         }
         None
@@ -160,7 +160,7 @@ impl MoladCalendar for Date<Gregorian> {
             + chrono::Duration::minutes(22)
             + chrono::Duration::seconds(1)
             + chrono::Duration::milliseconds(666);
-        if is_same_day(&hebrew, &molad, tz) {
+        if is_same_gregorian_day(&hebrew, &molad, tz) {
             return Some((molad.with_timezone(tz), hebrew.hebrew_month()));
         }
         None
@@ -190,27 +190,6 @@ impl MoladCalendar for Date<Gregorian> {
         }
         Some((molad.with_timezone(tz), hebrew.hebrew_month()))
     }
-}
-
-fn is_same_day<Tz: TimeZone>(hdate: &Date<Hebrew>, gdate: &DateTime<Utc>, tz: &Tz) -> bool {
-    let gdate_tz = tz.from_utc_datetime(&gdate.naive_utc());
-
-    // Convert the Gregorian datetime to a Hebrew date
-    let gregorian_date = match Date::try_new_gregorian(
-        gdate_tz.year(),
-        gdate_tz.month() as u8,
-        gdate_tz.day() as u8,
-    ) {
-        Ok(date) => date,
-        Err(_) => return false,
-    };
-
-    let hebrew_date_from_gdate = gregorian_date.to_calendar(Hebrew);
-
-    // Compare Hebrew date components
-    hdate.day_of_month().0 == hebrew_date_from_gdate.day_of_month().0
-        && hdate.hebrew_month() == hebrew_date_from_gdate.hebrew_month()
-        && hdate.year().extended_year() == hebrew_date_from_gdate.year().extended_year()
 }
 
 fn is_same_gregorian_day<Tz: TimeZone>(

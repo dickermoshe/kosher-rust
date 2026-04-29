@@ -1,11 +1,21 @@
 #![allow(clippy::unwrap_used)]
 
-//! Tests that compare this crate with KosherJava.
+//! Java parity tests for the Rust preset catalog.
 //!
-//! There are fixed regression cases, one smoke test for every preset, and a
-//! random test that prints the seed when it fails.
+//! These tests treat KosherJava as the behavioral reference for each
+//! [`ZmanPreset`].  Every preset gets:
 //!
-//! See `policy.rs` for random test limits and allowed Java/Rust differences.
+//! - a deterministic Jerusalem smoke case,
+//! - any hand-curated regression cases recorded for that preset, and
+//! - a seeded randomized run across dates, locations, elevations, and relevant
+//!   calculator configuration flags.
+//!
+//! Random failures print the seed, iteration, and a ready-to-paste
+//! [`TestCase`] literal.  Add that literal to [`REGRESSION_CASES`] before
+//! changing implementation code so the edge case remains covered.
+//!
+//! Policy decisions that intentionally narrow the random input space or allow a
+//! known Java/Rust behavioral difference live in [`policy`].
 
 mod cases;
 mod jni;
@@ -21,7 +31,7 @@ use crate::presets::ZmanPreset;
 use self::{
     cases::{TestCase, REGRESSION_CASES},
     parity::{run_test_case, CaseRun},
-    policy::{max_latitude_for_preset, test_iterations, test_seed},
+    policy::{test_iterations, test_seed},
 };
 
 /// Runs the randomized Java parity check for one preset.
@@ -29,10 +39,9 @@ pub(crate) fn test_preset(preset: &'static ZmanPreset<'static>) -> Result<(), Bo
     let seed = test_seed();
     let iterations = test_iterations();
     let mut rng = StdRng::seed_from_u64(seed);
-    let max_latitude = max_latitude_for_preset(preset.name);
 
     for iteration in 0..iterations {
-        let case = TestCase::random(&mut rng, max_latitude);
+        let case = TestCase::random(&mut rng, preset.name);
         run_test_case(case, preset, Some(CaseRun { seed, iteration }))?;
     }
 
@@ -40,15 +49,15 @@ pub(crate) fn test_preset(preset: &'static ZmanPreset<'static>) -> Result<(), Bo
 }
 
 /// Runs the fixed regression cases that belong to one preset.
-pub(crate) fn test_regressions(preset: &'static ZmanPreset<'static>) -> Result<(), Box<dyn Error>> {
+#[cfg(test)]
+pub(crate) fn test_regressions(preset: &'static ZmanPreset<'static>) {
     for case in REGRESSION_CASES
         .iter()
         .copied()
         .filter(|case| case.preset_name == preset.name)
     {
-        run_test_case(case, preset, None)?;
+        run_test_case(case, preset, None).unwrap();
     }
-    Ok(())
 }
 
 /// Checks one preset against Java for a standard Jerusalem case.

@@ -49,9 +49,9 @@ impl<Tz: TimeZone> ZmanimCalculator<Tz> {
         date: NaiveDate,
         config: CalculatorConfig,
     ) -> Result<Self, ZmanimError> {
-        #[cfg(feature = "_java_testing")]
+        #[cfg(test)]
         let refraction = Refraction::NOAA;
-        #[cfg(not(feature = "_java_testing"))]
+        #[cfg(not(test))]
         let refraction = Refraction::ApSolposBennet;
         let localnoon = Self::local_noon(date, &location)?;
         let elevation_adjusted_calculator = AstronomicalCalculator::new(

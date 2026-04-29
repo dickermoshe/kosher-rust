@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "_java_testing"), no_std)]
+#![cfg_attr(not(test), no_std)]
 #![warn(missing_docs)]
 //! Calculate zmanim (Jewish halachic times) using KosherJava-style concepts and naming.
 //!
@@ -16,7 +16,7 @@
 //! `calculate` takes `&mut self` so repeated calculations can reuse intermediate state.
 //! If Rust borrow rules are awkward for your call pattern, clone the calculator and use each
 //! clone independently.
-#[cfg(all(test, feature = "_java_testing"))]
+#[cfg(test)]
 mod java_tests;
 #[cfg(test)]
 mod tests;
@@ -48,7 +48,7 @@ pub mod prelude {
     pub use crate::types::location::Location;
 }
 
-#[cfg(feature = "_java_testing")]
+#[cfg(test)]
 #[allow(warnings, missing_docs)]
 #[allow(clippy::all, clippy::pedantic, clippy::nursery)]
 /// Java bindings for KosherJava.

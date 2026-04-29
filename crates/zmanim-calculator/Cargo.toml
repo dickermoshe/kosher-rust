@@ -10,11 +10,9 @@ documentation = "https://docs.rs/zmanim-calculator"
 
 [features]
 # By default, only the core functionality is enabled.
-default = ["_java_testing"]
+default = []
 # Enable this feature to use the defmt crate for logging.
 defmt = ["dep:defmt", "astronomical-calculator/defmt"]
-# Internal: Used for testing against KosherJava.
-_java_testing = ["dep:jni"]
 
 
 [dependencies]
@@ -25,9 +23,9 @@ defmt = { workspace = true, optional = true }
 core_maths.workspace = true
 hebrew_holiday_calendar.workspace = true
 thiserror.workspace = true
-jni = { version = "0.22.4", optional = true, features = ["invocation"] }
 
 [dev-dependencies]
+jni = { version = "0.22.4", features = ["invocation"] }
 chrono = { workspace = true, features = ["std"] }
 lazy_static.workspace = true
 j4rs.workspace = true

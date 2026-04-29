@@ -1,4 +1,4 @@
-//! Compare Java and Rust zman results.
+//! Shared comparison path for Java parity tests.
 
 use std::{error::Error, str::FromStr};
 
@@ -21,13 +21,14 @@ pub(crate) struct ZmanResult {
     pub(crate) timestamp_ms: i64,
 }
 
-/// Identifies one random test case so a failure can be replayed.
+/// Identifies a randomized test input so a failure can be replayed.
 #[derive(Clone, Copy, Debug)]
 pub(crate) struct CaseRun {
     pub(crate) seed: u64,
     pub(crate) iteration: u64,
 }
 
+/// Calculates one case with both implementations and asserts policy-compliant parity.
 pub(crate) fn run_test_case(
     case: TestCase,
     preset: &'static ZmanPreset<'static>,
@@ -37,7 +38,7 @@ pub(crate) fn run_test_case(
     let rust = calculate_rust_zman(case, preset)?;
     assert_results_match(case, java, rust, &format_message(case, random_run))
 }
-
+/// Calculates one case with the Rust implementation.
 fn calculate_rust_zman(
     case: TestCase,
     preset: &'static ZmanPreset<'static>,
@@ -68,7 +69,7 @@ fn calculate_rust_zman(
         timestamp_ms: dt.timestamp_millis(),
     }))
 }
-
+/// Formats a message for a failed test case.
 fn format_message(case: TestCase, case_run: Option<CaseRun>) -> String {
     case_run
         .map(|run| {
@@ -82,6 +83,7 @@ fn format_message(case: TestCase, case_run: Option<CaseRun>) -> String {
         .unwrap_or_default()
 }
 
+/// Asserts that the results match according to the policy.
 fn assert_results_match(
     case: TestCase,
     java: Option<ZmanResult>,
