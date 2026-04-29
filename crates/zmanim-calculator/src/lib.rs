@@ -42,7 +42,6 @@ pub mod primitive_zman;
 pub mod prelude {
     pub use crate::calculator::ZmanimCalculator;
     pub use crate::presets::ZmanPreset;
-    pub use crate::primitive_zman::ZmanPrimitive;
     pub use crate::types::config::CalculatorConfig;
     pub use crate::types::error::ZmanimError;
     pub use crate::types::location::Location;

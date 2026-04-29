@@ -7,6 +7,7 @@ use chrono_tz::Tz;
 
 use crate::{
     calculator::ZmanLike,
+    java_tests::policy::DEFAULT_MAX_DIFF_MS,
     presets::{ZmanPreset, ALL},
     types::{config::CalculatorConfig, location::Location},
 };
@@ -124,7 +125,7 @@ fn assert_results_match(
         (None, None) => Ok(()),
         (Some(java), Some(rust)) => {
             let difference = (java.timestamp_ms - rust.timestamp_ms).abs();
-            let max_diff_ms = policy::max_allowed_difference_ms(case.preset_name);
+            let max_diff_ms = DEFAULT_MAX_DIFF_MS;
             assert!(
                 difference <= max_diff_ms,
                 "zman mismatch for {} on {} at ({}, {}) in {}: java={} rust={} diff={}ms max={}ms\n{}",

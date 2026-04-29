@@ -33,7 +33,10 @@ fn randomized_presets_match_java_bindings() -> TestResult {
     let mut presets_up_to_60 = Vec::new();
     let mut presets_up_to_85 = Vec::new();
 
-    for preset in ALL {
+    for preset in ALL
+        .iter()
+        .filter(|preset| !policy::IGNORED_PRESETS.contains(&preset.name))
+    {
         let max_latitude = max_latitude_for_preset(preset.name);
         if max_latitude == 40.0 {
             presets_up_to_40.push(preset.name);

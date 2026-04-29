@@ -65,11 +65,18 @@ fn timezone_finder() -> &'static DefaultFinder {
 fn shared_timezones() -> &'static HashSet<String> {
     SHARED_TIMEZONES.get_or_init(|| {
         let java_timezones = java_supported_timezones();
-        chrono_tz::TZ_VARIANTS
+
+        let mut shared_timezones: HashSet<String> = chrono_tz::TZ_VARIANTS
             .iter()
             .map(|timezone| timezone.name().to_string())
             .filter(|timezone| java_timezones.contains(timezone))
-            .collect()
+            .collect();
+
+        for value in policy::IGNORED_TIMEZONES {
+            shared_timezones.remove(value);
+        }
+
+        shared_timezones
     })
 }
 

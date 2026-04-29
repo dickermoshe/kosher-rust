@@ -19,9 +19,7 @@ use crate::{
     molad::MoladCalendar,
     prelude::ZmanimCalculator,
     presets::{
-        ALOS_16_POINT_1_DEGREES, CHATZOS_ASTRONOMICAL, CHATZOS_HALF_DAY,
-        MINCHA_GEDOLA_BAAL_HATANYA, MINCHA_GEDOLA_MINUTES_30, MINCHA_GEDOLA_SUNRISE_SUNSET,
-        TZAIS_GEONIM_DEGREES_3_POINT_7, TZAIS_GEONIM_DEGREES_3_POINT_8,
+        ALOS_16_POINT_1_DEGREES, TZAIS_GEONIM_DEGREES_3_POINT_7, TZAIS_GEONIM_DEGREES_3_POINT_8,
     },
     types::error::{IntoDateTimeResult, ZmanimError},
 };
@@ -30,7 +28,7 @@ use crate::{
 ///
 /// These should typically not be used directly. Instead, use the presets in [`crate::presets`].
 #[derive(Debug, Clone)]
-pub enum ZmanPrimitive<'a> {
+pub(crate) enum ZmanPrimitive<'a> {
     /// Sunrise at the configured location/date.
     ElevationAdjustedSunrise,
     /// Sunrise at sea level (no elevation adjustment).
@@ -41,8 +39,6 @@ pub enum ZmanPrimitive<'a> {
     ConfiguredSunset,
     /// Solar transit (local apparent noon / astronomical chatzos).
     SolarTransit,
-    /// Chatzos using the configured mode (astronomical or half-day).
-    ConfiguredChatzos,
     /// Sunset at the configured location/date.
     ElevationAdjustedSunset,
     /// Sunset at sea level (no elevation adjustment).
@@ -75,6 +71,7 @@ pub enum ZmanPrimitive<'a> {
     Tefila(&'a ZmanPrimitive<'a>, &'a ZmanPrimitive<'a>, bool),
     /// Plag hamincha derived from two bounding [`ZmanPrimitive`]s.
     PlagHamincha(&'a ZmanPrimitive<'a>, &'a ZmanPrimitive<'a>, bool),
+    SofZmanBiurChametz(&'a ZmanPrimitive<'a>, &'a ZmanPrimitive<'a>, bool),
     /// Tzais according to the shita of Yeshivas Ateret Torah
     TzaisAteretTorah,
     /// The latest time of _Kiddush Levana_ calculated as 15 days after the molad.
@@ -91,10 +88,6 @@ pub enum ZmanPrimitive<'a> {
     BainHashmashosRt2Stars,
     /// Mincha gedola (Ahavat Shalom): later of `chatzos + 30m` and `chatzos + 1/2 shaah`.
     MinchaGedolaAhavatShalom,
-    /// Mincha gedola: later of Baal HaTanya mincha gedola and `30` minutes after solar transit.
-    MinchaGedolaBaalHatanyaGreaterThan30,
-    /// Mincha gedola: later of [`MINCHA_GEDOLA_SUNRISE_SUNSET`] and [`MINCHA_GEDOLA_MINUTES_30`].
-    MinchaGedolaGreaterThan30,
     /// Mincha ketana (Ahavat Shalom): `2.5` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
     MinchaKetanaAhavatShalom,
     /// Plag hamincha (Ahavat Shalom): `1.25` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
@@ -281,6 +274,15 @@ impl<'a, Tz: TimeZone> ZmanLike<Tz> for ZmanPrimitive<'a> {
                     Ok(event1_time + offset)
                 }
             }
+            ZmanPrimitive::SofZmanBiurChametz(event1, event2, synchronous) => {
+                let primitive =
+                    if calculator.config.use_astronomical_chatzos_for_other_zmanim && synchronous {
+                        ZmanPrimitive::HalfDayBasedOffset(event1, &ZmanPrimitive::SolarTransit, 5.0)
+                    } else {
+                        ZmanPrimitive::ShaahZmanisBasedOffset(event1, event2, 5.0)
+                    };
+                primitive.calculate(calculator)
+            }
             Self::TzaisAteretTorah => {
                 let sunset = calculator
                     .configured_calculator()
@@ -375,24 +377,6 @@ impl<'a, Tz: TimeZone> ZmanLike<Tz> for ZmanPrimitive<'a> {
                     Ok(mincha_alternative)
                 }
             }
-            ZmanPrimitive::MinchaGedolaBaalHatanyaGreaterThan30 => {
-                let mincha_30 = MINCHA_GEDOLA_MINUTES_30.calculate(calculator)?;
-                let mincha_baal_hatanya = MINCHA_GEDOLA_BAAL_HATANYA.calculate(calculator)?;
-                if mincha_30 > mincha_baal_hatanya {
-                    Ok(mincha_30)
-                } else {
-                    Ok(mincha_baal_hatanya)
-                }
-            }
-            ZmanPrimitive::MinchaGedolaGreaterThan30 => {
-                let mincha_30 = MINCHA_GEDOLA_MINUTES_30.calculate(calculator)?;
-                let mincha_regular = MINCHA_GEDOLA_SUNRISE_SUNSET.calculate(calculator)?;
-                if mincha_30 > mincha_regular {
-                    Ok(mincha_30)
-                } else {
-                    Ok(mincha_regular)
-                }
-            }
             ZmanPrimitive::MinchaKetanaAhavatShalom => {
                 let tzais = TZAIS_GEONIM_DEGREES_3_POINT_8.calculate(calculator)?;
                 let alos = ALOS_16_POINT_1_DEGREES.calculate(calculator)?;
@@ -420,18 +404,6 @@ impl<'a, Tz: TimeZone> ZmanLike<Tz> for ZmanPrimitive<'a> {
                 date.molad(tz)
                     .map(|i| i.0.to_utc())
                     .ok_or(ZmanimError::TimeConversionError)
-            }
-            ZmanPrimitive::ConfiguredChatzos => {
-                if calculator.config.use_astronomical_chatzos_for_other_zmanim {
-                    CHATZOS_ASTRONOMICAL.calculate(calculator)
-                } else {
-                    let chatzos = CHATZOS_HALF_DAY.calculate(calculator);
-                    match chatzos {
-                        Ok(chatzos) => Ok(chatzos),
-                        // Fallback to astronomical chatzos if half-day chatzos is not available.
-                        Err(_) => CHATZOS_ASTRONOMICAL.calculate(calculator),
-                    }
-                }
             }
         }
     }

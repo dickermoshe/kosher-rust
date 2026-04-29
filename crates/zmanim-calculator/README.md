@@ -46,6 +46,29 @@ If you omit a timezone, calculations near the anti-meridian (`|longitude| > 150`
 
 The API aims to follow KosherJava naming and behavior where possible. For background and broader algorithm documentation, see the [KosherJava documentation](https://kosherjava.com/zmanim-project/how-to-use-the-zmanim-api/).
 
+## Testing
+
+This crate uses randomized parity tests against the bundled Java implementation. A small number of tolerance and policy exceptions are allowed where the Rust SPA calculations intentionally differ from NOAA while remaining accurate enough for supported use cases.
+
+To run the full test suite, first build the Java jar:
+
+```bash
+cd java
+mvn package
+```
+
+Then regenerate the Rust bindings:
+
+```bash
+jbindgen java ./java/src/main/ -o ./src/java_bindings.rs --root crate::java_bindings
+```
+
+Finally, run the Rust tests:
+
+```bash
+cargo test
+```
+
 ## License
 
 Licensed under LGPL-2.1. See [LICENSE](LICENSE) for details.
