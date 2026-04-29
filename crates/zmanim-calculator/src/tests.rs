@@ -647,7 +647,9 @@ fn test_polar_day_zmanim_return_none() {
         &ALOS_90_ZMANIS,
         &ALOS_96_MINUTES,
         &ALOS_96_ZMANIS,
+        #[allow(deprecated)]
         &ALOS_120_MINUTES,
+        #[allow(deprecated)]
         &ALOS_120_ZMANIS,
     ];
     for zman in alos_variants {

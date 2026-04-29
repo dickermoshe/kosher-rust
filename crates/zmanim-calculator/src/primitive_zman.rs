@@ -10,9 +10,7 @@
 //! Use this module when you need to compose a custom zman definition that is
 //! not already provided by a preset.
 
-use chrono::{DateTime, Datelike, Duration, TimeZone, Utc};
-use icu_calendar::Date;
-
+#[allow(deprecated)]
 use crate::{
     calculator::ZmanLike,
     duration_helper::multiply_duration,
@@ -23,6 +21,8 @@ use crate::{
     },
     types::error::{IntoDateTimeResult, ZmanimError},
 };
+use chrono::{DateTime, Datelike, Duration, TimeZone, Utc};
+use icu_calendar::Date;
 
 /// A low-level building block for calculating zmanim.
 ///
@@ -368,6 +368,7 @@ impl<'a, Tz: TimeZone> ZmanLike<Tz> for ZmanPrimitive<'a> {
                 let mincha_gedola_30 = chatzos + Duration::minutes(30);
 
                 let alos = ALOS_16_POINT_1_DEGREES.calculate(calculator)?;
+                #[allow(deprecated)]
                 let tzais = TZAIS_GEONIM_DEGREES_3_POINT_7.calculate(calculator)?;
                 let shaah_zmanis = (tzais - alos) / 12;
                 let mincha_alternative = chatzos + (shaah_zmanis / 2);
@@ -378,6 +379,7 @@ impl<'a, Tz: TimeZone> ZmanLike<Tz> for ZmanPrimitive<'a> {
                 }
             }
             ZmanPrimitive::MinchaKetanaAhavatShalom => {
+                #[allow(deprecated)]
                 let tzais = TZAIS_GEONIM_DEGREES_3_POINT_8.calculate(calculator)?;
                 let alos = ALOS_16_POINT_1_DEGREES.calculate(calculator)?;
                 let shaah_zmanis = (tzais - alos) / 12;

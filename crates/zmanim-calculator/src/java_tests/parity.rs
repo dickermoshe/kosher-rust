@@ -7,67 +7,42 @@ use chrono_tz::Tz;
 
 use crate::{
     calculator::ZmanLike,
-    java_tests::policy::{max_diff_ms_for_preset, DEFAULT_MAX_DIFF_MS},
-    presets::{ZmanPreset, ALL},
+    java_tests::{jni::calculate_java_zman, policy::max_diff_ms_for_preset},
+    prelude::ZmanimError,
+    presets::ZmanPreset,
     types::{config::CalculatorConfig, location::Location},
 };
 
-use super::{
-    cases::{regression_case_literal, RegressionCase},
-    jni::{calculate_java_zman_batch, JavaZmanResult},
-    policy,
-};
+use super::{cases::TestCase, policy};
 
-pub(crate) type TestResult<T = ()> = Result<T, Box<dyn Error>>;
+#[derive(Clone, Debug)]
+pub(crate) struct ZmanResult {
+    pub(crate) formatted: String,
+    pub(crate) timestamp_ms: i64,
+}
 
 /// Identifies one random test case so a failure can be replayed.
 #[derive(Clone, Copy, Debug)]
-pub(crate) struct RandomRun {
+pub(crate) struct CaseRun {
     pub(crate) seed: u64,
     pub(crate) iteration: u64,
 }
 
-pub(crate) fn assert_case_matches_java(
-    case: RegressionCase,
-    random_run: Option<RandomRun>,
-) -> TestResult {
-    let java = calculate_java_zman(case)?;
-    let rust = calculate_rust_zman(case)?;
-    let replay_message = format_replay_message(case, random_run);
-    assert_results_match(case, java, rust, &replay_message)
+pub(crate) fn run_test_case(
+    case: TestCase,
+    preset: &'static ZmanPreset<'static>,
+    random_run: Option<CaseRun>,
+) -> Result<(), Box<dyn Error>> {
+    let java = calculate_java_zman(case, preset)?;
+    let rust = calculate_rust_zman(case, preset)?;
+    assert_results_match(case, java, rust, &format_message(case, random_run))
 }
 
-pub(crate) fn assert_presets_match_java(
-    base_case: RegressionCase,
-    preset_names: &[&'static str],
-    random_run: Option<RandomRun>,
-) -> TestResult {
-    let java_results = calculate_java_zman_batch(base_case, preset_names)?;
-
-    for (preset_name, java) in preset_names.iter().copied().zip(java_results.into_iter()) {
-        let case = RegressionCase {
-            preset_name,
-            ..base_case
-        };
-        let rust = calculate_rust_zman(case)?;
-        let replay_message = format_replay_message(case, random_run);
-        assert_results_match(case, java, rust, &replay_message)?;
-    }
-
-    Ok(())
-}
-
-fn calculate_java_zman(case: RegressionCase) -> TestResult<Option<ZmanResult>> {
-    let mut results = calculate_java_zman_batch(case, &[case.preset_name])?;
-    Ok(results
-        .pop()
-        .expect("single-preset batch should return one result"))
-}
-
-type ZmanResult = JavaZmanResult;
-
-fn calculate_rust_zman(case: RegressionCase) -> TestResult<Option<ZmanResult>> {
-    let timezone = Tz::from_str(case.timezone)?;
+fn calculate_rust_zman(
+    case: TestCase,
+    preset: &'static ZmanPreset<'static>,
+) -> Result<Option<ZmanResult>, ZmanimError> {
+    let timezone = Tz::from_str(case.timezone).unwrap();
     let location = Location::new(
         case.latitude,
         case.longitude,
@@ -82,7 +57,6 @@ fn calculate_rust_zman(case: RegressionCase) -> TestResult<Option<ZmanResult>> {
         ateret_torah_sunset_offset: Duration::minutes(case.ateret_torah_sunset_offset_minutes),
     };
     let mut calculator = crate::calculator::ZmanimCalculator::new(location, date, config)?;
-    let preset = preset_by_name(case.preset_name);
 
     let dt = match preset.calculate(&mut calculator) {
         Ok(dt) => dt,
@@ -95,32 +69,25 @@ fn calculate_rust_zman(case: RegressionCase) -> TestResult<Option<ZmanResult>> {
     }))
 }
 
-fn preset_by_name(name: &str) -> &'static ZmanPreset<'static> {
-    ALL.iter()
-        .copied()
-        .find(|preset| preset.name == name)
-        .unwrap_or_else(|| panic!("missing Rust preset mapping for {name}"))
-}
-
-fn format_replay_message(case: RegressionCase, random_run: Option<RandomRun>) -> String {
-    random_run
+fn format_message(case: TestCase, case_run: Option<CaseRun>) -> String {
+    case_run
         .map(|run| {
             format!(
                 "seed={} iteration={}\nPaste into REGRESSION_CASES:\n{},",
                 run.seed,
                 run.iteration,
-                regression_case_literal(case)
+                case.code_literal()
             )
         })
         .unwrap_or_default()
 }
 
 fn assert_results_match(
-    case: RegressionCase,
+    case: TestCase,
     java: Option<ZmanResult>,
     rust: Option<ZmanResult>,
     replay_message: &str,
-) -> TestResult {
+) -> Result<(), Box<dyn Error>> {
     match (java, rust) {
         (None, None) => Ok(()),
         (Some(java), Some(rust)) => {
