@@ -42,6 +42,22 @@ if let Some(parsha) = date.todays_parsha(false) {
 
 - **`defmt`** — Enables formatting support for embedded logging
 
+## Testing
+
+This crate has its own unit tests, and additional calendar parity coverage lives in the
+[`zmanim-calculator`](../zmanim-calculator/) crate.
+
+Run the local `hebrew_holiday_calendar` tests with:
+```bash
+cargo test -p hebrew_holiday_calendar
+```
+
+Run the broader `zmanim-calculator` test suite, including KosherJava parity tests for this
+calendar logic, with:
+```bash
+cargo test -p zmanim-calculator
+```
+
 ## License
 
 Licensed under LGPL-2.1. See [LICENSE](LICENSE) for details.

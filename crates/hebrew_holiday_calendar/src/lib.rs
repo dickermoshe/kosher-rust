@@ -433,7 +433,11 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
         } else if month_code == ADARI {
             HebrewMonth::Adar
         } else if month_code == ADAR {
-            HebrewMonth::AdarII
+            if self.is_in_leap_year() {
+                HebrewMonth::AdarII
+            } else {
+                HebrewMonth::Adar
+            }
         } else if month_code == NISAN {
             HebrewMonth::Nissan
         } else if month_code == IYYAR {
@@ -1640,6 +1644,17 @@ mod tests {
         assert!(result.is_some());
         let (_year, month, _day) = result.unwrap();
         assert!(month == HebrewMonth::Tishrei || month == HebrewMonth::Cheshvan);
+    }
+
+    #[test]
+    fn test_hebrew_month_for_adar() {
+        let non_leap_adar = Date::<Hebrew>::from_hebrew_date(5783, HebrewMonth::Adar, 24)
+            .expect("valid non-leap Adar date");
+        assert_eq!(non_leap_adar.hebrew_month(), HebrewMonth::Adar);
+
+        let leap_adar_ii = Date::<Hebrew>::from_hebrew_date(5784, HebrewMonth::AdarII, 14)
+            .expect("valid leap-year Adar II date");
+        assert_eq!(leap_adar_ii.hebrew_month(), HebrewMonth::AdarII);
     }
 
     #[test]
