@@ -33,7 +33,7 @@ pub(crate) fn calculate_java_zman_batch(
     preset_names: &[&'static str],
 ) -> Result<Vec<Option<JavaZmanResult>>, Box<dyn Error>> {
     java_vm().attach_current_thread(
-        |env| -> Result<Vec<Option<JavaZmanResult>>, Box<dyn Error>> {
+        |env: &mut jni::Env<'_>| -> Result<Vec<Option<JavaZmanResult>>, Box<dyn Error>> {
             let loader = JClassLoader::get_system_class_loader(env)?;
             let loader_context = LoaderContext::Loader(&loader);
             jni::__test_bindings_init(env, &loader_context);
@@ -96,7 +96,7 @@ pub(crate) fn calculate_java_zman_batch(
             let mut results = Vec::with_capacity(preset_names.len());
             for &preset_name in preset_names {
                 let preset_method = JNIString::new(preset_name);
-                let instant = env
+                let instant: JObject<'_> = env
                     .call_method(
                         &calendar,
                         preset_method,
