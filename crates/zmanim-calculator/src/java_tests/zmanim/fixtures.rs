@@ -130,4 +130,18 @@ pub(super) const REGRESSION_CASES: &[TestCase] = &[
         use_astronomical_chatzos_for_other_zmanim: true,
         use_elevation: true,
     },
+    TestCase {
+        year: 2198,
+        month: 9,
+        day: 23,
+        latitude: -29.374032060322612,
+        longitude: 0.6381048563895604,
+        elevation: 1126.9904617551695,
+        timezone: "Etc/GMT",
+        preset_name: "getSofZmanShma3HoursBeforeChatzos",
+        ateret_torah_sunset_offset_minutes: 30,
+        candle_lighting_offset_minutes: 42,
+        use_astronomical_chatzos_for_other_zmanim: true,
+        use_elevation: false,
+    },
 ];

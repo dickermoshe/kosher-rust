@@ -28,7 +28,7 @@ use icu_calendar::Date;
 ///
 /// These should typically not be used directly. Instead, use the presets in [`crate::presets`].
 #[derive(Debug, Clone)]
-pub(crate) enum ZmanPrimitive<'a> {
+pub enum ZmanPrimitive<'a> {
     /// Sunrise at the configured location/date.
     ElevationAdjustedSunrise,
     /// Sunrise at sea level (no elevation adjustment).
@@ -71,6 +71,7 @@ pub(crate) enum ZmanPrimitive<'a> {
     Tefila(&'a ZmanPrimitive<'a>, &'a ZmanPrimitive<'a>, bool),
     /// Plag hamincha derived from two bounding [`ZmanPrimitive`]s.
     PlagHamincha(&'a ZmanPrimitive<'a>, &'a ZmanPrimitive<'a>, bool),
+    /// Sof zman biur chametz derived from two bounding [`ZmanPrimitive`]s.
     SofZmanBiurChametz(&'a ZmanPrimitive<'a>, &'a ZmanPrimitive<'a>, bool),
     /// Tzais according to the shita of Yeshivas Ateret Torah
     TzaisAteretTorah,

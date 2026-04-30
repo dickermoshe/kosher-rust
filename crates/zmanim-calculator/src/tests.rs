@@ -274,7 +274,7 @@ fn test_reykjavik_equinox_java_expected_times() {
     );
     assert_zman_str(&mut calc, &SEA_LEVEL_SUNRISE, "2017-03-21T07:24:24Z");
     assert_zman_str(&mut calc, &SEA_LEVEL_SUNSET, "2017-03-21T19:46:56Z");
-    assert_zman_str(&mut calc, &CHATZOS_ASTRONOMICAL, "2017-03-21T13:34:59Z");
+    assert_zman_str(&mut calc, &CHATZOS_HAYOM_ASTRONOMICAL, "2017-03-21T13:34:59Z");
 }
 
 #[test]
@@ -308,7 +308,7 @@ fn test_everest_java_expected_times() {
     );
     assert_zman_str_with_max_time_diff(
         &mut calc,
-        &CHATZOS_ASTRONOMICAL,
+        &CHATZOS_HAYOM_ASTRONOMICAL,
         "2017-10-17T11:42:44+05:45",
         Some(120),
     );
@@ -381,7 +381,7 @@ fn test_default_zmanim_times() {
 
     assert_zman_str(
         &mut new_calc(0.0),
-        &CHATZOS_ASTRONOMICAL,
+        &CHATZOS_HAYOM_ASTRONOMICAL,
         "2017-10-17T12:41:55-04:00",
     );
     assert_zman_str(
@@ -534,7 +534,7 @@ fn test_use_elevation_zmanim_times() {
 
     assert_zman_str(
         &mut new_calc(0.0),
-        &CHATZOS_ASTRONOMICAL,
+        &CHATZOS_HAYOM_ASTRONOMICAL,
         "2017-10-17T12:41:55-04:00",
     );
     assert_zman_str(
@@ -674,7 +674,7 @@ fn test_polar_day_zmanim_return_none() {
     assert!(CANDLE_LIGHTING.calculate(&mut calc).is_err());
 
     let mut calc = polar_day_calc();
-    assert!(CHATZOS_HALF_DAY.calculate(&mut calc).is_err());
+    assert!(CHATZOS_HAYOM_HALF_DAY.calculate(&mut calc).is_err());
 
     let mincha_variants: [&dyn ZmanLike<Tz>; 5] = [
         &MINCHA_GEDOLA_16_POINT_1_DEGREES,

@@ -440,33 +440,33 @@ define_presets! {
     },
     /// Chatzos (astronomical noon): solar transit.
 
-    CHATZOS_ASTRONOMICAL {
+    CHATZOS_HAYOM_ASTRONOMICAL {
         event: ZmanPrimitive::SolarTransit,
-        name: "getChatzos",
+        name: "getChatzosHayom",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
-            calendar.get_chatzos(env)
+            calendar.get_chatzos_hayom(env)
         }),
     },
     /// Chatzos (half-day): midpoint between sea-level sunrise and sea-level sunset.
 
-    CHATZOS_HALF_DAY {
+    CHATZOS_HAYOM_HALF_DAY {
         event: ZmanPrimitive::HalfDayBasedOffset(
         &ZmanPrimitive::SeaLevelSunrise,
         &ZmanPrimitive::SeaLevelSunset,
         3.0,
     ),
-        name: "getChatzosAsHalfDay",
+        name: "getChatzosHayomAsHalfDay",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
-            calendar.get_chatzos_as_half_day(env)
+            calendar.get_chatzos_hayom_as_half_day(env)
         }),
     },
     /// Chatzos (fixed local): 12:00 local mean time.
 
-    CHATZOS_FIXED_LOCAL {
+    CHATZOS_HAYOM_FIXED_LOCAL {
         event: ZmanPrimitive::LocalMeanTime(12.0),
-        name: "getFixedLocalChatzos",
+        name: "getFixedLocalChatzosHayom",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
-            calendar.get_fixed_local_chatzos(env)
+            calendar.get_fixed_local_chatzos_hayom(env)
         }),
     },
     /// Mincha gedola: `6.5` shaos after sunrise (or `0.5` shaah after chatzos if configured).

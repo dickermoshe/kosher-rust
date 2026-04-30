@@ -25,12 +25,12 @@ pub(crate) trait DateExt {
 }
 impl DateExt for HebrewDate {
     fn add_days(&self, days: i32) -> Option<HebrewDate> {
-        let duration = DateDuration::for_days(days as i64);
+        let duration = DateDuration::for_days(days);
         self.try_added_with_options(duration, DateAddOptions::default()).ok()
     }
 
     fn day_of_week_number(&self) -> i32 {
-        match self.day_of_week() {
+        match self.weekday() {
             Weekday::Sunday => 1,
             Weekday::Monday => 2,
             Weekday::Tuesday => 3,
