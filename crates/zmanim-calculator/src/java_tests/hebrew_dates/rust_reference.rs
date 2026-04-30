@@ -106,7 +106,7 @@ pub(super) fn rust_add_years_to_jewish_date_with_adar(
     if use_adar_aleph_for_leap_year
         && date.month == 12
         && !hebrew.is_in_leap_year()
-        && is_hebrew_leap_year(target_year)?
+        && Date::<Hebrew>::from_hebrew_date(target_year, HebrewMonth::Tishrei, 1)?.is_in_leap_year()
     {
         return clamped_hebrew_date(target_year, HebrewMonth::Adar, date.day);
     }
@@ -229,13 +229,6 @@ fn clamped_hebrew_date(year: i32, month: HebrewMonth, day: u8) -> Option<DateTup
     let day = day.min(first_of_month.days_in_month());
     let date = Date::<Hebrew>::from_hebrew_date(year, month, day)?;
     Some(rust_date_tuple_from_hebrew(date))
-}
-
-fn is_hebrew_leap_year(year: i32) -> Option<bool> {
-    Some(
-        Date::<Hebrew>::from_hebrew_date(year, HebrewMonth::Tishrei, 1)?
-            .is_in_leap_year(),
-    )
 }
 
 fn is_cheshvan_long(date: &Date<Hebrew>) -> bool {
