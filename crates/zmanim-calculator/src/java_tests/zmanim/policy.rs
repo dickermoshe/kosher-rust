@@ -78,6 +78,7 @@ pub(super) fn allows_intentional_null_mismatch(preset_name: &str) -> bool {
             | "getSofZmanAchilasChametzBaalHatanya"
             | "getSofZmanBiurChametzGRA"
             | "getSofZmanBiurChametzMGA72Minutes"
+            | "getSofZmanBiurChametzMGA72MinutesZmanis"
             | "getSofZmanBiurChametzMGA16Point1Degrees"
             | "getSofZmanBiurChametzBaalHatanya"
     )
