@@ -161,17 +161,17 @@ macro_rules! define_presets {
                 mod $name {
                     #[test]
                     fn standard() -> Result<(), Box<dyn std::error::Error>> {
-                        crate::java_tests::test_preset_in_jerusalem(&super::super::$name)
+                        crate::java_tests::zmanim::test_preset_in_jerusalem(&super::super::$name)
                     }
 
                     #[test]
                     fn regressions() {
-                        crate::java_tests::test_regressions(&super::super::$name);
+                        crate::java_tests::zmanim::test_regressions(&super::super::$name);
                     }
 
                     #[test]
                     fn random() -> Result<(), Box<dyn std::error::Error>> {
-                        crate::java_tests::test_preset(&super::super::$name)
+                        crate::java_tests::zmanim::test_preset(&super::super::$name)
                     }
                 }
             )+

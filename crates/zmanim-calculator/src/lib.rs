@@ -17,7 +17,10 @@
 //! If Rust borrow rules are awkward for your call pattern, clone the calculator and use each
 //! clone independently.
 #[cfg(test)]
-mod java_tests;
+mod java_tests {
+    pub(crate) mod hebrew_dates;
+    pub(crate) mod zmanim;
+}
 #[cfg(test)]
 mod tests;
 mod types {
