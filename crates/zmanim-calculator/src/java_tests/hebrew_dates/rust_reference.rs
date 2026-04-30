@@ -43,34 +43,30 @@ pub(super) fn rust_jewish_date_snapshot(date: DateTuple) -> Option<JewishDateSna
         u32::from(gregorian.day_of_month().0),
     )?;
     let abs_date = gregorian_date.num_days_from_ce();
-    let year = hebrew.year().extended_year();
 
     Some(JewishDateSnapshot {
         day_of_week: rust_java_day_of_week(&hebrew),
         abs_date,
-        days_in_jewish_month: i32::from(Date::<Hebrew>::days_in_hebrew_month(
-            year,
-            hebrew.hebrew_month(),
-        )),
-        days_in_jewish_year: Date::<Hebrew>::days_in_hebrew_year(year),
-        static_days_in_jewish_year: Date::<Hebrew>::days_in_hebrew_year(year),
+        days_in_jewish_month: i32::from(hebrew.days_in_month()),
+        days_in_jewish_year: i32::from(hebrew.days_in_year()),
+        static_days_in_jewish_year: i32::from(hebrew.days_in_year()),
         days_since_start_of_jewish_year: i32::from(hebrew.day_of_year().0),
-        jewish_calendar_elapsed_days: rust_jewish_calendar_elapsed_days(year),
-        is_jewish_leap_year: is_hebrew_leap_year(year),
-        is_cheshvan_long: Date::<Hebrew>::is_cheshvan_long(year),
-        is_kislev_short: Date::<Hebrew>::is_kislev_short(year),
-        cheshvan_kislev_kviah: rust_cheshvan_kislev_kviah(year),
+        jewish_calendar_elapsed_days: rust_jewish_calendar_elapsed_days(&hebrew),
+        is_jewish_leap_year: hebrew.is_in_leap_year(),
+        is_cheshvan_long: is_cheshvan_long(&hebrew),
+        is_kislev_short: is_kislev_short(&hebrew),
+        cheshvan_kislev_kviah: rust_cheshvan_kislev_kviah(&hebrew),
     })
 }
 
 pub(super) fn rust_jewish_year_snapshot(year: i32) -> Option<JewishYearSnapshot> {
-    Date::<Hebrew>::from_hebrew_date(year, HebrewMonth::Tishrei, 1)?;
+    let rosh_hashana = Date::<Hebrew>::from_hebrew_date(year, HebrewMonth::Tishrei, 1)?;
     Some(JewishYearSnapshot {
-        days_in_jewish_year: Date::<Hebrew>::days_in_hebrew_year(year),
-        jewish_calendar_elapsed_days: rust_jewish_calendar_elapsed_days(year),
-        is_jewish_leap_year: is_hebrew_leap_year(year),
-        is_cheshvan_long: Date::<Hebrew>::is_cheshvan_long(year),
-        is_kislev_short: Date::<Hebrew>::is_kislev_short(year),
+        days_in_jewish_year: i32::from(rosh_hashana.days_in_year()),
+        jewish_calendar_elapsed_days: rust_jewish_calendar_elapsed_days(&rosh_hashana),
+        is_jewish_leap_year: rosh_hashana.is_in_leap_year(),
+        is_cheshvan_long: is_cheshvan_long(&rosh_hashana),
+        is_kislev_short: is_kislev_short(&rosh_hashana),
     })
 }
 
@@ -89,38 +85,14 @@ pub(super) fn rust_add_months_to_jewish_date(
     date: DateTuple,
     months_to_add: i32,
 ) -> Option<DateTuple> {
-    rust_hebrew_date(date)?;
-
-    let mut year = date.year;
-    let mut month = date.month;
-    for _ in 0..months_to_add.unsigned_abs() {
-        if months_to_add > 0 {
-            if month == 6 {
-                month = 7;
-                year += 1;
-            } else if (!is_hebrew_leap_year(year) && month == 12)
-                || (is_hebrew_leap_year(year) && month == 13)
-            {
-                month = 1;
-            } else {
-                month += 1;
-            }
-        } else if month == 7 {
-            month = 6;
-            year -= 1;
-        } else if (!is_hebrew_leap_year(year) && month == 12)
-            || (is_hebrew_leap_year(year) && month == 13)
-        {
-            month = 11;
-        } else {
-            if month == 0 {
-                return None;
-            }
-            month -= 1;
-        }
-    }
-
-    Some(clamped_hebrew_date(year, month, date.day)?)
+    let mut hebrew = rust_hebrew_date(date)?;
+    hebrew
+        .try_add_with_options(
+            DateDuration::for_months(months_to_add),
+            constrained_date_add_options(),
+        )
+        .ok()?;
+    Some(rust_date_tuple_from_hebrew(hebrew))
 }
 
 pub(super) fn rust_add_years_to_jewish_date_with_adar(
@@ -128,23 +100,24 @@ pub(super) fn rust_add_years_to_jewish_date_with_adar(
     years_to_add: i32,
     use_adar_aleph_for_leap_year: bool,
 ) -> Option<DateTuple> {
-    rust_hebrew_date(date)?;
+    let mut hebrew = rust_hebrew_date(date)?;
 
     let target_year = date.year + years_to_add;
-    let month = if date.month == 12
-        && !is_hebrew_leap_year(date.year)
-        && is_hebrew_leap_year(target_year)
+    if use_adar_aleph_for_leap_year
+        && date.month == 12
+        && !hebrew.is_in_leap_year()
+        && is_hebrew_leap_year(target_year)?
     {
-        if use_adar_aleph_for_leap_year {
-            12
-        } else {
-            13
-        }
-    } else {
-        date.month.min(last_month_of_hebrew_year(target_year))
-    };
+        return clamped_hebrew_date(target_year, HebrewMonth::Adar, date.day);
+    }
 
-    Some(clamped_hebrew_date(target_year, month, date.day)?)
+    hebrew
+        .try_add_with_options(
+            DateDuration::for_years(years_to_add),
+            constrained_date_add_options(),
+        )
+        .ok()?;
+    Some(rust_date_tuple_from_hebrew(hebrew))
 }
 
 pub(super) fn rust_hebrew_date(date: DateTuple) -> Option<Date<Hebrew>> {
@@ -232,40 +205,51 @@ fn rust_java_day_of_week(date: &Date<Hebrew>) -> i32 {
     }
 }
 
-fn rust_cheshvan_kislev_kviah(year: i32) -> i32 {
-    if Date::<Hebrew>::is_cheshvan_long(year) && !Date::<Hebrew>::is_kislev_short(year) {
+fn rust_cheshvan_kislev_kviah(date: &Date<Hebrew>) -> i32 {
+    if is_cheshvan_long(date) && !is_kislev_short(date) {
         2
-    } else if !Date::<Hebrew>::is_cheshvan_long(year) && Date::<Hebrew>::is_kislev_short(year) {
+    } else if !is_cheshvan_long(date) && is_kislev_short(date) {
         0
     } else {
         1
     }
 }
 
-fn rust_jewish_calendar_elapsed_days(year: i32) -> i32 {
-    (1..year)
-        .map(Date::<Hebrew>::days_in_hebrew_year)
-        .sum::<i32>()
-        + 1
+fn rust_jewish_calendar_elapsed_days(date: &Date<Hebrew>) -> i32 {
+    let start_of_year =
+        Date::<Hebrew>::from_hebrew_date(date.year().extended_year(), HebrewMonth::Tishrei, 1)
+            .expect("valid Hebrew date has a valid start of year");
+    let calendar_epoch = Date::<Hebrew>::from_hebrew_date(1, HebrewMonth::Tishrei, 1)
+        .expect("Hebrew calendar epoch should be representable");
+    (start_of_year.to_rata_die() - calendar_epoch.to_rata_die()) as i32 + 1
 }
 
-fn clamped_hebrew_date(year: i32, month: u8, day: u8) -> Option<DateTuple> {
-    let month = HebrewMonth::try_from(month).ok()?;
-    let day = day.min(Date::<Hebrew>::days_in_hebrew_month(year, month));
+fn clamped_hebrew_date(year: i32, month: HebrewMonth, day: u8) -> Option<DateTuple> {
+    let first_of_month = Date::<Hebrew>::from_hebrew_date(year, month, 1)?;
+    let day = day.min(first_of_month.days_in_month());
     let date = Date::<Hebrew>::from_hebrew_date(year, month, day)?;
     Some(rust_date_tuple_from_hebrew(date))
 }
 
-fn is_hebrew_leap_year(year: i32) -> bool {
-    Date::<Hebrew>::is_hebrew_leap_year(year)
+fn is_hebrew_leap_year(year: i32) -> Option<bool> {
+    Some(
+        Date::<Hebrew>::from_hebrew_date(year, HebrewMonth::Tishrei, 1)?
+            .is_in_leap_year(),
+    )
 }
 
-fn last_month_of_hebrew_year(year: i32) -> u8 {
-    if is_hebrew_leap_year(year) {
-        13
-    } else {
-        12
-    }
+fn is_cheshvan_long(date: &Date<Hebrew>) -> bool {
+    Date::<Hebrew>::from_hebrew_date(date.year().extended_year(), HebrewMonth::Cheshvan, 1)
+        .expect("valid Hebrew date has Cheshvan")
+        .days_in_month()
+        == 30
+}
+
+fn is_kislev_short(date: &Date<Hebrew>) -> bool {
+    Date::<Hebrew>::from_hebrew_date(date.year().extended_year(), HebrewMonth::Kislev, 1)
+        .expect("valid Hebrew date has Kislev")
+        .days_in_month()
+        == 29
 }
 
 fn constrained_date_add_options() -> DateAddOptions {
