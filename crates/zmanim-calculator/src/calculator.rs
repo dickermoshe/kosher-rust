@@ -49,9 +49,12 @@ impl<Tz: TimeZone> ZmanimCalculator<Tz> {
         date: NaiveDate,
         config: CalculatorConfig,
     ) -> Result<Self, ZmanimError> {
-        #[cfg(test)]
+        // Regular test builds use NOAA refraction to line up with KosherJava's
+        // default calculator. The private test feature below opts tests back
+        // into the same SPA/Bennett refraction model used by production builds.
+        #[cfg(all(test, not(feature = "__test-spa-refraction")))]
         let refraction = Refraction::NOAA;
-        #[cfg(not(test))]
+        #[cfg(any(not(test), feature = "__test-spa-refraction"))]
         let refraction = Refraction::ApSolposBennet;
         let localnoon = Self::local_noon(date, &location)?;
         let elevation_adjusted_calculator = AstronomicalCalculator::new(

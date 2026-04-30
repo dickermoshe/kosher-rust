@@ -9,8 +9,19 @@ pub(super) const MOLAD_RANDOM_YEAR_START: i32 = 1990;
 pub(super) const MOLAD_RANDOM_YEAR_END: i32 = 2030;
 pub(super) const MAX_TIMEZONE_ATTEMPTS: u32 = 1_000;
 pub(super) const MAX_RANDOM_ELEVATION_METERS: f64 = 4000.0;
+
+// NOAA refraction is the default Java parity mode, so the tolerance stays tight.
+// The private SPA refraction test feature compares Java's NOAA-backed values to
+// our production SPA/Bennett refraction model, which needs wider tolerances.
+#[cfg(not(feature = "__test-spa-refraction"))]
 pub(super) const DEFAULT_MAX_DIFF_MS: i64 = 10_000;
+#[cfg(feature = "__test-spa-refraction")]
+pub(super) const DEFAULT_MAX_DIFF_MS: i64 = 120_000;
+
+#[cfg(not(feature = "__test-spa-refraction"))]
 pub(super) const CHATZOS_HALAYLA_MAX_DIFF_MS: i64 = 20_000;
+#[cfg(feature = "__test-spa-refraction")]
+pub(super) const CHATZOS_HALAYLA_MAX_DIFF_MS: i64 = 180_000;
 
 /// Number of randomized cases to run for each preset.
 pub(super) fn test_iterations() -> u64 {
@@ -58,14 +69,6 @@ pub(super) fn random_year_range_for_preset(preset_name: &str) -> (i32, i32) {
         | "getTchilasZmanKidushLevana7Days"
         | "getZmanMolad" => (MOLAD_RANDOM_YEAR_START, MOLAD_RANDOM_YEAR_END),
         _ => (DEFAULT_RANDOM_YEAR_START, DEFAULT_RANDOM_YEAR_END),
-    }
-}
-
-/// Maximum tolerated Java/Rust timestamp difference for one preset.
-pub(super) fn max_diff_ms_for_preset(preset_name: &str) -> i64 {
-    match preset_name {
-        "getChatzosHalayla" => CHATZOS_HALAYLA_MAX_DIFF_MS,
-        _ => DEFAULT_MAX_DIFF_MS,
     }
 }
 

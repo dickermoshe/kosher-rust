@@ -13,6 +13,9 @@ documentation = "https://docs.rs/zmanim-calculator"
 default = []
 # Enable this feature to use the defmt crate for logging.
 defmt = ["dep:defmt", "astronomical-calculator/defmt"]
+# Private test feature: use the production SPA/Bennett refraction model in test builds
+# so Java parity can run against both NOAA-compatible and production refraction.
+__test-spa-refraction = []
 
 
 [dependencies]

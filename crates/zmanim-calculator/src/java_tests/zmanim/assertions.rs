@@ -46,7 +46,10 @@ fn assert_results_match(
         (None, None) => Ok(()),
         (Some(java), Some(rust)) => {
             let difference = (java.timestamp_ms - rust.timestamp_ms).abs();
-            let max_diff_ms = policy::max_diff_ms_for_preset(case.preset_name);
+            let max_diff_ms = match case.preset_name {
+                "getChatzosHalayla" => policy::CHATZOS_HALAYLA_MAX_DIFF_MS,
+                _ => policy::DEFAULT_MAX_DIFF_MS,
+            };
             assert!(
                 difference <= max_diff_ms,
                 "zman mismatch for {} on {} at ({}, {}) in {}: java={} rust={} diff={}ms max={}ms\n{}",
