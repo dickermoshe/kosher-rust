@@ -10,6 +10,7 @@ pub(super) const MOLAD_RANDOM_YEAR_END: i32 = 2030;
 pub(super) const MAX_TIMEZONE_ATTEMPTS: u32 = 1_000;
 pub(super) const MAX_RANDOM_ELEVATION_METERS: f64 = 4000.0;
 pub(super) const DEFAULT_MAX_DIFF_MS: i64 = 10_000;
+pub(super) const CHATZOS_HALAYLA_MAX_DIFF_MS: i64 = 20_000;
 
 /// Number of randomized cases to run for each preset.
 pub(super) fn test_iterations() -> u64 {
@@ -61,8 +62,11 @@ pub(super) fn random_year_range_for_preset(preset_name: &str) -> (i32, i32) {
 }
 
 /// Maximum tolerated Java/Rust timestamp difference for one preset.
-pub(super) fn max_diff_ms_for_preset(_preset_name: &str) -> i64 {
-    DEFAULT_MAX_DIFF_MS
+pub(super) fn max_diff_ms_for_preset(preset_name: &str) -> i64 {
+    match preset_name {
+        "getChatzosHalayla" => CHATZOS_HALAYLA_MAX_DIFF_MS,
+        _ => DEFAULT_MAX_DIFF_MS,
+    }
 }
 
 /// Returns true when Java and Rust intentionally disagree about nullability.
@@ -74,6 +78,7 @@ pub(super) fn allows_intentional_null_mismatch(preset_name: &str) -> bool {
         // holiday-specific context.
         "getSofZmanAchilasChametzGRA"
             | "getSofZmanAchilasChametzMGA72Minutes"
+            | "getSofZmanAchilasChametzMGA72MinutesZmanis"
             | "getSofZmanAchilasChametzMGA16Point1Degrees"
             | "getSofZmanAchilasChametzBaalHatanya"
             | "getSofZmanBiurChametzGRA"

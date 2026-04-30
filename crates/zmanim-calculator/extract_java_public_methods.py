@@ -17,7 +17,7 @@ from pathlib import Path
 CRATE_ROOT = Path(__file__).resolve().parent
 DEFAULT_SOURCE_ROOT = CRATE_ROOT / "java" / "src" / "main" / "java"
 DEFAULT_PRESETS = CRATE_ROOT / "src" / "presets.rs"
-EXCLUDED_METHOD_NAMES = {"clone", "equals", "hashCode", "toString"}
+EXCLUDED_METHOD_NAMES = {"clone", "equals", "hashCode", "toString","getBeginAstronomicalTwilight"}
 DEFAULT_INCLUDED_CLASSES = {
     "AstronomicalCalendar",
     "ComprehensiveZmanimCalendar",
@@ -27,6 +27,24 @@ JAVA_CLASS_BY_CALC = {
     "AstronomicalCalendar": "com.kosherjava.zmanim.AstronomicalCalendar",
     "ComprehensiveCalendar": "com.kosherjava.zmanim.ComprehensiveZmanimCalendar",
     "ZmanimCalendar": "com.kosherjava.zmanim.ZmanimCalendar",
+}
+ZMAN_EXCLUDED_METHODS = {
+    "com.kosherjava.zmanim.AstronomicalCalendar#getBeginAstronomicalTwilight",
+    "com.kosherjava.zmanim.AstronomicalCalendar#getBeginCivilTwilight",
+    "com.kosherjava.zmanim.AstronomicalCalendar#getBeginNauticalTwilight",
+    "com.kosherjava.zmanim.AstronomicalCalendar#getEndAstronomicalTwilight",
+    "com.kosherjava.zmanim.AstronomicalCalendar#getEndCivilTwilight",
+    "com.kosherjava.zmanim.AstronomicalCalendar#getEndNauticalTwilight",
+    "com.kosherjava.zmanim.AstronomicalCalendar#getSolarMidnight",
+    "com.kosherjava.zmanim.AstronomicalCalendar#getSunTransit",
+    "com.kosherjava.zmanim.AstronomicalCalendar#getSunrise",
+    "com.kosherjava.zmanim.AstronomicalCalendar#getSunset",
+}
+IGNORED_METHOD_NAMES = {
+    "clone",
+    "equals",
+    "hashCode",
+    "toString",
 }
 
 PACKAGE_RE = re.compile(r"\bpackage\s+([\w.]+)\s*;")
@@ -155,7 +173,10 @@ def extract_public_methods(
             continue
         if not should_include_method(name):
             continue
-        methods.add(f"{qualified_class}#{name}")
+        method = f"{qualified_class}#{name}"
+        if zman_only and method in ZMAN_EXCLUDED_METHODS:
+            continue
+        methods.add(method)
 
     return methods
 

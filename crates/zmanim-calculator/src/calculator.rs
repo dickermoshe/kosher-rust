@@ -220,6 +220,12 @@ impl<Tz: TimeZone> ZmanimCalculator<Tz> {
             .get_solar_transit()
             .into_date_time_result()
     }
+    pub(crate) fn solar_midnight(&mut self) -> Result<DateTime<Utc>, ZmanimError> {
+        // Solar midnight calculations do not use elevation, so the calculator used here is irrelevant
+        self.elevation_adjusted_calculator
+            .get_next_solar_midnight()
+            .into_date_time_result()
+    }
 }
 
 /// A value that can be calculated by a [`ZmanimCalculator`].

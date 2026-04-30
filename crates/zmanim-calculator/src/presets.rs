@@ -447,6 +447,15 @@ define_presets! {
             calendar.get_chatzos_hayom(env)
         }),
     },
+    /// Chatzos halayla (astronomical midnight): solar anti-transit.
+
+    CHATZOS_HALAYLA_ASTRONOMICAL {
+        event: ZmanPrimitive::SolarMidnight,
+        name: "getChatzosHalayla",
+        java: JavaCalc::ZmanimCalendar(|env, calendar| {
+            calendar.get_chatzos_halayla(env)
+        }),
+    },
     /// Chatzos (half-day): midpoint between sea-level sunrise and sea-level sunset.
 
     CHATZOS_HAYOM_HALF_DAY {
@@ -673,6 +682,15 @@ define_presets! {
         name: "getMisheyakir11Point5Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_misheyakir11point5degrees(env)
+        }),
+    },
+    /// Misheyakir when the sun is `12.85°` below the geometric horizon (degrees-below-horizon dawn).
+
+    MISHEYAKIR_12_POINT_85_DEGREES {
+        event: ZmanPrimitive::SunriseOffsetByDegrees(12.85),
+        name: "getMisheyakir12Point85Degrees",
+        java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
+            calendar.get_misheyakir12point85degrees(env)
         }),
     },
     /// Misheyakir when the sun is `7.65°` below the geometric horizon (degrees-below-horizon dawn).
@@ -1027,6 +1045,19 @@ define_presets! {
             calendar.get_sof_zman_achilas_chametz_mga72minutes(env)
         }),
     },
+    /// Sof zman achilas chametz: `4` shaos after alos `72 zmaniyos` (or half-day based if configured).
+
+    SOF_ZMAN_ACHILAS_CHAMETZ_MGA_72_ZMANIS {
+        event: ZmanPrimitive::Tefila(
+        &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
+        &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2),
+        true,
+    ),
+        name: "getSofZmanAchilasChametzMGA72MinutesZmanis",
+        java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
+            calendar.get_sof_zman_achilas_chametz_mga72minutes_zmanis(env)
+        }),
+    },
     /// Sof zman achilas chametz: `4` shaos after alos `16.1°` (or half-day based if configured).
 
     SOF_ZMAN_ACHILAS_CHAMETZ_MGA_16_POINT_1_DEGREES {
@@ -1077,6 +1108,19 @@ define_presets! {
         name: "getSofZmanBiurChametzMGA72Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_sof_zman_biur_chametz_mga72minutes(env)
+        }),
+    },
+    /// Sof zman biur chametz: `5` shaos zmaniyos after alos `72 zmaniyos` (day = alos72 zmaniyos → tzais72 zmaniyos).
+
+    SOF_ZMAN_BIUR_CHAMETZ_MGA_72_ZMANIS {
+        event: ZmanPrimitive::SofZmanBiurChametz(
+        &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
+        &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2),
+        true,
+    ),
+        name: "getSofZmanBiurChametzMGA72MinutesZmanis",
+        java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
+            calendar.get_sof_zman_biur_chametz_mga72minutes_zmanis(env)
         }),
     },
     /// Sof zman biur chametz: `5` shaos zmaniyos after alos `16.1°` (day = alos16.1° → tzais16.1°).

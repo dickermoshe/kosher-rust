@@ -274,7 +274,11 @@ fn test_reykjavik_equinox_java_expected_times() {
     );
     assert_zman_str(&mut calc, &SEA_LEVEL_SUNRISE, "2017-03-21T07:24:24Z");
     assert_zman_str(&mut calc, &SEA_LEVEL_SUNSET, "2017-03-21T19:46:56Z");
-    assert_zman_str(&mut calc, &CHATZOS_HAYOM_ASTRONOMICAL, "2017-03-21T13:34:59Z");
+    assert_zman_str(
+        &mut calc,
+        &CHATZOS_HAYOM_ASTRONOMICAL,
+        "2017-03-21T13:34:59Z",
+    );
 }
 
 #[test]

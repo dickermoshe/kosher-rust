@@ -39,6 +39,8 @@ pub enum ZmanPrimitive<'a> {
     ConfiguredSunset,
     /// Solar transit (local apparent noon / astronomical chatzos).
     SolarTransit,
+    /// Solar anti-transit (local apparent midnight / astronomical chatzos halayla).
+    SolarMidnight,
     /// Sunset at the configured location/date.
     ElevationAdjustedSunset,
     /// Sunset at sea level (no elevation adjustment).
@@ -114,6 +116,7 @@ impl<'a, Tz: TimeZone> ZmanLike<Tz> for ZmanPrimitive<'a> {
             ZmanPrimitive::ElevationAdjustedSunrise => calculator.elevation_adjusted_sunrise(),
             ZmanPrimitive::SeaLevelSunrise => calculator.sea_level_sunrise(),
             ZmanPrimitive::SolarTransit => calculator.solar_transit(),
+            ZmanPrimitive::SolarMidnight => calculator.solar_midnight(),
             ZmanPrimitive::ElevationAdjustedSunset => calculator.elevation_adjusted_sunset(),
             ZmanPrimitive::SeaLevelSunset => calculator.sea_level_sunset(),
             ZmanPrimitive::SunriseOffsetByDegrees(degrees) => calculator
