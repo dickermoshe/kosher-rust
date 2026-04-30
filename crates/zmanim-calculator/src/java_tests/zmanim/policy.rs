@@ -10,18 +10,30 @@ pub(super) const MOLAD_RANDOM_YEAR_END: i32 = 2030;
 pub(super) const MAX_TIMEZONE_ATTEMPTS: u32 = 1_000;
 pub(super) const MAX_RANDOM_ELEVATION_METERS: f64 = 4000.0;
 
-// NOAA refraction is the default Java parity mode, so the tolerance stays tight.
-// The private SPA refraction test feature compares Java's NOAA-backed values to
-// our production SPA/Bennett refraction model, which needs wider tolerances.
+// SPA parity policy
+//
+// The default Java parity tests force Rust into NOAA-style sunrise/sunset
+// refraction, matching KosherJava closely. The private `__test-spa-refraction`
+// feature instead runs Rust with its production SPA/Bennett refraction model
+// while Java remains NOAA-backed.
+//
+// That comparison is intentionally not exact. The model differences are most
+// visible near sunrise/sunset, grow at higher latitudes where the sun crosses
+// the horizon more slowly, and grow again when elevation is used. Zmanis
+// alos/tzais offsets amplify the same difference because they use
+// sunrise/sunset both as the anchor and as the day-length source for the
+// temporal-hour offset. The 120-zmanis variants amplify it the most.
+//
+// Keep the time tolerances broad enough for normal SPA-vs-NOAA drift, but cap
+// randomized latitude ranges for the presets where that drift dominates the
+// test signal. These are test-generation limits only; they do not change the
+// calculator's supported input range.
 #[cfg(not(feature = "__test-spa-refraction"))]
-pub(super) const DEFAULT_MAX_DIFF_MS: i64 = 10_000;
+const DEFAULT_MAX_DIFF_MS: i64 = 10_000;
 #[cfg(feature = "__test-spa-refraction")]
-pub(super) const DEFAULT_MAX_DIFF_MS: i64 = 120_000;
+const DEFAULT_MAX_DIFF_MS: i64 = 60_000;
 
-#[cfg(not(feature = "__test-spa-refraction"))]
-pub(super) const CHATZOS_HALAYLA_MAX_DIFF_MS: i64 = 20_000;
-#[cfg(feature = "__test-spa-refraction")]
-pub(super) const CHATZOS_HALAYLA_MAX_DIFF_MS: i64 = 180_000;
+const CHATZOS_HALAYLA_MAX_DIFF_MS: i64 = 20_000;
 
 /// Number of randomized cases to run for each preset.
 pub(super) fn test_iterations() -> u64 {
@@ -29,6 +41,13 @@ pub(super) fn test_iterations() -> u64 {
         "ZMANIM_JAVA_PARITY_ITERATIONS",
         DEFAULT_RANDOM_PARITY_ITERATIONS,
     )
+}
+
+pub(super) fn max_diff_ms_for_preset(preset_name: &str) -> i64 {
+    match preset_name {
+        "getChatzosHalayla" => CHATZOS_HALAYLA_MAX_DIFF_MS,
+        _ => DEFAULT_MAX_DIFF_MS,
+    }
 }
 
 /// Seed used by randomized test cases.
@@ -48,14 +67,35 @@ pub(super) fn test_seed() -> u64 {
 
 /// Maximum absolute latitude generated for randomized cases for one preset.
 pub(super) fn max_latitude_for_preset(preset_name: &str) -> f64 {
+    // Most presets use the conservative 40-degree range. Chatzos can be tested
+    // much farther poleward because it does not depend on a horizon crossing.
+    // Sunrise/sunset-style events normally get 60 degrees, but SPA parity caps
+    // them at 40 degrees because high-latitude horizon crossings magnify the
+    // SPA-vs-NOAA model difference. SPA alos/tzais zmanis offsets get stricter
+    // caps because they use the differing sunrise/sunset both as the anchor and
+    // as the temporal-hour source.
     match preset_name {
         "getChatzos" => 85.0,
+        #[cfg(feature = "__test-spa-refraction")]
+        "getAlos120Zmanis" | "getTzais120Zmanis" => 25.0,
+        #[cfg(feature = "__test-spa-refraction")]
+        "getAlos72Zmanis" | "getAlos90Zmanis" | "getAlos96Zmanis" | "getTzais72Zmanis"
+        | "getTzais90Zmanis" | "getTzais96Zmanis" => 30.0,
         "getSunriseWithElevation"
         | "getSeaLevelSunrise"
         | "getSunsetWithElevation"
         | "getSeaLevelSunset"
         | "getChatzosAsHalfDay"
-        | "getFixedLocalChatzos" => 60.0,
+        | "getFixedLocalChatzos" => {
+            #[cfg(feature = "__test-spa-refraction")]
+            {
+                40.0
+            }
+            #[cfg(not(feature = "__test-spa-refraction"))]
+            {
+                60.0
+            }
+        }
         _ => 40.0,
     }
 }
