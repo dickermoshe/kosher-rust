@@ -480,20 +480,10 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
     fn days_in_hebrew_month(year: i32, month: HebrewMonth) -> u8 {
         match month {
             HebrewMonth::Iyar | HebrewMonth::Tammuz | HebrewMonth::Elul | HebrewMonth::Teves => 29,
-            HebrewMonth::Cheshvan => {
-                if Self::is_cheshvan_long(year) {
-                    30
-                } else {
-                    29
-                }
-            }
-            HebrewMonth::Kislev => {
-                if Self::is_kislev_short(year) {
-                    29
-                } else {
-                    30
-                }
-            }
+            HebrewMonth::Cheshvan if Self::is_cheshvan_long(year) => 30,
+            HebrewMonth::Cheshvan => 29,
+            HebrewMonth::Kislev if Self::is_kislev_short(year) => 29,
+            HebrewMonth::Kislev => 30,
             HebrewMonth::Adar => {
                 if Self::is_hebrew_leap_year(year) {
                     30

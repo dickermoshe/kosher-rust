@@ -69,6 +69,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: rustfmt
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -82,6 +84,9 @@ jobs:
       - name: Regenerate Java bindings
         working-directory: crates/zmanim-calculator
         run: jbindgen java ./java/src/main/ -o ./src/java_bindings.rs --root crate::java_bindings
+      - name: Format Java bindings
+        working-directory: crates/zmanim-calculator
+        run: rustfmt ./src/java_bindings.rs
       - name: Verify generated Java bindings are committed
         run: git diff --exit-code -- crates/zmanim-calculator/src/java_bindings.rs
 

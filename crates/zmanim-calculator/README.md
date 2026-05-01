@@ -61,6 +61,7 @@ Then regenerate the Rust bindings:
 
 ```bash
 jbindgen java ./java/src/main/ -o ./src/java_bindings.rs --root crate::java_bindings
+rustfmt ./src/java_bindings.rs
 ```
 
 Finally, run the Rust tests:
