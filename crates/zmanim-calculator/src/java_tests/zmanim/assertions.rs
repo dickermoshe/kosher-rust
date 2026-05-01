@@ -63,7 +63,7 @@ fn assert_results_match(
             );
             Ok(())
         }
-        (java, rust) if policy::allows_intentional_null_mismatch(case.preset_name) => Ok(()),
+        (_, _) if policy::allows_intentional_null_mismatch(case.preset_name) => Ok(()),
         (java, rust) => panic!(
             "null mismatch for {} on {} in {}: java={:?} rust={:?}\n{}",
             case.preset_name,
