@@ -33,6 +33,7 @@ pub struct ZmanimCalculator<Tz: TimeZone> {
     pub(crate) config: CalculatorConfig,
     pub(crate) elevation_adjusted_calculator: AstronomicalCalculator,
     pub(crate) sea_level_calculator: AstronomicalCalculator,
+    pub(crate) sea_level_calculator_no_refraction: AstronomicalCalculator,
 }
 
 impl<Tz: TimeZone> ZmanimCalculator<Tz> {
@@ -83,12 +84,26 @@ impl<Tz: TimeZone> ZmanimCalculator<Tz> {
             refraction,
         )
         .map_err(ZmanimError::AstronomicalCalculatorError)?;
+        let sea_level_calculator_no_refraction = AstronomicalCalculator::new(
+            localnoon,
+            None,
+            0.0,
+            location.longitude,
+            location.latitude,
+            0.0,
+            22.0,
+            1013.25,
+            None,
+            Refraction::NoRefraction,
+        )
+        .map_err(ZmanimError::AstronomicalCalculatorError)?;
         Ok(Self {
             location,
             date,
             config,
             elevation_adjusted_calculator,
             sea_level_calculator,
+            sea_level_calculator_no_refraction,
         })
     }
 

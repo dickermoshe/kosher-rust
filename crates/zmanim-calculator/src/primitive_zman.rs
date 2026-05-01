@@ -120,12 +120,12 @@ impl<'a, Tz: TimeZone> ZmanLike<Tz> for ZmanPrimitive<'a> {
             ZmanPrimitive::ElevationAdjustedSunset => calculator.elevation_adjusted_sunset(),
             ZmanPrimitive::SeaLevelSunset => calculator.sea_level_sunset(),
             ZmanPrimitive::SunriseOffsetByDegrees(degrees) => calculator
-                .sea_level_calculator
-                .get_sunrise_offset_by_degrees(degrees, degrees > 0.0)
+                .sea_level_calculator_no_refraction
+                .get_sunrise_offset_by_degrees(degrees)
                 .into_date_time_result(),
             ZmanPrimitive::SunsetOffsetByDegrees(degrees) => calculator
-                .sea_level_calculator
-                .get_sunset_offset_by_degrees(degrees, degrees > 0.0)
+                .sea_level_calculator_no_refraction
+                .get_sunset_offset_by_degrees(degrees)
                 .into_date_time_result(),
             ZmanPrimitive::LocalMeanTime(hours) => {
                 let date = calculator.date;

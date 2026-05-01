@@ -429,6 +429,33 @@ define_presets! {
             calendar.get_bain_hashmashos_yereim13point5minutes(env)
         }),
     },
+    /// Bain hashmashos (Yereim): when the sun is `2.1°` above the geometric horizon before sunset.
+
+    BAIN_HASHMASHOS_YEREIM_2_POINT_1_DEGREES {
+        event: ZmanPrimitive::SunsetOffsetByDegrees(-2.1),
+        name: "getBainHashmashosYereim2Point1Degrees",
+        java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
+            calendar.get_bain_hashmashos_yereim2point1degrees(env)
+        }),
+    },
+    /// Bain hashmashos (Yereim): when the sun is `2.8°` above the geometric horizon before sunset.
+
+    BAIN_HASHMASHOS_YEREIM_2_POINT_8_DEGREES {
+        event: ZmanPrimitive::SunsetOffsetByDegrees(-2.8),
+        name: "getBainHashmashosYereim2Point8Degrees",
+        java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
+            calendar.get_bain_hashmashos_yereim2point8degrees(env)
+        }),
+    },
+    /// Bain hashmashos (Yereim): when the sun is `3.05°` above the geometric horizon before sunset.
+
+    BAIN_HASHMASHOS_YEREIM_3_POINT_05_DEGREES {
+        event: ZmanPrimitive::SunsetOffsetByDegrees(-3.05),
+        name: "getBainHashmashosYereim3Point05Degrees",
+        java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
+            calendar.get_bain_hashmashos_yereim3point05degrees(env)
+        }),
+    },
     /// Candle lighting: sea-level sunset minus [`crate::types::config::CalculatorConfig::candle_lighting_offset`].
 
     CANDLE_LIGHTING {

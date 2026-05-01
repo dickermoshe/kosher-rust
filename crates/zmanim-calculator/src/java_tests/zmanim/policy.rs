@@ -2,7 +2,7 @@
 
 use std::{env, sync::OnceLock};
 
-pub(super) const DEFAULT_RANDOM_PARITY_ITERATIONS: u64 = 10_000;
+pub(super) const DEFAULT_RANDOM_PARITY_ITERATIONS: u64 = 1_000;
 pub(super) const DEFAULT_RANDOM_YEAR_START: i32 = 2000;
 pub(super) const DEFAULT_RANDOM_YEAR_END: i32 = 2200;
 pub(super) const MOLAD_RANDOM_YEAR_START: i32 = 1990;
