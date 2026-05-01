@@ -3,10 +3,7 @@
 use std::{env, sync::OnceLock};
 
 pub(super) const DEFAULT_RANDOM_PARITY_ITERATIONS: u64 = 1_000;
-pub(super) const DEFAULT_RANDOM_YEAR_START: i32 = 2000;
-pub(super) const DEFAULT_RANDOM_YEAR_END: i32 = 2200;
-pub(super) const MOLAD_RANDOM_YEAR_START: i32 = 1990;
-pub(super) const MOLAD_RANDOM_YEAR_END: i32 = 2030;
+
 pub(super) const MAX_TIMEZONE_ATTEMPTS: u32 = 1_000;
 pub(super) const MAX_RANDOM_ELEVATION_METERS: f64 = 4000.0;
 
@@ -107,8 +104,8 @@ pub(super) fn random_year_range_for_preset(preset_name: &str) -> (i32, i32) {
         | "getSofZmanKidushLevanaBetweenMoldos"
         | "getTchilasZmanKidushLevana3Days"
         | "getTchilasZmanKidushLevana7Days"
-        | "getZmanMolad" => (MOLAD_RANDOM_YEAR_START, MOLAD_RANDOM_YEAR_END),
-        _ => (DEFAULT_RANDOM_YEAR_START, DEFAULT_RANDOM_YEAR_END),
+        | "getZmanMolad" => (1990, 2030),
+        _ => (2000, 2200),
     }
 }
 

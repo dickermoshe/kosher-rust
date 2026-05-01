@@ -186,7 +186,7 @@ define_presets! {
         event: ZmanPrimitive::ElevationAdjustedSunrise,
         name: "getSunriseWithElevation",
         java: JavaCalc::AstronomicalCalendar(|env, calendar| {
-            calendar.get_sunrise_with_elevation(env)
+            calendar.get_sunrise(env)
         }),
     },
     /// Sunrise at sea level (elevation `0m`).
@@ -204,7 +204,7 @@ define_presets! {
         event: ZmanPrimitive::ElevationAdjustedSunset,
         name: "getSunsetWithElevation",
         java: JavaCalc::AstronomicalCalendar(|env, calendar| {
-            calendar.get_sunset_with_elevation(env)
+            calendar.get_sunset(env)
         }),
     },
     /// Sunset at sea level (elevation `0m`).
