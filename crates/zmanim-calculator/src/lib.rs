@@ -55,4 +55,6 @@ pub mod prelude {
 #[allow(warnings, missing_docs)]
 #[allow(clippy::all, clippy::pedantic, clippy::nursery)]
 /// Java bindings for KosherJava.
-pub mod java_bindings;
+pub mod java_bindings {
+    include!(concat!(env!("OUT_DIR"), "/java_bindings.rs"));
+}
