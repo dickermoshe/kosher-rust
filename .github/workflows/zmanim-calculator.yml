@@ -76,7 +76,7 @@ jobs:
           cache: maven
       - name: Build KosherJava reference jar
         working-directory: crates/zmanim-calculator/java
-        run: mvn --batch-mode package
+        run: mvn --batch-mode "-Dmaven.javadoc.skip=true" package
       - name: Install jbindgen
         run: cargo install jbindgen
       - name: Regenerate Java bindings
@@ -105,6 +105,6 @@ jobs:
           cache: maven
       - name: Build KosherJava reference jar
         working-directory: crates/zmanim-calculator/java
-        run: mvn --batch-mode package
+        run: mvn --batch-mode "-Dmaven.javadoc.skip=true" package
       - name: Run tests
         run: cargo test -p zmanim-calculator --verbose --no-default-features ${{ matrix.args }}

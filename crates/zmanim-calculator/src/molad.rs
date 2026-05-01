@@ -208,7 +208,6 @@ fn is_same_gregorian_day<Tz: TimeZone>(
     Some(gdate_local) == hdate_greg
 }
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 struct MoladData {
     hours: i64,
     minutes: i64,
