@@ -1189,19 +1189,7 @@ define_presets! {
             calendar.get_sof_zman_shma_gra(env)
         }),
     },
-    /// Sof zman shma: `3` shaos after alos `72` minutes (or half-day based if configured).
 
-    SOF_ZMAN_SHMA_MGA {
-        event: ZmanPrimitive::Shema(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
-        true,
-    ),
-        name: "getSofZmanShmaMGA72Minutes",
-        java: JavaCalc::ZmanimCalendar(|env, calendar| {
-            calendar.get_sof_zman_shma_mga72minutes(env)
-        }),
-    },
     /// Sof zman shma: `3` shaos after alos `19.8°` (or half-day based if configured).
 
     SOF_ZMAN_SHMA_MGA_19_POINT_8_DEGREES {

@@ -430,7 +430,7 @@ fn test_default_zmanim_calculations() {
     );
     assert_zman_str(
         &mut new_calc(0.0),
-        &SOF_ZMAN_SHMA_MGA,
+        &SOF_ZMAN_SHMA_MGA_72_MINUTES,
         "2017-10-17T09:19:53-04:00",
     );
 
@@ -583,7 +583,7 @@ fn test_use_elevation_zmanim_calculations() {
     );
     assert_zman_str(
         &mut new_calc(LAKEWOOD_ELEVATION_M),
-        &SOF_ZMAN_SHMA_MGA,
+        &SOF_ZMAN_SHMA_MGA_72_MINUTES,
         "2017-10-17T09:19:33-04:00",
     );
 
