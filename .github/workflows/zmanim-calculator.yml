@@ -63,33 +63,6 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - run: cargo check -p zmanim-calculator ${{ matrix.args }}
 
-  java-bindings:
-    name: Java Bindings
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          components: rustfmt
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-          cache: maven
-      - name: Build KosherJava reference jar
-        working-directory: crates/zmanim-calculator/java
-        run: mvn --batch-mode "-Dmaven.javadoc.skip=true" package
-      - name: Install jbindgen
-        run: cargo install jbindgen
-      - name: Regenerate Java bindings
-        working-directory: crates/zmanim-calculator
-        run: jbindgen java ./java/src/main/ -o ./src/java_bindings.rs --root crate::java_bindings
-      - name: Format Java bindings
-        working-directory: crates/zmanim-calculator
-        run: rustfmt ./src/java_bindings.rs
-      - name: Verify generated Java bindings are committed
-        run: git diff --exit-code -- crates/zmanim-calculator/src/java_bindings.rs
-
   test:
     name: Test (${{ matrix.name }})
     runs-on: ubuntu-latest
@@ -111,5 +84,10 @@ jobs:
       - name: Build KosherJava reference jar
         working-directory: crates/zmanim-calculator/java
         run: mvn --batch-mode "-Dmaven.javadoc.skip=true" package
+      - name: Install jbindgen
+        run: cargo install jbindgen
+      - name: Regenerate Java bindings
+        working-directory: crates/zmanim-calculator
+        run: jbindgen java ./java/src/main/ -o ./src/java_bindings.rs --root crate::java_bindings
       - name: Run tests
         run: cargo test -p zmanim-calculator --verbose --no-default-features ${{ matrix.args }}
