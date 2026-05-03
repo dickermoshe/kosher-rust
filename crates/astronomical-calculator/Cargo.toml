@@ -24,7 +24,7 @@ defmt = { workspace = true, optional = true }
 
 
 [dev-dependencies]
-jiff = { workspace = true, features = ["std", "serde", "tzdb-bundle-platform"] }
+jiff = { workspace = true, features = ["std", "serde", "tzdb-bundle-always"] }
 proptest.workspace = true
 arbitrary = { version = "1", features = ["derive"] }
 proptest-arbitrary-interop = "0.1"

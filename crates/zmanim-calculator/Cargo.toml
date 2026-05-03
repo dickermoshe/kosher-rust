@@ -30,7 +30,7 @@ thiserror.workspace = true
 
 [dev-dependencies]
 jni = { version = "0.22.4", features = ["invocation"] }
-jiff = { workspace = true, features = ["std", "tzdb-bundle-platform"] }
+jiff = { workspace = true, features = ["std", "tzdb-bundle-always"] }
 lazy_static.workspace = true
 j4rs.workspace = true
 num_enum.workspace = true
