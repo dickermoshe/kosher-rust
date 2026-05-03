@@ -1,13 +1,11 @@
 #![allow(clippy::unwrap_used)]
 
-use chrono::{DateTime, Duration, NaiveDate, Utc};
-use chrono_tz::Tz;
+use jiff::{civil::Date, tz::TimeZone, SignedDuration as Duration, Timestamp};
 extern crate std;
-use std::{str::FromStr, string::String, string::ToString};
+use std::{string::String, string::ToString};
 
 use crate::calculator::{ZmanLike, ZmanimCalculator};
 
-use crate::duration_helper::multiply_duration;
 use crate::prelude::*;
 use crate::presets::*;
 use crate::primitive_zman::ZmanPrimitive;
@@ -17,50 +15,50 @@ const LAKEWOOD_ELEVATION_M: f64 = 15.0;
 const MAX_TIME_DIFF_SECONDS: i64 = 30;
 const MAX_SHAAH_ZMANIS_DIFF_MS: i64 = 1000;
 
-fn lakewood_tz() -> Tz {
-    Tz::from_str("America/New_York").unwrap()
+fn lakewood_tz() -> TimeZone {
+    TimeZone::get("America/New_York").unwrap()
 }
 
-fn lakewood_location(elevation_m: f64) -> Location<Tz> {
+fn lakewood_location(elevation_m: f64) -> Location {
     Location::new(LAKEWOOD_LAT, LAKEWOOD_LON, elevation_m, Some(lakewood_tz())).unwrap()
 }
 
-fn lakewood_date() -> NaiveDate {
-    NaiveDate::from_ymd_opt(2017, 10, 17).unwrap()
+fn lakewood_date() -> Date {
+    Date::new(2017, 10, 17).unwrap()
 }
 
-fn new_calc(elevation_m: f64) -> ZmanimCalculator<Tz> {
+fn new_calc(elevation_m: f64) -> ZmanimCalculator {
     ZmanimCalculator::new(
         lakewood_location(elevation_m),
         lakewood_date(),
         CalculatorConfig {
-            candle_lighting_offset: Duration::minutes(18),
+            candle_lighting_offset: Duration::from_mins(18),
             use_astronomical_chatzos_for_other_zmanim: false,
             use_elevation: true,
-            ateret_torah_sunset_offset: Duration::minutes(40),
+            ateret_torah_sunset_offset: Duration::from_mins(40),
         },
     )
     .unwrap()
 }
 
-fn calc_for(lat: f64, lon: f64, elevation: f64, tz: Tz, date: NaiveDate) -> ZmanimCalculator<Tz> {
+fn calc_for(lat: f64, lon: f64, elevation: f64, tz: TimeZone, date: Date) -> ZmanimCalculator {
     let location = Location::new(lat, lon, elevation, Some(tz)).unwrap();
     ZmanimCalculator::new(location, date, Default::default()).unwrap()
 }
 
-fn fmt_local(dt: DateTime<Utc>) -> String {
-    dt.with_timezone(&lakewood_tz())
-        .format("%Y-%m-%dT%H:%M:%S%:z")
+fn fmt_local(dt: Timestamp) -> String {
+    dt.to_zoned(lakewood_tz())
+        .strftime("%Y-%m-%dT%H:%M:%S%:z")
         .to_string()
 }
 
-fn assert_zman_str(calc: &mut ZmanimCalculator<Tz>, zman: &dyn ZmanLike<Tz>, expected: &str) {
+fn assert_zman_str(calc: &mut ZmanimCalculator, zman: &dyn ZmanLike, expected: &str) {
     let dt = zman.calculate(calc).unwrap();
     assert_time_str(dt, expected, None);
 }
 fn assert_zman_str_with_max_time_diff(
-    calc: &mut ZmanimCalculator<Tz>,
-    zman: &dyn ZmanLike<Tz>,
+    calc: &mut ZmanimCalculator,
+    zman: &dyn ZmanLike,
     expected: &str,
     max_time_diff_seconds: Option<i64>,
 ) {
@@ -68,11 +66,9 @@ fn assert_zman_str_with_max_time_diff(
     assert_time_str(dt, expected, max_time_diff_seconds);
 }
 
-fn assert_time_str(dt: DateTime<Utc>, expected: &str, max_time_diff_seconds: Option<i64>) {
-    let expected_dt = DateTime::parse_from_rfc3339(expected)
-        .unwrap()
-        .with_timezone(&Utc);
-    let diff = (dt - expected_dt).num_seconds().abs();
+fn assert_time_str(dt: Timestamp, expected: &str, max_time_diff_seconds: Option<i64>) {
+    let expected_dt: Timestamp = expected.parse().unwrap();
+    let diff = dt.duration_since(expected_dt).as_secs().abs();
     assert!(
         diff <= max_time_diff_seconds.unwrap_or(MAX_TIME_DIFF_SECONDS),
         "time mismatch: expected {}, got {} (diff {}s)",
@@ -83,10 +79,10 @@ fn assert_time_str(dt: DateTime<Utc>, expected: &str, max_time_diff_seconds: Opt
 }
 
 fn assert_duration_ms_close(actual: Duration, expected_ms: i64) {
-    let actual_ms = actual.num_milliseconds();
-    let diff = (actual_ms - expected_ms).abs();
+    let actual_ms = actual.as_millis();
+    let diff = (actual_ms - i128::from(expected_ms)).abs();
     assert!(
-        diff <= MAX_SHAAH_ZMANIS_DIFF_MS,
+        diff <= i128::from(MAX_SHAAH_ZMANIS_DIFF_MS),
         "duration mismatch: expected {}ms, got {}ms (diff {}ms)",
         expected_ms,
         actual_ms,
@@ -95,7 +91,7 @@ fn assert_duration_ms_close(actual: Duration, expected_ms: i64) {
 }
 
 fn shaah_zmanis_by_degrees_and_offset(
-    calc: &mut ZmanimCalculator<Tz>,
+    calc: &mut ZmanimCalculator,
     degrees: f64,
     offset_minutes: i64,
 ) -> Duration {
@@ -118,19 +114,15 @@ fn shaah_zmanis_by_degrees_and_offset(
                 .unwrap(),
         )
     };
-    let start = start - Duration::minutes(offset_minutes);
-    let end = end + Duration::minutes(offset_minutes);
-    (end - start) / 12
+    let start = start - Duration::from_mins(offset_minutes);
+    let end = end + Duration::from_mins(offset_minutes);
+    end.duration_since(start) / 12
 }
 
 #[test]
 fn test_new_without_timezone_uses_longitude_offset() {
-    let location = Location::new(0.0, 30.0, 0.0, Option::<Utc>::None).unwrap();
-    let calc = ZmanimCalculator::new(
-        location,
-        NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-        Default::default(),
-    );
+    let location = Location::new(0.0, 30.0, 0.0, None).unwrap();
+    let calc = ZmanimCalculator::new(location, Date::new(2020, 1, 1).unwrap(), Default::default());
     assert!(calc.is_ok());
 }
 
@@ -139,8 +131,8 @@ fn test_shaah_zmanis_from_zmanim() {
     let mut calc = new_calc(0.0);
     let alos = ALOS_16_POINT_1_DEGREES.calculate(&mut calc).unwrap();
     let tzais = TZAIS_16_POINT_1_DEGREES.calculate(&mut calc).unwrap();
-    let shaah = (tzais - alos) / 12;
-    assert!(shaah.num_seconds() > 0);
+    let shaah = tzais.duration_since(alos) / 12;
+    assert!(shaah.as_secs() > 0);
 }
 
 #[test]
@@ -161,8 +153,8 @@ fn test_half_day_based_zman_negative_hours() {
     let sunset = ZmanPrimitive::ElevationAdjustedSunset
         .calculate(&mut calc)
         .unwrap();
-    let shaah = (sunset - sunrise) / 6;
-    let expected = sunset + multiply_duration(shaah, -1.0).unwrap();
+    let shaah = sunset.duration_since(sunrise) / 6;
+    let expected = sunset + shaah.mul_f64(-1.0);
     let actual = ZmanPrimitive::HalfDayBasedOffset(
         &ZmanPrimitive::ElevationAdjustedSunrise,
         &ZmanPrimitive::ElevationAdjustedSunset,
@@ -175,8 +167,14 @@ fn test_half_day_based_zman_negative_hours() {
 
 #[test]
 fn test_high_latitude_sunrise_sunset_ordering() {
-    let date = NaiveDate::from_ymd_opt(2017, 3, 21).unwrap();
-    let mut calc = calc_for(64.1466, -21.9426, 0.0, chrono_tz::Atlantic::Reykjavik, date);
+    let date = Date::new(2017, 3, 21).unwrap();
+    let mut calc = calc_for(
+        64.1466,
+        -21.9426,
+        0.0,
+        TimeZone::get("Atlantic/Reykjavik").unwrap(),
+        date,
+    );
     #[allow(clippy::expect_used)]
     let sunrise = ZmanPrimitive::ElevationAdjustedSunrise
         .calculate(&mut calc)
@@ -199,9 +197,21 @@ fn test_high_latitude_sunrise_sunset_ordering() {
 
 #[test]
 fn test_extreme_elevation_shifts_sunrise_sunset() {
-    let date = NaiveDate::from_ymd_opt(2017, 10, 17).unwrap();
-    let mut high = calc_for(27.9881, 86.9250, 8848.0, chrono_tz::Asia::Kathmandu, date);
-    let mut sea = calc_for(27.9881, 86.9250, 0.0, chrono_tz::Asia::Kathmandu, date);
+    let date = Date::new(2017, 10, 17).unwrap();
+    let mut high = calc_for(
+        27.9881,
+        86.9250,
+        8848.0,
+        TimeZone::get("Asia/Kathmandu").unwrap(),
+        date,
+    );
+    let mut sea = calc_for(
+        27.9881,
+        86.9250,
+        0.0,
+        TimeZone::get("Asia/Kathmandu").unwrap(),
+        date,
+    );
 
     let sunrise_high = ZmanPrimitive::ElevationAdjustedSunrise
         .calculate(&mut high)
@@ -222,8 +232,14 @@ fn test_extreme_elevation_shifts_sunrise_sunset() {
 
 #[test]
 fn test_polar_day_returns_none_for_sun_times() {
-    let date = NaiveDate::from_ymd_opt(2017, 6, 21).unwrap();
-    let mut calc = calc_for(69.6492, 18.9553, 0.0, chrono_tz::Europe::Oslo, date);
+    let date = Date::new(2017, 6, 21).unwrap();
+    let mut calc = calc_for(
+        69.6492,
+        18.9553,
+        0.0,
+        TimeZone::get("Europe/Oslo").unwrap(),
+        date,
+    );
 
     assert!(ZmanPrimitive::ElevationAdjustedSunrise
         .calculate(&mut calc)
@@ -247,20 +263,22 @@ fn test_new_returns_none_for_invalid_location() {
         latitude: f64::NAN,
         longitude: 0.0,
         elevation: 0.0,
-        timezone: Some(Utc),
+        timezone: Some(TimeZone::UTC),
     };
-    let calc = ZmanimCalculator::new(
-        location,
-        NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-        Default::default(),
-    );
+    let calc = ZmanimCalculator::new(location, Date::new(2020, 1, 1).unwrap(), Default::default());
     assert!(calc.is_err());
 }
 
 #[test]
 fn test_reykjavik_equinox_java_expected_times() {
-    let date = NaiveDate::from_ymd_opt(2017, 3, 21).unwrap();
-    let mut calc = calc_for(64.1466, -21.9426, 0.0, chrono_tz::Atlantic::Reykjavik, date);
+    let date = Date::new(2017, 3, 21).unwrap();
+    let mut calc = calc_for(
+        64.1466,
+        -21.9426,
+        0.0,
+        TimeZone::get("Atlantic/Reykjavik").unwrap(),
+        date,
+    );
 
     assert_zman_str(
         &mut calc,
@@ -283,8 +301,14 @@ fn test_reykjavik_equinox_java_expected_times() {
 
 #[test]
 fn test_everest_java_expected_times() {
-    let date = NaiveDate::from_ymd_opt(2017, 10, 17).unwrap();
-    let mut calc = calc_for(27.9881, 86.9250, 8826.0, chrono_tz::Asia::Kathmandu, date);
+    let date = Date::new(2017, 10, 17).unwrap();
+    let mut calc = calc_for(
+        27.9881,
+        86.9250,
+        8826.0,
+        TimeZone::get("Asia/Kathmandu").unwrap(),
+        date,
+    );
     // At very high elevation our refraction model and javas refraction model start to differ slightly, so we allow for a larger time difference.
     assert_zman_str_with_max_time_diff(
         &mut calc,
@@ -466,7 +490,7 @@ fn test_default_shaah_zmanis() {
     let day_end = ZmanPrimitive::SunsetOffsetByDegrees(6.0)
         .calculate(&mut calc)
         .unwrap();
-    let shaah = (day_end - day_start) / 12;
+    let shaah = day_end.duration_since(day_start) / 12;
     assert_duration_ms_close(shaah, 3_594_499);
 
     let mut calc = new_calc(0.0);
@@ -619,7 +643,7 @@ fn test_use_elevation_shaah_zmanis() {
     let day_end = ZmanPrimitive::SunsetOffsetByDegrees(6.0)
         .calculate(&mut calc)
         .unwrap();
-    let shaah = (day_end - day_start) / 12;
+    let shaah = day_end.duration_since(day_start) / 12;
     assert_duration_ms_close(shaah, 3_594_499);
 
     let mut calc = new_calc(0.0);
@@ -635,15 +659,21 @@ fn test_use_elevation_shaah_zmanis() {
     assert_duration_ms_close(shaah_both, 4_314_499);
 }
 
-fn polar_day_calc() -> ZmanimCalculator<Tz> {
-    let date = NaiveDate::from_ymd_opt(2017, 6, 21).unwrap();
-    let location = Location::new(69.6492, 18.9553, 0.0, Some(chrono_tz::Europe::Oslo)).unwrap();
+fn polar_day_calc() -> ZmanimCalculator {
+    let date = Date::new(2017, 6, 21).unwrap();
+    let location = Location::new(
+        69.6492,
+        18.9553,
+        0.0,
+        Some(TimeZone::get("Europe/Oslo").unwrap()),
+    )
+    .unwrap();
     ZmanimCalculator::new(location, date, Default::default()).unwrap()
 }
 
 #[test]
 fn test_polar_day_zmanim_return_none() {
-    let alos_variants: [&dyn ZmanLike<Tz>; 9] = [
+    let alos_variants: [&dyn ZmanLike; 9] = [
         &ALOS_60_MINUTES,
         &ALOS_72_MINUTES,
         &ALOS_72_ZMANIS,
@@ -661,7 +691,7 @@ fn test_polar_day_zmanim_return_none() {
         assert!(zman.calculate(&mut calc).is_err());
     }
 
-    let bain_variants: [&dyn ZmanLike<Tz>; 6] = [
+    let bain_variants: [&dyn ZmanLike; 6] = [
         &BAIN_HASHMASHOS_RT_58_POINT_5_MINUTES,
         &BAIN_HASHMASHOS_RT_13_POINT_5_MINUTES_BEFORE_7_POINT_083_DEGREES,
         &BAIN_HASHMASHOS_RT_2_STARS,
@@ -680,7 +710,7 @@ fn test_polar_day_zmanim_return_none() {
     let mut calc = polar_day_calc();
     assert!(CHATZOS_HAYOM_HALF_DAY.calculate(&mut calc).is_err());
 
-    let mincha_variants: [&dyn ZmanLike<Tz>; 5] = [
+    let mincha_variants: [&dyn ZmanLike; 5] = [
         &MINCHA_GEDOLA_16_POINT_1_DEGREES,
         &MINCHA_GEDOLA_MINUTES_72,
         &MINCHA_GEDOLA_AHAVAT_SHALOM,

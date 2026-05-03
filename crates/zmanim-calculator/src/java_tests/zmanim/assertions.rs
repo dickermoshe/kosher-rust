@@ -2,7 +2,7 @@
 
 use std::error::Error;
 
-use chrono::NaiveDate;
+use jiff::civil::Date;
 
 use crate::presets::ZmanPreset;
 
@@ -51,7 +51,7 @@ fn assert_results_match(
                 difference <= max_diff_ms,
                 "zman mismatch for {} on {} at ({}, {}) in {}: java={} rust={} diff={}ms max={}ms\n{}",
                 case.preset_name,
-                NaiveDate::from_ymd_opt(case.year, case.month, case.day).unwrap(),
+                Date::new(case.year as i16, case.month as i8, case.day as i8).unwrap(),
                 case.latitude,
                 case.longitude,
                 case.timezone,
@@ -67,7 +67,7 @@ fn assert_results_match(
         (java, rust) => panic!(
             "null mismatch for {} on {} in {}: java={:?} rust={:?}\n{}",
             case.preset_name,
-            NaiveDate::from_ymd_opt(case.year, case.month, case.day).unwrap(),
+            Date::new(case.year as i16, case.month as i8, case.day as i8).unwrap(),
             case.timezone,
             java,
             rust,

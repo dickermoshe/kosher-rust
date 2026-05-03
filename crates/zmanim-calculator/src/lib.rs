@@ -10,7 +10,7 @@
 //!   (for example, `presets::SUNRISE` and `presets::SUNSET`).
 //!
 //! [`ZmanimCalculator::calculate`](crate::calculator::ZmanimCalculator::calculate) returns
-//! `Result<DateTime<Utc>, ZmanimError>`.
+//! `Result<jiff::Timestamp, ZmanimError>`.
 //! In edge cases (for example high latitudes on specific dates), calculations may return an error.
 //!
 //! `calculate` takes `&mut self` so repeated calculations can reuse intermediate state.
@@ -33,7 +33,6 @@ mod types {
 }
 // Calculation logic for zmanim.
 pub mod calculator;
-mod duration_helper;
 /// Molad calculations.
 pub mod molad;
 /// Predefined zmanim calculations built from reusable primitives.

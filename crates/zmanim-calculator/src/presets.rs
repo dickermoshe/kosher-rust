@@ -3,8 +3,6 @@
 //! Prefer these presets for standard zmanim usage. Reach for `primitive_zman` only when
 //! you need to compose a custom calculation that is not already provided here.
 
-use chrono::TimeZone;
-
 use crate::prelude::ZmanimCalculator;
 
 use crate::types::error::ZmanimError;
@@ -12,14 +10,14 @@ use crate::types::error::ZmanimError;
 #[cfg(test)]
 use self::java::JavaCalc;
 use crate::{calculator::ZmanLike, primitive_zman::ZmanPrimitive};
-use chrono::{DateTime, Duration, Utc};
+use jiff::{SignedDuration as Duration, Timestamp};
 
 #[cfg(test)]
 mod java {
     //! Java parity-test hooks for preset definitions.
     //!
     //! These callbacks intentionally return a raw Java `Instant` object instead of
-    //! `DateTime<Utc>` so the test harness can share one conversion path for all
+    //! `Timestamp` so the test harness can share one conversion path for all
     //! Java calendar methods.
 
     use crate::java_bindings::com::kosherjava::zmanim::{
@@ -106,11 +104,8 @@ pub struct ZmanPreset<'a> {
     pub(crate) calc: java::JavaCalc,
 }
 
-impl<'a, Tz: TimeZone> ZmanLike<Tz> for ZmanPreset<'a> {
-    fn calculate(
-        &self,
-        calculator: &mut ZmanimCalculator<Tz>,
-    ) -> Result<DateTime<Utc>, ZmanimError> {
+impl<'a> ZmanLike for ZmanPreset<'a> {
+    fn calculate(&self, calculator: &mut ZmanimCalculator) -> Result<Timestamp, ZmanimError> {
         self.event.calculate(calculator)
     }
 }
@@ -219,7 +214,7 @@ define_presets! {
     /// *Alos* as a fixed `60` minutes before sunrise.
 
     ALOS_60_MINUTES {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-60)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-60)),
         name: "getAlos60Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_alos60minutes(env)
@@ -228,7 +223,7 @@ define_presets! {
     /// *Alos* as a fixed `72` minutes before sunrise.
 
     ALOS_72_MINUTES {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
         name: "getAlos72Minutes",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
             calendar.get_alos72minutes(env)
@@ -246,7 +241,7 @@ define_presets! {
     /// *Alos* as a fixed `90` minutes before sunrise.
 
     ALOS_90_MINUTES {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-90)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)),
         name: "getAlos90Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_alos90minutes(env)
@@ -264,7 +259,7 @@ define_presets! {
     /// *Alos* as a fixed `96` minutes before sunrise.
 
     ALOS_96_MINUTES {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-96)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)),
         name: "getAlos96Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_alos96minutes(env)
@@ -283,7 +278,7 @@ define_presets! {
 
     #[deprecated]
     ALOS_120_MINUTES {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-120)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)),
         name: "getAlos120Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_alos120minutes(env)
@@ -368,7 +363,7 @@ define_presets! {
     BAIN_HASHMASHOS_RT_58_POINT_5_MINUTES {
         event: ZmanPrimitive::Offset(
         &ZmanPrimitive::ConfiguredSunset,
-        Duration::milliseconds((58.5 * 60.0 * 1000.0) as i64),
+        Duration::from_millis((58.5 * 60.0 * 1000.0) as i64),
     ),
         name: "getBainHashmashosRT58Point5Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -380,7 +375,7 @@ define_presets! {
     BAIN_HASHMASHOS_RT_13_POINT_5_MINUTES_BEFORE_7_POINT_083_DEGREES {
         event: ZmanPrimitive::Offset(
             &ZmanPrimitive::SunsetOffsetByDegrees(7.0 + (5.0 / 60.0)),
-            Duration::milliseconds((-13.5 * 60.0 * 1000.0) as i64),
+            Duration::from_millis((-13.5 * 60.0 * 1000.0) as i64),
         ),
         name: "getBainHashmashosRT13Point5MinutesBefore7Point083Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -399,7 +394,7 @@ define_presets! {
     /// Bain hashmashos (Yereim): `18` minutes before sunset.
 
     BAIN_HASHMASHOS_YEREIM_18_MINUTES {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(-18)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(-18)),
         name: "getBainHashmashosYereim18Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_bain_hashmashos_yereim18minutes(env)
@@ -410,7 +405,7 @@ define_presets! {
     BAIN_HASHMASHOS_YEREIM_16_POINT_875_MINUTES {
         event: ZmanPrimitive::Offset(
         &ZmanPrimitive::ConfiguredSunset,
-        Duration::milliseconds((-16.875 * 60.0 * 1000.0) as i64),
+        Duration::from_millis((-16.875 * 60.0 * 1000.0) as i64),
     ),
         name: "getBainHashmashosYereim16Point875Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -422,7 +417,7 @@ define_presets! {
     BAIN_HASHMASHOS_YEREIM_13_POINT_5_MINUTES {
         event: ZmanPrimitive::Offset(
         &ZmanPrimitive::ConfiguredSunset,
-        Duration::milliseconds((-13.5 * 60.0 * 1000.0) as i64),
+        Duration::from_millis((-13.5 * 60.0 * 1000.0) as i64),
     ),
         name: "getBainHashmashosYereim13Point5Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -534,7 +529,7 @@ define_presets! {
     /// Mincha gedola: `30` minutes after solar transit.
 
     MINCHA_GEDOLA_MINUTES_30 {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::minutes(30)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::from_mins(30)),
         name: "getMinchaGedola30Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_mincha_gedola30minutes(env)
@@ -544,8 +539,8 @@ define_presets! {
 
     MINCHA_GEDOLA_MINUTES_72 {
         event: ZmanPrimitive::MinchaGedola(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
         true,
     ),
         name: "getMinchaGedola72Minutes",
@@ -591,7 +586,7 @@ define_presets! {
     /// Mincha gedola: `30` minutes after fixed local chatzos (12:00 local mean time).
 
     MINCHA_GEDOLA_GRA_FIXED_LOCAL_CHATZOS_30_MINUTES {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::LocalMeanTime(12.0), Duration::minutes(30)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::LocalMeanTime(12.0), Duration::from_mins(30)),
         name: "getMinchaGedolaGRAFixedLocalChatzos30Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_mincha_gedola_grafixed_local_chatzos30minutes(env)
@@ -627,8 +622,8 @@ define_presets! {
 
     MINCHA_KETANA_MINUTES_72 {
         event: ZmanPrimitive::MinchaKetana(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
         true,
     ),
         name: "getMinchaKetana72Minutes",
@@ -791,8 +786,8 @@ define_presets! {
 
     PLAG_HAMINCHA_60_MINUTES {
         event: ZmanPrimitive::PlagHamincha(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-60)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(60)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-60)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(60)),
         true,
     ),
         name: "getPlagHamincha60Minutes",
@@ -805,8 +800,8 @@ define_presets! {
     #[deprecated]
     PLAG_HAMINCHA_72_MINUTES {
         event: ZmanPrimitive::PlagHamincha(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
         true,
     ),
         name: "getPlagHamincha72Minutes",
@@ -833,8 +828,8 @@ define_presets! {
     #[deprecated]
     PLAG_HAMINCHA_90_MINUTES {
         event: ZmanPrimitive::PlagHamincha(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-90)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(90)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)),
         true,
     ),
         name: "getPlagHamincha90Minutes",
@@ -861,8 +856,8 @@ define_presets! {
     #[deprecated]
     PLAG_HAMINCHA_96_MINUTES {
         event: ZmanPrimitive::PlagHamincha(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-96)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(96)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)),
         true,
     ),
         name: "getPlagHamincha96Minutes",
@@ -889,8 +884,8 @@ define_presets! {
     #[deprecated]
     PLAG_HAMINCHA_120_MINUTES {
         event: ZmanPrimitive::PlagHamincha(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-120)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(120)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)),
         true,
     ),
         name: "getPlagHamincha120Minutes",
@@ -1037,8 +1032,8 @@ define_presets! {
 
     SAMUCH_LE_MINCHA_KETANA_72_MINUTES {
         event: ZmanPrimitive::SamuchLeMinchaKetana(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
         true,
     ),
         name: "getSamuchLeMinchaKetana72Minutes",
@@ -1063,8 +1058,8 @@ define_presets! {
 
     SOF_ZMAN_ACHILAS_CHAMETZ_MGA_72_MINUTES {
         event: ZmanPrimitive::Tefila(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
         true,
     ),
         name: "getSofZmanAchilasChametzMGA72Minutes",
@@ -1128,8 +1123,8 @@ define_presets! {
 
     SOF_ZMAN_BIUR_CHAMETZ_MGA_72_MINUTES {
         event: ZmanPrimitive::SofZmanBiurChametz(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
         true,
     ),
         name: "getSofZmanBiurChametzMGA72Minutes",
@@ -1233,8 +1228,8 @@ define_presets! {
 
     SOF_ZMAN_SHMA_MGA_72_MINUTES {
         event: ZmanPrimitive::Shema(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
         true,
     ),
         name: "getSofZmanShmaMGA72Minutes",
@@ -1259,8 +1254,8 @@ define_presets! {
 
     SOF_ZMAN_SHMA_MGA_90_MINUTES {
         event: ZmanPrimitive::Shema(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-90)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(90)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)),
         true,
     ),
         name: "getSofZmanShmaMGA90Minutes",
@@ -1285,8 +1280,8 @@ define_presets! {
 
     SOF_ZMAN_SHMA_MGA_96_MINUTES {
         event: ZmanPrimitive::Shema(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-96)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(96)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)),
         true,
     ),
         name: "getSofZmanShmaMGA96Minutes",
@@ -1310,7 +1305,7 @@ define_presets! {
     /// Sof zman shma: `3` hours before solar transit.
 
     SOF_ZMAN_SHMA_HOURS_3_BEFORE_CHATZOS {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::minutes(-180)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::from_mins(-180)),
         name: "getSofZmanShma3HoursBeforeChatzos",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_sof_zman_shma3hours_before_chatzos(env)
@@ -1320,8 +1315,8 @@ define_presets! {
 
     SOF_ZMAN_SHMA_MGA_120_MINUTES {
         event: ZmanPrimitive::Shema(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-120)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(120)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)),
         true,
     ),
         name: "getSofZmanShmaMGA120Minutes",
@@ -1424,7 +1419,7 @@ define_presets! {
 
     SOF_ZMAN_SHMA_MGA_90_MINUTES_TO_FIXED_LOCAL_CHATZOS {
         event: ZmanPrimitive::HalfDayBasedOffset(
-            &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-90)),
+            &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)),
             &ZmanPrimitive::LocalMeanTime(12.0),
             3.0,
         ),
@@ -1437,7 +1432,7 @@ define_presets! {
 
     SOF_ZMAN_SHMA_MGA_72_MINUTES_TO_FIXED_LOCAL_CHATZOS {
         event: ZmanPrimitive::HalfDayBasedOffset(
-            &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
+            &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
             &ZmanPrimitive::LocalMeanTime(12.0),
             3.0,
         ),
@@ -1463,8 +1458,8 @@ define_presets! {
 
     SOF_ZMAN_TFILA_MGA {
         event: ZmanPrimitive::Tefila(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
         true,
     ),
         name: "getSofZmanTfilaMGA72Minutes",
@@ -1515,8 +1510,8 @@ define_presets! {
 
     SOF_ZMAN_TFILA_MGA_72_MINUTES {
         event: ZmanPrimitive::Tefila(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-72)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
         true,
     ),
         name: "getSofZmanTfilaMGA72Minutes",
@@ -1541,8 +1536,8 @@ define_presets! {
 
     SOF_ZMAN_TFILA_MGA_90_MINUTES {
         event: ZmanPrimitive::Tefila(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-90)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(90)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)),
         true,
     ),
         name: "getSofZmanTfilaMGA90Minutes",
@@ -1567,8 +1562,8 @@ define_presets! {
 
     SOF_ZMAN_TFILA_MGA_96_MINUTES {
         event: ZmanPrimitive::Tefila(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-96)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(96)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)),
         true,
     ),
         name: "getSofZmanTfilaMGA96Minutes",
@@ -1592,7 +1587,7 @@ define_presets! {
     /// Sof zman tfila: `2` hours before solar transit.
 
     SOF_ZMAN_TFILA_HOURS_2_BEFORE_CHATZOS {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::minutes(-120)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::from_mins(-120)),
         name: "getSofZmanTfila2HoursBeforeChatzos",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_sof_zman_tfila2hours_before_chatzos(env)
@@ -1602,8 +1597,8 @@ define_presets! {
 
     SOF_ZMAN_TFILA_MGA_120_MINUTES {
         event: ZmanPrimitive::Tefila(
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::minutes(-120)),
-        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(120)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)),
+        &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)),
         true,
     ),
         name: "getSofZmanTfilaMGA120Minutes",
@@ -1662,7 +1657,7 @@ define_presets! {
     /// Tzais: `50` minutes after sunset.
 
     TZAIS_MINUTES_50 {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(50)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(50)),
         name: "getTzais50Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_tzais50minutes(env)
@@ -1671,7 +1666,7 @@ define_presets! {
     /// Tzais: `60` minutes after sunset.
 
     TZAIS_MINUTES_60 {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(60)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(60)),
         name: "getTzais60Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_tzais60minutes(env)
@@ -1680,7 +1675,7 @@ define_presets! {
     /// Tzais: `72` minutes after sunset.
 
     TZAIS_MINUTES_72 {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(72)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
         name: "getTzais72Minutes",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
             calendar.get_tzais72minutes(env)
@@ -1698,7 +1693,7 @@ define_presets! {
     /// Tzais: `90` minutes after sunset.
 
     TZAIS_MINUTES_90 {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(90)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)),
         name: "getTzais90Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_tzais90minutes(env)
@@ -1716,7 +1711,7 @@ define_presets! {
     /// Tzais: `96` minutes after sunset.
 
     TZAIS_MINUTES_96 {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(96)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)),
         name: "getTzais96Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_tzais96minutes(env)
@@ -1735,7 +1730,7 @@ define_presets! {
 
     #[deprecated]
     TZAIS_MINUTES_120 {
-        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::minutes(120)),
+        event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)),
         name: "getTzais120Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
             calendar.get_tzais120minutes(env)

@@ -1,10 +1,10 @@
-use chrono::TimeZone;
+use jiff::tz::TimeZone;
 
 use crate::types::error::ZmanimError;
 
 /// A geographic location (latitude/longitude/elevation) and an optional timezone.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Location<T: TimeZone> {
+#[derive(Debug, Clone, PartialEq)]
+pub struct Location {
     /// Latitude in degrees. Valid range: `[-90.0, 90.0]` (positive = North).
     pub latitude: f64,
     /// Longitude in degrees. Valid range: `[-180.0, 180.0]` (positive = East).
@@ -14,10 +14,10 @@ pub struct Location<T: TimeZone> {
     pub elevation: f64,
     /// Timezone of the location. Required when near the anti-meridian (`abs(longitude) > 150°`).
     /// Also required for calculating kiddush levena times.
-    pub timezone: Option<T>,
+    pub timezone: Option<TimeZone>,
 }
 
-impl<T: TimeZone> Location<T> {
+impl Location {
     /// Creates a new `Location`, returning a [`ZmanimError`] if any value is out of range.
     ///
     /// # Errors
@@ -29,7 +29,7 @@ impl<T: TimeZone> Location<T> {
         latitude: f64,
         longitude: f64,
         elevation: f64,
-        timezone: Option<T>,
+        timezone: Option<TimeZone>,
     ) -> Result<Self, ZmanimError> {
         if timezone.is_none() && Self::near_anti_meridian(longitude) {
             return Err(ZmanimError::TimeZoneRequired);
@@ -62,32 +62,32 @@ impl<T: TimeZone> Location<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::Utc;
+    use jiff::tz::TimeZone;
 
     #[test]
     fn test_location_rejects_anti_meridian_without_timezone() {
-        let location = Location::new(0.0, 150.1, 0.0, Option::<Utc>::None);
+        let location = Location::new(0.0, 150.1, 0.0, None);
         assert!(location.is_err());
     }
 
     #[test]
     fn test_location_rejects_out_of_range_coords() {
-        let bad_longitude = Location::new(0.0, 181.0, 0.0, Some(Utc));
+        let bad_longitude = Location::new(0.0, 181.0, 0.0, Some(TimeZone::UTC));
         assert!(bad_longitude.is_err());
 
-        let bad_latitude = Location::new(91.0, 0.0, 0.0, Some(Utc));
+        let bad_latitude = Location::new(91.0, 0.0, 0.0, Some(TimeZone::UTC));
         assert!(bad_latitude.is_err());
     }
 
     #[test]
     fn test_location_rejects_negative_elevation() {
-        let location = Location::new(0.0, 0.0, -1.0, Some(Utc));
+        let location = Location::new(0.0, 0.0, -1.0, Some(TimeZone::UTC));
         assert!(location.is_err());
     }
 }
 
 #[cfg(feature = "defmt")]
-impl<T: TimeZone> defmt::Format for Location<T> {
+impl defmt::Format for Location {
     fn format(&self, fmt: defmt::Formatter) {
         defmt::write!(
             fmt,

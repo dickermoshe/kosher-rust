@@ -1,13 +1,14 @@
 //! Rust-side reference path for Hebrew-date Java parity tests.
 
-use chrono::{Datelike, NaiveDate};
 use hebrew_holiday_calendar::{HebrewHolidayCalendar, HebrewMonth, Holiday};
 use icu_calendar::{
-    cal::Hebrew,
+    cal::{Gregorian, Hebrew, Iso},
     options::{DateAddOptions, Overflow},
     types::DateDuration,
-    Date, Gregorian,
+    Date,
 };
+use jiff::civil::{Date as JiffDate, Weekday};
+use jiff_icu::{ConvertFrom, ConvertTryInto};
 
 use super::{
     java_reference::java_holiday_index_from_rust,
@@ -15,7 +16,7 @@ use super::{
 };
 
 pub(super) fn rust_gregorian_date_to_jewish_date(date: DateTuple) -> Option<DateTuple> {
-    let gregorian = Date::<Gregorian>::try_new_gregorian(date.year, date.month, date.day).ok()?;
+    let gregorian = icu_gregorian_date(date)?;
     let hebrew = gregorian.to_calendar(Hebrew);
     Some(DateTuple::new(
         hebrew.year().extended_year(),
@@ -27,22 +28,18 @@ pub(super) fn rust_gregorian_date_to_jewish_date(date: DateTuple) -> Option<Date
 pub(super) fn rust_jewish_date_to_gregorian_date(date: DateTuple) -> Option<DateTuple> {
     let hebrew = rust_hebrew_date(date)?;
     let gregorian = hebrew.to_calendar(Gregorian);
+    let jiff_date: JiffDate = gregorian.convert_try_into().ok()?;
     Some(DateTuple::new(
-        gregorian.year().extended_year(),
-        gregorian.month().number(),
-        gregorian.day_of_month().0,
+        i32::from(jiff_date.year()),
+        jiff_date.month() as u8,
+        jiff_date.day() as u8,
     ))
 }
 
 pub(super) fn rust_jewish_date_snapshot(date: DateTuple) -> Option<JewishDateSnapshot> {
     let hebrew = rust_hebrew_date(date)?;
     let gregorian = hebrew.to_calendar(Gregorian);
-    let gregorian_date = NaiveDate::from_ymd_opt(
-        gregorian.year().extended_year(),
-        u32::from(gregorian.month().number()),
-        u32::from(gregorian.day_of_month().0),
-    )?;
-    let abs_date = gregorian_date.num_days_from_ce();
+    let abs_date = gregorian.to_rata_die().to_i64_date() as i32;
 
     Some(JewishDateSnapshot {
         day_of_week: rust_java_day_of_week(&hebrew),
@@ -139,7 +136,7 @@ pub(super) fn rust_jewish_calendar_snapshot(
         is_yom_tov: rust_is_yom_tov(&rust_holidays),
         is_yom_tov_assur_bemelacha: rust_is_yom_tov_assur_bemelacha(
             &rust_holidays,
-            hebrew.chrono_day_of_week(),
+            Weekday::convert_from(hebrew.weekday()),
         ),
         is_erev_yom_tov: rust_is_erev_yom_tov(&hebrew, in_israel),
         is_erev_yom_tov_sheni: rust_is_erev_yom_tov_sheni(&hebrew, in_israel),
@@ -191,6 +188,17 @@ fn rust_date_tuple_from_hebrew(date: Date<Hebrew>) -> DateTuple {
         date.hebrew_month().into(),
         date.day_of_month().0,
     )
+}
+
+fn icu_gregorian_date(date: DateTuple) -> Option<Date<Gregorian>> {
+    let jiff_date = JiffDate::new(
+        i16::try_from(date.year).ok()?,
+        date.month as i8,
+        date.day as i8,
+    )
+    .ok()?;
+    let iso_date: Date<Iso> = Date::convert_from(jiff_date);
+    Some(iso_date.to_calendar(Gregorian))
 }
 
 fn rust_java_day_of_week(date: &Date<Hebrew>) -> i32 {
@@ -324,13 +332,16 @@ fn rust_is_erev_yom_tov_sheni(date: &Date<Hebrew>, in_israel: bool) -> bool {
         .copied()
         .collect::<Vec<Holiday>>();
     rust_is_yom_tov(&next_holidays)
-        && rust_is_yom_tov_assur_bemelacha(&next_holidays, next_day.chrono_day_of_week())
+        && rust_is_yom_tov_assur_bemelacha(
+            &next_holidays,
+            Weekday::convert_from(next_day.weekday()),
+        )
         && today_holidays
             .iter()
             .any(|holiday| holiday.is_assur_bemelacha())
 }
 
-fn rust_is_yom_tov_assur_bemelacha(holidays: &[Holiday], _weekday: chrono::Weekday) -> bool {
+fn rust_is_yom_tov_assur_bemelacha(holidays: &[Holiday], _weekday: Weekday) -> bool {
     holidays.iter().any(|holiday| holiday.is_assur_bemelacha())
 }
 

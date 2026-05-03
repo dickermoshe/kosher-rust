@@ -10,21 +10,27 @@ A Rust library for calculating halachic zmanim (times), following KosherJava nam
 ## Installation
 
 ```bash
-cargo add zmanim-calculator chrono
+cargo add zmanim-calculator jiff
 ```
 
 ## Usage
 
 ```rust
-use chrono::{NaiveDate, Utc};
+use jiff::{civil::Date, tz::TimeZone};
 use zmanim_calculator::{
     prelude::{CalculatorConfig, Location, ZmanimCalculator},
     presets::{SUNRISE, TZAIS_MINUTES_72},
 };
 
 fn main() {
-    let location = Location::new(40.7128, -74.0060, 10.0, Some(Utc)).expect("valid location");
-    let date = NaiveDate::from_ymd_opt(2026, 3, 1).expect("valid date");
+    let location = Location::new(
+        40.7128,
+        -74.0060,
+        10.0,
+        Some(TimeZone::get("America/New_York").expect("valid timezone")),
+    )
+    .expect("valid location");
+    let date = Date::new(2026, 3, 1).expect("valid date");
     let mut calc =
         ZmanimCalculator::new(location, date, CalculatorConfig::default()).expect("calculator");
 

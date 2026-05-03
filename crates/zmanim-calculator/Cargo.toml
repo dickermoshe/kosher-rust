@@ -21,7 +21,8 @@ __test-spa-refraction = []
 [dependencies]
 astronomical-calculator.workspace = true
 icu_calendar.workspace = true
-chrono.workspace = true
+jiff.workspace = true
+jiff-icu.workspace = true
 defmt = { workspace = true, optional = true }
 core_maths.workspace = true
 hebrew_holiday_calendar.workspace = true
@@ -29,7 +30,7 @@ thiserror.workspace = true
 
 [dev-dependencies]
 jni = { version = "0.22.4", features = ["invocation"] }
-chrono = { workspace = true, features = ["std"] }
+jiff = { workspace = true, features = ["std", "tzdb-bundle-platform"] }
 lazy_static.workspace = true
 j4rs.workspace = true
 num_enum.workspace = true
@@ -37,7 +38,6 @@ proptest.workspace = true
 rand.workspace = true
 tinystr.workspace = true
 tzf-rs = "1.1.3"
-chrono-tz.workspace = true
 
 [lints]
 workspace = true

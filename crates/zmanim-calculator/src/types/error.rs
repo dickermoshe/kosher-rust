@@ -1,5 +1,5 @@
 use astronomical_calculator::{CalculationError, SolarEventResult};
-use chrono::{DateTime, TimeZone, Utc};
+use jiff::Timestamp;
 use thiserror::Error;
 
 #[derive(Debug, Error, PartialEq, Eq, Clone, Copy, Hash)]
@@ -43,17 +43,16 @@ pub enum ZmanimError {
 }
 
 pub(crate) trait IntoDateTimeResult {
-    fn into_date_time_result(self) -> Result<DateTime<Utc>, ZmanimError>;
+    fn into_date_time_result(self) -> Result<Timestamp, ZmanimError>;
 }
 
 impl IntoDateTimeResult for Result<SolarEventResult, CalculationError> {
-    fn into_date_time_result(self) -> Result<DateTime<Utc>, ZmanimError> {
+    fn into_date_time_result(self) -> Result<Timestamp, ZmanimError> {
         match self {
             Ok(result) => match result {
-                SolarEventResult::Occurs(timestamp) => Ok(Utc
-                    .timestamp_opt(timestamp, 0)
-                    .single()
-                    .ok_or(ZmanimError::TimeConversionError)?),
+                SolarEventResult::Occurs(timestamp) => {
+                    Timestamp::from_second(timestamp).map_err(|_| ZmanimError::TimeConversionError)
+                }
                 SolarEventResult::AllDay => Err(ZmanimError::AllDay),
                 SolarEventResult::AllNight => Err(ZmanimError::AllNight),
             },
@@ -62,12 +61,11 @@ impl IntoDateTimeResult for Result<SolarEventResult, CalculationError> {
     }
 }
 impl IntoDateTimeResult for Result<i64, CalculationError> {
-    fn into_date_time_result(self) -> Result<DateTime<Utc>, ZmanimError> {
+    fn into_date_time_result(self) -> Result<Timestamp, ZmanimError> {
         match self {
-            Ok(result) => Ok(Utc
-                .timestamp_opt(result, 0)
-                .single()
-                .ok_or(ZmanimError::TimeConversionError)?),
+            Ok(result) => {
+                Timestamp::from_second(result).map_err(|_| ZmanimError::TimeConversionError)
+            }
             Err(e) => Err(ZmanimError::AstronomicalCalculatorError(e)),
         }
     }

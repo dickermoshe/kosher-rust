@@ -2,7 +2,7 @@
 //!
 //! [`ZmanimCalculator`] is the main entry point: construct one with [`ZmanimCalculator::new`],
 //! then pass any [`ZmanLike`] implementor (typically a value from [`crate::presets`]) to
-//! [`ZmanimCalculator::calculate`] to obtain a `DateTime<Utc>`.
+//! [`ZmanimCalculator::calculate`] to obtain a [`jiff::Timestamp`].
 
 use crate::types::{
     config::CalculatorConfig,
@@ -10,13 +10,15 @@ use crate::types::{
     location::Location,
 };
 use astronomical_calculator::{AstronomicalCalculator, Refraction};
-use chrono::{
-    offset::LocalResult, DateTime, Datelike, Duration, NaiveDate, TimeDelta, TimeZone, Utc,
-};
 #[allow(unused_imports)]
 use core_maths::*;
+use jiff::{
+    civil::Date,
+    tz::{AmbiguousOffset, TimeZone},
+    SignedDuration, Timestamp,
+};
 
-/// Calculates zmanim for a given [`Location`] and [`NaiveDate`].
+/// Calculates zmanim for a given [`Location`] and [`Date`].
 ///
 /// Construct once for a location/date pair, then call [`ZmanimCalculator::calculate`]
 /// with one or more values implementing [`ZmanLike`].
@@ -24,11 +26,11 @@ use core_maths::*;
 /// Most users should pass one of the ready-made definitions from [`crate::presets`]
 /// (for example `presets::SUNRISE`) instead of implementing custom zman logic.
 #[derive(Clone, Debug)]
-pub struct ZmanimCalculator<Tz: TimeZone> {
+pub struct ZmanimCalculator {
     /// The location to calculate for.
-    pub(crate) location: Location<Tz>,
+    pub(crate) location: Location,
     /// The civil date at `location` for which zmanim are calculated.
-    pub(crate) date: NaiveDate,
+    pub(crate) date: Date,
     /// Calculation configuration options.
     pub(crate) config: CalculatorConfig,
     pub(crate) elevation_adjusted_calculator: AstronomicalCalculator,
@@ -36,7 +38,7 @@ pub struct ZmanimCalculator<Tz: TimeZone> {
     pub(crate) sea_level_calculator_no_refraction: AstronomicalCalculator,
 }
 
-impl<Tz: TimeZone> ZmanimCalculator<Tz> {
+impl ZmanimCalculator {
     /// Creates a new calculator for the given `location`, `date`, and `config`.
     ///
     /// Use this as your main entry point before calculating any zmanim.
@@ -46,8 +48,8 @@ impl<Tz: TimeZone> ZmanimCalculator<Tz> {
     /// Returns an error when the calculator cannot be initialized from the provided
     /// location/date/config values.
     pub fn new(
-        location: Location<Tz>,
-        date: NaiveDate,
+        location: Location,
+        date: Date,
         config: CalculatorConfig,
     ) -> Result<Self, ZmanimError> {
         // Regular test builds use NOAA refraction to line up with KosherJava's
@@ -116,35 +118,37 @@ impl<Tz: TimeZone> ZmanimCalculator<Tz> {
     ///
     /// If borrow rules make your call sites awkward, clone the calculator and use each
     /// clone independently (for example, one clone for sunrise and another for sunset).
-    pub fn calculate(&mut self, zman: &impl ZmanLike<Tz>) -> Result<DateTime<Utc>, ZmanimError> {
+    pub fn calculate(&mut self, zman: &impl ZmanLike) -> Result<Timestamp, ZmanimError> {
         zman.calculate(self)
     }
 
-    fn local_noon<T: TimeZone>(
-        date: NaiveDate,
-        location: &Location<T>,
-    ) -> Result<DateTime<Utc>, ZmanimError> {
+    fn local_noon(date: Date, location: &Location) -> Result<Timestamp, ZmanimError> {
         // Preferred: convert 12:00:00 in the location's timezone to UTC.
         if let Some(tz) = location.timezone.as_ref() {
-            let result = tz.with_ymd_and_hms(date.year(), date.month(), date.day(), 12, 0, 0);
-            match result {
-                LocalResult::Single(dt) => return Ok(dt.to_utc()),
-                // During a DST overlap, noon exists twice; either value is close enough.
-                LocalResult::Ambiguous(dt, _) => return Ok(dt.to_utc()),
+            let result = tz.to_ambiguous_timestamp(date.at(12, 0, 0, 0));
+            match result.offset() {
+                AmbiguousOffset::Unambiguous { .. } | AmbiguousOffset::Fold { .. } => {
+                    return result
+                        .earlier()
+                        .map_err(|_| ZmanimError::TimeConversionError);
+                }
                 // Noon falls inside a DST gap on this date; fall through to the longitude estimate.
-                LocalResult::None => {}
+                AmbiguousOffset::Gap { .. } => {}
             }
         }
 
         // Fallback: estimate UTC noon from longitude (4 min per degree).
         // Not valid near the anti-meridian where the date itself is ambiguous.
-        if !Location::<T>::near_anti_meridian(location.longitude) {
-            if let Some(utc_noon) = date.and_hms_micro_opt(12, 0, 0, 0) {
-                let offset = TimeDelta::seconds((location.longitude * 4.0 * 60.0) as i64);
-                if let Some(dt) = utc_noon.and_utc().checked_sub_signed(offset) {
-                    return Ok(dt);
-                }
-            }
+        if !Location::near_anti_meridian(location.longitude) {
+            let utc_noon = date
+                .at(12, 0, 0, 0)
+                .to_zoned(TimeZone::UTC)
+                .map_err(|_| ZmanimError::TimeConversionError)?
+                .timestamp();
+            let offset = SignedDuration::from_secs((location.longitude * 4.0 * 60.0) as i64);
+            return utc_noon
+                .checked_sub(offset)
+                .map_err(|_| ZmanimError::TimeConversionError);
         }
 
         Err(ZmanimError::LocalNoonError)
@@ -163,47 +167,41 @@ impl<Tz: TimeZone> ZmanimCalculator<Tz> {
     /// - [`ZmanimError::TimeConversionError`] if midnight construction fails.
     pub(crate) fn local_mean_time(
         &mut self,
-        date: NaiveDate,
-        location: &Location<Tz>,
+        date: Date,
+        location: &Location,
         hours: f64,
-    ) -> Result<DateTime<Utc>, ZmanimError> {
+    ) -> Result<Timestamp, ZmanimError> {
         if !(0.0..24.0).contains(&hours) {
             return Err(ZmanimError::InvalidHours);
         }
 
+        let midnight = date.at(0, 0, 0, 0);
+        let lmt_nanos = (hours * 3600.0 * 1_000_000_000.0).round() as i64;
+        let offset_nanos = (location.longitude * 240.0 * 1_000_000_000.0).round() as i64;
+        let lmt_dt = midnight
+            .checked_add(SignedDuration::from_nanos(lmt_nanos))
+            .and_then(|dt| dt.checked_sub(SignedDuration::from_nanos(offset_nanos)))
+            .map_err(|_| ZmanimError::TimeConversionError)?;
+        let mut utc = lmt_dt
+            .to_zoned(TimeZone::UTC)
+            .map_err(|_| ZmanimError::TimeConversionError)?
+            .timestamp();
+
         if let Some(timezone) = &location.timezone {
-            #[allow(clippy::unwrap_used)]
-            let midnight = date
-                .and_hms_opt(0, 0, 0)
-                .ok_or(ZmanimError::TimeConversionError)?;
-
-            let lmt_nanos = (hours * 3600.0 * 1_000_000_000.0).round() as i64;
-            let lmt_dt = midnight + Duration::nanoseconds(lmt_nanos);
-
-            let offset_nanos = (location.longitude * 240.0 * 1_000_000_000.0).round() as i64;
-
-            let mut utc = Utc.from_utc_datetime(&(lmt_dt - Duration::nanoseconds(offset_nanos)));
-
             for _ in 0..4 {
-                let local_date = utc.with_timezone(timezone).date_naive();
-                let diff_days = (local_date - date).num_days();
-                if diff_days == 0 {
+                let local_date = utc.to_zoned(timezone.clone()).date();
+                if local_date == date {
                     break;
                 }
-                utc -= Duration::days(diff_days);
+                if local_date > date {
+                    utc -= SignedDuration::from_hours(24);
+                } else {
+                    utc += SignedDuration::from_hours(24);
+                }
             }
-
-            Ok(utc)
-        } else {
-            let lmt_seconds = (hours * 3600.0).round() as i64;
-            #[allow(clippy::unwrap_used)]
-            let lmt_dt = date
-                .and_hms_opt(0, 0, 0)
-                .ok_or(ZmanimError::TimeConversionError)?
-                + Duration::seconds(lmt_seconds);
-            let offset_seconds = (location.longitude * 240.0).round() as i64;
-            Ok((lmt_dt - Duration::seconds(offset_seconds)).and_utc())
         }
+
+        Ok(utc)
     }
     pub(crate) fn configured_calculator(&mut self) -> &mut AstronomicalCalculator {
         if self.config.use_elevation {
@@ -212,33 +210,33 @@ impl<Tz: TimeZone> ZmanimCalculator<Tz> {
             &mut self.sea_level_calculator
         }
     }
-    pub(crate) fn elevation_adjusted_sunrise(&mut self) -> Result<DateTime<Utc>, ZmanimError> {
+    pub(crate) fn elevation_adjusted_sunrise(&mut self) -> Result<Timestamp, ZmanimError> {
         self.elevation_adjusted_calculator
             .get_sunrise()
             .into_date_time_result()
     }
-    pub(crate) fn elevation_adjusted_sunset(&mut self) -> Result<DateTime<Utc>, ZmanimError> {
+    pub(crate) fn elevation_adjusted_sunset(&mut self) -> Result<Timestamp, ZmanimError> {
         self.elevation_adjusted_calculator
             .get_sunset()
             .into_date_time_result()
     }
-    pub(crate) fn sea_level_sunrise(&mut self) -> Result<DateTime<Utc>, ZmanimError> {
+    pub(crate) fn sea_level_sunrise(&mut self) -> Result<Timestamp, ZmanimError> {
         self.sea_level_calculator
             .get_sea_level_sunrise()
             .into_date_time_result()
     }
-    pub(crate) fn sea_level_sunset(&mut self) -> Result<DateTime<Utc>, ZmanimError> {
+    pub(crate) fn sea_level_sunset(&mut self) -> Result<Timestamp, ZmanimError> {
         self.sea_level_calculator
             .get_sea_level_sunset()
             .into_date_time_result()
     }
-    pub(crate) fn solar_transit(&mut self) -> Result<DateTime<Utc>, ZmanimError> {
+    pub(crate) fn solar_transit(&mut self) -> Result<Timestamp, ZmanimError> {
         // Solar transit calculations do not use elevation, so the calculator used here is irrelevant
         self.elevation_adjusted_calculator
             .get_solar_transit()
             .into_date_time_result()
     }
-    pub(crate) fn solar_midnight(&mut self) -> Result<DateTime<Utc>, ZmanimError> {
+    pub(crate) fn solar_midnight(&mut self) -> Result<Timestamp, ZmanimError> {
         // Solar midnight calculations do not use elevation, so the calculator used here is irrelevant
         self.elevation_adjusted_calculator
             .get_next_solar_midnight()
@@ -250,27 +248,23 @@ impl<Tz: TimeZone> ZmanimCalculator<Tz> {
 ///
 /// Most consumers should use predefined values from [`crate::presets`]. Implement this trait
 /// when you need a custom zman definition not already provided there.
-pub trait ZmanLike<Tz: TimeZone> {
+pub trait ZmanLike {
     /// Computes this zman for the current calculator state.
     ///
     /// Implement this trait for custom zman definitions that can run through
     /// [`ZmanimCalculator::calculate`].
-    fn calculate(
-        &self,
-        calculator: &mut ZmanimCalculator<Tz>,
-    ) -> Result<DateTime<Utc>, ZmanimError>;
+    fn calculate(&self, calculator: &mut ZmanimCalculator) -> Result<Timestamp, ZmanimError>;
 }
 
 #[cfg(feature = "defmt")]
-impl<T: TimeZone> defmt::Format for ZmanimCalculator<T> {
+impl defmt::Format for ZmanimCalculator {
     fn format(&self, fmt: defmt::Formatter) {
-        use chrono::Datelike;
         let y = self.date.year();
         let m = self.date.month();
         let d = self.date.day();
         defmt::write!(
             fmt,
-            "ZmanimCalculator {{ location: {}, date: {=i32}-{=u32}-{=u32}, config: {} }}",
+            "ZmanimCalculator {{ location: {}, date: {=i16}-{=i8}-{=i8}, config: {} }}",
             self.location,
             y,
             m,

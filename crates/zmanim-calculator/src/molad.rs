@@ -1,4 +1,3 @@
-use chrono::{DateTime, NaiveDate, TimeZone, Utc};
 use hebrew_holiday_calendar::{HebrewHolidayCalendar, HebrewMonth};
 use icu_calendar::{
     cal::Hebrew,
@@ -6,6 +5,8 @@ use icu_calendar::{
     types::DateDuration,
     Date, Gregorian,
 };
+use jiff::{civil::Date as JiffDate, tz, tz::TimeZone, SignedDuration, Timestamp};
+use jiff_icu::ConvertTryFrom;
 /// Number of chalakim (parts) from the molad tohu (theoretical first new moon)
 static CHALAKIM_MOLAD_TOHU: i64 = 31524;
 /// Number of chalakim in a lunar month
@@ -30,10 +31,7 @@ pub(crate) trait MoladCalendar {
     /// - `Some((DateTime, HebrewMonth))` - The time representing 15 days after the molad and the Hebrew month
     /// - `None` - If the zman will not occur on this day
     //
-    fn sof_zman_kidush_levana_15_days<Tz: TimeZone>(
-        &self,
-        tz: &Tz,
-    ) -> Option<(DateTime<Tz>, HebrewMonth)>;
+    fn sof_zman_kidush_levana_15_days(&self, tz: &TimeZone) -> Option<(Timestamp, HebrewMonth)>;
 
     /// Returns the earliest time of _Kiddush Levana_ according to
     /// [Rabbeinu Yonah](https://en.wikipedia.org/wiki/Yonah_Gerondi)'s opinion that it can be
@@ -42,10 +40,7 @@ pub(crate) trait MoladCalendar {
     /// # Returns
     /// - `Some((DateTime, HebrewMonth))` - The time representing 3 days after the molad and the Hebrew month
     /// - `None` - If the zman will not occur on this day
-    fn tchilas_zman_kidush_levana_3_days<Tz: TimeZone>(
-        &self,
-        tz: &Tz,
-    ) -> Option<(DateTime<Tz>, HebrewMonth)>;
+    fn tchilas_zman_kidush_levana_3_days(&self, tz: &TimeZone) -> Option<(Timestamp, HebrewMonth)>;
 
     /// Returns the earliest time of _Kiddush Levana_ according to the opinions that it should
     /// not be said until 7 days after the molad.
@@ -53,10 +48,7 @@ pub(crate) trait MoladCalendar {
     /// # Returns
     /// - `Some((DateTime, HebrewMonth))` - The time representing 7 days after the molad and the Hebrew month
     /// - `None` - If the zman will not occur on this day
-    fn tchilas_zman_kidush_levana_7_days<Tz: TimeZone>(
-        &self,
-        tz: &Tz,
-    ) -> Option<(DateTime<Tz>, HebrewMonth)>;
+    fn tchilas_zman_kidush_levana_7_days(&self, tz: &TimeZone) -> Option<(Timestamp, HebrewMonth)>;
 
     /// Returns the latest time of Kiddush Levana according to the
     /// [Maharil](https://en.wikipedia.org/wiki/Yaakov_ben_Moshe_Levi_Moelin)'s opinion that it
@@ -68,10 +60,10 @@ pub(crate) trait MoladCalendar {
     /// # Returns
     /// - `Some((DateTime, HebrewMonth))` - The time representing halfway between molad and molad and the Hebrew month
     /// - `None` - If the zman will not occur on this day
-    fn sof_zman_kidush_levana_between_moldos<Tz: TimeZone>(
+    fn sof_zman_kidush_levana_between_moldos(
         &self,
-        tz: &Tz,
-    ) -> Option<(DateTime<Tz>, HebrewMonth)>;
+        tz: &TimeZone,
+    ) -> Option<(Timestamp, HebrewMonth)>;
 
     /// Returns the time of the molad (new moon) for the current date's Hebrew month.
     ///
@@ -80,39 +72,33 @@ pub(crate) trait MoladCalendar {
     /// # Returns
     /// - `Some((DateTime, HebrewMonth))` - The time of the molad and the Hebrew month
     /// - `None` - If the zman will not occur on this day
-    fn molad<Tz: TimeZone>(&self, tz: &Tz) -> Option<(DateTime<Tz>, HebrewMonth)>;
+    fn molad(&self, tz: &TimeZone) -> Option<(Timestamp, HebrewMonth)>;
 }
 
 impl MoladCalendar for Date<Gregorian> {
-    fn sof_zman_kidush_levana_15_days<Tz: TimeZone>(
-        &self,
-        tz: &Tz,
-    ) -> Option<(DateTime<Tz>, HebrewMonth)> {
+    fn sof_zman_kidush_levana_15_days(&self, tz: &TimeZone) -> Option<(Timestamp, HebrewMonth)> {
         let hebrew = self.to_calendar(Hebrew);
 
         if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 17 {
             return None;
         }
-        let molad = months_molad(&hebrew)? + chrono::Duration::hours(24 * 15);
+        let molad = months_molad(&hebrew)? + SignedDuration::from_hours(24 * 15);
         if is_same_gregorian_day(&hebrew, &molad, tz) {
-            return Some((molad.with_timezone(tz), hebrew.hebrew_month()));
+            return Some((molad, hebrew.hebrew_month()));
         }
         None
     }
 
-    fn tchilas_zman_kidush_levana_3_days<Tz: TimeZone>(
-        &self,
-        tz: &Tz,
-    ) -> Option<(DateTime<Tz>, HebrewMonth)> {
+    fn tchilas_zman_kidush_levana_3_days(&self, tz: &TimeZone) -> Option<(Timestamp, HebrewMonth)> {
         let hebrew = self.to_calendar(Hebrew);
 
         if hebrew.day_of_month().0 > 5 && hebrew.day_of_month().0 < 30 {
             return None;
         }
-        let molad = months_molad(&hebrew)? + chrono::Duration::hours(72);
+        let molad = months_molad(&hebrew)? + SignedDuration::from_hours(72);
 
         if is_same_gregorian_day(&hebrew, &molad, tz) {
-            return Some((molad.with_timezone(tz), hebrew.hebrew_month()));
+            return Some((molad, hebrew.hebrew_month()));
         }
 
         if hebrew.day_of_month().0 == 30 {
@@ -122,51 +108,48 @@ impl MoladCalendar for Date<Gregorian> {
             let new = hebrew
                 .try_added_with_options(DateDuration::for_months(1), add_option)
                 .ok()?;
-            let molad = months_molad(&new)? + chrono::Duration::hours(72);
+            let molad = months_molad(&new)? + SignedDuration::from_hours(72);
             if is_same_gregorian_day(&hebrew, &molad, tz) {
-                return Some((molad.with_timezone(tz), new.hebrew_month()));
+                return Some((molad, new.hebrew_month()));
             }
         }
         None
     }
 
-    fn tchilas_zman_kidush_levana_7_days<Tz: TimeZone>(
-        &self,
-        tz: &Tz,
-    ) -> Option<(DateTime<Tz>, HebrewMonth)> {
+    fn tchilas_zman_kidush_levana_7_days(&self, tz: &TimeZone) -> Option<(Timestamp, HebrewMonth)> {
         let hebrew = self.to_calendar(Hebrew);
 
         if hebrew.day_of_month().0 < 4 || hebrew.day_of_month().0 > 9 {
             return None;
         }
-        let molad = months_molad(&hebrew)? + chrono::Duration::hours(168);
+        let molad = months_molad(&hebrew)? + SignedDuration::from_hours(168);
         if is_same_gregorian_day(&hebrew, &molad, tz) {
-            return Some((molad.with_timezone(tz), hebrew.hebrew_month()));
+            return Some((molad, hebrew.hebrew_month()));
         }
         None
     }
 
-    fn sof_zman_kidush_levana_between_moldos<Tz: TimeZone>(
+    fn sof_zman_kidush_levana_between_moldos(
         &self,
-        tz: &Tz,
-    ) -> Option<(DateTime<Tz>, HebrewMonth)> {
+        tz: &TimeZone,
+    ) -> Option<(Timestamp, HebrewMonth)> {
         let hebrew = self.to_calendar(Hebrew);
 
         if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 16 {
             return None;
         }
         let molad = months_molad(&hebrew)?
-            + chrono::Duration::hours(24 * 14 + 18)
-            + chrono::Duration::minutes(22)
-            + chrono::Duration::seconds(1)
-            + chrono::Duration::milliseconds(666);
+            + SignedDuration::from_hours(24 * 14 + 18)
+            + SignedDuration::from_mins(22)
+            + SignedDuration::from_secs(1)
+            + SignedDuration::from_millis(666);
         if is_same_gregorian_day(&hebrew, &molad, tz) {
-            return Some((molad.with_timezone(tz), hebrew.hebrew_month()));
+            return Some((molad, hebrew.hebrew_month()));
         }
         None
     }
 
-    fn molad<Tz: TimeZone>(&self, tz: &Tz) -> Option<(DateTime<Tz>, HebrewMonth)> {
+    fn molad(&self, tz: &TimeZone) -> Option<(Timestamp, HebrewMonth)> {
         let hebrew = self.to_calendar(Hebrew);
         let day = hebrew.day_of_month().0;
         if day > 2 && day < 27 {
@@ -183,27 +166,19 @@ impl MoladCalendar for Date<Gregorian> {
                     .ok()?;
                 let molad = months_molad(&new.to_calendar(Hebrew))?;
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
-                    return Some((molad.with_timezone(tz), new.hebrew_month()));
+                    return Some((molad, new.hebrew_month()));
                 }
             }
             return None;
         }
-        Some((molad.with_timezone(tz), hebrew.hebrew_month()))
+        Some((molad, hebrew.hebrew_month()))
     }
 }
 
-fn is_same_gregorian_day<Tz: TimeZone>(
-    hdate: &Date<Hebrew>,
-    gdate: &DateTime<Utc>,
-    tz: &Tz,
-) -> bool {
-    let gdate_local = tz.from_utc_datetime(&gdate.naive_utc()).date_naive();
+fn is_same_gregorian_day(hdate: &Date<Hebrew>, gdate: &Timestamp, tz: &TimeZone) -> bool {
+    let gdate_local = gdate.to_zoned(tz.clone()).date();
     let gregorian_date = hdate.gregorian_date();
-    let hdate_greg = NaiveDate::from_ymd_opt(
-        gregorian_date.year().extended_year(),
-        gregorian_date.month().number() as u32,
-        gregorian_date.day_of_month().0 as u32,
-    );
+    let hdate_greg = JiffDate::convert_try_from(gregorian_date).ok();
 
     Some(gdate_local) == hdate_greg
 }
@@ -239,39 +214,29 @@ fn _get_molad(date: &Date<Hebrew>) -> Option<MoladData> {
     })
 }
 // Molad and Kiddush Levana
-fn months_molad(date: &Date<Hebrew>) -> Option<DateTime<Utc>> {
-    use chrono::TimeZone;
-
+fn months_molad(date: &Date<Hebrew>) -> Option<Timestamp> {
     let molad_data = _get_molad(date)?;
 
-    // Get the Gregorian date components from molad JewishCalendar
-    let year = molad_data.date.year().extended_year();
-    let month = molad_data.date.month().number(); // Convert from 0-based to 1-based
-    let day = molad_data.date.day_of_month().0 as u32;
-
     let molad_seconds = molad_data.chalakim as f64 * 10.0 / 3.0;
-    let seconds = molad_seconds as u32;
-    let millis = ((molad_seconds - seconds as f64) * 1000.0) as u32;
+    let seconds = molad_seconds as i8;
+    let nanos = ((molad_seconds - seconds as f64) * 1_000_000_000.0) as i32;
 
-    let naive_datetime = chrono::NaiveDate::from_ymd_opt(year, month as u32, day)?
-        .and_hms_milli_opt(
-            molad_data.hours as u32,
-            molad_data.minutes as u32,
-            seconds,
-            millis,
-        )?;
+    let datetime = JiffDate::convert_try_from(molad_data.date).ok()?.at(
+        molad_data.hours as i8,
+        molad_data.minutes as i8,
+        seconds,
+        nanos,
+    );
 
     // Molad is in Jerusalem standard time (GMT+2)
-    let jerusalem_offset = chrono::FixedOffset::east_opt(2 * 3600)?;
-    let datetime_jerusalem = jerusalem_offset
-        .from_local_datetime(&naive_datetime)
-        .single()?;
+    let jerusalem_offset = TimeZone::fixed(tz::offset(2));
+    let datetime_jerusalem = datetime.to_zoned(jerusalem_offset).ok()?;
 
     // Subtract local mean time offset (20.94 minutes = 1256.4 seconds)
     // Longitude of Har Habayis: 35.2354°
     // 35.2354° away from 35° (GMT+2 +  20 minutes) = 0.2354° = ~0.94 minutes
     // Total: 20 minutes 56.496 seconds ≈ 1256.496 seconds
-    Some(datetime_jerusalem.to_utc() - chrono::Duration::milliseconds(1256496))
+    Some(datetime_jerusalem.timestamp() - SignedDuration::from_millis(1_256_496))
 }
 
 /// Returns the number of chalakim from the original hypothetical Molad Tohu

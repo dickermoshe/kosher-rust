@@ -2,7 +2,7 @@
 
 use std::error::Error;
 
-use chrono::{Datelike, Months, NaiveDate};
+use jiff::civil::Date;
 use rand::{rngs::StdRng, RngExt};
 
 use super::{
@@ -183,11 +183,7 @@ fn random_jewish_date(rng: &mut StdRng) -> DateTuple {
 }
 
 fn days_in_gregorian_month(year: i32, month: u8) -> u8 {
-    let first_of_month = NaiveDate::from_ymd_opt(year, u32::from(month), 1)
-        .expect("generated month is always valid");
-    first_of_month
-        .checked_add_months(Months::new(1))
-        .and_then(|date| date.pred_opt())
-        .expect("generated month has a previous day")
-        .day() as u8
+    Date::new(year as i16, month as i8, 1)
+        .expect("generated month is always valid")
+        .days_in_month() as u8
 }
