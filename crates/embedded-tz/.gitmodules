@@ -1,3 +1,0 @@
-[submodule "tzdb"]
-	path = tzdb
-	url = https://github.com/eggert/tz
