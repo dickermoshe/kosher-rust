@@ -55,6 +55,10 @@ let pirkei_avos = date.limud(limudim_calendar::PirkeiAvos::new(true));
 let tehillim = date.limud(limudim_calendar::TehillimMonthly::default());
 ```
 
+# Testing
+
+In addition to the unit tests, this crate has tests in the [limudim-wasm](../limudim-wasm/) crate, which tests our crate against [@hebcal/learning](https://github.com/hebcal/learning) to ensure parity, and tests against the KosherJava library in the [zmanim-calculator](../zmanim-calculator/) crate.
+
 ## License
 
 Licensed under LGPL-2.1. See [LICENSE](LICENSE) for details.

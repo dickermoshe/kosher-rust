@@ -122,12 +122,9 @@ impl defmt::Format for ZmanPrimitive<'_> {
             }
             Self::LocalMeanTime(hour) => defmt::write!(fmt, "LocalMeanTime({})", hour),
             Self::CandleLighting => defmt::write!(fmt, "CandleLighting"),
-            Self::Offset(primitive, duration) => defmt::write!(
-                fmt,
-                "Offset({}, {}s)",
-                primitive,
-                duration.as_secs_f64()
-            ),
+            Self::Offset(primitive, duration) => {
+                defmt::write!(fmt, "Offset({}, {}s)", primitive, duration.as_secs_f64())
+            }
             Self::ZmanisOffset(primitive, hours) => {
                 defmt::write!(fmt, "ZmanisOffset({}, {})", primitive, hours)
             }

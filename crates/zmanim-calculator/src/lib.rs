@@ -19,6 +19,7 @@
 #[cfg(test)]
 mod java_tests {
     pub(crate) mod hebrew_dates;
+    pub(crate) mod limudim;
     pub(crate) mod zmanim;
 }
 #[cfg(test)]

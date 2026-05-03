@@ -10,7 +10,7 @@ documentation = "https://docs.rs/zmanim-calculator"
 
 [features]
 # By default, only the core functionality is enabled.
-default = ["defmt"]
+default = []
 # Enable this feature to use the defmt crate for logging.
 defmt = ["dep:defmt", "astronomical-calculator/defmt", "jiff/defmt"]
 # Private test feature: use the production SPA/Bennett refraction model in test builds
@@ -38,6 +38,7 @@ proptest.workspace = true
 rand.workspace = true
 tinystr.workspace = true
 tzf-rs = "1.1.3"
+limudim-calendar.workspace = true
 
 [lints]
 workspace = true

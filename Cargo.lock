@@ -2352,6 +2352,7 @@ dependencies = [
  "jiff-icu",
  "jni",
  "lazy_static",
+ "limudim-calendar",
  "num_enum",
  "proptest",
  "rand 0.10.1",
