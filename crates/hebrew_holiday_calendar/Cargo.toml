@@ -16,12 +16,10 @@ defmt = ["dep:defmt"]
 
 [dependencies]
 defmt = { workspace = true, optional = true }
-chrono.workspace = true
 num_enum.workspace = true
 icu_calendar.workspace = true
 
 [dev-dependencies]
-chrono-tz.workspace = true
 lazy_static.workspace = true
 rand.workspace = true
 tinystr.workspace = true

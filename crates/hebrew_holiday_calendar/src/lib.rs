@@ -39,9 +39,8 @@ use core::slice::Iter;
 
 mod parshas;
 use crate::parshas::*;
-use chrono::Weekday;
 use icu_calendar::options::DateAddOptions;
-use icu_calendar::types::{DateDuration, Month, Weekday as IcuWeekday};
+use icu_calendar::types::{DateDuration, Month, Weekday};
 use icu_calendar::{cal::Hebrew, Date, Gregorian};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
@@ -91,9 +90,6 @@ pub trait HebrewHolidayCalendar {
 
     /// Returns the current month as a `HebrewMonth` enum.
     fn hebrew_month(&self) -> HebrewMonth;
-
-    /// Returns the day of week as a `chrono::Weekday`.
-    fn chrono_day_of_week(&self) -> chrono::Weekday;
 
     /// Returns the number of days in the given Hebrew year.
     fn days_in_hebrew_year(year: i32) -> i32;
@@ -196,13 +192,13 @@ pub trait HebrewHolidayCalendar {
 fn get_parsha_list(&date: &Date<Hebrew>, in_israel: bool) -> Option<ParshaList> {
     let rosh_hashana_day_of_week = (get_hebrew_elapsed_days(date.year().extended_year()) + 1) % 7;
     let rosh_hashana_day_of_week = match rosh_hashana_day_of_week {
-        0 => Some(Weekday::Sat),
-        1 => Some(Weekday::Sun),
-        2 => Some(Weekday::Mon),
-        3 => Some(Weekday::Tue),
-        4 => Some(Weekday::Wed),
-        5 => Some(Weekday::Thu),
-        6 => Some(Weekday::Fri),
+        0 => Some(Weekday::Saturday),
+        1 => Some(Weekday::Sunday),
+        2 => Some(Weekday::Monday),
+        3 => Some(Weekday::Tuesday),
+        4 => Some(Weekday::Wednesday),
+        5 => Some(Weekday::Thursday),
+        6 => Some(Weekday::Friday),
         _ => None,
     }?;
     let is_kislev_short = Date::<Hebrew>::is_kislev_short(date.year().extended_year());
@@ -210,7 +206,7 @@ fn get_parsha_list(&date: &Date<Hebrew>, in_israel: bool) -> Option<ParshaList> 
 
     if date.is_in_leap_year() {
         match rosh_hashana_day_of_week {
-            Weekday::Mon => {
+            Weekday::Monday => {
                 if is_kislev_short {
                     if in_israel {
                         Some(PARSHA_LIST_14)
@@ -227,14 +223,14 @@ fn get_parsha_list(&date: &Date<Hebrew>, in_israel: bool) -> Option<ParshaList> 
                     None
                 }
             }
-            Weekday::Tue => {
+            Weekday::Tuesday => {
                 if in_israel {
                     Some(PARSHA_LIST_15)
                 } else {
                     Some(PARSHA_LIST_7)
                 }
             }
-            Weekday::Thu => {
+            Weekday::Thursday => {
                 if is_kislev_short {
                     Some(PARSHA_LIST_8)
                 } else if is_cheshvan_long {
@@ -243,7 +239,7 @@ fn get_parsha_list(&date: &Date<Hebrew>, in_israel: bool) -> Option<ParshaList> 
                     None
                 }
             }
-            Weekday::Sat => {
+            Weekday::Saturday => {
                 if is_kislev_short {
                     Some(PARSHA_LIST_10)
                 } else if is_cheshvan_long {
@@ -260,7 +256,7 @@ fn get_parsha_list(&date: &Date<Hebrew>, in_israel: bool) -> Option<ParshaList> 
         }
     } else {
         match rosh_hashana_day_of_week {
-            Weekday::Mon => {
+            Weekday::Monday => {
                 if is_kislev_short {
                     Some(PARSHA_LIST_0)
                 } else if is_cheshvan_long {
@@ -273,14 +269,14 @@ fn get_parsha_list(&date: &Date<Hebrew>, in_israel: bool) -> Option<ParshaList> 
                     None
                 }
             }
-            Weekday::Tue => {
+            Weekday::Tuesday => {
                 if in_israel {
                     Some(PARSHA_LIST_12)
                 } else {
                     Some(PARSHA_LIST_1)
                 }
             }
-            Weekday::Thu => {
+            Weekday::Thursday => {
                 if is_cheshvan_long {
                     Some(PARSHA_LIST_3)
                 } else if !is_kislev_short {
@@ -293,7 +289,7 @@ fn get_parsha_list(&date: &Date<Hebrew>, in_israel: bool) -> Option<ParshaList> 
                     None
                 }
             }
-            Weekday::Sat => {
+            Weekday::Saturday => {
                 if is_kislev_short {
                     Some(PARSHA_LIST_4)
                 } else if is_cheshvan_long {
@@ -400,7 +396,7 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
     fn is_assur_bemelacha(&self, in_israel: bool) -> bool {
         self.holidays(in_israel, false)
             .any(|i| i.is_assur_bemelacha())
-            || self.chrono_day_of_week() == Weekday::Sat
+            || self.weekday() == Weekday::Saturday
     }
     #[inline]
     fn has_candle_lighting(&self, in_israel: bool) -> bool {
@@ -460,19 +456,6 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
         self.to_calendar(Gregorian)
     }
     #[inline]
-    fn chrono_day_of_week(&self) -> chrono::Weekday {
-        let weekday = self.weekday();
-        match weekday {
-            IcuWeekday::Sunday => Weekday::Sun,
-            IcuWeekday::Monday => Weekday::Mon,
-            IcuWeekday::Tuesday => Weekday::Tue,
-            IcuWeekday::Wednesday => Weekday::Wed,
-            IcuWeekday::Thursday => Weekday::Thu,
-            IcuWeekday::Friday => Weekday::Fri,
-            IcuWeekday::Saturday => Weekday::Sat,
-        }
-    }
-    #[inline]
     fn days_in_hebrew_year(year: i32) -> i32 {
         get_hebrew_elapsed_days(year + 1) - get_hebrew_elapsed_days(year)
     }
@@ -525,7 +508,7 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
     }
 
     fn todays_parsha(&self, in_israel: bool) -> Option<Parsha> {
-        if self.chrono_day_of_week() != Weekday::Sat {
+        if self.weekday() != Weekday::Saturday {
             return None;
         }
 
@@ -537,7 +520,7 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
     }
 
     fn special_parsha(&self, in_israel: bool) -> Option<Parsha> {
-        if self.chrono_day_of_week() != Weekday::Sat {
+        if self.weekday() != Weekday::Saturday {
             return None;
         }
 
@@ -609,15 +592,15 @@ impl HebrewHolidayCalendar for Date<Hebrew> {
     #[allow(clippy::expect_used)] // This is an internal algorithm that should never fail with valid Hebrew dates
     fn upcoming_parsha(&self, in_israel: bool) -> Parsha {
         // Calculate days to next Shabbos
-        let day_of_week = self.chrono_day_of_week();
+        let day_of_week = self.weekday();
         let days_to_shabbos = match day_of_week {
-            Weekday::Mon => 5,
-            Weekday::Tue => 4,
-            Weekday::Wed => 3,
-            Weekday::Thu => 2,
-            Weekday::Fri => 1,
-            Weekday::Sat => 7,
-            Weekday::Sun => 6,
+            Weekday::Monday => 5,
+            Weekday::Tuesday => 4,
+            Weekday::Wednesday => 3,
+            Weekday::Thursday => 2,
+            Weekday::Friday => 1,
+            Weekday::Saturday => 7,
+            Weekday::Sunday => 6,
         };
 
         // Create a new calendar for the upcoming Shabbos
@@ -972,18 +955,18 @@ impl Holiday {
                     return false;
                 }
                 let day = date.day_of_month().0;
-                let day_of_week = date.chrono_day_of_week();
-                (day == 17 && day_of_week != Weekday::Sat)
-                    || (day == 18 && day_of_week == Weekday::Sun)
+                let day_of_week = date.weekday();
+                (day == 17 && day_of_week != Weekday::Saturday)
+                    || (day == 18 && day_of_week == Weekday::Sunday)
             }),
             Holiday::TishahBav => HolidayRule::Custom(|date, _in_israel| {
                 if date.hebrew_month() != HebrewMonth::Av {
                     return false;
                 }
                 let day = date.day_of_month().0;
-                let day_of_week = date.chrono_day_of_week();
-                (day_of_week == Weekday::Sun && day == 10)
-                    || (day_of_week != Weekday::Sat && day == 9)
+                let day_of_week = date.weekday();
+                (day_of_week == Weekday::Sunday && day == 10)
+                    || (day_of_week != Weekday::Saturday && day == 9)
             }),
             Holiday::TuBav => HolidayRule::ExactDate(15, HebrewMonth::Av),
             Holiday::ErevRoshHashana => HolidayRule::ExactDate(29, HebrewMonth::Elul),
@@ -993,9 +976,9 @@ impl Holiday {
                     return false;
                 }
                 let day = date.day_of_month().0;
-                let day_of_week = date.chrono_day_of_week();
-                (day == 3 && day_of_week != Weekday::Sat)
-                    || (day == 4 && day_of_week == Weekday::Sun)
+                let day_of_week = date.weekday();
+                (day == 3 && day_of_week != Weekday::Saturday)
+                    || (day == 4 && day_of_week == Weekday::Sunday)
             }),
             Holiday::ErevYomKippur => HolidayRule::ExactDate(9, HebrewMonth::Tishrei),
             Holiday::YomKippur => HolidayRule::ExactDate(10, HebrewMonth::Tishrei),
@@ -1033,10 +1016,11 @@ impl Holiday {
                     || (!date.is_in_leap_year() && month == HebrewMonth::Adar)
                 {
                     let day = date.day_of_month().0;
-                    let day_of_week = date.chrono_day_of_week();
-                    ((day == 11 || day == 12) && day_of_week == Weekday::Thu)
+                    let day_of_week = date.weekday();
+                    ((day == 11 || day == 12) && day_of_week == Weekday::Thursday)
                         || (day == 13
-                            && !(day_of_week == Weekday::Fri || day_of_week == Weekday::Sat))
+                            && !(day_of_week == Weekday::Friday
+                                || day_of_week == Weekday::Saturday))
                 } else {
                     false
                 }
@@ -1069,30 +1053,32 @@ impl Holiday {
                     return false;
                 }
                 let day = date.day_of_month().0;
-                let day_of_week = date.chrono_day_of_week();
-                (day == 26 && day_of_week == Weekday::Thu)
-                    || (day == 28 && day_of_week == Weekday::Mon)
-                    || (day == 27 && day_of_week != Weekday::Sun && day_of_week != Weekday::Fri)
+                let day_of_week = date.weekday();
+                (day == 26 && day_of_week == Weekday::Thursday)
+                    || (day == 28 && day_of_week == Weekday::Monday)
+                    || (day == 27
+                        && day_of_week != Weekday::Sunday
+                        && day_of_week != Weekday::Friday)
             }),
             Holiday::YomHazikaron => HolidayRule::Custom(|date, _in_israel| {
                 if date.hebrew_month() != HebrewMonth::Iyar {
                     return false;
                 }
                 let day = date.day_of_month().0;
-                let day_of_week = date.chrono_day_of_week();
-                (day == 4 && day_of_week == Weekday::Tue)
-                    || ((day == 3 || day == 2) && day_of_week == Weekday::Wed)
-                    || (day == 5 && day_of_week == Weekday::Mon)
+                let day_of_week = date.weekday();
+                (day == 4 && day_of_week == Weekday::Tuesday)
+                    || ((day == 3 || day == 2) && day_of_week == Weekday::Wednesday)
+                    || (day == 5 && day_of_week == Weekday::Monday)
             }),
             Holiday::YomHaatzmaut => HolidayRule::Custom(|date, _in_israel| {
                 if date.hebrew_month() != HebrewMonth::Iyar {
                     return false;
                 }
                 let day = date.day_of_month().0;
-                let day_of_week = date.chrono_day_of_week();
-                (day == 5 && day_of_week == Weekday::Wed)
-                    || ((day == 4 || day == 3) && day_of_week == Weekday::Thu)
-                    || (day == 6 && day_of_week == Weekday::Tue)
+                let day_of_week = date.weekday();
+                (day == 5 && day_of_week == Weekday::Wednesday)
+                    || ((day == 4 || day == 3) && day_of_week == Weekday::Thursday)
+                    || (day == 6 && day_of_week == Weekday::Tuesday)
             }),
             Holiday::YomYerushalayim => HolidayRule::ExactDate(28, HebrewMonth::Iyar),
             Holiday::LagBomer => HolidayRule::ExactDate(18, HebrewMonth::Iyar),
@@ -1110,7 +1096,7 @@ impl Holiday {
                 &HolidayRule::ExactDateChutz(24, HebrewMonth::Tishrei),
             ]),
             Holiday::YomKippurKatan => HolidayRule::Custom(|date, _in_israel| {
-                let day_of_week = date.chrono_day_of_week();
+                let day_of_week = date.weekday();
                 let month = date.hebrew_month();
                 let day = date.day_of_month().0;
 
@@ -1126,33 +1112,33 @@ impl Holiday {
                 }
 
                 // On 29th if not Friday or Shabbos
-                if day == 29 && day_of_week != Weekday::Fri && day_of_week != Weekday::Sat {
+                if day == 29 && day_of_week != Weekday::Friday && day_of_week != Weekday::Saturday {
                     return true;
                 }
 
                 // On 27th or 28th if Thursday (moved back from Friday/Shabbos)
-                (day == 27 || day == 28) && day_of_week == Weekday::Thu
+                (day == 27 || day == 28) && day_of_week == Weekday::Thursday
             }),
             Holiday::Behab => HolidayRule::Custom(|date, _in_israel| {
-                let day_of_week = date.chrono_day_of_week();
+                let day_of_week = date.weekday();
                 let month = date.hebrew_month();
                 let day = date.day_of_month().0;
 
                 // BeHaB is only in Cheshvan and Iyar
                 if month == HebrewMonth::Cheshvan || month == HebrewMonth::Iyar {
                     // Monday between 5-17 or Thursday between 8-13
-                    return (day_of_week == Weekday::Mon && day > 4 && day < 18)
-                        || (day_of_week == Weekday::Thu && day > 7 && day < 14);
+                    return (day_of_week == Weekday::Monday && day > 4 && day < 18)
+                        || (day_of_week == Weekday::Thursday && day > 7 && day < 14);
                 }
                 false
             }),
             Holiday::FastOfTheFirstborn => HolidayRule::Custom(|date, _in_israel| {
                 let month = date.hebrew_month();
                 let day = date.day_of_month().0;
-                let day_of_week = date.chrono_day_of_week();
+                let day_of_week = date.weekday();
                 month == HebrewMonth::Nissan
-                    && ((day == 14 && day_of_week != Weekday::Sat)
-                        || (day == 12 && day_of_week == Weekday::Thu))
+                    && ((day == 14 && day_of_week != Weekday::Saturday)
+                        || (day == 12 && day_of_week == Weekday::Thursday))
             }),
             Holiday::CountOfTheOmer => HolidayRule::Custom(|date, _in_israel| {
                 let month = date.hebrew_month();
@@ -1169,11 +1155,11 @@ impl Holiday {
                 (elapsed_days % cycle_length) == 172
             }),
             Holiday::MacharHachodesh => HolidayRule::Custom(|date, _in_israel| {
-                date.chrono_day_of_week() == Weekday::Sat
+                date.weekday() == Weekday::Saturday
                     && (date.day_of_month().0 == 30 || date.day_of_month().0 == 29)
             }),
             Holiday::ShabbosMevarchim => HolidayRule::Custom(|date, _in_israel| {
-                date.chrono_day_of_week() == Weekday::Sat
+                date.weekday() == Weekday::Saturday
                     && date.day_of_month().0 >= 23
                     && date.day_of_month().0 <= 29
                     && date.hebrew_month() != HebrewMonth::Elul
@@ -1507,7 +1493,7 @@ mod tests {
     fn test_candle_lighting() {
         // Erev Shabbat (Friday)
         let date = Date::<Hebrew>::from_hebrew_date(5784, HebrewMonth::Tishrei, 6).unwrap();
-        if date.chrono_day_of_week() == chrono::Weekday::Fri {
+        if date.weekday() == Weekday::Friday {
             assert!(date.has_candle_lighting(false));
         }
     }
@@ -1588,7 +1574,7 @@ mod tests {
         let date = Date::<Hebrew>::from_hebrew_date(5784, HebrewMonth::Tishrei, 21).unwrap();
 
         // Only returns parsha on Shabbat
-        if date.chrono_day_of_week() == chrono::Weekday::Sat {
+        if date.weekday() == Weekday::Saturday {
             let parsha = date.todays_parsha(false);
             assert!(parsha.is_some() || date.holidays(false, false).count() > 0);
         } else {
