@@ -11,7 +11,7 @@ A high-precision Rust library for calculating solar position, sunrise/sunset tim
 ## Installation
 
 ```bash
-cargo add astronomical-calculator chrono
+cargo add astronomical-calculator jiff
 ```
 
 Or manually add to your `Cargo.toml`:
@@ -19,23 +19,26 @@ Or manually add to your `Cargo.toml`:
 ```toml
 [dependencies]
 astronomical-calculator = "0.4"
-chrono = { version = "0.4", default-features = false }
+jiff = { version = "0.2", default-features = false, features = ["alloc"] }
 ```
 
-The `chrono` dependency is required for datetime handling. In a `no_std` environment, ensure `chrono` is configured without the `std` feature.
+The `jiff` dependency provides timestamp handling. In a `no_std` environment, configure it without the `std` feature.
 
 ## Usage
 
 ```rust
 use astronomical_calculator::{AstronomicalCalculator, Refraction};
-use chrono::NaiveDateTime;
+use jiff::{civil::Date, tz::TimeZone};
 
-// Create a datetime (UTC)
-let dt = NaiveDateTime::parse_from_str("2024-06-21 12:00:00", "%Y-%m-%d %H:%M:%S").unwrap();
+// Create a timestamp around noon at the given date for the given location
+let ts = Date::new(2024, 6, 21).unwrap()
+    .at(12, 0, 0, 0)
+    .to_zoned(TimeZone::UTC).unwrap()
+    .timestamp();
 
 // Create calculator for London (51.5°N, 0°E)
 let mut calc = AstronomicalCalculator::new(
-    dt,
+    ts,
     None,                     // Calculate ΔT automatically
     0.0,                      // ΔUT1 (use 0.0 if unknown)
     0.0,                      // longitude in degrees (0° = Greenwich)

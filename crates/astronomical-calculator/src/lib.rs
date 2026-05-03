@@ -22,10 +22,10 @@
 //!
 //! ```
 //! use astronomical_calculator::{AstronomicalCalculator, Refraction};
-//! use chrono::NaiveDateTime;
+//! use jiff::{civil::Date, tz::TimeZone};
 //!
 //! // Create a datetime (UTC)
-//! let dt = NaiveDateTime::parse_from_str("2024-01-15 12:00:00", "%Y-%m-%d %H:%M:%S").unwrap().and_utc();
+//! let dt = Date::new(2024, 1, 15).unwrap().at(12, 0, 0, 0).to_zoned(TimeZone::UTC).unwrap().timestamp();
 //!
 //! // Create calculator for New York City
 //! // Note: longitude and latitude are in degrees
@@ -64,18 +64,13 @@ mod tables;
 #[cfg(test)]
 mod tests;
 
-use chrono::DateTime;
-use chrono::Datelike;
-use chrono::TimeZone;
-use chrono::Timelike;
-use chrono::Utc;
-
 use core::cell::OnceCell;
 use core::f64::consts::PI;
 use core::ops::Rem;
 
 #[allow(unused_imports)]
 use core_maths::*;
+use jiff::{civil::DateTime, tz::TimeZone, Timestamp};
 use thiserror::Error;
 
 use crate::tables::*;
@@ -125,10 +120,10 @@ const Z_MAXITER: i64 = 100; // Max iterations for zenith finding
 ///
 /// ```
 /// use astronomical_calculator::{AstronomicalCalculator, Refraction};
-/// use chrono::NaiveDateTime;
+/// use jiff::{civil::Date, tz::TimeZone};
 ///
 /// // For correct solar event calculations, use a time close to local noon
-/// let dt = NaiveDateTime::parse_from_str("2024-06-21 12:00:00", "%Y-%m-%d %H:%M:%S").unwrap().and_utc();
+/// let dt = Date::new(2024, 6, 21).unwrap().at(12, 0, 0, 0).to_zoned(TimeZone::UTC).unwrap().timestamp();
 ///
 /// let mut calc = AstronomicalCalculator::new(
 ///     dt,
@@ -149,7 +144,8 @@ const Z_MAXITER: i64 = 100; // Max iterations for zenith finding
 /// ```
 #[derive(Debug, Clone)]
 pub struct AstronomicalCalculator {
-    ut: DateTime<Utc>,
+    ts: Timestamp,
+    dt: DateTime,
     delta_t: Option<f64>,
     delta_ut1: f64,
     lon_radians: f64,
@@ -206,9 +202,9 @@ impl SolarEventResult {
     ///
     /// ```rust
     /// use astronomical_calculator::{AstronomicalCalculator, Refraction};
-    /// use chrono::NaiveDateTime;
+    /// use jiff::{civil::Date, tz::TimeZone};
     ///
-    /// let datetime = NaiveDateTime::parse_from_str("2024-01-01 12:00:00", "%Y-%m-%d %H:%M:%S").unwrap().and_utc();
+    /// let datetime = Date::new(2024, 1, 1).unwrap().at(12, 0, 0, 0).to_zoned(TimeZone::UTC).unwrap().timestamp();
     /// let mut calc = AstronomicalCalculator::new(
     ///     datetime, None, 0.0, 0.0, 0.0, 0.0, 20.0, 1013.25, None, Refraction::ApSolposBennetNA
     /// ).unwrap();
@@ -236,7 +232,7 @@ impl AstronomicalCalculator {
     ///
     /// # Arguments
     ///
-    /// * `ut` - Universal Time as a [`DateTime<Utc>`]
+    /// * `ut` - Universal Time as a [`Timestamp`]
     /// * `delta_t` - ΔT (TT-UT) in seconds. Use `Some(value)` for known ΔT, or `None` to calculate automatically
     /// * `delta_ut1` - ΔUT1 (UT1-UTC) in seconds, typically in range [-0.9, 0.9]. Use 0.0 if unknown
     /// * `lon` - Longitude in degrees (positive East, negative West)
@@ -259,14 +255,14 @@ impl AstronomicalCalculator {
     ///
     /// ```
     /// use astronomical_calculator::{AstronomicalCalculator, Refraction, get_delta_t};
-    /// use chrono::NaiveDateTime;
+    /// use jiff::{civil::Date, tz::TimeZone};
     ///
     /// // For correct solar event calculations, use a time close to local noon
-    /// let dt = NaiveDateTime::parse_from_str("2024-06-21 12:00:00", "%Y-%m-%d %H:%M:%S").unwrap().and_utc();
+    /// let ts = Date::new(2024, 6, 21).unwrap().at(12, 0, 0, 0).to_zoned(TimeZone::UTC).unwrap().timestamp();
     ///
     /// // Paris: 48.8566°N, 2.3522°E
     /// let mut calc = AstronomicalCalculator::new(
-    ///     dt,
+    ///     ts,
     ///     Some(get_delta_t(&dt)),     // Calculate ΔT automatically
     ///     0.0,                         // ΔUT1 (use 0.0 if unknown)
     ///     2.3522,                      // longitude
@@ -280,7 +276,7 @@ impl AstronomicalCalculator {
     /// ```
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        ut: DateTime<Utc>,
+        ts: Timestamp,
         delta_t: Option<f64>,
         delta_ut1: f64,
         lon: f64,
@@ -291,8 +287,9 @@ impl AstronomicalCalculator {
         gdip: Option<f64>,
         refraction: Refraction,
     ) -> Result<Self, CalculationError> {
+        let dt = TimeZone::UTC.to_datetime(ts);
         // Validate year range (-2000 to 6000)
-        let year = ut.year();
+        let year = dt.year();
         if !(-2000..=6000).contains(&year) {
             return Err(CalculationError::TimeConversionError);
         }
@@ -330,7 +327,8 @@ impl AstronomicalCalculator {
             }
         }
         Ok(Self {
-            ut,
+            ts,
+            dt,
             delta_t,
             delta_ut1,
             lon_radians,
@@ -371,11 +369,11 @@ impl AstronomicalCalculator {
     ///
     /// ```
     /// use astronomical_calculator::{AstronomicalCalculator, Refraction};
-    /// use chrono::NaiveDateTime;
+    /// use jiff::{civil::Date, tz::TimeZone};
     ///
-    /// let dt = NaiveDateTime::parse_from_str("2024-01-15 12:00:00", "%Y-%m-%d %H:%M:%S").unwrap().and_utc();
+    /// let ts = Date::new(2024, 1, 15).unwrap().at(12, 0, 0, 0).to_zoned(TimeZone::UTC).unwrap().timestamp();
     /// let mut calc = AstronomicalCalculator::new(
-    ///     dt, Some(69.0), 0.0, 0.0, 0.0, 0.0, 15.0, 1013.0,
+    ///     ts, Some(69.0), 0.0, 0.0, 0.0, 0.0, 15.0, 1013.0,
     ///     None, Refraction::ApSolposBennetNA
     /// ).unwrap();
     ///
@@ -384,7 +382,7 @@ impl AstronomicalCalculator {
     /// ```
     pub fn get_julian_day(&mut self) -> &JulianDate {
         self.julian_date
-            .get_or_init(|| JulianDate::new(self.ut, self.delta_t, self.delta_ut1))
+            .get_or_init(|| JulianDate::new(self.ts, self.dt, self.delta_t, self.delta_ut1))
     }
 
     fn get_geocentric_position(&mut self) -> &GeoCentricSolPos {
@@ -453,8 +451,8 @@ impl AstronomicalCalculator {
     ///
     /// # Returns
     ///
-    /// A `Result` containing the solar time as a [`DateTime<Utc>`], or an error if time conversion fails.
-    pub fn get_solar_time(&mut self) -> Result<DateTime<Utc>, CalculationError> {
+    /// A `Result` containing the solar time as a [`Timestamp`], or an error if time conversion fails.
+    pub fn get_solar_time(&mut self) -> Result<Timestamp, CalculationError> {
         let e = equation_of_time(*self.get_julian_day(), *self.get_geocentric_position());
         julian_date_to_datetime(self.get_julian_day().jd + (self.lon_radians + e) / PI / 2.0)
     }
@@ -473,7 +471,7 @@ impl AstronomicalCalculator {
     }
     fn _get_solar_transit(&mut self) -> Result<SolarInfo, CalculationError> {
         let r = self.solar_transit.get_or_init(|| {
-            let t = datetime_to_unix(self.ut);
+            let t = datetime_to_unix(self.ts);
 
             let tc = find_solar_time(t, 12, 0, 0, self.delta_t, self.delta_ut1, self.lon_radians)?;
             let mut calculator = self.with_time(unix_to_datetime(tc)?);
@@ -910,7 +908,8 @@ impl AstronomicalCalculator {
     /// Helper function for creating a copy of this `AstronomicalCalculator` with a new elevation
     fn with_elevation(&self, elevation: f64) -> Self {
         Self {
-            ut: self.ut,
+            ts: self.ts,
+            dt: self.dt,
             delta_t: self.delta_t,
             delta_ut1: self.delta_ut1,
             lon_radians: self.lon_radians,
@@ -940,9 +939,11 @@ impl AstronomicalCalculator {
     }
 
     /// Helper function for creating a copy of this `AstronomicalCalculator` with a new time
-    fn with_time(&self, time: DateTime<Utc>) -> Self {
+    fn with_time(&self, ts: Timestamp) -> Self {
+        let dt = TimeZone::UTC.to_datetime(ts);
         Self {
-            ut: time,
+            ts,
+            dt,
             delta_t: self.delta_t,
             delta_ut1: self.delta_ut1,
             lon_radians: self.lon_radians,
@@ -1195,17 +1196,21 @@ impl Refraction {
 ///
 /// ```
 /// use astronomical_calculator::get_delta_t;
-/// use chrono::NaiveDateTime;
+/// use jiff::{civil::Date, tz::TimeZone};
 ///
-/// let dt = NaiveDateTime::parse_from_str("2024-01-15 12:00:00", "%Y-%m-%d %H:%M:%S").unwrap().and_utc();
+/// let dt = Date::new(2024, 1, 15).unwrap().at(12, 0, 0, 0).to_zoned(TimeZone::UTC).unwrap().timestamp();
 /// let delta_t = get_delta_t(&dt);
 /// println!("ΔT for 2024: {:.2} seconds", delta_t);
 /// // Output: approximately 69 seconds
 /// ```
-pub fn get_delta_t(ut: &DateTime<Utc>) -> f64 {
+pub fn get_delta_t(ut: &Timestamp) -> f64 {
+    get_delta_t_for_datetime(TimeZone::UTC.to_datetime(*ut))
+}
+
+fn get_delta_t_for_datetime(datetime: DateTime) -> f64 {
     let mut imin: i64 = 0;
     let mut imax: i64 = 1244;
-    let dyear = ut.year() as f64 + ut.month() as f64 / 12.0 + (ut.day() as f64 - 1.0) / 365.0;
+    let dyear = datetime.year() as f64 + datetime.month() as f64 / 12.0 + (datetime.day() as f64 - 1.0) / 365.0;
 
     // Use polynomial approximation for dates outside table range
     if FREESPA_DELTA_T_TABLE[0] > dyear || FREESPA_DELTA_T_TABLE[(2 * imax) as usize] < dyear {
@@ -1338,16 +1343,14 @@ fn heliocentric_radius(jd: &JulianDate) -> f64 {
     rad / 1.0e8
 }
 
-/// Convert Julian date to DateTime<Utc>
-fn julian_date_to_datetime(julian_day: f64) -> Result<DateTime<Utc>, CalculationError> {
+/// Convert Julian date to a UTC timestamp.
+fn julian_date_to_datetime(julian_day: f64) -> Result<Timestamp, CalculationError> {
     let unix_millis = jd_to_timestamp(julian_day);
-    Utc.timestamp_millis_opt(unix_millis)
-        .single()
-        .ok_or(CalculationError::TimeConversionError)
+    Timestamp::from_millisecond(unix_millis).map_err(|_| CalculationError::TimeConversionError)
 }
 
-/// Convert Unix timestamp to DateTime<Utc>
-fn unix_to_datetime(timestamp: i64) -> Result<DateTime<Utc>, CalculationError> {
+/// Convert Unix timestamp to a UTC timestamp.
+fn unix_to_datetime(timestamp: i64) -> Result<Timestamp, CalculationError> {
     julian_date_to_datetime((timestamp - ETJD0) as f64 / 86400.0 + JD0)
 }
 
@@ -1437,12 +1440,12 @@ fn apply_refraction(
 // ============================================================================
 
 impl JulianDate {
-    fn new(ut: DateTime<Utc>, delta_t: Option<f64>, delta_ut1: f64) -> Self {
-        let jd = timestamp_to_jd((ut.timestamp_millis() as f64 + (delta_ut1 * 1000.0)) as i64);
+    fn new(ut: Timestamp, ut_datetime: DateTime, delta_t: Option<f64>, delta_ut1: f64) -> Self {
+        let jd = timestamp_to_jd((ut.as_millisecond() as f64 + (delta_ut1 * 1000.0)) as i64);
         let dt = if let Some(delta_t) = delta_t {
             delta_t
         } else {
-            get_delta_t(&ut)
+            get_delta_t_for_datetime(ut_datetime)
         };
         let jde = jd + dt / 86400.0;
         let jc = (jd - JD0) / 36525.0;
@@ -1452,7 +1455,7 @@ impl JulianDate {
     }
 
     fn from_unix_time(unix_time: i64, delta_t: Option<f64>, delta_ut1: f64) -> Result<Self, CalculationError> {
-        unix_to_datetime(unix_time).map(|ut| Self::new(ut, delta_t, delta_ut1))
+        unix_to_datetime(unix_time).map(|ut| Self::new(ut, TimeZone::UTC.to_datetime(ut), delta_t, delta_ut1))
     }
 }
 
@@ -1500,7 +1503,12 @@ fn find_solar_time(
     longitude: f64,
 ) -> Result<i64, CalculationError> {
     let mut jd = JulianDate::from_unix_time(timestamp, delta_t, delta_ut1)?;
-    let mut datetime = true_solar_time(unix_to_datetime(timestamp)?, delta_t, delta_ut1, longitude)?;
+    let mut datetime = TimeZone::UTC.to_datetime(true_solar_time(
+        unix_to_datetime(timestamp)?,
+        delta_t,
+        delta_ut1,
+        longitude,
+    )?);
 
     // Calculate initial time offset
     let mut time_delta = (hour - datetime.hour() as i64) as f64 / 24.0;
@@ -1526,7 +1534,7 @@ fn find_solar_time(
         let eot = equation_of_time(jd, geocentric_pos);
 
         jd_new.jd += (longitude + eot) / PI / 2.0;
-        datetime = julian_date_to_datetime(jd_new.jd)?;
+        datetime = TimeZone::UTC.to_datetime(julian_date_to_datetime(jd_new.jd)?);
 
         time_delta = (hour - datetime.hour() as i64) as f64 / 24.0;
         time_delta += (min - datetime.minute() as i64) as f64 / 1440.0;
@@ -1551,9 +1559,9 @@ fn julian_date_to_unix(jd: &JulianDate) -> i64 {
     ((jd.jd - JD0) * 86400.0).round() as i64 + ETJD0
 }
 
-/// Convert DateTime<Utc> to Unix timestamp
-fn datetime_to_unix(datetime: DateTime<Utc>) -> i64 {
-    let jd = JulianDate::new(datetime, None, 0.0);
+/// Convert Timestamp to Unix timestamp
+fn datetime_to_unix(datetime: Timestamp) -> i64 {
+    let jd = JulianDate::new(datetime, TimeZone::UTC.to_datetime(datetime), None, 0.0);
     julian_date_to_unix(&jd)
 }
 
@@ -1641,12 +1649,12 @@ pub enum CalculationError {
 }
 
 fn true_solar_time(
-    ut: DateTime<Utc>,
+    ut: Timestamp,
     delta_t: Option<f64>,
     delta_ut1: f64,
     lon: f64,
-) -> Result<DateTime<Utc>, CalculationError> {
-    let mut jd = JulianDate::new(ut, delta_t, delta_ut1);
+) -> Result<Timestamp, CalculationError> {
+    let mut jd = JulianDate::new(ut, TimeZone::UTC.to_datetime(ut), delta_t, delta_ut1);
     let geocentric_pos = GeoCentricSolPos::new(&jd);
     let eot = equation_of_time(jd, geocentric_pos);
     jd.jd += (lon + eot) / PI / 2.0;

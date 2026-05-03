@@ -1,4 +1,4 @@
-use chrono::prelude::*;
+use jiff::Timestamp;
 use serde::Deserialize;
 use serde::Serialize;
 extern crate std;
@@ -28,10 +28,9 @@ struct SunResult {
 struct SunResults {
     results: std::vec::Vec<SunResult>,
 }
-/// Converts a Unix timestamp (seconds) into a `NaiveDateTime`.
-fn ts_to_dt(ts: f64) -> NaiveDateTime {
-    #[allow(deprecated)]
-    NaiveDateTime::from_timestamp_millis((ts * 1000.0) as i64).unwrap()
+/// Converts a Unix timestamp (seconds) into a Jiff timestamp.
+fn ts_to_dt(ts: f64) -> Timestamp {
+    Timestamp::from_millisecond((ts * 1000.0) as i64).unwrap()
 }
 
 /// Returns the allowed time delta (in seconds) for comparisons at a latitude.
@@ -55,14 +54,14 @@ fn latitude_tolerance(lat: f64) -> f64 {
     }
 }
 
-/// Calls a solar event getter and converts a successful timestamp into `NaiveDateTime`.
+/// Calls a solar event getter and converts a successful timestamp into `Timestamp`.
 ///
 /// Returns `None` when the event is not available (`AllDay`/`AllNight`) or when
 /// the calculation fails.
 fn get_event_time(
     calc: &mut AstronomicalCalculator,
     getter: fn(&mut AstronomicalCalculator) -> Result<SolarEventResult, CalculationError>,
-) -> Option<NaiveDateTime> {
+) -> Option<Timestamp> {
     getter(calc)
         .ok()
         .and_then(|result| result.timestamp())
@@ -73,15 +72,15 @@ fn get_event_time(
 ///
 /// If either side is `None`, this helper does not assert and simply returns.
 fn compare_times(
-    our: Option<NaiveDateTime>,
-    their: Option<NaiveDateTime>,
+    our: Option<Timestamp>,
+    their: Option<Timestamp>,
     name: &str,
     lat: f64,
     result: &SunResult,
     index: usize,
 ) {
     if let (Some(our), Some(their)) = (our, their) {
-        let diff = (our - their).abs().num_seconds();
+        let diff = our.duration_since(their).as_secs().abs();
         let tolerance = latitude_tolerance(lat);
 
         assert!(
@@ -108,7 +107,7 @@ fn test_suncalc_test_data() {
     let results: SunResults = serde_json::from_str(&data).unwrap();
 
     for (index, result) in results.results.iter().enumerate() {
-        let midday = ts_to_dt(result.midday).and_utc();
+        let midday = ts_to_dt(result.midday);
         let their_transit = ts_to_dt(result.transit);
         let their_sunset = result.sunset.map(ts_to_dt);
         let their_sunrise = result.sunrise.map(ts_to_dt);

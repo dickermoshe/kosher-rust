@@ -18,22 +18,21 @@ defmt = ["dep:defmt"]
 
 [dependencies]
 core_maths.workspace = true
-chrono.workspace = true
+jiff.workspace = true
 thiserror.workspace = true
 defmt = { workspace = true, optional = true }
 
 
 [dev-dependencies]
-chrono = { workspace = true, features = ["std", "arbitrary", "serde"] }
+jiff = { workspace = true, features = ["std", "serde", "tzdb-bundle-platform"] }
 proptest.workspace = true
 arbitrary = { version = "1", features = ["derive"] }
 proptest-arbitrary-interop = "0.1"
 csv = "1.3"
 serde.workspace = true
-sunrise = "2.1.0"
+sunrise = "3.0.0"
 serde_json.workspace = true
 rand.workspace = true
-chrono-tz.workspace = true
 
 [lints.clippy]
 unwrap_used = "deny"

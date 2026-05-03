@@ -1,15 +1,15 @@
 use crate::*;
-use chrono::prelude::*;
+use jiff::{civil::Date, tz::TimeZone, Timestamp, Zoned};
 use rand::RngExt;
 use serde::Deserialize;
 
 extern crate std;
 /// Converts a timestamp in seconds to a `DateTime` in the given time zone.
-fn tz_ts_to_dt<T: TimeZone>(ts: f64, tz: T) -> DateTime<T> {
-    tz.timestamp_millis_opt((ts * 1000.0) as i64).unwrap()
+fn tz_ts_to_dt(ts: f64, tz: TimeZone) -> Zoned {
+    Timestamp::from_millisecond((ts * 1000.0) as i64).unwrap().to_zoned(tz)
 }
 
-/// Assert that a list of Option<DateTime> values are in chronological order.
+/// Assert that a list of optional zoned timestamps are in chronological order.
 /// Only compares consecutive pairs where both values are Some.
 ///
 /// # Arguments
@@ -52,8 +52,6 @@ fn assert_events_in_order<T: PartialOrd + std::fmt::Display, C: std::fmt::Debug>
 
 #[test]
 fn test_geonames_csv_transit() {
-    use chrono::TimeZone;
-    use chrono_tz::Tz;
     use csv::ReaderBuilder;
     use std::fs::File;
     use std::io::BufReader;
@@ -116,20 +114,24 @@ fn test_geonames_csv_transit() {
             continue;
         }
 
-        // Parse timezone using chrono-tz
-        let tz: Tz = row.timezone.parse().unwrap();
+        // Parse timezone using Jiff's IANA database.
+        let tz = TimeZone::get(&row.timezone).unwrap();
 
         // Generate a random input time between 1900 and 2100
         let year = rng.random_range(1900..=2100);
         let month = rng.random_range(1..=12);
         let day = rng.random_range(1..=28); // Use 28 to avoid month-end issues
 
-        // Create a naive datetime at midday
-        let dt = tz.with_ymd_and_hms(year, month, day, 12, 0, 0).unwrap();
+        // Create a local datetime at midday.
+        let dt = Date::new(year, month, day)
+            .unwrap()
+            .at(12, 0, 0, 0)
+            .to_zoned(tz.clone())
+            .unwrap();
 
         // Create calculator and get transit
         let mut calc = AstronomicalCalculator::new(
-            dt.to_utc(),
+            dt.timestamp(),
             None,
             0.0,
             lon,
@@ -142,10 +144,9 @@ fn test_geonames_csv_transit() {
         )
         .unwrap();
 
-        let transit = tz_ts_to_dt(calc.get_solar_transit().unwrap() as f64, tz);
+        let transit = tz_ts_to_dt(calc.get_solar_transit().unwrap() as f64, tz.clone());
 
-        let diff = transit - dt;
-        let midday_to_transit_diff = diff.num_seconds().abs();
+        let midday_to_transit_diff = transit.timestamp().duration_since(dt.timestamp()).as_secs().abs();
         assert!(
             midday_to_transit_diff <= 60 * 60 * 8,
             "Midday to transit difference too large: {} seconds, input: {}, transit: {}. Record: {:?} Index: {}",
@@ -158,42 +159,42 @@ fn test_geonames_csv_transit() {
         // Sunrise is always before transit and sunset is always after transit
         let sunrise = calc
             .get_sunrise()
-            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz)))
+            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz.clone())))
             .ok()
             .flatten();
         let sunset = calc
             .get_sunset()
-            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz)))
+            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz.clone())))
             .ok()
             .flatten();
         let astronomical_dawn = calc
             .get_astronomical_dawn()
-            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz)))
+            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz.clone())))
             .ok()
             .flatten();
         let nautical_dawn = calc
             .get_nautical_dawn()
-            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz)))
+            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz.clone())))
             .ok()
             .flatten();
         let civil_dawn = calc
             .get_civil_dawn()
-            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz)))
+            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz.clone())))
             .ok()
             .flatten();
         let civil_dusk = calc
             .get_civil_dusk()
-            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz)))
+            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz.clone())))
             .ok()
             .flatten();
         let nautical_dusk = calc
             .get_nautical_dusk()
-            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz)))
+            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz.clone())))
             .ok()
             .flatten();
         let astronomical_dusk = calc
             .get_astronomical_dusk()
-            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz)))
+            .map(|result| result.timestamp().map(|ts| tz_ts_to_dt(ts as f64, tz.clone())))
             .ok()
             .flatten();
 

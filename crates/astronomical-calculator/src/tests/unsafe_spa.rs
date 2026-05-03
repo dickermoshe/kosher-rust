@@ -2,7 +2,7 @@
 #![allow(warnings)]
 #![allow(expect_used)]
 
-use chrono::{DateTime, Datelike, TimeZone, Timelike, Utc};
+use jiff::{tz::TimeZone, Timestamp};
 
 use crate::{jd_to_timestamp, timestamp_to_jd};
 
@@ -42,24 +42,27 @@ pub struct tm {
 }
 /// Methods which mimic the tm_xxx fields
 impl tm {
+    fn datetime(&self) -> jiff::civil::DateTime {
+        TimeZone::UTC.to_datetime(Timestamp::from_millisecond(self.timestamp).unwrap())
+    }
+
     fn hour(&self) -> u32 {
-        Utc.timestamp_millis_opt(self.timestamp).unwrap().hour()
+        self.datetime().hour() as u32
     }
     fn minute(&self) -> u32 {
-        Utc.timestamp_millis_opt(self.timestamp).unwrap().minute()
+        self.datetime().minute() as u32
     }
     fn second(&self) -> f64 {
-        Utc.timestamp_millis_opt(self.timestamp).unwrap().second() as f64
-            + Utc.timestamp_millis_opt(self.timestamp).unwrap().nanosecond() as f64 / 1000000000.0
+        self.datetime().second() as f64 + self.datetime().subsec_nanosecond() as f64 / 1000000000.0
     }
     fn year(&self) -> i32 {
-        Utc.timestamp_millis_opt(self.timestamp).unwrap().year()
+        self.datetime().year() as i32
     }
     fn month(&self) -> u32 {
-        Utc.timestamp_millis_opt(self.timestamp).unwrap().month()
+        self.datetime().month() as u32
     }
     fn day(&self) -> u32 {
-        Utc.timestamp_millis_opt(self.timestamp).unwrap().day()
+        self.datetime().day() as u32
     }
 }
 #[derive(Copy, Clone)]

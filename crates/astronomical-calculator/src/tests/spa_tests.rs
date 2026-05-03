@@ -1,6 +1,6 @@
 use super::unsafe_spa::*;
 use crate::*;
-use chrono::prelude::*;
+use jiff::{civil::Date, tz::TimeZone, Timestamp};
 use proptest::prelude::*;
 use proptest::proptest;
 
@@ -60,7 +60,7 @@ fn solar_day_to_event(day: solar_day, index: usize) -> SolarEventResult {
 /// with the given parameters.
 #[allow(clippy::too_many_arguments)]
 fn compare(
-    datetime: DateTime<Utc>,
+    datetime: Timestamp,
     longitude: f64,
     latitude: f64,
     elevation: f64,
@@ -130,7 +130,7 @@ fn compare(
 
     // get the unsafe solar day
     let mut ut = tm {
-        timestamp: naive_datetime.timestamp_millis(),
+        timestamp: naive_datetime.as_millisecond(),
     };
     let unsafe_solar_day = unsafe {
         SolarDay(
@@ -234,7 +234,7 @@ fn compare(
 
 /// A proptest strategy to generate UTC datetimes in
 /// the range 1900-2100.
-fn any_utc_datetime() -> impl Strategy<Value = DateTime<Utc>> {
+fn any_utc_datetime() -> impl Strategy<Value = Timestamp> {
     (1900i32..=2100i32)
         .prop_flat_map(|year| (Just(year), 1u32..=12u32))
         .prop_flat_map(|(year, month)| {
@@ -264,9 +264,12 @@ fn any_utc_datetime() -> impl Strategy<Value = DateTime<Utc>> {
             )
         })
         .prop_filter_map("Create valid datetime", |(year, month, day, hour, min, sec)| {
-            chrono::NaiveDate::from_ymd_opt(year, month, day)
-                .and_then(|d| d.and_hms_opt(hour, min, sec))
-                .map(|dt| DateTime::<Utc>::from_naive_utc_and_offset(dt, Utc))
+            Date::new(year as i16, month as i8, day as i8).ok().map(|date| {
+                date.at(hour as i8, min as i8, sec as i8, 0)
+                    .to_zoned(TimeZone::UTC)
+                    .unwrap()
+                    .timestamp()
+            })
         })
 }
 
@@ -307,9 +310,7 @@ fn test_polar_region_at_solstice() {
         (-89.0, "2024-06-21 12:00:00"),
         (-89.0, "2024-12-21 12:00:00"),
     ] {
-        let dt = NaiveDateTime::parse_from_str(date, "%Y-%m-%d %H:%M:%S")
-            .unwrap()
-            .and_utc();
+        let dt = super::parse_utc(date);
         let result = compare(
             dt,
             0.0,
@@ -332,9 +333,7 @@ fn test_polar_region_at_solstice() {
         (-89.0, "2024-06-21 12:00:00", SolarEventResult::AllNight),
         (-89.0, "2024-12-21 12:00:00", SolarEventResult::AllDay),
     ] {
-        let dt = NaiveDateTime::parse_from_str(date, "%Y-%m-%d %H:%M:%S")
-            .unwrap()
-            .and_utc();
+        let dt = super::parse_utc(date);
         let mut calc = AstronomicalCalculator::new(
             dt,
             None,
