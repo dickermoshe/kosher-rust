@@ -1,3 +1,0 @@
-[submodule "crates/embedded-tz/tzdb"]
-	path = crates/embedded-tz/tzdb
-	url = https://github.com/eggert/tz
