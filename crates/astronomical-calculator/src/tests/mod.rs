@@ -20,7 +20,7 @@ fn parse_utc(input: &str) -> Timestamp {
 
 #[test]
 fn test_year_validation_boundary_min() {
-    let dt = parse_utc("-2000-01-01 12:00:00");
+    let dt = parse_utc("-002000-01-01 12:00:00");
     let result = AstronomicalCalculator::new(
         dt,
         None,
@@ -56,7 +56,7 @@ fn test_year_validation_boundary_max() {
 
 #[test]
 fn test_year_validation_below_min() {
-    let dt = parse_utc("-2001-01-01 12:00:00");
+    let dt = parse_utc("-002001-01-01 12:00:00");
     let result = AstronomicalCalculator::new(
         dt,
         None,

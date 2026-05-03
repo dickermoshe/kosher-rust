@@ -102,6 +102,84 @@ pub enum ZmanPrimitive<'a> {
     Molad,
 }
 
+#[cfg(feature = "defmt")]
+impl defmt::Format for ZmanPrimitive<'_> {
+    fn format(&self, fmt: defmt::Formatter) {
+        match self {
+            Self::ElevationAdjustedSunrise => defmt::write!(fmt, "ElevationAdjustedSunrise"),
+            Self::SeaLevelSunrise => defmt::write!(fmt, "SeaLevelSunrise"),
+            Self::ConfiguredSunrise => defmt::write!(fmt, "ConfiguredSunrise"),
+            Self::ConfiguredSunset => defmt::write!(fmt, "ConfiguredSunset"),
+            Self::SolarTransit => defmt::write!(fmt, "SolarTransit"),
+            Self::SolarMidnight => defmt::write!(fmt, "SolarMidnight"),
+            Self::ElevationAdjustedSunset => defmt::write!(fmt, "ElevationAdjustedSunset"),
+            Self::SeaLevelSunset => defmt::write!(fmt, "SeaLevelSunset"),
+            Self::SunriseOffsetByDegrees(degrees) => {
+                defmt::write!(fmt, "SunriseOffsetByDegrees({})", degrees)
+            }
+            Self::SunsetOffsetByDegrees(degrees) => {
+                defmt::write!(fmt, "SunsetOffsetByDegrees({})", degrees)
+            }
+            Self::LocalMeanTime(hour) => defmt::write!(fmt, "LocalMeanTime({})", hour),
+            Self::CandleLighting => defmt::write!(fmt, "CandleLighting"),
+            Self::Offset(primitive, duration) => defmt::write!(
+                fmt,
+                "Offset({}, {}s)",
+                primitive,
+                duration.as_secs_f64()
+            ),
+            Self::ZmanisOffset(primitive, hours) => {
+                defmt::write!(fmt, "ZmanisOffset({}, {})", primitive, hours)
+            }
+            Self::ShaahZmanisBasedOffset(start, end, hours) => {
+                defmt::write!(fmt, "ShaahZmanisBasedOffset({}, {}, {})", start, end, hours)
+            }
+            Self::HalfDayBasedOffset(start, end, fraction) => {
+                defmt::write!(fmt, "HalfDayBasedOffset({}, {}, {})", start, end, fraction)
+            }
+            Self::Shema(start, end, fixed) => {
+                defmt::write!(fmt, "Shema({}, {}, {})", start, end, fixed)
+            }
+            Self::MinchaGedola(start, end, fixed) => {
+                defmt::write!(fmt, "MinchaGedola({}, {}, {})", start, end, fixed)
+            }
+            Self::SamuchLeMinchaKetana(start, end, fixed) => {
+                defmt::write!(fmt, "SamuchLeMinchaKetana({}, {}, {})", start, end, fixed)
+            }
+            Self::MinchaKetana(start, end, fixed) => {
+                defmt::write!(fmt, "MinchaKetana({}, {}, {})", start, end, fixed)
+            }
+            Self::Tefila(start, end, fixed) => {
+                defmt::write!(fmt, "Tefila({}, {}, {})", start, end, fixed)
+            }
+            Self::PlagHamincha(start, end, fixed) => {
+                defmt::write!(fmt, "PlagHamincha({}, {}, {})", start, end, fixed)
+            }
+            Self::SofZmanBiurChametz(start, end, fixed) => {
+                defmt::write!(fmt, "SofZmanBiurChametz({}, {}, {})", start, end, fixed)
+            }
+            Self::TzaisAteretTorah => defmt::write!(fmt, "TzaisAteretTorah"),
+            Self::SofZmanKidushLevana15Days => {
+                defmt::write!(fmt, "SofZmanKidushLevana15Days")
+            }
+            Self::SofZmanKidushLevanaBetweenMoldos => {
+                defmt::write!(fmt, "SofZmanKidushLevanaBetweenMoldos")
+            }
+            Self::TchilasZmanKidushLevana3Days => {
+                defmt::write!(fmt, "TchilasZmanKidushLevana3Days")
+            }
+            Self::TchilasZmanKidushLevana7Days => {
+                defmt::write!(fmt, "TchilasZmanKidushLevana7Days")
+            }
+            Self::BainHashmashosRt2Stars => defmt::write!(fmt, "BainHashmashosRt2Stars"),
+            Self::MinchaGedolaAhavatShalom => defmt::write!(fmt, "MinchaGedolaAhavatShalom"),
+            Self::MinchaKetanaAhavatShalom => defmt::write!(fmt, "MinchaKetanaAhavatShalom"),
+            Self::PlagAhavatShalom => defmt::write!(fmt, "PlagAhavatShalom"),
+            Self::Molad => defmt::write!(fmt, "Molad"),
+        }
+    }
+}
+
 impl<'a> ZmanLike for ZmanPrimitive<'a> {
     fn calculate(&self, calculator: &mut ZmanimCalculator) -> Result<Timestamp, ZmanimError> {
         match *self {

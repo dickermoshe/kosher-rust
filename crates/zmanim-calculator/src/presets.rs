@@ -93,7 +93,6 @@ mod java {
 /// Most users should consume these predefined presets directly rather than constructing
 /// [`ZmanPrimitive`] values by hand.
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct ZmanPreset<'a> {
     /// The underlying low-level computation definition for this preset.
     pub(crate) event: ZmanPrimitive<'a>,
@@ -102,6 +101,13 @@ pub struct ZmanPreset<'a> {
     pub name: &'a str,
     #[cfg(test)]
     pub(crate) calc: java::JavaCalc,
+}
+
+#[cfg(feature = "defmt")]
+impl defmt::Format for ZmanPreset<'_> {
+    fn format(&self, fmt: defmt::Formatter) {
+        defmt::write!(fmt, "ZmanPreset {{ event: {} }}", self.event)
+    }
 }
 
 impl<'a> ZmanLike for ZmanPreset<'a> {

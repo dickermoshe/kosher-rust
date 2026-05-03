@@ -45,3 +45,6 @@ j4rs = "0.25.1"
 
 [profile.release.package.limudim-wasm]
 opt-level = "s"
+
+[patch.crates-io]
+jiff = { git = "https://github.com/dickermoshe/jiff", branch = "master" }

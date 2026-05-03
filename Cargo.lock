@@ -931,9 +931,9 @@ checksum = "60effa0ac815b5db0bdbd7d1c0031aef77e5b1eceb5fced3468af0c67e87cb0a"
 [[package]]
 name = "jiff"
 version = "0.2.24"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f00b5dbd620d61dfdcb6007c9c1f6054ebd75319f163d886a9055cec1155073d"
+source = "git+https://github.com/dickermoshe/jiff?branch=master#c98ebec9f1b89d4abfc544ad2ce1688aab8effd3"
 dependencies = [
+ "defmt",
  "jiff-static",
  "jiff-tzdb",
  "log",
@@ -955,8 +955,7 @@ dependencies = [
 [[package]]
 name = "jiff-static"
 version = "0.2.24"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e000de030ff8022ea1da3f466fbb0f3a809f5e51ed31f6dd931c35181ad8e6d7"
+source = "git+https://github.com/dickermoshe/jiff?branch=master#c98ebec9f1b89d4abfc544ad2ce1688aab8effd3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -966,8 +965,7 @@ dependencies = [
 [[package]]
 name = "jiff-tzdb"
 version = "0.1.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c900ef84826f1338a557697dc8fc601df9ca9af4ac137c7fb61d4c6f2dfd3076"
+source = "git+https://github.com/dickermoshe/jiff?branch=master#c98ebec9f1b89d4abfc544ad2ce1688aab8effd3"
 
 [[package]]
 name = "jni"
