@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "crates/astronomical-calculator",
     "crates/hebrew-holiday-calendar",
     "crates/limudim-calendar",
     "crates/limudim-calendar/limudim-wasm",
@@ -16,7 +15,6 @@ panic = "warn"
 
 [workspace.dependencies]
 # Internal crates
-astronomical-calculator = { path = "crates/astronomical-calculator", version = "0.6.0" }
 hebrew-holiday-calendar = { path = "crates/hebrew-holiday-calendar", default-features = false, version = "0.6.0" }
 limudim-calendar = { path = "crates/limudim-calendar", version = "0.6.0" }
 zmanim-calculator = { path = "crates/zmanim-calculator", version = "0.6.0" }
