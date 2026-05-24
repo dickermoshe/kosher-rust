@@ -59,6 +59,7 @@
 //! ```
 #![no_std]
 
+#[allow(clippy::excessive_precision)]
 mod tables;
 
 #[cfg(test)]
