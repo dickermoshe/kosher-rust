@@ -7,30 +7,10 @@ pub(super) const DEFAULT_RANDOM_PARITY_ITERATIONS: u64 = 1_000;
 pub(super) const MAX_TIMEZONE_ATTEMPTS: u32 = 1_000;
 pub(super) const MAX_RANDOM_ELEVATION_METERS: f64 = 4000.0;
 
-// SPA parity policy
-//
-// The default Java parity tests force Rust into NOAA-style sunrise/sunset
-// refraction, matching KosherJava closely. The private `__test-spa-refraction`
-// feature instead runs Rust with its production SPA/Bennett refraction model
-// while Java remains NOAA-backed.
-//
-// That comparison is intentionally not exact. The model differences are most
-// visible near sunrise/sunset, grow at higher latitudes where the sun crosses
-// the horizon more slowly, and grow again when elevation is used. Zmanis
-// alos/tzais offsets amplify the same difference because they use
-// sunrise/sunset both as the anchor and as the day-length source for the
-// temporal-hour offset. The 120-zmanis variants amplify it the most.
-//
-// Keep the time tolerances broad enough for normal SPA-vs-NOAA drift, but cap
-// randomized latitude ranges for the presets where that drift dominates the
-// test signal. These are test-generation limits only; they do not change the
-// calculator's supported input range.
-#[cfg(not(feature = "__test-spa-refraction"))]
-const DEFAULT_MAX_DIFF_MS: i64 = 10_000;
-#[cfg(feature = "__test-spa-refraction")]
-const DEFAULT_MAX_DIFF_MS: i64 = 60_000;
-
-const CHATZOS_HALAYLA_MAX_DIFF_MS: i64 = 20_000;
+// Rust uses the same KosherJava NOAA equations as the Java reference. The
+// tolerance leaves room for Java/Rust floating-point and timestamp formatting
+// differences, not for a different astronomy model.
+const DEFAULT_MAX_DIFF_MS: i64 = 1_000;
 
 /// Number of randomized cases to run for each preset.
 pub(super) fn test_iterations() -> u64 {
@@ -40,11 +20,8 @@ pub(super) fn test_iterations() -> u64 {
     )
 }
 
-pub(super) fn max_diff_ms_for_preset(preset_name: &str) -> i64 {
-    match preset_name {
-        "getChatzosHalayla" => CHATZOS_HALAYLA_MAX_DIFF_MS,
-        _ => DEFAULT_MAX_DIFF_MS,
-    }
+pub(super) fn max_diff_ms_for_preset(_preset_name: &str) -> i64 {
+    DEFAULT_MAX_DIFF_MS
 }
 
 /// Seed used by randomized test cases.
@@ -64,36 +41,13 @@ pub(super) fn test_seed() -> u64 {
 
 /// Maximum absolute latitude generated for randomized cases for one preset.
 pub(super) fn max_latitude_for_preset(preset_name: &str) -> f64 {
-    // Most presets use the conservative 40-degree range. Chatzos can be tested
-    // much farther poleward because it does not depend on a horizon crossing.
-    // Sunrise/sunset-style events normally get 60 degrees, but SPA parity caps
-    // them at 40 degrees because high-latitude horizon crossings magnify the
-    // SPA-vs-NOAA model difference. SPA alos/tzais zmanis offsets get stricter
-    // caps because they use the differing sunrise/sunset both as the anchor and
-    // as the temporal-hour source.
+    // Rust and Java now use the same NOAA model, so random coverage can reach
+    // higher latitudes. Chatzos-style events can go nearly pole-to-pole because
+    // they do not need a horizon crossing. Horizon-dependent zmanim stop short
+    // of the polar circles to keep random runs event-heavy while still covering
+    // slow high-latitude crossings.
     match preset_name {
-        "getChatzos" => 85.0,
-        #[cfg(feature = "__test-spa-refraction")]
-        "getAlos120Zmanis" | "getTzais120Zmanis" => 25.0,
-        #[cfg(feature = "__test-spa-refraction")]
-        "getAlos72Zmanis" | "getAlos90Zmanis" | "getAlos96Zmanis" | "getTzais72Zmanis"
-        | "getTzais90Zmanis" | "getTzais96Zmanis" => 30.0,
-        "getSunriseWithElevation"
-        | "getSeaLevelSunrise"
-        | "getSunsetWithElevation"
-        | "getSeaLevelSunset"
-        | "getChatzosAsHalfDay"
-        | "getFixedLocalChatzos" => {
-            #[cfg(feature = "__test-spa-refraction")]
-            {
-                40.0
-            }
-            #[cfg(not(feature = "__test-spa-refraction"))]
-            {
-                60.0
-            }
-        }
-        _ => 40.0,
+        _ => 90.0,
     }
 }
 
@@ -105,7 +59,7 @@ pub(super) fn random_year_range_for_preset(preset_name: &str) -> (i32, i32) {
         | "getTchilasZmanKidushLevana3Days"
         | "getTchilasZmanKidushLevana7Days"
         | "getZmanMolad" => (1990, 2030),
-        _ => (2000, 2200),
+        _ => (1900, 2300),
     }
 }
 

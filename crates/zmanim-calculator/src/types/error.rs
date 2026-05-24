@@ -1,5 +1,3 @@
-use astronomical_calculator::{CalculationError, SolarEventResult};
-use jiff::Timestamp;
 use thiserror::Error;
 
 #[derive(Debug, Error, PartialEq, Eq, Clone, Copy, Hash)]
@@ -18,9 +16,9 @@ pub enum ZmanimError {
     /// The provided timezone is required for locations near the anti-meridian.
     #[error("The provided timezone is required for locations near the anti-meridian.")]
     TimeZoneRequired,
-    /// The astronomical calculator failed to initialize.
-    #[error("The astronomical calculator failed to initialize.")]
-    AstronomicalCalculatorError(astronomical_calculator::CalculationError),
+    /// An internal astronomical calculation failed.
+    #[error("An internal astronomical calculation failed.")]
+    CalculationError,
     /// Noon on the requested date does not exist in the location's timezone (e.g. a DST gap).
     #[error(
         "Noon on the requested date does not exist in the location's timezone (e.g. a DST gap)."
@@ -40,33 +38,4 @@ pub enum ZmanimError {
     /// The provided hours are invalid. Must be between 0 and 24.
     #[error("The provided hours are invalid. Must be between 0 and 24.")]
     InvalidHours,
-}
-
-pub(crate) trait IntoDateTimeResult {
-    fn into_date_time_result(self) -> Result<Timestamp, ZmanimError>;
-}
-
-impl IntoDateTimeResult for Result<SolarEventResult, CalculationError> {
-    fn into_date_time_result(self) -> Result<Timestamp, ZmanimError> {
-        match self {
-            Ok(result) => match result {
-                SolarEventResult::Occurs(timestamp) => {
-                    Timestamp::from_second(timestamp).map_err(|_| ZmanimError::TimeConversionError)
-                }
-                SolarEventResult::AllDay => Err(ZmanimError::AllDay),
-                SolarEventResult::AllNight => Err(ZmanimError::AllNight),
-            },
-            Err(e) => Err(ZmanimError::AstronomicalCalculatorError(e)),
-        }
-    }
-}
-impl IntoDateTimeResult for Result<i64, CalculationError> {
-    fn into_date_time_result(self) -> Result<Timestamp, ZmanimError> {
-        match self {
-            Ok(result) => {
-                Timestamp::from_second(result).map_err(|_| ZmanimError::TimeConversionError)
-            }
-            Err(e) => Err(ZmanimError::AstronomicalCalculatorError(e)),
-        }
-    }
 }

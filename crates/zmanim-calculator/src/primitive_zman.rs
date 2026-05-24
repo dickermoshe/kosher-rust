@@ -18,7 +18,7 @@ use crate::{
     presets::{
         ALOS_16_POINT_1_DEGREES, TZAIS_GEONIM_DEGREES_3_POINT_7, TZAIS_GEONIM_DEGREES_3_POINT_8,
     },
-    types::error::{IntoDateTimeResult, ZmanimError},
+    types::error::ZmanimError,
 };
 use icu_calendar::{
     cal::{Gregorian, Iso},
@@ -180,28 +180,20 @@ impl defmt::Format for ZmanPrimitive<'_> {
 impl<'a> ZmanLike for ZmanPrimitive<'a> {
     fn calculate(&self, calculator: &mut ZmanimCalculator) -> Result<Timestamp, ZmanimError> {
         match *self {
-            ZmanPrimitive::ConfiguredSunrise => calculator
-                .configured_calculator()
-                .get_sunrise()
-                .into_date_time_result(),
-            ZmanPrimitive::ConfiguredSunset => calculator
-                .configured_calculator()
-                .get_sunset()
-                .into_date_time_result(),
+            ZmanPrimitive::ConfiguredSunrise => calculator.configured_sunrise(),
+            ZmanPrimitive::ConfiguredSunset => calculator.configured_sunset(),
             ZmanPrimitive::ElevationAdjustedSunrise => calculator.elevation_adjusted_sunrise(),
             ZmanPrimitive::SeaLevelSunrise => calculator.sea_level_sunrise(),
             ZmanPrimitive::SolarTransit => calculator.solar_transit(),
             ZmanPrimitive::SolarMidnight => calculator.solar_midnight(),
             ZmanPrimitive::ElevationAdjustedSunset => calculator.elevation_adjusted_sunset(),
             ZmanPrimitive::SeaLevelSunset => calculator.sea_level_sunset(),
-            ZmanPrimitive::SunriseOffsetByDegrees(degrees) => calculator
-                .sea_level_calculator_no_refraction
-                .get_sunrise_offset_by_degrees(degrees)
-                .into_date_time_result(),
-            ZmanPrimitive::SunsetOffsetByDegrees(degrees) => calculator
-                .sea_level_calculator_no_refraction
-                .get_sunset_offset_by_degrees(degrees)
-                .into_date_time_result(),
+            ZmanPrimitive::SunriseOffsetByDegrees(degrees) => {
+                calculator.sunrise_offset_by_degrees(degrees)
+            }
+            ZmanPrimitive::SunsetOffsetByDegrees(degrees) => {
+                calculator.sunset_offset_by_degrees(degrees)
+            }
             ZmanPrimitive::LocalMeanTime(hours) => {
                 let date = calculator.date;
                 let location = calculator.location.clone();
@@ -349,10 +341,7 @@ impl<'a> ZmanLike for ZmanPrimitive<'a> {
                 primitive.calculate(calculator)
             }
             Self::TzaisAteretTorah => {
-                let sunset = calculator
-                    .configured_calculator()
-                    .get_sunset()
-                    .into_date_time_result()?;
+                let sunset = calculator.configured_sunset()?;
                 Ok(sunset + calculator.config.ateret_torah_sunset_offset)
             }
             ZmanPrimitive::SofZmanKidushLevana15Days => {

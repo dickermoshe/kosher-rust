@@ -309,37 +309,115 @@ fn test_everest_java_expected_times() {
         TimeZone::get("Asia/Kathmandu").unwrap(),
         date,
     );
-    // At very high elevation our refraction model and javas refraction model start to differ slightly, so we allow for a larger time difference.
     assert_zman_str_with_max_time_diff(
         &mut calc,
         &ELEVATION_ADJUSTED_SUNRISE,
         "2017-10-17T05:44:49+05:45",
-        Some(120),
+        Some(1),
     );
     assert_zman_str_with_max_time_diff(
         &mut calc,
         &ELEVATION_ADJUSTED_SUNSET,
         "2017-10-17T17:40:04+05:45",
-        Some(120),
+        Some(1),
     );
     assert_zman_str_with_max_time_diff(
         &mut calc,
         &SEA_LEVEL_SUNRISE,
         "2017-10-17T05:58:42+05:45",
-        Some(120),
+        Some(1),
     );
     assert_zman_str_with_max_time_diff(
         &mut calc,
         &SEA_LEVEL_SUNSET,
         "2017-10-17T17:26:12+05:45",
-        Some(120),
+        Some(1),
     );
     assert_zman_str_with_max_time_diff(
         &mut calc,
         &CHATZOS_HAYOM_ASTRONOMICAL,
-        "2017-10-17T11:42:44+05:45",
-        Some(120),
+        "2017-10-17T11:42:38+05:45",
+        Some(1),
     );
+}
+
+#[test]
+fn test_lakewood_noaa_baseline_events() {
+    assert_zman_str(
+        &mut new_calc(LAKEWOOD_ELEVATION_M),
+        &ELEVATION_ADJUSTED_SUNRISE,
+        "2017-10-17T07:09:11-04:00",
+    );
+    assert_zman_str(
+        &mut new_calc(LAKEWOOD_ELEVATION_M),
+        &ELEVATION_ADJUSTED_SUNSET,
+        "2017-10-17T18:14:38-04:00",
+    );
+    assert_zman_str(
+        &mut new_calc(0.0),
+        &CHATZOS_HAYOM_ASTRONOMICAL,
+        "2017-10-17T12:41:55-04:00",
+    );
+    assert_zman_str(
+        &mut new_calc(0.0),
+        &ALOS_16_POINT_1_DEGREES,
+        "2017-10-17T05:49:30-04:00",
+    );
+    assert_zman_str(
+        &mut new_calc(0.0),
+        &TZAIS_16_POINT_1_DEGREES,
+        "2017-10-17T19:34:14-04:00",
+    );
+}
+
+#[test]
+fn test_polar_night_returns_none_for_sun_times() {
+    let date = Date::new(2017, 12, 21).unwrap();
+    let mut calc = calc_for(
+        69.6492,
+        18.9553,
+        0.0,
+        TimeZone::get("Europe/Oslo").unwrap(),
+        date,
+    );
+
+    assert!(matches!(
+        ZmanPrimitive::ElevationAdjustedSunrise.calculate(&mut calc),
+        Err(ZmanimError::AllNight)
+    ));
+    assert!(matches!(
+        ZmanPrimitive::ElevationAdjustedSunset.calculate(&mut calc),
+        Err(ZmanimError::AllNight)
+    ));
+}
+
+#[test]
+fn test_anti_meridian_timezone_date_adjustment() {
+    let date = Date::new(2018, 2, 3).unwrap();
+    let timezone = TimeZone::get("Pacific/Apia").unwrap();
+    let mut calc = calc_for(-13.8599, -171.7513, 0.0, timezone.clone(), date);
+
+    let sunrise = ELEVATION_ADJUSTED_SUNRISE.calculate(&mut calc).unwrap();
+    let sunset = ELEVATION_ADJUSTED_SUNSET.calculate(&mut calc).unwrap();
+    let sunrise_local = sunrise.to_zoned(timezone.clone());
+    let sunset_local = sunset.to_zoned(timezone);
+
+    assert_eq!(sunrise_local.date(), date);
+    assert_eq!(sunset_local.date(), date);
+    assert!(sunrise_local.hour() < 12);
+    assert!(sunset_local.hour() >= 12);
+}
+
+#[test]
+fn test_solar_midnight_rolls_to_next_local_date() {
+    let date = lakewood_date();
+    let mut calc = new_calc(0.0);
+    let midnight = CHATZOS_HALAYLA_ASTRONOMICAL.calculate(&mut calc).unwrap();
+    let local = midnight.to_zoned(lakewood_tz());
+
+    assert_eq!(local.date(), Date::new(2017, 10, 18).unwrap());
+    assert!(local.hour() < 2);
+    assert!(local.date() > date);
 }
 
 #[test]

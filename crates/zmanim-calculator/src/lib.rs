@@ -22,6 +22,7 @@ mod java_tests {
     pub(crate) mod limudim;
     pub(crate) mod zmanim;
 }
+mod astronomy;
 #[cfg(test)]
 mod tests;
 mod types {

@@ -4,19 +4,10 @@
 //! then pass any [`ZmanLike`] implementor (typically a value from [`crate::presets`]) to
 //! [`ZmanimCalculator::calculate`] to obtain a [`jiff::Timestamp`].
 
-use crate::types::{
-    config::CalculatorConfig,
-    error::{IntoDateTimeResult, ZmanimError},
-    location::Location,
-};
-use astronomical_calculator::{AstronomicalCalculator, Refraction};
+use crate::types::{config::CalculatorConfig, error::ZmanimError, location::Location};
 #[allow(unused_imports)]
 use core_maths::*;
-use jiff::{
-    civil::Date,
-    tz::{AmbiguousOffset, TimeZone},
-    SignedDuration, Timestamp,
-};
+use jiff::{civil::Date, tz::TimeZone, SignedDuration, Timestamp};
 
 /// Calculates zmanim for a given [`Location`] and [`Date`].
 ///
@@ -33,9 +24,6 @@ pub struct ZmanimCalculator {
     pub(crate) date: Date,
     /// Calculation configuration options.
     pub(crate) config: CalculatorConfig,
-    pub(crate) elevation_adjusted_calculator: AstronomicalCalculator,
-    pub(crate) sea_level_calculator: AstronomicalCalculator,
-    pub(crate) sea_level_calculator_no_refraction: AstronomicalCalculator,
 }
 
 impl ZmanimCalculator {
@@ -52,60 +40,11 @@ impl ZmanimCalculator {
         date: Date,
         config: CalculatorConfig,
     ) -> Result<Self, ZmanimError> {
-        // Regular test builds use NOAA refraction to line up with KosherJava's
-        // default calculator. The private test feature below opts tests back
-        // into the same SPA/Bennett refraction model used by production builds.
-        #[cfg(all(test, not(feature = "__test-spa-refraction")))]
-        let refraction = Refraction::NOAA;
-        #[cfg(any(not(test), feature = "__test-spa-refraction"))]
-        let refraction = Refraction::ApSolposBennet;
-        let localnoon = Self::local_noon(date, &location)?;
-        let elevation_adjusted_calculator = AstronomicalCalculator::new(
-            localnoon,
-            None,
-            0.0,
-            location.longitude,
-            location.latitude,
-            location.elevation,
-            22.0,
-            1013.25,
-            None,
-            refraction,
-        )
-        .map_err(ZmanimError::AstronomicalCalculatorError)?;
-        let sea_level_calculator = AstronomicalCalculator::new(
-            localnoon,
-            None,
-            0.0,
-            location.longitude,
-            location.latitude,
-            0.0,
-            22.0,
-            1013.25,
-            None,
-            refraction,
-        )
-        .map_err(ZmanimError::AstronomicalCalculatorError)?;
-        let sea_level_calculator_no_refraction = AstronomicalCalculator::new(
-            localnoon,
-            None,
-            0.0,
-            location.longitude,
-            location.latitude,
-            0.0,
-            22.0,
-            1013.25,
-            None,
-            Refraction::NoRefraction,
-        )
-        .map_err(ZmanimError::AstronomicalCalculatorError)?;
+        validate_location(&location)?;
         Ok(Self {
             location,
             date,
             config,
-            elevation_adjusted_calculator,
-            sea_level_calculator,
-            sea_level_calculator_no_refraction,
         })
     }
 
@@ -120,38 +59,6 @@ impl ZmanimCalculator {
     /// clone independently (for example, one clone for sunrise and another for sunset).
     pub fn calculate(&mut self, zman: &impl ZmanLike) -> Result<Timestamp, ZmanimError> {
         zman.calculate(self)
-    }
-
-    fn local_noon(date: Date, location: &Location) -> Result<Timestamp, ZmanimError> {
-        // Preferred: convert 12:00:00 in the location's timezone to UTC.
-        if let Some(tz) = location.timezone.as_ref() {
-            let result = tz.to_ambiguous_timestamp(date.at(12, 0, 0, 0));
-            match result.offset() {
-                AmbiguousOffset::Unambiguous { .. } | AmbiguousOffset::Fold { .. } => {
-                    return result
-                        .earlier()
-                        .map_err(|_| ZmanimError::TimeConversionError);
-                }
-                // Noon falls inside a DST gap on this date; fall through to the longitude estimate.
-                AmbiguousOffset::Gap { .. } => {}
-            }
-        }
-
-        // Fallback: estimate UTC noon from longitude (4 min per degree).
-        // Not valid near the anti-meridian where the date itself is ambiguous.
-        if !Location::near_anti_meridian(location.longitude) {
-            let utc_noon = date
-                .at(12, 0, 0, 0)
-                .to_zoned(TimeZone::UTC)
-                .map_err(|_| ZmanimError::TimeConversionError)?
-                .timestamp();
-            let offset = SignedDuration::from_secs((location.longitude * 4.0 * 60.0) as i64);
-            return utc_noon
-                .checked_sub(offset)
-                .map_err(|_| ZmanimError::TimeConversionError);
-        }
-
-        Err(ZmanimError::LocalNoonError)
     }
 
     /// Converts local mean time (LMT) hours for a date/location into UTC.
@@ -203,45 +110,60 @@ impl ZmanimCalculator {
 
         Ok(utc)
     }
-    pub(crate) fn configured_calculator(&mut self) -> &mut AstronomicalCalculator {
+    pub(crate) fn configured_sunrise(&self) -> Result<Timestamp, ZmanimError> {
         if self.config.use_elevation {
-            &mut self.elevation_adjusted_calculator
+            self.elevation_adjusted_sunrise()
         } else {
-            &mut self.sea_level_calculator
+            self.sea_level_sunrise()
         }
     }
-    pub(crate) fn elevation_adjusted_sunrise(&mut self) -> Result<Timestamp, ZmanimError> {
-        self.elevation_adjusted_calculator
-            .get_sunrise()
-            .into_date_time_result()
+    pub(crate) fn configured_sunset(&self) -> Result<Timestamp, ZmanimError> {
+        if self.config.use_elevation {
+            self.elevation_adjusted_sunset()
+        } else {
+            self.sea_level_sunset()
+        }
     }
-    pub(crate) fn elevation_adjusted_sunset(&mut self) -> Result<Timestamp, ZmanimError> {
-        self.elevation_adjusted_calculator
-            .get_sunset()
-            .into_date_time_result()
+    pub(crate) fn elevation_adjusted_sunrise(&self) -> Result<Timestamp, ZmanimError> {
+        crate::astronomy::sunrise(self.date, &self.location, true)
     }
-    pub(crate) fn sea_level_sunrise(&mut self) -> Result<Timestamp, ZmanimError> {
-        self.sea_level_calculator
-            .get_sea_level_sunrise()
-            .into_date_time_result()
+    pub(crate) fn elevation_adjusted_sunset(&self) -> Result<Timestamp, ZmanimError> {
+        crate::astronomy::sunset(self.date, &self.location, true)
     }
-    pub(crate) fn sea_level_sunset(&mut self) -> Result<Timestamp, ZmanimError> {
-        self.sea_level_calculator
-            .get_sea_level_sunset()
-            .into_date_time_result()
+    pub(crate) fn sea_level_sunrise(&self) -> Result<Timestamp, ZmanimError> {
+        crate::astronomy::sunrise(self.date, &self.location, false)
     }
-    pub(crate) fn solar_transit(&mut self) -> Result<Timestamp, ZmanimError> {
-        // Solar transit calculations do not use elevation, so the calculator used here is irrelevant
-        self.elevation_adjusted_calculator
-            .get_solar_transit()
-            .into_date_time_result()
+    pub(crate) fn sea_level_sunset(&self) -> Result<Timestamp, ZmanimError> {
+        crate::astronomy::sunset(self.date, &self.location, false)
     }
-    pub(crate) fn solar_midnight(&mut self) -> Result<Timestamp, ZmanimError> {
-        // Solar midnight calculations do not use elevation, so the calculator used here is irrelevant
-        self.elevation_adjusted_calculator
-            .get_next_solar_midnight()
-            .into_date_time_result()
+    pub(crate) fn sunrise_offset_by_degrees(&self, degrees: f64) -> Result<Timestamp, ZmanimError> {
+        crate::astronomy::sunrise_offset_by_degrees(self.date, &self.location, degrees)
     }
+    pub(crate) fn sunset_offset_by_degrees(&self, degrees: f64) -> Result<Timestamp, ZmanimError> {
+        crate::astronomy::sunset_offset_by_degrees(self.date, &self.location, degrees)
+    }
+    pub(crate) fn solar_transit(&self) -> Result<Timestamp, ZmanimError> {
+        crate::astronomy::solar_noon(self.date, &self.location)
+    }
+    pub(crate) fn solar_midnight(&self) -> Result<Timestamp, ZmanimError> {
+        crate::astronomy::solar_midnight(self.date, &self.location)
+    }
+}
+
+fn validate_location(location: &Location) -> Result<(), ZmanimError> {
+    if location.timezone.is_none() && Location::near_anti_meridian(location.longitude) {
+        return Err(ZmanimError::TimeZoneRequired);
+    }
+    if location.longitude.abs() > 180.0 || location.longitude.is_nan() {
+        return Err(ZmanimError::InvalidLongitude);
+    }
+    if location.latitude.abs() > 90.0 || location.latitude.is_nan() {
+        return Err(ZmanimError::InvalidLatitude);
+    }
+    if location.elevation.is_nan() || location.elevation < 0.0 {
+        return Err(ZmanimError::InvalidElevation);
+    }
+    Ok(())
 }
 
 /// A value that can be calculated by a [`ZmanimCalculator`].
