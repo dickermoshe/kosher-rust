@@ -136,7 +136,7 @@ fn rise_set(
     )
 }
 
-fn adjusted_local_date(date: Date, location: &Location) -> Result<Date, ZmanimError> {
+pub(crate) fn adjusted_local_date(date: Date, location: &Location) -> Result<Date, ZmanimError> {
     let Some(timezone) = &location.timezone else {
         return Ok(date);
     };

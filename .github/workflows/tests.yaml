@@ -66,4 +66,6 @@ jobs:
         working-directory: crates/zmanim-calculator/java
         run: mvn --batch-mode "-Dmaven.javadoc.skip=true" package
       - name: Run tests
+        env:
+          ZMANIM_JAVA_PARITY_ITERATIONS: 10000
         run: cargo hack test --feature-powerset --exclude-features defmt

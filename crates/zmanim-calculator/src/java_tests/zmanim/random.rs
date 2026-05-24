@@ -13,7 +13,7 @@ static SHARED_TIMEZONES: OnceLock<HashSet<String>> = OnceLock::new();
 
 /// Generates one randomized input shared by the Java and Rust calculators.
 pub(super) fn random_test_case(rng: &mut StdRng, preset_name: &'static str) -> TestCase {
-    let max_latitude = policy::max_latitude_for_preset(preset_name);
+    let max_latitude = 90.0;
     let (year_start, year_end) = policy::random_year_range_for_preset(preset_name);
 
     for _ in 0..policy::MAX_TIMEZONE_ATTEMPTS {

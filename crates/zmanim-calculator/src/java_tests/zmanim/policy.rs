@@ -39,21 +39,10 @@ pub(super) fn test_seed() -> u64 {
     })
 }
 
-/// Maximum absolute latitude generated for randomized cases for one preset.
-pub(super) fn max_latitude_for_preset(preset_name: &str) -> f64 {
-    // Rust and Java now use the same NOAA model, so random coverage can reach
-    // higher latitudes. Chatzos-style events can go nearly pole-to-pole because
-    // they do not need a horizon crossing. Horizon-dependent zmanim stop short
-    // of the polar circles to keep random runs event-heavy while still covering
-    // slow high-latitude crossings.
-    match preset_name {
-        _ => 90.0,
-    }
-}
-
 /// Inclusive year range generated for randomized cases for one preset.
 pub(super) fn random_year_range_for_preset(preset_name: &str) -> (i32, i32) {
     match preset_name {
+        // Limit the year range to avoid timezone implementation differences.
         "getSofZmanKidushLevana15Days"
         | "getSofZmanKidushLevanaBetweenMoldos"
         | "getTchilasZmanKidushLevana3Days"

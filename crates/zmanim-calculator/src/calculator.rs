@@ -82,31 +82,18 @@ impl ZmanimCalculator {
             return Err(ZmanimError::InvalidHours);
         }
 
-        let midnight = date.at(0, 0, 0, 0);
+        let adjusted_date = crate::astronomy::adjusted_local_date(date, location)?;
+        let midnight = adjusted_date.at(0, 0, 0, 0);
         let lmt_nanos = (hours * 3600.0 * 1_000_000_000.0).round() as i64;
         let offset_nanos = (location.longitude * 240.0 * 1_000_000_000.0).round() as i64;
         let lmt_dt = midnight
             .checked_add(SignedDuration::from_nanos(lmt_nanos))
             .and_then(|dt| dt.checked_sub(SignedDuration::from_nanos(offset_nanos)))
             .map_err(|_| ZmanimError::TimeConversionError)?;
-        let mut utc = lmt_dt
+        let utc = lmt_dt
             .to_zoned(TimeZone::UTC)
             .map_err(|_| ZmanimError::TimeConversionError)?
             .timestamp();
-
-        if let Some(timezone) = &location.timezone {
-            for _ in 0..4 {
-                let local_date = utc.to_zoned(timezone.clone()).date();
-                if local_date == date {
-                    break;
-                }
-                if local_date > date {
-                    utc -= SignedDuration::from_hours(24);
-                } else {
-                    utc += SignedDuration::from_hours(24);
-                }
-            }
-        }
 
         Ok(utc)
     }
