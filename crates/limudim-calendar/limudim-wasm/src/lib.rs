@@ -228,7 +228,7 @@ pub fn mishna_yomis(year: i32, month: u8, day: u8) -> JsValue {
         None => return JsValue::NULL,
     };
 
-    let result = date.limud(MishnaYomis::default());
+    let result = date.limud(MishnaYomis);
     match result {
         Some(mishnas) => {
             let serializable: SerializableMishnas = mishnas.into();
@@ -264,7 +264,7 @@ pub fn tehillim_monthly(year: i32, month: u8, day: u8) -> JsValue {
         None => return JsValue::NULL,
     };
 
-    let result = date.limud(TehillimMonthly::default());
+    let result = date.limud(TehillimMonthly);
     match result {
         Some(unit) => {
             let serializable: SerializableTehillimUnit = unit.into();
