@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "astronomical-calculator"
-version = "0.5.2"
+version = "0.6.0"
 dependencies = [
  "arbitrary",
  "core_maths",
@@ -731,7 +731,7 @@ checksum = "841d1cc9bed7f9236f321df977030373f4a4163ae1a7dbfe1a51a2c1a51d9100"
 
 [[package]]
 name = "hebrew_holiday_calendar"
-version = "0.5.2"
+version = "0.6.0"
 dependencies = [
  "defmt",
  "icu_calendar",
@@ -1080,7 +1080,7 @@ checksum = "b6d2cec3eae94f9f509c767b45932f1ada8350c4bdb85af2fcab4a3c14807981"
 
 [[package]]
 name = "limudim-calendar"
-version = "0.5.2"
+version = "0.6.0"
 dependencies = [
  "defmt",
  "hebrew_holiday_calendar",
@@ -2339,7 +2339,7 @@ checksum = "3be3d40e40a133f9c916ee3f9f4fa2d9d63435b5fbe1bfc6d9dae0aa0ada1513"
 
 [[package]]
 name = "zmanim-calculator"
-version = "0.5.2"
+version = "0.6.0"
 dependencies = [
  "astronomical-calculator",
  "core_maths",

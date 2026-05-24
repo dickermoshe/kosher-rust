@@ -69,6 +69,12 @@ Then run the Rust tests. Cargo regenerates the JNI bindings via `build.rs`:
 cargo test
 ```
 
+To pull in the latest changes from KosherJava, run:
+```bash
+git subtree pull  --prefix=crates/zmanim-calculator/java https://github.com/KosherJava/zmanim master  --squash
+```
+
+
 ## License
 
 Licensed under LGPL-2.1. See [LICENSE](LICENSE) for details.
