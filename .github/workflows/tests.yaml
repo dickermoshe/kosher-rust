@@ -41,7 +41,7 @@ jobs:
           RUSTDOCFLAGS: -D warnings
 
   check:
-    name: Check (${{ matrix.name }})
+    name: Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
         run: cargo hack check --feature-powerset --no-dev-deps
 
   test:
-    name: Test (${{ matrix.name }})
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
