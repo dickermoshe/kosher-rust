@@ -12,11 +12,11 @@ exclude = ["limudim-wasm"]
 
 [features]
 default = []
-defmt = ["dep:defmt", "hebrew_holiday_calendar/defmt"]
+defmt = ["dep:defmt", "hebrew-holiday-calendar/defmt"]
 
 [dependencies]
 defmt = { workspace = true, optional = true }
-hebrew_holiday_calendar.workspace = true
+hebrew-holiday-calendar.workspace = true
 icu_calendar.workspace = true
 
 [lints]

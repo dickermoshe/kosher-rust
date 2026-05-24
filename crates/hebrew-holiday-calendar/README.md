@@ -4,13 +4,13 @@
 
 A Rust library for working with the Hebrew calendar, including holidays, Torah readings (parshiyot), molad, and calendar calculations. Supports `no_std` environments.
 
-[![Crates.io](https://img.shields.io/crates/v/hebrew_holiday_calendar.svg)](https://crates.io/crates/hebrew_holiday_calendar)
-[![Documentation](https://docs.rs/hebrew_holiday_calendar/badge.svg)](https://docs.rs/hebrew_holiday_calendar)
+[![Crates.io](https://img.shields.io/crates/v/hebrew-holiday-calendar.svg)](https://crates.io/crates/hebrew-holiday-calendar)
+[![Documentation](https://docs.rs/hebrew-holiday-calendar/badge.svg)](https://docs.rs/hebrew-holiday-calendar)
 
 ## Installation
 
 ```bash
-cargo add hebrew_holiday_calendar icu_calendar
+cargo add hebrew-holiday-calendar icu_calendar
 ```
 
 ## Usage
@@ -47,9 +47,9 @@ if let Some(parsha) = date.todays_parsha(false) {
 This crate has its own unit tests, and additional calendar parity coverage lives in the
 [`zmanim-calculator`](../zmanim-calculator/) crate.
 
-Run the local `hebrew_holiday_calendar` tests with:
+Run the local `hebrew-holiday-calendar` tests with:
 ```bash
-cargo test -p hebrew_holiday_calendar
+cargo test -p hebrew-holiday-calendar
 ```
 
 Run the broader `zmanim-calculator` test suite, including KosherJava parity tests for this

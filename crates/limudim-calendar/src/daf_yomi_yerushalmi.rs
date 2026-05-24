@@ -210,7 +210,7 @@ mod tests {
     #[test]
     fn daf_yomi_yerushalmi_last_skip_day() {
         // JewishDate(5778, 7, 10) is Tishrei 10 (Yom Kippur) - a skip day
-        let test_date = Date::<Hebrew>::from_hebrew_date(5778, hebrew_holiday_calendar::HebrewMonth::Tishrei, 10)
+        let test_date = Date::<Hebrew>::from_hebrew_date(5778, hebrew-holiday-calendar::HebrewMonth::Tishrei, 10)
             .expect("valid hebrew date");
         let limud = DafYomiYerushalmiVilna::default().limud(test_date);
 

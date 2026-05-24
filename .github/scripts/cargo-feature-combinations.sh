@@ -26,7 +26,7 @@ check_package() {
 
 standard_packages=(
   astronomical-calculator
-  hebrew_holiday_calendar
+  hebrew-holiday-calendar
   limudim-calendar
 )
 
