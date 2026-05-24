@@ -263,7 +263,7 @@ impl AstronomicalCalculator {
     /// // Paris: 48.8566°N, 2.3522°E
     /// let mut calc = AstronomicalCalculator::new(
     ///     ts,
-    ///     Some(get_delta_t(&dt)),     // Calculate ΔT automatically
+    ///     Some(get_delta_t(&ts)),     // Calculate ΔT automatically
     ///     0.0,                         // ΔUT1 (use 0.0 if unknown)
     ///     2.3522,                      // longitude
     ///     48.8566,                     // latitude
