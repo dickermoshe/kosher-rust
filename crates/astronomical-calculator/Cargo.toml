@@ -34,11 +34,5 @@ sunrise = "3.0.0"
 serde_json.workspace = true
 rand.workspace = true
 
-[lints.clippy]
-unwrap_used = "deny"
-expect_used = "deny"
-panic = "deny"
-excessive_precision = "allow"
-
-[lints.rust]
-missing_docs = "warn"
+[lints]
+workspace = true
