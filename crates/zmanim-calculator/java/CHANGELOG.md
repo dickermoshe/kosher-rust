@@ -23,6 +23,8 @@
     * `isMashivHaruachRecited()` - use `TefilaRules.isMashivHaruachRecited()`
     * `isMoridHatalRecited()` - use `TefilaRules.isMoridHatalRecited()`
 * Remove deprecated redundant [GeoLocationUtils](https://github.com/KosherJava/zmanim/blob/master/src/main/java/com/kosherjava/zmanim/util/GeoLocationUtils.java). Use the GeoLocation class instead.
+* Remove the com.kosherjava.util.Time class. Now that Sha'os zmaniyos use the java.time.Duration class, this was obsolete.
+* UTF-8 is here. A number of clases have Hebrew in the documentation and code (especially the HebrewDateFormatter class).
 * Move some methods from `ComprehensiveZmanimCalendar` to the parent `ZaminCalendar` classes.
   * `getShaahZmanis72Minutes()`
   * `getAlos16Point1Degrees()`
@@ -102,11 +104,13 @@
   * [Fix `getAlos60()` to use `getElevationAdjustedSunrise()`](https://github.com/KosherJava/zmanim/commit/f5a5b2c68e1f0e2f9f4fbdd2cc585085f2914b74)
   * Update Tefila method to Use [Consistent Spelling](https://github.com/KosherJava/zmanim/commit/bca6ddb85542683f229d905636a06fbfc66fbe03).
   * Add [`getSunsetOrWesternmostSolarAzimuth()` and `getSunriseOrEasternmostSolarAzimuth()`](https://github.com/KosherJava/zmanim/commit/ab9a903e94c33d31f1ce006a6102cdfa259786ad) methods.
+* `zmanimFormatter now formats `Duration`s and removed support for formatting longs and Time.
 * `HebrewdateFormatter`
   * add method [`formatParsha(JewishCalendar.Parsha parsha)`](https://github.com/KosherJava/zmanim/commit/ee3347b04bf0f4221bc8aa71af59437cd7533f72) to allow formatting of a parsha retrieved from `JewishCalendar.getUpcomingParshah()`.
   * Add `getHebrewMonthList()` and `setHebrewMonthList(String[])`. This allows overriding the default month of Chesvan to Marcheshvan etc.
   * Throw an `IllegalArgumentException` if the array length of months != 14
   * Remove the experimental and private `formatMolad(long moladChalakim)`
+  * Fixed a bug that ignored the leading 0 format.
   * [Fix NullPointer in HebrewDateFormatter week formatting](https://github.com/KosherJava/zmanim/commit/6cef302f4ac815941c1f61765f2749d698f86042)
 * `TefilaRules`
   * [add `isMizmorLesodaRecited()`](https://github.com/KosherJava/zmanim/commit/2cde42644dc72a49b3e4228244bc79cc276e138e)
@@ -114,11 +118,14 @@
 * `JewishCalendar`
   * [`isYomTov()` now returns true for 20 Nissan](https://github.com/KosherJava/zmanim/commit/4e5abe6e98d5404f41da519f2f902b3af1e58e30)
   * [add missing brace to `isYomTov()` and simplify logic](https://github.com/KosherJava/zmanim/commit/e34fc879313b045f35e70b5947e2c2e20a4364c5)
+* `JewishCalendar
+  * `getDaysInJewishMonth(int,int)` and `getLastDayOfGregorianMonth(int,int)` now have parameter order as year, month (it had been month, year).
+  * `isJewishLeapYear(int)` is now public.
 * `GeoLocation` - [add NaN validation to `setLatitude` and `setLongitude`](https://github.com/KosherJava/zmanim/commit/d064715ebeaead29a01ec673f3885ee9bd9c78b4)
 * `NOAACalculator` - [fix Solar Azimuth and Elevation](https://github.com/KosherJava/zmanim/commit/860f1939c25b38dd4d23adb1772b12ccbc71fc76)
 * `AstronomicalCalculator` Add some methods
-  * `getSolarAzimuth()`
-  * `getSolarElevation()`
+  * `getSolarAzimuth((Instant, GeoLocation)` - the first parameter was a ZonedDateTime earlier in the rewrite
+  * `getSolarElevation(Instant, GeoLocation)` - the first parameter was a ZonedDateTime earlier in the rewrite
   * `getTimeAtAzimuth()`
 * `AstronomicalCalendar`
   * [Fix null handling in `getSunTransit(Date,Date)`](https://github.com/KosherJava/zmanim/commit/8221e2895cbab62b037c16de1711f9faacd78a7b)
@@ -128,6 +135,7 @@
   * [Move `getSolarMidnight()`](https://github.com/KosherJava/zmanim/commit/a4535717353eb77da10b6951e4a627b10258ac9e) to the  parent class where it belongs.
   * [Correct USNO noon calculation](https://github.com/KosherJava/zmanim/commit/3735c92289a66039b24d7e2b470955b5297f0ca5) in some locations where it was sometimes 12 hours off.
   * [Add `getTimeAtAzimuth(double azimuth)`](https://github.com/KosherJava/zmanim/commit/05a3bc3cdb2dbc88ffca89be0828f50abf62969f)
+  * All sha'os zmaniyos that had returned long (and a Long.MIN_VALUE when N/A) now return java.time.Duration (and a null when N/A)
 
 ## [2.5.0](https://github.com/KosherJava/zmanim/compare/2.4.0...2.5.0) (2023-06-09)
 
