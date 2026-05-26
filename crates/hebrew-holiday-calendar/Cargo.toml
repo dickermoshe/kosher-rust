@@ -19,11 +19,5 @@ defmt = { workspace = true, optional = true }
 num_enum.workspace = true
 icu_calendar.workspace = true
 
-[dev-dependencies]
-lazy_static.workspace = true
-rand.workspace = true
-tinystr.workspace = true
-j4rs.workspace = true
-
 [lints]
 workspace = true

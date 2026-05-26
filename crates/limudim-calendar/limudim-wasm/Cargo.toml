@@ -9,10 +9,6 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 limudim-calendar.workspace = true
 wasm-bindgen = "0.2"
-serde.workspace = true
-serde_json.workspace = true
+serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.6"
 icu_calendar.workspace = true
-
-[dev-dependencies]
-wasm-bindgen-test = "0.3"

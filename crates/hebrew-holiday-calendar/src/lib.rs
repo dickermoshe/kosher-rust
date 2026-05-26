@@ -187,6 +187,21 @@ pub trait HebrewHolidayCalendar {
         let hebrew_date = hebrew_date.ok()?;
         Some(hebrew_date)
     }
+
+    /// Returns whether the given holiday occurs on this date.
+    ///
+    /// # Arguments
+    ///
+    /// * `holiday` - The holiday to check for
+    /// * `in_israel` - Whether to use Israeli customs (affects second day observances)
+    ///
+    /// # Returns
+    ///
+    /// * `true` if the holiday occurs on this date, `false` otherwise
+    fn is_holiday(&self, holiday: Holiday, in_israel: bool) -> bool {
+        self.holidays(in_israel, holiday.is_modern_holiday())
+            .any(|i| *i == holiday)
+    }
 }
 
 fn get_parsha_list(&date: &Date<Hebrew>, in_israel: bool) -> Option<ParshaList> {

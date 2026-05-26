@@ -20,7 +20,7 @@ jobs:
       - run: cargo fmt --all -- --check
 
   clippy:
-    name: Clippy (${{ matrix.name }})
+    name: Clippy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
