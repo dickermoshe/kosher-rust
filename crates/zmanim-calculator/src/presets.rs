@@ -19,12 +19,10 @@ mod java {
     //! These callbacks intentionally return a raw Java `Instant` object instead of
     //! `Timestamp` so the test harness can share one conversion path for all
     //! Java calendar methods.
-
     use crate::java_bindings::com::kosherjava::zmanim::{
         AstronomicalCalendar, ComprehensiveZmanimCalendar, ZmanimCalendar,
     };
     use jni::objects::JObject;
-
     #[derive(Debug, Clone)]
     /// Type-safe Java method dispatch target for a preset.
     ///
@@ -63,7 +61,6 @@ mod java {
             >,
         ),
     }
-
     impl JavaCalc {
         pub fn call<'env_local, 'calendar_local, 'borrow>(
             &self,
@@ -148,12 +145,10 @@ macro_rules! define_presets {
                 calc: $java_calc,
             };
         )+
-
-        /// An array of all the presets.
+    /// An array of all the presets.
         #[allow(deprecated)]
         pub static ALL: [&ZmanPreset<'static>; count_presets!($($name),+)] = [$(&$name),+];
-
-        #[cfg(test)]
+    #[cfg(test)]
         #[allow(deprecated)]
         #[allow(non_snake_case)]
         mod java_parity_tests {
@@ -164,13 +159,11 @@ macro_rules! define_presets {
                     fn standard() -> Result<(), Box<dyn std::error::Error>> {
                         crate::java_tests::zmanim::test_preset_in_jerusalem(&super::super::$name)
                     }
-
-                    #[test]
+                #[test]
                     fn regressions() {
                         crate::java_tests::zmanim::test_regressions(&super::super::$name);
                     }
-
-                    #[test]
+                #[test]
                     fn random() -> Result<(), Box<dyn std::error::Error>> {
                         crate::java_tests::zmanim::test_preset(&super::super::$name)
                     }
@@ -182,8 +175,7 @@ macro_rules! define_presets {
 
 define_presets! {
     /// Sunset (elevation-adjusted).
-
-    ELEVATION_ADJUSTED_SUNRISE {
+ELEVATION_ADJUSTED_SUNRISE {
         event: ZmanPrimitive::ElevationAdjustedSunrise,
         name: "getSunriseWithElevation",
         java: JavaCalc::AstronomicalCalendar(|env, calendar| {
@@ -191,8 +183,7 @@ define_presets! {
         }),
     },
     /// Sunrise at sea level (elevation `0m`).
-
-    SEA_LEVEL_SUNRISE {
+SEA_LEVEL_SUNRISE {
         event: ZmanPrimitive::SeaLevelSunrise,
         name: "getSeaLevelSunrise",
         java: JavaCalc::AstronomicalCalendar(|env, calendar| {
@@ -200,8 +191,7 @@ define_presets! {
         }),
     },
     /// Sunset (elevation-adjusted).
-
-    ELEVATION_ADJUSTED_SUNSET {
+ELEVATION_ADJUSTED_SUNSET {
         event: ZmanPrimitive::ElevationAdjustedSunset,
         name: "getSunsetWithElevation",
         java: JavaCalc::AstronomicalCalendar(|env, calendar| {
@@ -209,8 +199,7 @@ define_presets! {
         }),
     },
     /// Sunset at sea level (elevation `0m`).
-
-    SEA_LEVEL_SUNSET {
+SEA_LEVEL_SUNSET {
         event: ZmanPrimitive::SeaLevelSunset,
         name: "getSeaLevelSunset",
         java: JavaCalc::AstronomicalCalendar(|env, calendar| {
@@ -218,8 +207,7 @@ define_presets! {
         }),
     },
     /// *Alos* as a fixed `60` minutes before sunrise.
-
-    ALOS_60_MINUTES {
+ALOS_60_MINUTES {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-60)),
         name: "getAlos60Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -227,8 +215,7 @@ define_presets! {
         }),
     },
     /// *Alos* as a fixed `72` minutes before sunrise.
-
-    ALOS_72_MINUTES {
+ALOS_72_MINUTES {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
         name: "getAlos72Minutes",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
@@ -236,8 +223,7 @@ define_presets! {
         }),
     },
     /// *Alos* as `72 zmaniyos` minutes before sunrise (1.2 *shaos zmaniyos*).
-
-    ALOS_72_ZMANIS {
+ALOS_72_ZMANIS {
         event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
         name: "getAlos72Zmanis",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -245,7 +231,6 @@ define_presets! {
         }),
     },
     /// *Alos* as a fixed `90` minutes before sunrise.
-
     ALOS_90_MINUTES {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)),
         name: "getAlos90Minutes",
@@ -254,7 +239,6 @@ define_presets! {
         }),
     },
     /// *Alos* as `90 zmaniyos` minutes before sunrise (1.5 *shaos zmaniyos*).
-
     ALOS_90_ZMANIS {
         event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.5),
         name: "getAlos90Zmanis",
@@ -263,8 +247,7 @@ define_presets! {
         }),
     },
     /// *Alos* as a fixed `96` minutes before sunrise.
-
-    ALOS_96_MINUTES {
+ALOS_96_MINUTES {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)),
         name: "getAlos96Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -272,8 +255,7 @@ define_presets! {
         }),
     },
     /// *Alos* as `96 zmaniyos` minutes before sunrise (1.6 *shaos zmaniyos*).
-
-    ALOS_96_ZMANIS {
+ALOS_96_ZMANIS {
         event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.6),
         name: "getAlos96Zmanis",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -281,8 +263,7 @@ define_presets! {
         }),
     },
     /// *Alos* as a fixed `120` minutes before sunrise.
-
-    #[deprecated]
+#[deprecated]
     ALOS_120_MINUTES {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)),
         name: "getAlos120Minutes",
@@ -291,8 +272,7 @@ define_presets! {
         }),
     },
     /// *Alos* as `120 zmaniyos` minutes before sunrise (2.0 *shaos zmaniyos*).
-
-    #[deprecated]
+#[deprecated]
     ALOS_120_ZMANIS {
         event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -2.0),
         name: "getAlos120Zmanis",
@@ -301,8 +281,7 @@ define_presets! {
         }),
     },
     /// *Alos* when the sun is `16.1°` below the geometric horizon (degrees-below-horizon dawn).
-
-    ALOS_16_POINT_1_DEGREES {
+ALOS_16_POINT_1_DEGREES {
         event: ZmanPrimitive::SunriseOffsetByDegrees(16.1),
         name: "getAlos16Point1Degrees",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
@@ -310,8 +289,7 @@ define_presets! {
         }),
     },
     /// *Alos* when the sun is `18°` below the geometric horizon (degrees-below-horizon dawn).
-
-    ALOS_18_DEGREES {
+ALOS_18_DEGREES {
         event: ZmanPrimitive::SunriseOffsetByDegrees(18.0),
         name: "getAlos18Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -319,8 +297,7 @@ define_presets! {
         }),
     },
     /// *Alos* when the sun is `19°` below the geometric horizon (degrees-below-horizon dawn).
-
-    ALOS_19_DEGREES {
+ALOS_19_DEGREES {
         event: ZmanPrimitive::SunriseOffsetByDegrees(19.0),
         name: "getAlos19Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -328,8 +305,7 @@ define_presets! {
         }),
     },
     /// *Alos* when the sun is `19.8°` below the geometric horizon (degrees-below-horizon dawn).
-
-    ALOS_19_POINT_8_DEGREES {
+ALOS_19_POINT_8_DEGREES {
         event: ZmanPrimitive::SunriseOffsetByDegrees(19.8),
         name: "getAlos19Point8Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -337,8 +313,7 @@ define_presets! {
         }),
     },
     /// *Alos* when the sun is `26°` below the geometric horizon (degrees-below-horizon dawn).
-
-    #[deprecated]
+#[deprecated]
     ALOS_26_DEGREES {
         event: ZmanPrimitive::SunriseOffsetByDegrees(26.0),
         name: "getAlos26Degrees",
@@ -347,8 +322,7 @@ define_presets! {
         }),
     },
     /// *Alos* when the sun is `16.9°` below the geometric horizon (degrees-below-horizon dawn).
-
-    ALOS_BAAL_HATANYA {
+ALOS_BAAL_HATANYA {
         event: ZmanPrimitive::SunriseOffsetByDegrees(16.9),
         name: "getAlosBaalHatanya",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -356,8 +330,7 @@ define_presets! {
         }),
     },
     /// Bain hashmashos (Rabbeinu Tam): when the sun is `13.24°` below the geometric horizon (after sunset).
-
-    BAIN_HASHMASHOS_RT_13_POINT_24_DEGREES {
+BAIN_HASHMASHOS_RT_13_POINT_24_DEGREES {
         event: ZmanPrimitive::SunsetOffsetByDegrees(13.24),
         name: "getBainHashmashosRT13Point24Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -365,8 +338,7 @@ define_presets! {
         }),
     },
     /// Bain hashmashos (Rabbeinu Tam): `58.5` minutes after sunset.
-
-    BAIN_HASHMASHOS_RT_58_POINT_5_MINUTES {
+BAIN_HASHMASHOS_RT_58_POINT_5_MINUTES {
         event: ZmanPrimitive::Offset(
         &ZmanPrimitive::ConfiguredSunset,
         Duration::from_millis((58.5 * 60.0 * 1000.0) as i64),
@@ -377,8 +349,7 @@ define_presets! {
         }),
     },
     /// Bain hashmashos (Rabbeinu Tam): `13.5` minutes before when the sun will be `7.083°` below the geometric horizon.
-
-    BAIN_HASHMASHOS_RT_13_POINT_5_MINUTES_BEFORE_7_POINT_083_DEGREES {
+BAIN_HASHMASHOS_RT_13_POINT_5_MINUTES_BEFORE_7_POINT_083_DEGREES {
         event: ZmanPrimitive::Offset(
             &ZmanPrimitive::SunsetOffsetByDegrees(7.0 + (5.0 / 60.0)),
             Duration::from_millis((-13.5 * 60.0 * 1000.0) as i64),
@@ -389,8 +360,7 @@ define_presets! {
         }),
     },
     /// Bain hashmashos (Rabbeinu Tam, 2-stars): `sunset + (sunrise - alos19.8°) * 5/18`.
-
-    BAIN_HASHMASHOS_RT_2_STARS {
+BAIN_HASHMASHOS_RT_2_STARS {
         event: ZmanPrimitive::BainHashmashosRt2Stars,
         name: "getBainHashmashosRT2Stars",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -398,8 +368,7 @@ define_presets! {
         }),
     },
     /// Bain hashmashos (Yereim): `18` minutes before sunset.
-
-    BAIN_HASHMASHOS_YEREIM_18_MINUTES {
+BAIN_HASHMASHOS_YEREIM_18_MINUTES {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(-18)),
         name: "getBainHashmashosYereim18Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -407,8 +376,7 @@ define_presets! {
         }),
     },
     /// Bain hashmashos (Yereim): `16.875` minutes before sunset.
-
-    BAIN_HASHMASHOS_YEREIM_16_POINT_875_MINUTES {
+BAIN_HASHMASHOS_YEREIM_16_POINT_875_MINUTES {
         event: ZmanPrimitive::Offset(
         &ZmanPrimitive::ConfiguredSunset,
         Duration::from_millis((-16.875 * 60.0 * 1000.0) as i64),
@@ -419,8 +387,7 @@ define_presets! {
         }),
     },
     /// Bain hashmashos (Yereim): `13.5` minutes before sunset.
-
-    BAIN_HASHMASHOS_YEREIM_13_POINT_5_MINUTES {
+BAIN_HASHMASHOS_YEREIM_13_POINT_5_MINUTES {
         event: ZmanPrimitive::Offset(
         &ZmanPrimitive::ConfiguredSunset,
         Duration::from_millis((-13.5 * 60.0 * 1000.0) as i64),
@@ -431,8 +398,7 @@ define_presets! {
         }),
     },
     /// Bain hashmashos (Yereim): when the sun is `2.1°` above the geometric horizon before sunset.
-
-    BAIN_HASHMASHOS_YEREIM_2_POINT_1_DEGREES {
+BAIN_HASHMASHOS_YEREIM_2_POINT_1_DEGREES {
         event: ZmanPrimitive::SunsetOffsetByDegrees(-2.1),
         name: "getBainHashmashosYereim2Point1Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -440,8 +406,7 @@ define_presets! {
         }),
     },
     /// Bain hashmashos (Yereim): when the sun is `2.8°` above the geometric horizon before sunset.
-
-    BAIN_HASHMASHOS_YEREIM_2_POINT_8_DEGREES {
+BAIN_HASHMASHOS_YEREIM_2_POINT_8_DEGREES {
         event: ZmanPrimitive::SunsetOffsetByDegrees(-2.8),
         name: "getBainHashmashosYereim2Point8Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -449,8 +414,7 @@ define_presets! {
         }),
     },
     /// Bain hashmashos (Yereim): when the sun is `3.05°` above the geometric horizon before sunset.
-
-    BAIN_HASHMASHOS_YEREIM_3_POINT_05_DEGREES {
+BAIN_HASHMASHOS_YEREIM_3_POINT_05_DEGREES {
         event: ZmanPrimitive::SunsetOffsetByDegrees(-3.05),
         name: "getBainHashmashosYereim3Point05Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -458,8 +422,7 @@ define_presets! {
         }),
     },
     /// Candle lighting: sea-level sunset minus [`crate::types::config::CalculatorConfig::candle_lighting_offset`].
-
-    CANDLE_LIGHTING {
+CANDLE_LIGHTING {
         event: ZmanPrimitive::CandleLighting,
         name: "getCandleLighting",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
@@ -467,8 +430,7 @@ define_presets! {
         }),
     },
     /// Chatzos (astronomical noon): solar transit.
-
-    CHATZOS_HAYOM_ASTRONOMICAL {
+CHATZOS_HAYOM_ASTRONOMICAL {
         event: ZmanPrimitive::SolarTransit,
         name: "getChatzosHayom",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
@@ -476,8 +438,7 @@ define_presets! {
         }),
     },
     /// Chatzos halayla (astronomical midnight): solar anti-transit.
-
-    CHATZOS_HALAYLA_ASTRONOMICAL {
+CHATZOS_HALAYLA_ASTRONOMICAL {
         event: ZmanPrimitive::SolarMidnight,
         name: "getChatzosHalayla",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
@@ -485,8 +446,7 @@ define_presets! {
         }),
     },
     /// Chatzos (half-day): midpoint between sea-level sunrise and sea-level sunset.
-
-    CHATZOS_HAYOM_HALF_DAY {
+CHATZOS_HAYOM_HALF_DAY {
         event: ZmanPrimitive::HalfDayBasedOffset(
         &ZmanPrimitive::SeaLevelSunrise,
         &ZmanPrimitive::SeaLevelSunset,
@@ -498,8 +458,7 @@ define_presets! {
         }),
     },
     /// Chatzos (fixed local): 12:00 local mean time.
-
-    CHATZOS_HAYOM_FIXED_LOCAL {
+CHATZOS_HAYOM_FIXED_LOCAL {
         event: ZmanPrimitive::LocalMeanTime(12.0),
         name: "getFixedLocalChatzosHayom",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -507,8 +466,7 @@ define_presets! {
         }),
     },
     /// Mincha gedola: `6.5` shaos after sunrise (or `0.5` shaah after chatzos if configured).
-
-    MINCHA_GEDOLA_SUNRISE_SUNSET {
+MINCHA_GEDOLA_SUNRISE_SUNSET {
         event: ZmanPrimitive::MinchaGedola(
         &ZmanPrimitive::ConfiguredSunrise,
         &ZmanPrimitive::ConfiguredSunset,
@@ -520,8 +478,7 @@ define_presets! {
         }),
     },
     /// Mincha gedola: `6.5` shaos after alos `16.1°` (or `0.5` shaah after chatzos if configured).
-
-    MINCHA_GEDOLA_16_POINT_1_DEGREES {
+MINCHA_GEDOLA_16_POINT_1_DEGREES {
         event: ZmanPrimitive::MinchaGedola(
         &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
         &ZmanPrimitive::SunsetOffsetByDegrees(16.1),
@@ -533,8 +490,7 @@ define_presets! {
         }),
     },
     /// Mincha gedola: `30` minutes after solar transit.
-
-    MINCHA_GEDOLA_MINUTES_30 {
+MINCHA_GEDOLA_MINUTES_30 {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::from_mins(30)),
         name: "getMinchaGedola30Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -542,8 +498,7 @@ define_presets! {
         }),
     },
     /// Mincha gedola: `6.5` shaos after alos `72` minutes (or `0.5` shaah after chatzos if configured).
-
-    MINCHA_GEDOLA_MINUTES_72 {
+MINCHA_GEDOLA_MINUTES_72 {
         event: ZmanPrimitive::MinchaGedola(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
@@ -555,8 +510,7 @@ define_presets! {
         }),
     },
     /// Mincha gedola (Ahavat Shalom): later of `chatzos + 30m` and `chatzos + 1/2 shaah`.
-
-    MINCHA_GEDOLA_AHAVAT_SHALOM {
+MINCHA_GEDOLA_AHAVAT_SHALOM {
         event: ZmanPrimitive::MinchaGedolaAhavatShalom,
         name: "getMinchaGedolaAhavatShalom",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -564,8 +518,7 @@ define_presets! {
         }),
     },
     /// Mincha gedola: `6.5` shaos zmaniyos after alos `72 zmaniyos` (day end = Ateret Torah tzais).
-
-    MINCHA_GEDOLA_ATERET_TORAH {
+MINCHA_GEDOLA_ATERET_TORAH {
         event: ZmanPrimitive::MinchaGedola(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
         &ZmanPrimitive::TzaisAteretTorah,
@@ -577,8 +530,7 @@ define_presets! {
         }),
     },
     /// Mincha gedola: `6.5` shaos after Baal HaTanya day start (or `0.5` shaah after chatzos if configured).
-
-    MINCHA_GEDOLA_BAAL_HATANYA {
+MINCHA_GEDOLA_BAAL_HATANYA {
         event: ZmanPrimitive::MinchaGedola(
         &ZmanPrimitive::SunriseOffsetByDegrees(1.583),
         &ZmanPrimitive::SunsetOffsetByDegrees(1.583),
@@ -590,8 +542,7 @@ define_presets! {
         }),
     },
     /// Mincha gedola: `30` minutes after fixed local chatzos (12:00 local mean time).
-
-    MINCHA_GEDOLA_GRA_FIXED_LOCAL_CHATZOS_30_MINUTES {
+MINCHA_GEDOLA_GRA_FIXED_LOCAL_CHATZOS_30_MINUTES {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::LocalMeanTime(12.0), Duration::from_mins(30)),
         name: "getMinchaGedolaGRAFixedLocalChatzos30Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -599,8 +550,7 @@ define_presets! {
         }),
     },
     /// Mincha ketana: `9.5` shaos after sunrise (or `3.5` shaos after chatzos if configured).
-
-    MINCHA_KETANA_SUNRISE_SUNSET {
+MINCHA_KETANA_SUNRISE_SUNSET {
         event: ZmanPrimitive::MinchaKetana(
         &ZmanPrimitive::ConfiguredSunrise,
         &ZmanPrimitive::ConfiguredSunset,
@@ -612,8 +562,7 @@ define_presets! {
         }),
     },
     /// Mincha ketana: `9.5` shaos after alos `16.1°` (or `3.5` shaos after chatzos if configured).
-
-    MINCHA_KETANA_16_POINT_1_DEGREES {
+MINCHA_KETANA_16_POINT_1_DEGREES {
         event: ZmanPrimitive::MinchaKetana(
         &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
         &ZmanPrimitive::SunsetOffsetByDegrees(16.1),
@@ -625,8 +574,7 @@ define_presets! {
         }),
     },
     /// Mincha ketana: `9.5` shaos after alos `72` minutes (or `3.5` shaos after chatzos if configured).
-
-    MINCHA_KETANA_MINUTES_72 {
+MINCHA_KETANA_MINUTES_72 {
         event: ZmanPrimitive::MinchaKetana(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
@@ -638,8 +586,7 @@ define_presets! {
         }),
     },
     /// Mincha ketana (Ahavat Shalom): `2.5` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
-
-    MINCHA_KETANA_AHAVAT_SHALOM {
+MINCHA_KETANA_AHAVAT_SHALOM {
         event: ZmanPrimitive::MinchaKetanaAhavatShalom,
         name: "getMinchaKetanaAhavatShalom",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -647,8 +594,7 @@ define_presets! {
         }),
     },
     /// Mincha ketana: `9.5` shaos zmaniyos after alos `72 zmaniyos` (day end = Ateret Torah tzais).
-
-    MINCHA_KETANA_ATERET_TORAH {
+MINCHA_KETANA_ATERET_TORAH {
         event: ZmanPrimitive::MinchaKetana(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
         &ZmanPrimitive::TzaisAteretTorah,
@@ -660,8 +606,7 @@ define_presets! {
         }),
     },
     /// Mincha ketana: `9.5` shaos after Baal HaTanya day start (or `3.5` shaos after chatzos if configured).
-
-    MINCHA_KETANA_BAAL_HATANYA {
+MINCHA_KETANA_BAAL_HATANYA {
         event: ZmanPrimitive::MinchaKetana(
         &ZmanPrimitive::SunriseOffsetByDegrees(1.583),
         &ZmanPrimitive::SunsetOffsetByDegrees(1.583),
@@ -673,8 +618,7 @@ define_presets! {
         }),
     },
     /// Mincha ketana: `3.5` shaos zmaniyos after fixed local chatzos, using fixed-local-chatzos → sunset half-day.
-
-    MINCHA_KETANA_GRA_FIXED_LOCAL_CHATZOS_TO_SUNSET {
+MINCHA_KETANA_GRA_FIXED_LOCAL_CHATZOS_TO_SUNSET {
         event: ZmanPrimitive::HalfDayBasedOffset(
         &ZmanPrimitive::LocalMeanTime(12.0),
         &ZmanPrimitive::ConfiguredSunset,
@@ -686,8 +630,7 @@ define_presets! {
         }),
     },
     /// Misheyakir when the sun is `10.2°` below the geometric horizon (degrees-below-horizon dawn).
-
-    MISHEYAKIR_10_POINT_2_DEGREES {
+MISHEYAKIR_10_POINT_2_DEGREES {
         event: ZmanPrimitive::SunriseOffsetByDegrees(10.2),
         name: "getMisheyakir10Point2Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -695,8 +638,7 @@ define_presets! {
         }),
     },
     /// Misheyakir when the sun is `11°` below the geometric horizon (degrees-below-horizon dawn).
-
-    MISHEYAKIR_11_DEGREES {
+MISHEYAKIR_11_DEGREES {
         event: ZmanPrimitive::SunriseOffsetByDegrees(11.0),
         name: "getMisheyakir11Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -704,8 +646,7 @@ define_presets! {
         }),
     },
     /// Misheyakir when the sun is `11.5°` below the geometric horizon (degrees-below-horizon dawn).
-
-    MISHEYAKIR_11_POINT_5_DEGREES {
+MISHEYAKIR_11_POINT_5_DEGREES {
         event: ZmanPrimitive::SunriseOffsetByDegrees(11.5),
         name: "getMisheyakir11Point5Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -713,8 +654,7 @@ define_presets! {
         }),
     },
     /// Misheyakir when the sun is `12.85°` below the geometric horizon (degrees-below-horizon dawn).
-
-    MISHEYAKIR_12_POINT_85_DEGREES {
+MISHEYAKIR_12_POINT_85_DEGREES {
         event: ZmanPrimitive::SunriseOffsetByDegrees(12.85),
         name: "getMisheyakir12Point85Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -722,8 +662,7 @@ define_presets! {
         }),
     },
     /// Misheyakir when the sun is `7.65°` below the geometric horizon (degrees-below-horizon dawn).
-
-    MISHEYAKIR_7_POINT_65_DEGREES {
+MISHEYAKIR_7_POINT_65_DEGREES {
         event: ZmanPrimitive::SunriseOffsetByDegrees(7.65),
         name: "getMisheyakir7Point65Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -731,8 +670,7 @@ define_presets! {
         }),
     },
     /// Misheyakir when the sun is `9.5°` below the geometric horizon (degrees-below-horizon dawn).
-
-    MISHEYAKIR_9_POINT_5_DEGREES {
+MISHEYAKIR_9_POINT_5_DEGREES {
         event: ZmanPrimitive::SunriseOffsetByDegrees(9.5),
         name: "getMisheyakir9Point5Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -740,8 +678,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after sunrise (or `4.75` shaos after chatzos if configured).
-
-    PLAG_HAMINCHA_SUNRISE_SUNSET {
+PLAG_HAMINCHA_SUNRISE_SUNSET {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::ConfiguredSunrise,
         &ZmanPrimitive::ConfiguredSunset,
@@ -753,8 +690,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha (Ahavat Shalom): `1.25` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
-
-    PLAG_HAMINCHA_AHAVAT_SHALOM {
+PLAG_HAMINCHA_AHAVAT_SHALOM {
         event: ZmanPrimitive::PlagAhavatShalom,
         name: "getPlagAhavatShalom",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -762,8 +698,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos zmaniyos after alos `16.1°` (day = alos16.1° → tzais7.083°).
-
-    PLAG_HAMINCHA_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083 {
+PLAG_HAMINCHA_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083 {
         event: ZmanPrimitive::PlagHamincha(
             &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
             &ZmanPrimitive::SunsetOffsetByDegrees(7.0 + (5.0 / 60.0)),
@@ -775,8 +710,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos zmaniyos after alos `16.1°` (day end = sunset).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_ALOS_TO_SUNSET {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
@@ -789,8 +723,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `60` minutes (or `4.75` shaos after chatzos if configured).
-
-    PLAG_HAMINCHA_60_MINUTES {
+PLAG_HAMINCHA_60_MINUTES {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-60)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(60)),
@@ -802,8 +735,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `72` minutes (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_72_MINUTES {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
@@ -816,8 +748,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `72 zmaniyos` (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_72_ZMANIS {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
@@ -830,8 +761,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `90` minutes (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_90_MINUTES {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)),
@@ -844,8 +774,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `90 zmaniyos` (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_90_ZMANIS {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.5),
@@ -858,8 +787,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `96` minutes (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_96_MINUTES {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)),
@@ -872,8 +800,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `96 zmaniyos` (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_96_ZMANIS {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.6),
@@ -886,8 +813,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `120` minutes (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_120_MINUTES {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)),
@@ -900,8 +826,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `120 zmaniyos` (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_120_ZMANIS {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -2.0),
@@ -914,8 +839,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `16.1°` (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_16_POINT_1_DEGREES {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
@@ -928,8 +852,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `18°` (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_18_DEGREES {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::SunriseOffsetByDegrees(18.0),
@@ -942,8 +865,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `19.8°` (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_19_POINT_8_DEGREES {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::SunriseOffsetByDegrees(19.8),
@@ -956,8 +878,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after alos `26°` (or `4.75` shaos after chatzos if configured).
-
-    #[deprecated]
+#[deprecated]
     PLAG_HAMINCHA_26_DEGREES {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::SunriseOffsetByDegrees(26.0),
@@ -970,8 +891,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos zmaniyos after alos `72 zmaniyos` (day end = Ateret Torah tzais).
-
-    PLAG_HAMINCHA_ATERET_TORAH {
+PLAG_HAMINCHA_ATERET_TORAH {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
         &ZmanPrimitive::TzaisAteretTorah,
@@ -983,8 +903,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `10.75` shaos after Baal HaTanya day start (or `4.75` shaos after chatzos if configured).
-
-    PLAG_HAMINCHA_BAAL_HATANYA {
+PLAG_HAMINCHA_BAAL_HATANYA {
         event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::SunriseOffsetByDegrees(1.583),
         &ZmanPrimitive::SunsetOffsetByDegrees(1.583),
@@ -996,8 +915,7 @@ define_presets! {
         }),
     },
     /// Plag hamincha: `4.75` shaos zmaniyos after fixed local chatzos, using fixed-local-chatzos → sunset half-day.
-
-    PLAG_HAMINCHA_GRA_FIXED_LOCAL_CHATZOS_TO_SUNSET {
+PLAG_HAMINCHA_GRA_FIXED_LOCAL_CHATZOS_TO_SUNSET {
         event: ZmanPrimitive::HalfDayBasedOffset(
         &ZmanPrimitive::LocalMeanTime(12.0),
         &ZmanPrimitive::ConfiguredSunset,
@@ -1009,8 +927,7 @@ define_presets! {
         }),
     },
     /// Samuch le-mincha ketana: `9` shaos after sunrise (or `3` shaos after chatzos if configured).
-
-    SAMUCH_LE_MINCHA_KETANA_GRA {
+SAMUCH_LE_MINCHA_KETANA_GRA {
         event: ZmanPrimitive::SamuchLeMinchaKetana(
         &ZmanPrimitive::ConfiguredSunrise,
         &ZmanPrimitive::ConfiguredSunset,
@@ -1022,8 +939,7 @@ define_presets! {
         }),
     },
     /// Samuch le-mincha ketana: `9` shaos after alos `16.1°` (or `3` shaos after chatzos if configured).
-
-    SAMUCH_LE_MINCHA_KETANA_16_POINT_1_DEGREES {
+SAMUCH_LE_MINCHA_KETANA_16_POINT_1_DEGREES {
         event: ZmanPrimitive::SamuchLeMinchaKetana(
         &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
         &ZmanPrimitive::SunsetOffsetByDegrees(16.1),
@@ -1035,8 +951,7 @@ define_presets! {
         }),
     },
     /// Samuch le-mincha ketana: `9` shaos after alos `72` minutes (or `3` shaos after chatzos if configured).
-
-    SAMUCH_LE_MINCHA_KETANA_72_MINUTES {
+SAMUCH_LE_MINCHA_KETANA_72_MINUTES {
         event: ZmanPrimitive::SamuchLeMinchaKetana(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
@@ -1048,8 +963,7 @@ define_presets! {
         }),
     },
     /// Sof zman achilas chametz: `4` shaos after sunrise (or half-day based if configured).
-
-    SOF_ZMAN_ACHILAS_CHAMETZ_GRA {
+SOF_ZMAN_ACHILAS_CHAMETZ_GRA {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::ConfiguredSunrise,
         &ZmanPrimitive::ConfiguredSunset,
@@ -1061,8 +975,7 @@ define_presets! {
         }),
     },
     /// Sof zman achilas chametz: `4` shaos after alos `72` minutes (or half-day based if configured).
-
-    SOF_ZMAN_ACHILAS_CHAMETZ_MGA_72_MINUTES {
+SOF_ZMAN_ACHILAS_CHAMETZ_MGA_72_MINUTES {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
@@ -1074,8 +987,7 @@ define_presets! {
         }),
     },
     /// Sof zman achilas chametz: `4` shaos after alos `72 zmaniyos` (or half-day based if configured).
-
-    SOF_ZMAN_ACHILAS_CHAMETZ_MGA_72_ZMANIS {
+SOF_ZMAN_ACHILAS_CHAMETZ_MGA_72_ZMANIS {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2),
@@ -1087,8 +999,7 @@ define_presets! {
         }),
     },
     /// Sof zman achilas chametz: `4` shaos after alos `16.1°` (or half-day based if configured).
-
-    SOF_ZMAN_ACHILAS_CHAMETZ_MGA_16_POINT_1_DEGREES {
+SOF_ZMAN_ACHILAS_CHAMETZ_MGA_16_POINT_1_DEGREES {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
         &ZmanPrimitive::SunsetOffsetByDegrees(16.1),
@@ -1100,8 +1011,7 @@ define_presets! {
         }),
     },
     /// Sof zman achilas chametz: `4` shaos after Baal HaTanya day start (or half-day based if configured).
-
-    SOF_ZMAN_ACHILAS_CHAMETZ_BAAL_HATANYA {
+SOF_ZMAN_ACHILAS_CHAMETZ_BAAL_HATANYA {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::SunriseOffsetByDegrees(1.583),
         &ZmanPrimitive::SunsetOffsetByDegrees(1.583),
@@ -1113,8 +1023,7 @@ define_presets! {
         }),
     },
     /// Sof zman biur chametz: `5` shaos zmaniyos after sunrise (day = sunrise → sunset).
-
-    SOF_ZMAN_BIUR_CHAMETZ_GRA {
+SOF_ZMAN_BIUR_CHAMETZ_GRA {
         event: ZmanPrimitive::SofZmanBiurChametz(
         &ZmanPrimitive::ConfiguredSunrise,
         &ZmanPrimitive::ConfiguredSunset,
@@ -1126,8 +1035,7 @@ define_presets! {
         }),
     },
     /// Sof zman biur chametz: `5` shaos zmaniyos after alos `72` minutes (day = alos72 → tzais72).
-
-    SOF_ZMAN_BIUR_CHAMETZ_MGA_72_MINUTES {
+SOF_ZMAN_BIUR_CHAMETZ_MGA_72_MINUTES {
         event: ZmanPrimitive::SofZmanBiurChametz(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
@@ -1139,8 +1047,7 @@ define_presets! {
         }),
     },
     /// Sof zman biur chametz: `5` shaos zmaniyos after alos `72 zmaniyos` (day = alos72 zmaniyos → tzais72 zmaniyos).
-
-    SOF_ZMAN_BIUR_CHAMETZ_MGA_72_ZMANIS {
+SOF_ZMAN_BIUR_CHAMETZ_MGA_72_ZMANIS {
         event: ZmanPrimitive::SofZmanBiurChametz(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2),
@@ -1152,8 +1059,7 @@ define_presets! {
         }),
     },
     /// Sof zman biur chametz: `5` shaos zmaniyos after alos `16.1°` (day = alos16.1° → tzais16.1°).
-
-    SOF_ZMAN_BIUR_CHAMETZ_MGA_16_POINT_1_DEGREES {
+SOF_ZMAN_BIUR_CHAMETZ_MGA_16_POINT_1_DEGREES {
         event: ZmanPrimitive::SofZmanBiurChametz(
         &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
         &ZmanPrimitive::SunsetOffsetByDegrees(16.1),
@@ -1165,8 +1071,7 @@ define_presets! {
         }),
     },
     /// Sof zman biur chametz: `5` shaos zmaniyos after Baal HaTanya day start (day = Baal HaTanya sunrise → sunset).
-
-    SOF_ZMAN_BIUR_CHAMETZ_BAAL_HATANYA {
+SOF_ZMAN_BIUR_CHAMETZ_BAAL_HATANYA {
         event: ZmanPrimitive::SofZmanBiurChametz(
         &ZmanPrimitive::SunriseOffsetByDegrees(1.583),
         &ZmanPrimitive::SunsetOffsetByDegrees(1.583),
@@ -1178,8 +1083,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos after sunrise (or half-day based if configured).
-
-    SOF_ZMAN_SHMA_GRA {
+SOF_ZMAN_SHMA_GRA {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::ConfiguredSunrise,
         &ZmanPrimitive::ConfiguredSunset,
@@ -1190,10 +1094,8 @@ define_presets! {
             calendar.get_sof_zman_shma_gra(env)
         }),
     },
-
-    /// Sof zman shma: `3` shaos after alos `19.8°` (or half-day based if configured).
-
-    SOF_ZMAN_SHMA_MGA_19_POINT_8_DEGREES {
+/// Sof zman shma: `3` shaos after alos `19.8°` (or half-day based if configured).
+SOF_ZMAN_SHMA_MGA_19_POINT_8_DEGREES {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::SunriseOffsetByDegrees(19.8),
         &ZmanPrimitive::SunsetOffsetByDegrees(19.8),
@@ -1205,8 +1107,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos after alos `16.1°` (or half-day based if configured).
-
-    SOF_ZMAN_SHMA_MGA_16_POINT_1_DEGREES {
+SOF_ZMAN_SHMA_MGA_16_POINT_1_DEGREES {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
         &ZmanPrimitive::SunsetOffsetByDegrees(16.1),
@@ -1218,8 +1119,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos after alos `18°` (or half-day based if configured).
-
-    SOF_ZMAN_SHMA_MGA_18_DEGREES {
+SOF_ZMAN_SHMA_MGA_18_DEGREES {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::SunriseOffsetByDegrees(18.0),
         &ZmanPrimitive::SunsetOffsetByDegrees(18.0),
@@ -1231,8 +1131,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos after alos `72` minutes (or half-day based if configured).
-
-    SOF_ZMAN_SHMA_MGA_72_MINUTES {
+SOF_ZMAN_SHMA_MGA_72_MINUTES {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
@@ -1244,8 +1143,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos after alos `72 zmaniyos` (or half-day based if configured).
-
-    SOF_ZMAN_SHMA_MGA_72_ZMANIS {
+SOF_ZMAN_SHMA_MGA_72_ZMANIS {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2),
@@ -1257,8 +1155,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos after alos `90` minutes (or half-day based if configured).
-
-    SOF_ZMAN_SHMA_MGA_90_MINUTES {
+SOF_ZMAN_SHMA_MGA_90_MINUTES {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)),
@@ -1270,8 +1167,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos after alos `90 zmaniyos` (or half-day based if configured).
-
-    SOF_ZMAN_SHMA_MGA_90_ZMANIS {
+SOF_ZMAN_SHMA_MGA_90_ZMANIS {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.5),
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.5),
@@ -1283,8 +1179,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos after alos `96` minutes (or half-day based if configured).
-
-    SOF_ZMAN_SHMA_MGA_96_MINUTES {
+SOF_ZMAN_SHMA_MGA_96_MINUTES {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)),
@@ -1296,8 +1191,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos after alos `96 zmaniyos` (or half-day based if configured).
-
-    SOF_ZMAN_SHMA_MGA_96_ZMANIS {
+SOF_ZMAN_SHMA_MGA_96_ZMANIS {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.6),
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.6),
@@ -1309,8 +1203,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` hours before solar transit.
-
-    SOF_ZMAN_SHMA_HOURS_3_BEFORE_CHATZOS {
+SOF_ZMAN_SHMA_HOURS_3_BEFORE_CHATZOS {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::from_mins(-180)),
         name: "getSofZmanShma3HoursBeforeChatzos",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1318,8 +1211,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos zmaniyos after alos `120` minutes (day = alos120 → tzais120).
-
-    SOF_ZMAN_SHMA_MGA_120_MINUTES {
+SOF_ZMAN_SHMA_MGA_120_MINUTES {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)),
@@ -1331,8 +1223,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos zmaniyos after alos `16.1°` (day end = sunset).
-
-    SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_SUNSET {
+SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_SUNSET {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
         &ZmanPrimitive::ConfiguredSunset,
@@ -1344,8 +1235,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos zmaniyos after alos `16.1°` (day end = tzais7.083°).
-
-    SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083 {
+SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083 {
         event: ZmanPrimitive::Shema(
             &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
             &ZmanPrimitive::SunsetOffsetByDegrees(7.0 + (5.0 / 60.0)),
@@ -1357,8 +1247,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos zmaniyos after alos `72 zmaniyos` (day end = Ateret Torah tzais).
-
-    SOF_ZMAN_SHMA_ATERET_TORAH {
+SOF_ZMAN_SHMA_ATERET_TORAH {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
         &ZmanPrimitive::TzaisAteretTorah,
@@ -1370,8 +1259,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos after Baal HaTanya day start (or half-day based if configured).
-
-    SOF_ZMAN_SHMA_BAAL_HATANYA {
+SOF_ZMAN_SHMA_BAAL_HATANYA {
         event: ZmanPrimitive::Shema(
         &ZmanPrimitive::SunriseOffsetByDegrees(1.583),
         &ZmanPrimitive::SunsetOffsetByDegrees(1.583),
@@ -1383,8 +1271,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos zmaniyos after sunrise (day end = fixed local chatzos).
-
-    SOF_ZMAN_SHMA_GRA_SUNRISE_TO_FIXED_LOCAL_CHATZOS {
+SOF_ZMAN_SHMA_GRA_SUNRISE_TO_FIXED_LOCAL_CHATZOS {
         event: ZmanPrimitive::HalfDayBasedOffset(
         &ZmanPrimitive::ConfiguredSunrise,
         &ZmanPrimitive::LocalMeanTime(12.0),
@@ -1396,8 +1283,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos zmaniyos after alos `18°` (day end = fixed local chatzos).
-
-    SOF_ZMAN_SHMA_MGA_18_DEGREES_TO_FIXED_LOCAL_CHATZOS {
+SOF_ZMAN_SHMA_MGA_18_DEGREES_TO_FIXED_LOCAL_CHATZOS {
         event: ZmanPrimitive::HalfDayBasedOffset(
             &ZmanPrimitive::SunriseOffsetByDegrees(18.0),
             &ZmanPrimitive::LocalMeanTime(12.0),
@@ -1409,8 +1295,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos zmaniyos after alos `16.1°` (day end = fixed local chatzos).
-
-    SOF_ZMAN_SHMA_MGA_16_POINT_1_DEGREES_TO_FIXED_LOCAL_CHATZOS {
+SOF_ZMAN_SHMA_MGA_16_POINT_1_DEGREES_TO_FIXED_LOCAL_CHATZOS {
         event: ZmanPrimitive::HalfDayBasedOffset(
             &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
             &ZmanPrimitive::LocalMeanTime(12.0),
@@ -1422,8 +1307,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos zmaniyos after alos `90` minutes (day end = fixed local chatzos).
-
-    SOF_ZMAN_SHMA_MGA_90_MINUTES_TO_FIXED_LOCAL_CHATZOS {
+SOF_ZMAN_SHMA_MGA_90_MINUTES_TO_FIXED_LOCAL_CHATZOS {
         event: ZmanPrimitive::HalfDayBasedOffset(
             &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)),
             &ZmanPrimitive::LocalMeanTime(12.0),
@@ -1435,8 +1319,7 @@ define_presets! {
         }),
     },
     /// Sof zman shma: `3` shaos zmaniyos after alos `72` minutes (day end = fixed local chatzos).
-
-    SOF_ZMAN_SHMA_MGA_72_MINUTES_TO_FIXED_LOCAL_CHATZOS {
+SOF_ZMAN_SHMA_MGA_72_MINUTES_TO_FIXED_LOCAL_CHATZOS {
         event: ZmanPrimitive::HalfDayBasedOffset(
             &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
             &ZmanPrimitive::LocalMeanTime(12.0),
@@ -1448,8 +1331,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after sunrise (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_GRA {
+SOF_ZMAN_TFILA_GRA {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::ConfiguredSunrise,
         &ZmanPrimitive::ConfiguredSunset,
@@ -1461,8 +1343,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after alos `72` minutes (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_MGA {
+SOF_ZMAN_TFILA_MGA {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
@@ -1474,8 +1355,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after alos `19.8°` (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_MGA_19_POINT_8_DEGREES {
+SOF_ZMAN_TFILA_MGA_19_POINT_8_DEGREES {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::SunriseOffsetByDegrees(19.8),
         &ZmanPrimitive::SunsetOffsetByDegrees(19.8),
@@ -1487,8 +1367,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after alos `16.1°` (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_MGA_16_POINT_1_DEGREES {
+SOF_ZMAN_TFILA_MGA_16_POINT_1_DEGREES {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
         &ZmanPrimitive::SunsetOffsetByDegrees(16.1),
@@ -1500,8 +1379,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after alos `18°` (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_MGA_18_DEGREES {
+SOF_ZMAN_TFILA_MGA_18_DEGREES {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::SunriseOffsetByDegrees(18.0),
         &ZmanPrimitive::SunsetOffsetByDegrees(18.0),
@@ -1513,8 +1391,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after alos `72` minutes (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_MGA_72_MINUTES {
+SOF_ZMAN_TFILA_MGA_72_MINUTES {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
@@ -1526,8 +1403,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after alos `72 zmaniyos` (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_MGA_72_ZMANIS {
+SOF_ZMAN_TFILA_MGA_72_ZMANIS {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2),
@@ -1539,8 +1415,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after alos `90` minutes (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_MGA_90_MINUTES {
+SOF_ZMAN_TFILA_MGA_90_MINUTES {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)),
@@ -1552,8 +1427,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after alos `90 zmaniyos` (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_MGA_90_ZMANIS {
+SOF_ZMAN_TFILA_MGA_90_ZMANIS {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.5),
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.5),
@@ -1565,8 +1439,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after alos `96` minutes (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_MGA_96_MINUTES {
+SOF_ZMAN_TFILA_MGA_96_MINUTES {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)),
@@ -1578,8 +1451,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after alos `96 zmaniyos` (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_MGA_96_ZMANIS {
+SOF_ZMAN_TFILA_MGA_96_ZMANIS {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.6),
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.6),
@@ -1591,8 +1463,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `2` hours before solar transit.
-
-    SOF_ZMAN_TFILA_HOURS_2_BEFORE_CHATZOS {
+SOF_ZMAN_TFILA_HOURS_2_BEFORE_CHATZOS {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::from_mins(-120)),
         name: "getSofZmanTfila2HoursBeforeChatzos",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1600,8 +1471,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos zmaniyos after alos `120` minutes (day = alos120 → tzais120).
-
-    SOF_ZMAN_TFILA_MGA_120_MINUTES {
+SOF_ZMAN_TFILA_MGA_120_MINUTES {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)),
         &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)),
@@ -1613,8 +1483,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos zmaniyos after alos `72 zmaniyos` (day end = Ateret Torah tzais).
-
-    SOF_ZMAN_TFILA_ATERET_TORAH {
+SOF_ZMAN_TFILA_ATERET_TORAH {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
         &ZmanPrimitive::TzaisAteretTorah,
@@ -1626,8 +1495,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos after Baal HaTanya day start (or half-day based if configured).
-
-    SOF_ZMAN_TFILA_BAAL_HATANYA {
+SOF_ZMAN_TFILA_BAAL_HATANYA {
         event: ZmanPrimitive::Tefila(
         &ZmanPrimitive::SunriseOffsetByDegrees(1.583),
         &ZmanPrimitive::SunsetOffsetByDegrees(1.583),
@@ -1639,8 +1507,7 @@ define_presets! {
         }),
     },
     /// Sof zman tfila: `4` shaos zmaniyos after sunrise (day end = fixed local chatzos).
-
-    SOF_ZMAN_TFILA_GRA_SUNRISE_TO_FIXED_LOCAL_CHATZOS {
+SOF_ZMAN_TFILA_GRA_SUNRISE_TO_FIXED_LOCAL_CHATZOS {
         event: ZmanPrimitive::HalfDayBasedOffset(
         &ZmanPrimitive::ConfiguredSunrise,
         &ZmanPrimitive::LocalMeanTime(12.0),
@@ -1652,8 +1519,7 @@ define_presets! {
         }),
     },
     /// Tzais when the sun is `8.5°` below the geometric horizon (after sunset).
-
-    TZAIS_DEGREES_8_POINT_5 {
+TZAIS_DEGREES_8_POINT_5 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(8.5),
         name: "getTzaisGeonim8Point5Degrees",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
@@ -1661,8 +1527,7 @@ define_presets! {
         }),
     },
     /// Tzais: `50` minutes after sunset.
-
-    TZAIS_MINUTES_50 {
+TZAIS_MINUTES_50 {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(50)),
         name: "getTzais50Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1670,8 +1535,7 @@ define_presets! {
         }),
     },
     /// Tzais: `60` minutes after sunset.
-
-    TZAIS_MINUTES_60 {
+TZAIS_MINUTES_60 {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(60)),
         name: "getTzais60Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1679,8 +1543,7 @@ define_presets! {
         }),
     },
     /// Tzais: `72` minutes after sunset.
-
-    TZAIS_MINUTES_72 {
+TZAIS_MINUTES_72 {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
         name: "getTzais72Minutes",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
@@ -1688,8 +1551,7 @@ define_presets! {
         }),
     },
     /// Tzais: `72 zmaniyos` minutes after sunset (1.2 *shaos zmaniyos*).
-
-    TZAIS_72_ZMANIS {
+TZAIS_72_ZMANIS {
         event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2),
         name: "getTzais72Zmanis",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1697,8 +1559,7 @@ define_presets! {
         }),
     },
     /// Tzais: `90` minutes after sunset.
-
-    TZAIS_MINUTES_90 {
+TZAIS_MINUTES_90 {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)),
         name: "getTzais90Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1706,8 +1567,7 @@ define_presets! {
         }),
     },
     /// Tzais: `90 zmaniyos` minutes after sunset (1.5 *shaos zmaniyos*).
-
-    TZAIS_90_ZMANIS {
+TZAIS_90_ZMANIS {
         event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.5),
         name: "getTzais90Zmanis",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1715,8 +1575,7 @@ define_presets! {
         }),
     },
     /// Tzais: `96` minutes after sunset.
-
-    TZAIS_MINUTES_96 {
+TZAIS_MINUTES_96 {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)),
         name: "getTzais96Minutes",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1724,8 +1583,7 @@ define_presets! {
         }),
     },
     /// Tzais: `96 zmaniyos` minutes after sunset (1.6 *shaos zmaniyos*).
-
-    TZAIS_96_ZMANIS {
+TZAIS_96_ZMANIS {
         event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.6),
         name: "getTzais96Zmanis",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1733,8 +1591,7 @@ define_presets! {
         }),
     },
     /// Tzais: `120` minutes after sunset.
-
-    #[deprecated]
+#[deprecated]
     TZAIS_MINUTES_120 {
         event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)),
         name: "getTzais120Minutes",
@@ -1743,8 +1600,7 @@ define_presets! {
         }),
     },
     /// Tzais: `120 zmaniyos` minutes after sunset (2.0 *shaos zmaniyos*).
-
-    #[deprecated]
+#[deprecated]
     TZAIS_120_ZMANIS {
         event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 2.0),
         name: "getTzais120Zmanis",
@@ -1753,8 +1609,7 @@ define_presets! {
         }),
     },
     /// Tzais when the sun is `16.1°` below the geometric horizon (after sunset).
-
-    TZAIS_16_POINT_1_DEGREES {
+TZAIS_16_POINT_1_DEGREES {
         event: ZmanPrimitive::SunsetOffsetByDegrees(16.1),
         name: "getTzais16Point1Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1762,8 +1617,7 @@ define_presets! {
         }),
     },
     /// Tzais when the sun is `18°` below the geometric horizon (after sunset).
-
-    TZAIS_18_DEGREES {
+TZAIS_18_DEGREES {
         event: ZmanPrimitive::SunsetOffsetByDegrees(18.0),
         name: "getTzais18Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1771,8 +1625,7 @@ define_presets! {
         }),
     },
     /// Tzais when the sun is `19.8°` below the geometric horizon (after sunset).
-
-    TZAIS_19_POINT_8_DEGREES {
+TZAIS_19_POINT_8_DEGREES {
         event: ZmanPrimitive::SunsetOffsetByDegrees(19.8),
         name: "getTzais19Point8Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1780,8 +1633,7 @@ define_presets! {
         }),
     },
     /// Tzais when the sun is `26°` below the geometric horizon (after sunset).
-
-    #[deprecated]
+#[deprecated]
     TZAIS_26_DEGREES {
         event: ZmanPrimitive::SunsetOffsetByDegrees(26.0),
         name: "getTzais26Degrees",
@@ -1790,8 +1642,7 @@ define_presets! {
         }),
     },
     /// Tzais (Ateret Torah): (elevation-adjusted) sunset plus [`crate::types::config::CalculatorConfig::ateret_torah_sunset_offset`].
-
-    TZAIS_ATERET_TORAH {
+TZAIS_ATERET_TORAH {
         event: ZmanPrimitive::TzaisAteretTorah,
         name: "getTzaisAteretTorah",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1799,8 +1650,7 @@ define_presets! {
         }),
     },
     /// Tzais (Baal HaTanya): when the sun is `6°` below the geometric horizon (after sunset).
-
-    TZAIS_BAAL_HATANYA {
+TZAIS_BAAL_HATANYA {
         event: ZmanPrimitive::SunsetOffsetByDegrees(6.0),
         name: "getTzaisBaalHatanya",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1808,8 +1658,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `3.7°` below the geometric horizon (after sunset).
-
-    #[deprecated]
+#[deprecated]
     TZAIS_GEONIM_DEGREES_3_POINT_7 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(3.7),
         name: "getTzaisGeonim3Point7Degrees",
@@ -1818,8 +1667,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `3.8°` below the geometric horizon (after sunset).
-
-    #[deprecated]
+#[deprecated]
     TZAIS_GEONIM_DEGREES_3_POINT_8 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(3.8),
         name: "getTzaisGeonim3Point8Degrees",
@@ -1828,8 +1676,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `5.95°` below the geometric horizon (after sunset).
-
-    TZAIS_GEONIM_DEGREES_5_POINT_95 {
+TZAIS_GEONIM_DEGREES_5_POINT_95 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(5.95),
         name: "getTzaisGeonim5Point95Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1837,8 +1684,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `4.66°` below the geometric horizon (after sunset).
-
-    #[deprecated]
+#[deprecated]
     TZAIS_GEONIM_DEGREES_4_POINT_66 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(4.66),
         name: "getTzaisGeonim4Point66Degrees",
@@ -1847,8 +1693,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `4.42°` below the geometric horizon (after sunset).
-
-    #[deprecated]
+#[deprecated]
     TZAIS_GEONIM_DEGREES_4_POINT_42 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(4.42),
         name: "getTzaisGeonim4Point42Degrees",
@@ -1857,8 +1702,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `4.8°` below the geometric horizon (after sunset).
-
-    TZAIS_GEONIM_DEGREES_4_POINT_8 {
+TZAIS_GEONIM_DEGREES_4_POINT_8 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(4.8),
         name: "getTzaisGeonim4Point8Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1866,8 +1710,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `6.45°` below the geometric horizon (after sunset).
-
-    TZAIS_GEONIM_DEGREES_6_POINT_45 {
+TZAIS_GEONIM_DEGREES_6_POINT_45 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(6.45),
         name: "getTzaisGeonim6Point45Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1875,8 +1718,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `7.083°` below the geometric horizon (after sunset).
-
-    TZAIS_GEONIM_DEGREES_7_POINT_083 {
+TZAIS_GEONIM_DEGREES_7_POINT_083 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(7.0 + (5.0 / 60.0)),
         name: "getTzaisGeonim7Point083Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1884,8 +1726,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `7.67°` below the geometric horizon (after sunset).
-
-    TZAIS_GEONIM_DEGREES_7_POINT_67 {
+TZAIS_GEONIM_DEGREES_7_POINT_67 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(7.67),
         name: "getTzaisGeonim7Point67Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1893,8 +1734,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `8.5°` below the geometric horizon (after sunset).
-
-    TZAIS_GEONIM_DEGREES_8_POINT_5 {
+TZAIS_GEONIM_DEGREES_8_POINT_5 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(8.5),
         name: "getTzaisGeonim8Point5Degrees",
         java: JavaCalc::ZmanimCalendar(|env, calendar| {
@@ -1902,8 +1742,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `9.3°` below the geometric horizon (after sunset).
-
-    TZAIS_GEONIM_DEGREES_9_POINT_3 {
+TZAIS_GEONIM_DEGREES_9_POINT_3 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(9.3),
         name: "getTzaisGeonim9Point3Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1911,8 +1750,7 @@ define_presets! {
         }),
     },
     /// Tzais (Geonim): when the sun is `9.75°` below the geometric horizon (after sunset).
-
-    TZAIS_GEONIM_DEGREES_9_POINT_75 {
+TZAIS_GEONIM_DEGREES_9_POINT_75 {
         event: ZmanPrimitive::SunsetOffsetByDegrees(9.75),
         name: "getTzaisGeonim9Point75Degrees",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1923,8 +1761,7 @@ define_presets! {
     ///
     /// Will return None if the zman will not occur on this day. If the location does not contain
     /// a timezone, this will always return None.
-
-    SOF_ZMAN_KIDUSH_LEVANA_15_DAYS {
+SOF_ZMAN_KIDUSH_LEVANA_15_DAYS {
         event: ZmanPrimitive::SofZmanKidushLevana15Days,
         name: "getSofZmanKidushLevana15Days",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1937,8 +1774,7 @@ define_presets! {
     ///
     /// Will return None if the zman will not occur on this day. If the location does not contain
     /// a timezone, this will always return None.
-
-    SOF_ZMAN_KIDUSH_LEVANA_BETWEEN_MOLDOS {
+SOF_ZMAN_KIDUSH_LEVANA_BETWEEN_MOLDOS {
         event: ZmanPrimitive::SofZmanKidushLevanaBetweenMoldos,
         name: "getSofZmanKidushLevanaBetweenMoldos",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1949,8 +1785,7 @@ define_presets! {
     ///
     /// Will return None if the zman will not occur on this day. If the location does not contain
     /// a timezone, this will always return None.
-
-    TCHILAS_ZMAN_KIDUSH_LEVANA_3_DAYS {
+TCHILAS_ZMAN_KIDUSH_LEVANA_3_DAYS {
         event: ZmanPrimitive::TchilasZmanKidushLevana3Days,
         name: "getTchilasZmanKidushLevana3Days",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1962,8 +1797,7 @@ define_presets! {
     ///
     /// Will return None if the zman will not occur on this day. If the location does not contain
     /// a timezone, this will always return None.
-
-    TCHILAS_ZMAN_KIDUSH_LEVANA_7_DAYS {
+TCHILAS_ZMAN_KIDUSH_LEVANA_7_DAYS {
         event: ZmanPrimitive::TchilasZmanKidushLevana7Days,
         name: "getTchilasZmanKidushLevana7Days",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
@@ -1971,8 +1805,7 @@ define_presets! {
         }),
     },
     /// The time of the molad (new moon) for the current date's Hebrew month.
-
-    MOLAD {
+MOLAD {
         event: ZmanPrimitive::Molad,
         name: "getZmanMolad",
         java: JavaCalc::ComprehensiveCalendar(|env, calendar| {
