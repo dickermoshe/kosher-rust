@@ -40,20 +40,12 @@ public class SerializationRegressionTest {
 				new GeoLocation("Lakewood", 40.0828, -74.2094, ZoneId.of("America/New_York")));
 
 		double utcSunrise = astronomicalCalendar.getUTCSunrise(AstronomicalCalendar.GEOMETRIC_ZENITH);
-		long expectedEpochMillis = Math.round(utcSunrise * AstronomicalCalendar.HOUR_MILLIS);
+		long expectedEpochMillis = Math.round(utcSunrise * 3600000);
 		long actualEpochMillis = astronomicalCalendar.getSunrise().toEpochMilli()
-				% (24 * AstronomicalCalendar.HOUR_MILLIS);
+				% (24 * 3600000);
 
 		assertTrue(expectedEpochMillis % 1000 != 0);
 		assertFalse(actualEpochMillis % 1000 == 0);
 		assertTrue(Math.abs(expectedEpochMillis - actualEpochMillis) < 1000);
-	}
-
-	@Test
-	public void negativeTimePreservesSignInValueAndFormatting() {
-		Time time = new Time(-90_500);
-
-		assertEquals(-90_500d, time.getTime(), 0.0);
-		assertEquals("-0:01:30.500", time.toString());
 	}
 }
