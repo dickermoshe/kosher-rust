@@ -1318,6 +1318,30 @@
     }
   },
   {
+    "name": "getMinchaGedolaGRAGreaterThan30",
+    "qualified_name": "com.kosherjava.zmanim.ComprehensiveZmanimCalendar.getMinchaGedolaGRAGreaterThan30",
+    "package": "com.kosherjava.zmanim",
+    "class_name": "ComprehensiveZmanimCalendar",
+    "qualified_class": "com.kosherjava.zmanim.ComprehensiveZmanimCalendar",
+    "file": "C:\\Users\\Moshe\\DickerSystems\\rust-zmanim-project\\crates\\zmanim-calculator\\java\\src\\main\\java\\com\\kosherjava\\zmanim\\ComprehensiveZmanimCalendar.java",
+    "line": 1672,
+    "return_type": "Instant",
+    "parameters": [],
+    "annotations": [],
+    "is_deprecated": false,
+    "docs": "This is a convenience method that returns the later of {@link #getMinchaGedolaGRA()} and\n{@link #getMinchaGedola30Minutes()}. In the winter when 1/2 of a {@link #getShaahZmanisGRA() <em>shaah zmanis</em>} is\nless than 30 minutes {@link #getMinchaGedola30Minutes()} will be returned, otherwise {@link #getMinchaGedolaGRA()}\nwill be returned. Since this calculation can be an offset of <em>chatzos</em> (if 30 clock minutes > 1/2 of a <em>shaah\nzmanis</em>), even if {@link #isUseAstronomicalChatzosForOtherZmanim()} is <code>false</code>, this <em>mincha</em> time\nmay be affected by {@link #isUseAstronomicalChatzos()}.\n\n@return the <code>Date</code> of the later of {@link #getMinchaGedolaGRA()} and {@link #getMinchaGedola30Minutes()}.\n        If the calculation can't be computed such as in the Arctic Circle where there is at least one day a year\n        where the sun does not rise, and one where it does not set, a <code>null</code> will be returned. See detailed\n        explanation on top of the {@link AstronomicalCalendar} documentation.\n@todo Consider adjusting this to calculate the time as 30 minutes after {@link #getChatzosHayom()} that uses {@link\n        isUseAstronomicalChatzos()} to determine the type of <em>chatzos</em> to utilize (if the {@link\n        com.kosherjava.zmanim.util.AstronomicalCalculator calculator} support astronomical <em>chatzos</em>),\n        based on the {@link #isUseAstronomicalChatzos()} setting.\n@see #getMinchaGedolaGRA()\n@see #getMinchaGedola30Minutes()\n@see #getMinchaGedolaGreaterThan30(Instant)\n@see #isUseAstronomicalChatzos()",
+    "user_docs": {
+      "meaning": "The later of Mincha Gedola based on GRA and Mincha Gedola at 30 minutes after chatzos.",
+      "calculation": "It compares the GRA-based Mincha Gedola with Mincha Gedola 30 minutes after chatzos, and uses the later one. In winter, when half of a shaah zmanis is less than 30 minutes, the 30-minute time is used; otherwise the GRA-based time is used.",
+      "notes": [
+        "{use_astronomical_chatzos_for_other_zmanim}",
+        "Even when that setting is false, this mincha time may still be affected by astronomical chatzos if 30 clock minutes is longer than half of a shaah zmanis.",
+        "If the zman cannot be calculated, it may not be available."
+      ],
+      "deprecated_note": ""
+    }
+  },
+  {
     "name": "getMinchaKetana16Point1Degrees",
     "qualified_name": "com.kosherjava.zmanim.ComprehensiveZmanimCalendar.getMinchaKetana16Point1Degrees",
     "package": "com.kosherjava.zmanim",

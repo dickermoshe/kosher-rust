@@ -98,6 +98,8 @@ pub enum ZmanPrimitive<'a> {
     BainHashmashosRt2Stars,
     /// Mincha gedola (Ahavat Shalom): later of `chatzos + 30m` and `chatzos + 1/2 shaah`.
     MinchaGedolaAhavatShalom,
+    /// Mincha gedola GRA, but no earlier than 30 minutes after chatzos.
+    MinchaGedolaGraGreaterThan30,
     /// Mincha ketana (Ahavat Shalom): `2.5` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
     MinchaKetanaAhavatShalom,
     /// Plag hamincha (Ahavat Shalom): `1.25` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
@@ -116,6 +118,10 @@ pub enum ZmanPrimitive<'a> {
     BeginAstronomicalTwilight,
     /// The end of astronomical twilight, when the sun is 18° below the geometric horizon (108° zenith).
     EndAstronomicalTwilight,
+    /// Configured sunset, or the westernmost solar azimuth when sunset does not occur.
+    SunsetOrWesternmostSolarAzimuth,
+    /// Configured sunrise, or the easternmost solar azimuth when sunrise does not occur.
+    SunriseOrEasternmostSolarAzimuth,
 }
 
 #[cfg(feature = "defmt")]
@@ -186,6 +192,9 @@ impl defmt::Format for ZmanPrimitive<'_> {
             }
             Self::BainHashmashosRt2Stars => defmt::write!(fmt, "BainHashmashosRt2Stars"),
             Self::MinchaGedolaAhavatShalom => defmt::write!(fmt, "MinchaGedolaAhavatShalom"),
+            Self::MinchaGedolaGraGreaterThan30 => {
+                defmt::write!(fmt, "MinchaGedolaGraGreaterThan30")
+            }
             Self::MinchaKetanaAhavatShalom => defmt::write!(fmt, "MinchaKetanaAhavatShalom"),
             Self::PlagAhavatShalom => defmt::write!(fmt, "PlagAhavatShalom"),
             Self::Molad => defmt::write!(fmt, "Molad"),
@@ -195,6 +204,12 @@ impl defmt::Format for ZmanPrimitive<'_> {
             Self::EndNauticalTwilight => defmt::write!(fmt, "EndNauticalTwilight"),
             Self::BeginAstronomicalTwilight => defmt::write!(fmt, "BeginAstronomicalTwilight"),
             Self::EndAstronomicalTwilight => defmt::write!(fmt, "EndAstronomicalTwilight"),
+            Self::SunsetOrWesternmostSolarAzimuth => {
+                defmt::write!(fmt, "SunsetOrWesternmostSolarAzimuth")
+            }
+            Self::SunriseOrEasternmostSolarAzimuth => {
+                defmt::write!(fmt, "SunriseOrEasternmostSolarAzimuth")
+            }
         }
     }
 }
@@ -434,6 +449,18 @@ impl<'a> ZmanLike for ZmanPrimitive<'a> {
                     Ok(mincha_alternative)
                 }
             }
+            ZmanPrimitive::MinchaGedolaGraGreaterThan30 => {
+                let mincha_gedola_30 =
+                    ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::from_mins(30))
+                        .calculate(calculator)?;
+                let mincha_gedola_gra = ZmanPrimitive::MinchaGedola(
+                    &ZmanPrimitive::ConfiguredSunrise,
+                    &ZmanPrimitive::ConfiguredSunset,
+                    true,
+                )
+                .calculate(calculator)?;
+                Ok(mincha_gedola_30.max(mincha_gedola_gra))
+            }
             ZmanPrimitive::MinchaKetanaAhavatShalom => {
                 #[allow(deprecated)]
                 let tzais = TZAIS_GEONIM_3_POINT_8_DEGREES.calculate(calculator)?;
@@ -475,6 +502,32 @@ impl<'a> ZmanLike for ZmanPrimitive<'a> {
             }
             ZmanPrimitive::EndAstronomicalTwilight => {
                 calculator.calculate(&ZmanPrimitive::SunsetOffsetByDegrees(ASTRONOMICAL_ZENITH))
+            }
+            ZmanPrimitive::SunsetOrWesternmostSolarAzimuth => {
+                match calculator.configured_sunset() {
+                    Ok(sunset) => Ok(sunset),
+                    Err(ZmanimError::AllDay | ZmanimError::AllNight) => {
+                        crate::astronomy::time_at_azimuth(
+                            calculator.date,
+                            &calculator.location,
+                            270.0,
+                        )
+                    }
+                    Err(error) => Err(error),
+                }
+            }
+            ZmanPrimitive::SunriseOrEasternmostSolarAzimuth => {
+                match calculator.configured_sunrise() {
+                    Ok(sunrise) => Ok(sunrise),
+                    Err(ZmanimError::AllDay | ZmanimError::AllNight) => {
+                        crate::astronomy::time_at_azimuth(
+                            calculator.date,
+                            &calculator.location,
+                            90.0,
+                        )
+                    }
+                    Err(error) => Err(error),
+                }
             }
         }
     }

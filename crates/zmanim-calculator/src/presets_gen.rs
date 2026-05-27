@@ -449,6 +449,16 @@ pub static MINCHA_GEDOLA_GRAFIXED_LOCAL_CHATZOS_30_MINUTES: ZmanPreset = ZmanPre
     description: |_| "Rav Moshe Feinstein's opinion of mincha gedola, the earliest time one can pray mincha according to the GRA.".to_string(),
 };
 
+/// The later of Mincha Gedola based on GRA and Mincha Gedola at 30 minutes after chatzos.
+pub static MINCHA_GEDOLA_GRAGREATER_THAN_30: ZmanPreset = ZmanPreset {
+    event: ZmanPrimitive::MinchaGedolaGraGreaterThan30,
+    #[cfg(test)]
+    method_name: "getMinchaGedolaGRAGreaterThan30",
+    name: "The later of Mincha Gedola based on GRA and Mincha Gedola at 30 minutes after chatzos.",
+    #[cfg(feature = "alloc")]
+    description: |_| "The later of Mincha Gedola based on GRA and Mincha Gedola at 30 minutes after chatzos.".to_string(),
+};
+
 /// The time of mincha ketana according to the Magen Avraham, using a day that begins and ends when the sun is 16.1 degrees below the horizon. It is described as the preferred earliest time to pray mincha according to the Rambam and others.
 pub static MINCHA_KETANA_16_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::MinchaKetana( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true, ),
@@ -1329,6 +1339,16 @@ pub static SUNRISE: ZmanPreset = ZmanPreset {
     description: |_| "The time of sunrise, adjusted for elevation.".to_string(),
 };
 
+/// The time used for sunrise is the regular sunrise if sunrise occurs. If there is no sunrise that day, it is the moment when the sun reaches its easternmost position, at an azimuth of 90 degrees.
+pub static SUNRISE_OR_EASTERNMOST_SOLAR_AZIMUTH: ZmanPreset = ZmanPreset {
+    event: ZmanPrimitive::SunriseOrEasternmostSolarAzimuth,
+    #[cfg(test)]
+    method_name: "getSunriseOrEasternmostSolarAzimuth",
+    name: "The time used for sunrise is the regular sunrise if sunrise occurs. If there is no sunrise that day, it is the moment when the sun reaches its easternmost position, at an azimuth of 90 degrees.",
+    #[cfg(feature = "alloc")]
+    description: |_| "The time used for sunrise is the regular sunrise if sunrise occurs. If there is no sunrise that day, it is the moment when the sun reaches its easternmost position, at an azimuth of 90 degrees.".to_string(),
+};
+
 /// The elevation-adjusted sunset time.
 pub static SUNSET: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::ElevationAdjustedSunset,
@@ -1337,6 +1357,16 @@ pub static SUNSET: ZmanPreset = ZmanPreset {
     name: "The elevation-adjusted sunset time.",
     #[cfg(feature = "alloc")]
     description: |_| "The elevation-adjusted sunset time.".to_string(),
+};
+
+/// The time of sunset if sunset occurs. If sunset does not occur that day, it is the time when the sun reaches its westernmost position, at an azimuth of 270 degrees.
+pub static SUNSET_OR_WESTERNMOST_SOLAR_AZIMUTH: ZmanPreset = ZmanPreset {
+    event: ZmanPrimitive::SunsetOrWesternmostSolarAzimuth,
+    #[cfg(test)]
+    method_name: "getSunsetOrWesternmostSolarAzimuth",
+    name: "The time of sunset if sunset occurs. If sunset does not occur that day, it is the time when the sun reaches its westernmost position, at an azimuth of 270 degrees.",
+    #[cfg(feature = "alloc")]
+    description: |_| "The time of sunset if sunset occurs. If sunset does not occur that day, it is the time when the sun reaches its westernmost position, at an azimuth of 270 degrees.".to_string(),
 };
 
 /// Returns solar noon, also called sundial noon, which is the moment when the Sun is transiting the celestial meridian.
@@ -1705,6 +1735,7 @@ pub static ALL: &[&ZmanPreset] = &[
     &MINCHA_GEDOLA_BAAL_HATANYA,
     &MINCHA_GEDOLA_GRA,
     &MINCHA_GEDOLA_GRAFIXED_LOCAL_CHATZOS_30_MINUTES,
+    &MINCHA_GEDOLA_GRAGREATER_THAN_30,
     &MINCHA_KETANA_16_POINT_1_DEGREES,
     &MINCHA_KETANA_72_MINUTES,
     &MINCHA_KETANA_AHAVAT_SHALOM,
@@ -1793,7 +1824,9 @@ pub static ALL: &[&ZmanPreset] = &[
     &SOF_ZMAN_TFILA_MGA_96_MINUTES_ZMANIS,
     &SOLAR_MIDNIGHT,
     &SUNRISE,
+    &SUNRISE_OR_EASTERNMOST_SOLAR_AZIMUTH,
     &SUNSET,
+    &SUNSET_OR_WESTERNMOST_SOLAR_AZIMUTH,
     &SUN_TRANSIT,
     &TCHILAS_ZMAN_KIDUSH_LEVANA_3_DAYS,
     &TCHILAS_ZMAN_KIDUSH_LEVANA_7_DAYS,

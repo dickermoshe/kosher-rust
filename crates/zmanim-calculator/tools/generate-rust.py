@@ -3,7 +3,6 @@ from typing import cast
 
 import json
 import re
-import sys
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
@@ -19,6 +18,8 @@ PRIMITIVES: dict[str, str] = {
     "getEndNauticalTwilight": "ZmanPrimitive::EndNauticalTwilight",
     "getBeginAstronomicalTwilight": "ZmanPrimitive::BeginAstronomicalTwilight",
     "getEndAstronomicalTwilight": "ZmanPrimitive::EndAstronomicalTwilight",
+    "getSunsetOrWesternmostSolarAzimuth": "ZmanPrimitive::SunsetOrWesternmostSolarAzimuth",
+    "getSunriseOrEasternmostSolarAzimuth": "ZmanPrimitive::SunriseOrEasternmostSolarAzimuth",
     "getSunrise": "ZmanPrimitive::ElevationAdjustedSunrise",
     "getSeaLevelSunrise": "ZmanPrimitive::SeaLevelSunrise",
     "getSunset": "ZmanPrimitive::ElevationAdjustedSunset",
@@ -58,6 +59,7 @@ PRIMITIVES: dict[str, str] = {
     "getMinchaGedola30Minutes": "ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::from_mins(30))",
     "getMinchaGedola72Minutes": "ZmanPrimitive::MinchaGedola( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true, )",
     "getMinchaGedolaAhavatShalom": "ZmanPrimitive::MinchaGedolaAhavatShalom",
+    "getMinchaGedolaGRAGreaterThan30": "ZmanPrimitive::MinchaGedolaGraGreaterThan30",
     "getMinchaGedolaAteretTorah": "ZmanPrimitive::MinchaGedola( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::TzaisAteretTorah, false, )",
     "getMinchaGedolaBaalHatanya": "ZmanPrimitive::MinchaGedola( &ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true, )",
     "getMinchaGedolaGRAFixedLocalChatzos30Minutes": "ZmanPrimitive::Offset(&ZmanPrimitive::LocalMeanTime(12.0), Duration::from_mins(30))",
@@ -246,9 +248,8 @@ def generate(methods: list[dict[str, object]]) -> str:
 
         event = PRIMITIVES.get(method_name)
         if event is None:
-            raise ValueError(method_name)
-            # skipped.append(method_name)
-            # continue
+            skipped.append(method_name)
+            continue
 
         const_name = method_to_const(method_name)
         if const_name in seen_consts:
@@ -273,9 +274,8 @@ def generate(methods: list[dict[str, object]]) -> str:
         )
 
     if skipped:
-        print(
-            f"Skipped {len(skipped)} JSON methods without primitive mappings.",
-            file=sys.stderr,
+        raise ValueError(
+            f"Skipped {len(skipped)} JSON methods without primitive mappings: {skipped}"
         )
 
     presets.sort(key=lambda preset: preset[0])

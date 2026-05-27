@@ -107,6 +107,137 @@ pub(crate) fn solar_midnight(date: Date, location: &Location) -> Result<Timestam
     )
 }
 
+pub(crate) fn time_at_azimuth(
+    date: Date,
+    location: &Location,
+    mut target_azimuth: f64,
+) -> Result<Timestamp, ZmanimError> {
+    target_azimuth %= 360.0;
+    if target_azimuth < 0.0 {
+        target_azimuth += 360.0;
+    }
+
+    let adjusted_date = adjusted_local_date(date, location)?;
+    let step = 15.0 / 60.0;
+    let mut best_hour = f64::NAN;
+    let mut best_error = f64::INFINITY;
+
+    let mut hour = 0.0;
+    while hour <= 24.0 {
+        let instant = timestamp_from_utc_hour(adjusted_date, hour)?;
+        let azimuth = solar_azimuth(instant, location)?;
+        let diff = azimuth_error(azimuth, target_azimuth);
+        if diff < best_error {
+            best_error = diff;
+            best_hour = hour;
+        }
+        hour += step;
+    }
+
+    if best_hour.is_nan() || best_error > 5.0 {
+        return Err(ZmanimError::CalculationError);
+    }
+
+    let mut low = 0.0_f64.max(best_hour - step);
+    let mut high = 24.0_f64.min(best_hour + step);
+
+    for _ in 0..30 {
+        let m1 = low + (high - low) / 3.0;
+        let m2 = high - (high - low) / 3.0;
+        let a1 = solar_azimuth(timestamp_from_utc_hour(adjusted_date, m1)?, location)?;
+        let a2 = solar_azimuth(timestamp_from_utc_hour(adjusted_date, m2)?, location)?;
+        let e1 = azimuth_error(a1, target_azimuth);
+        let e2 = azimuth_error(a2, target_azimuth);
+        if e1 < e2 {
+            high = m2;
+        } else {
+            low = m1;
+        }
+    }
+
+    let result = (low + high) / 2.0;
+    let instant = timestamp_from_utc_hour(adjusted_date, result)?;
+    let diff = azimuth_error(solar_azimuth(instant, location)?, target_azimuth);
+    if diff < 0.01 {
+        Ok(instant)
+    } else {
+        Err(ZmanimError::CalculationError)
+    }
+}
+
+fn solar_azimuth(instant: Timestamp, location: &Location) -> Result<f64, ZmanimError> {
+    Ok(solar_elevation_azimuth(instant, location, true))
+}
+
+fn solar_elevation_azimuth(instant: Timestamp, location: &Location, is_azimuth: bool) -> f64 {
+    let lat = location.latitude.to_radians();
+    let lon = location.longitude;
+    let utc = instant.to_zoned(TimeZone::UTC);
+    let time = utc.time();
+    let fractional_day = (f64::from(time.hour())
+        + (f64::from(time.minute())
+            + (f64::from(time.second()) + f64::from(time.nanosecond()) / 1_000_000_000.0) / 60.0)
+            / 60.0)
+        / 24.0;
+    let jd = julian_day(utc.date()) + fractional_day;
+    let jc = julian_centuries_from_julian_day(jd);
+    let decl = sun_declination(jc).to_radians();
+    let eot = equation_of_time(jc);
+    let true_solar_time = (fractional_day + eot / 1440.0 + lon / 360.0 + 2.0) % 1.0;
+    let hour_angle = true_solar_time * 2.0 * core::f64::consts::PI - core::f64::consts::PI;
+    let cos_zenith = lat.sin() * decl.sin() + lat.cos() * decl.cos() * hour_angle.cos();
+    let zenith = cos_zenith.clamp(-1.0, 1.0).acos();
+    let zenith_deg = zenith.to_degrees();
+    let elevation = 90.0 - (zenith_deg - adjust_elevation_for_refraction(90.0 - zenith_deg));
+    let az_denom = lat.cos() * zenith.sin();
+    let azimuth = if az_denom.abs() > 0.001 {
+        let az = (lat.sin() * zenith.cos() - decl.sin()) / az_denom;
+        180.0 - az.clamp(-1.0, 1.0).acos().to_degrees() * if hour_angle > 0.0 { -1.0 } else { 1.0 }
+    } else if location.latitude > 0.0 {
+        180.0
+    } else {
+        0.0
+    };
+
+    if is_azimuth {
+        (azimuth + 360.0) % 360.0
+    } else {
+        elevation
+    }
+}
+
+fn adjust_elevation_for_refraction(elevation: f64) -> f64 {
+    if elevation > 85.0 {
+        return 0.0;
+    }
+
+    let te = elevation.to_radians().tan();
+    let correction = if elevation > 5.0 {
+        58.1 / te - 0.07 / te.powi(3) + 0.000086 / te.powi(5)
+    } else if elevation > -0.575 {
+        1735.0
+            + elevation * (-518.2 + elevation * (103.4 + elevation * (-12.79 + 0.711 * elevation)))
+    } else {
+        -20.774 / te
+    };
+    correction / 3600.0
+}
+
+fn azimuth_error(azimuth: f64, target_azimuth: f64) -> f64 {
+    let diff = (azimuth - target_azimuth).abs() % 360.0;
+    diff.min(360.0 - diff)
+}
+
+fn timestamp_from_utc_hour(date: Date, hour: f64) -> Result<Timestamp, ZmanimError> {
+    let nanos = (hour * HOUR_NANOS).round() as i64;
+    date.at(0, 0, 0, 0)
+        .checked_add(SignedDuration::from_nanos(nanos))
+        .map_err(|_| ZmanimError::TimeConversionError)?
+        .to_zoned(TimeZone::UTC)
+        .map_err(|_| ZmanimError::TimeConversionError)
+        .map(|zdt| zdt.timestamp())
+}
+
 fn rise_set(
     date: Date,
     location: &Location,
