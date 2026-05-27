@@ -43,9 +43,14 @@ Preserve useful links as Markdown when using linked text, but do not invent link
 Use ASCII only in generated user docs. Write "degrees" instead of the degree
 symbol, plain apostrophes instead of curly quotes, and hyphens instead of dashes.
 
-Assume the Rust implementation only uses NOAA. Pretend SunTimes, USNO, and all
-non-NOAA calculators do not exist. Ignore their fallback calculations, caveats,
-and unavailability behavior completely.
+Ignore source text about alternate astronomical calculators, fallback
+calculations, and calculator-specific caveats. Never mention NOAA, SunTimes,
+USNO, or any calculator implementation in user-facing fields.
+
+Always assume astronomical chatzos is used. Treat isUseAstronomicalChatzos as
+always true and never mention it, half-day chatzos fallbacks, or any choice
+between astronomical chatzos and sunrise-to-sunset midpoint. Document only the
+astronomical-chatzos behavior when the source describes both options.
 
 Allowed runtime placeholders:
 - {uses_elevation}
@@ -55,9 +60,9 @@ Allowed runtime placeholders:
 - {use_astronomical_chatzos_for_other_zmanim}
 
 Use placeholders only when directly supported by the source docs. The elevation
-and chatzos placeholders are full sentences; place them as standalone notes.
-The candle-lighting and Ateret Torah placeholders are time-like values; use them
-inside normal prose. Return valid JSON only.
+and {use_astronomical_chatzos_for_other_zmanim} placeholders are full sentences;
+place them as standalone notes. The candle-lighting and Ateret Torah placeholders
+are time-like values; use them inside normal prose. Return valid JSON only.
 """
 
 REVIEW_PROMPT = """
@@ -70,16 +75,23 @@ The allowed placeholders are intentional runtime tokens and will be replaced in
 post-processing. Do not reject documentation merely because it includes one of
 these placeholders: {uses_elevation}, {sea_level}, {candel_lighting_offset},
 {ateret_torah_offset}, {use_astronomical_chatzos_for_other_zmanim}. The
-elevation and chatzos placeholders are valid as standalone notes. The
-candle-lighting and Ateret Torah placeholders are valid inside normal prose.
+elevation and {use_astronomical_chatzos_for_other_zmanim} placeholders are
+valid as standalone notes. The candle-lighting and Ateret Torah placeholders are
+valid inside normal prose.
 Reject placeholders only when the source docs do not support them or when they
 are placed in a grammatically broken way.
 If a supported placeholder covers a setting or caveat, treat that setting or
 caveat as documented. Do not ask for both the placeholder and expanded wording.
 
-Assume the Rust implementation only uses NOAA. Pretend SunTimes, USNO, and all
-non-NOAA calculators do not exist. Do not require caveats that apply only to
-those calculators. Do not reject merely because a secondary caveat was omitted.
+Ignore source text about alternate astronomical calculators and
+calculator-specific caveats. Do not require caveats that apply only to those
+alternate calculators. Never mention NOAA, SunTimes, USNO, or any calculator
+implementation in user-facing fields.
+
+Always assume astronomical chatzos is used. Treat isUseAstronomicalChatzos as
+always true and never mention it, half-day chatzos fallbacks, or any choice
+between astronomical chatzos and sunrise-to-sunset midpoint. Do not reject docs
+for omitting those Java-only configuration branches.
 
 Reject only for hallucinated facts, unsupported links, materially wrong
 calculations, broken prose, forbidden implementation language, or placeholder
@@ -158,7 +170,10 @@ def generation_prompt(
             "Return exactly one JSON object, not an array and not an object with an items key.",
             "The top-level object must use the output_schema exactly.",
             "qualified_name must exactly match the input method qualified_name.",
-            "Ignore any source text about SunTimes, USNO, or non-NOAA calculators.",
+            "Ignore any source text about alternate astronomical calculators.",
+            "Never mention NOAA, SunTimes, USNO, or any calculator implementation.",
+            "Always assume astronomical chatzos is used; never mention isUseAstronomicalChatzos, half-day chatzos, or choosing between chatzos modes.",
+            "Use {use_astronomical_chatzos_for_other_zmanim} only when the source says other zmanim depend on isUseAstronomicalChatzosForOtherZmanim.",
         ],
         "output_schema": {
             "qualified_name": "same qualified_name as input",

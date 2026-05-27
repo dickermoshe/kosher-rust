@@ -3,7 +3,7 @@
 //! Prefer these presets for standard zmanim usage. Reach for `primitive_zman` only when
 //! you need to compose a custom calculation that is not already provided here.
 use crate::prelude::ZmanimCalculator;
-use crate::presets_gen::*;
+pub use crate::presets_gen::*;
 
 use crate::types::error::ZmanimError;
 
@@ -12,7 +12,7 @@ use crate::{calculator::ZmanLike, primitive_zman::ZmanPrimitive};
 extern crate alloc;
 #[cfg(feature = "alloc")]
 use alloc::string::String;
-use jiff::{SignedDuration as Duration, Timestamp};
+use jiff::Timestamp;
 
 /// A zman preset built from a low-level [`ZmanPrimitive`] definition.
 ///
@@ -26,9 +26,9 @@ pub struct ZmanPreset {
     /// The KosherJava-style preset name used by parity tests.
     /// Regression tests use this name to identify the preset.
     pub method_name: &'static str,
-    pub name: &'static str,
+    pub(crate) name: &'static str,
     #[cfg(feature = "alloc")]
-    pub description: fn(&ZmanimCalculator) -> String,
+    pub(crate) description: fn(&ZmanimCalculator) -> String,
 }
 
 #[cfg(feature = "defmt")]
@@ -46,5 +46,23 @@ impl defmt::Format for ZmanPreset {
 impl ZmanLike for ZmanPreset {
     fn calculate(&self, calculator: &mut ZmanimCalculator) -> Result<Timestamp, ZmanimError> {
         self.event.calculate(calculator)
+    }
+}
+
+impl ZmanPreset {
+    /// Returns a user-facing description of this preset.
+    ///
+    /// The description may reflect the active [`ZmanimCalculator`] configuration, such as
+    /// elevation mode, when the preset's wording depends on those settings.
+    ///
+    /// Requires the `alloc` feature.
+    #[cfg(feature = "alloc")]
+    pub fn description(&self, calculator: &ZmanimCalculator) -> String {
+        (self.description)(calculator)
+    }
+
+    /// Returns a short, user-facing name for this preset.
+    pub fn name(&self) -> &'static str {
+        self.name
     }
 }

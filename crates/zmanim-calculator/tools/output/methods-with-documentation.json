@@ -59,9 +59,7 @@
     "user_docs": {
       "meaning": "The beginning of civil twilight, also called dawn, at a zenith of 96 degrees.",
       "calculation": "Calculated using a zenith of 96 degrees.",
-      "notes": [
-        "This zman may not be available if it cannot be calculated."
-      ],
+      "notes": ["This zman may not be available if it cannot be calculated."],
       "deprecated_note": ""
     }
   },
@@ -278,9 +276,7 @@
     "line": 614,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em> based on sunrise being 120\nminutes <em>zmaniyos</em> or 1/6th of the day before sunrise. This is calculated as 10.75 hours after {@link\n#getAlos120Zmanis() dawn}. The formula used is 10.75 * {@link #getShaahZmanis120MinutesZmanis()} after {@link\n#getAlos120Zmanis() dawn}. Since the <em>zman</em> based on an extremely early <em>alos</em> and a very late <em>tzais</em>,\nit should only be used <em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after <em>shkiah</em>),\n        and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no current plan to remove this method\n        from the API, and this deprecation is intended to alert developers of the danger of using it.\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as in the\n        Arctic Circle where there is at least one day a year where the sun does not rise, and one where it does not set, a\n        <code>null</code> will be returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.\n@see #getShaahZmanis120MinutesZmanis()\n@see #getAlos120Minutes()\n@see #getTzais120Minutes()\n@see #getPlagHamincha26Degrees()\n@see #getPlagHamincha120Minutes()",
     "user_docs": {
@@ -302,9 +298,7 @@
     "line": 635,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "{@summary This method <em>plag hamincha</em> according to the Magen Avraham with the day starting at {@link\n#getAlos120Minutes()}. It should be used <em>lechumra</em> only}. This is calculated as* 10.75 {@link\n#getShaahZmanis120Minutes()} after {@link #getAlos120Minutes()}. Since the <em>zman</em> based on an extremely early\n<em>alos</em> and a very late <em>tzais</em>, it returns a very late time (often after <em>shkiah</em> and can result in\n<em>chillul Shabbos</em> etc.) and should only be used <em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after <em>shkiah</em>),\n        and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no current plan to remove this method\n        from the API, and this deprecation is intended to alert developers of the danger of using it.\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as in the\n        Arctic Circle where there is at least one day a year where the sun does not rise, and one where it does not set, a\n        <code>null</code> will be returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.\n@see #getShaahZmanis120Minutes()\n@see #getPlagHamincha26Degrees()",
     "user_docs": {
@@ -474,9 +468,7 @@
     "line": 781,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns <em>alos</em> (dawn) calculated using 120 minutes before {@link\n#getSunset() sunrise} or {@link #getSeaLevelSunrise() sea level sunrise} (depending on the {@link #isUseElevation()} setting)\nbased on the time to walk the distance of 5 <a href=\"https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement\"\n>mil</a> (<em>Ula</em>) at 24 minutes a mil. Time based offset calculations for <em>alos</em> are based on the* opinion of the\n<em><a href=\"https://en.wikipedia.org/wiki/Rishonim\">Rishonim</a></em> who stated that the time of the <em>neshef</em> (time\nbetween dawn and sunrise) does not vary by the time of year or location but purely depends on the time it takes to walk the\ndistance of 5 mil (<em>Ula</em>). Since this time is extremely early, it should only be used <em>lechumra</em>, such as not\neating after this time on a fast day, and not as the start time for <em>mitzvos</em> that can only be performed during the day.\n\n@deprecated This method should be used <em>lechumra</em> only (such as stopping to eat at this time on a fast day),\n        since it returns a very early time, and if used <em>lekula</em> can result in doing <em>mitzvos hayom</em>\n        too early according to most opinions. There is no current plan to remove this method from the API, and this\n        deprecation is intended to alert developers of the danger of using it.\n@return the <code>Instant</code> representing the time. If the calculation can't be computed such as in the Arctic\n        Circle where there is at least one day a year where the sun does not rise, and one where it does not set,\n        a <code>null</code> will be returned. See detailed explanation on top of the {@link AstronomicalCalendar}\n        documentation.\n@see #getTzais120Minutes()\n@see #getAlos26Degrees()",
     "user_docs": {
@@ -499,9 +491,7 @@
     "line": 809,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and  method returns <em>alos</em> (dawn) calculated using\n120 minutes <em>zmaniyos</em> or 1/6th of the day before {@link #getSunset() sunrise} or {@link\n#getSeaLevelSunrise() sea level sunrise} (depending on the {@link #isUseElevation()} setting). This is based\non a 24-minute <a href=\"https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement\">mil</a> so\nthe time for 5 mil is 120 minutes which is 1/6th of a day (12 * 60 / 6 = 120). The day is calculated from\n{@link #getSeaLevelSunrise() sea level sunrise} to {@link #getSeaLevelSunset() sea level sunset} or {@link\n#getSunset() sunrise} to {@link #getSunset() sunset} (depending on the {@link\n#isUseElevation()}. The actual calculation used is {@link #getSunset()} - ({@link #getShaahZmanisGRA()}\n* 2). Since this time is extremely early, it should only be used <em>lechumra</em>, such as not eating after this time\non a fast day, and not as the start time for <em>mitzvos</em> that can only be performed during the day.\n\n@deprecated This method should be used <em>lechumra</em> only (such as stopping to eat at this time on a fast day),\n        since it returns a very early time, and if used <em>lekula</em> can result in doing <em>mitzvos hayom</em>\n        too early according to most opinions. There is no current plan to remove this method from the API, and this\n        deprecation is intended to alert developers of the danger of using it.\n@return the <code>Instant</code> representing the time. If the calculation can't be computed such as in the Arctic\n        Circle where there is at least one day a year where the sun does not rise, and one where it does not set,\n        a <code>null</code> will be returned. See detailed explanation on top of the {@link AstronomicalCalendar}\n        documentation.\n@see #getAlos120Minutes()\n@see #getAlos26Degrees()",
     "user_docs": {
@@ -525,9 +515,7 @@
     "line": 836,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns <em>alos</em> (dawn) calculated when the sun is {@link\nZENITH_26_DEGREES 26°} below the eastern geometric horizon before sunrise. This calculation is based on the same\ncalculation of {@link #getAlos120Minutes() 120 minutes} but uses a degree-based calculation instead of 120 exact minutes.\nThis calculation is based on the position of the sun 120 minutes before sunrise in Jerusalem <a href=\n\"https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/\">around the equinox / equilux</a>, which\ncalculates to 26° below {@link GEOMETRIC_ZENITH geometric zenith}. Since this time is extremely early, it should\nonly be used <em>lechumra</em> only, such as not eating after this time on a fast day, and not as the start time for\n<em>mitzvos</em> that can only be performed during the day.\n\n@deprecated This method should be used <em>lechumra</em> only (such as stopping to eat at this time on a fast day),\n        since it returns a very early time, and if used <em>lekula</em> can result in doing <em>mitzvos hayom</em>\n        too early according to most opinions. There is no current plan to remove this  method from the API, and this\n        deprecation is intended to alert developers of the danger of using it.\n@return the <code>Instant</code> representing <em>alos</em>. If the calculation can't be computed such as northern\n        and southern locations even south of the Arctic Circle and north of the Antarctic Circle where the sun\n        may not reach low enough below the horizon for this calculation, a <code>null</code> will be returned. See\n        detailed explanation on top of the {@link AstronomicalCalendar} documentation.\n@see #getAlos120Minutes()\n@see #getTzais120Minutes()\n@see #getTzais26Degrees()",
     "user_docs": {
@@ -617,9 +605,7 @@
     "line": 930,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method returns <em>misheyakir</em> based on the position of the sun {@link ZENITH_12_POINT_85 12.85°}\nbelow {@link GEOMETRIC_ZENITH geometric zenith} (90°). This is based on the position of the sun slightly\nlater than 57 minutes before {@link #getSunset() sunrise} in Jerusalem <a href=\n\"https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/\">around the equinox / equilux</a>. This\n<em>zman</em> is mentioned for use <b><em>bish'as hadchak</em></b> in the Birur Halacha <a href=\n\"https://hebrewbooks.org/pdfpager.aspx?req=50535&st=&pgnum=88\">Tinyana</a> and <a href=\n\"https://hebrewbooks.org/pdfpager.aspx?req=50537&st=&pgnum=31\">Tlisa'ah</a> in  Orach Chaim siman 18 as 12.85°.\nActual calculations show it to be slightly more than 12.9°, but the Birur Halacha indicates that 12.85° is a\nslight <em>chumra</em> (on a <em>bedieved</em> time) VS the 12.9° that 57 minutes calculates as (a difference of\nabout 14 seconds at the equinox/equilux in Jerusalem). The <em>zman</em> of 12.9° is also mentioned in the Piskei\nTshuvos siman 18, page 190 (where a typo indicates that this is the degree equivalent to 60 minutes before sunrise,\nwhen in fact at that point the sun is about 13.5° below the horizon). The 57 minute based time is mentioned by the\nMinchas Yitzchak <a href=\"https://hebrewbooks.org/pdfpager.aspx?req=1601&st=&pgnum=21\">vol. 9, siman 9</a> as 15 minutes\nbefore <em>alos hashachar</em> (though he is not clear what location he refers to, and does not mention a degree-based\nconversion). The Kaf Hachaim <a href=\"https://hebrewbooks.org/pdfpager.aspx?req=8140&st=&pgnum=81\">vol.1 siman 18, no.\n18</a> states that in Yerushalayim 60 fixed minutes are used year round. Calculations show that 60 fixed minutes in\nYerushalayim ranges from 13.5° at the spring equinox to 11.5° at the summer solstice. 57-minute\n<em>misheyakir</em> range from 12.9° at the winter equinox to 11° at the summer solstice.\nAnalysis of the difference between 12.85° and 12.9°, shows that the maximum difference occurs at the summer\nsolstice. In Lakewood, NJ at a latitude of 40.096°, the maximum difference throughout the year is 23 seconds.\nIn the winter where there is the greatest need for very early <em>misheyakir</em> times, the difference is in the 16\nsecond range. Going north to Montreal at latitude 45.5°, the maximum is 29 seconds and is about 18 seconds in the\nwinter. Moving farther north to the latitude of Vilnius at a latitude of 54.68°, things change. Firstly, around the\nsummer solstice it will not reach that far below the horizon. On the dates that both can be calculated, the maximum\ndifference can be pretty high on one or two days of the year (around Jul 8),  with about a week having over a two minute\ndifference between the two. Even at the latitude of Vilna, from Dec - March, the difference is about 22 seconds.\n\n@deprecated This method returns a very early <em>misheyakir</em> time that should only be used <b><em>bish'as\n        hadchak</em></b>. <em>Lechatchila</em>, a later <em>zman</em> should be used. There is no current plan to remove\n        this method from the API, and this deprecation is intended to notify developers to add an alert to users of\n        the risk of using it.\n@return The <code>Instant</code> of <em>misheyakir</em>. If the calculation can't be computed such as northern and\n        southern locations even south of the Arctic Circle and north of the Antarctic Circle where the sun may\n        not reach low enough below the horizon for this calculation, a <code>null</code> will be returned. See\n        detailed explanation on top of the {@link AstronomicalCalendar} documentation.\n@see ZENITH_12_POINT_85",
     "user_docs": {
@@ -1332,30 +1318,6 @@
     }
   },
   {
-    "name": "getMinchaGedolaGRAGreaterThan30",
-    "qualified_name": "com.kosherjava.zmanim.ComprehensiveZmanimCalendar.getMinchaGedolaGRAGreaterThan30",
-    "package": "com.kosherjava.zmanim",
-    "class_name": "ComprehensiveZmanimCalendar",
-    "qualified_class": "com.kosherjava.zmanim.ComprehensiveZmanimCalendar",
-    "file": "C:\\Users\\Moshe\\DickerSystems\\rust-zmanim-project\\crates\\zmanim-calculator\\java\\src\\main\\java\\com\\kosherjava\\zmanim\\ComprehensiveZmanimCalendar.java",
-    "line": 1672,
-    "return_type": "Instant",
-    "parameters": [],
-    "annotations": [],
-    "is_deprecated": false,
-    "docs": "This is a convenience method that returns the later of {@link #getMinchaGedolaGRA()} and\n{@link #getMinchaGedola30Minutes()}. In the winter when 1/2 of a {@link #getShaahZmanisGRA() <em>shaah zmanis</em>} is\nless than 30 minutes {@link #getMinchaGedola30Minutes()} will be returned, otherwise {@link #getMinchaGedolaGRA()}\nwill be returned. Since this calculation can be an offset of <em>chatzos</em> (if 30 clock minutes > 1/2 of a <em>shaah\nzmanis</em>), even if {@link #isUseAstronomicalChatzosForOtherZmanim()} is <code>false</code>, this <em>mincha</em> time\nmay be affected by {@link #isUseAstronomicalChatzos()}.\n\n@return the <code>Date</code> of the later of {@link #getMinchaGedolaGRA()} and {@link #getMinchaGedola30Minutes()}.\n        If the calculation can't be computed such as in the Arctic Circle where there is at least one day a year\n        where the sun does not rise, and one where it does not set, a <code>null</code> will be returned. See detailed\n        explanation on top of the {@link AstronomicalCalendar} documentation.\n@todo Consider adjusting this to calculate the time as 30 minutes after {@link #getChatzosHayom()} that uses {@link\n        isUseAstronomicalChatzos()} to determine the type of <em>chatzos</em> to utilize (if the {@link\n        com.kosherjava.zmanim.util.AstronomicalCalculator calculator} support astronomical <em>chatzos</em>),\n        based on the {@link #isUseAstronomicalChatzos()} setting.\n@see #getMinchaGedolaGRA()\n@see #getMinchaGedola30Minutes()\n@see #getMinchaGedolaGreaterThan30(Instant)\n@see #isUseAstronomicalChatzos()",
-    "user_docs": {
-      "meaning": "The later of Mincha Gedola based on GRA and Mincha Gedola at 30 minutes after chatzos.",
-      "calculation": "It compares the GRA-based Mincha Gedola with Mincha Gedola 30 minutes after chatzos, and uses the later one. In winter, when half of a shaah zmanis is less than 30 minutes, the 30-minute time is used; otherwise the GRA-based time is used.",
-      "notes": [
-        "{use_astronomical_chatzos_for_other_zmanim}",
-        "Even when that setting is false, this mincha time may still be affected by astronomical chatzos if 30 clock minutes is longer than half of a shaah zmanis.",
-        "If the zman cannot be calculated, it may not be available."
-      ],
-      "deprecated_note": ""
-    }
-  },
-  {
     "name": "getMinchaKetana16Point1Degrees",
     "qualified_name": "com.kosherjava.zmanim.ComprehensiveZmanimCalendar.getMinchaKetana16Point1Degrees",
     "package": "com.kosherjava.zmanim",
@@ -1456,9 +1418,7 @@
     "line": 1779,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em> according to the\nMagen Avraham with the day starting 72 minutes before sunrise and ending 72 minutes after sunset. This is calculated\nas 10.75 hours after {@link #getAlos72Minutes() dawn}. The formula used is 10.75 {@link #getShaahZmanis72Minutes()} after\n{@link #getAlos72Minutes()}. Since <em>plag</em> by this calculation can occur after sunset, it should only be used\n<em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after\n        <em>shkiah</em>), and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no\n        current plan to remove this method from the API, and this deprecation is intended to alert developers\n        of the danger of using it.\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as\n        in the Arctic Circle where there is at least one day a year where the sun does not rise, and one where it\n        does not set, a <code>null</code> will be returned. See detailed explanation on top of the\n        {@link AstronomicalCalendar} documentation.\n@see #getShaahZmanis72Minutes()",
     "user_docs": {
@@ -1482,9 +1442,7 @@
     "line": 1801,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em> according to the Magen\nAvraham with the day starting 90 minutes before sunrise and ending 90 minutes after sunset. This is calculated as 10.75 hours\nafter {@link #getAlos90Minutes() dawn}. The formula used is 10.75 {@link #getShaahZmanis90Minutes()} after {@link\n#getAlos90Minutes()}. Since <em>plag</em> by this calculation can occur after sunset, it should only be used <em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after\n        <em>shkiah</em>), and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no\n        current plan to remove this method from the API, and this deprecation is intended to alert developers\n        of the danger of using it.\n\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as\n        in the Arctic Circle where there is at least one day a year where the sun does not rise, and one where it\n        does not set, a <code>null</code> will be returned. See detailed explanation on top of the\n        {@link AstronomicalCalendar} documentation.\n@see #getShaahZmanis90Minutes()",
     "user_docs": {
@@ -1508,9 +1466,7 @@
     "line": 1823,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em> according to the Magen\nAvraham with the day starting 96 minutes before sunrise and ending 96 minutes after sunset. This is calculated as 10.75\nhours after {@link #getAlos96Minutes() dawn}. The formula used is 10.75 {@link #getShaahZmanis96Minutes()} after\n{@link #getAlos96Minutes()}. Since <em>plag</em> by this calculation can occur after sunset, it should only be used\n<em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after\n        <em>shkiah</em>), and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no\n        current plan to remove this method from the API, and this deprecation is intended to alert developers\n        of the danger of using it.\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as\n        in the Arctic Circle where there is at least one day a year where the sun does not rise, and one where it\n        does not set, a <code>null</code> will be returned. See detailed explanation on top of the\n        {@link AstronomicalCalendar} documentation.\n@see #getShaahZmanis96Minutes()",
     "user_docs": {
@@ -1534,9 +1490,7 @@
     "line": 1843,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em>. This is calculated\nas 10.75 hours after {@link #getAlos96Zmanis() dawn}. The formula used is 10.75 * {@link\n#getShaahZmanis96MinutesZmanis()} after {@link #getAlos96Zmanis() dawn}. Since <em>plag</em> by this calculation can\noccur after sunset, it should only be used <em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after\n        <em>shkiah</em>), and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no\n        current plan to remove this method from the API, and this deprecation is intended to alert developers\n        of the danger of using it.\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as\n        in the Arctic Circle where there is at least one day a year where the sun does not rise, and one where it\n        does not set, a <code>null</code> will be returned. See detailed explanation on top of the\n        {@link AstronomicalCalendar} documentation.",
     "user_docs": {
@@ -1558,9 +1512,7 @@
     "line": 1863,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em>. This is calculated\nas 10.75 hours after {@link #getAlos90Zmanis() dawn}. The formula used is 10.75 * {@link\n#getShaahZmanis90MinutesZmanis()} after {@link #getAlos90Zmanis() dawn}. Since <em>plag</em> by this calculation can\noccur after sunset, it should only be used <em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after\n        <em>shkiah</em>), and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no\n        current plan to remove this method from the API, and this deprecation is intended to alert developers\n        of the danger of using it.\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as\n        in the Arctic Circle where there is at least one day a year where the sun does not rise, and one where it\n        does not set, a <code>null</code> will be returned. See detailed explanation on top of the\n        {@link AstronomicalCalendar} documentation.",
     "user_docs": {
@@ -1583,9 +1535,7 @@
     "line": 1883,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em>. This is calculated as\n10.75 hours after {@link #getAlos72Zmanis()}. The formula used is 10.75 * {@link #getShaahZmanis72MinutesZmanis()} after\n{@link #getAlos72Zmanis() dawn}. Since <em>plag</em> by this calculation can occur after sunset, it should only be used\n<em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after\n        <em>shkiah</em>), and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no\n        current plan to remove this method from the API, and this deprecation is intended to alert developers\n        of the danger of using it.\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as\n        in the Arctic Circle where there is at least one day a year where the sun does not rise, and one where it\n        does not set, a <code>null</code> will be returned. See detailed explanation on top of the\n        {@link AstronomicalCalendar} documentation.",
     "user_docs": {
@@ -1609,9 +1559,7 @@
     "line": 1906,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em> based on the\nopinion that the day starts at {@link #getAlos16Point1Degrees() <em>alos</em> 16.1°} and ends at {@link\n#getTzais16Point1Degrees() <em>tzais</em> 16.1°}. This is calculated as 10.75 hours <em>zmaniyos</em>\nafter {@link #getAlos16Point1Degrees() dawn}. The formula used is 10.75 * {@link #getShaahZmanis16Point1Degrees()}\nafter {@link #getAlos16Point1Degrees()}. Since <em>plag</em> by this calculation can occur after sunset, it\nshould only be used <em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after\n        <em>shkiah</em>), and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no\n        current plan to remove this method from the API, and this deprecation is intended to alert developers\n        of the danger of using it.\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as\n        northern and southern locations even south of the Arctic Circle and north of the Antarctic Circle where\n        the sun may not reach low enough below the horizon for this calculation, a <code>null</code> will be\n        returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.\n@see #getShaahZmanis16Point1Degrees()",
     "user_docs": {
@@ -1635,9 +1583,7 @@
     "line": 1929,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em> based on the\nopinion that the day starts at {@link #getAlos19Point8Degrees() <em>alos</em> 19.8°} and ends at {@link\n#getTzais19Point8Degrees() <em>tzais</em> 19.8°}. This is calculated as 10.75 hours <em>zmaniyos</em>\nafter {@link #getAlos19Point8Degrees() dawn}. The formula used is 10.75 * {@link\n#getShaahZmanis19Point8Degrees()} after {@link #getAlos19Point8Degrees()}. Since <em>plag</em> by this\ncalculation can occur after sunset, it should only be used <em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after\n        <em>shkiah</em>), and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no\n        current plan to remove this method from the API, and this deprecation is intended to alert developers\n        of the danger of using it.\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as\n        northern and southern locations even south of the Arctic Circle and north of the Antarctic Circle where\n        the sun may not reach low enough below the horizon for this calculation, a <code>null</code> will be\n        returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.\n@see #getShaahZmanis19Point8Degrees()",
     "user_docs": {
@@ -1661,9 +1607,7 @@
     "line": 1953,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em> based on the\nopinion that the day starts at {@link #getAlos26Degrees() <em>alos</em> 26°} and ends at {@link\n#getTzais26Degrees() <em>tzais</em> 26°}. This is calculated as 10.75 hours <em>zmaniyos</em> after {@link\n#getAlos26Degrees() dawn}. The formula used is 10.75 * {@link #getShaahZmanis26Degrees()} after {@link\n#getAlos26Degrees()}. Since the <em>zman</em> based on an extremely early <em>alos</em> and a very late\n<em>tzais</em>, it should only be used <em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after\n        <em>shkiah</em>), and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no\n        current plan to remove this method from the API, and this deprecation is intended to alert developers\n        of the danger of using it.\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as\n        northern and southern locations even south of the Arctic Circle and north of the Antarctic Circle where\n        the sun may not reach low enough below the horizon for this calculation, a <code>null</code> will be\n        returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.\n@see #getShaahZmanis26Degrees()\n@see #getPlagHamincha120Minutes()",
     "user_docs": {
@@ -1687,9 +1631,7 @@
     "line": 1976,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em> based on the\nopinion that the day starts at {@link #getAlos18Degrees() <em>alos</em> 18°} and ends at {@link\n#getTzais18Degrees() <em>tzais</em> 18°}. This is calculated as 10.75 hours <em>zmaniyos</em> after {@link\n#getAlos18Degrees() dawn}. The formula used is 10.75 * {@link #getShaahZmanis18Degrees()} after {@link\n#getAlos18Degrees()}. Since <em>plag</em> by this calculation can occur after sunset, it should only be used\n<em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after\n        <em>shkiah</em>), and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no\n        current plan to remove this method from the API, and this deprecation is intended to alert developers\n        of the danger of using it.\n@return the <code>Instant</code> of the time of <em>plag hamincha</em>. If the calculation can't be computed such as\n        northern and southern locations even south of the Arctic Circle and north of the Antarctic Circle where\n        the sun may not reach low enough below the horizon for this calculation, a <code>null</code> will be\n        returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.\n@see #getShaahZmanis18Degrees()",
     "user_docs": {
@@ -1713,9 +1655,7 @@
     "line": 2002,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em> based on the opinion that\nthe day starts at {@link #getAlos16Point1Degrees() <em>alos</em> 16.1°} and ends at {@link #getSunset()\nsunset}. 10.75 <em>shaos zmaniyos</em> are calculated based on this day and added to {@link #getAlos16Point1Degrees()\n<em>alos</em>} to reach this time. This time is 10.75 <em>shaos zmaniyos</em> (temporal hours) after {@link\n#getAlos16Point1Degrees() dawn} based on the opinion that the day is calculated from a {@link #getAlos16Point1Degrees()\ndawn} of 16.1° before sunrise to {@link #getSeaLevelSunset() sea level sunset}. This returns the time of 10.75 * the\ncalculated <em>shaah zmanis</em> after {@link #getAlos16Point1Degrees() dawn}. Since <em>plag</em> by this calculation can\noccur after sunset, it should only be used <em>lechumra</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time (often after\n        <em>shkiah</em>), and if used <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no\n        current plan to remove this method from the API, and this deprecation is intended to alert developers\n        of the danger of using it.\n@return the <code>Instant</code> of the <em>plag</em>. If the calculation can't be computed such as northern and southern\n        locations even south of the Arctic Circle and north of the Antarctic Circle where the sun may not reach\n        low enough below the horizon for this calculation, a <code>null</code> will be returned. See detailed\n        explanation on top of the {@link AstronomicalCalendar} documentation.\n@see #getAlos16Point1Degrees()\n@see #getSeaLevelSunset()",
     "user_docs": {
@@ -2012,9 +1952,7 @@
     "line": 2284,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method returns the <em>tzais</em> (nightfall) based on the opinion of the <em>Geonim</em> calculated at the sun's\nposition at {@link ZENITH_3_POINT_7 3.7°} below {@link GEOMETRIC_ZENITH geometric zenith} (90°), calculated\nas the position of the sun 13.5 minutes after sunset, the time it takes to walk 3/4 of a <a href=\n\"https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement\">mil</a> at 18 minutes a mil, or 13.5 minutes\n after sunset. The sun is 3.7° below {@link GEOMETRIC_ZENITH geometric zenith} at this time in Jerusalem <a href=\n\"https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/\">around the equinox / equilux</a>. This does\nnot cover the 26.46 it takes to walk 49 amos (the <em>heref ayin</em> of <em>bain hashmashos</em> of Rav Yosi) at the pace\nof an 18-minute mil. It should be noted that Rabbi Yedidya Manet in his <a href=\n\"https://www.nli.org.il/en/books/NNL_ALEPH002542826/NLI\">Zmanei HaHalacha Lema'aseh</a> (4th edition part 2, pages and 22\nand 24) lists 3.65° that appears to be a drop too early.\n\n@return the <code>Instant</code> representing the time when the sun is 3.7° below sea level.\n@see ZENITH_3_POINT_7",
     "user_docs": {
@@ -2038,9 +1976,7 @@
     "line": 2302,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method returns the <em>tzais</em> (nightfall) based on the opinion of the <em>Geonim</em> calculated at the sun's\nposition at {@link ZENITH_3_POINT_7 3.8°} below {@link GEOMETRIC_ZENITH geometric zenith} (90°), calculated\nas the position of the sun 13.5 minutes after sunset, the time it takes to walk 3/4 of a <a href=\n\"https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement\">mil</a> at 18 minutes a mil, plus 30 seconds\nfor the time it takes to walk 49 amos (the <em>heref ayin</em> of <em>bain hashmashos</em> of Rav Yosi). With this being\non an 18-minutes mil, 49 amos would take 26.46, rounded to 30 seconds), for a total of 14 minutes after sunset. The sun is\n{@link ZENITH_3_POINT_8 3.8°} below {@link GEOMETRIC_ZENITH geometric zenith} at this time in Jerusalem <a href=\n\"https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/\">around the equinox / equilux</a>.\n\n@return the <code>Instant</code> representing the time when the sun is 3.8° below sea level.\n@see ZENITH_3_POINT_8",
     "user_docs": {
@@ -2087,9 +2023,7 @@
     "line": 2351,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method returns the <em>tzais</em> (nightfall) based on the opinion of the <em>Geonim</em> calculated as 3/4\nof a <a href=\"https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement\">mil</a> based on a\n24-minute mil, or 18 minutes. It is the sun's position at {@link ZENITH_4_POINT_66 4.66°} below the\nwestern horizon. This is a very early <em>zman</em> and should not be relied on without Rabbinical guidance.\nThis does not cover the 35.28 seconds it takes to walk 49 amos (the <em>heref ayin</em> of <em>bain hashmashos</em>\nof Rav Yosi) at the pace of a 24-minute mil. See {@link #getTzaisGeonim4Point8Degrees()} for a time that covers the\n<em>heref ayin</em>.\n\n@return the <code>Instant</code> representing the time when the sun is 4.66° below sea level. If the calculation\n        can't be computed such as northern and southern locations even south of the Arctic Circle and north of\n        the Antarctic Circle where the sun may not reach low enough below the horizon for this calculation, a\n        <code>null</code> will be returned. See detailed explanation on top of the {@link AstronomicalCalendar}\n        documentation.\n@see ZENITH_4_POINT_66\n@see #getTzaisGeonim4Point8Degrees()",
     "user_docs": {
@@ -2113,9 +2047,7 @@
     "line": 2373,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method returns the <em>tzais</em> (nightfall) based on the opinion of the <em>Geonim</em> calculated as 3/4\nof a <a href=\"https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement\">mil</a>, based on a\n22.5-minute mil, or 16 7/8 minutes. It is the sun's position at {@link ZENITH_4_POINT_42 4.42°} below the western\nhorizon. This is a very early <em>zman</em> and should not be relied on without Rabbinical guidance. This does\nnot cover the 33.07 seconds it takes to walk 49 amos (the <em>heref ayin</em> of <em>bain hashmashos</em> of Rav Yosi)\nat the pace of a 22.5 minute-mil. It should be noted that Rabbi Yedidya Manet in his <a href=\n\"https://www.nli.org.il/en/books/NNL_ALEPH002542826/NLI\">Zmanei HaHalacha Lema'aseh</a> (4th edition part 2, pages and 22\nand 24) lists 4.37° that appears to be a drop too early.\n\n@return the <code>Instant</code> representing the time when the sun is 4.42° below sea level. If the calculation\n        can't be computed such as northern and southern locations even south of the Arctic Circle and north of\n        the Antarctic Circle where the sun may not reach low enough below the horizon for this calculation, a\n        <code>null</code> will be returned. See detailed explanation on top of the {@link AstronomicalCalendar}\n        documentation.\n@see ZENITH_4_POINT_42",
     "user_docs": {
@@ -2531,9 +2463,7 @@
     "line": 2798,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns <em>tzais</em> (nightfall) based on the calculations\nof <a href=\"https://en.wikipedia.org/wiki/Avraham_Chaim_Naeh\">Rav Chaim Naeh</a> that the time to walk the distance\nof a <a href=\"https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement\">mil</a> according to the <a\nhref=\"https://en.wikipedia.org/wiki/Maimonides\">Rambam</a>'s opinion is 2/5 of an hour (24 minutes) for a total of 120\nminutes based on the opinion of <em>Ula</em> who calculated <em>tzais</em> as 5 mil after {@link #getSunset()\nsunset} or {@link #getSeaLevelSunset() sea level sunset} (depending on the {@link #isUseElevation()} setting).\nA similar calculation {@link #getTzais26Degrees()} uses degree-based calculations based on this 120 minute calculation.\nSince the <em>zman</em> is extremely late and at a point that is long past the 18° point where the darkest point is\nreached, it should only be used <em>lechumra</em>, such as delaying the start of nighttime <em>mitzvos</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time, and if used\n        <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no current plan to remove this\n        method from the API, and this deprecation is intended to alert developers of the danger of using it.\n@return the <code>Instant</code> representing the time. If the calculation can't be computed such as in the Arctic\n        Circle where there is at least one day a year where the sun does not rise, and one where it does not set,\n        a <code>null</code> will be returned. See detailed explanation on top of the {@link AstronomicalCalendar}.\n        documentation.\n@see #getTzais26Degrees()\n@see #getAlos120Minutes()",
     "user_docs": {
@@ -2557,9 +2487,7 @@
     "line": 2822,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns <em>tzais</em> (dusk) calculated using 120 minutes\n<em>zmaniyos</em> after {@link #getSeaLevelSunset() sea level sunset}. Since the <em>zman</em>\nis extremely late and at a time when the sun is well below the 18° point (scientifically the darkest point) in\nmost places on the globe, it should only be used <em>lechumra</em>, such as delaying the start of nighttime\n<em>mitzvos</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time, and if used\n        <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no current plan to remove this\n        method from the API, and this deprecation is intended to alert developers of the danger of using it.\n\n@return the <code>Instant</code> representing the time. If the calculation can't be computed such as in the Arctic\n        Circle where there is at least one day a year where the sun does not rise, and one where it does not set,\n        a <code>null</code> will be returned. See detailed explanation on top of the {@link AstronomicalCalendar}\n        documentation.\n@see #getAlos120Zmanis()\n@see #getTzais120Minutes()\n@see #getTzais26Degrees()",
     "user_docs": {
@@ -2607,9 +2535,7 @@
     "line": 2869,
     "return_type": "Instant",
     "parameters": [],
-    "annotations": [
-      "@Deprecated (forRemoval=false)"
-    ],
+    "annotations": ["@Deprecated (forRemoval=false)"],
     "is_deprecated": true,
     "docs": "This method should be used <em>lechumra</em> only and returns <em>tzais</em> based on when the sun is 26°\nbelow the horizon. For information on how this is calculated see the comments on {@link #getAlos26Degrees()}.\nSince the <em>zman</em> is extremely late and at a point when it is long past the 18° point where the\ndarkest point is reached, it should only be used <em>lechumra</em> such as delaying the start of nighttime\n<em>mitzvos</em>.\n\n@deprecated This method should be used <em>lechumra</em> only since it returns a very late time, and if used\n        <em>lekula</em> can result in <em>chillul Shabbos</em> etc. There is no current plan to remove this\n        method from the API, and this deprecation is intended to alert developers of the danger of using it.\n\n@return the <code>Instant</code> representing the time. If the calculation can't be computed such as northern and\n        southern locations even south of the Arctic Circle and north of the Antarctic Circle where the sun may\n        not reach low enough below the horizon for this calculation, a <code>null</code> will be returned. See\n        detailed explanation on top of the {@link AstronomicalCalendar} documentation.\n@see #getTzais120Minutes()\n@see #getAlos26Degrees()",
     "user_docs": {
@@ -3126,9 +3052,7 @@
     "user_docs": {
       "meaning": "The latest time to burn chametz on Erev Pesach according to the Baal Hatanya.",
       "calculation": "It is 5 shaos zmaniyos after netz amiti (sunrise), using the Baal Hatanya's day length from sunrise to sunset.",
-      "notes": [
-        "If it is not Erev Pesach, the zman may not be available."
-      ],
+      "notes": ["If it is not Erev Pesach, the zman may not be available."],
       "deprecated_note": ""
     }
   },

@@ -16,7 +16,7 @@ use crate::{
     molad::MoladCalendar,
     prelude::ZmanimCalculator,
     presets::{
-        ALOS_16_POINT_1_DEGREES, TZAIS_GEONIM_DEGREES_3_POINT_7, TZAIS_GEONIM_DEGREES_3_POINT_8,
+        ALOS_16_POINT_1_DEGREES, TZAIS_GEONIM_3_POINT_7_DEGREES, TZAIS_GEONIM_3_POINT_8_DEGREES,
     },
     types::error::ZmanimError,
 };
@@ -26,6 +26,10 @@ use icu_calendar::{
 };
 use jiff::{SignedDuration as Duration, Timestamp};
 use jiff_icu::ConvertInto;
+
+static CIVIL_ZENITH: f64 = 6.0;
+static NAUTICAL_ZENITH: f64 = 12.0;
+static ASTRONOMICAL_ZENITH: f64 = 18.0;
 
 /// A low-level building block for calculating zmanim.
 ///
@@ -100,6 +104,18 @@ pub enum ZmanPrimitive<'a> {
     PlagAhavatShalom,
     /// Returns the latest time of _Kiddush Levana_ calculated as 15 days after the molad.
     Molad,
+    /// The beginning of civil twilight (dawn), when the sun is 6° below the geometric horizon (96° zenith).
+    BeginCivilTwilight,
+    /// The end of civil twilight, when the sun is 6° below the geometric horizon (96° zenith).
+    EndCivilTwilight,
+    /// The beginning of nautical twilight, when the sun is 12° below the geometric horizon (102° zenith).
+    BeginNauticalTwilight,
+    /// The end of nautical twilight, when the sun is 12° below the geometric horizon (102° zenith).
+    EndNauticalTwilight,
+    /// The beginning of astronomical twilight, when the sun is 18° below the geometric horizon (108° zenith).
+    BeginAstronomicalTwilight,
+    /// The end of astronomical twilight, when the sun is 18° below the geometric horizon (108° zenith).
+    EndAstronomicalTwilight,
 }
 
 #[cfg(feature = "defmt")]
@@ -173,6 +189,12 @@ impl defmt::Format for ZmanPrimitive<'_> {
             Self::MinchaKetanaAhavatShalom => defmt::write!(fmt, "MinchaKetanaAhavatShalom"),
             Self::PlagAhavatShalom => defmt::write!(fmt, "PlagAhavatShalom"),
             Self::Molad => defmt::write!(fmt, "Molad"),
+            Self::BeginCivilTwilight => defmt::write!(fmt, "BeginCivilTwilight"),
+            Self::EndCivilTwilight => defmt::write!(fmt, "EndCivilTwilight"),
+            Self::BeginNauticalTwilight => defmt::write!(fmt, "BeginNauticalTwilight"),
+            Self::EndNauticalTwilight => defmt::write!(fmt, "EndNauticalTwilight"),
+            Self::BeginAstronomicalTwilight => defmt::write!(fmt, "BeginAstronomicalTwilight"),
+            Self::EndAstronomicalTwilight => defmt::write!(fmt, "EndAstronomicalTwilight"),
         }
     }
 }
@@ -403,7 +425,7 @@ impl<'a> ZmanLike for ZmanPrimitive<'a> {
 
                 let alos = ALOS_16_POINT_1_DEGREES.calculate(calculator)?;
                 #[allow(deprecated)]
-                let tzais = TZAIS_GEONIM_DEGREES_3_POINT_7.calculate(calculator)?;
+                let tzais = TZAIS_GEONIM_3_POINT_7_DEGREES.calculate(calculator)?;
                 let shaah_zmanis = tzais.duration_since(alos) / 12;
                 let mincha_alternative = chatzos + (shaah_zmanis / 2);
                 if mincha_gedola_30 > mincha_alternative {
@@ -414,7 +436,7 @@ impl<'a> ZmanLike for ZmanPrimitive<'a> {
             }
             ZmanPrimitive::MinchaKetanaAhavatShalom => {
                 #[allow(deprecated)]
-                let tzais = TZAIS_GEONIM_DEGREES_3_POINT_8.calculate(calculator)?;
+                let tzais = TZAIS_GEONIM_3_POINT_8_DEGREES.calculate(calculator)?;
                 let alos = ALOS_16_POINT_1_DEGREES.calculate(calculator)?;
                 let shaah_zmanis = tzais.duration_since(alos) / 12;
                 Ok(tzais - (shaah_zmanis * 5 / 2))
@@ -435,6 +457,24 @@ impl<'a> ZmanLike for ZmanPrimitive<'a> {
                 date.molad(tz)
                     .map(|i| i.0)
                     .ok_or(ZmanimError::TimeConversionError)
+            }
+            ZmanPrimitive::BeginCivilTwilight => {
+                calculator.calculate(&ZmanPrimitive::SunriseOffsetByDegrees(CIVIL_ZENITH))
+            }
+            ZmanPrimitive::EndCivilTwilight => {
+                calculator.calculate(&ZmanPrimitive::SunsetOffsetByDegrees(CIVIL_ZENITH))
+            }
+            ZmanPrimitive::BeginNauticalTwilight => {
+                calculator.calculate(&ZmanPrimitive::SunriseOffsetByDegrees(NAUTICAL_ZENITH))
+            }
+            ZmanPrimitive::EndNauticalTwilight => {
+                calculator.calculate(&ZmanPrimitive::SunsetOffsetByDegrees(NAUTICAL_ZENITH))
+            }
+            ZmanPrimitive::BeginAstronomicalTwilight => {
+                calculator.calculate(&ZmanPrimitive::SunriseOffsetByDegrees(ASTRONOMICAL_ZENITH))
+            }
+            ZmanPrimitive::EndAstronomicalTwilight => {
+                calculator.calculate(&ZmanPrimitive::SunsetOffsetByDegrees(ASTRONOMICAL_ZENITH))
             }
         }
     }
