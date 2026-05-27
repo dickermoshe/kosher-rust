@@ -10,9 +10,10 @@ documentation = "https://docs.rs/zmanim-calculator"
 
 [features]
 # By default, only the core functionality is enabled.
-default = []
+default = ["alloc"]
 # Enable this feature to use the defmt crate for logging.
 defmt = ["dep:defmt"]
+alloc = []
 
 
 [dependencies]
