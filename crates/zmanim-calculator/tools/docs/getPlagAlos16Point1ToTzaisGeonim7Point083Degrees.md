@@ -21,9 +21,9 @@ the time of 10.75 * the calculated <em>shaah zmanis</em> after {@link #getAlos16
 # Human docs
 
 ```markdown
-Plag hamincha based on a day from alos at 16.1 degrees before sunrise to tzais at 7.083 degrees after sunset.
+Plag hamincha based on a day from alos 16.1 degrees to tzais Geonim 7.083 degrees.
 
-10.75 shaos zmaniyos after alos at 16.1 degrees.
+10.75 shaos zmaniyos after alos 16.1 degrees.
 
-At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

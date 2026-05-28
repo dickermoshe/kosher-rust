@@ -22,9 +22,9 @@ zmaniyos</em> (solar hours) after {@link #getFixedLocalChatzosHayom() fixed loca
 # Human docs
 
 ```markdown
-Plag hamincha according to [Rav Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein)'s opinion, following the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon), with the day ending at sunset.
+Plag hamincha according to [Rav Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein)'s opinion, following the [Vilna Gaon](https://en.wikipedia.org/wiki/Vilna_Gaon) with the day ending at sunset.
 
 4.75 shaos zmaniyos after fixed local chatzos.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+In places where sunset cannot be calculated, this zman may not be available.
 ```

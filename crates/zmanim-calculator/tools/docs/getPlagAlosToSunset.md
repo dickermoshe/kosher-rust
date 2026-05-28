@@ -27,11 +27,11 @@ occur after sunset, it should only be used <em>lechumra</em>.
 # Human docs
 
 ```markdown
-Plag hamincha based on a day from alos at 16.1 degrees before sunrise to sea level sunset.
+Plag hamincha based on a day from alos 16.1 degrees to sea-level sunset.
 
-10.75 shaos zmaniyos after alos at 16.1 degrees..
+10.75 shaos zmaniyos after alos 16.1 degrees.
 
-This zman can return a very late time, often after shkiah, avoid using it leniently as it can lead to chillul Shabbos. One should not use this time lechumra.
+This zman should be used lechumra only. It can return a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.
 
-At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

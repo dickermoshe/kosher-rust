@@ -24,7 +24,7 @@ ending at <em>tzais</em> 3.8°.
 ```markdown
 Plag hamincha according to [Rabbi Yaakov Moshe Hillel](https://en.wikipedia.org/wiki/Yaakov_Moshe_Hillel), as published in the luach of the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.
 
-1.25 shaos zmaniyos before tzais at 3.8 degrees, with shaos zmaniyos based on a day from alos at 16.1 degrees to tzais at 3.8 degrees.
+1.25 shaos zmaniyos before tzais 3.8 degrees, using a day from alos 16.1 degrees to tzais 3.8 degrees.
 
-At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

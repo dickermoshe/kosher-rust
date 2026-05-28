@@ -22,11 +22,11 @@ Source: `com.kosherjava.zmanim.ComprehensiveZmanimCalendar.getPlagHamincha120Min
 # Human docs
 
 ```markdown
-Plag hamincha according to the Magen Avraham, using a day that starts at alos 120 minutes before sunrise.
+Plag hamincha according to the Magen Avraham, using the 120-minute day.
 
-10.75 shaos zmaniyos after alos 120 minutes.
+10.75 shaos zmaniyos after alos 120 minutes before sunrise, using a day that starts 120 minutes before sunrise and ends 120 minutes after sunset.
 
-This zman can return a very late time, often after shkiah, avoid using it leniently as it can lead to chillul Shabbos. One should not use this time lechumra.
+This zman should be used lechumra only. It can return a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

@@ -19,9 +19,9 @@ minutes before sunrise and ending 60 minutes after sunset. This is calculated as
 # Human docs
 
 ```markdown
-Plag hamincha according to the Magen Avraham, using a day that starts 60 minutes before sunrise and ends 60 minutes after sunset.
+Plag hamincha according to the Magen Avraham, using the 60-minute day.
 
-10.75 shaos zmaniyos after alos 60 minutes before sunrise.
+10.75 shaos zmaniyos after alos 60 minutes before sunrise, using a day that starts 60 minutes before sunrise and ends 60 minutes after sunset.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

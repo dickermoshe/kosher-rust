@@ -24,11 +24,11 @@ opinion that the day starts at {@link #getAlos18Degrees() <em>alos</em> 18°} an
 # Human docs
 
 ```markdown
-Plag hamincha based on a day from alos at 18 degrees to tzais at 18 degrees.
+Plag hamincha based on the 18-degree day.
 
-10.75 shaos zmaniyos after alos at 18 degrees.
+10.75 shaos zmaniyos after alos 18 degrees, using a day that begins and ends at 18 degrees.
 
-This zman can return a very late time, often after shkiah, avoid using it leniently as it can lead to chillul Shabbos. One should not use this time lechumra.
+This zman should be used lechumra only. It can return a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.
 
-At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```
