@@ -22,9 +22,11 @@ sunset} or {@link getSunrise() sunrise} to {@link getSunset() sunset} (depending
 # Human docs
 
 ```markdown
-Plag hamincha according to the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon) - the earliest time Shabbos can be started.
+Plag hamincha according to the [Vilna Gaon](https://en.wikipedia.org/wiki/Vilna_Gaon).
 
-10.75 shaos zmaniyos after sunrise. {uses_elevation}
+10.75 shaos zmaniyos after sunrise, using a day from sunrise to sunset. {uses_elevation}
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+This is the earliest time Shabbos can be started.
+
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

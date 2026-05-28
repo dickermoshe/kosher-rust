@@ -22,4 +22,13 @@ on a day from   and ending  a day starting at {@link #getAlos72Minutes() <em>alo
 # Human docs
 
 ```markdown
+The point near mincha ketana when eating or other activity should not begin before praying mincha, using the 72-minute day.
+
+9 shaos zmaniyos after alos 72 minutes before sunrise, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset.
+
+This is half a shaah zmanis before mincha ketana for this calculation.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+
+See [Mechaber and Mishna Berurah 232](https://hebrewbooks.org/pdfpager.aspx?req=60387&st=&pgnum=294) and [249:2](https://hebrewbooks.org/pdfpager.aspx?req=60388&pgnum=34).
 ```

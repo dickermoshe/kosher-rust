@@ -24,4 +24,11 @@ dawn}.
 # Human docs
 
 ```markdown
+Plag hamincha according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.
+
+10.75 shaos zmaniyos after alos.
+
+The day begins at alos 1/10 of the day before sunrise and ends {ateret_torah_offset} after sunset.
+
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

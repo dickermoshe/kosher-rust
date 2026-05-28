@@ -29,4 +29,11 @@ The calculation used is 9.5 * {@link #getShaahZmanisAteretTorah()} after {@link 
 # Human docs
 
 ```markdown
+Mincha ketana according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.
+
+Ateret Torah zmanim use a day that begins at alos 1/10 of the day before sunrise and ends {ateret_torah_offset} after sunset. That variable offset after sunset (not a fixed degree-based nightfall) defines the length of the day used for shaos zmaniyos.
+
+Mincha ketana is 9.5 of those shaos zmaniyos after that alos.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

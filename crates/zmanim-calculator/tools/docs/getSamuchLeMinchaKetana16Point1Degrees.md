@@ -23,4 +23,13 @@ praying <em>mincha</em>.  The calculation used is 9 * {@link #getShaahZmanis16Po
 # Human docs
 
 ```markdown
+The point near mincha ketana when eating or other activity should not begin before praying mincha, using the 16.1-degree day.
+
+9 shaos zmaniyos after alos at 16.1 degrees below the horizon, using a day that begins and ends at 16.1 degrees.
+
+This is half a shaah zmanis before mincha ketana for this calculation.
+
+At some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+
+See [Mechaber and Mishna Berurah 232](https://hebrewbooks.org/pdfpager.aspx?req=60387&st=&pgnum=294) and [249:2](https://hebrewbooks.org/pdfpager.aspx?req=60388&pgnum=34).
 ```

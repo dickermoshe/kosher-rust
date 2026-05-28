@@ -24,4 +24,13 @@ The calculation used is 9 * {@link #getShaahZmanisGRA()} after {@link #getSunset
 # Human docs
 
 ```markdown
+The point near mincha ketana when eating or other activity should not begin before praying mincha, following the [Vilna Gaon](https://en.wikipedia.org/wiki/Vilna_Gaon).
+
+9 shaos zmaniyos after sunrise, using a day from sunrise to sunset. {uses_elevation}
+
+This is half a shaah zmanis before mincha ketana.
+
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
+
+See [Mechaber and Mishna Berurah 232](https://hebrewbooks.org/pdfpager.aspx?req=60387&st=&pgnum=294) and [249:2](https://hebrewbooks.org/pdfpager.aspx?req=60388&pgnum=34).
 ```
