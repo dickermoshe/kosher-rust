@@ -69,21 +69,6 @@ const fn end_daf(tractate: Tractate, _iteration: i32) -> Option<u16> {
     }
 }
 
-const fn iter(tractate: Tractate, iteration: i32) -> RangeInclusive<u16> {
-    let end = end_daf(tractate, iteration);
-    if let Some(end) = end {
-        start_daf(tractate, iteration)..=end
-    } else {
-        // Empty range: start > end yields no items
-        RangeInclusive::new(1, 0)
-    }
-}
-fn iter_daf(iteration: i32) -> impl Iterator<Item = Daf> {
-    BAVLI_TRACTATES
-        .iter()
-        .flat_map(move |i| iter(*i, iteration).map(move |j| Daf { tractate: *i, page: j }))
-}
-
 #[derive(Default)]
 /// Calculates the Daf Hashavua Bavli schedule.
 pub struct DafHashavuaBavli {}
@@ -103,12 +88,28 @@ impl InternalLimudCalculator<Daf> for DafHashavuaBavli {
 
     fn unit_for_interval(&self, interval: &Interval, _limud_date: &HebrewDate) -> Option<Daf> {
         let cycle_iteration = interval.cycle.iteration?;
-        let mut iter = iter_daf(cycle_iteration);
-        iter.nth((interval.iteration - 1) as usize)
+        daf_at_offset(cycle_iteration, (interval.iteration - 1) as usize)
     }
 }
 
 impl LimudCalculator<Daf> for DafHashavuaBavli {}
+
+fn daf_at_offset(cycle_iteration: i32, offset: usize) -> Option<Daf> {
+    let mut remaining = offset;
+    for tractate in BAVLI_TRACTATES {
+        let start = start_daf(tractate, cycle_iteration);
+        let end = end_daf(tractate, cycle_iteration)?;
+        let count = usize::from(end - start + 1);
+        if remaining < count {
+            return Some(Daf {
+                tractate,
+                page: start + remaining as u16,
+            });
+        }
+        remaining -= count;
+    }
+    None
+}
 #[cfg(test)]
 #[allow(clippy::expect_used)]
 mod tests {

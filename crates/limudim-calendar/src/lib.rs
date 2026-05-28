@@ -38,6 +38,9 @@ mod pirkei_avos;
 mod tehillim_monthly;
 mod units;
 
+#[cfg(test)]
+mod benchmarks;
+
 /// Extension trait for Hebrew dates to calculate limud schedules.
 ///
 /// This trait extends `Date<Hebrew>` with the ability to calculate

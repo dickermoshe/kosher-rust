@@ -1,159 +1,143 @@
-use core::ops::RangeInclusive;
-
-use hebrew_holiday_calendar::{HebrewHolidayCalendar, Holiday};
-use icu_calendar::options::DateDifferenceOptions;
+use hebrew_holiday_calendar::{HebrewHolidayCalendar, HebrewMonth, Holiday};
 
 use crate::{
     constants::YERUSHALMI_DAF_COUNT,
-    date::{from_gregorian_date, DateExt, HebrewDate},
+    date::{from_gregorian_date, from_hebrew_date, days_between, DateExt, HebrewDate},
     interval::Interval,
     limud_calculator::{CycleFinder, InternalLimudCalculator},
-    units::{Daf, Tractate, YERUSHALMI_TRACTATES},
+    units::{Daf, YERUSHALMI_TRACTATES},
     LimudCalculator,
 };
 
-const fn start_daf(_tractate: Tractate, _iteration: i32) -> u16 {
-    1
-}
+const YERUSHALMI_CYCLE_START: (i32, u8, u8) = (1980, 2, 2);
 
-/// Last daf number
-const fn end_daf(tractate: Tractate, _iteration: i32) -> Option<u16> {
-    let daf = match tractate {
-        Tractate::Berachos => 68,
-        Tractate::Peah => 37,
-        Tractate::Demai => 34,
-        Tractate::Kilayim => 44,
-        Tractate::Sheviis => 31,
-        Tractate::Terumos => 59,
-        Tractate::Maasros => 26,
-        Tractate::MaaserSheni => 33,
-        Tractate::Chalah => 28,
-        Tractate::Orlah => 20,
-        Tractate::Bikurim => 13,
-        Tractate::Shabbos => 92,
-        Tractate::Eruvin => 65,
-        Tractate::Pesachim => 71,
-        Tractate::Beitzah => 22,
-        Tractate::RoshHashanah => 22,
-        Tractate::Yoma => 42,
-        Tractate::Sukkah => 26,
-        Tractate::Taanis => 26,
-        Tractate::Shekalim => 33,
-        Tractate::Megillah => 34,
-        Tractate::Chagigah => 22,
-        Tractate::MoedKatan => 19,
-        Tractate::Yevamos => 85,
-        Tractate::Kesubos => 72,
-        Tractate::Sotah => 47,
-        Tractate::Nedarim => 40,
-        Tractate::Nazir => 47,
-        Tractate::Gitin => 54,
-        Tractate::Kiddushin => 48,
-        Tractate::BavaKamma => 44,
-        Tractate::BavaMetzia => 37,
-        Tractate::BavaBasra => 34,
-        Tractate::Sanhedrin => 57,
-        Tractate::Makkos => 9,
-        Tractate::Shevuos => 44,
-        Tractate::AvodahZarah => 37,
-        Tractate::Horiyos => 19,
-        Tractate::Niddah => 13,
-        _ => 0,
-    };
-    if daf == 0 {
-        None
-    } else {
-        Some(daf)
-    }
-}
-
-const fn iter(tractate: Tractate, iteration: i32) -> RangeInclusive<u16> {
-    let end = end_daf(tractate, iteration);
-    if let Some(end) = end {
-        start_daf(tractate, iteration)..=end
-    } else {
-        RangeInclusive::new(0, 0)
-    }
-}
-fn iter_daf(iteration: i32) -> impl Iterator<Item = Daf> {
-    YERUSHALMI_TRACTATES
-        .iter()
-        .flat_map(move |i| iter(*i, iteration).map(move |j| Daf { tractate: *i, page: j }))
-}
+/// Pages per masechta in the Vilna Yerushalmi, matching KosherJava's `BLATT_PER_MASECHTA`.
+const YERUSHALMI_BLATT_PER_MASECHTA: [u16; 39] = [
+    68, 37, 34, 44, 31, 59, 26, 33, 28, 20, 13, 92, 65, 71, 22, 22, 42, 26, 26, 33, 34, 22, 19,
+    85, 72, 47, 40, 47, 54, 48, 44, 37, 34, 44, 9, 57, 37, 19, 13,
+];
 
 #[derive(Default)]
 /// Calculates the Daf Yomi Yerushalmi schedule using the Vilna Edition of the Jerusalem Talmud.
 pub struct DafYomiYerushalmiVilna {}
+
+impl DafYomiYerushalmiVilna {
+    fn cycle_start_date() -> HebrewDate {
+        from_gregorian_date(
+            YERUSHALMI_CYCLE_START.0,
+            YERUSHALMI_CYCLE_START.1,
+            YERUSHALMI_CYCLE_START.2,
+        )
+    }
+}
+
 impl InternalLimudCalculator<Daf> for DafYomiYerushalmiVilna {
+    fn limud(&self, limud_date: HebrewDate) -> Option<Daf> {
+        let cycle_start = Self::cycle_start_date();
+        if limud_date < cycle_start {
+            return None;
+        }
+        if is_skip_day(&limud_date) {
+            return None;
+        }
+
+        let mut prev_cycle = cycle_start;
+        let mut next_cycle = next_cycle_start(prev_cycle)?;
+        while limud_date >= next_cycle {
+            prev_cycle = next_cycle;
+            next_cycle = next_cycle_start(prev_cycle)?;
+        }
+
+        let daf_no = days_between(prev_cycle, limud_date)?;
+        let special_days = count_special_days(prev_cycle, limud_date);
+        let mut total = daf_no - special_days;
+        if total < 0 {
+            return None;
+        }
+
+        for (&tractate, &blatt) in YERUSHALMI_TRACTATES
+            .iter()
+            .zip(YERUSHALMI_BLATT_PER_MASECHTA.iter())
+        {
+            let blatt = i32::from(blatt);
+            if total < blatt {
+                return Some(Daf {
+                    tractate,
+                    page: (total + 1) as u16,
+                });
+            }
+            total -= blatt;
+        }
+
+        None
+    }
+
     fn cycle_finder(&self) -> CycleFinder {
-        CycleFinder::Initial(from_gregorian_date(1980, 2, 2))
+        CycleFinder::Initial(Self::cycle_start_date())
     }
 
     fn cycle_end_calculation(hebrew_date: HebrewDate, _iteration: Option<i32>) -> Option<HebrewDate> {
-        let mut end_date = hebrew_date.add_days(YERUSHALMI_DAF_COUNT - 1)?;
-
-        let mut found_days = found_skips_between(hebrew_date, end_date);
-        while found_days > 0 {
-            let new_start_date = end_date.add_days(1)?;
-            end_date = end_date.add_days(found_days)?;
-            found_days = found_skips_between(new_start_date, end_date);
-        }
-        Some(end_date)
+        cycle_end_date(hebrew_date)
     }
 
     fn unit_for_interval(&self, interval: &Interval, limud_date: &HebrewDate) -> Option<Daf> {
-        // If this is a skip interval, return None (no daf today)
-        if self.is_skip_interval(interval) {
-            return None;
-        }
-        let cycle_iteration = interval.cycle.iteration?;
-        let mut iter = iter_daf(cycle_iteration);
-        // Calculate offset accounting for skip days
-        let days_from_start = interval
-            .cycle
-            .start_date
-            .try_until_with_options(limud_date, DateDifferenceOptions::default())
-            .ok()?
-            .days;
-        // Subtract the number of skip days between cycle start and limud_date
-        let skip_days_count = found_skips_between(interval.cycle.start_date, *limud_date);
-        let offset = (days_from_start as i64) - (skip_days_count as i64);
-        if offset < 0 {
-            return None;
-        }
-        iter.nth(offset as usize)
+        let _ = interval;
+        self.limud(*limud_date)
     }
+
     fn is_skip_interval(&self, interval: &Interval) -> bool {
         is_skip_day(&interval.start_date)
     }
 }
 
 impl LimudCalculator<Daf> for DafYomiYerushalmiVilna {}
-struct HebDateIter {
-    current: HebrewDate,
-    end: HebrewDate,
+
+fn cycle_end_date(cycle_start: HebrewDate) -> Option<HebrewDate> {
+    let mut end_date = cycle_start.add_days(YERUSHALMI_DAF_COUNT - 1)?;
+    let mut found_days = count_special_days(cycle_start, end_date);
+    while found_days > 0 {
+        let new_start_date = end_date.add_days(1)?;
+        end_date = end_date.add_days(found_days)?;
+        found_days = count_special_days(new_start_date, end_date);
+    }
+    Some(end_date)
 }
-impl Iterator for HebDateIter {
-    type Item = HebrewDate;
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.current >= self.end {
-            None
-        } else {
-            let next = self.current.add_days(1)?;
-            self.current = next;
-            Some(self.current)
-        }
+
+fn next_cycle_start(cycle_start: HebrewDate) -> Option<HebrewDate> {
+    cycle_end_date(cycle_start)?.add_days(1)
+}
+
+fn is_between(start: HebrewDate, date: HebrewDate, end: HebrewDate) -> bool {
+    start < date && date <= end
+}
+
+fn tisha_bav_date(year: i32) -> HebrewDate {
+    let date = from_hebrew_date(year, HebrewMonth::Av, 9);
+    if date.day_of_week_number() == 7 {
+        date.add_days(1).expect("Av 10 exists when 9 Av is Shabbat")
+    } else {
+        date
     }
 }
-fn found_skips_between(a: HebrewDate, b: HebrewDate) -> i32 {
-    let iter = HebDateIter { current: a, end: b };
-    let mut skips = 0;
-    for date in iter {
-        if is_skip_day(&date) {
-            skips += 1;
+
+fn count_special_days(start: HebrewDate, end: HebrewDate) -> i32 {
+    let start_year = start.year().extended_year();
+    let end_year = end.year().extended_year();
+    let mut special_days = 0;
+
+    for year in start_year..=end_year {
+        let yom_kippur = from_hebrew_date(year, HebrewMonth::Tishrei, 10);
+        if is_between(start, yom_kippur, end) {
+            special_days += 1;
+        }
+
+        let tisha_bav = tisha_bav_date(year);
+        if is_between(start, tisha_bav, end) {
+            special_days += 1;
         }
     }
-    skips
+
+    special_days
 }
 
 fn is_skip_day(date: &HebrewDate) -> bool {
@@ -169,6 +153,7 @@ mod tests {
     use crate::date::from_gregorian_date;
 
     use super::*;
+    use crate::units::Tractate;
 
     #[test]
     fn daf_yomi_yerushalmi_simple_date() {

@@ -1,10 +1,7 @@
-use core::ops::RangeInclusive;
-
-use icu_calendar::options::DateDifferenceOptions;
-
 use crate::{
     constants::{BAVLI_DAF_COUNT_EARLY, BAVLI_DAF_COUNT_MODERN, SHEKALIM_EXPANSION_CYCLE},
-    date::{from_gregorian_date, DateExt, HebrewDate},
+    cycle::Cycle,
+    date::{days_between, from_gregorian_date, DateExt, HebrewDate},
     interval::Interval,
     limud_calculator::{CycleFinder, InternalLimudCalculator},
     units::{Daf, Tractate, BAVLI_TRACTATES},
@@ -78,26 +75,27 @@ pub const fn end_daf(tractate: Tractate, iteration: i32) -> Option<u16> {
     }
 }
 
-pub const fn iter(tractate: Tractate, iteration: i32) -> RangeInclusive<u16> {
-    let end = end_daf(tractate, iteration);
-    if let Some(end) = end {
-        start_daf(tractate, iteration)..=end
-    } else {
-        // Empty range: start > end yields no items
-        RangeInclusive::new(1, 0)
-    }
-}
-fn iter_daf(iteration: i32) -> impl Iterator<Item = Daf> {
-    BAVLI_TRACTATES
-        .iter()
-        .flat_map(move |i| iter(*i, iteration).map(move |j| Daf { tractate: *i, page: j }))
-}
-
 #[derive(Default)]
 /// Calculates the Daf Yomi Bavli schedule.
 pub struct DafYomiBavli {}
 
 impl InternalLimudCalculator<Daf> for DafYomiBavli {
+    fn limud(&self, limud_date: HebrewDate) -> Option<Daf> {
+        let cycle = Cycle::from_cycle_initiation(
+            from_gregorian_date(1923, 9, 11),
+            Self::cycle_end_calculation,
+            limud_date,
+        )?;
+        if limud_date > cycle.end_date {
+            return None;
+        }
+        let offset = days_between(cycle.start_date, limud_date)?;
+        if offset < 0 {
+            return None;
+        }
+        daf_at_offset(cycle.iteration?, offset as usize)
+    }
+
     fn cycle_finder(&self) -> CycleFinder {
         CycleFinder::Initial(from_gregorian_date(1923, 9, 11))
     }
@@ -114,21 +112,29 @@ impl InternalLimudCalculator<Daf> for DafYomiBavli {
         hebrew_date.add_days(days - 1)
     }
 
-    fn unit_for_interval(&self, interval: &Interval, limud_date: &HebrewDate) -> Option<Daf> {
-        let cycle_iteration = interval.cycle.iteration?;
-        let mut iter = iter_daf(cycle_iteration);
-        // Offset from cycle start_date to limud_date
-        let offset = interval
-            .cycle
-            .start_date
-            .try_until_with_options(limud_date, DateDifferenceOptions::default())
-            .ok()?
-            .days;
-        iter.nth(offset as usize)
+    fn unit_for_interval(&self, _interval: &Interval, limud_date: &HebrewDate) -> Option<Daf> {
+        self.limud(*limud_date)
     }
 }
 
 impl LimudCalculator<Daf> for DafYomiBavli {}
+
+fn daf_at_offset(cycle_iteration: i32, offset: usize) -> Option<Daf> {
+    let mut remaining = offset;
+    for tractate in BAVLI_TRACTATES {
+        let start = start_daf(tractate, cycle_iteration);
+        let end = end_daf(tractate, cycle_iteration)?;
+        let count = usize::from(end - start + 1);
+        if remaining < count {
+            return Some(Daf {
+                tractate,
+                page: start + remaining as u16,
+            });
+        }
+        remaining -= count;
+    }
+    None
+}
 #[cfg(test)]
 #[allow(clippy::expect_used)]
 mod tests {

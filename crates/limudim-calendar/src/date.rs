@@ -1,7 +1,7 @@
 use hebrew_holiday_calendar::{HebrewHolidayCalendar, HebrewMonth};
 use icu_calendar::{
     cal::Hebrew,
-    options::DateAddOptions,
+    options::{DateAddOptions, DateDifferenceOptions},
     types::{DateDuration, Weekday},
     Date, Gregorian,
 };
@@ -40,4 +40,9 @@ impl DateExt for HebrewDate {
             Weekday::Saturday => 7,
         }
     }
+}
+
+pub(crate) fn days_between(start: HebrewDate, end: HebrewDate) -> Option<i32> {
+    let difference = start.try_until_with_options(&end, DateDifferenceOptions::default()).ok()?;
+    i32::try_from(difference.days).ok()
 }

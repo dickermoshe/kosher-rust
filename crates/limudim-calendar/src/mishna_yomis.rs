@@ -1,6 +1,7 @@
 use crate::{
     constants::MISHNA_YOMIS_CYCLE_DAYS,
-    date::{from_gregorian_date, DateExt},
+    cycle::Cycle,
+    date::{days_between, from_gregorian_date, DateExt},
     limud_calculator::{CycleFinder, InternalLimudCalculator},
     units::{Mishna, Tractate, ALL_TRACTATES},
     LimudCalculator,
@@ -165,6 +166,22 @@ pub struct Mishnas(pub Mishna, pub Mishna);
 /// Calculates the Mishna Yomis schedule.
 pub struct MishnaYomis;
 impl InternalLimudCalculator<Mishnas> for MishnaYomis {
+    fn limud(&self, limud_date: crate::date::HebrewDate) -> Option<Mishnas> {
+        let cycle = Cycle::from_cycle_initiation(
+            from_gregorian_date(1947, 5, 20),
+            Self::cycle_end_calculation,
+            limud_date,
+        )?;
+        if limud_date > cycle.end_date {
+            return None;
+        }
+        let iteration = days_between(cycle.start_date, limud_date)? + 1;
+        if iteration < 1 {
+            return None;
+        }
+        mishnas_for_iteration(iteration)
+    }
+
     fn cycle_finder(&self) -> crate::limud_calculator::CycleFinder {
         CycleFinder::Initial(from_gregorian_date(1947, 5, 20))
     }
@@ -172,21 +189,10 @@ impl InternalLimudCalculator<Mishnas> for MishnaYomis {
     fn unit_for_interval(
         &self,
         interval: &crate::interval::Interval,
-        _limud_date: &crate::date::HebrewDate,
+        limud_date: &crate::date::HebrewDate,
     ) -> Option<Mishnas> {
-        let mut iter = iter_mishna();
-        // Each day covers 2 mishnas (unit_step = 2)
-        // Offset calculation: ((iteration - 1) * unit_step) + base_unit
-        // For iteration 1: ((1-1)*2)+1 = 1 (mishnas 1-2)
-        // For iteration 2: ((2-1)*2)+1 = 3 (mishnas 3-4)
-        // etc.
-        let unit_step = 2i32;
-        let base_unit = 1i32;
-        let offset = ((interval.iteration - 1) * unit_step) + base_unit;
-        // Convert to 0-indexed for nth
-        let mishna1 = iter.nth((offset - 1) as usize)?;
-        let mishna2 = iter.next()?;
-        Some(Mishnas(mishna1, mishna2))
+        let _ = interval;
+        self.limud(*limud_date)
     }
     fn cycle_end_calculation(
         hebrew_date: crate::date::HebrewDate,
@@ -196,6 +202,16 @@ impl InternalLimudCalculator<Mishnas> for MishnaYomis {
     }
 }
 impl LimudCalculator<Mishnas> for MishnaYomis {}
+
+fn mishnas_for_iteration(iteration: i32) -> Option<Mishnas> {
+    let unit_step = 2i32;
+    let base_unit = 1i32;
+    let offset = ((iteration - 1) * unit_step) + base_unit;
+    let mut iter = iter_mishna();
+    let mishna1 = iter.nth((offset - 1) as usize)?;
+    let mishna2 = iter.next()?;
+    Some(Mishnas(mishna1, mishna2))
+}
 
 #[cfg(test)]
 #[allow(clippy::expect_used)]

@@ -19,5 +19,8 @@ defmt = { workspace = true, optional = true }
 hebrew-holiday-calendar.workspace = true
 icu_calendar.workspace = true
 
+[dev-dependencies]
+rand.workspace = true
+
 [lints]
 workspace = true

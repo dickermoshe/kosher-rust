@@ -1,8 +1,7 @@
-use icu_calendar::options::DateDifferenceOptions;
-
 use crate::{
     constants::BAVLI_TOTAL_AMUDIM,
-    date::{from_gregorian_date, DateExt, HebrewDate},
+    cycle::Cycle,
+    date::{days_between, from_gregorian_date, DateExt, HebrewDate},
     interval::Interval,
     limud_calculator::{CycleFinder, InternalLimudCalculator},
     units::*,
@@ -85,6 +84,22 @@ fn iter_amud(iteration: i32) -> impl Iterator<Item = Amud> {
 pub struct AmudYomiBavliDirshu {}
 
 impl InternalLimudCalculator<Amud> for AmudYomiBavliDirshu {
+    fn limud(&self, limud_date: HebrewDate) -> Option<Amud> {
+        let cycle = Cycle::from_cycle_initiation(
+            from_gregorian_date(2023, 10, 16),
+            Self::cycle_end_calculation,
+            limud_date,
+        )?;
+        if limud_date > cycle.end_date {
+            return None;
+        }
+        let offset = days_between(cycle.start_date, limud_date)?;
+        if offset < 0 {
+            return None;
+        }
+        iter_amud(cycle.iteration?).nth(offset as usize)
+    }
+
     fn cycle_finder(&self) -> CycleFinder {
         CycleFinder::Initial(from_gregorian_date(2023, 10, 16))
     }
@@ -93,16 +108,8 @@ impl InternalLimudCalculator<Amud> for AmudYomiBavliDirshu {
     }
 
     fn unit_for_interval(&self, interval: &Interval, limud_date: &HebrewDate) -> Option<Amud> {
-        let cycle_iteration = interval.cycle.iteration?;
-        let mut iter = iter_amud(cycle_iteration);
-        // Offset from cycle start_date to limud_date
-        let offset = interval
-            .cycle
-            .start_date
-            .try_until_with_options(limud_date, DateDifferenceOptions::default())
-            .ok()?
-            .days;
-        iter.nth(offset as usize)
+        let _ = interval;
+        self.limud(*limud_date)
     }
 }
 impl LimudCalculator<Amud> for AmudYomiBavliDirshu {}

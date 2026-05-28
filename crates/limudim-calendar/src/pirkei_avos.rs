@@ -2,7 +2,7 @@ use hebrew_holiday_calendar::{HebrewHolidayCalendar, HebrewMonth};
 
 use crate::{
     cycle::Cycle,
-    date::{from_hebrew_date, DateExt, HebrewDate},
+    date::{days_between, from_hebrew_date, DateExt, HebrewDate},
     interval::Interval,
     limud_calculator::{CycleFinder, InternalLimudCalculator},
     LimudCalculator,
@@ -45,7 +45,7 @@ impl InternalLimudCalculator<PirkeiAvosUnit> for PirkeiAvos {
 
         // Fourth round: use weeks remaining logic (like hebcal)
         // Calculate weeks remaining from this interval's Shabbat to the end of the cycle
-        let days_until_end = days_between(interval.end_date, interval.cycle.end_date);
+        let days_until_end = days_between(interval.end_date, interval.cycle.end_date)?;
         let weeks_remain = (days_until_end + 6) / 7; // ceiling division
 
         match weeks_remain {
@@ -144,15 +144,6 @@ impl PirkeiAvos {
 
         (start_date, end_date)
     }
-}
-
-/// Calculate the number of days between two dates (end - start)
-fn days_between(start: HebrewDate, end: HebrewDate) -> i32 {
-    use icu_calendar::options::DateDifferenceOptions;
-    start
-        .try_until_with_options(&end, DateDifferenceOptions::default())
-        .map(|d| d.days as i32)
-        .unwrap_or(0)
 }
 
 #[cfg(test)]

@@ -28,7 +28,7 @@ pub(crate) fn test_preset(preset: &'static ZmanPreset) -> Result<(), Box<dyn Err
     let mut rng = StdRng::seed_from_u64(seed);
 
     for iteration in 0..iterations {
-        let case = random_test_case(&mut rng, preset.name);
+        let case = random_test_case(&mut rng, preset.method_name);
         run_test_case(case, preset, Some(CaseRun { seed, iteration }))?;
     }
 
@@ -41,7 +41,7 @@ pub(crate) fn test_regressions(preset: &'static ZmanPreset) {
     for case in REGRESSION_CASES
         .iter()
         .copied()
-        .filter(|case| case.preset_name == preset.name)
+        .filter(|case| case.preset_name == preset.method_name)
     {
         run_test_case(case, preset, None).unwrap();
     }
@@ -58,7 +58,7 @@ pub(crate) fn test_preset_in_jerusalem(preset: &'static ZmanPreset) -> Result<()
             longitude: 35.235,
             elevation: 754.0,
             timezone: "Asia/Jerusalem",
-            preset_name: preset.name,
+            preset_name: preset.method_name,
             ateret_torah_sunset_offset_minutes: 0,
             candle_lighting_offset_minutes: 18,
             use_astronomical_chatzos_for_other_zmanim: false,
