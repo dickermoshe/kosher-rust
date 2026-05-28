@@ -2,7 +2,9 @@
 
 # Zmanim Calculator
 
-A Rust library for calculating halachic zmanim (times), following KosherJava naming and behavior. Supports `no_std` environments.
+A Rust library for calculating zmanim (Jewish halachic times) with
+KosherJava-style naming and behavior. The crate supports `no_std`; the default
+feature set enables `alloc` for preset descriptions.
 
 [![Crates.io](https://img.shields.io/crates/v/zmanim-calculator.svg)](https://crates.io/crates/zmanim-calculator)
 [![Documentation](https://docs.rs/zmanim-calculator/badge.svg)](https://docs.rs/zmanim-calculator)
@@ -11,6 +13,12 @@ A Rust library for calculating halachic zmanim (times), following KosherJava nam
 
 ```bash
 cargo add zmanim-calculator jiff
+```
+
+For a smaller `no_std` build without generated preset descriptions:
+
+```toml
+zmanim-calculator = { version = "0.6", default-features = false }
 ```
 
 ## Usage
@@ -30,65 +38,109 @@ fn main() {
         Some(TimeZone::get("America/New_York").expect("valid timezone")),
     )
     .expect("valid location");
+
     let date = Date::new(2026, 3, 1).expect("valid date");
-    let mut calc =
+    let mut calculator =
         ZmanimCalculator::new(location, date, CalculatorConfig::default()).expect("calculator");
 
-    let sunrise = calc.calculate(SEA_LEVEL_SUNRISE).expect("sunrise");
-    let tzais = calc.calculate(TZAIS_72_MINUTES).expect("tzais");
+    let sunrise = calculator.calculate(SEA_LEVEL_SUNRISE).expect("sunrise");
+    let tzais = calculator.calculate(TZAIS_72_MINUTES).expect("tzais");
 
     println!("Sunrise (UTC): {sunrise}");
     println!("Tzais 72 (UTC): {tzais}");
 }
 ```
 
-If you omit a timezone, calculations near the anti-meridian (`|longitude| > 150`) will fail. Kiddush Levana and Molad calculations require a timezone as well.
+`calculate` returns a UTC `jiff::Timestamp`. It takes `&mut self` so repeated
+calculations can reuse internal state. If that does not fit your borrow pattern,
+clone the calculator and use each clone independently.
+
+If you omit a timezone, calculations near the anti-meridian (`|longitude| > 150`)
+will fail. Kiddush Levana and Molad calculations require a timezone as well.
+
+## Presets
+
+Most users should calculate one of the ready-made constants in
+`zmanim_calculator::presets`, such as `ALOS_72_MINUTES`, `SOF_ZMAN_SHMA_GRA`,
+or `TZAIS_72_MINUTES`.
+
+The preset module also exposes:
+
+- `ALL`: every non-deprecated generated preset.
+- `ZmanPreset::name()`: a short display name.
+- `ZmanPreset::description(&calculator)`: a user-facing description when the
+  `alloc` feature is enabled.
+
+Descriptions can depend on calculator configuration, such as elevation mode,
+candle-lighting offset, and Ateret Torah offset.
 
 ## Feature Flags
 
-- **`defmt`** — Enables `defmt` formatting/logging for embedded targets
+- `alloc` (default): enables generated preset descriptions and allocation-backed
+  strings.
+- `defmt`: enables `defmt` formatting for embedded targets.
 
-## Compatibility
+Disable default features if you need the smallest `no_std` surface and do not
+need preset descriptions.
 
-The API aims to follow KosherJava naming and behavior where possible. For background and broader algorithm documentation, see the [KosherJava documentation](https://kosherjava.com/zmanim-project/how-to-use-the-zmanim-api/).
+## Generated Code
 
-## Preset generation
+The public preset constants are generated from the DSL in `tools/dsl.py` and
+written to `src/presets_gen.rs`. Do not edit `presets_gen.rs` by hand.
 
-Most public zman constants (`ALOS_72_MINUTES`, `SOF_ZMAN_SHMA_GRA`, and ~168 others) are **not** written by hand. They are produced from vendored KosherJava sources:
+To regenerate presets:
 
-See **[tools/README.md](tools/README.md)** for the full pipeline, regeneration commands, and notes on porting the same approach to another language.
+```bash
+cd crates/zmanim-calculator/tools
+uv run python generate-rust.py
+```
+
+See [tools/README.md](tools/README.md) for the current generator workflow and
+DSL details.
 
 ## Testing
 
-This crate uses randomized parity tests against the bundled Java implementation. A small number of tolerance and policy exceptions are allowed where the Rust SPA calculations intentionally differ from NOAA while remaining accurate enough for supported use cases.
-
-To run the full test suite, first build the Java jar:
+This crate has randomized parity tests against the bundled KosherJava source.
+First build the Java jar:
 
 ```bash
-cd java
+cd crates/zmanim-calculator/java
 mvn package
 ```
 
-Then run the Rust tests. Cargo regenerates the JNI bindings via `build.rs`:
+Then run the Rust tests from `crates/zmanim-calculator`:
 
 ```bash
 cargo test
 ```
 
+Useful quick checks while editing Rust or generated presets:
 
-## Updating from KosherJava
-
-To pull in the latest changes from KosherJava, run:
 ```bash
-git subtree pull --prefix=crates/zmanim-calculator/java https://github.com/KosherJava/zmanim master  --squash
+cargo fmt -p zmanim-calculator
+cargo check -p zmanim-calculator
+cargo check -p zmanim-calculator --features alloc
 ```
 
-Then follow the workflow in the [tools/README.md](tools/README.md) to regenerate the zman presets.
+## Updating KosherJava
 
-## Differences from KosherJava
+From the repository root:
 
-- The `Sof Zman Achilas Chametz` and `Sof Zman Biur Chametz` zmanim are returned for any date, not just Erev Pesach.
-- Chatzos always uses astronomical chatzos, not the midpoint of sunrise to sunset.
+```bash
+git subtree pull --prefix=crates/zmanim-calculator/java https://github.com/KosherJava/zmanim master --squash
+```
+
+After pulling upstream changes, review the Java implementation, update
+`tools/dsl.py` where needed, regenerate presets, and run parity tests.
+
+## Differences From KosherJava
+
+- `Sof Zman Achilas Chametz` and `Sof Zman Biur Chametz` are returned for any
+  date, not only Erev Pesach.
+- Chatzos uses astronomical chatzos, not the midpoint of sunrise to sunset.
+- A small number of tolerance and policy exceptions exist where the Rust SPA
+  calculations intentionally differ from NOAA while remaining accurate enough
+  for supported use cases.
 
 ## License
 

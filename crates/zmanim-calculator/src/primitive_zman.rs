@@ -11,9 +11,7 @@
 //! not already provided by a preset.
 
 use crate::{
-    calculator::ZmanLike,
-    molad::MoladCalendar,
-    prelude::ZmanimCalculator,
+    calculator::ZmanLike, molad::MoladCalendar, prelude::ZmanimCalculator,
     types::error::ZmanimError,
 };
 use icu_calendar::{

@@ -17,6 +17,13 @@ use alloc::string::{String, ToString};
 use jiff::SignedDuration;
 use jiff::Timestamp;
 
+#[cfg(feature = "alloc")]
+pub(crate) const USES_ELEVATION_DESCRIPTION: &str =
+    "This zman takes the location's elevation into account when calculating the zman.";
+#[cfg(feature = "alloc")]
+pub(crate) const USES_SEA_LEVEL_DESCRIPTION: &str =
+    "This zman is calculated at sea level, without adjusting for elevation.";
+
 /// A zman preset built from a low-level [`ZmanPrimitive`] definition.
 ///
 /// Most users should consume these predefined presets directly rather than constructing
@@ -61,27 +68,7 @@ impl ZmanPreset {
     /// Requires the `alloc` feature.
     #[cfg(feature = "alloc")]
     pub fn description(&self, calculator: &ZmanimCalculator) -> String {
-        let mut desc = (self.description)(calculator);
-        if calculator.config.use_elevation {
-            desc = desc.replace(
-                "{uses_elevation}",
-                "This zman takes the location's elevation into account when calculating the zman.",
-            );
-        } else {
-            desc = desc.replace(
-                "{uses_elevation}",
-                "This zman is calculated at sea level, without adjusting for elevation.",
-            );
-        }
-        desc = desc.replace(
-            "{candel_lighting_offset}",
-            &format_minutes(calculator.config.candle_lighting_offset),
-        );
-        desc = desc.replace(
-            "{ateret_torah_offset}",
-            &format_minutes(calculator.config.ateret_torah_sunset_offset),
-        );
-        desc
+        (self.description)(calculator)
     }
 
     /// Returns a short, user-facing name for this preset.
@@ -91,7 +78,7 @@ impl ZmanPreset {
 }
 
 #[cfg(feature = "alloc")]
-fn format_minutes(offset: SignedDuration) -> String {
+pub(crate) fn format_minutes(offset: SignedDuration) -> String {
     let total_secs = offset.as_secs().unsigned_abs();
     let mins = total_secs / 60;
     let remainder = total_secs % 60;

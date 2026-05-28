@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import importlib.util
 import json
 import re
 from pathlib import Path
 
 from dsl import (
+    DOCS,
     ZMAN,
     HalfDayBasedOffset,
     LocalMeanTime,
@@ -25,8 +25,6 @@ from dsl import (
 )
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT = SCRIPT_DIR / "docs.py"
-DEPRECATED_INPUT = SCRIPT_DIR / "deprecated.py"
 OUTPUT = SCRIPT_DIR.parent / "src" / "presets_gen.rs"
 
 NAMES = {
@@ -46,49 +44,19 @@ def method_to_const(method_name: str) -> str:
     return with_underscores.upper()
 
 
-def load_docs(path: Path) -> dict[str, str]:
-    spec = importlib.util.spec_from_file_location("generated_docs", path)
-    if spec is None or spec.loader is None:
-        raise ValueError(f"Unable to load Python docs from {path}")
-
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    docs = getattr(module, "DOCS", None)
+def validate_docs(docs: object) -> dict[str, str]:
     if not isinstance(docs, dict):
-        raise ValueError(f"{path} must define a DOCS dictionary")
+        raise ValueError("dsl.DOCS must be a dictionary")
     if not docs:
-        raise ValueError(f"No docs found in {path}")
+        raise ValueError("No docs found in dsl.DOCS")
 
     parsed: dict[str, str] = {}
     for method_name, text in docs.items():
         if not isinstance(method_name, str) or not isinstance(text, str):
-            raise ValueError(f"{path} DOCS keys and values must be strings")
+            raise ValueError("dsl.DOCS keys and values must be strings")
         if not text.strip():
             raise ValueError(f"{method_name} has empty docs")
         parsed[method_name] = text
-    return parsed
-
-
-def load_deprecated_methods(path: Path) -> set[str]:
-    spec = importlib.util.spec_from_file_location("generated_deprecated", path)
-    if spec is None or spec.loader is None:
-        raise ValueError(f"Unable to load Python deprecated methods from {path}")
-
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    deprecated_methods = getattr(module, "DEPRECATED_METHODS", None)
-    if not isinstance(deprecated_methods, list):
-        raise ValueError(f"{path} must define a DEPRECATED_METHODS list")
-
-    parsed: set[str] = set()
-    for method_name in deprecated_methods:
-        if not isinstance(method_name, str):
-            raise ValueError(f"{path} DEPRECATED_METHODS values must be strings")
-        if method_name in parsed:
-            raise ValueError(
-                f"{path} contains duplicate deprecated method {method_name}"
-            )
-        parsed.add(method_name)
     return parsed
 
 
@@ -184,6 +152,54 @@ def rust_doc_comment(text: str) -> str:
     return "\n".join(f"/// {line}" if line else "///" for line in lines)
 
 
+def rust_format_template(text: str) -> str:
+    escaped = text.replace("{", "{{").replace("}", "}}")
+    for placeholder in (
+        "uses_elevation",
+        "candel_lighting_offset",
+        "ateret_torah_offset",
+    ):
+        escaped = escaped.replace(f"{{{{{placeholder}}}}}", f"{{{placeholder}}}")
+    return json.dumps(escaped, ensure_ascii=False)
+
+
+def description_callback(description: str) -> str:
+    placeholders = {
+        "uses_elevation": "{uses_elevation}" in description,
+        "candel_lighting_offset": "{candel_lighting_offset}" in description,
+        "ateret_torah_offset": "{ateret_torah_offset}" in description,
+    }
+    if not any(placeholders.values()):
+        return f"|_| {json.dumps(description, ensure_ascii=False)}.to_string()"
+
+    args: list[str] = []
+    if placeholders["uses_elevation"]:
+        args.append(
+            """uses_elevation = if calculator.config.use_elevation {
+            USES_ELEVATION_DESCRIPTION
+        } else {
+            USES_SEA_LEVEL_DESCRIPTION
+        }"""
+        )
+    if placeholders["candel_lighting_offset"]:
+        args.append(
+            "candel_lighting_offset = "
+            "format_minutes(calculator.config.candle_lighting_offset)"
+        )
+    if placeholders["ateret_torah_offset"]:
+        args.append(
+            "ateret_torah_offset = "
+            "format_minutes(calculator.config.ateret_torah_sunset_offset)"
+        )
+
+    return (
+        f"|calculator| format!(\n"
+        f"        {rust_format_template(description)},\n"
+        f"        {',\n        '.join(args)},\n"
+        f"    )"
+    )
+
+
 def preset_block(
     const_name: str,
     method_name: str,
@@ -193,8 +209,8 @@ def preset_block(
     deprecated: bool,
 ) -> str:
     name_literal = json.dumps(preset_name, ensure_ascii=False)
-    description_literal = json.dumps(description, ensure_ascii=False)
     doc = rust_doc_comment(description)
+    description_expr = description_callback(description)
     test_cfg = "#[cfg(test)]\n" if deprecated else ""
     return f"""#[cfg(test)]
 java_parity_test!({const_name});
@@ -206,7 +222,7 @@ pub static {const_name}: ZmanPreset = ZmanPreset {{
     method_name: {json.dumps(method_name)},
     name: {name_literal},
     #[cfg(feature = "alloc")]
-    description: |_| {description_literal}.to_string(),
+    description: {description_expr},
 }};
 """
 
@@ -250,7 +266,7 @@ macro_rules! java_parity_test {
 """
 
 
-def generate(docs: dict[str, str], deprecated_methods: set[str]) -> str:
+def generate(docs: dict[str, str]) -> str:
     presets: list[tuple[str, bool, str]] = []
     seen_consts: set[str] = set()
     zman_by_id = {zman.id: zman for zman in ZMAN}
@@ -267,16 +283,6 @@ def generate(docs: dict[str, str], deprecated_methods: set[str]) -> str:
     ]
     if unknown_docs:
         raise ValueError(f"Docs exist for methods missing from DSL: {unknown_docs}")
-
-    unknown_deprecated = [
-        method_name
-        for method_name in deprecated_methods
-        if method_name not in zman_by_id
-    ]
-    if unknown_deprecated:
-        raise ValueError(
-            f"Deprecated methods exist for methods missing from DSL: {unknown_deprecated}"
-        )
 
     for zman in ZMAN:
         method_name = zman.id
@@ -296,14 +302,14 @@ def generate(docs: dict[str, str], deprecated_methods: set[str]) -> str:
         presets.append(
             (
                 const_name,
-                method_name in deprecated_methods,
+                zman.deprecated,
                 preset_block(
                     const_name,
                     method_name,
                     rust_primitive(zman.zman),
                     zman.name,
                     docs[method_name],
-                    method_name in deprecated_methods,
+                    zman.deprecated,
                 ),
             )
         )
@@ -320,8 +326,16 @@ def generate(docs: dict[str, str], deprecated_methods: set[str]) -> str:
 #[cfg(feature = "alloc")]
 extern crate alloc;
 #[cfg(feature = "alloc")]
+use alloc::format;
+#[cfg(feature = "alloc")]
 use alloc::string::ToString;
 
+#[cfg(feature = "alloc")]
+use crate::presets::format_minutes;
+#[cfg(feature = "alloc")]
+use crate::presets::USES_ELEVATION_DESCRIPTION;
+#[cfg(feature = "alloc")]
+use crate::presets::USES_SEA_LEVEL_DESCRIPTION;
 use crate::presets::ZmanPreset;
 use crate::primitive_zman::ZmanPrimitive;
 use jiff::SignedDuration as Duration;
@@ -339,11 +353,8 @@ use jiff::SignedDuration as Duration;
 
 
 def main() -> None:
-    docs = load_docs(INPUT)
-    deprecated_methods = load_deprecated_methods(DEPRECATED_INPUT)
-    OUTPUT.write_text(
-        generate(docs, deprecated_methods), encoding="utf-8", newline="\n"
-    )
+    docs = validate_docs(DOCS)
+    OUTPUT.write_text(generate(docs), encoding="utf-8", newline="\n")
     print(f"Wrote presets to {OUTPUT}.")
 
 

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, Union, cast
+from typing import Annotated, Literal, Union
 
 from pydantic import BaseModel, Field
 
+# KosherJava method names supported by this DSL. The same value is stored in
+# each `Zman.id`, used as the generated Rust parity-test method name, and used
+# as the key for generated documentation.
 ZmanimMethod = Literal[
     "getSunTransit",
     "getSolarMidnight",
@@ -506,6 +509,9 @@ class SunriseOrEasternmostSolarAzimuth(BaseModel):
     )
 
 
+# A primitive is the reusable calculation shape behind a zman preset. Most
+# presets are either a direct primitive, a fixed/zmanis offset from one, or a
+# proportional-time calculation between two primitives.
 ZmanPrimitive = Annotated[
     Union[
         ElevationAdjustedSunrise,
@@ -556,34 +562,32 @@ ZmanPrimitive = Annotated[
 
 
 class Zman(BaseModel):
+    """A supported zman preset and the DSL primitive used to calculate it."""
+
     id: ZmanimMethod
-    """A unique identifier for the zman. This is the name of the method in KosherJava."""
+    """The KosherJava getter this preset matches, such as `getAlos120Zmanis`."""
     type_: ZmanimType
-    """The type of the zman."""
+    """The broad zman category used for grouping."""
     name: str
-    """A human-readable description of the zman."""
+    """The human-readable display name."""
     zman: ZmanPrimitive | None = None
-    """The primitive that calculates this zman."""
+    """The calculation primitive. `None` means the preset is not implemented."""
     deprecated: bool = False
-    """Whether this zman is deprecated and should not be used."""
+    """Whether this preset should only be generated behind test/deprecated gates."""
+    developer_notes: str | None = None
+    """Any additional notes for the developer."""
 
     def description(self) -> str:
         """
-        A longer description or explanation of a `zman`.
+        Return the generated user-facing documentation for this zman.
 
-        This documentation is meant to be shown to the user. It describes accurately how this zman is calculated.
-        The description here will need to be modified at runtime to deal with the following templates.
-        1. At runtime, you will have to replace the `{ateret_torah_offset}` and `{candel_lighting_offset}` placeholders with the actual offset values.
-        2. At runtime, you will have to replace the `{uses_elevation}` placeholder with whether or not the zman takes elevation into account.
-            If it does, you will need to include the text:
+        The text is keyed by `id`, not by display name. Some descriptions
+        intentionally contain runtime placeholders:
 
-                "This zman takes the location's elevation into account when calculating the zman."
-
-            in the description. If it does not, you will need to include the text:
-
-                "This zman is calculated at sea level, without adjusting for elevation."
-
-            in the description.
+        - `{ateret_torah_offset}` and `{candel_lighting_offset}` should be
+          replaced with the configured offsets.
+        - `{uses_elevation}` should be replaced with text describing whether
+          the calculation uses elevation or sea-level sunrise/sunset.
         """
         desc: str | None = DOCS.get(self.id)
         if desc is None:
@@ -591,20 +595,23 @@ class Zman(BaseModel):
         return desc
 
 
+# Ordered registry of supported zman presets. Keep this as a list so each
+# `Zman` is self-contained: the Java method name lives in `id` and the order
+# remains stable for tools that preserve source order.
 ZMAN: list[Zman] = [
-    # Identical to `getChatzosHayom` with `setUseAstronomicalChatzos(true)` which is rusts only implementation
     Zman(
         id="getSunTransit",
         type_="chatzos_hayom",
         name="Chatzos Hayom",
         zman=SolarTransit(),
+        developer_notes="This is the same as getChatzosHayom with setUseAstronomicalChatzos(true) which is rusts only implementation.",
     ),
-    # Identical to `getChatzosHalayla` with `setUseAstronomicalChatzos(true)` which is rusts only implementation
     Zman(
         id="getSolarMidnight",
         type_="chatzos_halayla",
         name="Chatzos Halayla",
         zman=SolarMidnight(),
+        developer_notes="This is the same as getChatzosHalayla with setUseAstronomicalChatzos(true) which is rusts only implementation.",
     ),
     Zman(
         id="getBeginCivilTwilight",
@@ -1412,6 +1419,7 @@ ZMAN: list[Zman] = [
             end=ConfiguredSunset(),
             synchronous=True,
         ),
+        developer_notes="A value will always be returned, even if the day is not Erev Pesach.",
     ),
     Zman(
         id="getSofZmanAchilasChametzMGA72Minutes",
@@ -1428,6 +1436,7 @@ ZMAN: list[Zman] = [
             ),
             synchronous=True,
         ),
+        developer_notes="A value will always be returned, even if the day is not Erev Pesach.",
     ),
     Zman(
         id="getSofZmanAchilasChametzMGA72MinutesZmanis",
@@ -1444,6 +1453,7 @@ ZMAN: list[Zman] = [
             ),
             synchronous=True,
         ),
+        developer_notes="A value will always be returned, even if the day is not Erev Pesach.",
     ),
     Zman(
         id="getSofZmanAchilasChametzMGA16Point1Degrees",
@@ -1454,6 +1464,7 @@ ZMAN: list[Zman] = [
             end=SunsetOffsetByDegrees(degrees=16.1),
             synchronous=True,
         ),
+        developer_notes="A value will always be returned, even if the day is not Erev Pesach.",
     ),
     Zman(
         id="getSofZmanAchilasChametzBaalHatanya",
@@ -1464,6 +1475,7 @@ ZMAN: list[Zman] = [
             end=SunsetOffsetByDegrees(degrees=1.583),
             synchronous=True,
         ),
+        developer_notes="A value will always be returned, even if the day is not Erev Pesach.",
     ),
     Zman(
         id="getSofZmanBiurChametzGRA",
@@ -1474,6 +1486,7 @@ ZMAN: list[Zman] = [
             end=ConfiguredSunset(),
             synchronous=True,
         ),
+        developer_notes="A value will always be returned, even if the day is not Erev Pesach.",
     ),
     Zman(
         id="getSofZmanBiurChametzMGA72Minutes",
@@ -1490,6 +1503,7 @@ ZMAN: list[Zman] = [
             ),
             synchronous=True,
         ),
+        developer_notes="A value will always be returned, even if the day is not Erev Pesach.",
     ),
     Zman(
         id="getSofZmanBiurChametzMGA72MinutesZmanis",
@@ -1506,6 +1520,7 @@ ZMAN: list[Zman] = [
             ),
             synchronous=True,
         ),
+        developer_notes="A value will always be returned, even if the day is not Erev Pesach.",
     ),
     Zman(
         id="getSofZmanBiurChametzMGA16Point1Degrees",
@@ -1516,6 +1531,7 @@ ZMAN: list[Zman] = [
             end=SunsetOffsetByDegrees(degrees=16.1),
             synchronous=True,
         ),
+        developer_notes="A value will always be returned, even if the day is not Erev Pesach.",
     ),
     Zman(
         id="getSofZmanBiurChametzBaalHatanya",
@@ -1526,6 +1542,7 @@ ZMAN: list[Zman] = [
             end=SunsetOffsetByDegrees(degrees=1.583),
             synchronous=True,
         ),
+        developer_notes="A value will always be returned, even if the day is not Erev Pesach.",
     ),
     Zman(
         id="getSofZmanShmaGRA",
