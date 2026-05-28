@@ -19,7 +19,7 @@ cargo add zmanim-calculator jiff
 use jiff::{civil::Date, tz::TimeZone};
 use zmanim_calculator::{
     prelude::{CalculatorConfig, Location, ZmanimCalculator},
-    presets::{SUNRISE, TZAIS_MINUTES_72},
+    presets::{SEA_LEVEL_SUNRISE, TZAIS_72_MINUTES},
 };
 
 fn main() {
@@ -34,8 +34,8 @@ fn main() {
     let mut calc =
         ZmanimCalculator::new(location, date, CalculatorConfig::default()).expect("calculator");
 
-    let sunrise = calc.calculate(SUNRISE).expect("sunrise");
-    let tzais = calc.calculate(TZAIS_MINUTES_72).expect("tzais");
+    let sunrise = calc.calculate(SEA_LEVEL_SUNRISE).expect("sunrise");
+    let tzais = calc.calculate(TZAIS_72_MINUTES).expect("tzais");
 
     println!("Sunrise (UTC): {sunrise}");
     println!("Tzais 72 (UTC): {tzais}");
@@ -75,11 +75,15 @@ Then run the Rust tests. Cargo regenerates the JNI bindings via `build.rs`:
 cargo test
 ```
 
+
+# Updating from KosherJava
+
 To pull in the latest changes from KosherJava, run:
 ```bash
-git subtree pull  --prefix=crates/zmanim-calculator/java https://github.com/KosherJava/zmanim master  --squash
+git subtree pull --prefix=crates/zmanim-calculator/java https://github.com/KosherJava/zmanim master  --squash
 ```
 
+Then follow the workflow in the [tools/README.md](tools/README.md) to regenerate the zman presets.
 
 ## License
 
