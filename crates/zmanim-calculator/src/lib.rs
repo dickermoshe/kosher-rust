@@ -16,16 +16,16 @@
 //! `calculate` takes `&mut self` so repeated calculations can reuse intermediate state.
 //! If Rust borrow rules are awkward for your call pattern, clone the calculator and use each
 //! clone independently.
-// #[cfg(test)]
-// mod java_tests {
-//     pub(crate) mod hebrew_dates;
-//     pub(crate) mod limudim;
-//     pub(crate) mod zmanim;
-// }
+#[cfg(test)]
+mod java_tests {
+    pub(crate) mod hebrew_dates;
+    pub(crate) mod limudim;
+    pub(crate) mod zmanim;
+}
 mod astronomy;
 mod presets_gen;
-// #[cfg(test)]
-// mod tests;
+#[cfg(test)]
+mod tests;
 mod types {
     /// Configuration types for zmanim calculations.
     pub mod config;

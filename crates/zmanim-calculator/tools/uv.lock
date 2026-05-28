@@ -230,6 +230,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "openai" },
+    { name = "pydantic" },
     { name = "python-dotenv" },
     { name = "tree-sitter" },
     { name = "tree-sitter-java" },
@@ -238,6 +239,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "openai", specifier = ">=2.38.0" },
+    { name = "pydantic", specifier = ">=2.13.4" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "tree-sitter", specifier = ">=0.25.2" },
     { name = "tree-sitter-java", specifier = ">=0.23.5" },

@@ -14,7 +14,7 @@ use super::types::{TestCase, ZmanResult};
 /// Calculates one case with the Rust implementation.
 pub(super) fn calculate_rust_zman(
     case: TestCase,
-    preset: &'static ZmanPreset<'static>,
+    preset: &'static ZmanPreset,
 ) -> Result<Option<ZmanResult>, ZmanimError> {
     let timezone = TimeZone::get(case.timezone).unwrap();
     let location = Location::new(

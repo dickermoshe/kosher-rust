@@ -22,7 +22,7 @@ use self::{
 };
 
 /// Runs the randomized Java parity check for one preset.
-pub(crate) fn test_preset(preset: &'static ZmanPreset<'static>) -> Result<(), Box<dyn Error>> {
+pub(crate) fn test_preset(preset: &'static ZmanPreset) -> Result<(), Box<dyn Error>> {
     let seed = policy::test_seed();
     let iterations = policy::test_iterations();
     let mut rng = StdRng::seed_from_u64(seed);
@@ -37,7 +37,7 @@ pub(crate) fn test_preset(preset: &'static ZmanPreset<'static>) -> Result<(), Bo
 
 /// Runs the fixed regression cases that belong to one preset.
 #[cfg(test)]
-pub(crate) fn test_regressions(preset: &'static ZmanPreset<'static>) {
+pub(crate) fn test_regressions(preset: &'static ZmanPreset) {
     for case in REGRESSION_CASES
         .iter()
         .copied()
@@ -48,9 +48,7 @@ pub(crate) fn test_regressions(preset: &'static ZmanPreset<'static>) {
 }
 
 /// Checks one preset against Java for a standard Jerusalem case.
-pub(crate) fn test_preset_in_jerusalem(
-    preset: &'static ZmanPreset<'static>,
-) -> Result<(), Box<dyn Error>> {
+pub(crate) fn test_preset_in_jerusalem(preset: &'static ZmanPreset) -> Result<(), Box<dyn Error>> {
     run_test_case(
         TestCase {
             year: 2024,

@@ -9,1694 +9,1721 @@ use crate::presets::ZmanPreset;
 use crate::primitive_zman::ZmanPrimitive;
 use jiff::SignedDuration as Duration;
 
-/// Alos, or dawn, calculated as 120 minutes before sunrise. It is intended to be used only lechumra, such as stopping to eat on a fast day, because it is very early and should not be used as the start of day-time mitzvos.
+#[cfg(test)]
+/// The time of alos (dawn) 120 minutes before sunrise. It is intended for stringency only, such as stopping to eat before a fast day. It should not be used as the start time for daytime mitzvos. Calculated as 120 minutes before sunrise, using sea level sunrise when elevation is not used and sunrise when elevation is used. The 120-minute offset is based on the view that the neshef period from dawn to sunrise is fixed at the time needed to walk 5 mil at 24 minutes per mil. This zman is extremely early and should be used only lechumra. In places and times where sunrise cannot be calculated, this zman may not be available. The source presents this zman as based on the time to walk 5 mil at 24 minutes per mil. Deprecated. It is kept for use only as a stringency because using it leniently can lead to performing daytime mitzvos too early according to most opinions.
 pub static ALOS_120_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)),
     #[cfg(test)]
     method_name: "getAlos120Minutes",
-    name: "Alos, or dawn, calculated as 120 minutes before sunrise. It is intended to be used only lechumra, such as stopping to eat on a fast day, because it is very early and should not be used as the start of day-time mitzvos.",
+    name: "Alos (120 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "Alos, or dawn, calculated as 120 minutes before sunrise. It is intended to be used only lechumra, such as stopping to eat on a fast day, because it is very early and should not be used as the start of day-time mitzvos.".to_string(),
+    description: |_| "The time of alos (dawn) 120 minutes before sunrise. It is intended for stringency only, such as stopping to eat before a fast day. It should not be used as the start time for daytime mitzvos. Calculated as 120 minutes before sunrise, using sea level sunrise when elevation is not used and sunrise when elevation is used. The 120-minute offset is based on the view that the neshef period from dawn to sunrise is fixed at the time needed to walk 5 mil at 24 minutes per mil. This zman is extremely early and should be used only lechumra. In places and times where sunrise cannot be calculated, this zman may not be available. The source presents this zman as based on the time to walk 5 mil at 24 minutes per mil. Deprecated. It is kept for use only as a stringency because using it leniently can lead to performing daytime mitzvos too early according to most opinions.".to_string(),
 };
 
-/// Very early dawn, calculated as 120 zmaniyos minutes before sunrise. It is meant for stringency only, such as stopping eating before a fast begins.
+#[cfg(test)]
+/// The time of alos, or dawn, calculated as 120 zmaniyos minutes before sunrise. Depending on elevation settings, this is based on either sea level sunrise or sunrise with elevation. Computed as sunset minus 2 times the standard zmaniyos hour used by the Gra, which is equivalent to 120 zmaniyos minutes, or one-sixth of the day. This zman is extremely early and is intended only for stringency. It should not be used as the start time for mitzvos that may only be performed during the day. If the sun does not rise or set on a given day, the zman may not be available or cannot be calculated. This zman should be used only lechumra, such as stopping to eat on a fast day. Using it leniently can cause mitzvos hayom to be done too early according to most opinions.
 pub static ALOS_120_ZMANIS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -2.0),
     #[cfg(test)]
     method_name: "getAlos120Zmanis",
-    name: "Very early dawn, calculated as 120 zmaniyos minutes before sunrise. It is meant for stringency only, such as stopping eating before a fast begins.",
+    name: "Alos (120 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "Very early dawn, calculated as 120 zmaniyos minutes before sunrise. It is meant for stringency only, such as stopping eating before a fast begins.".to_string(),
+    description: |_| "The time of alos, or dawn, calculated as 120 zmaniyos minutes before sunrise. Depending on elevation settings, this is based on either sea level sunrise or sunrise with elevation. Computed as sunset minus 2 times the standard zmaniyos hour used by the Gra, which is equivalent to 120 zmaniyos minutes, or one-sixth of the day. This zman is extremely early and is intended only for stringency. It should not be used as the start time for mitzvos that may only be performed during the day. If the sun does not rise or set on a given day, the zman may not be available or cannot be calculated. This zman should be used only lechumra, such as stopping to eat on a fast day. Using it leniently can cause mitzvos hayom to be done too early according to most opinions.".to_string(),
 };
 
-/// The dawn time when the sun is 16.1 degrees below the eastern geometric horizon before sunrise.
+/// Dawn, defined as the time when the sun is 16.1 degrees below the eastern geometric horizon before sunrise. Calculated from the sun's position 16.1 degrees below the geometric horizon before sunrise, based on the traditional 72-minute interval between dawn and sunrise. This zman may not be available in northern and southern locations where the sun does not reach 16.1 degrees below the horizon.
 pub static ALOS_16_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(16.1),
     #[cfg(test)]
     method_name: "getAlos16Point1Degrees",
-    name: "The dawn time when the sun is 16.1 degrees below the eastern geometric horizon before sunrise.",
+    name: "Alos (16.1 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The dawn time when the sun is 16.1 degrees below the eastern geometric horizon before sunrise.".to_string(),
+    description: |_| "Dawn, defined as the time when the sun is 16.1 degrees below the eastern geometric horizon before sunrise. Calculated from the sun's position 16.1 degrees below the geometric horizon before sunrise, based on the traditional 72-minute interval between dawn and sunrise. This zman may not be available in northern and southern locations where the sun does not reach 16.1 degrees below the horizon.".to_string(),
 };
 
-/// The time of alos (dawn) when the sun is 18 degrees below the eastern geometric horizon before sunrise.
+/// The time of alos (dawn) when the sun is 18 degrees below the eastern geometric horizon before sunrise. Calculated for the moment when the sun is 18 degrees below the eastern geometric horizon before sunrise. In some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach far enough below the horizon.
 pub static ALOS_18_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(18.0),
     #[cfg(test)]
     method_name: "getAlos18Degrees",
-    name: "The time of alos (dawn) when the sun is 18 degrees below the eastern geometric horizon before sunrise.",
+    name: "Alos (18 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of alos (dawn) when the sun is 18 degrees below the eastern geometric horizon before sunrise.".to_string(),
+    description: |_| "The time of alos (dawn) when the sun is 18 degrees below the eastern geometric horizon before sunrise. Calculated for the moment when the sun is 18 degrees below the eastern geometric horizon before sunrise. In some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach far enough below the horizon.".to_string(),
 };
 
-/// The time of alos (dawn) when the sun is 19 degrees below the eastern geometric horizon before sunrise. This is described as the Rambam's alos.
+/// The time of alos, or dawn, when the sun is 19 degrees below the eastern geometric horizon before sunrise. This is identified as Rambam's alos according to Rabbi Moshe Kosower's Maaglei Tzedek, Ayeles Hashachar Vol. I, Yom Valayla Shel Torah, and Rabbi Yaakov Shakow's Luach Ikvei Hayom. Calculated as the moment when the sun reaches 19 degrees below the eastern geometric horizon before sunrise. The zman may not be available at locations, especially far north or far south, where the sun does not reach 19 degrees below the horizon.
 pub static ALOS_19_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(19.0),
     #[cfg(test)]
     method_name: "getAlos19Degrees",
-    name: "The time of alos (dawn) when the sun is 19 degrees below the eastern geometric horizon before sunrise. This is described as the Rambam's alos.",
+    name: "Alos (19 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of alos (dawn) when the sun is 19 degrees below the eastern geometric horizon before sunrise. This is described as the Rambam's alos.".to_string(),
+    description: |_| "The time of alos, or dawn, when the sun is 19 degrees below the eastern geometric horizon before sunrise. This is identified as Rambam's alos according to Rabbi Moshe Kosower's Maaglei Tzedek, Ayeles Hashachar Vol. I, Yom Valayla Shel Torah, and Rabbi Yaakov Shakow's Luach Ikvei Hayom. Calculated as the moment when the sun reaches 19 degrees below the eastern geometric horizon before sunrise. The zman may not be available at locations, especially far north or far south, where the sun does not reach 19 degrees below the horizon.".to_string(),
 };
 
-/// The dawn time of alos when the sun is 19.8 degrees below the eastern geometric horizon before sunrise.
+/// Dawn, calculated when the sun is 19.8 degrees below the eastern geometric horizon before sunrise. Based on the same idea as 90 minutes before sunrise, but using a degree-based calculation instead of an exact 90-minute interval. It is based on the sun's position 90 minutes before sunrise in Jerusalem around the equinox / equilux, which works out to 19.8 degrees below geometric zenith. See [equinox / equilux zmanim calculations](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/). This zman may not be available at northern and southern locations even south of the Arctic Circle and north of the Antarctic Circle where the sun may not reach low enough below the horizon.
 pub static ALOS_19_POINT_8_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(19.8),
     #[cfg(test)]
     method_name: "getAlos19Point8Degrees",
-    name: "The dawn time of alos when the sun is 19.8 degrees below the eastern geometric horizon before sunrise.",
+    name: "Alos (19.8 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The dawn time of alos when the sun is 19.8 degrees below the eastern geometric horizon before sunrise.".to_string(),
+    description: |_| "Dawn, calculated when the sun is 19.8 degrees below the eastern geometric horizon before sunrise. Based on the same idea as 90 minutes before sunrise, but using a degree-based calculation instead of an exact 90-minute interval. It is based on the sun's position 90 minutes before sunrise in Jerusalem around the equinox / equilux, which works out to 19.8 degrees below geometric zenith. See [equinox / equilux zmanim calculations](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/). This zman may not be available at northern and southern locations even south of the Arctic Circle and north of the Antarctic Circle where the sun may not reach low enough below the horizon.".to_string(),
 };
 
-/// A very early alos (dawn) time, when the sun is 26 degrees below the eastern geometric horizon before sunrise.
+#[cfg(test)]
+/// Alos (dawn) when the sun is 26 degrees below the eastern geometric horizon before sunrise. Based on the same point as 120 minutes before sunrise in Jerusalem around the equinox/equilux, but expressed as a degree-based calculation rather than exact minutes. Use this only lechumra, such as stopping to eat on a fast day. It is extremely early and should not be used as the start time for mitzvos that can only be performed during the day. The zman may not be available in places where the sun does not reach low enough below the horizon for this calculation. This zman is deprecated as a warning because it is very early and can lead to doing mitzvos hayom too early according to most opinions. There is no current plan to remove it.
 pub static ALOS_26_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(26.0),
     #[cfg(test)]
     method_name: "getAlos26Degrees",
-    name: "A very early alos (dawn) time, when the sun is 26 degrees below the eastern geometric horizon before sunrise.",
+    name: "Alos (26 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "A very early alos (dawn) time, when the sun is 26 degrees below the eastern geometric horizon before sunrise.".to_string(),
+    description: |_| "Alos (dawn) when the sun is 26 degrees below the eastern geometric horizon before sunrise. Based on the same point as 120 minutes before sunrise in Jerusalem around the equinox/equilux, but expressed as a degree-based calculation rather than exact minutes. Use this only lechumra, such as stopping to eat on a fast day. It is extremely early and should not be used as the start time for mitzvos that can only be performed during the day. The zman may not be available in places where the sun does not reach low enough below the horizon for this calculation. This zman is deprecated as a warning because it is very early and can lead to doing mitzvos hayom too early according to most opinions. There is no current plan to remove it.".to_string(),
 };
 
-/// Alos is dawn, set 60 minutes before sunrise. It can be based on sunrise at sea level or on elevation-adjusted sunrise, depending on the elevation setting.
+/// Alos, meaning dawn, calculated as 60 minutes before sunrise. If elevation is used, it is 60 minutes before sunrise adjusted for elevation; otherwise it is 60 minutes before sea level sunrise. 60 minutes before sunrise, or 60 minutes before sea level sunrise when elevation is not used. This is described as the time to walk 4 mil at 15 minutes per mil. The zman may not be available in places and times where sunrise does not occur, such as the Arctic Circle.
 pub static ALOS_60_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-60)),
     #[cfg(test)]
     method_name: "getAlos60Minutes",
-    name: "Alos is dawn, set 60 minutes before sunrise. It can be based on sunrise at sea level or on elevation-adjusted sunrise, depending on the elevation setting.",
+    name: "Alos (60 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "Alos is dawn, set 60 minutes before sunrise. It can be based on sunrise at sea level or on elevation-adjusted sunrise, depending on the elevation setting.".to_string(),
+    description: |_| "Alos, meaning dawn, calculated as 60 minutes before sunrise. If elevation is used, it is 60 minutes before sunrise adjusted for elevation; otherwise it is 60 minutes before sea level sunrise. 60 minutes before sunrise, or 60 minutes before sea level sunrise when elevation is not used. This is described as the time to walk 4 mil at 15 minutes per mil. The zman may not be available in places and times where sunrise does not occur, such as the Arctic Circle.".to_string(),
 };
 
-/// Alos, or dawn, calculated as 72 minutes before sunrise. If elevation is being used, it is 72 minutes before sea level sunrise instead.
+/// The time of alos, or dawn, calculated as 72 minutes before sunrise. If elevation is used, it is 72 minutes before sea level sunrise instead. It is based on a fixed 72-minute interval, tied to the idea of 4 mil at 18 minutes per mil. The time may not be available if sunrise cannot be calculated, such as in places and seasons where the sun does not rise on at least one day and does not set on another.
 pub static ALOS_72_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)),
     #[cfg(test)]
     method_name: "getAlos72Minutes",
-    name: "Alos, or dawn, calculated as 72 minutes before sunrise. If elevation is being used, it is 72 minutes before sea level sunrise instead.",
+    name: "Alos (72 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "Alos, or dawn, calculated as 72 minutes before sunrise. If elevation is being used, it is 72 minutes before sea level sunrise instead.".to_string(),
+    description: |_| "The time of alos, or dawn, calculated as 72 minutes before sunrise. If elevation is used, it is 72 minutes before sea level sunrise instead. It is based on a fixed 72-minute interval, tied to the idea of 4 mil at 18 minutes per mil. The time may not be available if sunrise cannot be calculated, such as in places and seasons where the sun does not rise on at least one day and does not set on another.".to_string(),
 };
 
-/// The dawn time calculated as 72 seasonal minutes before sunrise, also described as 1/10 of the day before sunrise.
+/// The time of alos, or dawn, calculated as 72 zmaniyos minutes before sunrise. This is also 1/10 of the day before sunrise. It is based on a 4-mil span, with each mil counted as 18 minutes, for a total of 72 minutes. In practice, it is calculated as sunrise based on elevation setting minus 1.2 times the GRA shaah zmanis. This zman may not be available if it cannot be calculated, such as in locations where the sun does not rise or does not set on a given day. This calculation is used in calendars published by the Hisachdus Harabanim D'Artzos Habris Ve'Canada.
 pub static ALOS_72_ZMANIS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2),
     #[cfg(test)]
     method_name: "getAlos72Zmanis",
-    name: "The dawn time calculated as 72 seasonal minutes before sunrise, also described as 1/10 of the day before sunrise.",
+    name: "Alos (72 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The dawn time calculated as 72 seasonal minutes before sunrise, also described as 1/10 of the day before sunrise.".to_string(),
+    description: |_| "The time of alos, or dawn, calculated as 72 zmaniyos minutes before sunrise. This is also 1/10 of the day before sunrise. It is based on a 4-mil span, with each mil counted as 18 minutes, for a total of 72 minutes. In practice, it is calculated as sunrise based on elevation setting minus 1.2 times the GRA shaah zmanis. This zman may not be available if it cannot be calculated, such as in locations where the sun does not rise or does not set on a given day. This calculation is used in calendars published by the Hisachdus Harabanim D'Artzos Habris Ve'Canada.".to_string(),
 };
 
-/// The time of alos (dawn) set 90 minutes before sunrise.
+/// The time of alos, or dawn, calculated as 90 minutes before sunrise. If elevation is used, it is 90 minutes before sea level sunrise instead. Computed as a fixed 90-minute offset before sunrise, based on the time to walk 4 mil at 22.5 minutes per mil. This is a time-based alos calculation rooted in the view that the time between dawn and sunrise depends on the time needed to walk 4 mil and does not vary by season or location. If the sun does not rise on a given day, the zman may not be available or cannot be calculated.
 pub static ALOS_90_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)),
     #[cfg(test)]
     method_name: "getAlos90Minutes",
-    name: "The time of alos (dawn) set 90 minutes before sunrise.",
+    name: "Alos (90 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of alos (dawn) set 90 minutes before sunrise.".to_string(),
+    description: |_| "The time of alos, or dawn, calculated as 90 minutes before sunrise. If elevation is used, it is 90 minutes before sea level sunrise instead. Computed as a fixed 90-minute offset before sunrise, based on the time to walk 4 mil at 22.5 minutes per mil. This is a time-based alos calculation rooted in the view that the time between dawn and sunrise depends on the time needed to walk 4 mil and does not vary by season or location. If the sun does not rise on a given day, the zman may not be available or cannot be calculated.".to_string(),
 };
 
-/// The dawn time of alos based on 90 zmaniyos minutes, which is 1/8 of the day before sunrise.
+/// Alos, or dawn, calculated as 90 zmaniyos minutes before sunrise. This is the same as one-eighth of the day before sunrise, based on a 22.5-minute mil. Sunrise based on the elevation setting minus 1.5 times the Gra shaah zmanis. The sunrise used depends on the elevation setting. The zman may not be available if sunrise cannot be calculated, such as in places or seasons where the sun does not rise.
 pub static ALOS_90_ZMANIS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.5),
     #[cfg(test)]
     method_name: "getAlos90Zmanis",
-    name: "The dawn time of alos based on 90 zmaniyos minutes, which is 1/8 of the day before sunrise.",
+    name: "Alos (90 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The dawn time of alos based on 90 zmaniyos minutes, which is 1/8 of the day before sunrise.".to_string(),
+    description: |_| "Alos, or dawn, calculated as 90 zmaniyos minutes before sunrise. This is the same as one-eighth of the day before sunrise, based on a 22.5-minute mil. Sunrise based on the elevation setting minus 1.5 times the Gra shaah zmanis. The sunrise used depends on the elevation setting. The zman may not be available if sunrise cannot be calculated, such as in places or seasons where the sun does not rise.".to_string(),
 };
 
-/// Alos, or dawn, calculated as 96 minutes before sunrise.
+/// The time of alos (dawn) calculated as 96 minutes before sunrise. It is based on the time to walk 4 mil at 24 minutes per mil, using a fixed 96-minute offset before sunrise. The sunrise used depends on the elevation setting. This zman is based on the view that the time between dawn and sunrise does not vary by season or location, but by the time it takes to walk 4 mil. {uses_elevation} If the sun does not rise on a given day, the zman may not be available.
 pub static ALOS_96_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)),
     #[cfg(test)]
     method_name: "getAlos96Minutes",
-    name: "Alos, or dawn, calculated as 96 minutes before sunrise.",
+    name: "Alos (96 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "Alos, or dawn, calculated as 96 minutes before sunrise.".to_string(),
+    description: |_| "The time of alos (dawn) calculated as 96 minutes before sunrise. It is based on the time to walk 4 mil at 24 minutes per mil, using a fixed 96-minute offset before sunrise. The sunrise used depends on the elevation setting. This zman is based on the view that the time between dawn and sunrise does not vary by season or location, but by the time it takes to walk 4 mil. {uses_elevation} If the sun does not rise on a given day, the zman may not be available.".to_string(),
 };
 
-/// Alos, or dawn, calculated as 96 zmaniyos minutes before sunrise.
+/// The dawn time of alos calculated as 96 zmaniyos minutes before sunrise, or sea level sunrise when elevation is not used. Calculated as sunrise based on the elevation setting minus 1.6 times the GRA shaah zmanis, which equals 96 zmaniyos minutes (4 mil, or 1/7.5 of the day). The day is measured from sea level sunrise to sea level sunset, or from sunrise to sunset when elevation is used. If the sun does not rise or does not set, the zman may not be available or cannot be calculated.
 pub static ALOS_96_ZMANIS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.6),
     #[cfg(test)]
     method_name: "getAlos96Zmanis",
-    name: "Alos, or dawn, calculated as 96 zmaniyos minutes before sunrise.",
+    name: "Alos (96 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "Alos, or dawn, calculated as 96 zmaniyos minutes before sunrise.".to_string(),
+    description: |_| "The dawn time of alos calculated as 96 zmaniyos minutes before sunrise, or sea level sunrise when elevation is not used. Calculated as sunrise based on the elevation setting minus 1.6 times the GRA shaah zmanis, which equals 96 zmaniyos minutes (4 mil, or 1/7.5 of the day). The day is measured from sea level sunrise to sea level sunset, or from sunrise to sunset when elevation is used. If the sun does not rise or does not set, the zman may not be available or cannot be calculated.".to_string(),
 };
 
-/// The Baal Hatanya's alos (dawn), defined as when the sun is 16.9 degrees below the eastern geometric horizon before sunrise.
+/// The Baal Hatanya's alos, or dawn, calculated as the time 16.9 degrees below the eastern geometric horizon before sunrise. This is based on the idea that the time from dawn to netz amiti (sunrise) is 72 minutes - the time to walk 4 mil at 18 minutes per mil, as described by [Baal Hatanya](https://en.wikipedia.org/wiki/Shneur_Zalman_of_Liadi), [Rambam](https://en.wikipedia.org/wiki/Maimonides), and others. The sun's position 72 minutes before netz amiti in Jerusalem around the equinox/equilux is 16.9 degrees below geometric zenith. If the sun does not reach low enough below the horizon for this calculation, such as in some northern and southern locations beyond the Arctic and Antarctic Circles, the zman may not be available or cannot be calculated. See [equinox / equilux zmanim calculations](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/) for the referenced explanation.
 pub static ALOS_BAAL_HATANYA: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(16.9),
     #[cfg(test)]
     method_name: "getAlosBaalHatanya",
-    name: "The Baal Hatanya's alos (dawn), defined as when the sun is 16.9 degrees below the eastern geometric horizon before sunrise.",
+    name: "Alos (Baal Hatanya)",
     #[cfg(feature = "alloc")]
-    description: |_| "The Baal Hatanya's alos (dawn), defined as when the sun is 16.9 degrees below the eastern geometric horizon before sunrise.".to_string(),
+    description: |_| "The Baal Hatanya's alos, or dawn, calculated as the time 16.9 degrees below the eastern geometric horizon before sunrise. This is based on the idea that the time from dawn to netz amiti (sunrise) is 72 minutes - the time to walk 4 mil at 18 minutes per mil, as described by [Baal Hatanya](https://en.wikipedia.org/wiki/Shneur_Zalman_of_Liadi), [Rambam](https://en.wikipedia.org/wiki/Maimonides), and others. The sun's position 72 minutes before netz amiti in Jerusalem around the equinox/equilux is 16.9 degrees below geometric zenith. If the sun does not reach low enough below the horizon for this calculation, such as in some northern and southern locations beyond the Arctic and Antarctic Circles, the zman may not be available or cannot be calculated. See [equinox / equilux zmanim calculations](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/) for the referenced explanation.".to_string(),
 };
 
-/// The beginning of Rabbeinu Tam's bain hashmashos, when the sun is 13.24 degrees below the western geometric horizon after sunset.
+/// The beginning of Rabbeinu Tam's bain hashmashos, when the sun is 13.24 degrees below the western geometric horizon after sunset. It is based on the same idea as Rabbeinu Tam's 58.5-minute bain hashmashos, but expressed as a degree-based position instead of an exact time after sunset. The 13.24 degree figure is based on the sun's position 58.5 minutes after sunset in Jerusalem around the equinox/equilux. A note in the source says that a dip of slightly less than 13 degrees should be used, and that 13.24 degrees is a truncated value used for a slightly earlier lechumra time. The zman may not be available in far northern or southern locations where the sun does not reach far enough below the horizon.
 pub static BAIN_HASHMASHOS_RT_13_POINT_24_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(13.24),
     #[cfg(test)]
     method_name: "getBainHashmashosRT13Point24Degrees",
-    name: "The beginning of Rabbeinu Tam's bain hashmashos, when the sun is 13.24 degrees below the western geometric horizon after sunset.",
+    name: "Bain Hashmashos (Rabbeinu Tam, 13.24 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The beginning of Rabbeinu Tam's bain hashmashos, when the sun is 13.24 degrees below the western geometric horizon after sunset.".to_string(),
+    description: |_| "The beginning of Rabbeinu Tam's bain hashmashos, when the sun is 13.24 degrees below the western geometric horizon after sunset. It is based on the same idea as Rabbeinu Tam's 58.5-minute bain hashmashos, but expressed as a degree-based position instead of an exact time after sunset. The 13.24 degree figure is based on the sun's position 58.5 minutes after sunset in Jerusalem around the equinox/equilux. A note in the source says that a dip of slightly less than 13 degrees should be used, and that 13.24 degrees is a truncated value used for a slightly earlier lechumra time. The zman may not be available in far northern or southern locations where the sun does not reach far enough below the horizon.".to_string(),
 };
 
-/// The start of Rabbeinu Tam's bain hashmashos in this calculation.
+/// The beginning of bain hashmashos of Rabbeinu Tam, based on 13.5 minutes before shkiah calculated as 7.083 degrees. It is calculated as 13.5 minutes before shkiah, using the 7.083 degrees calculation. This zman may not be available at northern and southern locations, including areas even south of the Arctic Circle and north of the Antarctic Circle, where the sun does not reach low enough below the horizon for this calculation.
 pub static BAIN_HASHMASHOS_RT_13_POINT_5_MINUTES_BEFORE_7_POINT_083_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Offset( &ZmanPrimitive::SunsetOffsetByDegrees(7.0 + (5.0 / 60.0)), Duration::from_millis((-13.5 * 60.0 * 1000.0) as i64), ),
+    event: ZmanPrimitive::Offset(&ZmanPrimitive::SunsetOffsetByDegrees(7.083333333333333), Duration::from_millis(-810000)),
     #[cfg(test)]
     method_name: "getBainHashmashosRT13Point5MinutesBefore7Point083Degrees",
-    name: "The start of Rabbeinu Tam's bain hashmashos in this calculation.",
+    name: "Bain Hashmashos (Rabbeinu Tam, 13.5 Minutes Before 7.083 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The start of Rabbeinu Tam's bain hashmashos in this calculation.".to_string(),
+    description: |_| "The beginning of bain hashmashos of Rabbeinu Tam, based on 13.5 minutes before shkiah calculated as 7.083 degrees. It is calculated as 13.5 minutes before shkiah, using the 7.083 degrees calculation. This zman may not be available at northern and southern locations, including areas even south of the Arctic Circle and north of the Antarctic Circle, where the sun does not reach low enough below the horizon for this calculation.".to_string(),
 };
 
-/// The beginning of Rabbeinu Tam's bain hashmashos, calculated according to the Divrei Yosef opinion.
+/// The start of Rabbeinu Tam's bain hashmashos, calculated according to the Divrei Yosef view. Take 5/18 (27.77%) of the time between alos, defined here as 19.8 degrees before sunrise, and sunrise, then add that amount to sunset. The zman may not be available for locations where the sun does not reach low enough below the horizon for this calculation, including some northern and southern locations beyond the Arctic and Antarctic Circles.
 pub static BAIN_HASHMASHOS_RT_2_STARS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::BainHashmashosRt2Stars,
     #[cfg(test)]
     method_name: "getBainHashmashosRT2Stars",
-    name: "The beginning of Rabbeinu Tam's bain hashmashos, calculated according to the Divrei Yosef opinion.",
+    name: "Bain Hashmashos (Rabbeinu Tam, 2 Stars)",
     #[cfg(feature = "alloc")]
-    description: |_| "The beginning of Rabbeinu Tam's bain hashmashos, calculated according to the Divrei Yosef opinion.".to_string(),
+    description: |_| "The start of Rabbeinu Tam's bain hashmashos, calculated according to the Divrei Yosef view. Take 5/18 (27.77%) of the time between alos, defined here as 19.8 degrees before sunrise, and sunrise, then add that amount to sunset. The zman may not be available for locations where the sun does not reach low enough below the horizon for this calculation, including some northern and southern locations beyond the Arctic and Antarctic Circles.".to_string(),
 };
 
-/// The beginning of Rabbeinu Tam's bain hashmashos, taken as 58.5 minutes after sunset.
+/// The beginning of Rabbeinu Tam's bain hashmashos, calculated as 58.5 minutes after sunset. Sunset plus 58.5 minutes. This comes from treating a mil as 18 minutes, so 3.25 mil after sunset equals 58.5 minutes. The zman may not be available when it cannot be calculated, such as in places or on days when the sun does not rise or does not set.
 pub static BAIN_HASHMASHOS_RT_58_POINT_5_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Offset( &ZmanPrimitive::ConfiguredSunset, Duration::from_millis((58.5 * 60.0 * 1000.0) as i64), ),
+    event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_millis(3510000)),
     #[cfg(test)]
     method_name: "getBainHashmashosRT58Point5Minutes",
-    name: "The beginning of Rabbeinu Tam's bain hashmashos, taken as 58.5 minutes after sunset.",
+    name: "Bain Hashmashos (Rabbeinu Tam, 58.5 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The beginning of Rabbeinu Tam's bain hashmashos, taken as 58.5 minutes after sunset.".to_string(),
+    description: |_| "The beginning of Rabbeinu Tam's bain hashmashos, calculated as 58.5 minutes after sunset. Sunset plus 58.5 minutes. This comes from treating a mil as 18 minutes, so 3.25 mil after sunset equals 58.5 minutes. The zman may not be available when it cannot be calculated, such as in places or on days when the sun does not rise or does not set.".to_string(),
 };
 
-/// The start of bain hashmashos (twilight) according to the Yereim, 13.5 minutes before sunset.
+/// The start of bain hashmashos (twilight) according to the Yereim, 13.5 minutes before sunset. Calculated as 13.5 minutes, or 3/4 of an 18-minute mil, before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) starts at sunset. The zman may not be available if it cannot be calculated, such as in places and times where the sun does not rise or does not set.
 pub static BAIN_HASHMASHOS_YEREIM_13_POINT_5_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Offset( &ZmanPrimitive::ConfiguredSunset, Duration::from_millis((-13.5 * 60.0 * 1000.0) as i64), ),
+    event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_millis(-810000)),
     #[cfg(test)]
     method_name: "getBainHashmashosYereim13Point5Minutes",
-    name: "The start of bain hashmashos (twilight) according to the Yereim, 13.5 minutes before sunset.",
+    name: "Bain Hashmashos (Yereim, 13.5 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The start of bain hashmashos (twilight) according to the Yereim, 13.5 minutes before sunset.".to_string(),
+    description: |_| "The start of bain hashmashos (twilight) according to the Yereim, 13.5 minutes before sunset. Calculated as 13.5 minutes, or 3/4 of an 18-minute mil, before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) starts at sunset. The zman may not be available if it cannot be calculated, such as in places and times where the sun does not rise or does not set.".to_string(),
 };
 
-/// The start of Yereim's bain hashmashos, or twilight, which is 16.875 minutes before sunset.
+/// The beginning of bain hashmashos (twilight) according to the Yereim, which is 16.875 minutes before sunset. Calculated as 16.875 minutes, or 3/4 of a 22.5-minute mil, before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais, or nightfall, starts at sunset. The zman may not be available if it cannot be calculated, such as in the Arctic Circle where there is at least one day a year when the sun does not rise and one when it does not set.
 pub static BAIN_HASHMASHOS_YEREIM_16_POINT_875_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Offset( &ZmanPrimitive::ConfiguredSunset, Duration::from_millis((-16.875 * 60.0 * 1000.0) as i64), ),
+    event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_millis(-1012500)),
     #[cfg(test)]
     method_name: "getBainHashmashosYereim16Point875Minutes",
-    name: "The start of Yereim's bain hashmashos, or twilight, which is 16.875 minutes before sunset.",
+    name: "Bain Hashmashos (Yereim, 16.875 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The start of Yereim's bain hashmashos, or twilight, which is 16.875 minutes before sunset.".to_string(),
+    description: |_| "The beginning of bain hashmashos (twilight) according to the Yereim, which is 16.875 minutes before sunset. Calculated as 16.875 minutes, or 3/4 of a 22.5-minute mil, before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais, or nightfall, starts at sunset. The zman may not be available if it cannot be calculated, such as in the Arctic Circle where there is at least one day a year when the sun does not rise and one when it does not set.".to_string(),
 };
 
-/// The beginning of bain hashmashos (twilight) according to the Yereim, set at 18 minutes before sunset.
+/// The start of bain hashmashos (twilight) according to the Yereim (Rabbi Eliezer of Metz), taken as 18 minutes before sunset. Calculated as 18 minutes, or 3/4 of a 24-minute mil, before sunset. According to the Yereim, bain hashmashos begins 3/4 of a mil before sunset and tzais, or nightfall, starts at sunset. If the calculation cannot be computed, such as in the Arctic Circle where there can be days when the sun does not rise or does not set, the zman may not be available.
 pub static BAIN_HASHMASHOS_YEREIM_18_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(-18)),
     #[cfg(test)]
     method_name: "getBainHashmashosYereim18Minutes",
-    name: "The beginning of bain hashmashos (twilight) according to the Yereim, set at 18 minutes before sunset.",
+    name: "Bain Hashmashos (Yereim, 18 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The beginning of bain hashmashos (twilight) according to the Yereim, set at 18 minutes before sunset.".to_string(),
+    description: |_| "The start of bain hashmashos (twilight) according to the Yereim (Rabbi Eliezer of Metz), taken as 18 minutes before sunset. Calculated as 18 minutes, or 3/4 of a 24-minute mil, before sunset. According to the Yereim, bain hashmashos begins 3/4 of a mil before sunset and tzais, or nightfall, starts at sunset. If the calculation cannot be computed, such as in the Arctic Circle where there can be days when the sun does not rise or does not set, the zman may not be available.".to_string(),
 };
 
-/// The beginning of bain hashmashos according to the Yereim, when the sun is 2.1 degrees above the horizon. The docs also describe this as 13.5 minutes, or 3/4 of an 18-minute mil, before sunset.
+/// The start of bain hashmashos according to the Yereim, when the sun is 2.1 degrees above the horizon. Calculated as the time when the sun reaches 2.1 degrees above the horizon, which corresponds to 13.5 minutes, or 3/4 of an 18-minute mil, before sunset around the equinox/equilux in Yerushalayim. According to the Yereim, bain hashmashos begins 3/4 of a mil before sunset and tzais, or nightfall, starts at sunset. The zman may not be available if it cannot be calculated, such as in places like the Arctic Circle where the sun may not rise or set on some days.
 pub static BAIN_HASHMASHOS_YEREIM_2_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(-2.1),
     #[cfg(test)]
     method_name: "getBainHashmashosYereim2Point1Degrees",
-    name: "The beginning of bain hashmashos according to the Yereim, when the sun is 2.1 degrees above the horizon. The docs also describe this as 13.5 minutes, or 3/4 of an 18-minute mil, before sunset.",
+    name: "Bain Hashmashos (Yereim, 2.1 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The beginning of bain hashmashos according to the Yereim, when the sun is 2.1 degrees above the horizon. The docs also describe this as 13.5 minutes, or 3/4 of an 18-minute mil, before sunset.".to_string(),
+    description: |_| "The start of bain hashmashos according to the Yereim, when the sun is 2.1 degrees above the horizon. Calculated as the time when the sun reaches 2.1 degrees above the horizon, which corresponds to 13.5 minutes, or 3/4 of an 18-minute mil, before sunset around the equinox/equilux in Yerushalayim. According to the Yereim, bain hashmashos begins 3/4 of a mil before sunset and tzais, or nightfall, starts at sunset. The zman may not be available if it cannot be calculated, such as in places like the Arctic Circle where the sun may not rise or set on some days.".to_string(),
 };
 
-/// The beginning of bain hashmashos (twilight) according to the Yereim (Rabbi Eliezer of Metz). It is the time when the sun is 2.8 degrees above the horizon, which is described here as 16.875 minutes, or 3/4 of an 18-minute mil, before sunset.
+/// The beginning of bain hashmashos (twilight) according to the Yereim, when the sun is 2.8 degrees above the horizon, which is described as about 16.875 minutes, or 3/4 of an 18-minute mil, before sunset. Calculated from the sun's position 2.8 degrees above the horizon, equivalent to 16.875 minutes or 3/4 of an 18-minute mil before sunset. The zman may not be available if it cannot be calculated, such as in locations with days when the sun does not rise or does not set.
 pub static BAIN_HASHMASHOS_YEREIM_2_POINT_8_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(-2.8),
     #[cfg(test)]
     method_name: "getBainHashmashosYereim2Point8Degrees",
-    name: "The beginning of bain hashmashos (twilight) according to the Yereim (Rabbi Eliezer of Metz). It is the time when the sun is 2.8 degrees above the horizon, which is described here as 16.875 minutes, or 3/4 of an 18-minute mil, before sunset.",
+    name: "Bain Hashmashos (Yereim, 2.8 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The beginning of bain hashmashos (twilight) according to the Yereim (Rabbi Eliezer of Metz). It is the time when the sun is 2.8 degrees above the horizon, which is described here as 16.875 minutes, or 3/4 of an 18-minute mil, before sunset.".to_string(),
+    description: |_| "The beginning of bain hashmashos (twilight) according to the Yereim, when the sun is 2.8 degrees above the horizon, which is described as about 16.875 minutes, or 3/4 of an 18-minute mil, before sunset. Calculated from the sun's position 2.8 degrees above the horizon, equivalent to 16.875 minutes or 3/4 of an 18-minute mil before sunset. The zman may not be available if it cannot be calculated, such as in locations with days when the sun does not rise or does not set.".to_string(),
 };
 
-/// The beginning of bain hashmashos (twilight) according to the Yereim, based on the sun being 3.05 degrees above the horizon around the equinox/equilux, or 18 minutes before sunset.
+/// The beginning of bain hashmashos (twilight) according to the Yereim, when the sun is 3.05 degrees above the horizon, which is also described as about 18 minutes or 3/4 of a 24-minute mil before sunset. Calculated from the point when the sun is 3.05 degrees above the horizon, using a refraction value of 0.5166 degrees. This is described as a lechumra calculation, using a slightly more stringent refraction value than the traditional 0.566 degrees. The source also describes this as the Yereim's 3/4-mil-before-sunset time, and notes that the degree-based value is around the equinox/equilux.
 pub static BAIN_HASHMASHOS_YEREIM_3_POINT_05_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(-3.05),
     #[cfg(test)]
     method_name: "getBainHashmashosYereim3Point05Degrees",
-    name: "The beginning of bain hashmashos (twilight) according to the Yereim, based on the sun being 3.05 degrees above the horizon around the equinox/equilux, or 18 minutes before sunset.",
+    name: "Bain Hashmashos (Yereim, 3.05 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The beginning of bain hashmashos (twilight) according to the Yereim, based on the sun being 3.05 degrees above the horizon around the equinox/equilux, or 18 minutes before sunset.".to_string(),
+    description: |_| "The beginning of bain hashmashos (twilight) according to the Yereim, when the sun is 3.05 degrees above the horizon, which is also described as about 18 minutes or 3/4 of a 24-minute mil before sunset. Calculated from the point when the sun is 3.05 degrees above the horizon, using a refraction value of 0.5166 degrees. This is described as a lechumra calculation, using a slightly more stringent refraction value than the traditional 0.566 degrees. The source also describes this as the Yereim's 3/4-mil-before-sunset time, and notes that the degree-based value is around the equinox/equilux.".to_string(),
 };
 
-/// The beginning of astronomical twilight, which is the time when the sun is 108 degrees below the horizon.
+/// The start of astronomical twilight. Calculated using a zenith of 108 degrees. This zman may not be available if the calculation cannot be computed.
 pub static BEGIN_ASTRONOMICAL_TWILIGHT: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::BeginAstronomicalTwilight,
     #[cfg(test)]
     method_name: "getBeginAstronomicalTwilight",
-    name: "The beginning of astronomical twilight, which is the time when the sun is 108 degrees below the horizon.",
+    name: "Begin Astronomical Twilight",
     #[cfg(feature = "alloc")]
-    description: |_| "The beginning of astronomical twilight, which is the time when the sun is 108 degrees below the horizon.".to_string(),
+    description: |_| "The start of astronomical twilight. Calculated using a zenith of 108 degrees. This zman may not be available if the calculation cannot be computed.".to_string(),
 };
 
-/// The beginning of civil twilight, also called dawn, at a zenith of 96 degrees.
+/// The beginning of civil twilight (dawn). Calculated using a zenith of 96 degrees. If the calculation cannot be computed, the zman may not be available.
 pub static BEGIN_CIVIL_TWILIGHT: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::BeginCivilTwilight,
     #[cfg(test)]
     method_name: "getBeginCivilTwilight",
-    name: "The beginning of civil twilight, also called dawn, at a zenith of 96 degrees.",
+    name: "Begin Civil Twilight",
     #[cfg(feature = "alloc")]
-    description: |_| "The beginning of civil twilight, also called dawn, at a zenith of 96 degrees.".to_string(),
+    description: |_| "The beginning of civil twilight (dawn). Calculated using a zenith of 96 degrees. If the calculation cannot be computed, the zman may not be available.".to_string(),
 };
 
-/// The start of [nautical twilight](https://en.wikipedia.org/wiki/Twilight#Nautical_twilight), which is 102 degrees below the horizon.
+/// The start of nautical twilight - the time when the sky reaches the nautical twilight stage before sunrise. Calculated using a zenith of 102 degrees. The zman may not be available or cannot be calculated in some situations.
 pub static BEGIN_NAUTICAL_TWILIGHT: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::BeginNauticalTwilight,
     #[cfg(test)]
     method_name: "getBeginNauticalTwilight",
-    name: "The start of [nautical twilight](https://en.wikipedia.org/wiki/Twilight#Nautical_twilight), which is 102 degrees below the horizon.",
+    name: "Begin Nautical Twilight",
     #[cfg(feature = "alloc")]
-    description: |_| "The start of [nautical twilight](https://en.wikipedia.org/wiki/Twilight#Nautical_twilight), which is 102 degrees below the horizon.".to_string(),
+    description: |_| "The start of nautical twilight - the time when the sky reaches the nautical twilight stage before sunrise. Calculated using a zenith of 102 degrees. The zman may not be available or cannot be calculated in some situations.".to_string(),
 };
 
-/// The candle lighting time, for any day of the week, including mid-week holidays.
+/// The candle lighting time for any day of the week, including mid-week holidays. It is calculated as the candle lighting offset minutes before sea level sunset. Elevation adjustments are intentionally not included. The time may not be available if it cannot be calculated, such as in places like the Arctic Circle where there is at least one day a year when the sun does not rise and one when it does not set.
 pub static CANDLE_LIGHTING: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::CandleLighting,
     #[cfg(test)]
     method_name: "getCandleLighting",
-    name: "The candle lighting time, for any day of the week, including mid-week holidays.",
+    name: "Candle Lighting",
     #[cfg(feature = "alloc")]
-    description: |_| "The candle lighting time, for any day of the week, including mid-week holidays.".to_string(),
+    description: |_| "The candle lighting time for any day of the week, including mid-week holidays. It is calculated as the candle lighting offset minutes before sea level sunset. Elevation adjustments are intentionally not included. The time may not be available if it cannot be calculated, such as in places like the Arctic Circle where there is at least one day a year when the sun does not rise and one when it does not set.".to_string(),
 };
 
-/// The halachic midnight at the end of the day - the last zman of the day, which may actually be after midnight on the civil clock. It is used, for example, on Erev Pesach so it can serve as sof zman achilas chametz for the following night.
+/// Returns chatzos halayla at the end of the day - the last zman of the day, which may actually be after midnight of the day it is being calculated for. For example, on Erev Pesach it can be calculated for Lail Pesach so it can be used as sof zman achilas chametz. Astronomical chatzos halayla for the end of the current day. This is the end-of-day chatzos halayla, not the midpoint of the night.
 pub static CHATZOS_HALAYLA: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SolarMidnight,
     #[cfg(test)]
     method_name: "getChatzosHalayla",
-    name: "The halachic midnight at the end of the day - the last zman of the day, which may actually be after midnight on the civil clock. It is used, for example, on Erev Pesach so it can serve as sof zman achilas chametz for the following night.",
+    name: "Chatzos Halayla (Solar Midnight)",
     #[cfg(feature = "alloc")]
-    description: |_| "The halachic midnight at the end of the day - the last zman of the day, which may actually be after midnight on the civil clock. It is used, for example, on Erev Pesach so it can serve as sof zman achilas chametz for the following night.".to_string(),
+    description: |_| "Returns chatzos halayla at the end of the day - the last zman of the day, which may actually be after midnight of the day it is being calculated for. For example, on Erev Pesach it can be calculated for Lail Pesach so it can be used as sof zman achilas chametz. Astronomical chatzos halayla for the end of the current day. This is the end-of-day chatzos halayla, not the midpoint of the night.".to_string(),
 };
 
-/// The day's chatzos hayom, meaning either astronomical noon or, if astronomical chatzos is not being used, the halfway point between sunrise and sunset.
+/// The time of astronomical chatzos hayom, the sun's transit at the midpoint of the day. Astronomical chatzos hayom. May not be available in situations where the zman cannot be calculated, such as locations or days where sunrise or sunset do not occur.
 pub static CHATZOS_HAYOM: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SolarTransit,
     #[cfg(test)]
     method_name: "getChatzosHayom",
-    name: "The day's chatzos hayom, meaning either astronomical noon or, if astronomical chatzos is not being used, the halfway point between sunrise and sunset.",
+    name: "Chatzos Hayom (Solar Noon)",
     #[cfg(feature = "alloc")]
-    description: |_| "The day's chatzos hayom, meaning either astronomical noon or, if astronomical chatzos is not being used, the halfway point between sunrise and sunset.".to_string(),
+    description: |_| "The time of astronomical chatzos hayom, the sun's transit at the midpoint of the day. Astronomical chatzos hayom. May not be available in situations where the zman cannot be calculated, such as locations or days where sunrise or sunset do not occur.".to_string(),
 };
 
-/// Chatzos ha-yom calculated as the midpoint between sunrise and sunset.
+/// The daytime chatzos, calculated as the midpoint between sunrise and sunset. It is calculated as halfway between sunrise and sunset. This is very close to the true midpoint of the day, but due to seasonal changes in day length it is not necessarily exact. If the sun does not rise or set on a given date and location, the zman may not be available.
 pub static CHATZOS_HAYOM_AS_HALF_DAY: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::HalfDayBasedOffset( &ZmanPrimitive::SeaLevelSunrise, &ZmanPrimitive::SeaLevelSunset, 3.0, ),
+    event: ZmanPrimitive::HalfDayBasedOffset(&ZmanPrimitive::SeaLevelSunrise, &ZmanPrimitive::SeaLevelSunset, 3.0),
     #[cfg(test)]
     method_name: "getChatzosHayomAsHalfDay",
-    name: "Chatzos ha-yom calculated as the midpoint between sunrise and sunset.",
+    name: "Chatzos Hayom (Half Day)",
     #[cfg(feature = "alloc")]
-    description: |_| "Chatzos ha-yom calculated as the midpoint between sunrise and sunset.".to_string(),
+    description: |_| "The daytime chatzos, calculated as the midpoint between sunrise and sunset. It is calculated as halfway between sunrise and sunset. This is very close to the true midpoint of the day, but due to seasonal changes in day length it is not necessarily exact. If the sun does not rise or set on a given date and location, the zman may not be available.".to_string(),
 };
 
-/// The end of astronomical twilight.
+/// The elevation-adjusted sunrise time. It is calculated using a geometric zenith of 90 degrees plus an elevation adjustment. The zenith is further adjusted to about 90.83333 degrees to account for refraction and the sun's radius. If the sun does not rise on a given day, such as in some Arctic Circle locations, the sunrise may not be available. See also sea level sunrise.
+pub static ELEVATION_ADJUSTED_SUNRISE: ZmanPreset = ZmanPreset {
+    event: ZmanPrimitive::ElevationAdjustedSunrise,
+    #[cfg(test)]
+    method_name: "getSunrise",
+    name: "Sunrise",
+    #[cfg(feature = "alloc")]
+    description: |_| "The elevation-adjusted sunrise time. It is calculated using a geometric zenith of 90 degrees plus an elevation adjustment. The zenith is further adjusted to about 90.83333 degrees to account for refraction and the sun's radius. If the sun does not rise on a given day, such as in some Arctic Circle locations, the sunrise may not be available. See also sea level sunrise.".to_string(),
+};
+
+/// Returns the elevation-adjusted sunset time. Uses a geometric zenith of 90 degrees plus the elevation adjustment, and then adjusts that zenith to about 90.83333 degrees to account for atmospheric refraction and the sun's radius. In some cases, the calculated sunset can occur before sunrise, such as when using a time zone that is different from the local time zone. In that case, the sunset date is moved to the following day. The sunset may not be available in places and times where the sun does not rise or does not set.
+pub static ELEVATION_ADJUSTED_SUNSET: ZmanPreset = ZmanPreset {
+    event: ZmanPrimitive::ElevationAdjustedSunset,
+    #[cfg(test)]
+    method_name: "getSunset",
+    name: "Sunset",
+    #[cfg(feature = "alloc")]
+    description: |_| "Returns the elevation-adjusted sunset time. Uses a geometric zenith of 90 degrees plus the elevation adjustment, and then adjusts that zenith to about 90.83333 degrees to account for atmospheric refraction and the sun's radius. In some cases, the calculated sunset can occur before sunrise, such as when using a time zone that is different from the local time zone. In that case, the sunset date is moved to the following day. The sunset may not be available in places and times where the sun does not rise or does not set.".to_string(),
+};
+
+/// The time when astronomical twilight ends. Calculated using a zenith of 108 degrees. If the calculation cannot be computed, the zman may not be available.
 pub static END_ASTRONOMICAL_TWILIGHT: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::EndAstronomicalTwilight,
     #[cfg(test)]
     method_name: "getEndAstronomicalTwilight",
-    name: "The end of astronomical twilight.",
+    name: "End Astronomical Twilight",
     #[cfg(feature = "alloc")]
-    description: |_| "The end of astronomical twilight.".to_string(),
+    description: |_| "The time when astronomical twilight ends. Calculated using a zenith of 108 degrees. If the calculation cannot be computed, the zman may not be available.".to_string(),
 };
 
-/// The time when civil twilight ends.
+/// The time when civil twilight ends, based on the sun being 96 degrees from the zenith. Calculated using a zenith of 96 degrees. If the time cannot be calculated, this zman may not be available.
 pub static END_CIVIL_TWILIGHT: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::EndCivilTwilight,
     #[cfg(test)]
     method_name: "getEndCivilTwilight",
-    name: "The time when civil twilight ends.",
+    name: "End Civil Twilight",
     #[cfg(feature = "alloc")]
-    description: |_| "The time when civil twilight ends.".to_string(),
+    description: |_| "The time when civil twilight ends, based on the sun being 96 degrees from the zenith. Calculated using a zenith of 96 degrees. If the time cannot be calculated, this zman may not be available.".to_string(),
 };
 
-/// The end of nautical twilight, calculated using a zenith of 102 degrees.
+/// The end of nautical twilight, when the sun is 102 degrees below the horizon. Calculated using a zenith of 102 degrees. This zman may not be available if the calculation cannot be computed.
 pub static END_NAUTICAL_TWILIGHT: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::EndNauticalTwilight,
     #[cfg(test)]
     method_name: "getEndNauticalTwilight",
-    name: "The end of nautical twilight, calculated using a zenith of 102 degrees.",
+    name: "End Nautical Twilight",
     #[cfg(feature = "alloc")]
-    description: |_| "The end of nautical twilight, calculated using a zenith of 102 degrees.".to_string(),
+    description: |_| "The end of nautical twilight, when the sun is 102 degrees below the horizon. Calculated using a zenith of 102 degrees. This zman may not be available if the calculation cannot be computed.".to_string(),
 };
 
-/// The local time of fixed chatzos, which is noon adjusted from standard time to reflect the local location. It represents chatzos according to the Aruch Hashulchan and Rabbi Moshe Feinstein.
+/// The local time of fixed chatzos, or solar noon. It is the time of chatzos according to the [Aruch Hashulchan](https://en.wikipedia.org/wiki/Aruch_HaShulchan) in [Orach Chaim 233:14](https://hebrewbooks.org/pdfpager.aspx?req=7705&pgnum=426) and [Rabbi Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein) in Igros Moshe [Orach Chaim 1:24](https://hebrewbooks.org/pdfpager.aspx?req=916&st=&pgnum=67) and [2:20](https://hebrewbooks.org/pdfpager.aspx?req=14675&pgnum=191). It starts with 12:00 noon and adjusts from standard time to account for the local longitude. The adjustment is based on 15 degrees per hour, or 4 minutes per degree, from the nearest multiple of 15 degrees. It uses the actual time zone and daylight saving time.
 pub static FIXED_LOCAL_CHATZOS_HAYOM: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::LocalMeanTime(12.0),
     #[cfg(test)]
     method_name: "getFixedLocalChatzosHayom",
-    name: "The local time of fixed chatzos, which is noon adjusted from standard time to reflect the local location. It represents chatzos according to the Aruch Hashulchan and Rabbi Moshe Feinstein.",
+    name: "Chatzos Hayom (Fixed Local Chatzos)",
     #[cfg(feature = "alloc")]
-    description: |_| "The local time of fixed chatzos, which is noon adjusted from standard time to reflect the local location. It represents chatzos according to the Aruch Hashulchan and Rabbi Moshe Feinstein.".to_string(),
+    description: |_| "The local time of fixed chatzos, or solar noon. It is the time of chatzos according to the [Aruch Hashulchan](https://en.wikipedia.org/wiki/Aruch_HaShulchan) in [Orach Chaim 233:14](https://hebrewbooks.org/pdfpager.aspx?req=7705&pgnum=426) and [Rabbi Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein) in Igros Moshe [Orach Chaim 1:24](https://hebrewbooks.org/pdfpager.aspx?req=916&st=&pgnum=67) and [2:20](https://hebrewbooks.org/pdfpager.aspx?req=14675&pgnum=191). It starts with 12:00 noon and adjusts from standard time to account for the local longitude. The adjustment is based on 15 degrees per hour, or 4 minutes per degree, from the nearest multiple of 15 degrees. It uses the actual time zone and daylight saving time.".to_string(),
 };
 
-/// The earliest time to pray mincha, calculated according to the Magen Avraham day that starts and ends when the sun is 16.1 degrees below the horizon.
+/// The time of mincha gedola according to the Magen Avraham using a day that starts and ends when the sun is 16.1 degrees below the horizon. This is the earliest time to pray mincha. Calculated as 6.5 solar hours after alos at 16.1 degrees below the horizon, using the 16.1-degree shaah zmanis. If the sun does not reach low enough below the horizon for this calculation, the zman may not be available.
 pub static MINCHA_GEDOLA_16_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::MinchaGedola( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true, ),
+    event: ZmanPrimitive::MinchaGedola(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true),
     #[cfg(test)]
     method_name: "getMinchaGedola16Point1Degrees",
-    name: "The earliest time to pray mincha, calculated according to the Magen Avraham day that starts and ends when the sun is 16.1 degrees below the horizon.",
+    name: "Mincha Gedola (16.1 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The earliest time to pray mincha, calculated according to the Magen Avraham day that starts and ends when the sun is 16.1 degrees below the horizon.".to_string(),
+    description: |_| "The time of mincha gedola according to the Magen Avraham using a day that starts and ends when the sun is 16.1 degrees below the horizon. This is the earliest time to pray mincha. Calculated as 6.5 solar hours after alos at 16.1 degrees below the horizon, using the 16.1-degree shaah zmanis. If the sun does not reach low enough below the horizon for this calculation, the zman may not be available.".to_string(),
 };
 
-/// The time of mincha gedola set at 30 minutes after chatzos.
+/// Mincha gedola calculated as 30 minutes after chatzos. It is fixed at 30 minutes of regular clock time after chatzos, rather than half of a shaah zmanis after chatzos. Some people use this later time in winter when half of a shaah zmanis is less than 30 minutes. It should not be used to start mincha before the standard mincha gedola. The time may not be available in places or on days where the calculation cannot be made, such as where the sun does not rise or does not set.
 pub static MINCHA_GEDOLA_30_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::from_mins(30)),
     #[cfg(test)]
     method_name: "getMinchaGedola30Minutes",
-    name: "The time of mincha gedola set at 30 minutes after chatzos.",
+    name: "Mincha Gedola (30 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of mincha gedola set at 30 minutes after chatzos.".to_string(),
+    description: |_| "Mincha gedola calculated as 30 minutes after chatzos. It is fixed at 30 minutes of regular clock time after chatzos, rather than half of a shaah zmanis after chatzos. Some people use this later time in winter when half of a shaah zmanis is less than 30 minutes. It should not be used to start mincha before the standard mincha gedola. The time may not be available in places or on days where the calculation cannot be made, such as where the sun does not rise or does not set.".to_string(),
 };
 
-/// The time of mincha gedola according to the Magen Avraham, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset. This is the earliest time to pray mincha.
+/// The earliest time for mincha gedola according to the Magen Avraham, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset. Calculated as 6.5 solar hours after alos 72 minutes, using 6.5 times the 72-minute shaah zmanis after alos 72 minutes. If the time cannot be calculated, such as in places or seasons where the sun does not rise or set, the zman may not be available.
 pub static MINCHA_GEDOLA_72_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::MinchaGedola( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true, ),
+    event: ZmanPrimitive::MinchaGedola(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true),
     #[cfg(test)]
     method_name: "getMinchaGedola72Minutes",
-    name: "The time of mincha gedola according to the Magen Avraham, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset. This is the earliest time to pray mincha.",
+    name: "Mincha Gedola (72 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of mincha gedola according to the Magen Avraham, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset. This is the earliest time to pray mincha.".to_string(),
+    description: |_| "The earliest time for mincha gedola according to the Magen Avraham, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset. Calculated as 6.5 solar hours after alos 72 minutes, using 6.5 times the 72-minute shaah zmanis after alos 72 minutes. If the time cannot be calculated, such as in places or seasons where the sun does not rise or set, the zman may not be available.".to_string(),
 };
 
-/// The time of mincha gedola according to the Ahavat Shalom/Bais Horaah approach. It is the earliest time to pray mincha.
+/// The time of mincha gedola according to the Ahavat Shalom custom. It is the earliest time to pray mincha. It is calculated as half a shaah zmanis after chatzos, using seasonal hours based on a day that starts 72 minutes before sunrise at alos 16.1 degrees and ends 13.5 minutes after sunset at tzais 3.7 degrees. The later of that time or 30 clock minutes after chatzos is returned. If the calculation cannot be computed, such as in some northern and southern locations where the sun may not reach low enough below the horizon, the zman may not be available or cannot be calculated.
 pub static MINCHA_GEDOLA_AHAVAT_SHALOM: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::MinchaGedolaAhavatShalom,
     #[cfg(test)]
     method_name: "getMinchaGedolaAhavatShalom",
-    name: "The time of mincha gedola according to the Ahavat Shalom/Bais Horaah approach. It is the earliest time to pray mincha.",
+    name: "Mincha Gedola (Ahavat Shalom)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of mincha gedola according to the Ahavat Shalom/Bais Horaah approach. It is the earliest time to pray mincha.".to_string(),
+    description: |_| "The time of mincha gedola according to the Ahavat Shalom custom. It is the earliest time to pray mincha. It is calculated as half a shaah zmanis after chatzos, using seasonal hours based on a day that starts 72 minutes before sunrise at alos 16.1 degrees and ends 13.5 minutes after sunset at tzais 3.7 degrees. The later of that time or 30 clock minutes after chatzos is returned. If the calculation cannot be computed, such as in some northern and southern locations where the sun may not reach low enough below the horizon, the zman may not be available or cannot be calculated.".to_string(),
 };
 
-/// The earliest time for mincha gedola according to the Ateret Torah calculation, which is based on the view of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.
+/// The preferred earliest time for mincha according to the Ateret Torah calculation. It is calculated as 6.5 solar hours after alos, where alos is 1/10 of the day before sunrise and the day is usually considered to end 40 minutes after sunset, with the sunset offset configurable. The sunset offset is usually 40 minutes after sunset, but it can be configured to a different offset. If the zman cannot be calculated, it may not be available.
 pub static MINCHA_GEDOLA_ATERET_TORAH: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::MinchaGedola( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::TzaisAteretTorah, false, ),
+    event: ZmanPrimitive::MinchaGedola(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::TzaisAteretTorah, false),
     #[cfg(test)]
     method_name: "getMinchaGedolaAteretTorah",
-    name: "The earliest time for mincha gedola according to the Ateret Torah calculation, which is based on the view of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.",
+    name: "Mincha Gedola (Ateret Torah)",
     #[cfg(feature = "alloc")]
-    description: |_| "The earliest time for mincha gedola according to the Ateret Torah calculation, which is based on the view of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.".to_string(),
+    description: |_| "The preferred earliest time for mincha according to the Ateret Torah calculation. It is calculated as 6.5 solar hours after alos, where alos is 1/10 of the day before sunrise and the day is usually considered to end 40 minutes after sunset, with the sunset offset configurable. The sunset offset is usually 40 minutes after sunset, but it can be configured to a different offset. If the zman cannot be calculated, it may not be available.".to_string(),
 };
 
-/// The time of mincha gedola, the earliest time one can pray mincha according to the Baal Hatanya calculation.
+/// The time of mincha gedola, the earliest time one can pray mincha. It is calculated as 6.5 sea level solar hours after netz amiti (sunrise), using the Baal Hatanya's day from sunrise to sunset. Some authorities hold that mincha may be prayed lechatchila starting at mincha gedola, while others prefer delaying it until mincha ketana. The zman may not be available in places such as the Arctic Circle, where the sun does not rise or does not set on certain days.
 pub static MINCHA_GEDOLA_BAAL_HATANYA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::MinchaGedola( &ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true, ),
+    event: ZmanPrimitive::MinchaGedola(&ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true),
     #[cfg(test)]
     method_name: "getMinchaGedolaBaalHatanya",
-    name: "The time of mincha gedola, the earliest time one can pray mincha according to the Baal Hatanya calculation.",
+    name: "Mincha Gedola (Baal Hatanya)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of mincha gedola, the earliest time one can pray mincha according to the Baal Hatanya calculation.".to_string(),
+    description: |_| "The time of mincha gedola, the earliest time one can pray mincha. It is calculated as 6.5 sea level solar hours after netz amiti (sunrise), using the Baal Hatanya's day from sunrise to sunset. Some authorities hold that mincha may be prayed lechatchila starting at mincha gedola, while others prefer delaying it until mincha ketana. The zman may not be available in places such as the Arctic Circle, where the sun does not rise or does not set on certain days.".to_string(),
 };
 
-/// The latest mincha gedola, which is the earliest time one may pray mincha according to the GRA.
+/// The earliest time for mincha, calculated according to the GRA. 6.5 shaos zmaniyos after sunrise, using sunrise-to-sunset day length. {uses_elevation} If the sun does not rise or does not set on a given day, this zman may not be available.
 pub static MINCHA_GEDOLA_GRA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::MinchaGedola( &ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true, ),
+    event: ZmanPrimitive::MinchaGedola(&ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true),
     #[cfg(test)]
     method_name: "getMinchaGedolaGRA",
-    name: "The latest mincha gedola, which is the earliest time one may pray mincha according to the GRA.",
+    name: "Mincha Gedola (GR'A)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest mincha gedola, which is the earliest time one may pray mincha according to the GRA.".to_string(),
+    description: |_| "The earliest time for mincha, calculated according to the GRA. 6.5 shaos zmaniyos after sunrise, using sunrise-to-sunset day length. {uses_elevation} If the sun does not rise or does not set on a given day, this zman may not be available.".to_string(),
 };
 
-/// Rav Moshe Feinstein's opinion of mincha gedola, the earliest time one can pray mincha according to the GRA.
+/// The earliest time for mincha according to the Vilna Gaon, calculated using Rav Moshe Feinstein's opinion: 30 minutes after fixed local chatzos. 30 minutes after fixed local chatzos. If the calculation cannot be computed, such as in places where the sun does not rise or does not set on at least one day of the year, the zman may not be available.
 pub static MINCHA_GEDOLA_GRAFIXED_LOCAL_CHATZOS_30_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::LocalMeanTime(12.0), Duration::from_mins(30)),
     #[cfg(test)]
     method_name: "getMinchaGedolaGRAFixedLocalChatzos30Minutes",
-    name: "Rav Moshe Feinstein's opinion of mincha gedola, the earliest time one can pray mincha according to the GRA.",
+    name: "Mincha Gedola (GR'A, Fixed Local Chatzos, 30 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "Rav Moshe Feinstein's opinion of mincha gedola, the earliest time one can pray mincha according to the GRA.".to_string(),
+    description: |_| "The earliest time for mincha according to the Vilna Gaon, calculated using Rav Moshe Feinstein's opinion: 30 minutes after fixed local chatzos. 30 minutes after fixed local chatzos. If the calculation cannot be computed, such as in places where the sun does not rise or does not set on at least one day of the year, the zman may not be available.".to_string(),
 };
 
-/// The later of Mincha Gedola based on GRA and Mincha Gedola at 30 minutes after chatzos.
+/// The later Mincha Gedola time, choosing between the GRA-based Mincha Gedola and a 30-minute-after-chatzos Mincha Gedola. Returns whichever is later: Mincha Gedola GRA or Mincha Gedola 30 Minutes. In winter, when half of a shaah zmanis is less than 30 minutes, the 30-minute version is used; otherwise the GRA-based time is used. This time may be affected by astronomical chatzos. The zman may not be available if it cannot be calculated, such as in locations or dates where the sun does not rise or does not set.
 pub static MINCHA_GEDOLA_GRAGREATER_THAN_30: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::MinchaGedolaGraGreaterThan30,
     #[cfg(test)]
     method_name: "getMinchaGedolaGRAGreaterThan30",
-    name: "The later of Mincha Gedola based on GRA and Mincha Gedola at 30 minutes after chatzos.",
+    name: "Mincha Gedola (GR'A, Greater Than 30)",
     #[cfg(feature = "alloc")]
-    description: |_| "The later of Mincha Gedola based on GRA and Mincha Gedola at 30 minutes after chatzos.".to_string(),
+    description: |_| "The later Mincha Gedola time, choosing between the GRA-based Mincha Gedola and a 30-minute-after-chatzos Mincha Gedola. Returns whichever is later: Mincha Gedola GRA or Mincha Gedola 30 Minutes. In winter, when half of a shaah zmanis is less than 30 minutes, the 30-minute version is used; otherwise the GRA-based time is used. This time may be affected by astronomical chatzos. The zman may not be available if it cannot be calculated, such as in locations or dates where the sun does not rise or does not set.".to_string(),
 };
 
-/// The time of mincha ketana according to the Magen Avraham, using a day that begins and ends when the sun is 16.1 degrees below the horizon. It is described as the preferred earliest time to pray mincha according to the Rambam and others.
+/// The time of mincha ketana based on the Magen Avraham day, with the day defined from 16.1 degrees below the horizon. It is described as the preferred earliest time to pray mincha according to the Rambam and others. Calculated as 9.5 solar hours after alos at 16.1 degrees below the horizon. The zman may not be available at some extreme northern or southern locations where the sun does not reach low enough below the horizon for this calculation.
 pub static MINCHA_KETANA_16_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::MinchaKetana( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true, ),
+    event: ZmanPrimitive::MinchaKetana(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true),
     #[cfg(test)]
     method_name: "getMinchaKetana16Point1Degrees",
-    name: "The time of mincha ketana according to the Magen Avraham, using a day that begins and ends when the sun is 16.1 degrees below the horizon. It is described as the preferred earliest time to pray mincha according to the Rambam and others.",
+    name: "Mincha Ketana (16.1 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of mincha ketana according to the Magen Avraham, using a day that begins and ends when the sun is 16.1 degrees below the horizon. It is described as the preferred earliest time to pray mincha according to the Rambam and others.".to_string(),
+    description: |_| "The time of mincha ketana based on the Magen Avraham day, with the day defined from 16.1 degrees below the horizon. It is described as the preferred earliest time to pray mincha according to the Rambam and others. Calculated as 9.5 solar hours after alos at 16.1 degrees below the horizon. The zman may not be available at some extreme northern or southern locations where the sun does not reach low enough below the horizon for this calculation.".to_string(),
 };
 
-/// The time of mincha ketana according to the Magen Avraham, with the day starting 72 minutes before sunrise and ending 72 minutes after sunset. It is described as the preferred earliest time to pray mincha according to the Rambam and others.
+/// The time of mincha ketana according to the Magen Avraham, using a day that begins 72 minutes before sunrise and ends 72 minutes after sunset. It is described as the preferred earliest time to pray mincha according to the Rambam and others. It is calculated as 9.5 shaah zmanis after alos 72 minutes. For more information, see the documentation for mincha gedola GRA. If the calculation cannot be made, such as in places where the sun does not rise or does not set on at least one day of the year, the zman may not be available.
 pub static MINCHA_KETANA_72_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::MinchaKetana( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true, ),
+    event: ZmanPrimitive::MinchaKetana(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true),
     #[cfg(test)]
     method_name: "getMinchaKetana72Minutes",
-    name: "The time of mincha ketana according to the Magen Avraham, with the day starting 72 minutes before sunrise and ending 72 minutes after sunset. It is described as the preferred earliest time to pray mincha according to the Rambam and others.",
+    name: "Mincha Ketana (72 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of mincha ketana according to the Magen Avraham, with the day starting 72 minutes before sunrise and ending 72 minutes after sunset. It is described as the preferred earliest time to pray mincha according to the Rambam and others.".to_string(),
+    description: |_| "The time of mincha ketana according to the Magen Avraham, using a day that begins 72 minutes before sunrise and ends 72 minutes after sunset. It is described as the preferred earliest time to pray mincha according to the Rambam and others. It is calculated as 9.5 shaah zmanis after alos 72 minutes. For more information, see the documentation for mincha gedola GRA. If the calculation cannot be made, such as in places where the sun does not rise or does not set on at least one day of the year, the zman may not be available.".to_string(),
 };
 
-/// The time of mincha ketana according to Rabbi Yaakov Moshe Hillel, as published by the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.
+/// The time of mincha ketana according to the Ahavat Shalom custom, based on Rabbi Yaakov Moshe Hillel. It is also described as the preferred earliest time to pray mincha according to the view of the Rambam and others. This is calculated as 2.5 shaos zmaniyos before tzais 3.8 degrees. The shaos zmaniyos are based on a day that starts at alos 16.1 degrees and ends at tzais 3.8 degrees. The zman may not be available if the sun does not reach low enough below the horizon for this calculation, including some northern and southern locations beyond the Arctic and Antarctic Circles.
 pub static MINCHA_KETANA_AHAVAT_SHALOM: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::MinchaKetanaAhavatShalom,
     #[cfg(test)]
     method_name: "getMinchaKetanaAhavatShalom",
-    name: "The time of mincha ketana according to Rabbi Yaakov Moshe Hillel, as published by the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.",
+    name: "Mincha Ketana (Ahavat Shalom)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of mincha ketana according to Rabbi Yaakov Moshe Hillel, as published by the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.".to_string(),
+    description: |_| "The time of mincha ketana according to the Ahavat Shalom custom, based on Rabbi Yaakov Moshe Hillel. It is also described as the preferred earliest time to pray mincha according to the view of the Rambam and others. This is calculated as 2.5 shaos zmaniyos before tzais 3.8 degrees. The shaos zmaniyos are based on a day that starts at alos 16.1 degrees and ends at tzais 3.8 degrees. The zman may not be available if the sun does not reach low enough below the horizon for this calculation, including some northern and southern locations beyond the Arctic and Antarctic Circles.".to_string(),
 };
 
-/// The time for mincha ketana according to the Ateret Torah calculation. It is presented as the preferred earliest time to pray mincha according to the opinion of the Rambam and others.
+/// The time of mincha ketana based on the Ateret Torah day, which begins 1/10 of the day before sunrise and is usually considered to end at sunset plus {ateret_torah_offset}. It is the preferred earliest time to pray mincha according to the Rambam and others. 9.5 solar hours after alos 72 zmanis, using the Ateret Torah day from alos 72 zmanis to tzais Ateret Torah. The sunset offset for tzais Ateret Torah is usually 40 minutes after sunset, but it can be configured to a different offset. If the zman cannot be computed, such as in places or dates where the sun does not rise or set, the zman may not be available.
 pub static MINCHA_KETANA_ATERET_TORAH: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::MinchaKetana( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::TzaisAteretTorah, false, ),
+    event: ZmanPrimitive::MinchaKetana(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::TzaisAteretTorah, false),
     #[cfg(test)]
     method_name: "getMinchaKetanaAteretTorah",
-    name: "The time for mincha ketana according to the Ateret Torah calculation. It is presented as the preferred earliest time to pray mincha according to the opinion of the Rambam and others.",
+    name: "Mincha Ketana (Ateret Torah)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time for mincha ketana according to the Ateret Torah calculation. It is presented as the preferred earliest time to pray mincha according to the opinion of the Rambam and others.".to_string(),
+    description: |_| "The time of mincha ketana based on the Ateret Torah day, which begins 1/10 of the day before sunrise and is usually considered to end at sunset plus {ateret_torah_offset}. It is the preferred earliest time to pray mincha according to the Rambam and others. 9.5 solar hours after alos 72 zmanis, using the Ateret Torah day from alos 72 zmanis to tzais Ateret Torah. The sunset offset for tzais Ateret Torah is usually 40 minutes after sunset, but it can be configured to a different offset. If the zman cannot be computed, such as in places or dates where the sun does not rise or set, the zman may not be available.".to_string(),
 };
 
-/// The preferred earliest time to pray mincha in the opinion of the Rambam and others, according to the Baal Hatanya calculation.
+/// The time of mincha ketana - the preferred earliest time to pray mincha according to the Rambam and others. It is 9.5 sea-level solar hours after sunrise, using the Baal Hatanya's view that the day runs from sunrise to sunset. This is based on sea-level solar hours. The zman may not be available in places or on days when sunrise or sunset cannot be calculated.
 pub static MINCHA_KETANA_BAAL_HATANYA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::MinchaKetana( &ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true, ),
+    event: ZmanPrimitive::MinchaKetana(&ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true),
     #[cfg(test)]
     method_name: "getMinchaKetanaBaalHatanya",
-    name: "The preferred earliest time to pray mincha in the opinion of the Rambam and others, according to the Baal Hatanya calculation.",
+    name: "Mincha Ketana (Baal Hatanya)",
     #[cfg(feature = "alloc")]
-    description: |_| "The preferred earliest time to pray mincha in the opinion of the Rambam and others, according to the Baal Hatanya calculation.".to_string(),
+    description: |_| "The time of mincha ketana - the preferred earliest time to pray mincha according to the Rambam and others. It is 9.5 sea-level solar hours after sunrise, using the Baal Hatanya's view that the day runs from sunrise to sunset. This is based on sea-level solar hours. The zman may not be available in places or on days when sunrise or sunset cannot be calculated.".to_string(),
 };
 
-/// The preferred earliest time to pray mincha, known as mincha ketana, according to the Rambam and others. It is set at 9.5 seasonal hours after sunrise.
+/// The preferred earliest time to pray mincha in the opinion of the Rambam and others, calculated according to the GRA. It is 9.5 shaos zmaniyos after sunrise. The day length is measured from sunrise to sunset, or from sea level sunrise to sea level sunset when elevation is not used. If the sun does not rise or does not set, this zman may not be available. This zman is based on the GRA's calculation of the day.
 pub static MINCHA_KETANA_GRA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::MinchaKetana( &ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true, ),
+    event: ZmanPrimitive::MinchaKetana(&ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true),
     #[cfg(test)]
     method_name: "getMinchaKetanaGRA",
-    name: "The preferred earliest time to pray mincha, known as mincha ketana, according to the Rambam and others. It is set at 9.5 seasonal hours after sunrise.",
+    name: "Mincha Ketana (GR'A)",
     #[cfg(feature = "alloc")]
-    description: |_| "The preferred earliest time to pray mincha, known as mincha ketana, according to the Rambam and others. It is set at 9.5 seasonal hours after sunrise.".to_string(),
+    description: |_| "The preferred earliest time to pray mincha in the opinion of the Rambam and others, calculated according to the GRA. It is 9.5 shaos zmaniyos after sunrise. The day length is measured from sunrise to sunset, or from sea level sunrise to sea level sunset when elevation is not used. If the sun does not rise or does not set, this zman may not be available. This zman is based on the GRA's calculation of the day.".to_string(),
 };
 
-/// The time of mincha ketana according to Rav Moshe Feinstein's opinion, using the GRA-based calculation of 3.5 shaos zmaniyos after fixed local chatzos.
+/// The time for mincha ketana according to Rav Moshe Feinstein's view, calculated using the GRA and measured from fixed local chatzos. It is 3.5 shaos zmaniyos after fixed local chatzos. The zman may not be available if it cannot be calculated, such as in places like the Arctic Circle where there is a day when the sun does not rise and a day when it does not set.
 pub static MINCHA_KETANA_GRAFIXED_LOCAL_CHATZOS_TO_SUNSET: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::HalfDayBasedOffset( &ZmanPrimitive::LocalMeanTime(12.0), &ZmanPrimitive::ConfiguredSunset, 3.5, ),
+    event: ZmanPrimitive::HalfDayBasedOffset(&ZmanPrimitive::LocalMeanTime(12.0), &ZmanPrimitive::ConfiguredSunset, 3.5),
     #[cfg(test)]
     method_name: "getMinchaKetanaGRAFixedLocalChatzosToSunset",
-    name: "The time of mincha ketana according to Rav Moshe Feinstein's opinion, using the GRA-based calculation of 3.5 shaos zmaniyos after fixed local chatzos.",
+    name: "Mincha Ketana (GR'A, Fixed Local Chatzos to Sunset)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of mincha ketana according to Rav Moshe Feinstein's opinion, using the GRA-based calculation of 3.5 shaos zmaniyos after fixed local chatzos.".to_string(),
+    description: |_| "The time for mincha ketana according to Rav Moshe Feinstein's view, calculated using the GRA and measured from fixed local chatzos. It is 3.5 shaos zmaniyos after fixed local chatzos. The zman may not be available if it cannot be calculated, such as in places like the Arctic Circle where there is a day when the sun does not rise and a day when it does not set.".to_string(),
 };
 
-/// The time of misheyakir when the sun is 10.2 degrees below geometric zenith.
+/// Returns misheyakir according to some opinions when the sun is 10.2 degrees below geometric zenith. Based on the sun being 10.2 degrees below geometric zenith, which corresponds to 45 minutes before sunrise in Jerusalem [around the equinox](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/). This zman may not be available in northern and southern locations, including areas even south of the Arctic Circle and north of the Antarctic Circle, if the sun does not reach low enough below the horizon for this calculation.
 pub static MISHEYAKIR_10_POINT_2_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(10.2),
     #[cfg(test)]
     method_name: "getMisheyakir10Point2Degrees",
-    name: "The time of misheyakir when the sun is 10.2 degrees below geometric zenith.",
+    name: "Misheyakir (10.2 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of misheyakir when the sun is 10.2 degrees below geometric zenith.".to_string(),
+    description: |_| "Returns misheyakir according to some opinions when the sun is 10.2 degrees below geometric zenith. Based on the sun being 10.2 degrees below geometric zenith, which corresponds to 45 minutes before sunrise in Jerusalem [around the equinox](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/). This zman may not be available in northern and southern locations, including areas even south of the Arctic Circle and north of the Antarctic Circle, if the sun does not reach low enough below the horizon for this calculation.".to_string(),
 };
 
-/// This is a misheyakir time based on the sun being 11 degrees below geometric zenith.
+/// Returns misheyakir when the sun is 11 degrees below geometric zenith. This is used for misheyakir according to some opinions. Calculated from the sun's position at 11 degrees below geometric zenith (90 degrees). Around the equinox/equilux in Jerusalem, this corresponds to about 48 minutes before sunrise.
 pub static MISHEYAKIR_11_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(11.0),
     #[cfg(test)]
     method_name: "getMisheyakir11Degrees",
-    name: "This is a misheyakir time based on the sun being 11 degrees below geometric zenith.",
+    name: "Misheyakir (11 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "This is a misheyakir time based on the sun being 11 degrees below geometric zenith.".to_string(),
+    description: |_| "Returns misheyakir when the sun is 11 degrees below geometric zenith. This is used for misheyakir according to some opinions. Calculated from the sun's position at 11 degrees below geometric zenith (90 degrees). Around the equinox/equilux in Jerusalem, this corresponds to about 48 minutes before sunrise.".to_string(),
 };
 
-/// The time of misheyakir when the sun is 11.5 degrees below geometric zenith. This is used by some opinions for determining misheyakir.
+/// The time of misheyakir when the sun is 11.5 degrees below geometric zenith. This is an opinion-based misheyakir time and is described as being about 52 minutes before sunrise in Jerusalem [around the equinox / equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/). Calculated from the sun's position at 11.5 degrees below geometric zenith. If the sun does not reach low enough below the horizon for this calculation, the zman may not be available.
 pub static MISHEYAKIR_11_POINT_5_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(11.5),
     #[cfg(test)]
     method_name: "getMisheyakir11Point5Degrees",
-    name: "The time of misheyakir when the sun is 11.5 degrees below geometric zenith. This is used by some opinions for determining misheyakir.",
+    name: "Misheyakir (11.5 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of misheyakir when the sun is 11.5 degrees below geometric zenith. This is used by some opinions for determining misheyakir.".to_string(),
+    description: |_| "The time of misheyakir when the sun is 11.5 degrees below geometric zenith. This is an opinion-based misheyakir time and is described as being about 52 minutes before sunrise in Jerusalem [around the equinox / equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/). Calculated from the sun's position at 11.5 degrees below geometric zenith. If the sun does not reach low enough below the horizon for this calculation, the zman may not be available.".to_string(),
 };
 
-/// The time of misheyakir when the sun is 12.85 degrees below geometric zenith. It is a very early misheyakir intended only for bish'as hadchak.
+#[cfg(test)]
+/// The very early misheyakir time when the sun is 12.85 degrees below geometric zenith. It is based on a time slightly later than 57 minutes before sunrise in Jerusalem around the equinox or equilux. Calculated at the moment when the sun reaches 12.85 degrees below geometric zenith. This is a very early misheyakir and should be used only bish'as hadchak; a later zman is preferred lechatchila. The zman may not be available in northern or southern locations where the sun does not reach low enough below the horizon for this calculation. Deprecated because it returns a very early misheyakir time and is intended to alert users to the risk of using it.
 pub static MISHEYAKIR_12_POINT_85_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(12.85),
     #[cfg(test)]
     method_name: "getMisheyakir12Point85Degrees",
-    name: "The time of misheyakir when the sun is 12.85 degrees below geometric zenith. It is a very early misheyakir intended only for bish'as hadchak.",
+    name: "Misheyakir (12.85 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of misheyakir when the sun is 12.85 degrees below geometric zenith. It is a very early misheyakir intended only for bish'as hadchak.".to_string(),
+    description: |_| "The very early misheyakir time when the sun is 12.85 degrees below geometric zenith. It is based on a time slightly later than 57 minutes before sunrise in Jerusalem around the equinox or equilux. Calculated at the moment when the sun reaches 12.85 degrees below geometric zenith. This is a very early misheyakir and should be used only bish'as hadchak; a later zman is preferred lechatchila. The zman may not be available in northern or southern locations where the sun does not reach low enough below the horizon for this calculation. Deprecated because it returns a very early misheyakir time and is intended to alert users to the risk of using it.".to_string(),
 };
 
-/// The time of misheyakir when the sun is 7.65 degrees below geometric zenith, roughly matching a 35-36 minute zman around the equinox/equilux.
+/// The time of misheyakir when the sun is 7.65 degrees below geometric zenith (90 degrees). This is a degree-based estimate of when enough light is present to recognize a person from a short distance. Calculated when the sun reaches 7.65 degrees below geometric zenith. The degree-based value is intended to reflect a time of about 35-36 minutes before sunrise around the equinox/equilux. In locations far north or south, the sun may not reach this angle below the horizon, so the zman may not be available. This degree-based estimate is based on the shortest twilight period around the equinox/equilux and is associated with common practice of treating misheyakir as roughly 35-40 minutes before sunrise.
 pub static MISHEYAKIR_7_POINT_65_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(7.65),
     #[cfg(test)]
     method_name: "getMisheyakir7Point65Degrees",
-    name: "The time of misheyakir when the sun is 7.65 degrees below geometric zenith, roughly matching a 35-36 minute zman around the equinox/equilux.",
+    name: "Misheyakir (7.65 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of misheyakir when the sun is 7.65 degrees below geometric zenith, roughly matching a 35-36 minute zman around the equinox/equilux.".to_string(),
+    description: |_| "The time of misheyakir when the sun is 7.65 degrees below geometric zenith (90 degrees). This is a degree-based estimate of when enough light is present to recognize a person from a short distance. Calculated when the sun reaches 7.65 degrees below geometric zenith. The degree-based value is intended to reflect a time of about 35-36 minutes before sunrise around the equinox/equilux. In locations far north or south, the sun may not reach this angle below the horizon, so the zman may not be available. This degree-based estimate is based on the shortest twilight period around the equinox/equilux and is associated with common practice of treating misheyakir as roughly 35-40 minutes before sunrise.".to_string(),
 };
 
-/// Misheyakir when the sun is 9.5 degrees below geometric zenith (90 degrees). This is a degree-based form of misheyakir associated with a 45-minute standard used by some communities and calendars.
+/// Returns misheyakir when the sun is 9.5 degrees below geometric zenith (90 degrees). Calculated at the point when the sun is 9.5 degrees below geometric zenith. This zman may not be available in northern or southern locations where the sun does not reach low enough below the horizon for this calculation.
 pub static MISHEYAKIR_9_POINT_5_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOffsetByDegrees(9.5),
     #[cfg(test)]
     method_name: "getMisheyakir9Point5Degrees",
-    name: "Misheyakir when the sun is 9.5 degrees below geometric zenith (90 degrees). This is a degree-based form of misheyakir associated with a 45-minute standard used by some communities and calendars.",
+    name: "Misheyakir (9.5 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "Misheyakir when the sun is 9.5 degrees below geometric zenith (90 degrees). This is a degree-based form of misheyakir associated with a 45-minute standard used by some communities and calendars.".to_string(),
+    description: |_| "Returns misheyakir when the sun is 9.5 degrees below geometric zenith (90 degrees). Calculated at the point when the sun is 9.5 degrees below geometric zenith. This zman may not be available in northern or southern locations where the sun does not reach low enough below the horizon for this calculation.".to_string(),
 };
 
-/// The time of plag hamincha according to Rabbi Yaakov Moshe Hillel, as used in the Bais Horaah of Yeshivat Chevrat Ahavat Shalom. It is described as the earliest time Shabbos can be started.
+/// The time of plag hamincha according to the Ahavat Shalom approach, used as the earliest time Shabbos can be started. It is calculated as 1.25 shaos zmaniyos before tzais 3.8 degrees, with the shaos zmaniyos measured from alos 16.1 degrees until tzais 3.8 degrees. The zman may not be available if the sun does not reach low enough below the horizon for this calculation, such as at some locations near or beyond the Arctic and Antarctic Circles.
 pub static PLAG_AHAVAT_SHALOM: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::PlagAhavatShalom,
     #[cfg(test)]
     method_name: "getPlagAhavatShalom",
-    name: "The time of plag hamincha according to Rabbi Yaakov Moshe Hillel, as used in the Bais Horaah of Yeshivat Chevrat Ahavat Shalom. It is described as the earliest time Shabbos can be started.",
+    name: "Plag Hamincha (Ahavat Shalom)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha according to Rabbi Yaakov Moshe Hillel, as used in the Bais Horaah of Yeshivat Chevrat Ahavat Shalom. It is described as the earliest time Shabbos can be started.".to_string(),
+    description: |_| "The time of plag hamincha according to the Ahavat Shalom approach, used as the earliest time Shabbos can be started. It is calculated as 1.25 shaos zmaniyos before tzais 3.8 degrees, with the shaos zmaniyos measured from alos 16.1 degrees until tzais 3.8 degrees. The zman may not be available if the sun does not reach low enough below the horizon for this calculation, such as at some locations near or beyond the Arctic and Antarctic Circles.".to_string(),
 };
 
-/// The time of plag hamincha based on a day that begins at 16.1 degrees before sunrise and ends at 7.083 degrees after sunset.
+/// The time of plag hamincha, based on a day that begins 16.1 degrees before sunrise and ends 7.083 degrees after sunset. It is 10.75 shaos zmaniyos after alos 16.1 degrees. The shaos zmaniyos are calculated from the period between alos 16.1 degrees and tzais Geonim 7.083 degrees. The zman may not be available in places and seasons where the sun does not reach low enough below the horizon for this calculation, such as locations near or beyond the Arctic or Antarctic Circles.
 pub static PLAG_ALOS_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(7.0 + (5.0 / 60.0)), false, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(7.083333333333333), false),
     #[cfg(test)]
     method_name: "getPlagAlos16Point1ToTzaisGeonim7Point083Degrees",
-    name: "The time of plag hamincha based on a day that begins at 16.1 degrees before sunrise and ends at 7.083 degrees after sunset.",
+    name: "Plag Hamincha (Alos 16.1 to Tzais Geonim 7.083 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha based on a day that begins at 16.1 degrees before sunrise and ends at 7.083 degrees after sunset.".to_string(),
+    description: |_| "The time of plag hamincha, based on a day that begins 16.1 degrees before sunrise and ends 7.083 degrees after sunset. It is 10.75 shaos zmaniyos after alos 16.1 degrees. The shaos zmaniyos are calculated from the period between alos 16.1 degrees and tzais Geonim 7.083 degrees. The zman may not be available in places and seasons where the sun does not reach low enough below the horizon for this calculation, such as locations near or beyond the Arctic or Antarctic Circles.".to_string(),
 };
 
-/// The time of plag hamincha calculated from a day that starts at alos 16.1 degrees before sunrise and ends at sea level sunset.
+#[cfg(test)]
+/// The time of plag hamincha calculated from alos at 16.1 degrees before sunrise through sea level sunset. 10.75 shaos zmaniyos are measured from alos 16.1 degrees before sunrise to sea level sunset, and plag is 10.75 temporal hours after alos. This zman should be used lechumra only, because it can be very late and may occur after sunset. It may not be available in far northern or southern locations where the sun does not go low enough below the horizon for this calculation. Deprecated. This zman should be used lechumra only since it can be very late and using it for leniency can lead to serious mistakes.
 pub static PLAG_ALOS_TO_SUNSET: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::ConfiguredSunset, false, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::ConfiguredSunset, false),
     #[cfg(test)]
     method_name: "getPlagAlosToSunset",
-    name: "The time of plag hamincha calculated from a day that starts at alos 16.1 degrees before sunrise and ends at sea level sunset.",
+    name: "Plag Hamincha (Alos 16.1 to Sunset)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha calculated from a day that starts at alos 16.1 degrees before sunrise and ends at sea level sunset.".to_string(),
+    description: |_| "The time of plag hamincha calculated from alos at 16.1 degrees before sunrise through sea level sunset. 10.75 shaos zmaniyos are measured from alos 16.1 degrees before sunrise to sea level sunset, and plag is 10.75 temporal hours after alos. This zman should be used lechumra only, because it can be very late and may occur after sunset. It may not be available in far northern or southern locations where the sun does not go low enough below the horizon for this calculation. Deprecated. This zman should be used lechumra only since it can be very late and using it for leniency can lead to serious mistakes.".to_string(),
 };
 
-/// The time of plag hamincha calculated with the day beginning at alos 120 minutes.
+#[cfg(test)]
+/// Plag hamincha according to the Magen Avraham, with the day starting at alos 120 minutes before sunrise. It is intended for lechumra only and can be a very late time, often after shkiah. 10.75 seasonal hours after alos 120 minutes. Because it is based on an extremely early alos and a very late tzais, it can produce a very late time and should only be used lechumra. If the zman cannot be calculated, such as in locations and seasons where the sun does not rise or does not set, the zman may not be available. Using it leniently can result in chillul Shabbos and similar issues. Deprecated as a warning that it should be used lechumra only; there is no current plan to remove it.
 pub static PLAG_HAMINCHA_120_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)), true),
     #[cfg(test)]
     method_name: "getPlagHamincha120Minutes",
-    name: "The time of plag hamincha calculated with the day beginning at alos 120 minutes.",
+    name: "Plag Hamincha (120 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha calculated with the day beginning at alos 120 minutes.".to_string(),
+    description: |_| "Plag hamincha according to the Magen Avraham, with the day starting at alos 120 minutes before sunrise. It is intended for lechumra only and can be a very late time, often after shkiah. 10.75 seasonal hours after alos 120 minutes. Because it is based on an extremely early alos and a very late tzais, it can produce a very late time and should only be used lechumra. If the zman cannot be calculated, such as in locations and seasons where the sun does not rise or does not set, the zman may not be available. Using it leniently can result in chillul Shabbos and similar issues. Deprecated as a warning that it should be used lechumra only; there is no current plan to remove it.".to_string(),
 };
 
-/// The time of plag hamincha calculated using a day that starts 120 zmaniyos minutes before sunrise.
+#[cfg(test)]
+/// The time of plag hamincha based on an extremely early dawn and a very late nightfall, using a 120-minute zmanis day. Calculated as 10.75 hours after dawn, using the 120-minute zmanis day length. This zman should be used lechumra only. Because it is based on an extremely early dawn and a very late nightfall, it is a very late time and often falls after shkiah. If the zman cannot be calculated, it may not be available. Deprecated because using it lekula can lead to serious mistakes, including chillul Shabbos; the deprecation is meant to warn about the danger of using this very late time.
 pub static PLAG_HAMINCHA_120_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -2.0), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 2.0), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -2.0), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 2.0), true),
     #[cfg(test)]
     method_name: "getPlagHamincha120MinutesZmanis",
-    name: "The time of plag hamincha calculated using a day that starts 120 zmaniyos minutes before sunrise.",
+    name: "Plag Hamincha (120 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha calculated using a day that starts 120 zmaniyos minutes before sunrise.".to_string(),
+    description: |_| "The time of plag hamincha based on an extremely early dawn and a very late nightfall, using a 120-minute zmanis day. Calculated as 10.75 hours after dawn, using the 120-minute zmanis day length. This zman should be used lechumra only. Because it is based on an extremely early dawn and a very late nightfall, it is a very late time and often falls after shkiah. If the zman cannot be calculated, it may not be available. Deprecated because using it lekula can lead to serious mistakes, including chillul Shabbos; the deprecation is meant to warn about the danger of using this very late time.".to_string(),
 };
 
-/// The time of plag hamincha based on a day that begins at dawn 16.1 degrees before sunrise and ends at nightfall 16.1 degrees after sunset.
+#[cfg(test)]
+/// The time of plag hamincha based on a day that starts at alos 16.1 degrees and ends at tzais 16.1 degrees. It is calculated as 10.75 zmaniyos hours after alos 16.1 degrees, using the shaah zmanis for the 16.1-degree day. This time should be used lechumra only. Because this calculation can be very late, it may occur after sunset. The zman may not be available in places where the sun does not reach low enough below the horizon for this calculation, such as locations in and beyond the Arctic and Antarctic regions. Deprecated as a warning that it should be used lechumra only; using it lekula can lead to serious problems such as chillul Shabbos.
 pub static PLAG_HAMINCHA_16_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true),
     #[cfg(test)]
     method_name: "getPlagHamincha16Point1Degrees",
-    name: "The time of plag hamincha based on a day that begins at dawn 16.1 degrees before sunrise and ends at nightfall 16.1 degrees after sunset.",
+    name: "Plag Hamincha (16.1 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha based on a day that begins at dawn 16.1 degrees before sunrise and ends at nightfall 16.1 degrees after sunset.".to_string(),
+    description: |_| "The time of plag hamincha based on a day that starts at alos 16.1 degrees and ends at tzais 16.1 degrees. It is calculated as 10.75 zmaniyos hours after alos 16.1 degrees, using the shaah zmanis for the 16.1-degree day. This time should be used lechumra only. Because this calculation can be very late, it may occur after sunset. The zman may not be available in places where the sun does not reach low enough below the horizon for this calculation, such as locations in and beyond the Arctic and Antarctic regions. Deprecated as a warning that it should be used lechumra only; using it lekula can lead to serious problems such as chillul Shabbos.".to_string(),
 };
 
-/// The time of plag hamincha based on a day that starts at alos 18 degrees and ends at tzais 18 degrees.
+#[cfg(test)]
+/// The time of plag hamincha according to a day that begins at dawn 18 degrees and ends at nightfall 18 degrees. It is calculated as 10.75 proportional hours after dawn 18 degrees. This should be used lechumra only. The time may not be available if the sun does not reach low enough below the horizon for this calculation, such as in some locations near or beyond the Arctic or Antarctic Circle. Because this plag can occur after sunset, it should be used only for stringency. This is deprecated because it returns a very late time, often after shkiah, and using it leniently can lead to serious halachic errors. It is kept for now and is intended to warn against misuse.
 pub static PLAG_HAMINCHA_18_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::SunriseOffsetByDegrees(18.0), &ZmanPrimitive::SunsetOffsetByDegrees(18.0), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::SunriseOffsetByDegrees(18.0), &ZmanPrimitive::SunsetOffsetByDegrees(18.0), true),
     #[cfg(test)]
     method_name: "getPlagHamincha18Degrees",
-    name: "The time of plag hamincha based on a day that starts at alos 18 degrees and ends at tzais 18 degrees.",
+    name: "Plag Hamincha (18 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha based on a day that starts at alos 18 degrees and ends at tzais 18 degrees.".to_string(),
+    description: |_| "The time of plag hamincha according to a day that begins at dawn 18 degrees and ends at nightfall 18 degrees. It is calculated as 10.75 proportional hours after dawn 18 degrees. This should be used lechumra only. The time may not be available if the sun does not reach low enough below the horizon for this calculation, such as in some locations near or beyond the Arctic or Antarctic Circle. Because this plag can occur after sunset, it should be used only for stringency. This is deprecated because it returns a very late time, often after shkiah, and using it leniently can lead to serious halachic errors. It is kept for now and is intended to warn against misuse.".to_string(),
 };
 
-/// The time of plag hamincha based on a day that starts at alos 19.8 degrees and ends at tzais 19.8 degrees.
+#[cfg(test)]
+/// The time of plag hamincha based on a day that runs from dawn at 19.8 degrees before sunrise until nightfall at 19.8 degrees after sunset. It is 10.75 halachic hours after dawn at 19.8 degrees, using the 19.8-degree halachic hour. This should be used only as a stringency, because this plag can occur after sunset. The zman may not be available if the sun does not reach low enough below the horizon for this calculation. Deprecated because it can return a very late time, often after shkiah, and using it leniently can lead to serious halachic problems.
 pub static PLAG_HAMINCHA_19_POINT_8_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::SunriseOffsetByDegrees(19.8), &ZmanPrimitive::SunsetOffsetByDegrees(19.8), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::SunriseOffsetByDegrees(19.8), &ZmanPrimitive::SunsetOffsetByDegrees(19.8), true),
     #[cfg(test)]
     method_name: "getPlagHamincha19Point8Degrees",
-    name: "The time of plag hamincha based on a day that starts at alos 19.8 degrees and ends at tzais 19.8 degrees.",
+    name: "Plag Hamincha (19.8 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha based on a day that starts at alos 19.8 degrees and ends at tzais 19.8 degrees.".to_string(),
+    description: |_| "The time of plag hamincha based on a day that runs from dawn at 19.8 degrees before sunrise until nightfall at 19.8 degrees after sunset. It is 10.75 halachic hours after dawn at 19.8 degrees, using the 19.8-degree halachic hour. This should be used only as a stringency, because this plag can occur after sunset. The zman may not be available if the sun does not reach low enough below the horizon for this calculation. Deprecated because it can return a very late time, often after shkiah, and using it leniently can lead to serious halachic problems.".to_string(),
 };
 
-/// The time of plag hamincha based on a day that begins at alos 26 degrees and ends at tzais 26 degrees. It is intended for lechumra only.
+#[cfg(test)]
+/// The time of plag hamincha based on a day that begins at alos 26 degrees and ends at tzais 26 degrees. It is calculated as 10.75 zemaniyos hours after alos 26 degrees, using the shaah zmanis based on the 26-degree day. This zman should be used lechumra only because it is based on an extremely early alos and a very late tzais. The zman may not be available in locations where the sun does not reach low enough below the horizon for this calculation. This method is deprecated because it should be used lechumra only and can return a very late time that, if used lekula, may lead to chillul Shabbos.
 pub static PLAG_HAMINCHA_26_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::SunriseOffsetByDegrees(26.0), &ZmanPrimitive::SunsetOffsetByDegrees(26.0), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::SunriseOffsetByDegrees(26.0), &ZmanPrimitive::SunsetOffsetByDegrees(26.0), true),
     #[cfg(test)]
     method_name: "getPlagHamincha26Degrees",
-    name: "The time of plag hamincha based on a day that begins at alos 26 degrees and ends at tzais 26 degrees. It is intended for lechumra only.",
+    name: "Plag Hamincha (26 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha based on a day that begins at alos 26 degrees and ends at tzais 26 degrees. It is intended for lechumra only.".to_string(),
+    description: |_| "The time of plag hamincha based on a day that begins at alos 26 degrees and ends at tzais 26 degrees. It is calculated as 10.75 zemaniyos hours after alos 26 degrees, using the shaah zmanis based on the 26-degree day. This zman should be used lechumra only because it is based on an extremely early alos and a very late tzais. The zman may not be available in locations where the sun does not reach low enough below the horizon for this calculation. This method is deprecated because it should be used lechumra only and can return a very late time that, if used lekula, may lead to chillul Shabbos.".to_string(),
 };
 
-/// The time of plag hamincha according to the Magen Avraham, using a day that begins 60 minutes before sunrise and ends 60 minutes after sunset.
+/// The time of plag hamincha according to the Magen Avraham, using a day that starts 60 minutes before sunrise and ends 60 minutes after sunset. It is calculated as 10.75 seasonal hours after dawn that is defined as 60 minutes before sunrise. The zman may not be available in locations where the calculation cannot be computed, such as places where the sun does not rise or does not set on at least one day of the year.
 pub static PLAG_HAMINCHA_60_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-60)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(60)), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-60)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(60)), true),
     #[cfg(test)]
     method_name: "getPlagHamincha60Minutes",
-    name: "The time of plag hamincha according to the Magen Avraham, using a day that begins 60 minutes before sunrise and ends 60 minutes after sunset.",
+    name: "Plag Hamincha (60 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha according to the Magen Avraham, using a day that begins 60 minutes before sunrise and ends 60 minutes after sunset.".to_string(),
+    description: |_| "The time of plag hamincha according to the Magen Avraham, using a day that starts 60 minutes before sunrise and ends 60 minutes after sunset. It is calculated as 10.75 seasonal hours after dawn that is defined as 60 minutes before sunrise. The zman may not be available in locations where the calculation cannot be computed, such as places where the sun does not rise or does not set on at least one day of the year.".to_string(),
 };
 
-/// The time of plag hamincha according to the Magen Avraham, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset.
+#[cfg(test)]
+/// The time of plag hamincha according to the Magen Avraham, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset. It is 10.75 seasonal hours after dawn 72 minutes before sunrise. This is intended for lechumra only. Because this calculation can produce a time after sunset, it should not be used for leniency. The zman may not be available where the sun does not rise or does not set. Deprecated for use only as a stringency reminder, since it can return a very late time and using it leniently can lead to serious errors.
 pub static PLAG_HAMINCHA_72_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true),
     #[cfg(test)]
     method_name: "getPlagHamincha72Minutes",
-    name: "The time of plag hamincha according to the Magen Avraham, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset.",
+    name: "Plag Hamincha (72 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha according to the Magen Avraham, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset.".to_string(),
+    description: |_| "The time of plag hamincha according to the Magen Avraham, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset. It is 10.75 seasonal hours after dawn 72 minutes before sunrise. This is intended for lechumra only. Because this calculation can produce a time after sunset, it should not be used for leniency. The zman may not be available where the sun does not rise or does not set. Deprecated for use only as a stringency reminder, since it can return a very late time and using it leniently can lead to serious errors.".to_string(),
 };
 
-/// The time of plag hamincha, calculated using a 72-minute zmanis day.
+#[cfg(test)]
+/// The time of plag hamincha, calculated using a 72-zmanis-minutes day. It is calculated as 10.75 hours after dawn at alos 72 zmanis, using 10.75 times the 72-zmanis-minute shaah zmanis. This time is intended for chumra only. Because this calculation can produce a time after sunset, it should not be used leniently. This is deprecated and should be used only for chumra, since it can yield a very late time and using it leniently can lead to serious halachic problems.
 pub static PLAG_HAMINCHA_72_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2), true),
     #[cfg(test)]
     method_name: "getPlagHamincha72MinutesZmanis",
-    name: "The time of plag hamincha, calculated using a 72-minute zmanis day.",
+    name: "Plag Hamincha (72 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha, calculated using a 72-minute zmanis day.".to_string(),
+    description: |_| "The time of plag hamincha, calculated using a 72-zmanis-minutes day. It is calculated as 10.75 hours after dawn at alos 72 zmanis, using 10.75 times the 72-zmanis-minute shaah zmanis. This time is intended for chumra only. Because this calculation can produce a time after sunset, it should not be used leniently. This is deprecated and should be used only for chumra, since it can yield a very late time and using it leniently can lead to serious halachic problems.".to_string(),
 };
 
-/// The time of plag hamincha according to the Magen Avraham, with the day counted from 90 minutes before sunrise to 90 minutes after sunset.
+#[cfg(test)]
+/// The time of plag hamincha according to the Magen Avraham, using a day that starts 90 minutes before sunrise and ends 90 minutes after sunset. It is 10.75 proportional hours after dawn that is 90 minutes before sunrise. This zman should be used lechumra only because it can occur after sunset. If the calculation cannot be determined, such as in places where the sun does not rise or does not set on some days, the zman may not be available. This zman is deprecated as a warning that it should be used lechumra only, since it can be a very late time and using it lekula can result in chillul Shabbos and other serious issues.
 pub static PLAG_HAMINCHA_90_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)), true),
     #[cfg(test)]
     method_name: "getPlagHamincha90Minutes",
-    name: "The time of plag hamincha according to the Magen Avraham, with the day counted from 90 minutes before sunrise to 90 minutes after sunset.",
+    name: "Plag Hamincha (90 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha according to the Magen Avraham, with the day counted from 90 minutes before sunrise to 90 minutes after sunset.".to_string(),
+    description: |_| "The time of plag hamincha according to the Magen Avraham, using a day that starts 90 minutes before sunrise and ends 90 minutes after sunset. It is 10.75 proportional hours after dawn that is 90 minutes before sunrise. This zman should be used lechumra only because it can occur after sunset. If the calculation cannot be determined, such as in places where the sun does not rise or does not set on some days, the zman may not be available. This zman is deprecated as a warning that it should be used lechumra only, since it can be a very late time and using it lekula can result in chillul Shabbos and other serious issues.".to_string(),
 };
 
-/// The time of plag hamincha calculated using 90-zmanis-minute dawn. It is intended for stringency only.
+#[cfg(test)]
+/// The time of plag hamincha, calculated using the 90-minute zmanis day. It is based on dawn at alos 90 zmanis and is 10.75 zmanis hours after that. 10.75 times the 90-minute zmanis shaah zmanis after alos 90 zmanis. This zman should be used lechumra only, because by this calculation plag can occur after sunset. If the calculation cannot be computed, the zman may not be available. This zman is deprecated because it may return a very late time, often after shkiah, and using it lekula can result in chillul Shabbos. There is no current plan to remove it.
 pub static PLAG_HAMINCHA_90_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.5),&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.5), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.5), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.5), true),
     #[cfg(test)]
     method_name: "getPlagHamincha90MinutesZmanis",
-    name: "The time of plag hamincha calculated using 90-zmanis-minute dawn. It is intended for stringency only.",
+    name: "Plag Hamincha (90 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha calculated using 90-zmanis-minute dawn. It is intended for stringency only.".to_string(),
+    description: |_| "The time of plag hamincha, calculated using the 90-minute zmanis day. It is based on dawn at alos 90 zmanis and is 10.75 zmanis hours after that. 10.75 times the 90-minute zmanis shaah zmanis after alos 90 zmanis. This zman should be used lechumra only, because by this calculation plag can occur after sunset. If the calculation cannot be computed, the zman may not be available. This zman is deprecated because it may return a very late time, often after shkiah, and using it lekula can result in chillul Shabbos. There is no current plan to remove it.".to_string(),
 };
 
-/// The time of plag hamincha according to the Magen Avraham, using a day that starts 96 minutes before sunrise and ends 96 minutes after sunset.
+#[cfg(test)]
+/// The time of plag hamincha according to the Magen Avraham, using a day that begins 96 minutes before sunrise and ends 96 minutes after sunset. It is calculated as 10.75 hours after dawn at 96 minutes before sunrise, or equivalently as 10.75 shaah zmanis of 96 minutes after dawn. This calculation can be very late, often after shkiah, so it should be used only lechumra. If the zman cannot be calculated, it may not be available. This zman is deprecated for warning purposes and should be used only lechumra, since using it lekula can lead to serious mistakes.
 pub static PLAG_HAMINCHA_96_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)), true),
     #[cfg(test)]
     method_name: "getPlagHamincha96Minutes",
-    name: "The time of plag hamincha according to the Magen Avraham, using a day that starts 96 minutes before sunrise and ends 96 minutes after sunset.",
+    name: "Plag Hamincha (96 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha according to the Magen Avraham, using a day that starts 96 minutes before sunrise and ends 96 minutes after sunset.".to_string(),
+    description: |_| "The time of plag hamincha according to the Magen Avraham, using a day that begins 96 minutes before sunrise and ends 96 minutes after sunset. It is calculated as 10.75 hours after dawn at 96 minutes before sunrise, or equivalently as 10.75 shaah zmanis of 96 minutes after dawn. This calculation can be very late, often after shkiah, so it should be used only lechumra. If the zman cannot be calculated, it may not be available. This zman is deprecated for warning purposes and should be used only lechumra, since using it lekula can lead to serious mistakes.".to_string(),
 };
 
-/// The time of plag hamincha, calculated using the 96-minute zmanis dawn-based day length. It is intended for lechumra only.
+#[cfg(test)]
+/// The time of plag hamincha, calculated using the 96-minute zmanis day. It is intended for stringency only. Calculated as 10.75 hours after dawn, using the 96-minute zmanis shaah zmanis. Because this calculation can produce a time after sunset, it should be used only for stringency. In locations where the calculation cannot be computed, such as places with days when the sun does not rise or does not set, the zman may not be available. This zman should be used only for stringency, since it can be very late and using it leniently can lead to serious mistakes.
 pub static PLAG_HAMINCHA_96_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.6), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.6), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.6), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.6), true),
     #[cfg(test)]
     method_name: "getPlagHamincha96MinutesZmanis",
-    name: "The time of plag hamincha, calculated using the 96-minute zmanis dawn-based day length. It is intended for lechumra only.",
+    name: "Plag Hamincha (96 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha, calculated using the 96-minute zmanis dawn-based day length. It is intended for lechumra only.".to_string(),
+    description: |_| "The time of plag hamincha, calculated using the 96-minute zmanis day. It is intended for stringency only. Calculated as 10.75 hours after dawn, using the 96-minute zmanis shaah zmanis. Because this calculation can produce a time after sunset, it should be used only for stringency. In locations where the calculation cannot be computed, such as places with days when the sun does not rise or does not set, the zman may not be available. This zman should be used only for stringency, since it can be very late and using it leniently can lead to serious mistakes.".to_string(),
 };
 
-/// The time of plag hamincha according to the Ateret Torah calculation.
+/// The time of plag hamincha according to Chacham Yosef Harari-Raful of Yeshivat Ateret Torah. Calculated using a day that begins 1/10th of the day before sunrise and usually ends 40 minutes after sunset, with the sunset offset configurable. Plag hamincha is 10.75 shaos zmaniyos after alos 72 zmanis. The zman may not be available if it cannot be calculated, such as in places and times where the sun does not rise or does not set. The sunset offset used for the Ateret Torah day can be adjusted.
 pub static PLAG_HAMINCHA_ATERET_TORAH: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::TzaisAteretTorah, false, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::TzaisAteretTorah, false),
     #[cfg(test)]
     method_name: "getPlagHaminchaAteretTorah",
-    name: "The time of plag hamincha according to the Ateret Torah calculation.",
+    name: "Plag Hamincha (Ateret Torah)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha according to the Ateret Torah calculation.".to_string(),
+    description: |_| "The time of plag hamincha according to Chacham Yosef Harari-Raful of Yeshivat Ateret Torah. Calculated using a day that begins 1/10th of the day before sunrise and usually ends 40 minutes after sunset, with the sunset offset configurable. Plag hamincha is 10.75 shaos zmaniyos after alos 72 zmanis. The zman may not be available if it cannot be calculated, such as in places and times where the sun does not rise or does not set. The sunset offset used for the Ateret Torah day can be adjusted.".to_string(),
 };
 
-/// The time of plag hamincha according to the Baal Hatanya calculation.
+/// The time of plag hamincha according to the Baal Hatanya's approach. It is calculated as 10.75 hours after sunrise, specifically 10.75 times the Baal Hatanya shaah zmanis after netz amiti (sunrise). See [About Our Zmanim Calculations @ Chabad.org](https://www.chabad.org/library/article_cdo/aid/3209349/jewish/About-Our-Zmanim-Calculations.htm) for more details. The zman may not be available if it cannot be calculated, such as in places where the sun does not rise or does not set on a given day.
 pub static PLAG_HAMINCHA_BAAL_HATANYA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true),
     #[cfg(test)]
     method_name: "getPlagHaminchaBaalHatanya",
-    name: "The time of plag hamincha according to the Baal Hatanya calculation.",
+    name: "Plag Hamincha (Baal Hatanya)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha according to the Baal Hatanya calculation.".to_string(),
+    description: |_| "The time of plag hamincha according to the Baal Hatanya's approach. It is calculated as 10.75 hours after sunrise, specifically 10.75 times the Baal Hatanya shaah zmanis after netz amiti (sunrise). See [About Our Zmanim Calculations @ Chabad.org](https://www.chabad.org/library/article_cdo/aid/3209349/jewish/About-Our-Zmanim-Calculations.htm) for more details. The zman may not be available if it cannot be calculated, such as in places where the sun does not rise or does not set on a given day.".to_string(),
 };
 
-/// The time of plag hamincha according to the GRA. It is the earliest time that Shabbos can be started.
+/// The time of plag hamincha according to the Vilna Gaon. It is the earliest time that Shabbos can be started. It is 10.75 shaos zmaniyos after sunrise, using sea level sunrise when elevation is not used and sunrise when elevation is used. {uses_elevation} The zman may not be available in places or on days where the sun does not rise or does not set.
 pub static PLAG_HAMINCHA_GRA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::PlagHamincha( &ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true, ),
+    event: ZmanPrimitive::PlagHamincha(&ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true),
     #[cfg(test)]
     method_name: "getPlagHaminchaGRA",
-    name: "The time of plag hamincha according to the GRA. It is the earliest time that Shabbos can be started.",
+    name: "Plag Hamincha (GR'A)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha according to the GRA. It is the earliest time that Shabbos can be started.".to_string(),
+    description: |_| "The time of plag hamincha according to the Vilna Gaon. It is the earliest time that Shabbos can be started. It is 10.75 shaos zmaniyos after sunrise, using sea level sunrise when elevation is not used and sunrise when elevation is used. {uses_elevation} The zman may not be available in places or on days where the sun does not rise or does not set.".to_string(),
 };
 
-/// The time of plag hamincha calculated using the GRA approach, with the day ending at sunset and fixed local chatzos as the midpoint.
+/// The time of plag hamincha according to Rav Moshe Feinstein's opinion, calculated using the GRA approach where the day ends at sunset. It is 4.75 shaos zmaniyos after fixed local chatzos, with the day's length measured from fixed local chatzos to sunset. If the calculation cannot be computed, such as in places like the Arctic Circle where the sun may not rise or may not set on a given day, the zman may not be available.
 pub static PLAG_HAMINCHA_GRAFIXED_LOCAL_CHATZOS_TO_SUNSET: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::HalfDayBasedOffset( &ZmanPrimitive::LocalMeanTime(12.0), &ZmanPrimitive::ConfiguredSunset, 4.75, ),
+    event: ZmanPrimitive::HalfDayBasedOffset(&ZmanPrimitive::LocalMeanTime(12.0), &ZmanPrimitive::ConfiguredSunset, 4.75),
     #[cfg(test)]
     method_name: "getPlagHaminchaGRAFixedLocalChatzosToSunset",
-    name: "The time of plag hamincha calculated using the GRA approach, with the day ending at sunset and fixed local chatzos as the midpoint.",
+    name: "Plag Hamincha (GR'A, Fixed Local Chatzos to Sunset)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of plag hamincha calculated using the GRA approach, with the day ending at sunset and fixed local chatzos as the midpoint.".to_string(),
+    description: |_| "The time of plag hamincha according to Rav Moshe Feinstein's opinion, calculated using the GRA approach where the day ends at sunset. It is 4.75 shaos zmaniyos after fixed local chatzos, with the day's length measured from fixed local chatzos to sunset. If the calculation cannot be computed, such as in places like the Arctic Circle where the sun may not rise or may not set on a given day, the zman may not be available.".to_string(),
 };
 
-/// The time of samuch lemincha ketana - the time after which eating or other activity should not begin before praying mincha.
+/// The time by which eating or other activity should not begin before praying mincha, calculated for the 16.1 degrees day. It is calculated as 9 shaos zmaniyos after alos 16.1 degrees, using the day that starts at alos 16.1 degrees and ends at tzais 16.1 degrees. This is also described as about half an hour before mincha ketana, or 9 solar hours after the start of that day. See [Mechaber and Mishna Berurah 232](https://hebrewbooks.org/pdfpager.aspx?req=60387&st=&pgnum=294) and [249:2](https://hebrewbooks.org/pdfpager.aspx?req=60388&pgnum=34). In locations where the sun may not reach low enough below the horizon for this calculation, such as some places north of the Arctic Circle or south of the Antarctic Circle, the zman may not be available or cannot be calculated.
 pub static SAMUCH_LE_MINCHA_KETANA_16_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::SamuchLeMinchaKetana( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true, ),
+    event: ZmanPrimitive::SamuchLeMinchaKetana(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true),
     #[cfg(test)]
     method_name: "getSamuchLeMinchaKetana16Point1Degrees",
-    name: "The time of samuch lemincha ketana - the time after which eating or other activity should not begin before praying mincha.",
+    name: "Samuch Le Mincha Ketana (16.1 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of samuch lemincha ketana - the time after which eating or other activity should not begin before praying mincha.".to_string(),
+    description: |_| "The time by which eating or other activity should not begin before praying mincha, calculated for the 16.1 degrees day. It is calculated as 9 shaos zmaniyos after alos 16.1 degrees, using the day that starts at alos 16.1 degrees and ends at tzais 16.1 degrees. This is also described as about half an hour before mincha ketana, or 9 solar hours after the start of that day. See [Mechaber and Mishna Berurah 232](https://hebrewbooks.org/pdfpager.aspx?req=60387&st=&pgnum=294) and [249:2](https://hebrewbooks.org/pdfpager.aspx?req=60388&pgnum=34). In locations where the sun may not reach low enough below the horizon for this calculation, such as some places north of the Arctic Circle or south of the Antarctic Circle, the zman may not be available or cannot be calculated.".to_string(),
 };
 
-/// The time known as samuch lemincha ketana - the point about half an hour before mincha ketana, when eating or other activity should not begin before praying mincha.
+/// The time of samuch lemincha ketana - the point about half an hour before mincha ketana when eating or other activity should not begin before praying mincha. It is 9 shaos zmaniyos after alos 72 minutes, using a day that starts at alos 72 minutes and ends at tzais 72 minutes. This zman may not be available in some northern or southern locations, including places beyond the Arctic Circle or Antarctic Circle, where the sun does not go low enough below the horizon for the calculation.
 pub static SAMUCH_LE_MINCHA_KETANA_72_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::SamuchLeMinchaKetana( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true, ),
+    event: ZmanPrimitive::SamuchLeMinchaKetana(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true),
     #[cfg(test)]
     method_name: "getSamuchLeMinchaKetana72Minutes",
-    name: "The time known as samuch lemincha ketana - the point about half an hour before mincha ketana, when eating or other activity should not begin before praying mincha.",
+    name: "Samuch Le Mincha Ketana (72 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time known as samuch lemincha ketana - the point about half an hour before mincha ketana, when eating or other activity should not begin before praying mincha.".to_string(),
+    description: |_| "The time of samuch lemincha ketana - the point about half an hour before mincha ketana when eating or other activity should not begin before praying mincha. It is 9 shaos zmaniyos after alos 72 minutes, using a day that starts at alos 72 minutes and ends at tzais 72 minutes. This zman may not be available in some northern or southern locations, including places beyond the Arctic Circle or Antarctic Circle, where the sun does not go low enough below the horizon for the calculation.".to_string(),
 };
 
-/// The time known as samuch lemincha ketana, or near mincha ketana. It is a point when eating or other activity should not begin before praying mincha.
+/// The time of samuch lemincha ketana - also described as 30 minutes before mincha ketana. It is the point after which eating or other activity should not begin before praying mincha. It is calculated as 9 shaos zmaniyos after the start of the day, using sunrise and sunset in the GRA-based day. When elevation is used, the calculation starts from elevation-adjusted sunrise instead of standard sunrise. If elevation is used, the calculation is based on elevation-adjusted sunrise. The zman may not be available in northern and southern locations, including some places beyond the Arctic and Antarctic Circles, where the sun does not reach low enough below the horizon for this calculation.
 pub static SAMUCH_LE_MINCHA_KETANA_GRA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::SamuchLeMinchaKetana( &ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true, ),
+    event: ZmanPrimitive::SamuchLeMinchaKetana(&ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true),
     #[cfg(test)]
     method_name: "getSamuchLeMinchaKetanaGRA",
-    name: "The time known as samuch lemincha ketana, or near mincha ketana. It is a point when eating or other activity should not begin before praying mincha.",
+    name: "Samuch Le Mincha Ketana (GR'A)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time known as samuch lemincha ketana, or near mincha ketana. It is a point when eating or other activity should not begin before praying mincha.".to_string(),
+    description: |_| "The time of samuch lemincha ketana - also described as 30 minutes before mincha ketana. It is the point after which eating or other activity should not begin before praying mincha. It is calculated as 9 shaos zmaniyos after the start of the day, using sunrise and sunset in the GRA-based day. When elevation is used, the calculation starts from elevation-adjusted sunrise instead of standard sunrise. If elevation is used, the calculation is based on elevation-adjusted sunrise. The zman may not be available in northern and southern locations, including some places beyond the Arctic and Antarctic Circles, where the sun does not reach low enough below the horizon for this calculation.".to_string(),
 };
 
-/// The sunrise time calculated at sea level, without elevation adjustment. It is also the base used for dawn calculations that are measured as a dip below the horizon before sunrise.
+/// The time of sunrise calculated at sea level, without any elevation adjustment. It is the base sunrise time used for dawn calculations that are measured as a dip below the horizon before sunrise. Sunrise is calculated without elevation adjustment, at sea level. The time may not be available if sunrise cannot be calculated, such as in the Arctic Circle on days when the sun does not rise.
 pub static SEA_LEVEL_SUNRISE: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SeaLevelSunrise,
     #[cfg(test)]
     method_name: "getSeaLevelSunrise",
-    name: "The sunrise time calculated at sea level, without elevation adjustment. It is also the base used for dawn calculations that are measured as a dip below the horizon before sunrise.",
+    name: "Sea Level Sunrise",
     #[cfg(feature = "alloc")]
-    description: |_| "The sunrise time calculated at sea level, without elevation adjustment. It is also the base used for dawn calculations that are measured as a dip below the horizon before sunrise.".to_string(),
+    description: |_| "The time of sunrise calculated at sea level, without any elevation adjustment. It is the base sunrise time used for dawn calculations that are measured as a dip below the horizon before sunrise. Sunrise is calculated without elevation adjustment, at sea level. The time may not be available if sunrise cannot be calculated, such as in the Arctic Circle on days when the sun does not rise.".to_string(),
 };
 
-/// The sea-level sunset time, without elevation adjustment. It is also the base time used for dusk calculations that are measured as a dip below the horizon after sunset.
+/// The sunset time calculated at sea level, without any elevation adjustment. It is the base sunset used for dusk calculations measured as a dip below the horizon after sunset. Calculates sunset at sea level, with no elevation adjustment. This is used as the base for dusk calculations after sunset. The zman may not be available or cannot be calculated in places and times where the sun does not set, such as parts of the Arctic Circle.
 pub static SEA_LEVEL_SUNSET: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SeaLevelSunset,
     #[cfg(test)]
     method_name: "getSeaLevelSunset",
-    name: "The sea-level sunset time, without elevation adjustment. It is also the base time used for dusk calculations that are measured as a dip below the horizon after sunset.",
+    name: "Sea Level Sunset",
     #[cfg(feature = "alloc")]
-    description: |_| "The sea-level sunset time, without elevation adjustment. It is also the base time used for dusk calculations that are measured as a dip below the horizon after sunset.".to_string(),
+    description: |_| "The sunset time calculated at sea level, without any elevation adjustment. It is the base sunset used for dusk calculations measured as a dip below the horizon after sunset. Calculates sunset at sea level, with no elevation adjustment. This is used as the base for dusk calculations after sunset. The zman may not be available or cannot be calculated in places and times where the sun does not set, such as parts of the Arctic Circle.".to_string(),
 };
 
-/// The latest time chametz may be eaten on Erev Pesach according to the Baal Hatanya.
+/// The latest time one may eat chametz on Erev Pesach according to the Baal Hatanya. It is the same time as Sof zman tfila Baal Hatanya. This is 4 hours into the day according to the Baal Hatanya's view of the day from sunrise to sunset, specifically 4 shaah zmanis after sunrise. If it is not Erev Pesach, the zman may not be available. The zman may not be available if it cannot be calculated, such as in locations like the Arctic Circle where the sun does not rise or does not set on a given day.
 pub static SOF_ZMAN_ACHILAS_CHAMETZ_BAAL_HATANYA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true),
     #[cfg(test)]
     method_name: "getSofZmanAchilasChametzBaalHatanya",
-    name: "The latest time chametz may be eaten on Erev Pesach according to the Baal Hatanya.",
+    name: "Sof Zman Achilas Chametz (Baal Hatanya)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time chametz may be eaten on Erev Pesach according to the Baal Hatanya.".to_string(),
+    description: |_| "The latest time one may eat chametz on Erev Pesach according to the Baal Hatanya. It is the same time as Sof zman tfila Baal Hatanya. This is 4 hours into the day according to the Baal Hatanya's view of the day from sunrise to sunset, specifically 4 shaah zmanis after sunrise. If it is not Erev Pesach, the zman may not be available. The zman may not be available if it cannot be calculated, such as in locations like the Arctic Circle where the sun does not rise or does not set on a given day.".to_string(),
 };
 
-/// The latest time chametz may be eaten on Erev Pesach according to the GRA. It is the same zman as Sof zman tfilah GRA.
+/// The latest time one may eat chametz on Erev Pesach according to the GRA. It is the same time as Sof zman tfilah GRA and is included for convenience. It is 4 hours into the day, measured from sea level sunrise and based on the GRA's day length from sunrise to sunset. If it is not Erev Pesach, the zman may not be available. If the calculation cannot be computed, such as in places where sunrise or sunset does not occur, the zman may not be available.
 pub static SOF_ZMAN_ACHILAS_CHAMETZ_GRA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true),
     #[cfg(test)]
     method_name: "getSofZmanAchilasChametzGRA",
-    name: "The latest time chametz may be eaten on Erev Pesach according to the GRA. It is the same zman as Sof zman tfilah GRA.",
+    name: "Sof Zman Achilas Chametz (GR'A)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time chametz may be eaten on Erev Pesach according to the GRA. It is the same zman as Sof zman tfilah GRA.".to_string(),
+    description: |_| "The latest time one may eat chametz on Erev Pesach according to the GRA. It is the same time as Sof zman tfilah GRA and is included for convenience. It is 4 hours into the day, measured from sea level sunrise and based on the GRA's day length from sunrise to sunset. If it is not Erev Pesach, the zman may not be available. If the calculation cannot be computed, such as in places where sunrise or sunset does not occur, the zman may not be available.".to_string(),
 };
 
-/// The latest time one may eat chametz on Erev Pesach according to the Magen Avraham's opinion, using alos and nightfall at 16.1 degrees below the horizon.
+/// The latest time one may eat chametz on Erev Pesach according to the Magen Avraham view that the day starts at dawn and ends at nightfall, with both based on 16.1 degrees below sunrise and sunset. It is 4 shaos zmaniyos after alos 16.1 degrees. If it is not Erev Pesach, this zman may not be available. This zman may not be available if the calculation cannot be computed in locations where the sun does not reach the needed position below the horizon.
 pub static SOF_ZMAN_ACHILAS_CHAMETZ_MGA_16_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true),
     #[cfg(test)]
     method_name: "getSofZmanAchilasChametzMGA16Point1Degrees",
-    name: "The latest time one may eat chametz on Erev Pesach according to the Magen Avraham's opinion, using alos and nightfall at 16.1 degrees below the horizon.",
+    name: "Sof Zman Achilas Chametz (MGA, 16.1 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time one may eat chametz on Erev Pesach according to the Magen Avraham's opinion, using alos and nightfall at 16.1 degrees below the horizon.".to_string(),
+    description: |_| "The latest time one may eat chametz on Erev Pesach according to the Magen Avraham view that the day starts at dawn and ends at nightfall, with both based on 16.1 degrees below sunrise and sunset. It is 4 shaos zmaniyos after alos 16.1 degrees. If it is not Erev Pesach, this zman may not be available. This zman may not be available if the calculation cannot be computed in locations where the sun does not reach the needed position below the horizon.".to_string(),
 };
 
-/// The latest time chametz may be eaten on Erev Pesach according to the Magen Avraham opinion, using dawn 72 minutes before sunrise.
+/// The latest time chametz may be eaten on Erev Pesach according to the Magen Avraham opinion that the day starts 72 minutes before sunrise. It is 4 shaos zmaniyos after alos 72 minutes, with the day measured from 72 minutes before sunrise to 72 minutes after sunset. This time is identical to Sof zman tfila MGA 72 minutes. If it is not Erev Pesach or the time cannot be calculated, the zman may not be available.
 pub static SOF_ZMAN_ACHILAS_CHAMETZ_MGA_72_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true),
     #[cfg(test)]
     method_name: "getSofZmanAchilasChametzMGA72Minutes",
-    name: "The latest time chametz may be eaten on Erev Pesach according to the Magen Avraham opinion, using dawn 72 minutes before sunrise.",
+    name: "Sof Zman Achilas Chametz (MGA, 72 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time chametz may be eaten on Erev Pesach according to the Magen Avraham opinion, using dawn 72 minutes before sunrise.".to_string(),
+    description: |_| "The latest time chametz may be eaten on Erev Pesach according to the Magen Avraham opinion that the day starts 72 minutes before sunrise. It is 4 shaos zmaniyos after alos 72 minutes, with the day measured from 72 minutes before sunrise to 72 minutes after sunset. This time is identical to Sof zman tfila MGA 72 minutes. If it is not Erev Pesach or the time cannot be calculated, the zman may not be available.".to_string(),
 };
 
-/// The latest time one may eat chametz on Erev Pesach according to the Magen Avraham's view based on a day that begins 72 zmaniyos minutes before sunrise and ends 72 zmaniyos minutes after sunset.
+/// The latest time chametz may be eaten on Erev Pesach according to the Magen Avraham approach based on a day that starts 72 zmaniyos minutes before sunrise and ends 72 zmaniyos minutes after sunset. It is the same time as sof zman tfilah for this approach. It is 4 shaos zmaniyos after alos calculated as 72 zmaniyos minutes before sunrise. In other words, it is the time of 4 temporal hours after that dawn. If it is not Erev Pesach, the zman may not be available. If the calculation cannot be computed, such as in locations where the sun does not rise or set on a given day, the zman may not be available.
 pub static SOF_ZMAN_ACHILAS_CHAMETZ_MGA_72_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2), true),
     #[cfg(test)]
     method_name: "getSofZmanAchilasChametzMGA72MinutesZmanis",
-    name: "The latest time one may eat chametz on Erev Pesach according to the Magen Avraham's view based on a day that begins 72 zmaniyos minutes before sunrise and ends 72 zmaniyos minutes after sunset.",
+    name: "Sof Zman Achilas Chametz (MGA, 72 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time one may eat chametz on Erev Pesach according to the Magen Avraham's view based on a day that begins 72 zmaniyos minutes before sunrise and ends 72 zmaniyos minutes after sunset.".to_string(),
+    description: |_| "The latest time chametz may be eaten on Erev Pesach according to the Magen Avraham approach based on a day that starts 72 zmaniyos minutes before sunrise and ends 72 zmaniyos minutes after sunset. It is the same time as sof zman tfilah for this approach. It is 4 shaos zmaniyos after alos calculated as 72 zmaniyos minutes before sunrise. In other words, it is the time of 4 temporal hours after that dawn. If it is not Erev Pesach, the zman may not be available. If the calculation cannot be computed, such as in locations where the sun does not rise or set on a given day, the zman may not be available.".to_string(),
 };
 
-/// The latest time to burn chametz on Erev Pesach according to the Baal Hatanya.
+/// The latest time for burning chametz on Erev Pesach according to the Baal Hatanya. It is 5 halachic hours after netz amiti (sunrise), with the day measured from sunrise to sunset according to the Baal Hatanya. This zman applies on Erev Pesach. If the zman cannot be calculated, such as in locations where the sun does not rise or set on a given day, it may not be available.
 pub static SOF_ZMAN_BIUR_CHAMETZ_BAAL_HATANYA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::SofZmanBiurChametz( &ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true, ),
+    event: ZmanPrimitive::SofZmanBiurChametz(&ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true),
     #[cfg(test)]
     method_name: "getSofZmanBiurChametzBaalHatanya",
-    name: "The latest time to burn chametz on Erev Pesach according to the Baal Hatanya.",
+    name: "Sof Zman Biur Chametz (Baal Hatanya)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to burn chametz on Erev Pesach according to the Baal Hatanya.".to_string(),
+    description: |_| "The latest time for burning chametz on Erev Pesach according to the Baal Hatanya. It is 5 halachic hours after netz amiti (sunrise), with the day measured from sunrise to sunset according to the Baal Hatanya. This zman applies on Erev Pesach. If the zman cannot be calculated, such as in locations where the sun does not rise or set on a given day, it may not be available.".to_string(),
 };
 
-/// The latest time to burn chametz on Erev Pesach according to the GRA.
+/// The latest time to burn chametz on Erev Pesach according to the GRA. It is 5 halachic hours into the day, using the GRA's day measured from sea level sunrise to sea level sunset. In other words, it is 5 times the GRA shaah zmanis after sea level sunrise. This zman is only available on Erev Pesach. The zman may not be available or cannot be calculated in places and seasons where sunrise and sunset do not occur.
 pub static SOF_ZMAN_BIUR_CHAMETZ_GRA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::SofZmanBiurChametz( &ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true, ),
+    event: ZmanPrimitive::SofZmanBiurChametz(&ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true),
     #[cfg(test)]
     method_name: "getSofZmanBiurChametzGRA",
-    name: "The latest time to burn chametz on Erev Pesach according to the GRA.",
+    name: "Sof Zman Biur Chametz (GR'A)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to burn chametz on Erev Pesach according to the GRA.".to_string(),
+    description: |_| "The latest time to burn chametz on Erev Pesach according to the GRA. It is 5 halachic hours into the day, using the GRA's day measured from sea level sunrise to sea level sunset. In other words, it is 5 times the GRA shaah zmanis after sea level sunrise. This zman is only available on Erev Pesach. The zman may not be available or cannot be calculated in places and seasons where sunrise and sunset do not occur.".to_string(),
 };
 
-/// The latest time to burn chametz on Erev Pesach according to the Magen Avraham opinion, using a day that starts at dawn and ends at nightfall when the sun is 16.1 degrees below the horizon.
+/// The latest time to burn chametz on Erev Pesach according to the Magen Avraham opinion, using dawn 16.1 degrees before sunrise. It is 5 shaos zmaniyos after dawn, with dawn defined as 16.1 degrees before sunrise. If it is not Erev Pesach, the zman may not be available. In some locations, such as northern and southern locations near or beyond the Arctic and Antarctic Circles, the zman may not be available if the sun does not reach low enough below the horizon for this calculation.
 pub static SOF_ZMAN_BIUR_CHAMETZ_MGA_16_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::SofZmanBiurChametz( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true, ),
+    event: ZmanPrimitive::SofZmanBiurChametz(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true),
     #[cfg(test)]
     method_name: "getSofZmanBiurChametzMGA16Point1Degrees",
-    name: "The latest time to burn chametz on Erev Pesach according to the Magen Avraham opinion, using a day that starts at dawn and ends at nightfall when the sun is 16.1 degrees below the horizon.",
+    name: "Sof Zman Biur Chametz (MGA, 16.1 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to burn chametz on Erev Pesach according to the Magen Avraham opinion, using a day that starts at dawn and ends at nightfall when the sun is 16.1 degrees below the horizon.".to_string(),
+    description: |_| "The latest time to burn chametz on Erev Pesach according to the Magen Avraham opinion, using dawn 16.1 degrees before sunrise. It is 5 shaos zmaniyos after dawn, with dawn defined as 16.1 degrees before sunrise. If it is not Erev Pesach, the zman may not be available. In some locations, such as northern and southern locations near or beyond the Arctic and Antarctic Circles, the zman may not be available if the sun does not reach low enough below the horizon for this calculation.".to_string(),
 };
 
-/// The latest time to burn chametz on Erev Pesach according to the Magen Avraham opinion based on dawn being 72 minutes before sunrise.
+/// The latest time to burn chametz on Erev Pesach according to the Magen Avraham opinion using a 72-minute dawn and 72-minute nightfall day. Five shaos zmaniyos after dawn, where dawn is 72 minutes before sunrise and the day is measured until 72 minutes after sunset. This applies only on Erev Pesach. The zman may not be available if the calculation cannot be computed, such as in places where the sun does not rise or does not set.
 pub static SOF_ZMAN_BIUR_CHAMETZ_MGA_72_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::SofZmanBiurChametz( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true, ),
+    event: ZmanPrimitive::SofZmanBiurChametz(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true),
     #[cfg(test)]
     method_name: "getSofZmanBiurChametzMGA72Minutes",
-    name: "The latest time to burn chametz on Erev Pesach according to the Magen Avraham opinion based on dawn being 72 minutes before sunrise.",
+    name: "Sof Zman Biur Chametz (MGA, 72 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to burn chametz on Erev Pesach according to the Magen Avraham opinion based on dawn being 72 minutes before sunrise.".to_string(),
+    description: |_| "The latest time to burn chametz on Erev Pesach according to the Magen Avraham opinion using a 72-minute dawn and 72-minute nightfall day. Five shaos zmaniyos after dawn, where dawn is 72 minutes before sunrise and the day is measured until 72 minutes after sunset. This applies only on Erev Pesach. The zman may not be available if the calculation cannot be computed, such as in places where the sun does not rise or does not set.".to_string(),
 };
 
-/// The latest time for burning chametz on Erev Pesach according to the Magen Avraham view, using a day that begins 72 minutes zmanis before sunrise and ends 72 minutes zmanis after sunset.
+/// The latest time to burn chametz on Erev Pesach according to the Magen Avraham approach that treats dawn as 72 zmanis minutes before sunrise and nightfall as 72 zmanis minutes after sunset. It is calculated as 5 shaos zmaniyos after dawn, using alos 72 zmanis minutes before sunrise and the related shaah zmanis for that day. If it is not Erev Pesach, the zman may not be available. If the calculation cannot be computed, such as in places where the sun does not rise or set on some days, the zman may not be available.
 pub static SOF_ZMAN_BIUR_CHAMETZ_MGA_72_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::SofZmanBiurChametz( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2), true, ),
+    event: ZmanPrimitive::SofZmanBiurChametz(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2), true),
     #[cfg(test)]
     method_name: "getSofZmanBiurChametzMGA72MinutesZmanis",
-    name: "The latest time for burning chametz on Erev Pesach according to the Magen Avraham view, using a day that begins 72 minutes zmanis before sunrise and ends 72 minutes zmanis after sunset.",
+    name: "Sof Zman Biur Chametz (MGA, 72 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for burning chametz on Erev Pesach according to the Magen Avraham view, using a day that begins 72 minutes zmanis before sunrise and ends 72 minutes zmanis after sunset.".to_string(),
+    description: |_| "The latest time to burn chametz on Erev Pesach according to the Magen Avraham approach that treats dawn as 72 zmanis minutes before sunrise and nightfall as 72 zmanis minutes after sunset. It is calculated as 5 shaos zmaniyos after dawn, using alos 72 zmanis minutes before sunrise and the related shaah zmanis for that day. If it is not Erev Pesach, the zman may not be available. If the calculation cannot be computed, such as in places where the sun does not rise or set on some days, the zman may not be available.".to_string(),
 };
 
-/// The latest time for Kiddush Levana, calculated as 15 days after the molad.
+/// The latest time for Kiddush Levana, based on 15 days after the molad. This follows the Shulchan Aruch (Orach Chaim 426). Calculated as 15 days after the molad. The time is returned even if it falls during the daytime. If the zman does not occur on a given day, it may not be available.
 pub static SOF_ZMAN_KIDUSH_LEVANA_15_DAYS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SofZmanKidushLevana15Days,
     #[cfg(test)]
     method_name: "getSofZmanKidushLevana15Days",
-    name: "The latest time for Kiddush Levana, calculated as 15 days after the molad.",
+    name: "Sof Zman Kidush Levana (15 Days)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for Kiddush Levana, calculated as 15 days after the molad.".to_string(),
+    description: |_| "The latest time for Kiddush Levana, based on 15 days after the molad. This follows the Shulchan Aruch (Orach Chaim 426). Calculated as 15 days after the molad. The time is returned even if it falls during the daytime. If the zman does not occur on a given day, it may not be available.".to_string(),
 };
 
-/// The latest time for Kiddush Levana according to the Maharil's opinion, calculated as halfway between one molad and the next. If this time falls during the day, alos is used instead.
+/// The latest time for Kiddush Levana according to the Maharil's opinion, based on the midpoint between one molad and the next. Add half of the interval between molad and molad - 14 days, 18 hours, 22 minutes, and 666 milliseconds - to the month's molad. The zman is returned even if it falls during the day. If the calculated time falls between alos and tzais, alos is returned. The zman may not be available if it does not occur on that day.
 pub static SOF_ZMAN_KIDUSH_LEVANA_BETWEEN_MOLDOS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SofZmanKidushLevanaBetweenMoldos,
     #[cfg(test)]
     method_name: "getSofZmanKidushLevanaBetweenMoldos",
-    name: "The latest time for Kiddush Levana according to the Maharil's opinion, calculated as halfway between one molad and the next. If this time falls during the day, alos is used instead.",
+    name: "Sof Zman Kidush Levana (Between Moldos)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for Kiddush Levana according to the Maharil's opinion, calculated as halfway between one molad and the next. If this time falls during the day, alos is used instead.".to_string(),
+    description: |_| "The latest time for Kiddush Levana according to the Maharil's opinion, based on the midpoint between one molad and the next. Add half of the interval between molad and molad - 14 days, 18 hours, 22 minutes, and 666 milliseconds - to the month's molad. The zman is returned even if it falls during the day. If the calculated time falls between alos and tzais, alos is returned. The zman may not be available if it does not occur on that day.".to_string(),
 };
 
-/// The latest time to recite Shema in the morning, using the calculation known as the Komarno zman: 3 regular clock hours before chatzos hayom.
+/// The latest time for reciting Shema in the morning, calculated using the opinion that places it 3 regular clock hours before chatzos. It is calculated as 3 regular clock hours before astronomical chatzos. This zman may not be available or cannot be calculated in places such as the Arctic Circle where the sun does not rise or does not set on certain days.
 pub static SOF_ZMAN_SHMA_3_HOURS_BEFORE_CHATZOS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::from_mins(-180)),
     #[cfg(test)]
     method_name: "getSofZmanShma3HoursBeforeChatzos",
-    name: "The latest time to recite Shema in the morning, using the calculation known as the Komarno zman: 3 regular clock hours before chatzos hayom.",
+    name: "Sof Zman Shma (3 Hours Before Chatzos)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite Shema in the morning, using the calculation known as the Komarno zman: 3 regular clock hours before chatzos hayom.".to_string(),
+    description: |_| "The latest time for reciting Shema in the morning, calculated using the opinion that places it 3 regular clock hours before chatzos. It is calculated as 3 regular clock hours before astronomical chatzos. This zman may not be available or cannot be calculated in places such as the Arctic Circle where the sun does not rise or does not set on certain days.".to_string(),
 };
 
-/// The latest time to recite Shema in the morning, based on a day that begins at alos 16.1 degrees and ends at sea level sunset.
+/// The latest time for morning Shema according to a view that treats the day as beginning at alos 16.1 degrees and ending at sea level sunset. Calculate 3 shaos zmaniyos for a day running from alos 16.1 degrees to sea level sunset, then add that span to alos 16.1 degrees. This follows the opinion of the Chidushei VeKlalos HaRaza and the Menorah HaTahara, as cited by Yisrael Vehazmanim. If the sun does not reach the needed position below the horizon, the zman may not be available or cannot be calculated.
 pub static SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_SUNSET: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::ConfiguredSunset, false, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::ConfiguredSunset, false),
     #[cfg(test)]
     method_name: "getSofZmanShmaAlos16Point1ToSunset",
-    name: "The latest time to recite Shema in the morning, based on a day that begins at alos 16.1 degrees and ends at sea level sunset.",
+    name: "Sof Zman Shma (Alos 16.1 to Sunset)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite Shema in the morning, based on a day that begins at alos 16.1 degrees and ends at sea level sunset.".to_string(),
+    description: |_| "The latest time for morning Shema according to a view that treats the day as beginning at alos 16.1 degrees and ending at sea level sunset. Calculate 3 shaos zmaniyos for a day running from alos 16.1 degrees to sea level sunset, then add that span to alos 16.1 degrees. This follows the opinion of the Chidushei VeKlalos HaRaza and the Menorah HaTahara, as cited by Yisrael Vehazmanim. If the sun does not reach the needed position below the horizon, the zman may not be available or cannot be calculated.".to_string(),
 };
 
-/// The latest time to recite Shema in the morning, based on a day that begins at alos 16.1 degrees and ends at tzais 7.083 degrees.
+/// The latest time to recite morning Shema, calculated using a day that begins at alos 16.1 degrees and ends at tzais 7.083 degrees. It is 3 shaos zmaniyos after alos 16.1 degrees, where the length of the day is measured from alos 16.1 degrees to tzais 7.083 degrees. In some far northern or southern locations, this zman may not be available because the sun may not reach low enough below the horizon for this calculation.
 pub static SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(7.0 + (5.0 / 60.0)), false, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(7.083333333333333), false),
     #[cfg(test)]
     method_name: "getSofZmanShmaAlos16Point1ToTzaisGeonim7Point083Degrees",
-    name: "The latest time to recite Shema in the morning, based on a day that begins at alos 16.1 degrees and ends at tzais 7.083 degrees.",
+    name: "Sof Zman Shma (Alos 16.1 to Tzais Geonim 7.083 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite Shema in the morning, based on a day that begins at alos 16.1 degrees and ends at tzais 7.083 degrees.".to_string(),
+    description: |_| "The latest time to recite morning Shema, calculated using a day that begins at alos 16.1 degrees and ends at tzais 7.083 degrees. It is 3 shaos zmaniyos after alos 16.1 degrees, where the length of the day is measured from alos 16.1 degrees to tzais 7.083 degrees. In some far northern or southern locations, this zman may not be available because the sun may not reach low enough below the horizon for this calculation.".to_string(),
 };
 
-/// The latest time to recite morning Shema according to the Ateret Torah calculation.
+/// The latest time to recite morning Shema according to the Ateret Torah calculation. It is calculated as 3 shaos zmaniyos after alos 72 zmaniyos, using a day that starts 1/10 of the day before sunrise and ends at Tzais Ateret Torah. Tzais Ateret Torah is usually 40 minutes after sunset, but the sunset offset can be set to a different value. This calculation does not place chatzos at midday. If the zman cannot be calculated, such as in polar regions where the sun does not rise or set on a given day, the zman may not be available.
 pub static SOF_ZMAN_SHMA_ATERET_TORAH: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::TzaisAteretTorah, false, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::TzaisAteretTorah, false),
     #[cfg(test)]
     method_name: "getSofZmanShmaAteretTorah",
-    name: "The latest time to recite morning Shema according to the Ateret Torah calculation.",
+    name: "Sof Zman Shma (Ateret Torah)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite morning Shema according to the Ateret Torah calculation.".to_string(),
+    description: |_| "The latest time to recite morning Shema according to the Ateret Torah calculation. It is calculated as 3 shaos zmaniyos after alos 72 zmaniyos, using a day that starts 1/10 of the day before sunrise and ends at Tzais Ateret Torah. Tzais Ateret Torah is usually 40 minutes after sunset, but the sunset offset can be set to a different value. This calculation does not place chatzos at midday. If the zman cannot be calculated, such as in polar regions where the sun does not rise or set on a given day, the zman may not be available.".to_string(),
 };
 
-/// The latest time to recite Shema in the morning according to the Baal Hatanya.
+/// The latest time for morning Shema according to the Baal Hatanya. Three shaos zmaniyos after sunrise, using the Baal Hatanya method where the day is measured from sunrise to sunset. The zman may not be available if it cannot be calculated, such as in places or seasons where the sun does not rise or does not set.
 pub static SOF_ZMAN_SHMA_BAAL_HATANYA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true),
     #[cfg(test)]
     method_name: "getSofZmanShmaBaalHatanya",
-    name: "The latest time to recite Shema in the morning according to the Baal Hatanya.",
+    name: "Sof Zman Shma (Baal Hatanya)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite Shema in the morning according to the Baal Hatanya.".to_string(),
+    description: |_| "The latest time for morning Shema according to the Baal Hatanya. Three shaos zmaniyos after sunrise, using the Baal Hatanya method where the day is measured from sunrise to sunset. The zman may not be available if it cannot be calculated, such as in places or seasons where the sun does not rise or does not set.".to_string(),
 };
 
-/// The latest time to recite morning Shema according to the Vilna Gaon (GRA).
+/// The latest time for reciting morning Shema according to the Vilna Gaon (GRA). It is 3 seasonal hours after sunrise, using either sunrise or sea-level sunrise depending on elevation. {uses_elevation} The zman may not be available in places or on dates where the sun does not rise or does not set.
 pub static SOF_ZMAN_SHMA_GRA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true),
     #[cfg(test)]
     method_name: "getSofZmanShmaGRA",
-    name: "The latest time to recite morning Shema according to the Vilna Gaon (GRA).",
+    name: "Sof Zman Shma (GR'A)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite morning Shema according to the Vilna Gaon (GRA).".to_string(),
+    description: |_| "The latest time for reciting morning Shema according to the Vilna Gaon (GRA). It is 3 seasonal hours after sunrise, using either sunrise or sea-level sunrise depending on elevation. {uses_elevation} The zman may not be available in places or on dates where the sun does not rise or does not set.".to_string(),
 };
 
-/// The latest time to recite the morning Shema according to Rav Moshe Feinstein's view of the GRA calculation, using only the first half of the day from sunrise to fixed local chatzos.
+/// The latest time to recite Shema in the morning according to the GRA, using Rav Moshe Feinstein's approach of measuring from sunrise to fixed local chatzos. It is 3 shaos zmaniyos after sunrise, or half of the period from sunrise to fixed local chatzos. This zman may not be available for some northern and southern locations, including places south of the Arctic Circle and north of the Antarctic Circle, where the sun may not reach low enough below the horizon for the calculation.
 pub static SOF_ZMAN_SHMA_GRASUNRISE_TO_FIXED_LOCAL_CHATZOS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::HalfDayBasedOffset( &ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::LocalMeanTime(12.0), 3.0, ),
+    event: ZmanPrimitive::HalfDayBasedOffset(&ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::LocalMeanTime(12.0), 3.0),
     #[cfg(test)]
     method_name: "getSofZmanShmaGRASunriseToFixedLocalChatzos",
-    name: "The latest time to recite the morning Shema according to Rav Moshe Feinstein's view of the GRA calculation, using only the first half of the day from sunrise to fixed local chatzos.",
+    name: "Sof Zman Shma (GR'A, Sunrise to Fixed Local Chatzos)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite the morning Shema according to Rav Moshe Feinstein's view of the GRA calculation, using only the first half of the day from sunrise to fixed local chatzos.".to_string(),
+    description: |_| "The latest time to recite Shema in the morning according to the GRA, using Rav Moshe Feinstein's approach of measuring from sunrise to fixed local chatzos. It is 3 shaos zmaniyos after sunrise, or half of the period from sunrise to fixed local chatzos. This zman may not be available for some northern and southern locations, including places south of the Arctic Circle and north of the Antarctic Circle, where the sun may not reach low enough below the horizon for the calculation.".to_string(),
 };
 
-/// The latest time for morning Shema according to the Magen Avraham view, using dawn 120 minutes before sunrise and nightfall 120 minutes after sunset.
+/// The latest time to recite morning Shema according to the Magen Avraham, using dawn set at 120 minutes before sunrise. It is 3 shaos zmaniyos after alos 120 minutes, with the day measured from 120 minutes before sunrise to 120 minutes after sunset. This is an extremely early zman and is considered a chumra. The zman may not be available or cannot be calculated in places and times where the sun does not rise or set.
 pub static SOF_ZMAN_SHMA_MGA_120_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)), true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)), true),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA120Minutes",
-    name: "The latest time for morning Shema according to the Magen Avraham view, using dawn 120 minutes before sunrise and nightfall 120 minutes after sunset.",
+    name: "Sof Zman Shma (MGA, 120 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for morning Shema according to the Magen Avraham view, using dawn 120 minutes before sunrise and nightfall 120 minutes after sunset.".to_string(),
+    description: |_| "The latest time to recite morning Shema according to the Magen Avraham, using dawn set at 120 minutes before sunrise. It is 3 shaos zmaniyos after alos 120 minutes, with the day measured from 120 minutes before sunrise to 120 minutes after sunset. This is an extremely early zman and is considered a chumra. The zman may not be available or cannot be calculated in places and times where the sun does not rise or set.".to_string(),
 };
 
-/// The latest time to recite morning Shema according to the Magen Avraham view, using dawn and nightfall that are 16.1 degrees below the horizon.
+/// The latest time to recite morning Shema according to the Magen Avraham opinion, using a day measured from dawn at 16.1 degrees before sunrise until nightfall at 16.1 degrees after sunset. It is 3 shaos zmaniyos after dawn at 16.1 degrees below sunrise, with the day defined from 16.1 degrees before sunrise to 16.1 degrees after sunset. If the sun does not reach the needed position below the horizon at a location, this zman may not be available or cannot be calculated. This is based on the Magen Avraham view that the day runs from dawn to nightfall.
 pub static SOF_ZMAN_SHMA_MGA_16_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA16Point1Degrees",
-    name: "The latest time to recite morning Shema according to the Magen Avraham view, using dawn and nightfall that are 16.1 degrees below the horizon.",
+    name: "Sof Zman Shma (MGA, 16.1 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite morning Shema according to the Magen Avraham view, using dawn and nightfall that are 16.1 degrees below the horizon.".to_string(),
+    description: |_| "The latest time to recite morning Shema according to the Magen Avraham opinion, using a day measured from dawn at 16.1 degrees before sunrise until nightfall at 16.1 degrees after sunset. It is 3 shaos zmaniyos after dawn at 16.1 degrees below sunrise, with the day defined from 16.1 degrees before sunrise to 16.1 degrees after sunset. If the sun does not reach the needed position below the horizon at a location, this zman may not be available or cannot be calculated. This is based on the Magen Avraham view that the day runs from dawn to nightfall.".to_string(),
 };
 
-/// The latest time to recite Shema in the morning according to the Magen Avraham approach, using the first half of the day. Here, the day begins at alos set to 16.1 degrees and ends at fixed local chatzos.
+/// The latest time to recite morning Shema according to Rav Moshe Feinstein's view of [sof zman krias shema](https://en.wikipedia.org/wiki/Moshe_Feinstein), using the [Magen Avraham](https://en.wikipedia.org/wiki/Avraham_Gombiner) approach and a day measured from dawn to nightfall, but based only on the first half of that day. It starts the half-day at alos defined as 16.1 degrees and ends it at fixed local chatzos. Sof zman Shema is then 3 shaos zmaniyos after that alos, which is the same as halfway through this half-day. If the sun does not reach low enough below the horizon for this calculation, the zman may not be available. The calculation is based on fixed local chatzos.
 pub static SOF_ZMAN_SHMA_MGA_16_POINT_1_DEGREES_TO_FIXED_LOCAL_CHATZOS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::HalfDayBasedOffset( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::LocalMeanTime(12.0), 3.0, ),
+    event: ZmanPrimitive::HalfDayBasedOffset(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::LocalMeanTime(12.0), 3.0),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA16Point1DegreesToFixedLocalChatzos",
-    name: "The latest time to recite Shema in the morning according to the Magen Avraham approach, using the first half of the day. Here, the day begins at alos set to 16.1 degrees and ends at fixed local chatzos.",
+    name: "Sof Zman Shma (MGA, 16.1 Degrees to Fixed Local Chatzos)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite Shema in the morning according to the Magen Avraham approach, using the first half of the day. Here, the day begins at alos set to 16.1 degrees and ends at fixed local chatzos.".to_string(),
+    description: |_| "The latest time to recite morning Shema according to Rav Moshe Feinstein's view of [sof zman krias shema](https://en.wikipedia.org/wiki/Moshe_Feinstein), using the [Magen Avraham](https://en.wikipedia.org/wiki/Avraham_Gombiner) approach and a day measured from dawn to nightfall, but based only on the first half of that day. It starts the half-day at alos defined as 16.1 degrees and ends it at fixed local chatzos. Sof zman Shema is then 3 shaos zmaniyos after that alos, which is the same as halfway through this half-day. If the sun does not reach low enough below the horizon for this calculation, the zman may not be available. The calculation is based on fixed local chatzos.".to_string(),
 };
 
-/// The latest time for morning Shema according to the Magen Avraham view, using dawn 18 degrees before sunrise as the starting point.
+/// The latest time to recite morning Shema according to the Magen Avraham, using dawn that is 18 degrees before sunrise as the start of the day. It is 3 shaos zmaniyos after dawn, where the day is measured from 18 degrees before sunrise to 18 degrees below sunset. In some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 pub static SOF_ZMAN_SHMA_MGA_18_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::SunriseOffsetByDegrees(18.0), &ZmanPrimitive::SunsetOffsetByDegrees(18.0), true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::SunriseOffsetByDegrees(18.0), &ZmanPrimitive::SunsetOffsetByDegrees(18.0), true),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA18Degrees",
-    name: "The latest time for morning Shema according to the Magen Avraham view, using dawn 18 degrees before sunrise as the starting point.",
+    name: "Sof Zman Shma (MGA, 18 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for morning Shema according to the Magen Avraham view, using dawn 18 degrees before sunrise as the starting point.".to_string(),
+    description: |_| "The latest time to recite morning Shema according to the Magen Avraham, using dawn that is 18 degrees before sunrise as the start of the day. It is 3 shaos zmaniyos after dawn, where the day is measured from 18 degrees before sunrise to 18 degrees below sunset. In some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.".to_string(),
 };
 
-/// The latest time to recite morning Shema according to the Magen Avraham view, using Rav Moshe Feinstein's approach of measuring the day from dawn to nightfall but using only the first half of the day.
+/// The latest time to recite morning Shema according to the Magen Avraham approach, using a day measured from dawn to nightfall and limited to the first half of that day. It is based on alos at 18 degrees and fixed local chatzos. The half-day runs from alos until fixed local chatzos, and sof zman shema is 3 shaos zmaniyos after alos, which is the midpoint of that half-day. At very high latitudes, where the sun does not reach low enough below the horizon for this calculation, the zman may not be available.
 pub static SOF_ZMAN_SHMA_MGA_18_DEGREES_TO_FIXED_LOCAL_CHATZOS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::HalfDayBasedOffset( &ZmanPrimitive::SunriseOffsetByDegrees(18.0), &ZmanPrimitive::LocalMeanTime(12.0), 3.0, ),
+    event: ZmanPrimitive::HalfDayBasedOffset(&ZmanPrimitive::SunriseOffsetByDegrees(18.0), &ZmanPrimitive::LocalMeanTime(12.0), 3.0),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA18DegreesToFixedLocalChatzos",
-    name: "The latest time to recite morning Shema according to the Magen Avraham view, using Rav Moshe Feinstein's approach of measuring the day from dawn to nightfall but using only the first half of the day.",
+    name: "Sof Zman Shma (MGA, 18 Degrees to Fixed Local Chatzos)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite morning Shema according to the Magen Avraham view, using Rav Moshe Feinstein's approach of measuring the day from dawn to nightfall but using only the first half of the day.".to_string(),
+    description: |_| "The latest time to recite morning Shema according to the Magen Avraham approach, using a day measured from dawn to nightfall and limited to the first half of that day. It is based on alos at 18 degrees and fixed local chatzos. The half-day runs from alos until fixed local chatzos, and sof zman shema is 3 shaos zmaniyos after alos, which is the midpoint of that half-day. At very high latitudes, where the sun does not reach low enough below the horizon for this calculation, the zman may not be available.".to_string(),
 };
 
-/// The latest time to recite morning Shema according to the Magen Avraham, using dawn at 19.8 degrees before sunrise.
+/// The latest time to recite morning Shema according to the Magen Avraham opinion, using dawn at 19.8 degrees before sunrise. It is 3 shaos zmaniyos after dawn, with the day measured from dawn to nightfall when both are 19.8 degrees below sunrise or sunset. In some far northern or southern locations, such as places beyond the Arctic Circle or Antarctic Circle, this zman may not be available if the sun does not reach low enough below the horizon.
 pub static SOF_ZMAN_SHMA_MGA_19_POINT_8_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::SunriseOffsetByDegrees(19.8), &ZmanPrimitive::SunsetOffsetByDegrees(19.8), true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::SunriseOffsetByDegrees(19.8), &ZmanPrimitive::SunsetOffsetByDegrees(19.8), true),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA19Point8Degrees",
-    name: "The latest time to recite morning Shema according to the Magen Avraham, using dawn at 19.8 degrees before sunrise.",
+    name: "Sof Zman Shma (MGA, 19.8 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite morning Shema according to the Magen Avraham, using dawn at 19.8 degrees before sunrise.".to_string(),
+    description: |_| "The latest time to recite morning Shema according to the Magen Avraham opinion, using dawn at 19.8 degrees before sunrise. It is 3 shaos zmaniyos after dawn, with the day measured from dawn to nightfall when both are 19.8 degrees below sunrise or sunset. In some far northern or southern locations, such as places beyond the Arctic Circle or Antarctic Circle, this zman may not be available if the sun does not reach low enough below the horizon.".to_string(),
 };
 
-/// The latest time to recite the morning Shema according to the Magen Avraham, using dawn that is 72 minutes before sunrise.
+/// The latest time to recite morning Shema according to the Magen Avraham opinion, using alos 72 minutes before sunrise and nightfall 72 minutes after sunset. It is 3 shaos zmaniyos after alos 72 minutes before sunrise. If the calculation cannot be computed, such as in places like the Arctic Circle where the sun may not rise or set on certain days, the zman may not be available.
 pub static SOF_ZMAN_SHMA_MGA_72_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA72Minutes",
-    name: "The latest time to recite the morning Shema according to the Magen Avraham, using dawn that is 72 minutes before sunrise.",
+    name: "Sof Zman Shma (MGA, 72 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite the morning Shema according to the Magen Avraham, using dawn that is 72 minutes before sunrise.".to_string(),
+    description: |_| "The latest time to recite morning Shema according to the Magen Avraham opinion, using alos 72 minutes before sunrise and nightfall 72 minutes after sunset. It is 3 shaos zmaniyos after alos 72 minutes before sunrise. If the calculation cannot be computed, such as in places like the Arctic Circle where the sun may not rise or set on certain days, the zman may not be available.".to_string(),
 };
 
-/// The latest time to recite Shema in the morning according to the Magen Avraham opinion, using a day measured from dawn to nightfall but based on the first half of the day only.
+/// The latest time to recite Shema in the morning according to the Magen Avraham view, using a day measured from dawn to nightfall but based only on the first half of the day. It is calculated from alos defined as 72 minutes before sunrise up to fixed local chatzos. Sof zman Shema is 3 shaos zmaniyos after that alos, or half of that half-day. The calculation may not be available for locations where the sun may not reach low enough below the horizon for this zman to be calculated, such as some northern and southern locations near and beyond the polar circles.
 pub static SOF_ZMAN_SHMA_MGA_72_MINUTES_TO_FIXED_LOCAL_CHATZOS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::HalfDayBasedOffset( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::LocalMeanTime(12.0), 3.0, ),
+    event: ZmanPrimitive::HalfDayBasedOffset(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::LocalMeanTime(12.0), 3.0),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA72MinutesToFixedLocalChatzos",
-    name: "The latest time to recite Shema in the morning according to the Magen Avraham opinion, using a day measured from dawn to nightfall but based on the first half of the day only.",
+    name: "Sof Zman Shma (MGA, 72 Minutes to Fixed Local Chatzos)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite Shema in the morning according to the Magen Avraham opinion, using a day measured from dawn to nightfall but based on the first half of the day only.".to_string(),
+    description: |_| "The latest time to recite Shema in the morning according to the Magen Avraham view, using a day measured from dawn to nightfall but based only on the first half of the day. It is calculated from alos defined as 72 minutes before sunrise up to fixed local chatzos. Sof zman Shema is 3 shaos zmaniyos after that alos, or half of that half-day. The calculation may not be available for locations where the sun may not reach low enough below the horizon for this zman to be calculated, such as some northern and southern locations near and beyond the polar circles.".to_string(),
 };
 
-/// The latest time to recite morning Shema according to the Magen Avraham, using a day that begins 72 zmanis minutes before sunrise and ends 72 zmanis minutes after sunset.
+/// The latest time for morning Shema according to the Magen Avraham opinion, using a dawn that is 72 minutes zmaniyos before sea level sunrise. It is 3 shaos zmaniyos after alos 72 zmaniyos, equivalent to the latest Shema time based on a day measured from 72 minutes zmaniyos before sea level sunrise until 72 minutes zmaniyos after sea level sunset. If the zman cannot be calculated, such as in places and times where the sun does not rise or set, the zman may not be available.
 pub static SOF_ZMAN_SHMA_MGA_72_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2), true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2), true),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA72MinutesZmanis",
-    name: "The latest time to recite morning Shema according to the Magen Avraham, using a day that begins 72 zmanis minutes before sunrise and ends 72 zmanis minutes after sunset.",
+    name: "Sof Zman Shma (MGA, 72 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite morning Shema according to the Magen Avraham, using a day that begins 72 zmanis minutes before sunrise and ends 72 zmanis minutes after sunset.".to_string(),
+    description: |_| "The latest time for morning Shema according to the Magen Avraham opinion, using a dawn that is 72 minutes zmaniyos before sea level sunrise. It is 3 shaos zmaniyos after alos 72 zmaniyos, equivalent to the latest Shema time based on a day measured from 72 minutes zmaniyos before sea level sunrise until 72 minutes zmaniyos after sea level sunset. If the zman cannot be calculated, such as in places and times where the sun does not rise or set, the zman may not be available.".to_string(),
 };
 
-/// The latest time to recite Shema in the morning according to the Magen Avraham, using dawn 90 minutes before sunrise as the start of the day.
+/// The latest time to recite Shema in the morning according to the Magen Avraham, using dawn 90 minutes before sunrise. It is 3 seasonal hours after dawn, where the day is measured from dawn 90 minutes before sunrise to nightfall 90 minutes after sunset. The zman may not be available where the sun does not rise or set, such as in the Arctic Circle. {use_astronomical_chatzos_for_other_zmanim}
 pub static SOF_ZMAN_SHMA_MGA_90_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)), true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)), true),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA90Minutes",
-    name: "The latest time to recite Shema in the morning according to the Magen Avraham, using dawn 90 minutes before sunrise as the start of the day.",
+    name: "Sof Zman Shma (MGA, 90 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite Shema in the morning according to the Magen Avraham, using dawn 90 minutes before sunrise as the start of the day.".to_string(),
+    description: |_| "The latest time to recite Shema in the morning according to the Magen Avraham, using dawn 90 minutes before sunrise. It is 3 seasonal hours after dawn, where the day is measured from dawn 90 minutes before sunrise to nightfall 90 minutes after sunset. The zman may not be available where the sun does not rise or set, such as in the Arctic Circle. {use_astronomical_chatzos_for_other_zmanim}".to_string(),
 };
 
-/// The latest time to recite Shema in the morning according to Rav Moshe Feinstein's approach to the Magen Avraham opinion, using a day measured from dawn to fixed local chatzos.
+/// The latest time to recite morning Shema according to Rav Moshe Feinstein's approach based on the Magen Avraham view of the day. This is calculated using the first half of the day, starting at 90 minutes before sunrise and ending at fixed local chatzos. Sof zman Shema is 3 shaos zmaniyos after that starting point, or half of that half-day. The zman may not be available in very high-latitude locations where the sun does not reach low enough below the horizon for this calculation.
 pub static SOF_ZMAN_SHMA_MGA_90_MINUTES_TO_FIXED_LOCAL_CHATZOS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::HalfDayBasedOffset( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)), &ZmanPrimitive::LocalMeanTime(12.0), 3.0, ),
+    event: ZmanPrimitive::HalfDayBasedOffset(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)), &ZmanPrimitive::LocalMeanTime(12.0), 3.0),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA90MinutesToFixedLocalChatzos",
-    name: "The latest time to recite Shema in the morning according to Rav Moshe Feinstein's approach to the Magen Avraham opinion, using a day measured from dawn to fixed local chatzos.",
+    name: "Sof Zman Shma (MGA, 90 Minutes to Fixed Local Chatzos)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite Shema in the morning according to Rav Moshe Feinstein's approach to the Magen Avraham opinion, using a day measured from dawn to fixed local chatzos.".to_string(),
+    description: |_| "The latest time to recite morning Shema according to Rav Moshe Feinstein's approach based on the Magen Avraham view of the day. This is calculated using the first half of the day, starting at 90 minutes before sunrise and ending at fixed local chatzos. Sof zman Shema is 3 shaos zmaniyos after that starting point, or half of that half-day. The zman may not be available in very high-latitude locations where the sun does not reach low enough below the horizon for this calculation.".to_string(),
 };
 
-/// The latest time to recite morning Shema according to the Magen Avraham, using a day that begins 90 minutes zmaniyos before sunrise.
+/// The latest time to recite morning Shema according to the Magen Avraham, using a day defined by dawn 90 zmaniyos before sunrise and nightfall 90 zmaniyos after sunset. It is 3 shaos zmaniyos after dawn, where dawn is 90 zmaniyos before sunrise. If the time cannot be calculated, the zman may not be available. This is based on a day measured from dawn 90 zmaniyos before sunrise to nightfall 90 zmaniyos after sunset.
 pub static SOF_ZMAN_SHMA_MGA_90_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.5), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.5), true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.5), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.5), true),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA90MinutesZmanis",
-    name: "The latest time to recite morning Shema according to the Magen Avraham, using a day that begins 90 minutes zmaniyos before sunrise.",
+    name: "Sof Zman Shma (MGA, 90 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite morning Shema according to the Magen Avraham, using a day that begins 90 minutes zmaniyos before sunrise.".to_string(),
+    description: |_| "The latest time to recite morning Shema according to the Magen Avraham, using a day defined by dawn 90 zmaniyos before sunrise and nightfall 90 zmaniyos after sunset. It is 3 shaos zmaniyos after dawn, where dawn is 90 zmaniyos before sunrise. If the time cannot be calculated, the zman may not be available. This is based on a day measured from dawn 90 zmaniyos before sunrise to nightfall 90 zmaniyos after sunset.".to_string(),
 };
 
-/// The latest time to recite morning Shema according to the Magen Avraham opinion, using dawn that is 96 minutes before sunrise.
+/// The latest time to recite the morning Shema according to the Magen Avraham opinion, using a 96-minute dawn before sunrise. It is 3 shaos zmaniyos after 96-minute dawn. The day is treated as running from 96-minute dawn to 96-minute nightfall, and the result is calculated as 3 times the 96-minute shaah zmanis after dawn. If the time cannot be calculated, such as in the Arctic Circle when the sun does not rise or does not set on a given day, the zman may not be available.
 pub static SOF_ZMAN_SHMA_MGA_96_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)), true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)), true),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA96Minutes",
-    name: "The latest time to recite morning Shema according to the Magen Avraham opinion, using dawn that is 96 minutes before sunrise.",
+    name: "Sof Zman Shma (MGA, 96 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite morning Shema according to the Magen Avraham opinion, using dawn that is 96 minutes before sunrise.".to_string(),
+    description: |_| "The latest time to recite the morning Shema according to the Magen Avraham opinion, using a 96-minute dawn before sunrise. It is 3 shaos zmaniyos after 96-minute dawn. The day is treated as running from 96-minute dawn to 96-minute nightfall, and the result is calculated as 3 times the 96-minute shaah zmanis after dawn. If the time cannot be calculated, such as in the Arctic Circle when the sun does not rise or does not set on a given day, the zman may not be available.".to_string(),
 };
 
-/// The latest time to recite Shema in the morning according to the Magen Avraham, using a day that begins 96 minutes zmaniyos before sunrise and ends 96 minutes zmaniyos after sunset.
+/// The latest time to recite Shema in the morning according to the Magen Avraham opinion, using a 96-minutes-zmaniyos dawn before sunrise. It is 3 shaos zmaniyos after dawn, where the day is measured from dawn at 96 minutes zmaniyos before sunrise to nightfall at 96 minutes zmaniyos after sunset. If the time cannot be calculated, such as in places or seasons where the sun does not rise or does not set, the zman may not be available.
 pub static SOF_ZMAN_SHMA_MGA_96_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.6), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.6), true, ),
+    event: ZmanPrimitive::Shema(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.6), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.6), true),
     #[cfg(test)]
     method_name: "getSofZmanShmaMGA96MinutesZmanis",
-    name: "The latest time to recite Shema in the morning according to the Magen Avraham, using a day that begins 96 minutes zmaniyos before sunrise and ends 96 minutes zmaniyos after sunset.",
+    name: "Sof Zman Shma (MGA, 96 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite Shema in the morning according to the Magen Avraham, using a day that begins 96 minutes zmaniyos before sunrise and ends 96 minutes zmaniyos after sunset.".to_string(),
+    description: |_| "The latest time to recite Shema in the morning according to the Magen Avraham opinion, using a 96-minutes-zmaniyos dawn before sunrise. It is 3 shaos zmaniyos after dawn, where the day is measured from dawn at 96 minutes zmaniyos before sunrise to nightfall at 96 minutes zmaniyos after sunset. If the time cannot be calculated, such as in places or seasons where the sun does not rise or does not set, the zman may not be available.".to_string(),
 };
 
-/// The latest time to recite the morning prayers, calculated as 2 hours before chatzos hayom (midday).
+/// The latest time for morning prayer, calculated as 2 hours before chatzos hayom. Calculated as 2 hours before chatzos hayom. The documentation notes that this follows the opinions that calculate sof zman krias shema as 3 hours before chatzos. The zman may not be available or cannot be calculated in locations such as the Arctic Circle, where there is at least one day each year with no sunrise and one with no sunset.
 pub static SOF_ZMAN_TFILA_2_HOURS_BEFORE_CHATZOS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::SolarTransit, Duration::from_mins(-120)),
     #[cfg(test)]
     method_name: "getSofZmanTfila2HoursBeforeChatzos",
-    name: "The latest time to recite the morning prayers, calculated as 2 hours before chatzos hayom (midday).",
+    name: "Sof Zman Tfila (2 Hours Before Chatzos)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite the morning prayers, calculated as 2 hours before chatzos hayom (midday).".to_string(),
+    description: |_| "The latest time for morning prayer, calculated as 2 hours before chatzos hayom. Calculated as 2 hours before chatzos hayom. The documentation notes that this follows the opinions that calculate sof zman krias shema as 3 hours before chatzos. The zman may not be available or cannot be calculated in locations such as the Arctic Circle, where there is at least one day each year with no sunrise and one with no sunset.".to_string(),
 };
 
-/// The latest time to recite the morning prayers according to the Ateret Torah calculation.
+/// The latest time for morning prayer, calculated according to the Ateret Torah approach. It is calculated as 4 shaos zmaniyos after alos 72 zmaniyos. In this approach, the day begins 1/10 of the day before sunrise and normally ends 40 minutes after sunset, with the sunset offset configurable to a different value. Based on this calculation, chatzos is not at midday. The zman may not be available if the calculation cannot be computed, such as in locations where the sun does not rise or does not set on a given day.
 pub static SOF_ZMAN_TFILA_ATERET_TORAH: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::TzaisAteretTorah, false, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::TzaisAteretTorah, false),
     #[cfg(test)]
     method_name: "getSofZmanTfilaAteretTorah",
-    name: "The latest time to recite the morning prayers according to the Ateret Torah calculation.",
+    name: "Sof Zman Tfila (Ateret Torah)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite the morning prayers according to the Ateret Torah calculation.".to_string(),
+    description: |_| "The latest time for morning prayer, calculated according to the Ateret Torah approach. It is calculated as 4 shaos zmaniyos after alos 72 zmaniyos. In this approach, the day begins 1/10 of the day before sunrise and normally ends 40 minutes after sunset, with the sunset offset configurable to a different value. Based on this calculation, chatzos is not at midday. The zman may not be available if the calculation cannot be computed, such as in locations where the sun does not rise or does not set on a given day.".to_string(),
 };
 
-/// The latest time for morning prayer according to the Baal Hatanya, based on a day measured from sunrise to sunset.
+/// The latest time to recite the morning prayers according to the Baal Hatanya's view. It is 4 halachic hours after sunrise, using the Baal Hatanya day length based on sunrise to sunset. The zman may not be available in places and on days where sunrise or sunset cannot be calculated, such as in the Arctic Circle.
 pub static SOF_ZMAN_TFILA_BAAL_HATANYA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::SunriseOffsetByDegrees(1.583), &ZmanPrimitive::SunsetOffsetByDegrees(1.583), true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaBaalHatanya",
-    name: "The latest time for morning prayer according to the Baal Hatanya, based on a day measured from sunrise to sunset.",
+    name: "Sof Zman Tfila (Baal Hatanya)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for morning prayer according to the Baal Hatanya, based on a day measured from sunrise to sunset.".to_string(),
+    description: |_| "The latest time to recite the morning prayers according to the Baal Hatanya's view. It is 4 halachic hours after sunrise, using the Baal Hatanya day length based on sunrise to sunset. The zman may not be available in places and on days where sunrise or sunset cannot be calculated, such as in the Arctic Circle.".to_string(),
 };
 
-/// The latest zman tfila, based on the GRA, for reciting morning shema.
+/// The latest time for morning shema, calculated according to the GRA. It is 4 shaos zmaniyos after sunrise or sea level sunrise, depending on the elevation setting. The day used for the calculation runs from sunrise to sunset or from sea level sunrise to sea level sunset, depending on the elevation setting. If the zman cannot be computed, such as in places where the sun does not rise or does not set on a given day, the zman may not be available.
 pub static SOF_ZMAN_TFILA_GRA: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::ConfiguredSunset, true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaGRA",
-    name: "The latest zman tfila, based on the GRA, for reciting morning shema.",
+    name: "Sof Zman Tfila (GR'A)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest zman tfila, based on the GRA, for reciting morning shema.".to_string(),
+    description: |_| "The latest time for morning shema, calculated according to the GRA. It is 4 shaos zmaniyos after sunrise or sea level sunrise, depending on the elevation setting. The day used for the calculation runs from sunrise to sunset or from sea level sunrise to sea level sunset, depending on the elevation setting. If the zman cannot be computed, such as in places where the sun does not rise or does not set on a given day, the zman may not be available.".to_string(),
 };
 
-/// The latest time to recite the morning prayers according to Rav Moshe Feinstein's opinion, following the GRA's day definition but based on the first half of the day.
+/// The latest time for morning prayers according to Rav Moshe Feinstein's view of sof zman tfila based on the GRA's sunrise-to-sunset day, but using only the first half of the day. It is calculated as 4 shaos zmaniyos after sunrise, which is the same as 2/3 of the time from sunrise until fixed local chatzos. The zman may not be available in far northern or southern locations, including places south of the Arctic Circle or north of the Antarctic Circle, where the sun may not go low enough below the horizon for this calculation.
 pub static SOF_ZMAN_TFILA_GRASUNRISE_TO_FIXED_LOCAL_CHATZOS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::HalfDayBasedOffset( &ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::LocalMeanTime(12.0), 4.0, ),
+    event: ZmanPrimitive::HalfDayBasedOffset(&ZmanPrimitive::ConfiguredSunrise, &ZmanPrimitive::LocalMeanTime(12.0), 4.0),
     #[cfg(test)]
     method_name: "getSofZmanTfilaGRASunriseToFixedLocalChatzos",
-    name: "The latest time to recite the morning prayers according to Rav Moshe Feinstein's opinion, following the GRA's day definition but based on the first half of the day.",
+    name: "Sof Zman Tfila (GR'A, Sunrise to Fixed Local Chatzos)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite the morning prayers according to Rav Moshe Feinstein's opinion, following the GRA's day definition but based on the first half of the day.".to_string(),
+    description: |_| "The latest time for morning prayers according to Rav Moshe Feinstein's view of sof zman tfila based on the GRA's sunrise-to-sunset day, but using only the first half of the day. It is calculated as 4 shaos zmaniyos after sunrise, which is the same as 2/3 of the time from sunrise until fixed local chatzos. The zman may not be available in far northern or southern locations, including places south of the Arctic Circle or north of the Antarctic Circle, where the sun may not go low enough below the horizon for this calculation.".to_string(),
 };
 
-/// The latest time for morning prayers according to the Magen Avraham approach, using a very early dawn 120 minutes before sunrise. It is described as an extremely early zman and a strong stringency.
+/// The latest time to recite the morning prayers according to the Magen Avraham's view, using a 120-minute dawn before sunrise and a 120-minute nightfall after sunset. It is 4 shaos zmaniyos after dawn that is 120 minutes before sunrise. In this approach, the day runs from that dawn to nightfall that is 120 minutes after sunset. This is described as an extremely early zman and a chumra. If the calculation cannot be computed, such as in the Arctic Circle where there are days when the sun does not rise or does not set, the zman may not be available or cannot be calculated in that situation.
 pub static SOF_ZMAN_TFILA_MGA_120_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-120)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)), true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaMGA120Minutes",
-    name: "The latest time for morning prayers according to the Magen Avraham approach, using a very early dawn 120 minutes before sunrise. It is described as an extremely early zman and a strong stringency.",
+    name: "Sof Zman Tfila (MGA, 120 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for morning prayers according to the Magen Avraham approach, using a very early dawn 120 minutes before sunrise. It is described as an extremely early zman and a strong stringency.".to_string(),
+    description: |_| "The latest time to recite the morning prayers according to the Magen Avraham's view, using a 120-minute dawn before sunrise and a 120-minute nightfall after sunset. It is 4 shaos zmaniyos after dawn that is 120 minutes before sunrise. In this approach, the day runs from that dawn to nightfall that is 120 minutes after sunset. This is described as an extremely early zman and a chumra. If the calculation cannot be computed, such as in the Arctic Circle where there are days when the sun does not rise or does not set, the zman may not be available or cannot be calculated in that situation.".to_string(),
 };
 
-/// The latest zman tfila according to the Magen Avraham, using dawn that is 16.1 degrees before sunrise.
+/// The latest zman tfila, the deadline for reciting the morning prayers, according to the Magen Avraham (MGA) opinion. It is 4 shaos zmaniyos after alos at 16.1 degrees before sunrise. In this approach, the day is measured from dawn to nightfall, with both based on 16.1 degrees below sunrise or sunset. At some northern or southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, the zman may not be available because the sun may not reach low enough below the horizon for this calculation.
 pub static SOF_ZMAN_TFILA_MGA_16_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::SunriseOffsetByDegrees(16.1), &ZmanPrimitive::SunsetOffsetByDegrees(16.1), true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaMGA16Point1Degrees",
-    name: "The latest zman tfila according to the Magen Avraham, using dawn that is 16.1 degrees before sunrise.",
+    name: "Sof Zman Tfila (MGA, 16.1 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest zman tfila according to the Magen Avraham, using dawn that is 16.1 degrees before sunrise.".to_string(),
+    description: |_| "The latest zman tfila, the deadline for reciting the morning prayers, according to the Magen Avraham (MGA) opinion. It is 4 shaos zmaniyos after alos at 16.1 degrees before sunrise. In this approach, the day is measured from dawn to nightfall, with both based on 16.1 degrees below sunrise or sunset. At some northern or southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, the zman may not be available because the sun may not reach low enough below the horizon for this calculation.".to_string(),
 };
 
-/// The latest time for morning prayers according to the Magen Avraham opinion, using dawn that is 18 degrees below sunrise as the start of the day.
+/// The latest time for reciting the morning prayers according to the Magen Avraham opinion, using dawn set at 18 degrees before sunrise and nightfall set at 18 degrees below sunset. It is calculated as 4 shaos zmaniyos after dawn, where the day is measured from 18 degrees before sunrise to 18 degrees below sunset. If the sun does not reach low enough below the horizon for this calculation, the zman may not be available. This calculation is based on the Magen Avraham view that the day runs from dawn to nightfall using 18 degree solar depression.
 pub static SOF_ZMAN_TFILA_MGA_18_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::SunriseOffsetByDegrees(18.0), &ZmanPrimitive::SunsetOffsetByDegrees(18.0), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::SunriseOffsetByDegrees(18.0), &ZmanPrimitive::SunsetOffsetByDegrees(18.0), true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaMGA18Degrees",
-    name: "The latest time for morning prayers according to the Magen Avraham opinion, using dawn that is 18 degrees below sunrise as the start of the day.",
+    name: "Sof Zman Tfila (MGA, 18 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for morning prayers according to the Magen Avraham opinion, using dawn that is 18 degrees below sunrise as the start of the day.".to_string(),
+    description: |_| "The latest time for reciting the morning prayers according to the Magen Avraham opinion, using dawn set at 18 degrees before sunrise and nightfall set at 18 degrees below sunset. It is calculated as 4 shaos zmaniyos after dawn, where the day is measured from 18 degrees before sunrise to 18 degrees below sunset. If the sun does not reach low enough below the horizon for this calculation, the zman may not be available. This calculation is based on the Magen Avraham view that the day runs from dawn to nightfall using 18 degree solar depression.".to_string(),
 };
 
-/// The latest morning prayer time according to the Magen Avraham opinion, using dawn defined as 19.8 degrees before sunrise. The docs also refer to it as the latest zman krias shema.
+/// The latest time for morning prayers according to the Magen Avraham opinion, using dawn that is 19.8 degrees before sunrise. It is 4 seasonal hours after dawn, where dawn is 19.8 degrees below sunrise. At some locations, especially far north or far south, this zman may not be available because the sun may not reach far enough below the horizon for the calculation.
 pub static SOF_ZMAN_TFILA_MGA_19_POINT_8_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::SunriseOffsetByDegrees(19.8), &ZmanPrimitive::SunsetOffsetByDegrees(19.8), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::SunriseOffsetByDegrees(19.8), &ZmanPrimitive::SunsetOffsetByDegrees(19.8), true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaMGA19Point8Degrees",
-    name: "The latest morning prayer time according to the Magen Avraham opinion, using dawn defined as 19.8 degrees before sunrise. The docs also refer to it as the latest zman krias shema.",
+    name: "Sof Zman Tfila (MGA, 19.8 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest morning prayer time according to the Magen Avraham opinion, using dawn defined as 19.8 degrees before sunrise. The docs also refer to it as the latest zman krias shema.".to_string(),
+    description: |_| "The latest time for morning prayers according to the Magen Avraham opinion, using dawn that is 19.8 degrees before sunrise. It is 4 seasonal hours after dawn, where dawn is 19.8 degrees below sunrise. At some locations, especially far north or far south, this zman may not be available because the sun may not reach far enough below the horizon for the calculation.".to_string(),
 };
 
-/// The latest time for morning shema according to the Magen Avraham approach, based on a day measured from 72 minutes before sunrise to 72 minutes after sunset.
+/// The latest time to recite Shema in the morning, calculated according to the Magen Avraham approach using a 72-minute day. It is 4 shaos zmaniyos after alos 72 minutes. The day is measured from 72 minutes before sunrise to 72 minutes after sunset. Use of elevation depends on the elevation setting. The zman may not be available where the sun does not rise or set, such as in the Arctic Circle.
 pub static SOF_ZMAN_TFILA_MGA_72_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-72)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)), true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaMGA72Minutes",
-    name: "The latest time for morning shema according to the Magen Avraham approach, based on a day measured from 72 minutes before sunrise to 72 minutes after sunset.",
+    name: "Sof Zman Tfila (MGA, 72 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for morning shema according to the Magen Avraham approach, based on a day measured from 72 minutes before sunrise to 72 minutes after sunset.".to_string(),
+    description: |_| "The latest time to recite Shema in the morning, calculated according to the Magen Avraham approach using a 72-minute day. It is 4 shaos zmaniyos after alos 72 minutes. The day is measured from 72 minutes before sunrise to 72 minutes after sunset. Use of elevation depends on the elevation setting. The zman may not be available where the sun does not rise or set, such as in the Arctic Circle.".to_string(),
 };
 
-/// The latest time for morning prayer according to the Magen Avraham opinion, using a dawn that is 72 zmaniyos minutes before sunrise.
+/// The latest time for morning prayers according to the Magen Avraham opinion, using a day that begins at dawn 72 zmaniyos minutes before sunrise. It is 4 shaos zmaniyos after dawn, where dawn is 72 zmaniyos minutes before sunrise. This zman may not be available if the calculation cannot be computed, such as in locations and times where the sun does not rise or does not set.
 pub static SOF_ZMAN_TFILA_MGA_72_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.2), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2), true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaMGA72MinutesZmanis",
-    name: "The latest time for morning prayer according to the Magen Avraham opinion, using a dawn that is 72 zmaniyos minutes before sunrise.",
+    name: "Sof Zman Tfila (MGA, 72 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for morning prayer according to the Magen Avraham opinion, using a dawn that is 72 zmaniyos minutes before sunrise.".to_string(),
+    description: |_| "The latest time for morning prayers according to the Magen Avraham opinion, using a day that begins at dawn 72 zmaniyos minutes before sunrise. It is 4 shaos zmaniyos after dawn, where dawn is 72 zmaniyos minutes before sunrise. This zman may not be available if the calculation cannot be computed, such as in locations and times where the sun does not rise or does not set.".to_string(),
 };
 
-/// The latest time to recite the morning prayers according to the Magen Avraham opinion, using dawn 90 minutes before sunrise as the start of the day.
+/// The latest time for morning prayers according to the Magen Avraham opinion, using dawn 90 minutes before sunrise and nightfall 90 minutes after sunset. It is 4 shaos zmaniyos after dawn, where the day is measured from 90 minutes before sunrise to 90 minutes after sunset. The zman may not be available in locations or on days where the sun does not rise or does not set, such as in the Arctic Circle.
 pub static SOF_ZMAN_TFILA_MGA_90_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-90)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)), true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaMGA90Minutes",
-    name: "The latest time to recite the morning prayers according to the Magen Avraham opinion, using dawn 90 minutes before sunrise as the start of the day.",
+    name: "Sof Zman Tfila (MGA, 90 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite the morning prayers according to the Magen Avraham opinion, using dawn 90 minutes before sunrise as the start of the day.".to_string(),
+    description: |_| "The latest time for morning prayers according to the Magen Avraham opinion, using dawn 90 minutes before sunrise and nightfall 90 minutes after sunset. It is 4 shaos zmaniyos after dawn, where the day is measured from 90 minutes before sunrise to 90 minutes after sunset. The zman may not be available in locations or on days where the sun does not rise or does not set, such as in the Arctic Circle.".to_string(),
 };
 
-/// The latest time for morning prayers according to the Magen Avraham, using a day that starts with dawn 90 zmaniyos minutes before sunrise.
+/// The latest time for morning prayers according to the Magen Avraham opinion, using a day that starts 90 zmaniyos minutes before sunrise and ends 90 zmaniyos minutes after sunset. It is 4 shaos zmaniyos after alos 90 zmaniyos, where the day is measured from alos 90 zmaniyos before sunrise to tzais 90 zmaniyos after sunset. This zman may not be available in places or on days where sunrise or sunset cannot be calculated, such as in the Arctic Circle.
 pub static SOF_ZMAN_TFILA_MGA_90_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.5), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.5), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.5), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.5), true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaMGA90MinutesZmanis",
-    name: "The latest time for morning prayers according to the Magen Avraham, using a day that starts with dawn 90 zmaniyos minutes before sunrise.",
+    name: "Sof Zman Tfila (MGA, 90 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for morning prayers according to the Magen Avraham, using a day that starts with dawn 90 zmaniyos minutes before sunrise.".to_string(),
+    description: |_| "The latest time for morning prayers according to the Magen Avraham opinion, using a day that starts 90 zmaniyos minutes before sunrise and ends 90 zmaniyos minutes after sunset. It is 4 shaos zmaniyos after alos 90 zmaniyos, where the day is measured from alos 90 zmaniyos before sunrise to tzais 90 zmaniyos after sunset. This zman may not be available in places or on days where sunrise or sunset cannot be calculated, such as in the Arctic Circle.".to_string(),
 };
 
-/// The latest time to recite the morning prayers according to the Magen Avraham view, using dawn that is 96 minutes before sunrise.
+/// The latest time to recite the morning prayers according to the Magen Avraham opinion, using a day that starts 96 minutes before sunrise and ends 96 minutes after sunset. It is 4 shaos zmaniyos after dawn, where dawn is 96 minutes before sunrise and the day is measured from that dawn to 96 minutes after sunset. If the calculation cannot be computed, such as in places like the Arctic Circle where the sun does not rise or set on certain days, the zman may not be available.
 pub static SOF_ZMAN_TFILA_MGA_96_MINUTES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunrise, Duration::from_mins(-96)), &ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)), true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaMGA96Minutes",
-    name: "The latest time to recite the morning prayers according to the Magen Avraham view, using dawn that is 96 minutes before sunrise.",
+    name: "Sof Zman Tfila (MGA, 96 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time to recite the morning prayers according to the Magen Avraham view, using dawn that is 96 minutes before sunrise.".to_string(),
+    description: |_| "The latest time to recite the morning prayers according to the Magen Avraham opinion, using a day that starts 96 minutes before sunrise and ends 96 minutes after sunset. It is 4 shaos zmaniyos after dawn, where dawn is 96 minutes before sunrise and the day is measured from that dawn to 96 minutes after sunset. If the calculation cannot be computed, such as in places like the Arctic Circle where the sun does not rise or set on certain days, the zman may not be available.".to_string(),
 };
 
-/// The latest time for morning prayers according to the Magen Avraham opinion, using 96 minutes zmaniyos before sunrise for dawn.
+/// The latest time for morning prayers according to the Magen Avraham opinion, based on a day that starts at dawn 96 zmaniyos minutes before sunrise and ends at nightfall 96 zmaniyos minutes after sunset. It is 4 shaos zmaniyos after dawn, using a shaah zmanis derived from the span between dawn (96 zmaniyos minutes before sunrise) and nightfall (96 zmaniyos minutes after sunset). The zman may not be available if it cannot be calculated, such as in regions where the sun does not rise or does not set on a given day.
 pub static SOF_ZMAN_TFILA_MGA_96_MINUTES_ZMANIS: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Tefila( &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.6), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.6), true, ),
+    event: ZmanPrimitive::Tefila(&ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunrise, -1.6), &ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.6), true),
     #[cfg(test)]
     method_name: "getSofZmanTfilaMGA96MinutesZmanis",
-    name: "The latest time for morning prayers according to the Magen Avraham opinion, using 96 minutes zmaniyos before sunrise for dawn.",
+    name: "Sof Zman Tfila (MGA, 96 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "The latest time for morning prayers according to the Magen Avraham opinion, using 96 minutes zmaniyos before sunrise for dawn.".to_string(),
+    description: |_| "The latest time for morning prayers according to the Magen Avraham opinion, based on a day that starts at dawn 96 zmaniyos minutes before sunrise and ends at nightfall 96 zmaniyos minutes after sunset. It is 4 shaos zmaniyos after dawn, using a shaah zmanis derived from the span between dawn (96 zmaniyos minutes before sunrise) and nightfall (96 zmaniyos minutes after sunset). The zman may not be available if it cannot be calculated, such as in regions where the sun does not rise or does not set on a given day.".to_string(),
 };
 
-/// Solar midnight is the end of the day, and it may actually occur after midnight of the date being calculated for. It is the time when the Sun is at its lower transit, or nadir.
+/// Solar midnight is the end of the day, when the sun is at its lower transit - its nadir. It may fall after midnight of the date it is being calculated for. It is the moment when the sun transits the lower celestial meridian. For example, solar midnight for February 8 is the midnight between February 8 and February 9. Because the day length changes as declination changes, the time may not be exactly halfway between sunset and the following sunrise. See [The Definition of Chatzos](https://kosherjava.com/2020/07/02/definition-of-chatzos/) for more details on the definition of solar noon and midday. The zman may not be available in locations or times where solar midnight cannot be calculated.
 pub static SOLAR_MIDNIGHT: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SolarMidnight,
     #[cfg(test)]
     method_name: "getSolarMidnight",
-    name: "Solar midnight is the end of the day, and it may actually occur after midnight of the date being calculated for. It is the time when the Sun is at its lower transit, or nadir.",
+    name: "Chatzos Halayla",
     #[cfg(feature = "alloc")]
-    description: |_| "Solar midnight is the end of the day, and it may actually occur after midnight of the date being calculated for. It is the time when the Sun is at its lower transit, or nadir.".to_string(),
+    description: |_| "Solar midnight is the end of the day, when the sun is at its lower transit - its nadir. It may fall after midnight of the date it is being calculated for. It is the moment when the sun transits the lower celestial meridian. For example, solar midnight for February 8 is the midnight between February 8 and February 9. Because the day length changes as declination changes, the time may not be exactly halfway between sunset and the following sunrise. See [The Definition of Chatzos](https://kosherjava.com/2020/07/02/definition-of-chatzos/) for more details on the definition of solar noon and midday. The zman may not be available in locations or times where solar midnight cannot be calculated.".to_string(),
 };
 
-/// The time of sunrise, adjusted for elevation.
-pub static SUNRISE: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::ElevationAdjustedSunrise,
-    #[cfg(test)]
-    method_name: "getSunrise",
-    name: "The time of sunrise, adjusted for elevation.",
-    #[cfg(feature = "alloc")]
-    description: |_| "The time of sunrise, adjusted for elevation.".to_string(),
-};
-
-/// The time used for sunrise is the regular sunrise if sunrise occurs. If there is no sunrise that day, it is the moment when the sun reaches its easternmost position, at an azimuth of 90 degrees.
+/// Returns sunrise if sunrise occurs. If sunrise does not occur that day, it returns the time when the sun reaches its easternmost position, at an azimuth of 90 degrees. Use sunrise when available. If sunrise does not occur, use the time when the sun reaches azimuth 90 degrees. If that easternmost position also does not occur on that day, the zman may not be available. In polar regions, this easternmost-position time is close to six hours before astronomical chatzos, but it can vary by as much as 46 minutes before or after that time depending on the season and location.
 pub static SUNRISE_OR_EASTERNMOST_SOLAR_AZIMUTH: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunriseOrEasternmostSolarAzimuth,
     #[cfg(test)]
     method_name: "getSunriseOrEasternmostSolarAzimuth",
-    name: "The time used for sunrise is the regular sunrise if sunrise occurs. If there is no sunrise that day, it is the moment when the sun reaches its easternmost position, at an azimuth of 90 degrees.",
+    name: "Sunrise Or Easternmost Solar Azimuth",
     #[cfg(feature = "alloc")]
-    description: |_| "The time used for sunrise is the regular sunrise if sunrise occurs. If there is no sunrise that day, it is the moment when the sun reaches its easternmost position, at an azimuth of 90 degrees.".to_string(),
+    description: |_| "Returns sunrise if sunrise occurs. If sunrise does not occur that day, it returns the time when the sun reaches its easternmost position, at an azimuth of 90 degrees. Use sunrise when available. If sunrise does not occur, use the time when the sun reaches azimuth 90 degrees. If that easternmost position also does not occur on that day, the zman may not be available. In polar regions, this easternmost-position time is close to six hours before astronomical chatzos, but it can vary by as much as 46 minutes before or after that time depending on the season and location.".to_string(),
 };
 
-/// The elevation-adjusted sunset time.
-pub static SUNSET: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::ElevationAdjustedSunset,
-    #[cfg(test)]
-    method_name: "getSunset",
-    name: "The elevation-adjusted sunset time.",
-    #[cfg(feature = "alloc")]
-    description: |_| "The elevation-adjusted sunset time.".to_string(),
-};
-
-/// The time of sunset if sunset occurs. If sunset does not occur that day, it is the time when the sun reaches its westernmost position, at an azimuth of 270 degrees.
+/// The time of sunset when the sun sets normally, or otherwise the time when the sun reaches its westernmost position at an azimuth of 270 degrees. Use sunset if it occurs. If there is no sunset that day, use the time when the sun reaches its westernmost position (azimuth 270 degrees). If neither can be determined, the zman may not be available. In polar regions, where days can occur without sunrise or sunset, this zman is used as the day-night boundary in some opinions. This time is close to six hours after astronomical chatzos, but depending on the time of year and location in the Arctic or Antarctic, it can be up to 46 minutes before or after that time.
 pub static SUNSET_OR_WESTERNMOST_SOLAR_AZIMUTH: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOrWesternmostSolarAzimuth,
     #[cfg(test)]
     method_name: "getSunsetOrWesternmostSolarAzimuth",
-    name: "The time of sunset if sunset occurs. If sunset does not occur that day, it is the time when the sun reaches its westernmost position, at an azimuth of 270 degrees.",
+    name: "Sunset Or Westernmost Solar Azimuth",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of sunset if sunset occurs. If sunset does not occur that day, it is the time when the sun reaches its westernmost position, at an azimuth of 270 degrees.".to_string(),
+    description: |_| "The time of sunset when the sun sets normally, or otherwise the time when the sun reaches its westernmost position at an azimuth of 270 degrees. Use sunset if it occurs. If there is no sunset that day, use the time when the sun reaches its westernmost position (azimuth 270 degrees). If neither can be determined, the zman may not be available. In polar regions, where days can occur without sunrise or sunset, this zman is used as the day-night boundary in some opinions. This time is close to six hours after astronomical chatzos, but depending on the time of year and location in the Arctic or Antarctic, it can be up to 46 minutes before or after that time.".to_string(),
 };
 
-/// Returns solar noon, also called sundial noon, which is the moment when the Sun is transiting the celestial meridian.
+/// Returns solar noon, also called sundial noon - the moment when the Sun is transiting the celestial meridian. Calculated for the instant when the Sun crosses the celestial meridian. If the sun transit cannot be calculated, such as in locations and dates where the Sun does not rise or set, this zman may not be available. See [The Definition of Chatzos](https://kosherjava.com/2020/07/02/definition-of-chatzos/) for more details on the proper definition of solar noon / midday.
 pub static SUN_TRANSIT: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SolarTransit,
     #[cfg(test)]
     method_name: "getSunTransit",
-    name: "Returns solar noon, also called sundial noon, which is the moment when the Sun is transiting the celestial meridian.",
+    name: "Chatzos Hayom",
     #[cfg(feature = "alloc")]
-    description: |_| "Returns solar noon, also called sundial noon, which is the moment when the Sun is transiting the celestial meridian.".to_string(),
+    description: |_| "Returns solar noon, also called sundial noon - the moment when the Sun is transiting the celestial meridian. Calculated for the instant when the Sun crosses the celestial meridian. If the sun transit cannot be calculated, such as in locations and dates where the Sun does not rise or set, this zman may not be available. See [The Definition of Chatzos](https://kosherjava.com/2020/07/02/definition-of-chatzos/) for more details on the proper definition of solar noon / midday.".to_string(),
 };
 
-/// The earliest time for Kiddush Levana according to Rabbeinu Yonah's opinion, which allows it 3 days after the molad.
+/// The earliest time for Kiddush Levana according to Rabbeinu Yonah's view that it can be said 3 days after the molad. 3 days after the molad. The time is returned even if it falls during the day, when Kiddush Levana cannot be said. If the zman does not occur on that day, it may not be available.
 pub static TCHILAS_ZMAN_KIDUSH_LEVANA_3_DAYS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::TchilasZmanKidushLevana3Days,
     #[cfg(test)]
     method_name: "getTchilasZmanKidushLevana3Days",
-    name: "The earliest time for Kiddush Levana according to Rabbeinu Yonah's opinion, which allows it 3 days after the molad.",
+    name: "Tchilas Zman Kidush Levana (3 Days)",
     #[cfg(feature = "alloc")]
-    description: |_| "The earliest time for Kiddush Levana according to Rabbeinu Yonah's opinion, which allows it 3 days after the molad.".to_string(),
+    description: |_| "The earliest time for Kiddush Levana according to Rabbeinu Yonah's view that it can be said 3 days after the molad. 3 days after the molad. The time is returned even if it falls during the day, when Kiddush Levana cannot be said. If the zman does not occur on that day, it may not be available.".to_string(),
 };
 
-/// The earliest time for Kiddush Levana according to the views that it should not be said until 7 days after the molad.
+/// The earliest time for Kiddush Levana according to the view that it may not be said until 7 days after the molad. This time is given even if it falls during the day. The moment is 7 days after the molad. A night-only version is available if you want to limit the time to night hours.
 pub static TCHILAS_ZMAN_KIDUSH_LEVANA_7_DAYS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::TchilasZmanKidushLevana7Days,
     #[cfg(test)]
     method_name: "getTchilasZmanKidushLevana7Days",
-    name: "The earliest time for Kiddush Levana according to the views that it should not be said until 7 days after the molad.",
+    name: "Tchilas Zman Kidush Levana (7 Days)",
     #[cfg(feature = "alloc")]
-    description: |_| "The earliest time for Kiddush Levana according to the views that it should not be said until 7 days after the molad.".to_string(),
+    description: |_| "The earliest time for Kiddush Levana according to the view that it may not be said until 7 days after the molad. This time is given even if it falls during the day. The moment is 7 days after the molad. A night-only version is available if you want to limit the time to night hours.".to_string(),
 };
 
-/// A very late tzais (nightfall) based on a 120-minute delay after sunset, used only lechumra.
+#[cfg(test)]
+/// Nightfall based on 120 minutes after sunset. It is intended for lechumra only and is very late, well past the 18 degrees point where the darkest point is reached. Calculated as 120 minutes after sunset, based on the opinion of Ula that tzais is 5 mil after sunset. This follows Rav Chaim Naeh's calculation of a mil as 24 minutes, using Rambam's view. The starting point is sunset or sea level sunset, depending on elevation. Use this zman only for lechumra, such as delaying the start of nighttime mitzvos. If the sun does not rise or set on a given date and location, the zman may not be available or cannot be calculated. Deprecated because it returns a very late time and using it leniently can lead to serious halachic errors such as chillul Shabbos.
 pub static TZAIS_120_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(120)),
     #[cfg(test)]
     method_name: "getTzais120Minutes",
-    name: "A very late tzais (nightfall) based on a 120-minute delay after sunset, used only lechumra.",
+    name: "Tzais (120 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "A very late tzais (nightfall) based on a 120-minute delay after sunset, used only lechumra.".to_string(),
+    description: |_| "Nightfall based on 120 minutes after sunset. It is intended for lechumra only and is very late, well past the 18 degrees point where the darkest point is reached. Calculated as 120 minutes after sunset, based on the opinion of Ula that tzais is 5 mil after sunset. This follows Rav Chaim Naeh's calculation of a mil as 24 minutes, using Rambam's view. The starting point is sunset or sea level sunset, depending on elevation. Use this zman only for lechumra, such as delaying the start of nighttime mitzvos. If the sun does not rise or set on a given date and location, the zman may not be available or cannot be calculated. Deprecated because it returns a very late time and using it leniently can lead to serious halachic errors such as chillul Shabbos.".to_string(),
 };
 
-/// Dusk calculated as 120 zmaniyos minutes after sea level sunset. It is intended for lechumra use only, such as delaying the start of nighttime mitzvos.
+#[cfg(test)]
+/// Tzais (dusk) calculated as 120 zmaniyos minutes after sea level sunset. Calculated 120 zmaniyos minutes after sea level sunset. This zman is intended for lechumra only. It is very late and, in most places, falls well below the 18 degrees point. It may not be available in locations where the calculation cannot be computed, such as the Arctic Circle. Deprecated because it is intended for lechumra only and can be dangerous if used lekula, potentially leading to chillul Shabbos.
 pub static TZAIS_120_ZMANIS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 2.0),
     #[cfg(test)]
     method_name: "getTzais120Zmanis",
-    name: "Dusk calculated as 120 zmaniyos minutes after sea level sunset. It is intended for lechumra use only, such as delaying the start of nighttime mitzvos.",
+    name: "Tzais (120 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "Dusk calculated as 120 zmaniyos minutes after sea level sunset. It is intended for lechumra use only, such as delaying the start of nighttime mitzvos.".to_string(),
+    description: |_| "Tzais (dusk) calculated as 120 zmaniyos minutes after sea level sunset. Calculated 120 zmaniyos minutes after sea level sunset. This zman is intended for lechumra only. It is very late and, in most places, falls well below the 18 degrees point. It may not be available in locations where the calculation cannot be computed, such as the Arctic Circle. Deprecated because it is intended for lechumra only and can be dangerous if used lekula, potentially leading to chillul Shabbos.".to_string(),
 };
 
-/// The time of tzais when the sun is 16.1 degrees below the horizon.
+/// The time of tzais when the sun is 16.1 degrees below the horizon. Based on the sun's position 16.1 degrees below the horizon, which corresponds to about 72 minutes after sunset in Jerusalem according to Rabbeinu Tam's calculation around the equinox/equilux. The source notes a discussion of whether equinox or equilux should be used, but says the difference is only about 9 seconds. [around the equinox / equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/) in Jerusalem. At some extreme locations, especially far north or far south, this zman may not be available because the sun may not reach the needed depth below the horizon.
 pub static TZAIS_16_POINT_1_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(16.1),
     #[cfg(test)]
     method_name: "getTzais16Point1Degrees",
-    name: "The time of tzais when the sun is 16.1 degrees below the horizon.",
+    name: "Tzais (16.1 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of tzais when the sun is 16.1 degrees below the horizon.".to_string(),
+    description: |_| "The time of tzais when the sun is 16.1 degrees below the horizon. Based on the sun's position 16.1 degrees below the horizon, which corresponds to about 72 minutes after sunset in Jerusalem according to Rabbeinu Tam's calculation around the equinox/equilux. The source notes a discussion of whether equinox or equilux should be used, but says the difference is only about 9 seconds. [around the equinox / equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/) in Jerusalem. At some extreme locations, especially far north or far south, this zman may not be available because the sun may not reach the needed depth below the horizon.".to_string(),
 };
 
-/// The time of tzais at 18 degrees below the horizon, used as a nightfall calculation.
+/// The time when it is 18 degrees below the horizon after sunset, marking tzais at the 18-degree twilight threshold. Calculated using the same 18-degree-based approach referenced by alos 18 degrees, but for the evening after sunset. The zman may not be available for locations where the sun does not reach 18 degrees below the horizon, including some places even south of the Arctic Circle and north of the Antarctic Circle.
 pub static TZAIS_18_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(18.0),
     #[cfg(test)]
     method_name: "getTzais18Degrees",
-    name: "The time of tzais at 18 degrees below the horizon, used as a nightfall calculation.",
+    name: "Tzais (18 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of tzais at 18 degrees below the horizon, used as a nightfall calculation.".to_string(),
+    description: |_| "The time when it is 18 degrees below the horizon after sunset, marking tzais at the 18-degree twilight threshold. Calculated using the same 18-degree-based approach referenced by alos 18 degrees, but for the evening after sunset. The zman may not be available for locations where the sun does not reach 18 degrees below the horizon, including some places even south of the Arctic Circle and north of the Antarctic Circle.".to_string(),
 };
 
-/// The time of tzais when the sun is 19.8 degrees below the horizon.
+/// The time of tzais, or nightfall, when the sun is 19.8 degrees below the horizon. Calculated using the same 19.8-degree reference used for alos19Point8Degrees, but for the evening. It is the time when the sun reaches 19.8 degrees below the horizon. This zman may not be available for very northern or southern locations, including places south of the Arctic Circle and north of the Antarctic Circle, if the sun does not go low enough below the horizon for this calculation.
 pub static TZAIS_19_POINT_8_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(19.8),
     #[cfg(test)]
     method_name: "getTzais19Point8Degrees",
-    name: "The time of tzais when the sun is 19.8 degrees below the horizon.",
+    name: "Tzais (19.8 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of tzais when the sun is 19.8 degrees below the horizon.".to_string(),
+    description: |_| "The time of tzais, or nightfall, when the sun is 19.8 degrees below the horizon. Calculated using the same 19.8-degree reference used for alos19Point8Degrees, but for the evening. It is the time when the sun reaches 19.8 degrees below the horizon. This zman may not be available for very northern or southern locations, including places south of the Arctic Circle and north of the Antarctic Circle, if the sun does not go low enough below the horizon for this calculation.".to_string(),
 };
 
-/// Tzais based on when the sun is 26 degrees below the horizon.
+#[cfg(test)]
+/// A very late tzais at the point when the sun is 26 degrees below the horizon. It is intended for lechumra use only, such as delaying the start of nighttime mitzvos. Tzais is calculated when the sun is 26 degrees below the horizon. This zman is extremely late and is past the 18 degrees point where the darkest point is reached, so it should only be used lechumra. In locations far enough north or south, including places even south of the Arctic Circle and north of the Antarctic Circle, the zman may not be available or cannot be calculated if the sun does not reach 26 degrees below the horizon. Deprecated for warning purposes only. It should be used lechumra only, since using it lekula can result in chillul Shabbos.
 pub static TZAIS_26_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(26.0),
     #[cfg(test)]
     method_name: "getTzais26Degrees",
-    name: "Tzais based on when the sun is 26 degrees below the horizon.",
+    name: "Tzais (26 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "Tzais based on when the sun is 26 degrees below the horizon.".to_string(),
+    description: |_| "A very late tzais at the point when the sun is 26 degrees below the horizon. It is intended for lechumra use only, such as delaying the start of nighttime mitzvos. Tzais is calculated when the sun is 26 degrees below the horizon. This zman is extremely late and is past the 18 degrees point where the darkest point is reached, so it should only be used lechumra. In locations far enough north or south, including places even south of the Arctic Circle and north of the Antarctic Circle, the zman may not be available or cannot be calculated if the sun does not reach 26 degrees below the horizon. Deprecated for warning purposes only. It should be used lechumra only, since using it lekula can result in chillul Shabbos.".to_string(),
 };
 
-/// The time of tzais, or nightfall, set as 50 minutes after sunset.
+/// The time of tzais, or nightfall, set at 50 minutes after sunset. It is based on the opinion of Rabbi Moshe Feinstein for the New York area. 50 minutes after sunset, using sunset or sea level sunset depending on elevation. {uses_elevation} This time should not be used for locations at latitudes unlike the New York area.
 pub static TZAIS_50_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(50)),
     #[cfg(test)]
     method_name: "getTzais50Minutes",
-    name: "The time of tzais, or nightfall, set as 50 minutes after sunset.",
+    name: "Tzais (50 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of tzais, or nightfall, set as 50 minutes after sunset.".to_string(),
+    description: |_| "The time of tzais, or nightfall, set at 50 minutes after sunset. It is based on the opinion of Rabbi Moshe Feinstein for the New York area. 50 minutes after sunset, using sunset or sea level sunset depending on elevation. {uses_elevation} This time should not be used for locations at latitudes unlike the New York area.".to_string(),
 };
 
-/// Nightfall, based on the Chavas Yair and Divrei Malkiel view that a mil takes 15 minutes, so tzais is 60 minutes after sunset.
+/// Nightfall (tzais) based on the opinion of the Chavas Yair and Divrei Malkiel that 4 mil equals 60 minutes after sunset. 60 minutes after sea level sunset, based on 4 mil at 15 minutes per mil. Depending on the elevation setting, this is measured from sunset or sea level sunset. If the zman cannot be computed, it may not be available.
 pub static TZAIS_60_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(60)),
     #[cfg(test)]
     method_name: "getTzais60Minutes",
-    name: "Nightfall, based on the Chavas Yair and Divrei Malkiel view that a mil takes 15 minutes, so tzais is 60 minutes after sunset.",
+    name: "Tzais (60 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "Nightfall, based on the Chavas Yair and Divrei Malkiel view that a mil takes 15 minutes, so tzais is 60 minutes after sunset.".to_string(),
+    description: |_| "Nightfall (tzais) based on the opinion of the Chavas Yair and Divrei Malkiel that 4 mil equals 60 minutes after sunset. 60 minutes after sea level sunset, based on 4 mil at 15 minutes per mil. Depending on the elevation setting, this is measured from sunset or sea level sunset. If the zman cannot be computed, it may not be available.".to_string(),
 };
 
-/// Nightfall based on Rabbeinu Tam's view that tzais hakochavim is 72 minutes after sunset.
+/// Calculates tzais (nightfall) according to the view of Rabbeinu Tam, using 72 minutes after sunset. It is 72 standard clock minutes after sunset. Depending on elevation settings, the offset is measured from either sunset or sea level sunset. {uses_elevation} This 72-minute approach is described as standard clock minutes at any time of year and in any location. If the zman cannot be calculated, it may not be available.
 pub static TZAIS_72_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(72)),
     #[cfg(test)]
     method_name: "getTzais72Minutes",
-    name: "Nightfall based on Rabbeinu Tam's view that tzais hakochavim is 72 minutes after sunset.",
+    name: "Tzais (72 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "Nightfall based on Rabbeinu Tam's view that tzais hakochavim is 72 minutes after sunset.".to_string(),
+    description: |_| "Calculates tzais (nightfall) according to the view of Rabbeinu Tam, using 72 minutes after sunset. It is 72 standard clock minutes after sunset. Depending on elevation settings, the offset is measured from either sunset or sea level sunset. {uses_elevation} This 72-minute approach is described as standard clock minutes at any time of year and in any location. If the zman cannot be calculated, it may not be available.".to_string(),
 };
 
-/// Tzais, or dusk, calculated as 72 minutes zmaniyos after sea level sunset.
+/// Tzais (dusk) calculated as 72 minutes zmaniyos, or one tenth of the day after sea level sunset. This zman is 72 zmaniyos minutes after sea level sunset. This approach is associated with the Minchas Cohen in Ma'amar 2:4 for calculating Rebbeinu Tam's time of tzeis. The shortest time from sunset to tzais is during the winter solstice, the longest is during the summer solstice, and 72 clock minutes is at the equinox. This may not be available in places or times where the sun does not rise or does not set, such as the Arctic Circle.
 pub static TZAIS_72_ZMANIS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.2),
     #[cfg(test)]
     method_name: "getTzais72Zmanis",
-    name: "Tzais, or dusk, calculated as 72 minutes zmaniyos after sea level sunset.",
+    name: "Tzais (72 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "Tzais, or dusk, calculated as 72 minutes zmaniyos after sea level sunset.".to_string(),
+    description: |_| "Tzais (dusk) calculated as 72 minutes zmaniyos, or one tenth of the day after sea level sunset. This zman is 72 zmaniyos minutes after sea level sunset. This approach is associated with the Minchas Cohen in Ma'amar 2:4 for calculating Rebbeinu Tam's time of tzeis. The shortest time from sunset to tzais is during the winter solstice, the longest is during the summer solstice, and 72 clock minutes is at the equinox. This may not be available in places or times where the sun does not rise or does not set, such as the Arctic Circle.".to_string(),
 };
 
-/// The time of tzais, or nightfall, taken as 90 minutes after sunset. It is based on the Magen Avraham's opinion and the Rambam's view that walking a mil takes 18 minutes, for a total of 90 minutes after sunset.
+/// Returns tzais (dusk/nightfall) as 90 minutes after sunset, using sea level sunset when elevation is not used and sunset when elevation is used. It is based on the Magen Avraham's view that the time to walk a mil is 18 minutes, for a total of 90 minutes after an elevation-adjusted shkiah (sunset). A similar calculation for 19.8 degrees uses solar position calculations based on this time. If the sun does not rise or set on a given day, the zman may not be available.
 pub static TZAIS_90_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(90)),
     #[cfg(test)]
     method_name: "getTzais90Minutes",
-    name: "The time of tzais, or nightfall, taken as 90 minutes after sunset. It is based on the Magen Avraham's opinion and the Rambam's view that walking a mil takes 18 minutes, for a total of 90 minutes after sunset.",
+    name: "Tzais (90 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of tzais, or nightfall, taken as 90 minutes after sunset. It is based on the Magen Avraham's opinion and the Rambam's view that walking a mil takes 18 minutes, for a total of 90 minutes after sunset.".to_string(),
+    description: |_| "Returns tzais (dusk/nightfall) as 90 minutes after sunset, using sea level sunset when elevation is not used and sunset when elevation is used. It is based on the Magen Avraham's view that the time to walk a mil is 18 minutes, for a total of 90 minutes after an elevation-adjusted shkiah (sunset). A similar calculation for 19.8 degrees uses solar position calculations based on this time. If the sun does not rise or set on a given day, the zman may not be available.".to_string(),
 };
 
-/// Tzais, or dusk, based on 90 zmaniyos minutes - one eighth of the day - after sea level sunset. This is known in Yiddish as the achtel zman used in various kehilos.
+/// Returns tzais, or dusk, calculated as 90 zmaniyos minutes - one-eighth of the day - after sea level sunset. This is also known as the achtel zman used in some kehilos. 90 zmaniyos minutes, or one-eighth of the day, after sea level sunset. The zman may not be available where the calculation cannot be computed, such as in the Arctic Circle on days when the sun does not rise or does not set.
 pub static TZAIS_90_ZMANIS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.5),
     #[cfg(test)]
     method_name: "getTzais90Zmanis",
-    name: "Tzais, or dusk, based on 90 zmaniyos minutes - one eighth of the day - after sea level sunset. This is known in Yiddish as the achtel zman used in various kehilos.",
+    name: "Tzais (90 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "Tzais, or dusk, based on 90 zmaniyos minutes - one eighth of the day - after sea level sunset. This is known in Yiddish as the achtel zman used in various kehilos.".to_string(),
+    description: |_| "Returns tzais, or dusk, calculated as 90 zmaniyos minutes - one-eighth of the day - after sea level sunset. This is also known as the achtel zman used in some kehilos. 90 zmaniyos minutes, or one-eighth of the day, after sea level sunset. The zman may not be available where the calculation cannot be computed, such as in the Arctic Circle on days when the sun does not rise or does not set.".to_string(),
 };
 
-/// The time of tzais (dusk) calculated as 96 minutes after sunset.
+/// The time of tzais, or dusk, 96 minutes after sunset. Calculated as 96 minutes after sunset, or after sea level sunset when elevation is not used. {uses_elevation} This zman may not be available in places and seasons where sunrise or sunset cannot be calculated, such as parts of the Arctic Circle.
 pub static TZAIS_96_MINUTES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Offset(&ZmanPrimitive::ConfiguredSunset, Duration::from_mins(96)),
     #[cfg(test)]
     method_name: "getTzais96Minutes",
-    name: "The time of tzais (dusk) calculated as 96 minutes after sunset.",
+    name: "Tzais (96 Minutes)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of tzais (dusk) calculated as 96 minutes after sunset.".to_string(),
+    description: |_| "The time of tzais, or dusk, 96 minutes after sunset. Calculated as 96 minutes after sunset, or after sea level sunset when elevation is not used. {uses_elevation} This zman may not be available in places and seasons where sunrise or sunset cannot be calculated, such as parts of the Arctic Circle.".to_string(),
 };
 
-/// Tzais (dusk) based on 96 minutes zmaniyos, which is 1/7.5 of the day after sea level sunset.
+/// The time of tzais (dusk) when it is defined as 96 zmaniyos minutes, or 1/7.5 of the day, after sea level sunset. Calculated as 96 zmaniyos minutes after sea level sunset. This zman may not be available in locations where the sun does not rise or does not set on some days, such as in the Arctic Circle.
 pub static TZAIS_96_ZMANIS: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::ZmanisOffset(&ZmanPrimitive::ConfiguredSunset, 1.6),
     #[cfg(test)]
     method_name: "getTzais96Zmanis",
-    name: "Tzais (dusk) based on 96 minutes zmaniyos, which is 1/7.5 of the day after sea level sunset.",
+    name: "Tzais (96 Minutes in Shaos Zmanios)",
     #[cfg(feature = "alloc")]
-    description: |_| "Tzais (dusk) based on 96 minutes zmaniyos, which is 1/7.5 of the day after sea level sunset.".to_string(),
+    description: |_| "The time of tzais (dusk) when it is defined as 96 zmaniyos minutes, or 1/7.5 of the day, after sea level sunset. Calculated as 96 zmaniyos minutes after sea level sunset. This zman may not be available in locations where the sun does not rise or does not set on some days, such as in the Arctic Circle.".to_string(),
 };
 
-/// The time of tzais usually used for Ateret Torah, calculated as 40 minutes after sunset by default.
+/// The time of tzais based on the Ateret Torah approach, usually 40 minutes after sunset. Usually calculated as 40 minutes after sea level sunset, with the offset configurable from the default. The default offset is 40 minutes year round anywhere in the world. This offset can be changed. If the zman cannot be calculated, such as in places where the sun does not rise or set on some days, the zman may not be available.
 pub static TZAIS_ATERET_TORAH: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::TzaisAteretTorah,
     #[cfg(test)]
     method_name: "getTzaisAteretTorah",
-    name: "The time of tzais usually used for Ateret Torah, calculated as 40 minutes after sunset by default.",
+    name: "Tzais (Ateret Torah)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of tzais usually used for Ateret Torah, calculated as 40 minutes after sunset by default.".to_string(),
+    description: |_| "The time of tzais based on the Ateret Torah approach, usually 40 minutes after sunset. Usually calculated as 40 minutes after sea level sunset, with the offset configurable from the default. The default offset is 40 minutes year round anywhere in the world. This offset can be changed. If the zman cannot be calculated, such as in places where the sun does not rise or set on some days, the zman may not be available.".to_string(),
 };
 
-/// Nightfall according to the Baal Hatanya.
+/// Nightfall according to the Baal Hatanya opinion, when the sun is 6 degrees below the western horizon after sunset. This zman is calculated from sunset by waiting for the sun to reach 6 degrees below the horizon, which is described as about 24 minutes after sea-level sunset around the equinox in Jerusalem. At some northern and southern locations, including places south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available because the sun may not reach the needed position below the horizon.
 pub static TZAIS_BAAL_HATANYA: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(6.0),
     #[cfg(test)]
     method_name: "getTzaisBaalHatanya",
-    name: "Nightfall according to the Baal Hatanya.",
+    name: "Tzais (Baal Hatanya)",
     #[cfg(feature = "alloc")]
-    description: |_| "Nightfall according to the Baal Hatanya.".to_string(),
+    description: |_| "Nightfall according to the Baal Hatanya opinion, when the sun is 6 degrees below the western horizon after sunset. This zman is calculated from sunset by waiting for the sun to reach 6 degrees below the horizon, which is described as about 24 minutes after sea-level sunset around the equinox in Jerusalem. At some northern and southern locations, including places south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available because the sun may not reach the needed position below the horizon.".to_string(),
 };
 
-/// Nightfall according to the Geonim, based on the sun being 3.7 degrees below geometric zenith, which the docs describe as about 13.5 minutes after sunset.
+#[cfg(test)]
+/// Nightfall according to the Geonim, when the sun is 3.7 degrees below geometric zenith. Calculated as 13.5 minutes after sunset, or the time it takes to walk 3/4 of a mil at 18 minutes per mil. This 3.7 degrees timing matches Jerusalem around the equinox or equilux. This does not cover the 26.46 minutes needed to walk 49 amos at the pace of an 18-minute mil. This zman is deprecated.
 pub static TZAIS_GEONIM_3_POINT_7_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(3.7),
     #[cfg(test)]
     method_name: "getTzaisGeonim3Point7Degrees",
-    name: "Nightfall according to the Geonim, based on the sun being 3.7 degrees below geometric zenith, which the docs describe as about 13.5 minutes after sunset.",
+    name: "Tzais (Geonim, 3.7 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "Nightfall according to the Geonim, based on the sun being 3.7 degrees below geometric zenith, which the docs describe as about 13.5 minutes after sunset.".to_string(),
+    description: |_| "Nightfall according to the Geonim, when the sun is 3.7 degrees below geometric zenith. Calculated as 13.5 minutes after sunset, or the time it takes to walk 3/4 of a mil at 18 minutes per mil. This 3.7 degrees timing matches Jerusalem around the equinox or equilux. This does not cover the 26.46 minutes needed to walk 49 amos at the pace of an 18-minute mil. This zman is deprecated.".to_string(),
 };
 
-/// Tzais (nightfall) according to the Geonim, when the sun is 3.8 degrees below geometric zenith.
+#[cfg(test)]
+/// Nightfall based on the Geonim, when the sun is 3.8 degrees below sea level. Calculated for the time when the sun reaches 3.8 degrees below sea level, described as about 14 minutes after sunset. The docs also describe this as 13.5 minutes after sunset plus 30 seconds for 49 amos, for a total of 14 minutes after sunset. At Jerusalem around the equinox/equilux, this is the point where the sun is 3.8 degrees below geometric zenith. Deprecated.
 pub static TZAIS_GEONIM_3_POINT_8_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(3.8),
     #[cfg(test)]
     method_name: "getTzaisGeonim3Point8Degrees",
-    name: "Tzais (nightfall) according to the Geonim, when the sun is 3.8 degrees below geometric zenith.",
+    name: "Tzais (Geonim, 3.8 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "Tzais (nightfall) according to the Geonim, when the sun is 3.8 degrees below geometric zenith.".to_string(),
+    description: |_| "Nightfall based on the Geonim, when the sun is 3.8 degrees below sea level. Calculated for the time when the sun reaches 3.8 degrees below sea level, described as about 14 minutes after sunset. The docs also describe this as 13.5 minutes after sunset plus 30 seconds for 49 amos, for a total of 14 minutes after sunset. At Jerusalem around the equinox/equilux, this is the point where the sun is 3.8 degrees below geometric zenith. Deprecated.".to_string(),
 };
 
-/// Nightfall according to the Geonim, based on the sun being 4.42 degrees below the western horizon.
+#[cfg(test)]
+/// Nightfall according to the Geonim, based on the sun being 4.42 degrees below the horizon. Calculated when the sun reaches 4.42 degrees below sea level, which is presented here as 3/4 of a mil based on a 22.5-minute mil, or 16 7/8 minutes after sunset. This is a very early zman and should not be relied on without rabbinical guidance. The source notes that this does not include the 33.07 seconds it takes to walk 49 amos at the pace of a 22.5-minute mil. The zman may not be available where the sun does not reach this low below the horizon, such as some locations near and beyond the Arctic and Antarctic Circles. This zman is deprecated.
 pub static TZAIS_GEONIM_4_POINT_42_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(4.42),
     #[cfg(test)]
     method_name: "getTzaisGeonim4Point42Degrees",
-    name: "Nightfall according to the Geonim, based on the sun being 4.42 degrees below the western horizon.",
+    name: "Tzais (Geonim, 4.42 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "Nightfall according to the Geonim, based on the sun being 4.42 degrees below the western horizon.".to_string(),
+    description: |_| "Nightfall according to the Geonim, based on the sun being 4.42 degrees below the horizon. Calculated when the sun reaches 4.42 degrees below sea level, which is presented here as 3/4 of a mil based on a 22.5-minute mil, or 16 7/8 minutes after sunset. This is a very early zman and should not be relied on without rabbinical guidance. The source notes that this does not include the 33.07 seconds it takes to walk 49 amos at the pace of a 22.5-minute mil. The zman may not be available where the sun does not reach this low below the horizon, such as some locations near and beyond the Arctic and Antarctic Circles. This zman is deprecated.".to_string(),
 };
 
-/// The time of tzais (nightfall) according to the Geonim, based on when the sun is 4.66 degrees below the western horizon.
+#[cfg(test)]
+/// Nightfall according to the Geonim, using a very early time based on 3/4 of a mil with a 24-minute mil, which is 18 minutes after sunset. When the sun is 4.66 degrees below the western horizon, or 4.66 degrees below sea level. This is a very early zman and should not be relied on without rabbinical guidance. The zman may not be available at very high or very low latitudes where the sun does not reach this position below the horizon. Deprecated. A later Geonim-based nightfall time that also covers the heref ayin is available from getTzaisGeonim4Point8Degrees.
 pub static TZAIS_GEONIM_4_POINT_66_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(4.66),
     #[cfg(test)]
     method_name: "getTzaisGeonim4Point66Degrees",
-    name: "The time of tzais (nightfall) according to the Geonim, based on when the sun is 4.66 degrees below the western horizon.",
+    name: "Tzais (Geonim, 4.66 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of tzais (nightfall) according to the Geonim, based on when the sun is 4.66 degrees below the western horizon.".to_string(),
+    description: |_| "Nightfall according to the Geonim, using a very early time based on 3/4 of a mil with a 24-minute mil, which is 18 minutes after sunset. When the sun is 4.66 degrees below the western horizon, or 4.66 degrees below sea level. This is a very early zman and should not be relied on without rabbinical guidance. The zman may not be available at very high or very low latitudes where the sun does not reach this position below the horizon. Deprecated. A later Geonim-based nightfall time that also covers the heref ayin is available from getTzaisGeonim4Point8Degrees.".to_string(),
 };
 
-/// This is an early tzais (nightfall) based on the Geonim, when the sun is 4.8 degrees below the western horizon. It is described as occurring about 18.6 minutes after sunset.
+/// Nightfall according to the Geonim, when the sun is 4.8 degrees below the western horizon. Calculated as 18.6 minutes after sunset, based on 3/4 of a 24-minute mil plus 0.6 minutes for Rav Yosi's bain hashmashos. This is an early tzais and should not be relied on without rabbinical guidance. The zman may not be available in locations where the sun does not reach 4.8 degrees below the horizon.
 pub static TZAIS_GEONIM_4_POINT_8_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(4.8),
     #[cfg(test)]
     method_name: "getTzaisGeonim4Point8Degrees",
-    name: "This is an early tzais (nightfall) based on the Geonim, when the sun is 4.8 degrees below the western horizon. It is described as occurring about 18.6 minutes after sunset.",
+    name: "Tzais (Geonim, 4.8 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "This is an early tzais (nightfall) based on the Geonim, when the sun is 4.8 degrees below the western horizon. It is described as occurring about 18.6 minutes after sunset.".to_string(),
+    description: |_| "Nightfall according to the Geonim, when the sun is 4.8 degrees below the western horizon. Calculated as 18.6 minutes after sunset, based on 3/4 of a 24-minute mil plus 0.6 minutes for Rav Yosi's bain hashmashos. This is an early tzais and should not be relied on without rabbinical guidance. The zman may not be available in locations where the sun does not reach 4.8 degrees below the horizon.".to_string(),
 };
 
-/// The time of tzais, or nightfall, according to the Geonim, using the sun's position 5.95 degrees below geometric zenith.
+/// Nightfall according to the Geonim, based on the sun being 5.95 degrees below geometric zenith. This is calculated as the sun reaching 5.95 degrees below geometric zenith, which is described as about 24 minutes after sunset in Jerusalem around the equinox/equilux. The 24-minute basis is described as 18 minutes plus 4 minutes for shkiah amitis plus 2 minutes for bain hashmashos of Rav Yosi. This zman may not be available in very high-latitude locations where the sun does not reach low enough below the horizon.
 pub static TZAIS_GEONIM_5_POINT_95_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(5.95),
     #[cfg(test)]
     method_name: "getTzaisGeonim5Point95Degrees",
-    name: "The time of tzais, or nightfall, according to the Geonim, using the sun's position 5.95 degrees below geometric zenith.",
+    name: "Tzais (Geonim, 5.95 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of tzais, or nightfall, according to the Geonim, using the sun's position 5.95 degrees below geometric zenith.".to_string(),
+    description: |_| "Nightfall according to the Geonim, based on the sun being 5.95 degrees below geometric zenith. This is calculated as the sun reaching 5.95 degrees below geometric zenith, which is described as about 24 minutes after sunset in Jerusalem around the equinox/equilux. The 24-minute basis is described as 18 minutes plus 4 minutes for shkiah amitis plus 2 minutes for bain hashmashos of Rav Yosi. This zman may not be available in very high-latitude locations where the sun does not reach low enough below the horizon.".to_string(),
 };
 
-/// Nightfall according to the Geonim, as calculated by Rabbi Yechiel Tucazinsky. It is the time when the sun is 6.45 degrees below sea level.
+/// Nightfall based on the Geonim, following Rabbi Yechiel Michel Tucazinsky's 6.45 degrees definition. It is commonly used in Israel and is also used in [Luach Itim Lebinah](https://www.worldcat.org/oclc/243303103). The time when the sun is 6.45 degrees below sea level. This is described as about 30.75 minutes after sunset in Jerusalem at the summer solstice, and about 26.5 minutes after sunset around the equinox. This follows the opinion of Rabbi Yechiel Michel Tucazinsky as discussed in [Birur Halacha Yoreh Deah 262](https://hebrewbooks.org/pdfpager.aspx?req=50536&st=&pgnum=51). This differs from the 6.1 degrees / 6.2 degrees calculation attributed to Rabbi Tucazinsky in Hazmanim Bahalacha Vol II chapter 50:7.
 pub static TZAIS_GEONIM_6_POINT_45_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(6.45),
     #[cfg(test)]
     method_name: "getTzaisGeonim6Point45Degrees",
-    name: "Nightfall according to the Geonim, as calculated by Rabbi Yechiel Tucazinsky. It is the time when the sun is 6.45 degrees below sea level.",
+    name: "Tzais (Geonim, 6.45 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "Nightfall according to the Geonim, as calculated by Rabbi Yechiel Tucazinsky. It is the time when the sun is 6.45 degrees below sea level.".to_string(),
+    description: |_| "Nightfall based on the Geonim, following Rabbi Yechiel Michel Tucazinsky's 6.45 degrees definition. It is commonly used in Israel and is also used in [Luach Itim Lebinah](https://www.worldcat.org/oclc/243303103). The time when the sun is 6.45 degrees below sea level. This is described as about 30.75 minutes after sunset in Jerusalem at the summer solstice, and about 26.5 minutes after sunset around the equinox. This follows the opinion of Rabbi Yechiel Michel Tucazinsky as discussed in [Birur Halacha Yoreh Deah 262](https://hebrewbooks.org/pdfpager.aspx?req=50536&st=&pgnum=51). This differs from the 6.1 degrees / 6.2 degrees calculation attributed to Rabbi Tucazinsky in Hazmanim Bahalacha Vol II chapter 50:7.".to_string(),
 };
 
-/// Nightfall according to the Geonim, when the sun is 7.083 degrees below the western horizon.
+/// Nightfall according to the Geonim when the sun is 7.083 degrees below the western horizon. Calculated at the moment the sun reaches 7.083 degrees below the western horizon. This is based on the observation of three medium-sized stars described by Dr. Baruch (Berthold) Cohn. It was widely used in Europe and adopted by other calendars. It is close to, but not exactly, 30 minutes after sunset in Jerusalem around the equinox. In locations so far north or south that the sun does not reach this position, the zman may not be available.
 pub static TZAIS_GEONIM_7_POINT_083_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::SunsetOffsetByDegrees(7.0 + (5.0 / 60.0)),
+    event: ZmanPrimitive::SunsetOffsetByDegrees(7.083333333333333),
     #[cfg(test)]
     method_name: "getTzaisGeonim7Point083Degrees",
-    name: "Nightfall according to the Geonim, when the sun is 7.083 degrees below the western horizon.",
+    name: "Tzais (Geonim, 7.083 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "Nightfall according to the Geonim, when the sun is 7.083 degrees below the western horizon.".to_string(),
+    description: |_| "Nightfall according to the Geonim when the sun is 7.083 degrees below the western horizon. Calculated at the moment the sun reaches 7.083 degrees below the western horizon. This is based on the observation of three medium-sized stars described by Dr. Baruch (Berthold) Cohn. It was widely used in Europe and adopted by other calendars. It is close to, but not exactly, 30 minutes after sunset in Jerusalem around the equinox. In locations so far north or south that the sun does not reach this position, the zman may not be available.".to_string(),
 };
 
-/// Tzais, or nightfall, according to the Geonim, using a 7.67 degrees-based definition.
+/// Returns tzais, or nightfall, according to the Geonim, using a 7.67 degrees solar depression. The time is when the sun is 7.67 degrees below sea level, which corresponds to about 45 minutes after sunset during the summer solstice in New York. This zman may not be available in far northern or southern locations if the sun does not reach that low below the horizon.
 pub static TZAIS_GEONIM_7_POINT_67_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(7.67),
     #[cfg(test)]
     method_name: "getTzaisGeonim7Point67Degrees",
-    name: "Tzais, or nightfall, according to the Geonim, using a 7.67 degrees-based definition.",
+    name: "Tzais (Geonim, 7.67 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "Tzais, or nightfall, according to the Geonim, using a 7.67 degrees-based definition.".to_string(),
+    description: |_| "Returns tzais, or nightfall, according to the Geonim, using a 7.67 degrees solar depression. The time is when the sun is 7.67 degrees below sea level, which corresponds to about 45 minutes after sunset during the summer solstice in New York. This zman may not be available in far northern or southern locations if the sun does not reach that low below the horizon.".to_string(),
 };
 
-/// Nightfall when the sun is 8.5 degrees below the geometric horizon after sunset. It is associated with the time Rabbi Meir Posen calculated that 3 small stars are visible, which is later than the required 3 medium stars.
+/// Nightfall when the sun is 8.5 degrees below the geometric horizon after sunset. Calculated for the point 8.5 degrees below the geometric horizon after sunset. The source notes that this is about 36 minutes after sea level sunset in Jerusalem around the equinox/equilux. Rabbi Meir Posen in Ohr Meir calculated this as the time when 3 small stars are visible, which is later than the required 3 medium stars. In northern and southern locations where the sun may not reach low enough below the horizon, the zman may not be available.
 pub static TZAIS_GEONIM_8_POINT_5_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(8.5),
     #[cfg(test)]
     method_name: "getTzaisGeonim8Point5Degrees",
-    name: "Nightfall when the sun is 8.5 degrees below the geometric horizon after sunset. It is associated with the time Rabbi Meir Posen calculated that 3 small stars are visible, which is later than the required 3 medium stars.",
+    name: "Tzais (Geonim, 8.5 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "Nightfall when the sun is 8.5 degrees below the geometric horizon after sunset. It is associated with the time Rabbi Meir Posen calculated that 3 small stars are visible, which is later than the required 3 medium stars.".to_string(),
+    description: |_| "Nightfall when the sun is 8.5 degrees below the geometric horizon after sunset. Calculated for the point 8.5 degrees below the geometric horizon after sunset. The source notes that this is about 36 minutes after sea level sunset in Jerusalem around the equinox/equilux. Rabbi Meir Posen in Ohr Meir calculated this as the time when 3 small stars are visible, which is later than the required 3 medium stars. In northern and southern locations where the sun may not reach low enough below the horizon, the zman may not be available.".to_string(),
 };
 
-/// The time of tzais (nightfall) based on the stringent calculation used in the [Luach Itim Lebinah](https://www.worldcat.org/oclc/243303103).
+/// The time of tzais (nightfall) according to the stringent Luach Itim Lebinah calculation. It is calculated when the sun is 9.3 degrees below the western horizon. The zman may not be available in locations where the sun does not reach 9.3 degrees below the horizon, such as some places near the Arctic and Antarctic Circles.
 pub static TZAIS_GEONIM_9_POINT_3_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(9.3),
     #[cfg(test)]
     method_name: "getTzaisGeonim9Point3Degrees",
-    name: "The time of tzais (nightfall) based on the stringent calculation used in the [Luach Itim Lebinah](https://www.worldcat.org/oclc/243303103).",
+    name: "Tzais (Geonim, 9.3 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "The time of tzais (nightfall) based on the stringent calculation used in the [Luach Itim Lebinah](https://www.worldcat.org/oclc/243303103).".to_string(),
+    description: |_| "The time of tzais (nightfall) according to the stringent Luach Itim Lebinah calculation. It is calculated when the sun is 9.3 degrees below the western horizon. The zman may not be available in locations where the sun does not reach 9.3 degrees below the horizon, such as some places near the Arctic and Antarctic Circles.".to_string(),
 };
 
-/// Nightfall (tzais) based on the Geonim, when the sun is 9.75 degrees below the western horizon.
+/// Returns tzais, or nightfall, according to the Geonim at the time when the sun is 9.75 degrees below the western horizon. The documentation says this is also understood as 60 minutes after sunset around the equinox or equilux, and it is attributed to Rabbi Eliyahu Henkin and Rabbi Shmuel Kamenetsky. Calculated when the sun is 9.75 degrees below sea level. This zman may not be available in locations, such as some northern or southern places beyond the polar circles, where the sun does not reach far enough below the horizon for the calculation.
 pub static TZAIS_GEONIM_9_POINT_75_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::SunsetOffsetByDegrees(9.75),
     #[cfg(test)]
     method_name: "getTzaisGeonim9Point75Degrees",
-    name: "Nightfall (tzais) based on the Geonim, when the sun is 9.75 degrees below the western horizon.",
+    name: "Tzais (Geonim, 9.75 Degrees)",
     #[cfg(feature = "alloc")]
-    description: |_| "Nightfall (tzais) based on the Geonim, when the sun is 9.75 degrees below the western horizon.".to_string(),
+    description: |_| "Returns tzais, or nightfall, according to the Geonim at the time when the sun is 9.75 degrees below the western horizon. The documentation says this is also understood as 60 minutes after sunset around the equinox or equilux, and it is attributed to Rabbi Eliyahu Henkin and Rabbi Shmuel Kamenetsky. Calculated when the sun is 9.75 degrees below sea level. This zman may not be available in locations, such as some northern or southern places beyond the polar circles, where the sun does not reach far enough below the horizon for the calculation.".to_string(),
 };
 
-/// The point in time of the molad, or new moon, for that day.
+/// The point in time of the molad. Returns the instant representing the moment of the molad. If the molad does not occur on this day, the zman may not be available.
 pub static ZMAN_MOLAD: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::Molad,
     #[cfg(test)]
     method_name: "getZmanMolad",
-    name: "The point in time of the molad, or new moon, for that day.",
+    name: "Molad",
     #[cfg(feature = "alloc")]
-    description: |_| "The point in time of the molad, or new moon, for that day.".to_string(),
+    description: |_| "The point in time of the molad. Returns the instant representing the moment of the molad. If the molad does not occur on this day, the zman may not be available.".to_string(),
 };
 
 /// Every generated zman preset.
 pub static ALL: &[&ZmanPreset] = &[
+    #[cfg(test)]
     &ALOS_120_MINUTES,
+    #[cfg(test)]
     &ALOS_120_ZMANIS,
     &ALOS_16_POINT_1_DEGREES,
     &ALOS_18_DEGREES,
     &ALOS_19_DEGREES,
     &ALOS_19_POINT_8_DEGREES,
+    #[cfg(test)]
     &ALOS_26_DEGREES,
     &ALOS_60_MINUTES,
     &ALOS_72_MINUTES,
@@ -1723,6 +1750,8 @@ pub static ALL: &[&ZmanPreset] = &[
     &CHATZOS_HALAYLA,
     &CHATZOS_HAYOM,
     &CHATZOS_HAYOM_AS_HALF_DAY,
+    &ELEVATION_ADJUSTED_SUNRISE,
+    &ELEVATION_ADJUSTED_SUNSET,
     &END_ASTRONOMICAL_TWILIGHT,
     &END_CIVIL_TWILIGHT,
     &END_NAUTICAL_TWILIGHT,
@@ -1746,24 +1775,38 @@ pub static ALL: &[&ZmanPreset] = &[
     &MISHEYAKIR_10_POINT_2_DEGREES,
     &MISHEYAKIR_11_DEGREES,
     &MISHEYAKIR_11_POINT_5_DEGREES,
+    #[cfg(test)]
     &MISHEYAKIR_12_POINT_85_DEGREES,
     &MISHEYAKIR_7_POINT_65_DEGREES,
     &MISHEYAKIR_9_POINT_5_DEGREES,
     &PLAG_AHAVAT_SHALOM,
     &PLAG_ALOS_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083_DEGREES,
+    #[cfg(test)]
     &PLAG_ALOS_TO_SUNSET,
+    #[cfg(test)]
     &PLAG_HAMINCHA_120_MINUTES,
+    #[cfg(test)]
     &PLAG_HAMINCHA_120_MINUTES_ZMANIS,
+    #[cfg(test)]
     &PLAG_HAMINCHA_16_POINT_1_DEGREES,
+    #[cfg(test)]
     &PLAG_HAMINCHA_18_DEGREES,
+    #[cfg(test)]
     &PLAG_HAMINCHA_19_POINT_8_DEGREES,
+    #[cfg(test)]
     &PLAG_HAMINCHA_26_DEGREES,
     &PLAG_HAMINCHA_60_MINUTES,
+    #[cfg(test)]
     &PLAG_HAMINCHA_72_MINUTES,
+    #[cfg(test)]
     &PLAG_HAMINCHA_72_MINUTES_ZMANIS,
+    #[cfg(test)]
     &PLAG_HAMINCHA_90_MINUTES,
+    #[cfg(test)]
     &PLAG_HAMINCHA_90_MINUTES_ZMANIS,
+    #[cfg(test)]
     &PLAG_HAMINCHA_96_MINUTES,
+    #[cfg(test)]
     &PLAG_HAMINCHA_96_MINUTES_ZMANIS,
     &PLAG_HAMINCHA_ATERET_TORAH,
     &PLAG_HAMINCHA_BAAL_HATANYA,
@@ -1823,18 +1866,19 @@ pub static ALL: &[&ZmanPreset] = &[
     &SOF_ZMAN_TFILA_MGA_96_MINUTES,
     &SOF_ZMAN_TFILA_MGA_96_MINUTES_ZMANIS,
     &SOLAR_MIDNIGHT,
-    &SUNRISE,
     &SUNRISE_OR_EASTERNMOST_SOLAR_AZIMUTH,
-    &SUNSET,
     &SUNSET_OR_WESTERNMOST_SOLAR_AZIMUTH,
     &SUN_TRANSIT,
     &TCHILAS_ZMAN_KIDUSH_LEVANA_3_DAYS,
     &TCHILAS_ZMAN_KIDUSH_LEVANA_7_DAYS,
+    #[cfg(test)]
     &TZAIS_120_MINUTES,
+    #[cfg(test)]
     &TZAIS_120_ZMANIS,
     &TZAIS_16_POINT_1_DEGREES,
     &TZAIS_18_DEGREES,
     &TZAIS_19_POINT_8_DEGREES,
+    #[cfg(test)]
     &TZAIS_26_DEGREES,
     &TZAIS_50_MINUTES,
     &TZAIS_60_MINUTES,
@@ -1846,9 +1890,13 @@ pub static ALL: &[&ZmanPreset] = &[
     &TZAIS_96_ZMANIS,
     &TZAIS_ATERET_TORAH,
     &TZAIS_BAAL_HATANYA,
+    #[cfg(test)]
     &TZAIS_GEONIM_3_POINT_7_DEGREES,
+    #[cfg(test)]
     &TZAIS_GEONIM_3_POINT_8_DEGREES,
+    #[cfg(test)]
     &TZAIS_GEONIM_4_POINT_42_DEGREES,
+    #[cfg(test)]
     &TZAIS_GEONIM_4_POINT_66_DEGREES,
     &TZAIS_GEONIM_4_POINT_8_DEGREES,
     &TZAIS_GEONIM_5_POINT_95_DEGREES,

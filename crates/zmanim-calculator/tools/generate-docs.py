@@ -6,18 +6,26 @@ import json
 import os
 import random
 import sys
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+import tree_sitter_java
 from dotenv import load_dotenv
-from models import DocumentedMethod, ExtractedMethod, UserDocs
 from openai import AsyncOpenAI
+from tree_sitter import Language, Node, Parser
 
 SCRIPT_DIR = Path(__file__).parent
-INPUT = SCRIPT_DIR / "output" / "methods.json"
-OUTPUT = SCRIPT_DIR / "output" / "methods-with-documentation.json"
+DOCS_PY_OUTPUT = SCRIPT_DIR / "docs.py"
+DEPRECATED_PY_OUTPUT = SCRIPT_DIR / "deprecated.py"
 ENV_FILE = SCRIPT_DIR / ".env"
+DEFAULT_SOURCE = SCRIPT_DIR.parent / "java/src/main/java"
+INCLUDED_CLASSES = {
+    "ComprehensiveZmanimCalendar",
+    "ZmanimCalendar",
+    "AstronomicalCalendar",
+}
+SKIPPED_METHODS = set[str]()
 
 MODEL = "gpt-5.4-mini"
 REASONING_EFFORT = "low"
@@ -26,6 +34,34 @@ REQUEST_TIMEOUT_SECONDS = 120
 MAX_GENERATION_ATTEMPTS = 3
 DEFAULT_DEV_COUNT = 20
 DEFAULT_SEED = 613
+
+JAVA_LANGUAGE = Language(tree_sitter_java.language())
+JAVA_PARSER = Parser()
+JAVA_PARSER.language = JAVA_LANGUAGE
+
+
+@dataclass(frozen=True)
+class ExtractedMethod:
+    name: str
+    qualified_name: str
+    package: str
+    class_name: str
+    qualified_class: str
+    file: str
+    line: int
+    return_type: str
+    parameters: list[str]
+    annotations: list[str]
+    is_deprecated: bool
+    docs: str
+
+
+@dataclass(frozen=True)
+class UserDocs:
+    meaning: str
+    calculation: str
+    notes: list[str]
+    deprecated_note: str
 
 
 class ZmanGenerationError(RuntimeError):
@@ -100,9 +136,202 @@ characters. Return valid JSON only.
 """
 
 
+def strip_java_noise(line: str) -> str:
+    """Remove the comment delimiters and leading stars from one Javadoc line."""
+    stripped = line.strip()
+    if stripped.startswith("/**"):
+        stripped = stripped[3:]
+    if stripped.endswith("*/"):
+        stripped = stripped[:-2]
+    if stripped.startswith("*"):
+        stripped = stripped[1:]
+        if stripped.startswith(" "):
+            stripped = stripped[1:]
+    return stripped.rstrip()
+
+
+def relative_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(Path.cwd()))
+    except ValueError:
+        return str(path)
+
+
+def node_text(node: Node | None, source: bytes) -> str:
+    if node is None:
+        return ""
+    return source[node.start_byte : node.end_byte].decode("utf-8")
+
+
+def walk(node: Node) -> list[Node]:
+    """Return a depth-first list of nodes because tree-sitter has no built-in walker."""
+    nodes = [node]
+    for child in node.children:
+        nodes.extend(walk(child))
+    return nodes
+
+
+def find_child(node: Node, node_type: str) -> Node | None:
+    return next((child for child in node.children if child.type == node_type), None)
+
+
+def package_name(root: Node, source: bytes) -> str:
+    """Extract the declared Java package from a parsed compilation unit."""
+    package = find_child(root, "package_declaration")
+    if package is None:
+        return ""
+
+    for child in package.children:
+        if child.type in {"identifier", "scoped_identifier"}:
+            return node_text(child, source)
+    return ""
+
+
+def enclosing_class(node: Node, source: bytes) -> str:
+    """Build the dotted class path for methods inside nested Java types."""
+    class_names: list[str] = []
+    current = node.parent
+    while current is not None:
+        if current.type in {
+            "class_declaration",
+            "interface_declaration",
+            "record_declaration",
+            "enum_declaration",
+        }:
+            name = node_text(current.child_by_field_name("name"), source)
+            if name:
+                class_names.append(name)
+        current = current.parent
+    return ".".join(reversed(class_names))
+
+
+def has_public_modifier(method: Node) -> bool:
+    modifiers = find_child(method, "modifiers")
+    return modifiers is not None and any(
+        child.type == "public" for child in modifiers.children
+    )
+
+
+def method_annotations(method: Node, source: bytes) -> list[str]:
+    modifiers = find_child(method, "modifiers")
+    if modifiers is None:
+        return []
+    return [
+        node_text(child, source)
+        for child in modifiers.children
+        if "annotation" in child.type
+    ]
+
+
+def is_no_arg_method(method: Node) -> bool:
+    parameters = method.child_by_field_name("parameters")
+    if parameters is None:
+        return False
+    return not any("parameter" in child.type for child in parameters.children)
+
+
+def returns_instant(method: Node, source: bytes) -> bool:
+    return_type = method.child_by_field_name("type")
+    return node_text(return_type, source) in {"Instant", "java.time.Instant"}
+
+
+def preceding_javadoc(method: Node, source: bytes) -> list[str]:
+    """Find the Javadoc block attached immediately before a method declaration."""
+    sibling = method.prev_named_sibling
+    if sibling is None or sibling.type != "block_comment":
+        return []
+
+    comment = node_text(sibling, source)
+    if not comment.lstrip().startswith("/**"):
+        return []
+    return comment.splitlines()
+
+
+def parse_javadoc(lines: list[str]) -> str:
+    """Normalize a raw Javadoc block while preserving inline tags and HTML."""
+    cleaned_lines = [strip_java_noise(line) for line in lines]
+    raw_text = "\n".join(cleaned_lines).strip()
+    return raw_text
+
+
+def parse_java_file(path: Path) -> list[ExtractedMethod]:
+    source = path.read_bytes()
+    tree = JAVA_PARSER.parse(source)
+    root = tree.root_node
+    package = package_name(root, source)
+    methods: list[ExtractedMethod] = []
+
+    for method in walk(root):
+        if method.type != "method_declaration":
+            continue
+        if not has_public_modifier(method) or not returns_instant(method, source):
+            continue
+        if not is_no_arg_method(method):
+            continue
+
+        class_name = enclosing_class(method, source)
+        if class_name not in INCLUDED_CLASSES:
+            continue
+
+        qualified_class = ".".join(part for part in (package, class_name) if part)
+        method_name = node_text(method.child_by_field_name("name"), source)
+        if method_name in SKIPPED_METHODS:
+            continue
+
+        annotations = method_annotations(method, source)
+        javadocs = preceding_javadoc(method, source)
+        docs = parse_javadoc(javadocs)
+        if not docs:
+            raise ValueError(f"No docs found for {method_name} in {path}")
+
+        modifiers = find_child(method, "modifiers")
+        public = None
+        if modifiers is not None:
+            public = next(
+                (child for child in modifiers.children if child.type == "public"), None
+            )
+
+        methods.append(
+            ExtractedMethod(
+                name=method_name,
+                qualified_name=".".join(
+                    part for part in (qualified_class, method_name) if part
+                ),
+                package=package,
+                class_name=class_name,
+                qualified_class=qualified_class,
+                file=relative_path(path),
+                line=(public or method).start_point[0] + 1,
+                return_type=node_text(method.child_by_field_name("type"), source),
+                parameters=[],
+                annotations=annotations,
+                is_deprecated=any(
+                    annotation.startswith("@Deprecated") for annotation in annotations
+                ),
+                docs=docs,
+            )
+        )
+
+    return methods
+
+
+def collect_methods() -> list[ExtractedMethod]:
+    source = DEFAULT_SOURCE.resolve()
+    if not source.exists():
+        raise FileNotFoundError(f"Source directory does not exist: {source}")
+    methods: list[ExtractedMethod] = []
+    for java_file in sorted(source.rglob("*.java")):
+        methods.extend(parse_java_file(java_file))
+    if not methods:
+        raise RuntimeError(
+            "No public no-argument Instant-returning methods were found."
+        )
+    return methods
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate user-facing zman documentation."
+        description="Parse Java Javadocs and generate user-facing zman documentation."
     )
     parser.add_argument(
         "--dev",
@@ -124,24 +353,6 @@ def parse_args() -> argparse.Namespace:
     if args.count is not None and args.count < 1:
         parser.error("--count must be at least 1")
     return args
-
-
-def load_methods() -> list[ExtractedMethod]:
-    data = json.loads(INPUT.read_text(encoding="utf-8-sig"))
-    if not isinstance(data, list):
-        raise ValueError(f"Expected a JSON list in {INPUT}")
-
-    methods: list[ExtractedMethod] = []
-    for index, item in enumerate(data):
-        if not isinstance(item, dict):
-            raise ValueError(f"Method entry {index} is not an object")
-        method = ExtractedMethod(**item)
-        if not method.docs.strip():
-            raise ValueError(f"{method.qualified_name} has no docs")
-        methods.append(method)
-    if not methods:
-        raise ValueError(f"No methods found in {INPUT}")
-    return methods
 
 
 def choose_methods(
@@ -422,41 +633,103 @@ async def generate_all(methods: list[ExtractedMethod]) -> dict[str, UserDocs]:
         await client.close()
 
 
-def write_output(methods: list[ExtractedMethod], docs: dict[str, UserDocs]) -> None:
+def docs_paragraph(docs: UserDocs) -> str:
+    pieces = [
+        docs.meaning,
+        docs.calculation,
+        *docs.notes,
+        docs.deprecated_note,
+    ]
+    return " ".join(" ".join(piece.split()) for piece in pieces if piece.strip())
+
+
+def write_python_docs(
+    methods: list[ExtractedMethod], docs: dict[str, UserDocs]
+) -> None:
+    docs_by_method: dict[str, str] = {}
+    for method in methods:
+        if method.name in docs_by_method:
+            raise RuntimeError(f"Duplicate Java method name for DOCS: {method.name}")
+        docs_by_method[method.name] = docs_paragraph(docs[method.qualified_name])
+
+    lines = [
+        "# Generated by tools/generate-docs.py. Do not edit by hand.",
+        "",
+        "DOCS = {",
+    ]
+    for method_name, text in docs_by_method.items():
+        lines.append(f"    {method_name!r}: {text!r},")
+    lines.append("}")
+
+    DOCS_PY_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    DOCS_PY_OUTPUT.write_text(
+        "\n".join(lines) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+
+
+def write_deprecated_methods(methods: list[ExtractedMethod]) -> None:
+    seen: set[str] = set()
+    deprecated_methods: list[str] = []
+    for method in methods:
+        if method.name in seen:
+            raise RuntimeError(
+                f"Duplicate Java method name for DEPRECATED_METHODS: {method.name}"
+            )
+        seen.add(method.name)
+        if method.is_deprecated:
+            deprecated_methods.append(method.name)
+
+    lines = [
+        "# Generated by tools/generate-docs.py. Do not edit by hand.",
+        "",
+        "DEPRECATED_METHODS = [",
+    ]
+    for method_name in sorted(deprecated_methods):
+        lines.append(f"    {method_name!r},")
+    lines.append("]")
+
+    DEPRECATED_PY_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    DEPRECATED_PY_OUTPUT.write_text(
+        "\n".join(lines) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+
+
+def write_docs_output(
+    methods: list[ExtractedMethod], docs: dict[str, UserDocs]
+) -> None:
     missing = [
         method.qualified_name for method in methods if method.qualified_name not in docs
     ]
     if missing:
         raise RuntimeError(f"Missing docs for: {', '.join(missing)}")
 
-    documented = [
-        DocumentedMethod(**asdict(method), user_docs=docs[method.qualified_name])
-        for method in methods
-    ]
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(
-        json.dumps(
-            [asdict(method) for method in documented], ensure_ascii=False, indent=2
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    write_python_docs(methods, docs)
 
 
 def main() -> None:
     load_dotenv(ENV_FILE)
+    args = parse_args()
     if not os.environ.get("OPENAI_API_KEY"):
         raise RuntimeError("OPENAI_API_KEY is required")
 
-    args = parse_args()
-    methods = choose_methods(load_methods(), args)
+    all_methods = collect_methods()
+    methods = choose_methods(all_methods, args)
     print(
         f"Generating {len(methods)} methods with {CONCURRENCY} running at a time.",
         flush=True,
     )
     docs = asyncio.run(generate_all(methods))
-    write_output(methods, docs)
-    print(f"Wrote {len(methods)} documented methods to {OUTPUT}.", flush=True)
+    write_docs_output(methods, docs)
+    write_deprecated_methods(all_methods)
+    print(
+        f"Wrote {len(methods)} documented methods to {DOCS_PY_OUTPUT} and "
+        f"deprecated method list to {DEPRECATED_PY_OUTPUT}.",
+        flush=True,
+    )
 
 
 if __name__ == "__main__":

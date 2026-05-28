@@ -10,14 +10,10 @@
 //! Use this module when you need to compose a custom zman definition that is
 //! not already provided by a preset.
 
-#[allow(deprecated)]
 use crate::{
     calculator::ZmanLike,
     molad::MoladCalendar,
     prelude::ZmanimCalculator,
-    presets::{
-        ALOS_16_POINT_1_DEGREES, TZAIS_GEONIM_3_POINT_7_DEGREES, TZAIS_GEONIM_3_POINT_8_DEGREES,
-    },
     types::error::ZmanimError,
 };
 use icu_calendar::{
@@ -438,9 +434,8 @@ impl<'a> ZmanLike for ZmanPrimitive<'a> {
                 let chatzos = ZmanPrimitive::SolarTransit.calculate(calculator)?;
                 let mincha_gedola_30 = chatzos + Duration::from_mins(30);
 
-                let alos = ALOS_16_POINT_1_DEGREES.calculate(calculator)?;
-                #[allow(deprecated)]
-                let tzais = TZAIS_GEONIM_3_POINT_7_DEGREES.calculate(calculator)?;
+                let alos = ZmanPrimitive::SunriseOffsetByDegrees(16.1).calculate(calculator)?;
+                let tzais = ZmanPrimitive::SunsetOffsetByDegrees(3.7).calculate(calculator)?;
                 let shaah_zmanis = tzais.duration_since(alos) / 12;
                 let mincha_alternative = chatzos + (shaah_zmanis / 2);
                 if mincha_gedola_30 > mincha_alternative {
@@ -462,9 +457,8 @@ impl<'a> ZmanLike for ZmanPrimitive<'a> {
                 Ok(mincha_gedola_30.max(mincha_gedola_gra))
             }
             ZmanPrimitive::MinchaKetanaAhavatShalom => {
-                #[allow(deprecated)]
-                let tzais = TZAIS_GEONIM_3_POINT_8_DEGREES.calculate(calculator)?;
-                let alos = ALOS_16_POINT_1_DEGREES.calculate(calculator)?;
+                let tzais = ZmanPrimitive::SunsetOffsetByDegrees(3.8).calculate(calculator)?;
+                let alos = ZmanPrimitive::SunriseOffsetByDegrees(16.1).calculate(calculator)?;
                 let shaah_zmanis = tzais.duration_since(alos) / 12;
                 Ok(tzais - (shaah_zmanis * 5 / 2))
             }

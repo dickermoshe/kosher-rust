@@ -16,7 +16,7 @@ use super::{
 /// Calculates one case with both implementations and asserts policy-compliant parity.
 pub(super) fn run_test_case(
     case: TestCase,
-    preset: &'static ZmanPreset<'static>,
+    preset: &'static ZmanPreset,
     random_run: Option<CaseRun>,
 ) -> Result<(), Box<dyn Error>> {
     let java = calculate_java_zman(case, preset)?;

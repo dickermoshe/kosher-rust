@@ -292,11 +292,7 @@ fn test_reykjavik_equinox_java_expected_times() {
     );
     assert_zman_str(&mut calc, &SEA_LEVEL_SUNRISE, "2017-03-21T07:24:24Z");
     assert_zman_str(&mut calc, &SEA_LEVEL_SUNSET, "2017-03-21T19:46:56Z");
-    assert_zman_str(
-        &mut calc,
-        &CHATZOS_HAYOM_ASTRONOMICAL,
-        "2017-03-21T13:34:59Z",
-    );
+    assert_zman_str(&mut calc, &CHATZOS_HALAYLA, "2017-03-21T13:34:59Z");
 }
 
 #[test]
@@ -335,7 +331,7 @@ fn test_everest_java_expected_times() {
     );
     assert_zman_str_with_max_time_diff(
         &mut calc,
-        &CHATZOS_HAYOM_ASTRONOMICAL,
+        &CHATZOS_HALAYLA,
         "2017-10-17T11:42:38+05:45",
         Some(1),
     );
@@ -355,7 +351,7 @@ fn test_lakewood_noaa_baseline_events() {
     );
     assert_zman_str(
         &mut new_calc(0.0),
-        &CHATZOS_HAYOM_ASTRONOMICAL,
+        &CHATZOS_HALAYLA,
         "2017-10-17T12:41:55-04:00",
     );
     assert_zman_str(
@@ -412,7 +408,7 @@ fn test_anti_meridian_timezone_date_adjustment() {
 fn test_solar_midnight_rolls_to_next_local_date() {
     let date = lakewood_date();
     let mut calc = new_calc(0.0);
-    let midnight = CHATZOS_HALAYLA_ASTRONOMICAL.calculate(&mut calc).unwrap();
+    let midnight = CHATZOS_HALAYLA.calculate(&mut calc).unwrap();
     let local = midnight.to_zoned(lakewood_tz());
 
     assert_eq!(local.date(), Date::new(2017, 10, 18).unwrap());
@@ -435,7 +431,7 @@ fn test_default_zmanim_times() {
 
     assert_zman_str(
         &mut new_calc(0.0),
-        &TZAIS_DEGREES_8_POINT_5,
+        &TZAIS_GEONIM_8_POINT_5_DEGREES,
         "2017-10-17T18:54:29-04:00",
     );
     assert_zman_str(
@@ -445,7 +441,7 @@ fn test_default_zmanim_times() {
     );
     assert_zman_str(
         &mut new_calc(0.0),
-        &TZAIS_MINUTES_60,
+        &TZAIS_60_MINUTES,
         "2017-10-17T19:13:58-04:00",
     );
     assert_zman_str(
@@ -455,7 +451,7 @@ fn test_default_zmanim_times() {
     );
     assert_zman_str(
         &mut new_calc(0.0),
-        &TZAIS_MINUTES_72,
+        &TZAIS_72_MINUTES,
         "2017-10-17T19:25:58-04:00",
     );
 
@@ -487,22 +483,22 @@ fn test_default_zmanim_times() {
 
     assert_zman_str(
         &mut new_calc(0.0),
-        &CHATZOS_HAYOM_ASTRONOMICAL,
+        &CHATZOS_HALAYLA,
         "2017-10-17T12:41:55-04:00",
     );
     assert_zman_str(
         &mut new_calc(0.0),
-        &MINCHA_GEDOLA_SUNRISE_SUNSET,
+        &MINCHA_GEDOLA_GRA,
         "2017-10-17T13:09:35-04:00",
     );
     assert_zman_str(
         &mut new_calc(0.0),
-        &MINCHA_KETANA_SUNRISE_SUNSET,
+        &MINCHA_KETANA_GRA,
         "2017-10-17T15:55:37-04:00",
     );
     assert_zman_str(
         &mut new_calc(0.0),
-        &PLAG_HAMINCHA_SUNRISE_SUNSET,
+        &PLAG_HAMINCHA_GRA,
         "2017-10-17T17:04:48-04:00",
     );
     assert_zman_str(
@@ -554,7 +550,7 @@ fn test_default_zmanim_calculations() {
     );
     assert_zman_str(
         &mut new_calc(0.0),
-        &SOF_ZMAN_TFILA_MGA,
+        &SOF_ZMAN_TFILA_MGA_72_MINUTES,
         "2017-10-17T10:27:14-04:00",
     );
 }
@@ -588,7 +584,7 @@ fn test_default_shaah_zmanis() {
 fn test_use_elevation_zmanim_times() {
     assert_zman_str(
         &mut new_calc(0.0),
-        &TZAIS_DEGREES_8_POINT_5,
+        &TZAIS_GEONIM_8_POINT_5_DEGREES,
         "2017-10-17T18:54:29-04:00",
     );
     assert_zman_str(
@@ -598,7 +594,7 @@ fn test_use_elevation_zmanim_times() {
     );
     assert_zman_str(
         &mut new_calc(LAKEWOOD_ELEVATION_M),
-        &TZAIS_MINUTES_60,
+        &TZAIS_60_MINUTES,
         "2017-10-17T19:14:38-04:00",
     );
     assert_zman_str(
@@ -608,7 +604,7 @@ fn test_use_elevation_zmanim_times() {
     );
     assert_zman_str(
         &mut new_calc(LAKEWOOD_ELEVATION_M),
-        &TZAIS_MINUTES_72,
+        &TZAIS_72_MINUTES,
         "2017-10-17T19:26:38-04:00",
     );
 
@@ -640,22 +636,22 @@ fn test_use_elevation_zmanim_times() {
 
     assert_zman_str(
         &mut new_calc(0.0),
-        &CHATZOS_HAYOM_ASTRONOMICAL,
+        &CHATZOS_HALAYLA,
         "2017-10-17T12:41:55-04:00",
     );
     assert_zman_str(
         &mut new_calc(LAKEWOOD_ELEVATION_M),
-        &MINCHA_GEDOLA_SUNRISE_SUNSET,
+        &MINCHA_GEDOLA_GRA,
         "2017-10-17T13:09:38-04:00",
     );
     assert_zman_str(
         &mut new_calc(LAKEWOOD_ELEVATION_M),
-        &MINCHA_KETANA_SUNRISE_SUNSET,
+        &MINCHA_KETANA_GRA,
         "2017-10-17T15:56:00-04:00",
     );
     assert_zman_str(
         &mut new_calc(LAKEWOOD_ELEVATION_M),
-        &PLAG_HAMINCHA_SUNRISE_SUNSET,
+        &PLAG_HAMINCHA_GRA,
         "2017-10-17T17:05:19-04:00",
     );
     assert_zman_str(
@@ -707,7 +703,7 @@ fn test_use_elevation_zmanim_calculations() {
     );
     assert_zman_str(
         &mut new_calc(LAKEWOOD_ELEVATION_M),
-        &SOF_ZMAN_TFILA_MGA,
+        &SOF_ZMAN_TFILA_MGA_72_MINUTES,
         "2017-10-17T10:27:00-04:00",
     );
 }
@@ -786,11 +782,11 @@ fn test_polar_day_zmanim_return_none() {
     assert!(CANDLE_LIGHTING.calculate(&mut calc).is_err());
 
     let mut calc = polar_day_calc();
-    assert!(CHATZOS_HAYOM_HALF_DAY.calculate(&mut calc).is_err());
+    assert!(CHATZOS_HAYOM_AS_HALF_DAY.calculate(&mut calc).is_err());
 
     let mincha_variants: [&dyn ZmanLike; 5] = [
         &MINCHA_GEDOLA_16_POINT_1_DEGREES,
-        &MINCHA_GEDOLA_MINUTES_72,
+        &MINCHA_GEDOLA_72_MINUTES,
         &MINCHA_GEDOLA_AHAVAT_SHALOM,
         &MINCHA_GEDOLA_ATERET_TORAH,
         &MINCHA_GEDOLA_BAAL_HATANYA,

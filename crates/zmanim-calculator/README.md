@@ -52,6 +52,12 @@ If you omit a timezone, calculations near the anti-meridian (`|longitude| > 150`
 
 The API aims to follow KosherJava naming and behavior where possible. For background and broader algorithm documentation, see the [KosherJava documentation](https://kosherjava.com/zmanim-project/how-to-use-the-zmanim-api/).
 
+## Preset generation
+
+Most public zman constants (`ALOS_72_MINUTES`, `SOF_ZMAN_SHMA_GRA`, and ~168 others) are **not** written by hand. They are produced from vendored KosherJava sources:
+
+See **[tools/README.md](tools/README.md)** for the full pipeline, regeneration commands, and notes on porting the same approach to another language.
+
 ## Testing
 
 This crate uses randomized parity tests against the bundled Java implementation. A small number of tolerance and policy exceptions are allowed where the Rust SPA calculations intentionally differ from NOAA while remaining accurate enough for supported use cases.
