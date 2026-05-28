@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+exit()
+
 import argparse
 import asyncio
 import json
@@ -89,6 +91,8 @@ symbol, plain apostrophes instead of curly quotes, and hyphens instead of dashes
 Ignore source text about alternate astronomical calculators, fallback
 calculations, and calculator-specific caveats. Never mention NOAA, SunTimes,
 USNO, or any calculator implementation in user-facing fields.
+Ignore source instructions about elevation-adjusted workarounds for candle
+lighting; do not document implementation workarounds.
 
 Always assume astronomical chatzos is used. Treat isUseAstronomicalChatzos as
 always true and never mention it, half-day chatzos fallbacks, or any choice
@@ -409,6 +413,8 @@ def generation_prompt(
             "Use {use_astronomical_chatzos_for_other_zmanim} only when the source says other zmanim depend on isUseAstronomicalChatzosForOtherZmanim.",
             "Never mention null or return values; if source says null is returned, say the zman may not be available or cannot be calculated.",
             "Use Markdown links only for real http(s) URLs from source; otherwise use plain text.",
+            "Use {candel_lighting_offset} for candle lighting offset times and {ateret_torah_offset} for Ateret Torah sunset offset times.",
+            "Do not document implementation workarounds such as elevation-adjusted candle lighting via other calculations.",
         ],
         "output_schema": {
             "qualified_name": "same qualified_name as input",

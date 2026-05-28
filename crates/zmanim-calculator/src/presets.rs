@@ -11,7 +11,10 @@ use crate::{calculator::ZmanLike, primitive_zman::ZmanPrimitive};
 #[cfg(feature = "alloc")]
 extern crate alloc;
 #[cfg(feature = "alloc")]
-use alloc::string::String;
+use alloc::format;
+#[cfg(feature = "alloc")]
+use alloc::string::{String, ToString};
+use jiff::SignedDuration;
 use jiff::Timestamp;
 
 /// A zman preset built from a low-level [`ZmanPrimitive`] definition.
@@ -59,7 +62,6 @@ impl ZmanPreset {
     #[cfg(feature = "alloc")]
     pub fn description(&self, calculator: &ZmanimCalculator) -> String {
         let mut desc = (self.description)(calculator);
-        // Replace {uses_elevation} with: "This zman takes the location's elevation into account when calculating the zman."
         if calculator.config.use_elevation {
             desc = desc.replace(
                 "{uses_elevation}",
@@ -71,11 +73,35 @@ impl ZmanPreset {
                 "This zman is calculated at sea level, without adjusting for elevation.",
             );
         }
+        desc = desc.replace(
+            "{candel_lighting_offset}",
+            &format_minutes(calculator.config.candle_lighting_offset),
+        );
+        desc = desc.replace(
+            "{ateret_torah_offset}",
+            &format_minutes(calculator.config.ateret_torah_sunset_offset),
+        );
         desc
     }
 
     /// Returns a short, user-facing name for this preset.
     pub fn name(&self) -> &'static str {
         self.name
+    }
+}
+
+#[cfg(feature = "alloc")]
+fn format_minutes(offset: SignedDuration) -> String {
+    let total_secs = offset.as_secs().unsigned_abs();
+    let mins = total_secs / 60;
+    let remainder = total_secs % 60;
+    if remainder == 0 {
+        if mins == 1 {
+            "1 minute".to_string()
+        } else {
+            format!("{mins} minutes")
+        }
+    } else {
+        format!("{:.1} minutes", total_secs as f64 / 60.0)
     }
 }
