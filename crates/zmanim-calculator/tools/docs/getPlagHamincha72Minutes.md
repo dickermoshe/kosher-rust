@@ -27,7 +27,7 @@ Plag hamincha according to the Magen Avraham, using the 72-minute day.
 
 10.75 shaos zmaniyos after alos 72 minutes before sunrise, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset.
 
-This zman should be used lechumra only. It can return a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.
+This zman should be used lechumra only. It can be a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.
 
 In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

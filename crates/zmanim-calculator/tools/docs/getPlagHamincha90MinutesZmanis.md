@@ -25,7 +25,7 @@ Plag hamincha based on alos 90 zmaniyos minutes before sunrise.
 
 10.75 shaos zmaniyos after that alos.
 
-This zman should be used lechumra only. It can return a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.
+This zman should be used lechumra only. It can be a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.
 
 In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

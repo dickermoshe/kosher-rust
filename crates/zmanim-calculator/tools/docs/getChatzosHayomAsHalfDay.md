@@ -36,9 +36,11 @@ of <em>Chatzos</em></a> for a detailed explanation of the ways to calculate <em>
 # Human docs
 
 ```markdown
-Chatzos hayom calculated as halfway between sunrise and sunset - the same as six shaos zmaniyos after sunrise on a symmetric day.
+Chatzos hayom calculated as the halfway point between sunrise and sunset.
 
-Many hold that chatzos is the midpoint between sea level sunrise and sea level sunset, even though that is not the most precise astronomical definition. A day measured from alos to tzais with the same offset can yield the same time. Because the day lengthens or shortens through the year, this midpoint is not always the exact center of the day, but it is very close.
+This is the same as six shaos zmaniyos after sunrise when the day is measured from sunrise to sunset. Many hold that chatzos is the midpoint between sea level sunrise and sea level sunset, even though astronomical chatzos is usually a slightly different time.
+
+A day measured from alos to tzais with the same offset on both sides can also have the same midpoint.
 
 For how chatzos can be defined and calculated, see [The Definition of Chatzos](https://kosherjava.com/2020/07/02/definition-of-chatzos/) on the KosherJava blog.
 

@@ -28,7 +28,7 @@ Plag hamincha based on the 18-degree day.
 
 10.75 shaos zmaniyos after alos 18 degrees, using a day that begins and ends at 18 degrees.
 
-This zman should be used lechumra only. It can return a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.
+This zman should be used lechumra only. It can be a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.
 
 At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

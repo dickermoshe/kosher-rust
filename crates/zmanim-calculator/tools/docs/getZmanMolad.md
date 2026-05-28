@@ -19,5 +19,7 @@ minute and chalakim, {@link JewishCalendar#getMoladAsInstant()} and the not yet 
 ```markdown
 The molad for the Hebrew month.
 
-The astronomical moment when the moon is positioned between the earth and the sun for the start of the lunar month.
+The traditional molad time, calculated from the Hebrew calendar's day, hour, minute, and chalakim for the month.
+
+The time is expressed as a precise moment based on Yerushalayim standard time, adjusted for the traditional location used for the molad.
 ```
