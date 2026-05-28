@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 from dsl import (
-    ZMAN_NAMES,
+    ZMAN,
     HalfDayBasedOffset,
     LocalMeanTime,
     MinchaGedola,
@@ -253,15 +253,17 @@ macro_rules! java_parity_test {
 def generate(docs: dict[str, str], deprecated_methods: set[str]) -> str:
     presets: list[tuple[str, bool, str]] = []
     seen_consts: set[str] = set()
+    zman_by_id = {zman.id: zman for zman in ZMAN}
 
-    missing_docs = [
-        method_name for method_name in ZMAN_NAMES if method_name not in docs
-    ]
+    if len(zman_by_id) != len(ZMAN):
+        raise ValueError("ZMAN contains duplicate ids")
+
+    missing_docs = [zman.id for zman in ZMAN if zman.id not in docs]
     if missing_docs:
         raise ValueError(f"Missing docs for DSL methods: {missing_docs}")
 
     unknown_docs = [
-        method_name for method_name in docs if method_name not in ZMAN_NAMES
+        method_name for method_name in docs if method_name not in zman_by_id
     ]
     if unknown_docs:
         raise ValueError(f"Docs exist for methods missing from DSL: {unknown_docs}")
@@ -269,14 +271,15 @@ def generate(docs: dict[str, str], deprecated_methods: set[str]) -> str:
     unknown_deprecated = [
         method_name
         for method_name in deprecated_methods
-        if method_name not in ZMAN_NAMES
+        if method_name not in zman_by_id
     ]
     if unknown_deprecated:
         raise ValueError(
             f"Deprecated methods exist for methods missing from DSL: {unknown_deprecated}"
         )
 
-    for method_name, zman in ZMAN_NAMES.items():
+    for zman in ZMAN:
+        method_name = zman.id
         if not isinstance(zman, Zman):
             raise TypeError(f"{method_name} is not a DSL Zman")
         if zman.zman is None:

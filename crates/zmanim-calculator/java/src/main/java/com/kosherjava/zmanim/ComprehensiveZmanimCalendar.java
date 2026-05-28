@@ -538,7 +538,7 @@ public class ComprehensiveZmanimCalendar extends ZmanimCalendar {
 		return getTemporalHour(getAlos16Point1Degrees(), getTzaisGeonim3Point7Degrees());
 	}
 
-	/**
+	/**f
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) calculated using a dip of 96 minutes. This calculation divides the
 	 * day based on the opinion of the <a href="https://en.wikipedia.org/wiki/Avraham_Gombiner">Magen Avraham (MGA)</a> that the day
 	 * runs from dawn to dusk. Dawn for this calculation is 96 minutes before sunrise and dusk is 96 minutes after sunset. This day
