@@ -292,7 +292,7 @@ fn test_reykjavik_equinox_java_expected_times() {
     );
     assert_zman_str(&mut calc, &SEA_LEVEL_SUNRISE, "2017-03-21T07:24:24Z");
     assert_zman_str(&mut calc, &SEA_LEVEL_SUNSET, "2017-03-21T19:46:56Z");
-    assert_zman_str(&mut calc, &CHATZOS_HALAYLA, "2017-03-21T13:34:59Z");
+    assert_zman_str(&mut calc, &CHATZOS_HAYOM, "2017-03-21T13:34:59Z");
 }
 
 #[test]
@@ -331,7 +331,7 @@ fn test_everest_java_expected_times() {
     );
     assert_zman_str_with_max_time_diff(
         &mut calc,
-        &CHATZOS_HALAYLA,
+        &CHATZOS_HAYOM,
         "2017-10-17T11:42:38+05:45",
         Some(1),
     );
@@ -351,7 +351,7 @@ fn test_lakewood_noaa_baseline_events() {
     );
     assert_zman_str(
         &mut new_calc(0.0),
-        &CHATZOS_HALAYLA,
+        &CHATZOS_HAYOM,
         "2017-10-17T12:41:55-04:00",
     );
     assert_zman_str(
@@ -483,7 +483,7 @@ fn test_default_zmanim_times() {
 
     assert_zman_str(
         &mut new_calc(0.0),
-        &CHATZOS_HALAYLA,
+        &CHATZOS_HAYOM,
         "2017-10-17T12:41:55-04:00",
     );
     assert_zman_str(
@@ -636,7 +636,7 @@ fn test_use_elevation_zmanim_times() {
 
     assert_zman_str(
         &mut new_calc(0.0),
-        &CHATZOS_HALAYLA,
+        &CHATZOS_HAYOM,
         "2017-10-17T12:41:55-04:00",
     );
     assert_zman_str(
