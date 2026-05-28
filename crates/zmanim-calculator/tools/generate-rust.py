@@ -85,7 +85,9 @@ def load_deprecated_methods(path: Path) -> set[str]:
         if not isinstance(method_name, str):
             raise ValueError(f"{path} DEPRECATED_METHODS values must be strings")
         if method_name in parsed:
-            raise ValueError(f"{path} contains duplicate deprecated method {method_name}")
+            raise ValueError(
+                f"{path} contains duplicate deprecated method {method_name}"
+            )
         parsed.add(method_name)
     return parsed
 
@@ -105,7 +107,9 @@ def rust_bool(value: bool) -> str:
 def rust_duration(seconds: float) -> str:
     millis = round(seconds * 1000)
     if abs(seconds * 1000 - millis) > 1e-9:
-        raise ValueError(f"Duration must be representable in whole milliseconds: {seconds}")
+        raise ValueError(
+            f"Duration must be representable in whole milliseconds: {seconds}"
+        )
     if millis % 60_000 == 0:
         return f"Duration::from_mins({millis // 60_000})"
     return f"Duration::from_millis({millis})"
@@ -192,7 +196,10 @@ def preset_block(
     description_literal = json.dumps(description, ensure_ascii=False)
     doc = rust_doc_comment(description)
     test_cfg = "#[cfg(test)]\n" if deprecated else ""
-    return f"""{test_cfg}{doc}
+    return f"""#[cfg(test)]
+java_parity_test!({const_name});
+
+{test_cfg}{doc}
 pub static {const_name}: ZmanPreset = ZmanPreset {{
     event: {event},
     #[cfg(test)]
@@ -206,12 +213,7 @@ pub static {const_name}: ZmanPreset = ZmanPreset {{
 
 def all_presets_array(presets: list[tuple[str, bool]]) -> str:
     entries = ",\n".join(
-        (
-            f"    #[cfg(test)]\n"
-            f"    &{const_name}"
-            if deprecated
-            else f"    &{const_name}"
-        )
+        (f"    #[cfg(test)]\n    &{const_name}" if deprecated else f"    &{const_name}")
         for const_name, deprecated in presets
     )
     return f"""/// Every generated zman preset.
@@ -221,20 +223,53 @@ pub static ALL: &[&ZmanPreset] = &[
 """
 
 
+def java_parity_test_macro() -> str:
+    return """#[cfg(test)]
+macro_rules! java_parity_test {
+    ($name:ident) => {
+        #[allow(deprecated)]
+        #[allow(non_snake_case)]
+        mod $name {
+            #[test]
+            fn standard() -> Result<(), Box<dyn std::error::Error>> {
+                crate::java_tests::zmanim::test_preset_in_jerusalem(&super::$name)
+            }
+
+            #[test]
+            fn regressions() {
+                crate::java_tests::zmanim::test_regressions(&super::$name);
+            }
+
+            #[test]
+            fn random() -> Result<(), Box<dyn std::error::Error>> {
+                crate::java_tests::zmanim::test_preset(&super::$name)
+            }
+        }
+    };
+}
+"""
+
+
 def generate(docs: dict[str, str], deprecated_methods: set[str]) -> str:
     presets: list[tuple[str, bool, str]] = []
     seen_consts: set[str] = set()
 
-    missing_docs = [method_name for method_name in ZMAN_NAMES if method_name not in docs]
+    missing_docs = [
+        method_name for method_name in ZMAN_NAMES if method_name not in docs
+    ]
     if missing_docs:
         raise ValueError(f"Missing docs for DSL methods: {missing_docs}")
 
-    unknown_docs = [method_name for method_name in docs if method_name not in ZMAN_NAMES]
+    unknown_docs = [
+        method_name for method_name in docs if method_name not in ZMAN_NAMES
+    ]
     if unknown_docs:
         raise ValueError(f"Docs exist for methods missing from DSL: {unknown_docs}")
 
     unknown_deprecated = [
-        method_name for method_name in deprecated_methods if method_name not in ZMAN_NAMES
+        method_name
+        for method_name in deprecated_methods
+        if method_name not in ZMAN_NAMES
     ]
     if unknown_deprecated:
         raise ValueError(
@@ -271,9 +306,7 @@ def generate(docs: dict[str, str], deprecated_methods: set[str]) -> str:
         )
 
     if not presets:
-        raise RuntimeError(
-            "No presets were generated; add methods to the DSL."
-        )
+        raise RuntimeError("No presets were generated; add methods to the DSL.")
 
     presets.sort(key=lambda preset: preset[0])
     const_names = [(const_name, deprecated) for const_name, deprecated, _ in presets]
@@ -291,7 +324,15 @@ use crate::primitive_zman::ZmanPrimitive;
 use jiff::SignedDuration as Duration;
 
 """
-    return header + "\n".join(blocks) + "\n" + all_presets_array(const_names) + "\n"
+    return (
+        header
+        + java_parity_test_macro()
+        + "\n"
+        + "\n".join(blocks)
+        + "\n"
+        + all_presets_array(const_names)
+        + "\n"
+    )
 
 
 def main() -> None:

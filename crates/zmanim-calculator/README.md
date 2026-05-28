@@ -76,7 +76,7 @@ cargo test
 ```
 
 
-# Updating from KosherJava
+## Updating from KosherJava
 
 To pull in the latest changes from KosherJava, run:
 ```bash
@@ -84,6 +84,11 @@ git subtree pull --prefix=crates/zmanim-calculator/java https://github.com/Koshe
 ```
 
 Then follow the workflow in the [tools/README.md](tools/README.md) to regenerate the zman presets.
+
+## Differences from KosherJava
+
+- The `Sof Zman Achilas Chametz` and `Sof Zman Biur Chametz` zmanim are returned for any date, not just Erev Pesach.
+- Chatzos always uses astronomical chatzos, not the midpoint of sunrise to sunset.
 
 ## License
 

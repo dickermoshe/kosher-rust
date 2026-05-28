@@ -58,7 +58,20 @@ impl ZmanPreset {
     /// Requires the `alloc` feature.
     #[cfg(feature = "alloc")]
     pub fn description(&self, calculator: &ZmanimCalculator) -> String {
-        (self.description)(calculator)
+        let mut desc = (self.description)(calculator);
+        // Replace {uses_elevation} with: "This zman takes the location's elevation into account when calculating the zman."
+        if calculator.config.use_elevation {
+            desc = desc.replace(
+                "{uses_elevation}",
+                "This zman takes the location's elevation into account when calculating the zman.",
+            );
+        } else {
+            desc = desc.replace(
+                "{uses_elevation}",
+                "This zman is calculated at sea level, without adjusting for elevation.",
+            );
+        }
+        desc
     }
 
     /// Returns a short, user-facing name for this preset.

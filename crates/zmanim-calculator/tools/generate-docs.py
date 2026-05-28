@@ -75,7 +75,14 @@ Write for people trying to understand zmanim, not for API users.
 Do not mention Javadoc, source code, Java, APIs, methods, return values, or null.
 If the source says null is returned, say the zman may not be available or cannot
 be calculated in that situation.
-Preserve useful links as Markdown when using linked text, but do not invent links.
+Exception: for sof zman achilas chametz and sof zman biur chametz, do not say
+the zman is "only available on Erev Pesach", "applies only on Erev Pesach", or "may
+not be available when it is not Erev Pesach". 
+Mention that a value will always be returned, even if that day is not Erev Pesach. 
+This does not match the documentation in KosherJava, and that is intentional.
+Include a Markdown link only when the source provides an actual http or https URL.
+For {@link} references or other source links without a real URL, use plain text.
+Never use placeholder links such as # or example.com.
 Use ASCII only in generated user docs. Write "degrees" instead of the degree
 symbol, plain apostrophes instead of curly quotes, and hyphens instead of dashes.
 
@@ -90,7 +97,6 @@ astronomical-chatzos behavior when the source describes both options.
 
 Allowed runtime placeholders:
 - {uses_elevation}
-- {sea_level}
 - {candel_lighting_offset}
 - {ateret_torah_offset}
 - {use_astronomical_chatzos_for_other_zmanim}
@@ -109,7 +115,7 @@ not misuse placeholders.
 
 The allowed placeholders are intentional runtime tokens and will be replaced in
 post-processing. Do not reject documentation merely because it includes one of
-these placeholders: {uses_elevation}, {sea_level}, {candel_lighting_offset},
+these placeholders: {uses_elevation}, {candel_lighting_offset},
 {ateret_torah_offset}, {use_astronomical_chatzos_for_other_zmanim}. The
 elevation and {use_astronomical_chatzos_for_other_zmanim} placeholders are
 valid as standalone notes. The candle-lighting and Ateret Torah placeholders are
@@ -128,6 +134,22 @@ Always assume astronomical chatzos is used. Treat isUseAstronomicalChatzos as
 always true and never mention it, half-day chatzos fallbacks, or any choice
 between astronomical chatzos and sunrise-to-sunset midpoint. Do not reject docs
 for omitting those Java-only configuration branches.
+
+Exception: for sof zman achilas chametz and sof zman biur chametz, do not say
+the zman is "only available on Erev Pesach", "applies only on Erev Pesach", or "may
+not be available when it is not Erev Pesach". 
+Mention that a value will always be returned, even if that day is not Erev Pesach. 
+This does not match the documentation in KosherJava, and that is intentional.
+
+Do not mention null, return values, Java, APIs, methods, or other implementation
+language in user-facing fields. When the source says null is returned, approve
+plain-English wording such as "may not be available" or "cannot be calculated".
+Do not reject docs for using that phrasing instead of saying null.
+
+Only reject links that are invented, placeholder, or use fake URLs. Approve real
+http(s) Markdown links copied from source. Approve plain text when source only
+has {@link} references or similar Javadoc-only cross-references without URLs.
+Do not reject docs merely for omitting links that are not resolvable from source.
 
 Reject only for hallucinated facts, unsupported links, materially wrong
 calculations, broken prose, forbidden implementation language, or placeholder
@@ -385,6 +407,8 @@ def generation_prompt(
             "Never mention NOAA, SunTimes, USNO, or any calculator implementation.",
             "Always assume astronomical chatzos is used; never mention isUseAstronomicalChatzos, half-day chatzos, or choosing between chatzos modes.",
             "Use {use_astronomical_chatzos_for_other_zmanim} only when the source says other zmanim depend on isUseAstronomicalChatzosForOtherZmanim.",
+            "Never mention null or return values; if source says null is returned, say the zman may not be available or cannot be calculated.",
+            "Use Markdown links only for real http(s) URLs from source; otherwise use plain text.",
         ],
         "output_schema": {
             "qualified_name": "same qualified_name as input",
@@ -545,15 +569,25 @@ async def generate_one(
 ) -> tuple[str, UserDocs]:
     review_issues: list[str] | None = None
     for attempt in range(1, MAX_GENERATION_ATTEMPTS + 1):
-        generated = parse_docs(
-            await json_chat(
-                client,
-                SYSTEM_PROMPT,
-                generation_prompt(method, review_issues),
-                DEFAULT_SEED + item_number * 100 + attempt,
-            ),
-            method,
-        )
+        try:
+            generated = parse_docs(
+                await json_chat(
+                    client,
+                    SYSTEM_PROMPT,
+                    generation_prompt(method, review_issues),
+                    DEFAULT_SEED + item_number * 100 + attempt,
+                ),
+                method,
+            )
+        except ValueError as error:
+            review_issues = [str(error)]
+            print(
+                f"{item_number}: {method.name} validation rejected attempt "
+                f"{attempt}/{MAX_GENERATION_ATTEMPTS}: {error}",
+                flush=True,
+            )
+            continue
+
         approved, issues = parse_review(
             await json_chat(
                 client,
@@ -577,7 +611,7 @@ async def generate_one(
         )
 
     raise RuntimeError(
-        f"{method.qualified_name} failed review after {MAX_GENERATION_ATTEMPTS} attempts: "
+        f"{method.qualified_name} failed after {MAX_GENERATION_ATTEMPTS} attempts: "
         f"{'; '.join(review_issues or [])}"
     )
 
