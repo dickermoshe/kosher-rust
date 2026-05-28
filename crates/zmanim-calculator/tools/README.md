@@ -1,11 +1,6 @@
 # Zmanim Presets Generation
 
-This directory owns the generated zman presets for the Rust
-`zmanim-calculator` crate.
-
-The pipeline starts with vendored KosherJava source and ends with
-`../src/presets_gen.rs`, which contains the generated `ZmanPreset` statics used
-by the public `presets` module.
+This directory contains the code and scripts for generating Rust zman presets from the KosherJava source, producing the `ZmanPreset` statics in `../src/presets_gen.rs`.
 
 ## Quick commands
 
