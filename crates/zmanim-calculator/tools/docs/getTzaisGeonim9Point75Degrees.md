@@ -22,4 +22,9 @@ Shmuel Kamenetsky</a>. Rabbi Yaakov Shakow presented these degree-based times to
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 9.75 degrees below the western horizon after sunset.
+
+Corresponds to 60 minutes after sunset [around the equinox/equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/) in New York, when a solar hour is 60 minutes. The opinion of [Rabbi Eliyahu Henkin](https://en.wikipedia.org/wiki/Yosef_Eliyahu_Henkin) and [Rabbi Shmuel Kamenetsky](https://en.wikipedia.org/wiki/Shmuel_Kamenetsky).
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

@@ -20,7 +20,9 @@ is 90 minutes which is 1/8th of a day (12 * 60) / 8 = 90. The actual calculation
 ```markdown
 Alos (dawn), the beginning of morning twilight before sunrise.
 
-90 zmaniyos minutes (one-eighth of the day) before sunrise. {uses_elevation} Based on a 22.5-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), so 4 mil equals 90 minutes, which is one-eighth of a 12-hour day.
+90 zmaniyos minutes before sunrise, or 1/8 of the day. {uses_elevation}
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+Based on 4 mil at 22.5 minutes per mil, measured in shaos zmaniyos.
+
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

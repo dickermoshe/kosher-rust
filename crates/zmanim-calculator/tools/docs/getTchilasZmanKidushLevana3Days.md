@@ -18,4 +18,7 @@ Use {@link #getTchilasZmanKidushLevana3Days(Instant, Instant)} if you want to li
 # Human docs
 
 ```markdown
+The earliest time for Kiddush Levana according to [Rabbeinu Yonah](https://en.wikipedia.org/wiki/Yonah_Gerondi) - 3 days after the molad.
+
+Note that although this time may be during the daytime, Kiddush Levana cannot be said during the daytime.
 ```

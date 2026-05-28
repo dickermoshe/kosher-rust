@@ -20,9 +20,11 @@ which calculates to 11° below {@link GEOMETRIC_ZENITH geometric zenith}.
 # Human docs
 
 ```markdown
-Misheyakir according to some opinions, when the sun is 11 degrees below geometric zenith.
+Misheyakir according to some opinions.
 
-In Jerusalem [around the equinox or equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), this matches about 48 minutes before sunrise.
+The time when the sun is 11 degrees below the horizon before sunrise.
 
-At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+This is about 48 minutes before sunrise in Jerusalem around the equinox.
+
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

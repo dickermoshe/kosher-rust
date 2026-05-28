@@ -21,4 +21,9 @@ any place on the globe by default. This offset can be changed by calling {@link 
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.
+
+{ateret_torah_offset} after sunset. Chacham Harari-Raful uses this timing for calculating other zmanim (such as sof zman krias shema and plag hamincha), but his calendars do not publish a separate tzais zman. A 25-minute offset was provided for Israel.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

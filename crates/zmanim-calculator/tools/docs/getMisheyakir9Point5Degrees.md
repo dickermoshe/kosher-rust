@@ -29,9 +29,11 @@ Kamenetsky who agreed to them.
 # Human docs
 
 ```markdown
-Misheyakir when the sun is 9.5 degrees below geometric zenith.
+Misheyakir according to the 45-minute approach used by some communities.
 
-Based on [Rabbi Dovid Kronglass](https://en.wikipedia.org/wiki/Dovid_Kronglas)'s 45-minute calculation in Baltimore, as cited in [Divrei Chachamim no. 24](https://hebrewbooks.org/pdfpager.aspx?req=20287&pgnum=29) and [Birur Halacha, tinyana, ch. 18](https://hebrewbooks.org/pdfpager.aspx?req=50535&pgnum=87). Used in calendars by Rabbi Hershel Edelstein and in [Edot Hamizrach](https://en.wikipedia.org/wiki/Mizrahi_Jews) communities. Degree-based times were presented by Rabbi Yaakov Shakow to [Rabbi Shmuel Kamenetsky](https://en.wikipedia.org/wiki/Shmuel_Kamenetsky), who agreed to them.
+The time when the sun is 9.5 degrees below the horizon before sunrise.
 
-At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+This is based on a 45-minute misheyakir calculation.
+
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

@@ -22,4 +22,9 @@ offset from  either {@link getSunset() sunset} or {@link getSeaLevelSunset() sea
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to Rabbeinu Tam - 72 minutes after sunset, the time to walk 4 mil at 18 minutes per mil.
+
+72 standard clock minutes after sunset, any time of year and in any location. {uses_elevation}
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

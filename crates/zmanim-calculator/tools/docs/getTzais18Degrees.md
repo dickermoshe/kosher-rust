@@ -15,4 +15,9 @@ For information on how this is calculated see the comments on {@link #getAlos18D
 # Human docs
 
 ```markdown
+Tzais (nightfall) - when the sun is 18 degrees below the western horizon after sunset.
+
+Calculated the same way as alos at 18 degrees, but for the evening.
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

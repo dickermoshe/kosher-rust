@@ -34,7 +34,9 @@ gedola</em> time will be affected by {@link #isUseAstronomicalChatzos()} and not
 ```markdown
 Mincha gedola calculated as 30 minutes after astronomical chatzos hayom.
 
-Some use this in winter when half a shaah zmanis is less than 30 minutes, to delay the start of mincha. Do not use this time to begin mincha before standard mincha gedola GRA. See Shulchan Aruch [Orach Chayim 234:1](https://hebrewbooks.org/pdfpager.aspx?req=49624&st=&pgnum=291) and Shaar Hatziyon seif katan ches.
+Some use this in winter when half a shaah zmanis is less than 30 minutes, to delay the start of mincha.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+Do not use this time to begin mincha before standard mincha gedola GRA.
+
+In places where chatzos cannot be calculated, this zman may not be available.
 ```

@@ -31,7 +31,9 @@ calculation used is 6.5 * {@link #getShaahZmanisAteretTorah()} after {@link #get
 ```markdown
 Mincha gedola according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.
 
-6.5 shaos zmaniyos after alos at 1/10 of the day before sunrise. Shaos zmaniyos are calculated based on a day that starts at alos at 1/10 of the day before sunrise and ends at {ateret_torah_offset} after sunset.
+6.5 shaos zmaniyos after alos.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+The day begins at alos 1/10 of the day before sunrise and ends {ateret_torah_offset} after sunset.
+
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

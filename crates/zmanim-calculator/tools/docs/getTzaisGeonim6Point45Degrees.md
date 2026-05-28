@@ -27,4 +27,9 @@ equilux</a>.
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 6.45 degrees below the western horizon after sunset.
+
+Commonly used in Israel. Based on [Rabbi Yechiel Michel Tucazinsky's](https://en.wikipedia.org/wiki/Yechiel_Michel_Tucazinsky) calculation, about 31 minutes after sea level sunset in Jerusalem and about 26.5 minutes at the equinox. Also used in [Luach Itim Lebinah](https://www.worldcat.org/oclc/243303103). See [Birur Halacha Yoreh Deah 262](https://hebrewbooks.org/pdfpager.aspx?req=50536&st=&pgnum=51).
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

@@ -32,9 +32,11 @@ degree-based calculations to Rabbi Shmuel Kamenetsky who agreed to them.
 # Human docs
 
 ```markdown
-Misheyakir when the sun is 7.65 degrees below geometric zenith.
+Misheyakir according to the 35-36 minute approach.
 
-Based on a 35-36 minute zman [around the equinox or equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), when twilight is shortest. [Rabbi Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein) writes in [Ohr Hachaim vol. 4, ch. 6](https://hebrewbooks.org/pdfpager.aspx?req=14677&pgnum=7) that misheyakir in New York is 35-40 minutes before sunrise. This follows [Rabbi Shmuel Kamenetsky](https://en.wikipedia.org/wiki/Shmuel_Kamenetsky)'s 35-36 minute time (degree-based times were presented by Rabbi Yaakov Shakow and accepted by him). The accepted [minhag](https://en.wikipedia.org/wiki/Minhag) in [Lakewood](https://en.wikipedia.org/wiki/Lakewood_Township,_New_Jersey) [Yeshiva](https://en.wikipedia.org/wiki/Beth_Medrash_Govoha) is not to consider misheyakir before 36 minutes.
+The time when the sun is 7.65 degrees below the horizon before sunrise.
 
-At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+This is based on a 35-36 minute misheyakir around the equinox, when twilight is shortest.
+
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

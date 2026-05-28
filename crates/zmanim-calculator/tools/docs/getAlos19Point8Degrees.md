@@ -23,7 +23,9 @@ calculates to 19.8° below {@link GEOMETRIC_ZENITH geometric zenith}.
 ```markdown
 Alos (dawn), the beginning of morning twilight before sunrise.
 
-The time when the sun is 19.8 degrees below the eastern geometric horizon before sunrise. This is the degree-based equivalent of alos 90 minutes before sunrise: in Jerusalem [around the equinox or equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), the sun is 19.8 degrees below geometric zenith about 90 minutes before sunrise.
+The time when the sun is 19.8 degrees below the eastern horizon before sunrise.
 
-At some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+This is the degree-based equivalent of alos 90 minutes before sunrise around the equinox in Jerusalem.
+
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

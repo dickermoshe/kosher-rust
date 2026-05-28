@@ -25,9 +25,9 @@ on this see the documentation on {@link #getMinchaKetanaGRA() <em>mincha ketana<
 # Human docs
 
 ```markdown
-Mincha ketana according to [Rabbi Yaakov Moshe Hillel](https://en.wikipedia.org/wiki/Yaakov_Moshe_Hillel), as published in the luach of the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.
+Mincha ketana according to Rabbi Yaakov Moshe Hillel, as published in the luach of the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.
 
-2.5 shaos zmaniyos before tzais at 3.8 degrees, with shaos zmaniyos based on a day from alos at 16.1 degrees to tzais at 3.8 degrees.
+2.5 shaos zmaniyos before tzais 3.8 degrees, using a day from alos 16.1 degrees to tzais 3.8 degrees.
 
-At some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

@@ -22,9 +22,9 @@ This is calculated as 9.5 {@link #getShaahZmanis72Minutes()} after <em>alos</em>
 # Human docs
 
 ```markdown
-Mincha ketana according to the Magen Avraham.
+Mincha ketana according to the Magen Avraham, using the 72-minute day.
 
 9.5 shaos zmaniyos after alos 72 minutes before sunrise, using a day that starts 72 minutes before sunrise and ends 72 minutes after sunset.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

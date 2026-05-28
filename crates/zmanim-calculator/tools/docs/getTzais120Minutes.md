@@ -27,4 +27,11 @@ reached, it should only be used <em>lechumra</em>, such as delaying the start of
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to [Rav Chaim Naeh](https://en.wikipedia.org/wiki/Avraham_Chaim_Naeh) - 120 minutes after sunset.
+
+Based on Ula's calculation of tzais as 5 mil after sunset, using the Rambam's 24-minute mil. {uses_elevation}
+
+This zman should be used lechumra only, such as delaying the start of nighttime mitzvos. Using it leniently can lead to chillul Shabbos and similar serious errors.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

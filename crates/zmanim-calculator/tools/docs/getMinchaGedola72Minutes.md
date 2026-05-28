@@ -29,7 +29,7 @@ calculated as 6.5 {@link #getTemporalHour() solar hours} after <em>alos</em>. Th
 ```markdown
 Mincha gedola according to the Magen Avraham.
 
-Half a shaah zmanis after chatzos hayom, where the proportional hour is based on the span from 72 minutes before sunrise to 72 minutes after sunset.
+Half a shaah zmanis after chatzos hayom, using a day from alos 72 minutes to tzais 72 minutes.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

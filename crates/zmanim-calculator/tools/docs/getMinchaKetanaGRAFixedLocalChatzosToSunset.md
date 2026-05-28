@@ -22,9 +22,9 @@ hours) after {@link #getFixedLocalChatzosHayom() fixed local chatzos}.
 # Human docs
 
 ```markdown
-Mincha ketana according to [Rav Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein)'s opinion, following the view of the [Vilna Gaon](https://en.wikipedia.org/wiki/Vilna_Gaon).
+Mincha ketana according to Rav Moshe Feinstein's opinion, following the view of the Vilna Gaon.
 
 3.5 shaos zmaniyos after fixed local chatzos.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+In places where fixed local chatzos or sunset cannot be calculated, this zman may not be available.
 ```

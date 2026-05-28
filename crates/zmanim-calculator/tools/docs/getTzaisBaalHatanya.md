@@ -28,4 +28,9 @@ minutes) and it is rounded up to 6°.
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the [Baal Hatanya](https://en.wikipedia.org/wiki/Shneur_Zalman_of_Liadi) - when the sun is 6 degrees below the western horizon after sunset.
+
+Based on shkiah amitis plus 18 minutes (3/4 of a 24-minute mil) and 2 minutes for bain hashmashos of Rav Yosi, about 24 minutes after sunset in Jerusalem [around the equinox/equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/). See [About Our Zmanim Calculations at Chabad.org](https://www.chabad.org/library/article_cdo/aid/3209349/jewish/About-Our-Zmanim-Calculations.htm).
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

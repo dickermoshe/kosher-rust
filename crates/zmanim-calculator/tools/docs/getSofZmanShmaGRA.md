@@ -24,4 +24,9 @@ to the <a href="https://en.wikipedia.org/wiki/Vilna_Gaon">GRA</a>.
 # Human docs
 
 ```markdown
+Sof zman krias shema - the latest time to recite morning Shema according to the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon).
+
+3 shaos zmaniyos after sunrise. {uses_elevation}
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

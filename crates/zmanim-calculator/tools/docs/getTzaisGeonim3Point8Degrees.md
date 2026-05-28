@@ -19,4 +19,7 @@ on an 18-minutes mil, 49 amos would take 26.46, rounded to 30 seconds), for a to
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 3.8 degrees below the western horizon after sunset.
+
+Corresponds to 14 minutes after sunset: 13.5 minutes for 3/4 of an 18-minute mil, plus 30 seconds for 49 amos (bain hashmashos of Rav Yosi), in Jerusalem [around the equinox/equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/).
 ```

@@ -31,4 +31,9 @@ This is an early <em>zman</em> for <em>tzais</em>and should not be relied on wit
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 4.8 degrees below the western horizon after sunset.
+
+18.6 minutes after sunset: 3/4 of a 24-minute mil plus time for 49 amos (bain hashmashos of Rav Yosi). Based on [Rav Yechiel Michel Shlezinger's](https://he.wikipedia.org/wiki/%D7%99%D7%97%D7%99%D7%90%D7%9C_%D7%9E%D7%99%D7%9B%D7%9C_%D7%A9%D7%9C%D7%96%D7%99%D7%A0%D7%92%D7%A8) [Aizehu Bain Hashmashos](https://www.nli.org.il/he/books/NNL_ALEPH997010042055805171/NLI) and [Rabbi Yehuda (Leo) Levi's](https://en.wikipedia.org/wiki/Yehuda_(Leo)_Levi) calculations in [Zmanei Hayom BaHalacha](https://www.nli.org.il/en/items/NNL_ALEPH990022548970205171/NLI). This is an early zman and should not be relied on without rabbinical guidance.
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

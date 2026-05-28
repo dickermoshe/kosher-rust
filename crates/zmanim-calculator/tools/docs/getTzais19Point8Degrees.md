@@ -16,4 +16,9 @@ For information on how this is calculated see the comments on {@link #getAlos19P
 # Human docs
 
 ```markdown
+Tzais (nightfall) - when the sun is 19.8 degrees below the western horizon after sunset.
+
+Degree-based calculation corresponding to 90 minutes after sunset [around the equinox/equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/) in Jerusalem.
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

@@ -17,4 +17,11 @@ not be used for latitudes other than ones similar to the latitude of the NY area
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to [Rav Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein) for the New York area - 50 minutes after sunset.
+
+50 minutes after sunset. {uses_elevation}
+
+This zman should not be used for latitudes other than ones similar to the New York area.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

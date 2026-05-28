@@ -25,4 +25,9 @@ most places on the globe, it should only be used <em>lechumra</em>, such as dela
 # Human docs
 
 ```markdown
+Tzais (nightfall) - 120 zmaniyos minutes after sea level sunset.
+
+This zman should be used lechumra only, such as delaying the start of nighttime mitzvos. The sun is well below the 18-degree point in most places. Using it leniently can lead to chillul Shabbos and similar serious errors.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

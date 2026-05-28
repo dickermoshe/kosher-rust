@@ -21,9 +21,11 @@ minutes before {@link #getSunriseBaalHatanya <em>netz amiti</em> (sunrise)} in J
 # Human docs
 
 ```markdown
-Alos (dawn) according to the [Baal Hatanya](https://en.wikipedia.org/wiki/Shneur_Zalman_of_Liadi) - the beginning of morning twilight before netz amiti (true sunrise).
+Alos (dawn) according to the Baal Hatanya.
 
-The time when the sun is 16.9 degrees below the eastern geometric horizon before sunrise. Based on the view that the interval from dawn to netz amiti is 72 minutes - the time to walk 4 [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement) at 18 minutes per mil, as cited by [Rambam](https://en.wikipedia.org/wiki/Maimonides) and others. In Jerusalem [around the equinox or equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), the sun is 16.9 degrees below geometric zenith about 72 minutes before Baal Hatanya sunrise.
+The time when the sun is 16.9 degrees below the eastern horizon before sunrise.
 
-At some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+Based on the view that the interval from dawn to netz amiti is 72 minutes, or 4 mil at 18 minutes per mil.
+
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

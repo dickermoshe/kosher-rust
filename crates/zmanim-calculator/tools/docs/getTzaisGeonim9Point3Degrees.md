@@ -16,4 +16,9 @@ as the sun's position at {@link ZENITH_9_POINT_3 9.3°} below the western horizo
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 9.3 degrees below the western horizon after sunset.
+
+The stringent tzais used in [Luach Itim Lebinah](https://www.worldcat.org/oclc/243303103).
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

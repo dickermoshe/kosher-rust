@@ -22,7 +22,9 @@ to {@link #getSeaLevelSunset() sea level sunset} or {@link #getSunset() sunrise}
 ```markdown
 Alos (dawn), the beginning of morning twilight before sunrise.
 
-72 zmaniyos minutes (one-tenth of the day) before sunrise. {uses_elevation} Based on an 18-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), so 4 mil equals 72 minutes, which is one-tenth of a 12-hour day (720 minutes). The day length used for the proportional hour is from sunrise to sunset. Used in calendars published by the [Hisachdus Harabanim D'Artzos Habris Ve'Canada](https://en.wikipedia.org/wiki/Central_Rabbinical_Congress).
+72 zmaniyos minutes before sunrise, or 1/10 of the day. {uses_elevation}
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+Based on 4 mil at 18 minutes per mil, measured in shaos zmaniyos.
+
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

@@ -23,4 +23,9 @@ of Rav Yosi) at the pace of a 24-minute mil. See {@link #getTzaisGeonim4Point8De
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 4.66 degrees below the western horizon after sunset.
+
+Based on 3/4 of a 24-minute mil (18 minutes after sunset). This is a very early zman and should not be relied on without rabbinical guidance. Does not include the time to walk 49 amos for bain hashmashos of Rav Yosi.
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

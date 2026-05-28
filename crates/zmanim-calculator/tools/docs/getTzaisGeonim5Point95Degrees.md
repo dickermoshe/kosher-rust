@@ -29,4 +29,9 @@ too early.
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 5.95 degrees below the western horizon after sunset.
+
+About 24 minutes after sunset in Jerusalem [around the equinox/equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), based on 18 minutes (3/4 of a 24-minute mil) plus shkiah amitis and bain hashmashos of Rav Yosi. Chabad calendars usually use the related 6-degree [Baal Hatanya](https://en.wikipedia.org/wiki/Shneur_Zalman_of_Liadi) tzais built on this calculation.
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

@@ -23,4 +23,9 @@ for 4 mil after {@link #getSunset() sunset} or {@link #getSeaLevelSunset() sea l
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the [Chavas Yair](https://en.wikipedia.org/wiki/Yair_Bacharach) and [Divrei Malkiel](https://he.wikipedia.org/wiki/%D7%9E%D7%9C%D7%9B%D7%99%D7%90%D7%9C_%D7%A6%D7%91%D7%99_%D7%98%D7%A0%D7%A0%D7%91%D7%95%D7%99%D7%9D) - 60 minutes after sunset.
+
+Based on a 15-minute mil, for a total of 4 mil after sunset. {uses_elevation}
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

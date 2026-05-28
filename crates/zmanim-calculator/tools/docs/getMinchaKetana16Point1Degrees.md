@@ -22,9 +22,9 @@ this see the documentation on {@link #getMinchaGedolaGRA() <em>mincha gedola</em
 # Human docs
 
 ```markdown
-Mincha ketana according to the Magen Avraham.
+Mincha ketana according to the Magen Avraham, using the 16.1-degree day.
 
-9.5 shaos zmaniyos after alos at 16.1 degrees below the horizon, using a day that begins and ends at 16.1 degrees.
+9.5 shaos zmaniyos after alos 16.1 degrees, using a day that begins and ends at 16.1 degrees.
 
-At some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

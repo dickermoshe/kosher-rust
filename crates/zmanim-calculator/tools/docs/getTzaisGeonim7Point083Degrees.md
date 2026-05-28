@@ -28,4 +28,9 @@ and 7.199° at the equinox. See Hazmanim Bahalacha vol 2, pages 520-521 for more
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 7.083 degrees (7 degrees 5 minutes) below the western horizon after sunset.
+
+Based on Dr. Baruch (Berthold) Cohn's observation of 3 medium-sized stars in his [1899 luach](https://sammlungen.ub.uni-frankfurt.de/freimann/content/titleinfo/983088). Endorsed by [Rav Dovid Tzvi Hoffman](https://en.wikipedia.org/wiki/David_Zvi_Hoffmann) in [Melamed Leho'il Orach Chaim 30](https://hebrewbooks.org/pdfpager.aspx?req=1053&st=&pgnum=37). Close to the [Makor Chessed](https://hebrewbooks.org/22044) of the Sefer Chasidim and to about 30 minutes after sunset in Jerusalem [around the equinox/equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), but not exactly.
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

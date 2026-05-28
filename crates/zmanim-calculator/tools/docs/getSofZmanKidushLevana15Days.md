@@ -24,4 +24,9 @@ between <em>tzais</em> and <em>alos</em>, see {@link #getSofZmanKidushLevana15Da
 # Human docs
 
 ```markdown
+The latest time for Kiddush Levana according to the Shulchan Aruch (Orach Chaim 426) - 15 days after the molad.
+
+Some hold that the [Rema](https://en.wikipedia.org/wiki/Moses_Isserles), who cites the [Maharil's](https://en.wikipedia.org/wiki/Yaakov_ben_Moshe_Levi_Moelin) approach of calculating halfway between molad and molad, reflects the Mechaber's view as well. See Rabbi Dovid Heber's detailed write-up in siman daled (chapter 4) of [Shaarei Zmanim](https://hebrewbooks.org/53000).
+
+Note that although this time may be during the daytime, Kiddush Levana cannot be said during the daytime.
 ```

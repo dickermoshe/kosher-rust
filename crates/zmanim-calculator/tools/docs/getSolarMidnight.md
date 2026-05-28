@@ -30,4 +30,9 @@ definition of solar noon / midday.
 # Human docs
 
 ```markdown
+Solar midnight - when the sun transits the lower celestial meridian (at its nadir).
+
+Calculated for the end of the current day. For example, solar midnight for February 8 is the moment between February 8 and February 9 when the sun is at its lowest point. See [The Definition of Chatzos](https://kosherjava.com/2020/07/02/definition-of-chatzos/) for details on the proper definition of solar noon and midnight.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

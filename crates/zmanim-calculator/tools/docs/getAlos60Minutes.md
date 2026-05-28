@@ -36,7 +36,9 @@ degree-based calculation based on 60 minutes.
 ```markdown
 Alos (dawn), the beginning of morning twilight before sunrise.
 
-60 minutes before sunrise. {uses_elevation} Based on the time to walk 4 [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement) at 15 minutes per mil. This follows the opinion of [Chavas Yair](https://en.wikipedia.org/wiki/Yair_Bacharach) in Mekor Chaim, Orach Chaim 90, though he elsewhere gives 18 minutes per mil. The 15-minute mil is also cited lechumra for baking matzos ([Divrei Malkiel](https://he.wikipedia.org/wiki/%D7%9E%D7%9C%D7%9B%D7%99%D7%90%D7%9C_%D7%A6%D7%91%D7%99_%D7%98%D7%A0%D7%A0%D7%91%D7%95%D7%99%D7%9D) [vol. 4, ch. 20](https://hebrewbooks.org/pdfpager.aspx?req=803&pgnum=33)) and by [Maharik](https://en.wikipedia.org/wiki/Joseph_Colon_Trabotto) ([ch. 173](https://hebrewbooks.org/pdfpager.aspx?req=1142&pgnum=216)), quoting the [Ra'avan](https://en.wikipedia.org/wiki/Eliezer_ben_Nathan); many hold there is a scribal error there and the mil should be 18 minutes. Time-based offsets reflect the view of the [Rishonim](https://en.wikipedia.org/wiki/Rishonim) that neshef does not vary by season or location but depends on walking 4 mil. A related degree-based nightfall is tzais at 9.75 degrees (also based on 60 minutes).
+60 minutes before sunrise. {uses_elevation}
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+Based on the time to walk 4 mil at 15 minutes per mil.
+
+In places where sunrise cannot be calculated, this zman may not be available.
 ```

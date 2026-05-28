@@ -24,4 +24,9 @@ darkest point is reached, it should only be used <em>lechumra</em> such as delay
 # Human docs
 
 ```markdown
+Tzais (nightfall) - when the sun is 26 degrees below the western horizon after sunset.
+
+This zman should be used lechumra only, such as delaying the start of nighttime mitzvos. Using it leniently can lead to chillul Shabbos and similar serious errors.
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

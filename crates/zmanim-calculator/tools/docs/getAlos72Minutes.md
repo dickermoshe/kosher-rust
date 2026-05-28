@@ -22,7 +22,9 @@ to walk the distance of 4 mil.
 ```markdown
 Alos (dawn), the beginning of morning twilight before sunrise.
 
-72 minutes before sunrise. {uses_elevation} Based on the time to walk 4 [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement) at 18 minutes per mil. The fixed 72-minute interval (not the general idea of measuring by walking time) reflects the view that the neshef period between dawn and sunrise does not vary by season or location, but depends on the time to walk 4 mil.
+72 minutes before sunrise. {uses_elevation}
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+Based on the time to walk 4 mil at 18 minutes per mil.
+
+In places where sunrise cannot be calculated, this zman may not be available.
 ```

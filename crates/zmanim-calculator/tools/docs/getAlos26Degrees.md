@@ -28,9 +28,13 @@ only be used <em>lechumra</em> only, such as not eating after this time on a fas
 # Human docs
 
 ```markdown
-Alos (dawn), an extremely early time that should be used lechumra only - for example, stopping to eat on a fast day - and not as the start of daytime mitzvos.
+Alos (dawn), using an extremely early degree-based calculation.
 
-The time when the sun is 26 degrees below the eastern geometric horizon before sunrise. This is the degree-based equivalent of alos 120 minutes before sunrise: in Jerusalem [around the equinox or equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), the sun is 26 degrees below geometric zenith about 120 minutes before sunrise. Using this zman leniently can lead to performing daytime mitzvos too early according to most opinions.
+The time when the sun is 26 degrees below the eastern horizon before sunrise.
 
-At some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+This is the degree-based equivalent of alos 120 minutes before sunrise around the equinox in Jerusalem.
+
+This zman should be used lechumra only, such as stopping to eat on a fast day, and not as the start of daytime mitzvos.
+
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

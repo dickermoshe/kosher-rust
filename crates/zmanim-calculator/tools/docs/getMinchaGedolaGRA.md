@@ -34,5 +34,7 @@ Mincha gedola according to the [Vilna Gaon](https://en.wikipedia.org/wiki/Vilna_
 
 6.5 shaos zmaniyos after sunrise. {uses_elevation} The day is measured from sunrise to sunset for the proportional hour.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+This is the earliest time one can pray mincha.
+
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

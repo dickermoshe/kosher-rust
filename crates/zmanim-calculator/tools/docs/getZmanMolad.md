@@ -17,4 +17,7 @@ minute and chalakim, {@link JewishCalendar#getMoladAsInstant()} and the not yet 
 # Human docs
 
 ```markdown
+The molad for the Hebrew month.
+
+The astronomical moment when the moon is positioned between the earth and the sun for the start of the lunar month.
 ```

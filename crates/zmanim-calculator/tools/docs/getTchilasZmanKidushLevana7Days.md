@@ -17,4 +17,7 @@ can't be recited. Use {@link #getTchilasZmanKidushLevana7Days(Instant, Instant)}
 # Human docs
 
 ```markdown
+The earliest time for Kiddush Levana according to the opinion that it should not be said until 7 days after the molad.
+
+Note that although this time may be during the daytime, Kiddush Levana cannot be said during the daytime.
 ```

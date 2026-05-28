@@ -16,4 +16,7 @@ Method to return <em>tzais</em> (dusk) calculated using 96 minutes <em>zmaniyos<
 # Human docs
 
 ```markdown
+Tzais (nightfall) - 96 zmaniyos minutes (1/7.5 of the day) after sea level sunset.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

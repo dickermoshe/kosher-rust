@@ -25,7 +25,9 @@ between dawn and sunrise (and sunset to nightfall) is 72 minutes, the time that 
 ```markdown
 Alos (dawn), the beginning of morning twilight before sunrise.
 
-The time when the sun is 16.1 degrees below the eastern geometric horizon before sunrise. This reflects the traditional view that the interval from dawn to sunrise, and from sunset to nightfall, is 72 minutes - the time to walk 4 [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement) at 18 minutes per mil, as cited by [Rambam](https://en.wikipedia.org/wiki/Maimonides) and others. In Jerusalem [around the equinox or equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), the sun is 16.1 degrees below the geometric horizon about 72 minutes before sunrise.
+The time when the sun is 16.1 degrees below the eastern horizon before sunrise.
 
-At some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+This reflects the 72-minute alos calculation, based on 4 mil at 18 minutes per mil.
+
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

@@ -23,4 +23,9 @@ sunset} or from {@link getSunrise() sunrise} to {@link getSunset() sunset} (depe
 # Human docs
 
 ```markdown
+Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon).
+
+4 shaos zmaniyos after sunrise. {uses_elevation}
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

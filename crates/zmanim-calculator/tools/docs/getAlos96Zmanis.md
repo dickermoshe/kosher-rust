@@ -24,7 +24,9 @@ to {@link #getSeaLevelSunset() sea level sunset} or {@link #getSunset() sunrise}
 ```markdown
 Alos (dawn), the beginning of morning twilight before sunrise.
 
-96 zmaniyos minutes (one-seventh of the day) before sunrise. {uses_elevation} Based on a 24-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), so 4 mil equals 96 minutes, which is one-seventh of a 12-hour day (12 * 60 / 7.5 = 96).
+96 zmaniyos minutes before sunrise, or 1/7.5 of the day. {uses_elevation}
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+Based on 4 mil at 24 minutes per mil, measured in shaos zmaniyos.
+
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

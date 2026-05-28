@@ -23,9 +23,9 @@ and {@link #getAlos16Point1Degrees()} after {@link #getChatzosHayom()}.
 # Human docs
 
 ```markdown
-Mincha gedola according to the Magen Avraham, using a day that begins and ends at 16.1 degrees below the horizon.
+Mincha gedola according to the Magen Avraham, using the 16.1-degree day.
 
-Half a shaah zmanis after chatzos hayom, where the proportional hour is based on the span from alos at 16.1 degrees to chatzos hayom.
+Half a shaah zmanis after chatzos hayom, using a day that begins and ends at 16.1 degrees.
 
-At some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

@@ -22,4 +22,9 @@ calculation {@link #getTzais19Point8Degrees()} uses solar position* calculations
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Magen Avraham - 90 minutes after sunset.
+
+Based on Ula's calculation of tzais as 5 mil after sunset, using the Rambam's 18-minute mil. {uses_elevation}
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

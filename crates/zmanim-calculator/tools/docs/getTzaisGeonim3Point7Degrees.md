@@ -21,4 +21,7 @@ and 24) lists 3.65° that appears to be a drop too early.
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 3.7 degrees below the western horizon after sunset.
+
+Corresponds to 13.5 minutes after sunset (3/4 of a mil at 18 minutes per mil) in Jerusalem [around the equinox/equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/). Does not include the time to walk 49 amos for bain hashmashos of Rav Yosi.
 ```

@@ -27,4 +27,9 @@ definition of solar noon / midday.
 # Human docs
 
 ```markdown
+Solar noon - when the sun transits the celestial meridian.
+
+Also called sundial noon or astronomical chatzos hayom. See [The Definition of Chatzos](https://kosherjava.com/2020/07/02/definition-of-chatzos/) for details on the proper definition of solar noon.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

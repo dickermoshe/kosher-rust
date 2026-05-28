@@ -44,12 +44,13 @@ difference between the two. Even at the latitude of Vilna, from Dec - March, the
 # Human docs
 
 ```markdown
-Misheyakir when the sun is 12.85 degrees below geometric zenith.
+Misheyakir using a very early calculation.
 
-This is a very early time that should be used bish'as hadchak only. One should not use this time lechatchila.
+The time when the sun is 12.85 degrees below the horizon before sunrise.
 
-Based on a position slightly later than 57 minutes before sunrise in Jerusalem [around the equinox or equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/). Mentioned for bish'as hadchak in Birur Halacha [tinyana](https://hebrewbooks.org/pdfpager.aspx?req=50535&st=&pgnum=88) and [tlisa'ah](https://hebrewbooks.org/pdfpager.aspx?req=50537&st=&pgnum=31), Orach Chaim 18. The source uses 12.85 degrees as a slight chumra compared to about 12.9 degrees that 57 minutes calculates to at the equinox in Jerusalem.
+This is slightly later than 57 minutes before sunrise in Jerusalem around the equinox.
 
+This zman should be used only bish'as hadchak. A later zman should be used lechatchila.
 
-At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

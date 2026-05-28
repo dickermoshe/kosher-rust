@@ -19,4 +19,9 @@ calculated from sunrise to sunset. This returns the time 4 * {@link #getShaahZma
 # Human docs
 
 ```markdown
+Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the Baal Hatanya.
+
+4 shaos zmaniyos after netz amiti (true sunrise), with the day measured from Baal Hatanya sunrise to sunset.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

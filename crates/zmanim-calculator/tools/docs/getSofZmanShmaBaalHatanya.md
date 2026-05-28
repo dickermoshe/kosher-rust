@@ -20,4 +20,9 @@ sunrise to sunset. This returns the time 3 * {@link #getShaahZmanisBaalHatanya()
 # Human docs
 
 ```markdown
+Sof zman krias shema - the latest time to recite morning Shema according to the Baal Hatanya.
+
+3 shaos zmaniyos after netz amiti (true sunrise), with the day measured from Baal Hatanya sunrise to sunset.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

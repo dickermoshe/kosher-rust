@@ -30,4 +30,9 @@ Vol. III, chapter 117</a>. This <em>zman</em> is also listed in the Divrei Shalo
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 7.67 degrees below the western horizon after sunset.
+
+Corresponds to 45 minutes after sunset during the summer solstice in New York, when twilight is longest. Cited in [Igros Moshe Even Haezer 4, ch. 4](https://hebrewbooks.org/pdfpager.aspx?req=921&pgnum=149) regarding tzais for krias shema, and in Rabbi Heber's [Shaarei Zmanim](https://hebrewbooks.org/53000) ([chapter 10, page 87](https://hebrewbooks.org/pdfpager.aspx?req=53055&pgnum=101) and [chapter 12, page 108](https://hebrewbooks.org/pdfpager.aspx?req=53055&pgnum=122)). Also endorsed by [Rabbi Shmuel Kamenetsky](https://en.wikipedia.org/wiki/Shmuel_Kamenetsky).
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

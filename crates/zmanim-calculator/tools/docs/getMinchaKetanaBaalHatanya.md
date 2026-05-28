@@ -25,7 +25,7 @@ day is calculated from sunrise to sunset. This returns the time 9.5 * {@link #ge
 ```markdown
 Mincha ketana according to the Baal Hatanya.
 
-9.5 shaos zmaniyos after netz amiti (true sunrise), with the day measured from Baal Hatanya sunrise to sunset.
+9.5 shaos zmaniyos after netz amiti, using a day from Baal Hatanya sunrise to sunset.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

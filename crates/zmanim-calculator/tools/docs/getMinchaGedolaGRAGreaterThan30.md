@@ -27,9 +27,9 @@ may be affected by {@link #isUseAstronomicalChatzos()}.
 # Human docs
 
 ```markdown
-Mincha gedola - the later of times calculated according to the [Vilna Gaon](https://en.wikipedia.org/wiki/Vilna_Gaon) and 30 minutes after astronomical chatzos hayom.
+Mincha gedola calculated as the later of mincha gedola GRA and 30 minutes after astronomical chatzos hayom.
 
-In the winter, when half a shaah zmanis is less than 30 minutes, mincha gedola 30 minutes after astronomical chatzos hayom is used. Otherwise mincha gedola according to the [Vilna Gaon](https://en.wikipedia.org/wiki/Vilna_Gaon) is used.
+In the winter, when half a shaah zmanis is less than 30 minutes, the 30-minutes-after-chatzos time is used. Otherwise, mincha gedola GRA is used.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+In places where sunrise, sunset, or chatzos cannot be calculated, this zman may not be available.
 ```

@@ -25,4 +25,9 @@ will be incremented to the following date.
 # Human docs
 
 ```markdown
+Sunset, adjusted for the location's elevation.
+
+The time when the upper edge of the sun disappears below the horizon, accounting for atmospheric refraction and the sun's radius.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

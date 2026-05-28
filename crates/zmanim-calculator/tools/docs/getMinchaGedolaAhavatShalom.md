@@ -27,9 +27,11 @@ Since calculation of this <em>zman</em> involves <em>chatzos</em> that is offset
 # Human docs
 
 ```markdown
-Mincha gedola according to [Rabbi Yaakov Moshe Hillel](https://en.wikipedia.org/wiki/Yaakov_Moshe_Hillel), as published in the luach of the Bais Horaah of Yeshivat Chevrat Ahavat Shalom - the earliest time to pray mincha.
+Mincha gedola according to Rabbi Yaakov Moshe Hillel, as published in the luach of the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.
 
-Half a shaah zmanis after chatzos, with shaos zmaniyos based on a day from alos at 16.1 degrees to tzais at 3.7 degrees. The later of that time or 30 clock minutes after chatzos is used.
+Half a shaah zmanis after chatzos, using a day from alos 16.1 degrees to tzais 3.7 degrees.
 
-At some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+The later of this time or 30 clock minutes after chatzos is used.
+
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

@@ -18,7 +18,7 @@ eastern geometric horizon before sunrise.
 ```markdown
 Alos (dawn), the beginning of morning twilight before sunrise.
 
-The time when the sun is 18 degrees below the eastern geometric horizon before sunrise.
+The time when the sun is 18 degrees below the eastern horizon before sunrise.
 
-At some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
 ```

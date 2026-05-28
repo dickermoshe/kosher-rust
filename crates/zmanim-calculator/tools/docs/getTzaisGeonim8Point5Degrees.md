@@ -20,4 +20,9 @@ ComprehensiveZmanimCalendar#getTzaisGeonim8Point5Degrees() that returns an ident
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 8.5 degrees below the western horizon after sunset.
+
+Based on Rabbi Meir Posen's [Ohr Meir](https://www.worldcat.org/oclc/29283612) calculation for when 3 small stars are visible, which is later than the required 3 medium stars. About 36 minutes after sunset in Jerusalem [around the equinox/equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/).
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

@@ -21,4 +21,9 @@ The <em>sof zman Kiddush Levana</em> will be returned even if it occurs during t
 # Human docs
 
 ```markdown
+The latest time for Kiddush Levana according to the [Maharil](https://en.wikipedia.org/wiki/Yaakov_ben_Moshe_Levi_Moelin) - halfway between this molad and the next.
+
+Half of the 29 days, 12 hours, and 793 chalakim interval between molad and molad (14 days, 18 hours, 22 minutes, and 666 milliseconds) after the month's molad.
+
+Note that although this time may be during the daytime, Kiddush Levana cannot be said during the daytime.
 ```

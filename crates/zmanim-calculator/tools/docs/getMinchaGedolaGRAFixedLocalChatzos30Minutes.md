@@ -20,7 +20,9 @@ local chatzos}.
 # Human docs
 
 ```markdown
-Mincha gedola according to [Rav Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein)'s opinion, calculated as 30 minutes after fixed local chatzos.
+Mincha gedola according to Rav Moshe Feinstein's opinion.
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+30 minutes after fixed local chatzos.
+
+In places where fixed local chatzos cannot be calculated, this zman may not be available.
 ```

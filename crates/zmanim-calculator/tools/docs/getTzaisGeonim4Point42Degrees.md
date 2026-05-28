@@ -23,4 +23,9 @@ and 24) lists 4.37° that appears to be a drop too early.
 # Human docs
 
 ```markdown
+Tzais (nightfall) according to the Geonim - when the sun is 4.42 degrees below the western horizon after sunset.
+
+Based on 3/4 of a 22.5-minute mil (16 7/8 minutes after sunset). This is a very early zman and should not be relied on without rabbinical guidance. Does not include the time to walk 49 amos for bain hashmashos of Rav Yosi.
+
+At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
 ```

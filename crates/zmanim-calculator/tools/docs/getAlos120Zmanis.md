@@ -29,9 +29,13 @@ on a fast day, and not as the start time for <em>mitzvos</em> that can only be p
 # Human docs
 
 ```markdown
-Alos (dawn), an extremely early time that should be used lechumra only - for example, stopping to eat on a fast day - and not as the start of daytime mitzvos.
+Alos (dawn), using an extremely early 120-zmaniyos-minute calculation.
 
-120 zmaniyos minutes (one-sixth of the day) before sunrise. {uses_elevation} Based on a 24-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), so 5 mil equals 120 minutes, which is one-sixth of a 12-hour day. Using this zman leniently can lead to performing daytime mitzvos too early according to most opinions.
+120 zmaniyos minutes before sunrise, or 1/6 of the day. {uses_elevation}
 
-In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
+Based on 5 mil at 24 minutes per mil, measured in shaos zmaniyos.
+
+This zman should be used lechumra only, such as stopping to eat on a fast day, and not as the start of daytime mitzvos.
+
+In places where sunrise or sunset cannot be calculated, this zman may not be available.
 ```

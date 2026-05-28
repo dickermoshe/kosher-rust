@@ -17,4 +17,9 @@ this is calculated see the comments on {@link #getAlos96Minutes()}.
 # Human docs
 
 ```markdown
+Tzais (nightfall) - 96 minutes after sunset.
+
+Based on the time to walk 4 mil at 24 minutes per mil. {uses_elevation}
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```
