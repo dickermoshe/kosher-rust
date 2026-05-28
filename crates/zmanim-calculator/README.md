@@ -114,14 +114,6 @@ Then run the Rust tests from `crates/zmanim-calculator`:
 cargo test
 ```
 
-Useful quick checks while editing Rust or generated presets:
-
-```bash
-cargo fmt -p zmanim-calculator
-cargo check -p zmanim-calculator
-cargo check -p zmanim-calculator --features alloc
-```
-
 ## Updating KosherJava
 
 From the repository root:
@@ -138,9 +130,7 @@ After pulling upstream changes, review the Java implementation, update
 - `Sof Zman Achilas Chametz` and `Sof Zman Biur Chametz` are returned for any
   date, not only Erev Pesach.
 - Chatzos uses astronomical chatzos, not the midpoint of sunrise to sunset.
-- A small number of tolerance and policy exceptions exist where the Rust SPA
-  calculations intentionally differ from NOAA while remaining accurate enough
-  for supported use cases.
+
 
 ## License
 
