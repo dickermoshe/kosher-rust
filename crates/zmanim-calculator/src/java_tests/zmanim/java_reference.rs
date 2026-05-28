@@ -5,6 +5,7 @@ use std::{collections::HashSet, env::join_paths, error::Error, path::PathBuf, sy
 use jni::{
     jni_sig, jni_str,
     objects::{JClassLoader, JObject, JObjectArray, JString, JValue, LoaderContext},
+    strings::JNIString,
     sys::{jboolean, JNI_FALSE, JNI_TRUE},
     InitArgsBuilder, JNIVersion, JavaVM,
 };
@@ -85,7 +86,7 @@ pub(super) fn java_supported_timezones() -> &'static HashSet<String> {
 /// Calculates one preset with KosherJava for a parity [`TestCase`].
 pub(super) fn calculate_java_zman(
     case: TestCase,
-    zman: &'static ZmanPreset<'static>,
+    zman: &'static ZmanPreset,
 ) -> Result<Option<ZmanResult>, Box<dyn Error>> {
     java_vm().attach_current_thread(
         |env: &mut jni::Env<'_>| -> Result<Option<ZmanResult>, Box<dyn Error>> {
@@ -152,7 +153,14 @@ pub(super) fn calculate_java_zman(
                     case.ateret_torah_sunset_offset_minutes as f64,
                 )],
             )?;
-            let instant = zman.calc.call(env, &calendar)?;
+            let instant = env
+                .call_method(
+                    &calendar,
+                    JNIString::from(zman.method_name),
+                    jni_sig!("()Ljava/time/Instant;"),
+                    &[],
+                )?
+                .l()?;
             if instant.is_null() {
                 return Ok(None);
             }
