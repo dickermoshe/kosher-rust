@@ -2,7 +2,7 @@ use hebrew_holiday_calendar::{HebrewHolidayCalendar, HebrewMonth, Holiday};
 
 use crate::{
     constants::YERUSHALMI_DAF_COUNT,
-    date::{from_gregorian_date, from_hebrew_date, days_between, DateExt, HebrewDate},
+    date::{days_between, from_gregorian_date, from_hebrew_date, DateExt, HebrewDate},
     interval::Interval,
     limud_calculator::{CycleFinder, InternalLimudCalculator},
     units::{Daf, YERUSHALMI_TRACTATES},
@@ -13,8 +13,8 @@ const YERUSHALMI_CYCLE_START: (i32, u8, u8) = (1980, 2, 2);
 
 /// Pages per masechta in the Vilna Yerushalmi, matching KosherJava's `BLATT_PER_MASECHTA`.
 const YERUSHALMI_BLATT_PER_MASECHTA: [u16; 39] = [
-    68, 37, 34, 44, 31, 59, 26, 33, 28, 20, 13, 92, 65, 71, 22, 22, 42, 26, 26, 33, 34, 22, 19,
-    85, 72, 47, 40, 47, 54, 48, 44, 37, 34, 44, 9, 57, 37, 19, 13,
+    68, 37, 34, 44, 31, 59, 26, 33, 28, 20, 13, 92, 65, 71, 22, 22, 42, 26, 26, 33, 34, 22, 19, 85, 72, 47, 40, 47, 54,
+    48, 44, 37, 34, 44, 9, 57, 37, 19, 13,
 ];
 
 #[derive(Default)]
@@ -55,10 +55,7 @@ impl InternalLimudCalculator<Daf> for DafYomiYerushalmiVilna {
             return None;
         }
 
-        for (&tractate, &blatt) in YERUSHALMI_TRACTATES
-            .iter()
-            .zip(YERUSHALMI_BLATT_PER_MASECHTA.iter())
-        {
+        for (&tractate, &blatt) in YERUSHALMI_TRACTATES.iter().zip(YERUSHALMI_BLATT_PER_MASECHTA.iter()) {
             let blatt = i32::from(blatt);
             if total < blatt {
                 return Some(Daf {

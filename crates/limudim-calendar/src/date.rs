@@ -43,6 +43,8 @@ impl DateExt for HebrewDate {
 }
 
 pub(crate) fn days_between(start: HebrewDate, end: HebrewDate) -> Option<i32> {
-    let difference = start.try_until_with_options(&end, DateDifferenceOptions::default()).ok()?;
+    let difference = start
+        .try_until_with_options(&end, DateDifferenceOptions::default())
+        .ok()?;
     i32::try_from(difference.days).ok()
 }

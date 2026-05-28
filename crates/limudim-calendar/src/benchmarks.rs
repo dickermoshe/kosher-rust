@@ -12,8 +12,8 @@ use icu_calendar::{cal::Hebrew, Date, Gregorian};
 use rand::{rngs::StdRng, RngExt, SeedableRng};
 
 use crate::{
-    AmudYomiBavliDirshu, DafHashavuaBavli, DafYomiBavli, DafYomiYerushalmiVilna, LimudCalendar,
-    MishnaYomis, PirkeiAvos, TehillimMonthly,
+    AmudYomiBavliDirshu, DafHashavuaBavli, DafYomiBavli, DafYomiYerushalmiVilna, LimudCalendar, MishnaYomis,
+    PirkeiAvos, TehillimMonthly,
 };
 
 const DEFAULT_ITERATIONS: u64 = 250;
@@ -112,9 +112,7 @@ fn report_and_assert(result: &BenchmarkResult) {
     );
 
     if cfg!(debug_assertions) {
-        std::eprintln!(
-            "  (debug build: skipping {MAX_MS_PER_CALL} ms/call assertion; run with --release)"
-        );
+        std::eprintln!("  (debug build: skipping {MAX_MS_PER_CALL} ms/call assertion; run with --release)");
         return;
     }
 
