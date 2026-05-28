@@ -49,7 +49,7 @@ impl InternalLimudCalculator<Daf> for DafYomiYerushalmiVilna {
         }
 
         let daf_no = days_between(prev_cycle, limud_date)?;
-        let special_days = count_special_days(prev_cycle, limud_date);
+        let special_days = count_special_days(prev_cycle, limud_date)?;
         let mut total = daf_no - special_days;
         if total < 0 {
             return None;
@@ -91,11 +91,11 @@ impl LimudCalculator<Daf> for DafYomiYerushalmiVilna {}
 
 fn cycle_end_date(cycle_start: HebrewDate) -> Option<HebrewDate> {
     let mut end_date = cycle_start.add_days(YERUSHALMI_DAF_COUNT - 1)?;
-    let mut found_days = count_special_days(cycle_start, end_date);
+    let mut found_days = count_special_days(cycle_start, end_date)?;
     while found_days > 0 {
         let new_start_date = end_date.add_days(1)?;
         end_date = end_date.add_days(found_days)?;
-        found_days = count_special_days(new_start_date, end_date);
+        found_days = count_special_days(new_start_date, end_date)?;
     }
     Some(end_date)
 }
@@ -108,16 +108,16 @@ fn is_between(start: HebrewDate, date: HebrewDate, end: HebrewDate) -> bool {
     start < date && date <= end
 }
 
-fn tisha_bav_date(year: i32) -> HebrewDate {
+fn tisha_bav_date(year: i32) -> Option<HebrewDate> {
     let date = from_hebrew_date(year, HebrewMonth::Av, 9);
     if date.day_of_week_number() == 7 {
-        date.add_days(1).expect("Av 10 exists when 9 Av is Shabbat")
+        date.add_days(1)
     } else {
-        date
+        Some(date)
     }
 }
 
-fn count_special_days(start: HebrewDate, end: HebrewDate) -> i32 {
+fn count_special_days(start: HebrewDate, end: HebrewDate) -> Option<i32> {
     let start_year = start.year().extended_year();
     let end_year = end.year().extended_year();
     let mut special_days = 0;
@@ -129,12 +129,12 @@ fn count_special_days(start: HebrewDate, end: HebrewDate) -> i32 {
         }
 
         let tisha_bav = tisha_bav_date(year);
-        if is_between(start, tisha_bav, end) {
+        if is_between(start, tisha_bav?, end) {
             special_days += 1;
         }
     }
 
-    special_days
+    Some(special_days)
 }
 
 fn is_skip_day(date: &HebrewDate) -> bool {
