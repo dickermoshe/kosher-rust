@@ -14,6 +14,7 @@ extern crate alloc;
 use alloc::format;
 #[cfg(feature = "alloc")]
 use alloc::string::{String, ToString};
+#[cfg(feature = "alloc")]
 use jiff::SignedDuration;
 use jiff::Timestamp;
 
