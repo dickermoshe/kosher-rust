@@ -19,4 +19,7 @@ level sunrise}. If it is not  <em>erev Pesach</em>, a <code>null</code> will be 
 # Human docs
 
 ```markdown
+Sof zman biur chametz - the latest time to burn chametz on Erev Pesach according to the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon).
+
+5 shaos zmaniyos after sea level sunrise, with the day measured from sunrise to sunset.
 ```

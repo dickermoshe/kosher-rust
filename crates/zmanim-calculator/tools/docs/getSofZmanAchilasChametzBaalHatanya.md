@@ -21,4 +21,7 @@ be returned.
 # Human docs
 
 ```markdown
+Sof zman achilas chametz - the latest time to eat chametz on Erev Pesach according to the Baal Hatanya. Same as sof zman tfila Baal Hatanya.
+
+4 shaos zmaniyos after netz amiti (true sunrise), with the day measured from Baal Hatanya sunrise to sunset.
 ```

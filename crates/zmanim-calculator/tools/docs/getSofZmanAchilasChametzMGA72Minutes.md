@@ -25,4 +25,7 @@ after {@link #getAlos72Minutes() dawn}. If it is not <em>erev Pesach</em>, a <co
 # Human docs
 
 ```markdown
+Sof zman achilas chametz - the latest time to eat chametz on Erev Pesach according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 72-minute day. Same as sof zman tfila MGA 72 minutes.
+
+4 shaos zmaniyos after alos 72 minutes before sunrise, with the day measured from alos 72 minutes before sunrise to tzais 72 minutes after sunset.
 ```

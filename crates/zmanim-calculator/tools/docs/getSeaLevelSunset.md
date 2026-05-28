@@ -18,4 +18,9 @@ calculated as a dip below the horizon after sunset.
 # Human docs
 
 ```markdown
+Sunset at sea level, without adjusting for the location's elevation.
+
+This is the astronomical sunset used as the reference for dusk times measured as degrees below the horizon. Dawn and dusk depend on visible light, which is not affected by elevation the way sunrise and sunset at a raised location can be.
+
+In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.
 ```

@@ -22,4 +22,7 @@ is not <em>erev Pesach</em>, a <code>null</code> will be returned.
 # Human docs
 
 ```markdown
+Sof zman achilas chametz - the latest time to eat chametz on Erev Pesach according to the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon). Same as sof zman tfila GRA.
+
+4 shaos zmaniyos after sea level sunrise, with the day measured from sunrise to sunset.
 ```

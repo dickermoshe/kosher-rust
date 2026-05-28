@@ -19,4 +19,7 @@ be returned.
 # Human docs
 
 ```markdown
+Sof zman biur chametz - the latest time to burn chametz on Erev Pesach according to the Baal Hatanya.
+
+5 shaos zmaniyos after netz amiti (true sunrise), with the day measured from Baal Hatanya sunrise to sunset.
 ```

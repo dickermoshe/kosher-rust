@@ -27,4 +27,7 @@ returned.
 # Human docs
 
 ```markdown
+Sof zman achilas chametz - the latest time to eat chametz on Erev Pesach according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 72 zmaniyos-minute day. Same as sof zman tfila MGA 72 minutes zmanis.
+
+4 shaos zmaniyos after alos 72 zmaniyos minutes before sunrise, with the day measured from alos 72 zmaniyos minutes before sunrise to tzais 72 zmaniyos minutes after sunset.
 ```

@@ -22,4 +22,7 @@ after {@link #getAlos72Minutes() dawn}. If it is not  <em>erev Pesach</em>, a <c
 # Human docs
 
 ```markdown
+Sof zman biur chametz - the latest time to burn chametz on Erev Pesach according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 72-minute day.
+
+5 shaos zmaniyos after alos 72 minutes before sunrise, with the day measured from alos 72 minutes before sunrise to tzais 72 minutes after sunset.
 ```

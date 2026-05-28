@@ -24,4 +24,7 @@ If it is not <em>erev Pesach</em>, a <code>null</code> will be returned.
 # Human docs
 
 ```markdown
+Sof zman achilas chametz - the latest time to eat chametz on Erev Pesach according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 16.1-degree day.
+
+4 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to tzais at 16.1 degrees.
 ```

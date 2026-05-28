@@ -23,4 +23,7 @@ below sunrise or sunset. This returns the time of 5 {@link #getShaahZmanis16Poin
 # Human docs
 
 ```markdown
+Sof zman biur chametz - the latest time to burn chametz on Erev Pesach according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 16.1-degree day.
+
+5 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to tzais at 16.1 degrees.
 ```
