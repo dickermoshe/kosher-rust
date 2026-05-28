@@ -13,6 +13,7 @@ documentation = "https://docs.rs/zmanim-calculator"
 default = ["alloc"]
 # Enable this feature to use the defmt crate for logging.
 defmt = ["dep:defmt"]
+# Enable this feature to provide descriptions for each preset zman.
 alloc = []
 
 
