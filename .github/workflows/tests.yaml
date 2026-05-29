@@ -1,9 +1,9 @@
-name: Zmanim Calculator
+name: Kosher Rust
 
 on:
   push:
   pull_request:
-    branches: [main]
+    branches: [master]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -31,7 +31,8 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: clippy
-      - run: cargo clippy --all -- -D warnings
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --workspace --all-targets  -- -D warnings
 
   docs:
     name: Documentation
@@ -39,8 +40,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
       - name: Check documentation
-        run: cargo doc --no-deps --no-default-features
+        run: cargo doc --no-deps --no-default-features 
         env:
           RUSTDOCFLAGS: -D warnings
 
@@ -50,9 +52,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@cargo-hack
       - name: Run cargo check feature combinations
-        run: cargo hack check --feature-powerset --no-dev-deps
+        run: cargo hack check --feature-powerset --no-dev-deps 
 
   test:
     name: Test
@@ -60,16 +63,59 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@cargo-hack
+      - run: cargo hack test --feature-powerset --exclude-features defmt 
+
+  benchmarks:
+    name: Benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
+      - name: Run performance tests (10 ms limit)
+        run: cargo test --test benchmarks --release 
+
+  js-interop-tests:
+    name: JS Interop Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        working-directory: interop-tests/js_interop_tests
+        run: bun install
+      - name: Build WASM
+        working-directory: interop-tests/js_interop_tests
+        run: bun run build
+      - name: Run tests
+        working-directory: interop-tests/js_interop_tests
+        run: bun test
+
+  java-interop-tests:
+    name: Java Interop Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
           cache: maven
       - name: Build KosherJava reference jar
-        working-directory: crates/zmanim-calculator/java
+        working-directory: third-party/kosher-java
         run: mvn --batch-mode "-Dmaven.javadoc.skip=true" package
       - name: Run tests
+        working-directory: interop-tests/java_interop_tests
         env:
+          ZMANIM_HEBREW_DATE_JAVA_PARITY_ITERATIONS: 10000
           ZMANIM_JAVA_PARITY_ITERATIONS: 10000
-        run: cargo hack test --feature-powerset --exclude-features defmt
+          ZMANIM_LIMUDIM_JAVA_PARITY_ITERATIONS: 10000
+        run: cargo test 

@@ -1,32 +1,49 @@
-[workspace]
-members = [
-    "crates/hebrew-holiday-calendar",
-    "crates/limudim-calendar",
-    "crates/limudim-calendar/limudim-wasm",
-    "crates/zmanim-calculator",
+[package]
+name = "kosher-rust"
+version = "0.1.0"
+edition = "2024"
 
-]
-resolver = "2"
+[features]
+default = ["alloc"]
+defmt = ["dep:defmt"] #TODO: Add jiff/defmt? feature once released
+alloc = []
+
+
+[dependencies]
+# Calendar libraries
+icu_calendar = { version = "2.2.0", default-features = false }
+
+# Datetime libraries
+jiff = { version = "0.2.0", default-features = false }
+jiff-icu = { version = "0.2.0", default-features = false }
+core_maths = "0.1.1"
+
+# Utility for converting enums to integers and back
+num_enum = { version = "0.7.0", default-features = false }
+
+# Logging to embedded targets
+defmt = { version = "1.0.0", optional = true }
+
+# Utility for creating custom error types
+thiserror = { version = "2.0.18", default-features = false }
+
+[dev-dependencies]
+jiff = { version = "0.2.0", default-features = false, features = [
+    "std",
+    "alloc",
+    "tzdb-bundle-always",
+] }
+
+[lints]
+workspace = true
+
+[workspace]
+members = ["interop-tests/java_interop_tests", "interop-tests/js_interop_tests"]
+
+[workspace.lints.rust]
+missing_docs = "warn"
 
 [workspace.lints.clippy]
 unwrap_used = "warn"
 expect_used = "warn"
 panic = "warn"
-
-[workspace.dependencies]
-hebrew-holiday-calendar = { path = "crates/hebrew-holiday-calendar", default-features = false, version = "0.6.0" }
-limudim-calendar = { path = "crates/limudim-calendar", version = "0.6.0" }
-zmanim-calculator = { path = "crates/zmanim-calculator", version = "0.6.0" }
-jiff = { version = "0.2.24", default-features = false }
-jiff-icu = { version = "0.2.2", default-features = false }
-icu_calendar = { version = "2.2.1", features = [
-    "unstable",
-], default-features = false }
-core_maths = "0.1.1"
-thiserror = { version = "2.0.18", default-features = false }
-defmt = "1.0.1"
-num_enum = { version = "0.7.6", default-features = false }
-rand = "0.10.1"
-
-[profile.release.package.limudim-wasm]
-opt-level = "s"

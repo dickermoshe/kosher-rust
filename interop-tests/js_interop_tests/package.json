@@ -1,0 +1,26 @@
+{
+  "name": "js-interop-tests",
+  "version": "0.1.0",
+  "main": "pkg/limudim_wasm.js",
+  "scripts": {
+    "build": "wasm-pack build --target nodejs",
+    "build:web": "wasm-pack build --target web",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^10.2.0",
+    "@hebcal/core": "^6.0.8",
+    "@hebcal/learning": "^6.6.0"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "wasm-pack": "^0.15.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "trustedDependencies": [
+    "wasm-pack"
+  ]
+}

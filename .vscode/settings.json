@@ -1,0 +1,6 @@
+{
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.check.workspace": true,
+  "rust-analyzer.checkOnSave": true,
+  "rust-analyzer.diagnostics.enable": true
+}
