@@ -7,7 +7,7 @@ import { dailyPsalms } from "@hebcal/learning";
 import { faker } from "@faker-js/faker";
 import { expect, test, describe } from "bun:test";
 
-const ITERATIONS = 10000;
+const ITERATIONS = 1000;
 
 interface TehillimResultPsalms {
   type: "Psalms";

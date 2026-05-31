@@ -1,0 +1,3 @@
+[test]
+# Default 5s is too tight for 10k-iteration WASM/hebcal parity tests (Dirshu ~5–15s on CI).
+timeout = 60000

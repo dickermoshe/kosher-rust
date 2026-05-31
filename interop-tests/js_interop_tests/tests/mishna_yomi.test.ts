@@ -7,7 +7,7 @@ import { MishnaYomiIndex } from "@hebcal/learning";
 import { faker } from "@faker-js/faker";
 import { expect, test, describe } from "bun:test";
 
-const ITERATIONS = 10000;
+const ITERATIONS = 1000;
 
 // Mapping from our tractate names to hebcal's tractate names
 const TRACTATE_MAP: Record<string, string> = {

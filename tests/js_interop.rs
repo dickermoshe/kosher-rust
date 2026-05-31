@@ -42,5 +42,5 @@ fn bun_interop_tests() {
 
     maybe_bun_install(&working_dir);
     run(&working_dir, "bun", &["run", "build"]);
-    run(&working_dir, "bun", &["test", "tests"]);
+    run(&working_dir, "bun", &["test", "tests", "--timeout", "60000"]);
 }
