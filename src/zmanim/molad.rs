@@ -172,7 +172,7 @@ where
 
 fn is_same_gregorian_day(hdate: &Date<Hebrew>, gdate: &Timestamp, tz: &TimeZone) -> bool {
     let gdate_local = gdate.to_zoned(tz.clone()).date();
-    let gregorian_date = hdate.gregorian_date();
+    let gregorian_date = hdate.to_calendar(Gregorian);
     let hdate_greg = JiffDate::convert_try_from(gregorian_date).ok();
 
     Some(gdate_local) == hdate_greg

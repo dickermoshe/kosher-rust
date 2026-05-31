@@ -10,11 +10,10 @@ use crate::{
         month::{AV, NISAN, SIVAN, TISHREI},
     },
     limudim::{
-        HebrewDateExt, LimudCalculator,
+        HebrewDateExt, Limud,
         cycle::Cycle,
-        days_between,
         interval::Interval,
-        limud_calculator::{CycleFinder, InternalLimudCalculator},
+        limud::{CycleFinder, InternalLimud},
     },
 };
 
@@ -52,7 +51,7 @@ pub struct PirkeiAvos {
     pub in_israel: bool,
 }
 
-impl InternalLimudCalculator<PirkeiAvosUnit> for PirkeiAvos {
+impl InternalLimud<PirkeiAvosUnit> for PirkeiAvos {
     fn cycle_finder(&self) -> CycleFinder {
         if self.in_israel {
             CycleFinder::Perpetual(Self::find_yearly_cycle_israel)
@@ -72,7 +71,7 @@ impl InternalLimudCalculator<PirkeiAvosUnit> for PirkeiAvos {
 
         // Fourth round: use weeks remaining logic (like hebcal)
         // Calculate weeks remaining from this interval's Shabbat to the end of the cycle
-        let days_until_end = days_between(&interval.end_date, &interval.cycle.end_date)?;
+        let days_until_end = interval.end_date.days_until(&interval.cycle.end_date)?;
         let weeks_remain = days_until_end.div_ceil(7);
 
         match weeks_remain {
@@ -122,7 +121,7 @@ impl InternalLimudCalculator<PirkeiAvosUnit> for PirkeiAvos {
         false
     }
 }
-impl LimudCalculator<PirkeiAvosUnit> for PirkeiAvos {}
+impl Limud<PirkeiAvosUnit> for PirkeiAvos {}
 
 impl PirkeiAvos {
     /// Create a new Pirkei Avos calculator.

@@ -1,6 +1,6 @@
 use icu_calendar::{Date, cal::Hebrew};
 
-use crate::limudim::{HebrewDateExt, limud_calculator::PerpetualCycleFinder};
+use crate::limudim::{HebrewDateExt, limud::PerpetualCycleFinder};
 
 pub type CycleEndCalculation = fn(Date<Hebrew>, Option<i32>) -> Option<Date<Hebrew>>;
 

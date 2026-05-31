@@ -408,7 +408,7 @@ impl ZmanLike for ZmanPrimitive {
                 if !calculator
                     .date
                     .holidays(false, false)
-                    .any(|h| h == &Holiday::ErevPesach)
+                    .any(|h| h == Holiday::ErevPesach)
                 {
                     return Err(ZmanimError::ErevPesachZman);
                 }
@@ -427,7 +427,7 @@ impl ZmanLike for ZmanPrimitive {
                 if !calculator
                     .date
                     .holidays(false, false)
-                    .any(|h| h == &Holiday::ErevPesach)
+                    .any(|h| h == Holiday::ErevPesach)
                 {
                     return Err(ZmanimError::ErevPesachZman);
                 }

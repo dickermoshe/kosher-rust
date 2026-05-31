@@ -3,9 +3,9 @@ use icu_calendar::{Date, cal::Hebrew, types::Weekday};
 use crate::{
     calendar::prelude::*,
     limudim::{
-        HebrewDateExt, LimudCalculator, YERUSHALMI_DAF_COUNT, days_between,
+        HebrewDateExt, Limud, YERUSHALMI_DAF_COUNT,
         interval::Interval,
-        limud_calculator::{CycleFinder, InternalLimudCalculator},
+        limud::{CycleFinder, InternalLimud},
         units::{Daf, YERUSHALMI_TRACTATES},
     },
 };
@@ -34,7 +34,7 @@ impl DafYomiYerushalmiVilna {
     }
 }
 
-impl InternalLimudCalculator<Daf> for DafYomiYerushalmiVilna {
+impl InternalLimud<Daf> for DafYomiYerushalmiVilna {
     fn limud(&self, limud_date: Date<Hebrew>) -> Option<Daf> {
         daf_yomi_yerushalmi_for_date(limud_date)
     }
@@ -71,8 +71,7 @@ fn daf_yomi_yerushalmi_for_date(limud_date: Date<Hebrew>) -> Option<Daf> {
         prev_cycle = next_cycle;
         next_cycle = cycle_end_date(prev_cycle)?.add_days(1)?;
     }
-
-    let daf_no = days_between(&prev_cycle, &limud_date)?;
+    let daf_no = prev_cycle.days_until(&limud_date)?;
     let special_days = count_special_days(prev_cycle, limud_date)?;
     let mut total = daf_no.checked_sub(special_days)?;
 
@@ -90,7 +89,7 @@ fn daf_yomi_yerushalmi_for_date(limud_date: Date<Hebrew>) -> Option<Daf> {
     None
 }
 
-impl LimudCalculator<Daf> for DafYomiYerushalmiVilna {}
+impl Limud<Daf> for DafYomiYerushalmiVilna {}
 
 fn cycle_end_date(cycle_start: Date<Hebrew>) -> Option<Date<Hebrew>> {
     let mut end_date = cycle_start.add_days(YERUSHALMI_DAF_COUNT - 1)?;
@@ -134,7 +133,7 @@ fn count_special_days(start: Date<Hebrew>, end: Date<Hebrew>) -> Option<u32> {
 
 fn is_skip_day(date: &Date<Hebrew>) -> bool {
     date.holidays(false, false)
-        .any(|h| h == &Holiday::TishahBav || h == &Holiday::YomKippur)
+        .any(|h| h == Holiday::TishahBav || h == Holiday::YomKippur)
 }
 
 #[cfg(test)]

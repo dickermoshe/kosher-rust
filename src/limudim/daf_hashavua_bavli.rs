@@ -1,10 +1,10 @@
 use icu_calendar::{Date, cal::Hebrew, types::Weekday};
 
 use crate::limudim::{
-    BAVLI_DAF_COUNT_MODERN, HebrewDateExt, LimudCalculator,
+    BAVLI_DAF_COUNT_MODERN, HebrewDateExt, Limud,
     cycle::Cycle,
     interval::Interval,
-    limud_calculator::{CycleFinder, InternalLimudCalculator},
+    limud::{CycleFinder, InternalLimud},
     units::{BAVLI_TRACTATES, Daf, Tractate},
 };
 
@@ -88,7 +88,7 @@ const fn end_daf(tractate: Tractate) -> Option<u16> {
 /// Calculates the Daf Hashavua Bavli schedule.
 pub struct DafHashavuaBavli {}
 
-impl InternalLimudCalculator<Daf> for DafHashavuaBavli {
+impl InternalLimud<Daf> for DafHashavuaBavli {
     fn interval_end_calculation(_cycle: Cycle, hebrew_date: Date<Hebrew>) -> Option<Date<Hebrew>> {
         let day_number = day_of_week_number(hebrew_date);
         hebrew_date.add_days(7 - day_number)
@@ -107,7 +107,7 @@ impl InternalLimudCalculator<Daf> for DafHashavuaBavli {
     }
 }
 
-impl LimudCalculator<Daf> for DafHashavuaBavli {}
+impl Limud<Daf> for DafHashavuaBavli {}
 
 fn daf_at_offset(offset: usize) -> Option<Daf> {
     let mut remaining = offset;

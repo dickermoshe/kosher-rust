@@ -1,33 +1,39 @@
+//! Hebrew month constants and helpers for ICU [`Month`] values.
+//!
+//! Each month is a stable [`Month`] constant (for example [`NISAN`] or [`ADARI`])
+//! that can be passed to ICU date constructors and calendar logic throughout this
+//! crate. Use [`HebrewMonthExt::he`] for the Hebrew month name in a given year.
+
 use icu_calendar::cal::Hebrew;
 use icu_calendar::types::Month;
 
 use super::HebrewCalendar;
 
-#[allow(missing_docs)]
+/// Tishrei (month 1).
 pub const TISHREI: Month = Month::new(1);
-#[allow(missing_docs)]
+/// Cheshvan (month 2).
 pub const ḤESHVAN: Month = Month::new(2);
-#[allow(missing_docs)]
+/// Kislev (month 3).
 pub const KISLEV: Month = Month::new(3);
-#[allow(missing_docs)]
+/// Tevet (month 4).
 pub const TEVET: Month = Month::new(4);
-#[allow(missing_docs)]
+/// Shevat (month 5).
 pub const SHEVAT: Month = Month::new(5);
-#[allow(missing_docs)]
+/// Adar I — present only in leap years (month 5, leap variant).
 pub const ADARI: Month = Month::leap(5);
-#[allow(missing_docs)]
+/// Adar — Adar II in leap years, plain Adar otherwise (month 6).
 pub const ADAR: Month = Month::new(6);
-#[allow(missing_docs)]
+/// Nisan (month 7).
 pub const NISAN: Month = Month::new(7);
-#[allow(missing_docs)]
+/// Iyyar (month 8).
 pub const IYYAR: Month = Month::new(8);
-#[allow(missing_docs)]
+/// Sivan (month 9).
 pub const SIVAN: Month = Month::new(9);
-#[allow(missing_docs)]
+/// Tammuz (month 10).
 pub const TAMMUZ: Month = Month::new(10);
-#[allow(missing_docs)]
+/// Av (month 11).
 pub const AV: Month = Month::new(11);
-#[allow(missing_docs)]
+/// Elul (month 12).
 pub const ELUL: Month = Month::new(12);
 
 const COMMON_HEBREW_MONTHS: [Month; 12] = [
@@ -38,12 +44,12 @@ const LEAP_HEBREW_MONTHS: [Month; 13] = [
     TISHREI, ḤESHVAN, KISLEV, TEVET, SHEVAT, ADARI, ADAR, NISAN, IYYAR, SIVAN, TAMMUZ, AV, ELUL,
 ];
 
-/// Hebrew calendar month helpers for ICU [`Month`] values.
+/// Hebrew names and year-relative validity for ICU [`Month`] values.
 pub trait HebrewMonthExt {
-    /// Returns the Hebrew name of the month.
+    /// Returns the Hebrew name of this month in `year`.
     ///
-    /// Will return None if the month is not valid for the given year
-    /// or if the given month is not a Hebrew month
+    /// Returns `None` if `self` is not a Hebrew month or is not valid for `year`
+    /// (for example [`ADARI`] in a non-leap year).
     fn he(&self, year: i32) -> Option<&'static str>;
 }
 
@@ -80,10 +86,10 @@ impl HebrewMonthExt for Month {
 }
 
 pub(crate) trait HebrewMonthHelpers {
-    /// Returns the Hebrew months in the given year starting from Tishrei.
+    /// Returns the ordered list of months in `year`, starting from Tishrei.
     fn hebrew_months_in_year(year: i32) -> &'static [Month];
 
-    /// Returns the Hebrew month number within the year, indexed from Tishrei.
+    /// Returns this month's 1-based index within `year`, counting from Tishrei.
     fn hebrew_month_of_year(self, year: i32) -> Option<u8>;
 }
 

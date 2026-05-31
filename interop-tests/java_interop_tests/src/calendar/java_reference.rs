@@ -244,7 +244,7 @@ pub(super) fn java_holiday_index_for(holiday: Holiday) -> Option<i32> {
         Holiday::HoshanaRabbah => Some(17),
         Holiday::SheminiAtzeres => Some(18),
         Holiday::SimchasTorah => Some(19),
-        Holiday::Chanukah => Some(21),
+        Holiday::Chanukah(_) => Some(21),
         Holiday::TenthOfTeves => Some(22),
         Holiday::TuBshvat => Some(23),
         Holiday::FastOfEsther => Some(24),
@@ -265,7 +265,7 @@ pub(super) fn java_holiday_index_for(holiday: Holiday) -> Option<i32> {
         | Holiday::MacharHachodesh
         | Holiday::ShabbosMevarchim
         | Holiday::FastOfTheFirstborn
-        | Holiday::CountOfTheOmer => None,
+        | Holiday::CountOfTheOmer(_) => None,
     }
 }
 

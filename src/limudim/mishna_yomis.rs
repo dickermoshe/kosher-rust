@@ -1,11 +1,10 @@
 use icu_calendar::{Date, cal::Hebrew};
 
 use crate::limudim::{
-    HebrewDateExt, LimudCalculator, MISHNA_YOMIS_CYCLE_DAYS,
+    HebrewDateExt, Limud, MISHNA_YOMIS_CYCLE_DAYS,
     cycle::Cycle,
-    days_between,
     interval::Interval,
-    limud_calculator::{CycleFinder, InternalLimudCalculator},
+    limud::{CycleFinder, InternalLimud},
     units::{Mishna, TRACTATES, Tractate},
 };
 
@@ -199,13 +198,13 @@ pub struct Mishnas(pub Mishna, pub Mishna);
 #[derive(Default)]
 /// Calculates the Mishna Yomis schedule.
 pub struct MishnaYomis;
-impl InternalLimudCalculator<Mishnas> for MishnaYomis {
+impl InternalLimud<Mishnas> for MishnaYomis {
     fn limud(&self, limud_date: Date<Hebrew>) -> Option<Mishnas> {
         let cycle = Cycle::from_cycle_initiation(initial_cycle_date(), Self::cycle_end_calculation, limud_date)?;
         if limud_date > cycle.end_date {
             return None;
         }
-        let iteration = days_between(&cycle.start_date, &limud_date)? + 1;
+        let iteration = cycle.start_date.days_until(&limud_date)? + 1;
         mishnas_for_iteration(iteration)
     }
 
@@ -221,7 +220,7 @@ impl InternalLimudCalculator<Mishnas> for MishnaYomis {
         hebrew_date.add_days(MISHNA_YOMIS_CYCLE_DAYS)
     }
 }
-impl LimudCalculator<Mishnas> for MishnaYomis {}
+impl Limud<Mishnas> for MishnaYomis {}
 
 fn mishnas_for_iteration(iteration: u32) -> Option<Mishnas> {
     let base = ((iteration - 1) * 2) as usize;

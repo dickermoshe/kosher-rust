@@ -1,3 +1,10 @@
+//! Weekly Torah readings and special Shabbat designations.
+//!
+//! [`Parsha`] covers the full annual cycle, combined readings used in common
+//! years, and special Shabbatot (Shekalim, Zachor, and others). The schedule
+//! tables in this module drive [`HebrewHolidayCalendar::todays_parsha`] and
+//! [`HebrewHolidayCalendar::special_parsha`] in [`crate::calendar`].
+
 use icu_calendar::types::Weekday;
 use icu_calendar::{Date, cal::Hebrew};
 use num_enum::{IntoPrimitive, TryFromPrimitive};

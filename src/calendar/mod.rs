@@ -1,16 +1,41 @@
-/// Constants for all Hebrew calendar months as ICU [`Month`] values.
+//! Hebrew calendar extensions built on ICU4X.
+//!
+//! This module adds Jewish-calendar logic on top of [`icu_calendar::Date`] and related
+//! types: holidays, weekly Torah readings (*parshiyot*), month constants, and
+//! year-length helpers. Dates from ICU, ISO, Gregorian, or [`jiff`] can all use the
+//! same extension traits once converted to a Hebrew view.
+//!
+//! # Submodules
+//!
+//! - [`month`] — named [`Month`] constants and Hebrew month names
+//! - [`holiday`] — Yom Tov, fast days, and other observances for a Hebrew date
+//! - [`parsha`] — [`Parsha`] enum and annual reading schedules
+//!
+//! # Quick start
+//!
+//! ```
+//! use icu_calendar::{Date, cal::Hebrew};
+//! use kosher_rust::calendar::prelude::*;
+//!
+//! let date = Date::try_new_hebrew_v2(5784, month::TISHREI, 10).unwrap();
+//! assert!(date.is_assur_bemelacha(false));
+//! assert!(date.holidays(false, false).any(|h| h == Holiday::YomKippur));
+//! ```
+
+/// Named ICU [`Month`] values for every Hebrew month, including Adar I in leap years.
 pub mod month;
 
-/// Jewish holiday definitions, rules, and date iterators.
+/// Jewish holidays, fast days, and related calendar events.
 pub mod holiday;
 
-/// Weekly Torah reading definitions and Hebrew calendar parsha schedules.
+/// Weekly Torah portions (*parshiyot*) and special Shabbat designations.
 pub mod parsha;
 
-/// Common calendar imports.
+/// Convenience re-exports for calendar traits, types, and month constants.
 ///
-/// Import this module to bring the calendar extension traits, primary calendar
-/// enums, and Hebrew month constants into scope.
+/// ```
+/// use kosher_rust::calendar::prelude::*;
+/// ```
 pub mod prelude {
     pub use super::holiday::{Holiday, HolidayIterator};
     pub use super::month;
@@ -26,14 +51,17 @@ mod tests;
 use holiday::{Holiday, HolidayIterator};
 use icu_calendar::options::DateAddOptions;
 use icu_calendar::types::{DateDuration, Month, Weekday};
-use icu_calendar::{AsCalendar, Date, Gregorian, Iso, cal::Hebrew};
+use icu_calendar::{AsCalendar, Date, Iso, cal::Hebrew};
 use jiff_icu::ConvertFrom;
 use month::*;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 pub use parsha::Parsha;
 use parsha::get_parsha_list;
 
-/// Trait for date types that can be viewed as Hebrew calendar dates.
+/// Any date type that can be converted to a Hebrew calendar date.
+///
+/// Implemented for [`icu_calendar::Date`] (any calendar) and [`jiff::civil::Date`].
+/// Other wrappers can implement this trait to gain [`HebrewHolidayCalendar`] for free.
 pub trait HebrewCalendarDate {
     /// Returns this date converted to a [`icu_calendar::Date<Hebrew>`] date.
     fn hebrew_date(&self) -> Date<Hebrew>;
@@ -64,22 +92,24 @@ impl HebrewCalendarDate for jiff::civil::Date {
 /// - `Shelaimim`: Both months are long (Cheshvan 30 days, Kislev 30 days)
 #[derive(Debug, PartialEq, Eq, Clone, Copy, IntoPrimitive, TryFromPrimitive)]
 #[repr(u8)]
-#[allow(missing_docs)]
 pub enum YearLengthType {
+    /// Cheshvan and Kislev are both short (29 days).
     Chaserim = 0,
+    /// Cheshvan is short and Kislev is long (typical year).
     Kesidran = 1,
+    /// Cheshvan and Kislev are both long (30 days).
     Shelaimim = 2,
 }
 
-/// Trait providing Hebrew calendar functionality for dates.
+/// Hebrew calendar queries for a date: holidays, parsha, and related observances.
+///
+/// Blanket-implemented for every [`HebrewCalendarDate`]. Most methods take
+/// `in_israel` because diaspora communities observe an extra day of Yom Tov.
 pub trait HebrewHolidayCalendar: HebrewCalendarDate {
     /// Iterator over holidays occurring on a specific date.
-    type HolidayIter: Iterator<Item = &'static Holiday>;
+    type HolidayIter: Iterator<Item = Holiday>;
 
-    /// Returns a copy of this date converted to the Gregorian calendar.
-    fn gregorian_date(&self) -> Date<Gregorian>;
-
-    /// Returns the current month as a `Month` enum.
+    /// Returns this date's month as an ICU [`Month`] (Tishrei-based numbering).
     fn input_month(&self) -> Month;
 
     /// Returns an iterator over holidays occurring on this date.
@@ -114,12 +144,6 @@ pub trait HebrewHolidayCalendar: HebrewCalendarDate {
     /// This function will return `None` if the date is out of the bounds that
     /// `icu_calendar::Date<Hebrew>` can handle. Otherwise it will return the next Shabbat's parsha.
     fn upcoming_parsha(&self, in_israel: bool) -> Option<Parsha>;
-
-    /// Returns the day of Chanukah. None if not Chanukah.
-    fn day_of_chanukah(&self) -> Option<u8>;
-
-    /// Returns the day of the Omer. None if not counting the Omer.
-    fn day_of_the_omer(&self) -> Option<u8>;
 }
 
 impl<T> HebrewHolidayCalendar for T
@@ -147,13 +171,9 @@ where
     }
 
     #[inline]
-    fn gregorian_date(&self) -> Date<Gregorian> {
-        self.hebrew_date().to_calendar(Gregorian)
-    }
-    #[inline]
     fn holidays(&self, in_israel: bool, use_modern_holidays: bool) -> Self::HolidayIter {
         HolidayIterator {
-            iter: Holiday::all().iter(),
+            iter: holiday::all_rules().iter(),
             date: self.hebrew_date(),
             in_israel,
             use_modern_holidays,
@@ -276,14 +296,6 @@ where
         }
 
         None
-    }
-
-    fn day_of_chanukah(&self) -> Option<u8> {
-        holiday::day_of_chanukah(&self.hebrew_date())
-    }
-
-    fn day_of_the_omer(&self) -> Option<u8> {
-        holiday::day_of_the_omer(&self.hebrew_date())
     }
 }
 

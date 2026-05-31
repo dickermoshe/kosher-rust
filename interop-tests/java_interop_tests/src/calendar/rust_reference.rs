@@ -117,8 +117,15 @@ pub(super) fn rust_jewish_calendar_snapshot(
     let hebrew = rust_hebrew_date(date)?;
     let rust_holidays = hebrew
         .holidays(in_israel, use_modern_holidays)
-        .copied()
         .collect::<Vec<Holiday>>();
+    let day_of_chanukah = rust_holidays.iter().find_map(|holiday| match holiday {
+        Holiday::Chanukah(day) => Some(*day),
+        _ => None,
+    });
+    let day_of_omer = rust_holidays.iter().find_map(|holiday| match holiday {
+        Holiday::CountOfTheOmer(day) => Some(*day),
+        _ => None,
+    });
 
     Some(JewishCalendarSnapshot {
         is_yom_tov: rust_is_yom_tov(&rust_holidays),
@@ -145,7 +152,7 @@ pub(super) fn rust_jewish_calendar_snapshot(
         is_yom_kippur: rust_holidays.contains(&Holiday::YomKippur),
         is_taanis: rust_holidays.iter().any(|holiday| holiday.is_fast_day()),
         is_tisha_bav: rust_holidays.contains(&Holiday::TishahBav),
-        is_chanukah: rust_holidays.contains(&Holiday::Chanukah),
+        is_chanukah: day_of_chanukah.is_some(),
         is_purim: rust_holidays.contains(&Holiday::Purim),
         is_isru_chag: rust_holidays.contains(&Holiday::IsruChag),
         is_erev_rosh_chodesh: rust_is_erev_rosh_chodesh(&hebrew),
@@ -164,11 +171,11 @@ pub(super) fn rust_jewish_calendar_snapshot(
         is_yom_kippur_katan: rust_holidays.contains(&Holiday::YomKippurKatan),
         is_be_ha_b: rust_holidays.contains(&Holiday::Behab),
         is_taanis_bechoros: rust_holidays.contains(&Holiday::FastOfTheFirstborn),
-        day_of_chanukah: hebrew.day_of_chanukah(),
+        day_of_chanukah: day_of_chanukah,
         is_rosh_chodesh: rust_holidays.contains(&Holiday::RoshChodesh),
         is_machar_chodesh: rust_holidays.contains(&Holiday::MacharHachodesh),
         is_shabbos_mevorchim: rust_holidays.contains(&Holiday::ShabbosMevarchim),
-        day_of_omer: hebrew.day_of_the_omer(),
+        day_of_omer: day_of_omer,
     })
 }
 
@@ -302,7 +309,7 @@ fn rust_is_yom_tov(holidays: &[Holiday]) -> bool {
                 | Holiday::HoshanaRabbah
                 | Holiday::SheminiAtzeres
                 | Holiday::SimchasTorah
-                | Holiday::Chanukah
+                | Holiday::Chanukah(_)
                 | Holiday::TuBshvat
                 | Holiday::Purim
                 | Holiday::ShushanPurim
@@ -318,7 +325,7 @@ fn rust_is_yom_tov(holidays: &[Holiday]) -> bool {
 }
 
 fn rust_is_erev_yom_tov(date: &Date<Hebrew>, in_israel: bool) -> bool {
-    let today_holidays = date.holidays(in_israel, false).copied().collect::<Vec<Holiday>>();
+    let today_holidays = date.holidays(in_israel, false).collect::<Vec<Holiday>>();
     if today_holidays.iter().any(|holiday| {
         matches!(
             holiday,
@@ -336,7 +343,7 @@ fn rust_is_erev_yom_tov(date: &Date<Hebrew>, in_israel: bool) -> bool {
     let next_day = date
         .try_added_with_options(DateDuration::for_days(1), constrained_date_add_options())
         .expect("adding one day to valid Hebrew date should work");
-    let next_holidays = next_day.holidays(in_israel, false).copied().collect::<Vec<Holiday>>();
+    let next_holidays = next_day.holidays(in_israel, false).collect::<Vec<Holiday>>();
     today_holidays.contains(&Holiday::CholHamoedPesach) && next_holidays.contains(&Holiday::Pesach)
 }
 
@@ -344,8 +351,8 @@ fn rust_is_erev_yom_tov_sheni(date: &Date<Hebrew>, in_israel: bool) -> bool {
     let next_day = date
         .try_added_with_options(DateDuration::for_days(1), constrained_date_add_options())
         .expect("adding one day to valid Hebrew date should work");
-    let today_holidays = date.holidays(in_israel, false).copied().collect::<Vec<Holiday>>();
-    let next_holidays = next_day.holidays(in_israel, false).copied().collect::<Vec<Holiday>>();
+    let today_holidays = date.holidays(in_israel, false).collect::<Vec<Holiday>>();
+    let next_holidays = next_day.holidays(in_israel, false).collect::<Vec<Holiday>>();
     rust_is_yom_tov(&next_holidays)
         && rust_is_yom_tov_assur_bemelacha(&next_holidays, Weekday::convert_from(next_day.weekday()))
         && today_holidays.iter().any(|holiday| holiday.is_assur_bemelacha())
@@ -358,7 +365,7 @@ fn rust_is_yom_tov_assur_bemelacha(holidays: &[Holiday], _weekday: Weekday) -> b
 fn rust_is_erev_rosh_chodesh(date: &Date<Hebrew>) -> bool {
     if date
         .holidays(false, false)
-        .any(|holiday| holiday == &Holiday::RoshChodesh)
+        .any(|holiday| holiday == Holiday::RoshChodesh)
     {
         return false;
     }
@@ -366,7 +373,7 @@ fn rust_is_erev_rosh_chodesh(date: &Date<Hebrew>) -> bool {
         .try_added_with_options(DateDuration::for_days(1), constrained_date_add_options())
         .expect("adding one day to valid Hebrew date should work");
     let mut next_holidays = next_day.holidays(false, false);
-    let is_next_rosh_chodesh = next_holidays.any(|holiday| holiday == &Holiday::RoshChodesh);
+    let is_next_rosh_chodesh = next_holidays.any(|holiday| holiday == Holiday::RoshChodesh);
     is_next_rosh_chodesh && !(date.input_month() == ELUL && date.day_of_month().0 == 29)
 }
 

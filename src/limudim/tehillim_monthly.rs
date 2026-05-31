@@ -3,9 +3,9 @@ use icu_calendar::{Date, cal::Hebrew};
 use crate::{
     calendar::HebrewHolidayCalendar,
     limudim::{
-        LimudCalculator,
+        Limud,
         interval::Interval,
-        limud_calculator::{CycleFinder, InternalLimudCalculator},
+        limud::{CycleFinder, InternalLimud},
     },
 };
 
@@ -50,7 +50,7 @@ fn find_monthly_cycle(date: Date<Hebrew>) -> Option<(Date<Hebrew>, Date<Hebrew>)
     Some((start, end))
 }
 
-impl InternalLimudCalculator<TehillimUnit> for TehillimMonthly {
+impl InternalLimud<TehillimUnit> for TehillimMonthly {
     fn cycle_finder(&self) -> CycleFinder {
         CycleFinder::Perpetual(find_monthly_cycle)
     }
@@ -94,7 +94,7 @@ impl InternalLimudCalculator<TehillimUnit> for TehillimMonthly {
         Some(TehillimUnit::Psalms { start, end: stop })
     }
 }
-impl LimudCalculator<TehillimUnit> for TehillimMonthly {}
+impl Limud<TehillimUnit> for TehillimMonthly {}
 
 #[cfg(test)]
 #[allow(clippy::expect_used, clippy::unwrap_used)]

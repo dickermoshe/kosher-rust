@@ -1,11 +1,10 @@
 use icu_calendar::{Date, cal::Hebrew};
 
 use crate::limudim::{
-    BAVLI_DAF_COUNT_EARLY, BAVLI_DAF_COUNT_MODERN, HebrewDateExt, LimudCalculator, SHEKALIM_EXPANSION_CYCLE,
+    BAVLI_DAF_COUNT_EARLY, BAVLI_DAF_COUNT_MODERN, HebrewDateExt, Limud, SHEKALIM_EXPANSION_CYCLE,
     cycle::Cycle,
-    days_between,
     interval::Interval,
-    limud_calculator::{CycleFinder, InternalLimudCalculator},
+    limud::{CycleFinder, InternalLimud},
     units::{BAVLI_TRACTATES, Daf, Tractate},
 };
 
@@ -84,13 +83,13 @@ pub const fn end_daf(tractate: Tractate, iteration: i32) -> Option<u16> {
 /// Calculates the Daf Yomi Bavli schedule.
 pub struct DafYomiBavli {}
 
-impl InternalLimudCalculator<Daf> for DafYomiBavli {
+impl InternalLimud<Daf> for DafYomiBavli {
     fn limud(&self, limud_date: Date<Hebrew>) -> Option<Daf> {
         let cycle = Cycle::from_cycle_initiation(initial_cycle_date(), Self::cycle_end_calculation, limud_date)?;
         if limud_date > cycle.end_date {
             return None;
         }
-        let offset = days_between(&cycle.start_date, &limud_date)?;
+        let offset = cycle.start_date.days_until(&limud_date)? as usize;
         daf_at_offset(cycle.iteration?, offset as usize)
     }
 
@@ -115,7 +114,7 @@ impl InternalLimudCalculator<Daf> for DafYomiBavli {
     }
 }
 
-impl LimudCalculator<Daf> for DafYomiBavli {}
+impl Limud<Daf> for DafYomiBavli {}
 
 fn daf_at_offset(cycle_iteration: i32, offset: usize) -> Option<Daf> {
     let mut remaining = offset;

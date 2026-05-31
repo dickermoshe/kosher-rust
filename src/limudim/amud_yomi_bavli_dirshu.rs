@@ -1,11 +1,10 @@
 use icu_calendar::{Date, cal::Hebrew};
 
 use crate::limudim::{
-    BAVLI_TOTAL_AMUDIM, HebrewDateExt, LimudCalculator,
+    BAVLI_TOTAL_AMUDIM, HebrewDateExt, Limud,
     cycle::Cycle,
-    days_between,
     interval::Interval,
-    limud_calculator::{CycleFinder, InternalLimudCalculator},
+    limud::{CycleFinder, InternalLimud},
     units::*,
 };
 
@@ -77,13 +76,13 @@ pub const fn end_daf(tractate: Tractate) -> Option<Amud> {
 /// Calculates the Amud Yomi Bavli Dirshu schedule.
 pub struct AmudYomiBavliDirshu {}
 
-impl InternalLimudCalculator<Amud> for AmudYomiBavliDirshu {
+impl InternalLimud<Amud> for AmudYomiBavliDirshu {
     fn limud(&self, limud_date: Date<Hebrew>) -> Option<Amud> {
         let cycle = Cycle::from_cycle_initiation(initial_cycle_date(), Self::cycle_end_calculation, limud_date)?;
         if limud_date > cycle.end_date {
             return None;
         }
-        let offset = days_between(&cycle.start_date, &limud_date)? as usize;
+        let offset = cycle.start_date.days_until(&limud_date)? as usize;
         let mut remaining = offset;
         for tractate in BAVLI_TRACTATES {
             let start = start_daf(tractate);
@@ -109,7 +108,7 @@ impl InternalLimudCalculator<Amud> for AmudYomiBavliDirshu {
         self.limud(*limud_date)
     }
 }
-impl LimudCalculator<Amud> for AmudYomiBavliDirshu {}
+impl Limud<Amud> for AmudYomiBavliDirshu {}
 
 #[cfg(test)]
 #[allow(clippy::expect_used)]

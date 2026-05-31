@@ -13,6 +13,20 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  codegen:
+    name: Preset codegen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.14"
+      - name: Regenerate presets.rs
+        working-directory: tools
+        run: uv run python generate-rust.py
+      - name: Verify presets.rs matches committed output
+        run: git diff --exit-code src/zmanim/presets.rs
+
   fmt:
     name: Format
     runs-on: ubuntu-latest
