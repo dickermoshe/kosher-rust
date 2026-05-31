@@ -11,11 +11,19 @@
 //! not already provided by a preset.
 
 use core_maths::CoreFloat;
+use icu_calendar::{
+    options::{DateAddOptions, Overflow},
+    types::DateDuration,
+};
 use jiff::{SignedDuration as Duration, Timestamp, ToSpan, tz::TimeZone};
 
 use crate::{
-    calendar::{HebrewHolidayCalendar, holiday::Holiday},
-    zmanim::{ZmanLike, ZmanimCalculator, molad::MoladCalendar, types::error::ZmanimError},
+    calendar::{HebrewCalendarDate, HebrewHolidayCalendar, holiday::Holiday},
+    zmanim::{
+        ZmanLike, ZmanimCalculator,
+        molad::{is_same_gregorian_day, months_molad},
+        types::error::ZmanimError,
+    },
 };
 
 static CIVIL_ZENITH: f64 = 6.0;
@@ -103,8 +111,6 @@ pub enum ZmanPrimitive {
     MinchaKetanaAhavatShalom,
     /// Plag hamincha (Ahavat Shalom): `1.25` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
     PlagAhavatShalom,
-    /// Returns the latest time of _Kiddush Levana_ calculated as 15 days after the molad.
-    Molad,
     /// The beginning of civil twilight (dawn), when the sun is 6° below the geometric horizon (96° zenith).
     BeginCivilTwilight,
     /// The end of civil twilight, when the sun is 6° below the geometric horizon (96° zenith).
@@ -196,7 +202,6 @@ impl defmt::Format for ZmanPrimitive {
             }
             ZmanPrimitive::MinchaKetanaAhavatShalom => defmt::write!(fmt, "MinchaKetanaAhavatShalom"),
             ZmanPrimitive::PlagAhavatShalom => defmt::write!(fmt, "PlagAhavatShalom"),
-            ZmanPrimitive::Molad => defmt::write!(fmt, "Molad"),
             ZmanPrimitive::BeginCivilTwilight => defmt::write!(fmt, "BeginCivilTwilight"),
             ZmanPrimitive::EndCivilTwilight => defmt::write!(fmt, "EndCivilTwilight"),
             ZmanPrimitive::BeginNauticalTwilight => defmt::write!(fmt, "BeginNauticalTwilight"),
@@ -405,12 +410,8 @@ impl ZmanLike for ZmanPrimitive {
                 }
             }
             ZmanPrimitive::SofZmanBiurChametz(event1, event2, synchronous) => {
-                if !calculator
-                    .date
-                    .holidays(false, false)
-                    .any(|h| h == Holiday::ErevPesach)
-                {
-                    return Err(ZmanimError::ErevPesachZman);
+                if !calculator.date.holidays(false, false).any(|h| h == Holiday::ErevPesach) {
+                    return Err(ZmanimError::InvalidForDate);
                 }
                 let primitive = if calculator.config.use_astronomical_chatzos_for_other_zmanim && synchronous {
                     ZmanPrimitive::HalfDayBasedOffset(event1, &ZmanPrimitive::ChatzosHayom, 5.0)
@@ -424,12 +425,8 @@ impl ZmanLike for ZmanPrimitive {
                 primitive.calculate(calculator)
             }
             ZmanPrimitive::SofZmanAchilasChametz(event1, event2, synchronous) => {
-                if !calculator
-                    .date
-                    .holidays(false, false)
-                    .any(|h| h == Holiday::ErevPesach)
-                {
-                    return Err(ZmanimError::ErevPesachZman);
+                if !calculator.date.holidays(false, false).any(|h| h == Holiday::ErevPesach) {
+                    return Err(ZmanimError::InvalidForDate);
                 }
                 let event1_time = event1.calculate(calculator)?;
                 let event2_time = event2.calculate(calculator);
@@ -455,11 +452,16 @@ impl ZmanLike for ZmanPrimitive {
                     .timezone
                     .as_ref()
                     .ok_or(ZmanimError::TimeZoneRequired)?;
-                calculator
-                    .date
-                    .sof_zman_kidush_levana_15_days(tz)
-                    .map(|i| i.0)
-                    .ok_or(ZmanimError::TimeConversionError)
+                let hebrew = calculator.date.hebrew_date();
+
+                if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 17 {
+                    return Err(ZmanimError::InvalidForDate);
+                }
+                let molad = months_molad(&hebrew)? + Duration::from_hours(24 * 15);
+                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                    return Ok(molad);
+                }
+                Err(ZmanimError::InvalidForDate)
             }
             ZmanPrimitive::SofZmanKidushLevanaBetweenMoldos => {
                 let tz = calculator
@@ -467,11 +469,20 @@ impl ZmanLike for ZmanPrimitive {
                     .timezone
                     .as_ref()
                     .ok_or(ZmanimError::TimeZoneRequired)?;
-                calculator
-                    .date
-                    .sof_zman_kidush_levana_between_moldos(tz)
-                    .map(|i| i.0)
-                    .ok_or(ZmanimError::TimeConversionError)
+                let hebrew = calculator.date.hebrew_date();
+
+                if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 16 {
+                    return Err(ZmanimError::InvalidForDate);
+                }
+                let molad = months_molad(&hebrew)?
+                    + Duration::from_hours(24 * 14 + 18)
+                    + Duration::from_mins(22)
+                    + Duration::from_secs(1)
+                    + Duration::from_millis(666);
+                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                    return Ok(molad);
+                }
+                Err(ZmanimError::InvalidForDate)
             }
             ZmanPrimitive::TchilasZmanKidushLevana3Days => {
                 let tz = calculator
@@ -479,11 +490,30 @@ impl ZmanLike for ZmanPrimitive {
                     .timezone
                     .as_ref()
                     .ok_or(ZmanimError::TimeZoneRequired)?;
-                calculator
-                    .date
-                    .tchilas_zman_kidush_levana_3_days(tz)
-                    .map(|i| i.0)
-                    .ok_or(ZmanimError::TimeConversionError)
+                let hebrew = calculator.date.hebrew_date();
+
+                if hebrew.day_of_month().0 > 5 && hebrew.day_of_month().0 < 30 {
+                    return Err(ZmanimError::InvalidForDate);
+                }
+                let molad = months_molad(&hebrew)? + Duration::from_hours(72);
+
+                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                    return Ok(molad);
+                }
+
+                if hebrew.day_of_month().0 == 30 {
+                    let mut add_option = DateAddOptions::default();
+                    add_option.overflow = Some(Overflow::Constrain);
+
+                    let new = hebrew
+                        .try_added_with_options(DateDuration::for_months(1), add_option)
+                        .map_err(|_| ZmanimError::TimeConversionError)?;
+                    let molad = months_molad(&new)? + Duration::from_hours(72);
+                    if is_same_gregorian_day(&hebrew, &molad, tz) {
+                        return Ok(molad);
+                    }
+                }
+                Err(ZmanimError::InvalidForDate)
             }
             ZmanPrimitive::TchilasZmanKidushLevana7Days => {
                 let tz = calculator
@@ -491,11 +521,16 @@ impl ZmanLike for ZmanPrimitive {
                     .timezone
                     .as_ref()
                     .ok_or(ZmanimError::TimeZoneRequired)?;
-                calculator
-                    .date
-                    .tchilas_zman_kidush_levana_7_days(tz)
-                    .map(|i| i.0)
-                    .ok_or(ZmanimError::TimeConversionError)
+                let hebrew = calculator.date.hebrew_date();
+
+                if hebrew.day_of_month().0 < 4 || hebrew.day_of_month().0 > 9 {
+                    return Err(ZmanimError::InvalidForDate);
+                }
+                let molad = months_molad(&hebrew)? + Duration::from_hours(168);
+                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                    return Ok(molad);
+                }
+                Err(ZmanimError::InvalidForDate)
             }
             ZmanPrimitive::BainHashmashosRt2Stars => {
                 let alos19_point_8 = ZmanPrimitive::SunriseOffsetByDegrees(19.8).calculate(calculator)?;
@@ -541,18 +576,6 @@ impl ZmanLike for ZmanPrimitive {
                 let alos = ZmanPrimitive::SunriseOffsetByDegrees(16.1).calculate(calculator)?;
                 let shaah_zmanis = tzais.duration_since(alos) / 12;
                 Ok(tzais - (shaah_zmanis * 5 / 4))
-            }
-            ZmanPrimitive::Molad => {
-                let tz = calculator
-                    .location
-                    .timezone
-                    .as_ref()
-                    .ok_or(ZmanimError::TimeZoneRequired)?;
-                calculator
-                    .date
-                    .molad(tz)
-                    .map(|i| i.0)
-                    .ok_or(ZmanimError::TimeConversionError)
             }
             ZmanPrimitive::BeginCivilTwilight => {
                 calculator.calculate(&ZmanPrimitive::SunriseOffsetByDegrees(CIVIL_ZENITH))
@@ -633,6 +656,7 @@ impl ZmanLike for ZmanPrimitive {
 }
 
 #[cfg(feature = "alloc")]
+/// These methods are used to create more informed user docs for presets.
 impl ZmanPrimitive {
     pub(crate) fn uses_astronomical_chatzos_for_other_zmanim_from_config(&self) -> bool {
         match self {
@@ -673,7 +697,6 @@ impl ZmanPrimitive {
             | ZmanPrimitive::MinchaGedolaAhavatShalom
             | ZmanPrimitive::MinchaKetanaAhavatShalom
             | ZmanPrimitive::PlagAhavatShalom
-            | ZmanPrimitive::Molad
             | ZmanPrimitive::BeginCivilTwilight
             | ZmanPrimitive::EndCivilTwilight
             | ZmanPrimitive::BeginNauticalTwilight
@@ -723,7 +746,6 @@ impl ZmanPrimitive {
             | ZmanPrimitive::MinchaGedolaAhavatShalom
             | ZmanPrimitive::MinchaKetanaAhavatShalom
             | ZmanPrimitive::PlagAhavatShalom
-            | ZmanPrimitive::Molad
             | ZmanPrimitive::BeginCivilTwilight
             | ZmanPrimitive::EndCivilTwilight
             | ZmanPrimitive::BeginNauticalTwilight
@@ -777,7 +799,6 @@ impl ZmanPrimitive {
             | ZmanPrimitive::MinchaGedolaAhavatShalom
             | ZmanPrimitive::MinchaKetanaAhavatShalom
             | ZmanPrimitive::PlagAhavatShalom
-            | ZmanPrimitive::Molad
             | ZmanPrimitive::BeginCivilTwilight
             | ZmanPrimitive::EndCivilTwilight
             | ZmanPrimitive::BeginNauticalTwilight

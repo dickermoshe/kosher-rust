@@ -19,9 +19,6 @@ pub enum ZmanimError {
     /// An internal astronomical calculation failed.
     #[error("An internal astronomical calculation failed.")]
     CalculationError,
-    /// Noon on the requested date does not exist in the location's timezone (e.g. a DST gap).
-    #[error("Noon on the requested date does not exist in the location's timezone (e.g. a DST gap).")]
-    LocalNoonError,
     /// No zmanim are available for this date at this location because it is all day.
     #[error("No zmanim are available for this date at this location because it is all day.")]
     AllDay,
@@ -33,9 +30,9 @@ pub enum ZmanimError {
         "A date/time conversion failed during zman calculation. This is a rare edge case; please report it if encountered."
     )]
     TimeConversionError,
-    /// This zman is only available on Erev Pesach.
-    #[error("This zman is only available on Erev Pesach.")]
-    ErevPesachZman,
+    /// This zman is not applicable on this date.
+    #[error("This zman is not applicable on this date.")]
+    InvalidForDate,
     /// The provided hours are invalid. Must be between 0 and 24.
     #[error("The provided hours are invalid. Must be between 0 and 24.")]
     InvalidHours,

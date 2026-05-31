@@ -3103,22 +3103,6 @@ pub static TZAIS_GEONIM_9_POINT_75_DEGREES: ZmanPreset = ZmanPreset {
     deprecated: false,
 };
 
-/// The molad for the Hebrew month.
-///
-/// The traditional molad time, calculated from the Hebrew calendar's day, hour, minute, and chalakim for the month.
-///
-/// The time is expressed as a precise moment based on Yerushalayim standard time, adjusted for the traditional location used for the molad.
-pub static ZMAN_MOLAD: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Molad,
-    method_name: "getZmanMolad",
-    name: "Molad",
-    #[cfg(feature = "alloc")]
-    description: |_| {
-        "The molad for the Hebrew month.\n\nThe traditional molad time, calculated from the Hebrew calendar's day, hour, minute, and chalakim for the month.\n\nThe time is expressed as a precise moment based on Yerushalayim standard time, adjusted for the traditional location used for the molad.".to_string()
-    },
-    deprecated: false,
-};
-
 /// Every generated zman preset.
 pub static ALL_ZMANIM: &[&ZmanPreset] = &[
     &ALOS_120_MINUTES,
@@ -3288,7 +3272,6 @@ pub static ALL_ZMANIM: &[&ZmanPreset] = &[
     &TZAIS_GEONIM_8_POINT_5_DEGREES,
     &TZAIS_GEONIM_9_POINT_3_DEGREES,
     &TZAIS_GEONIM_9_POINT_75_DEGREES,
-    &ZMAN_MOLAD,
 ];
 
 /// Invokes `$callback!(PRESET_IDENT)` once per generated preset static.
@@ -3466,6 +3449,5 @@ macro_rules! for_all_zman_presets {
         $callback!(TZAIS_GEONIM_8_POINT_5_DEGREES);
         $callback!(TZAIS_GEONIM_9_POINT_3_DEGREES);
         $callback!(TZAIS_GEONIM_9_POINT_75_DEGREES);
-        $callback!(ZMAN_MOLAD);
     };
 }

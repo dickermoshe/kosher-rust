@@ -175,7 +175,6 @@ ZmanimMethod = Literal[
     "getSofZmanKidushLevanaBetweenMoldos",
     "getTchilasZmanKidushLevana3Days",
     "getTchilasZmanKidushLevana7Days",
-    "getZmanMolad",
 ]
 
 ZmanimType = Literal[
@@ -451,12 +450,6 @@ class PlagAhavatShalom(BaseModel):
     type_: Literal["plag_ahavat_shalom"] = "plag_ahavat_shalom"
 
 
-class Molad(BaseModel):
-    """Equivalent to `getZmanMolad`."""
-
-    type_: Literal["molad"] = "molad"
-
-
 class BeginCivilTwilight(BaseModel):
     """Equivalent to `getBeginCivilTwilight`."""
 
@@ -565,7 +558,6 @@ ZmanPrimitive = Annotated[
         MinchaGedolaGraGreaterThan30,
         MinchaKetanaAhavatShalom,
         PlagAhavatShalom,
-        Molad,
         BeginCivilTwilight,
         EndCivilTwilight,
         BeginNauticalTwilight,
@@ -2248,7 +2240,6 @@ ZMAN: list[Zman] = [
         name="Tchilas Zman Kidush Levana (7 Days)",
         zman=TchilasZmanKidushLevana7Days(),
     ),
-    Zman(id="getZmanMolad", type_="molad", name="Molad", zman=Molad()),
 ]
 
 
@@ -2286,7 +2277,6 @@ for _model in (
     MinchaGedolaGraGreaterThan30,
     MinchaKetanaAhavatShalom,
     PlagAhavatShalom,
-    Molad,
     BeginCivilTwilight,
     EndCivilTwilight,
     BeginNauticalTwilight,
@@ -2472,5 +2462,4 @@ DOCS = {
     "getTzaisGeonim8Point5Degrees": "Tzais (nightfall) according to the Geonim - when the sun is 8.5 degrees below the western horizon after sunset.\n\nBased on Rabbi Meir Posen's [Ohr Meir](https://www.worldcat.org/oclc/29283612) calculation for when 3 small stars are visible, which is later than the required 3 medium stars. About 36 minutes after sunset in Jerusalem [around the equinox/equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/).\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.",
     "getTzaisGeonim9Point3Degrees": "Tzais (nightfall) according to the Geonim - when the sun is 9.3 degrees below the western horizon after sunset.\n\nThe stringent tzais used in [Luach Itim Lebinah](https://www.worldcat.org/oclc/243303103).\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.",
     "getTzaisGeonim9Point75Degrees": "Tzais (nightfall) according to the Geonim - when the sun is 9.75 degrees below the western horizon after sunset.\n\nCorresponds to 60 minutes after sunset [around the equinox/equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/) in New York, when a solar hour is 60 minutes. The opinion of [Rabbi Eliyahu Henkin](https://en.wikipedia.org/wiki/Yosef_Eliyahu_Henkin) and [Rabbi Shmuel Kamenetsky](https://en.wikipedia.org/wiki/Shmuel_Kamenetsky).\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.",
-    "getZmanMolad": "The molad for the Hebrew month.\n\nThe traditional molad time, calculated from the Hebrew calendar's day, hour, minute, and chalakim for the month.\n\nThe time is expressed as a precise moment based on Yerushalayim standard time, adjusted for the traditional location used for the molad.",
 }
