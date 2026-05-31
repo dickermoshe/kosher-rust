@@ -1,9 +1,9 @@
 //! Hebrew calendar extensions built on ICU4X.
 //!
-//! This module adds Jewish-calendar logic on top of [`icu_calendar::Date`] and related
-//! types: holidays, weekly Torah readings (*parshiyot*), month constants, and
-//! year-length helpers. Dates from ICU, ISO, Gregorian, or [`jiff`] can all use the
-//! same extension traits once converted to a Hebrew view.
+//! This module adds Jewish-calendar logic on top of [`icu_calendar::Date`] internally:
+//! holidays, weekly Torah readings (*parshiyot*), month constants, and year-length
+//! helpers. Callers typically use [`jiff::civil::Date`]; ICU and other date types also
+//! work via [`HebrewCalendarDate`].
 //!
 //! # Submodules
 //!
@@ -14,10 +14,10 @@
 //! # Quick start
 //!
 //! ```
-//! use icu_calendar::{Date, cal::Hebrew};
+//! use jiff::civil;
 //! use kosher_rust::calendar::prelude::*;
 //!
-//! let date = Date::try_new_hebrew_v2(5784, month::TISHREI, 10).unwrap();
+//! let date = civil::date(2023, 9, 25);
 //! assert!(date.is_assur_bemelacha(false));
 //! assert!(date.holidays(false, false).any(|h| h == Holiday::YomKippur));
 //! ```

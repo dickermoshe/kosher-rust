@@ -1,9 +1,7 @@
 //! Rust port of [KosherJava](https://github.com/KosherJava/zmanim) for Jewish holidays,
 //! halachic times (*zmanim*), and Torah/Talmud learning schedules (e.g. Daf Yomi,
-//! Pirkei Avos). A `no_std` crate (optional `alloc`) for Hebrew calendar extensions
-//! on [ICU4X](https://github.com/unicode-org/icu4x), location-based *zmanim*, and
-//! *limudim* daily units. Uses [`icu_calendar`] and [`jiff`] throughout so results
-//! compose with the wider Rust ecosystem.
+//! Pirkei Avos). A `no_std` crate (optional `alloc`) for Hebrew calendar extensions,
+//! location-based *zmanim*, and *limudim* calculators.
 //!
 //! # Modules
 //!

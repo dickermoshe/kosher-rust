@@ -24,10 +24,10 @@
 //! # Quick start
 //!
 //! ```
-//! use icu_calendar::{Date, cal::Hebrew};
+//! use jiff::civil;
 //! use kosher_rust::limudim::prelude::*;
 //!
-//! let date = Date::try_new_gregorian(2017, 12, 28).unwrap();
+//! let date = civil::date(2017, 12, 28);
 //! let daf = date.limud(DafYomiBavli::default()).unwrap();
 //! assert_eq!(daf.tractate, Tractate::Shevuos);
 //! assert_eq!(daf.page, 30);

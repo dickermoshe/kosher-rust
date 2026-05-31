@@ -2,11 +2,44 @@
 name = "kosher-rust"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.93.0"
+authors = ["Moshe Dicker <dickermoshe@gmail.com>"]
+license = "LGPL-2.1-or-later"
+description = "Rust port of KosherJava: Jewish holidays, halachic times (zmanim), and daily learning schedules. no_std-friendly."
+readme = "README.md"
+repository = "https://github.com/dickermoshe/rust-zmanim-project"
+homepage = "https://github.com/dickermoshe/rust-zmanim-project"
+documentation = "https://docs.rs/kosher-rust"
+keywords = [
+    "zmanim",
+    "hebrew-calendar",
+    "jewish",
+    "kosherjava",
+    "daf-yomi",
+    "halacha",
+    "jiff",
+    "no-std",
+]
+categories = ["date-and-time", "no-std", "internationalization"]
+exclude = [
+    "/interop-tests/",
+    "/third-party/",
+    "/tools/",
+    "/crates/",
+    "/.github/",
+    "/REVIEW.md",
+]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 default = ["alloc"]
-defmt = ["dep:defmt"] #TODO: Add jiff/defmt? feature once released
+# Human-readable zman preset descriptions (uses the allocator).
 alloc = []
+# `defmt::Format` on calculator, config, location, and error types.
+defmt = ["dep:defmt"] # TODO: jiff/defmt integration when available upstream
 
 
 [dependencies]
@@ -38,6 +71,7 @@ jiff = { version = "0.2.0", default-features = false, features = [
 workspace = true
 
 [workspace]
+resolver = "2"
 members = ["interop-tests/java_interop_tests", "interop-tests/js_interop_tests"]
 
 [workspace.lints.rust]
