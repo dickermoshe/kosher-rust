@@ -10,16 +10,7 @@ readme = "README.md"
 repository = "https://github.com/dickermoshe/rust-zmanim-project"
 homepage = "https://github.com/dickermoshe/rust-zmanim-project"
 documentation = "https://docs.rs/kosher-rust"
-keywords = [
-    "zmanim",
-    "hebrew-calendar",
-    "jewish",
-    "kosherjava",
-    "daf-yomi",
-    "halacha",
-    "jiff",
-    "no-std",
-]
+keywords = ["zmanim", "hebrew-calendar", "jewish", "daf-yomi", "halacha"]
 categories = ["date-and-time", "no-std", "internationalization"]
 exclude = [
     "/interop-tests/",
