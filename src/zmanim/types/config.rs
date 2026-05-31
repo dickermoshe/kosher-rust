@@ -29,6 +29,7 @@ impl Default for CalculatorConfig {
 }
 
 #[cfg(feature = "defmt")]
+// TODO: Can derive when jiff/defmt integration is available upstream
 impl defmt::Format for CalculatorConfig {
     fn format(&self, fmt: defmt::Formatter) {
         defmt::write!(

@@ -150,9 +150,6 @@ pub trait ZmanLike {
 ///
 /// Most callers should use presets directly instead of constructing
 /// [`ZmanPrimitive`] values themselves.
-///
-/// With the default `alloc` feature, presets include a `description` field and
-/// [`ZmanPreset::description`].
 #[derive(Debug, Clone)]
 pub struct ZmanPreset {
     /// The primitive calculation used by this preset.
