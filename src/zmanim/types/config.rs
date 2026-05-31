@@ -33,11 +33,12 @@ impl defmt::Format for CalculatorConfig {
     fn format(&self, fmt: defmt::Formatter) {
         defmt::write!(
             fmt,
-            "CalculatorConfig {{ candle_lighting_offset: {}, use_astronomical_chatzos_for_other_zmanim: {}, ateret_torah_sunset_offset: {}, use_astronomical_chatzos: {} }}",
+            "CalculatorConfig {{ candle_lighting_offset: {}, use_astronomical_chatzos_for_other_zmanim: {}, ateret_torah_sunset_offset: {}, use_astronomical_chatzos: {}, use_elevation: {} }}",
             self.candle_lighting_offset.as_secs_f64(),
             self.use_astronomical_chatzos_for_other_zmanim,
             self.ateret_torah_sunset_offset.as_secs_f64(),
-            self.use_astronomical_chatzos
+            self.use_astronomical_chatzos,
+            self.use_elevation
         )
     }
 }
