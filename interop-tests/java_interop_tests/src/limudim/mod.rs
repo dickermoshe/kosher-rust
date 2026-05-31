@@ -22,6 +22,7 @@ enum Talmud {
 }
 
 const DEFAULT_LIMUDIM_PARITY_ITERATIONS: u64 = 250;
+const MAX_REJECTION_ATTEMPTS: u32 = 10_000;
 const JAVA_BAVLI_BEFORE_START_MESSAGE: &str = "is prior to organized Daf Yomi Bavli cycles";
 const JAVA_YERUSHALMI_BEFORE_START_MESSAGE: &str = "is prior to the first Daf Yomi cycle";
 
@@ -52,7 +53,7 @@ fn date(year: i16, month: i8, day: i8) -> Date {
 }
 
 fn random_supported_date(rng: &mut StdRng, min_date: Date, max_year: i16) -> Date {
-    loop {
+    for attempt in 0..MAX_REJECTION_ATTEMPTS {
         let year = rng.random_range(min_date.year()..=max_year);
         let month = rng.random_range(1..=12);
         let day = rng.random_range(1..=Date::new(year, month, 1).expect("valid random month").days_in_month() as i8);
@@ -60,7 +61,13 @@ fn random_supported_date(rng: &mut StdRng, min_date: Date, max_year: i16) -> Dat
         if candidate >= min_date {
             return candidate;
         }
+        let _ = attempt;
     }
+    panic!(
+        "failed to find supported date after {MAX_REJECTION_ATTEMPTS} attempts \
+         (min_date={min_date:?}, max_year={max_year}, seed={})",
+        test_seed()
+    );
 }
 
 #[test]

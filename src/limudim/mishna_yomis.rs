@@ -198,23 +198,26 @@ pub struct Mishnas(pub Mishna, pub Mishna);
 #[derive(Default)]
 /// Calculates the Mishna Yomis schedule.
 pub struct MishnaYomis;
+fn mishna_yomis_for_date(limud_date: Date<Hebrew>) -> Option<Mishnas> {
+    let cycle = Cycle::from_cycle_initiation(initial_cycle_date(), MishnaYomis::cycle_end_calculation, limud_date)?;
+    if limud_date > cycle.end_date {
+        return None;
+    }
+    let iteration = cycle.start_date.days_until(&limud_date)? + 1;
+    mishnas_for_iteration(iteration)
+}
+
 impl InternalLimud<Mishnas> for MishnaYomis {
     fn limud(&self, limud_date: Date<Hebrew>) -> Option<Mishnas> {
-        let cycle = Cycle::from_cycle_initiation(initial_cycle_date(), Self::cycle_end_calculation, limud_date)?;
-        if limud_date > cycle.end_date {
-            return None;
-        }
-        let iteration = cycle.start_date.days_until(&limud_date)? + 1;
-        mishnas_for_iteration(iteration)
+        mishna_yomis_for_date(limud_date)
     }
 
     fn cycle_finder(&self) -> CycleFinder {
         CycleFinder::Initial(initial_cycle_date())
     }
 
-    fn unit_for_interval(&self, interval: &Interval, limud_date: &Date<Hebrew>) -> Option<Mishnas> {
-        let _ = interval;
-        self.limud(*limud_date)
+    fn unit_for_interval(&self, _interval: &Interval, limud_date: &Date<Hebrew>) -> Option<Mishnas> {
+        mishna_yomis_for_date(*limud_date)
     }
     fn cycle_end_calculation(hebrew_date: Date<Hebrew>, _iteration: Option<i32>) -> Option<Date<Hebrew>> {
         hebrew_date.add_days(MISHNA_YOMIS_CYCLE_DAYS)

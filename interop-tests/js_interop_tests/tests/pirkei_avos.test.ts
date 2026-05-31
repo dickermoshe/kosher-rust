@@ -7,6 +7,8 @@ import { pirkeiAvot } from "@hebcal/learning";
 import { faker } from "@faker-js/faker";
 import { expect, test, describe } from "bun:test";
 
+const ITERATIONS = 10000;
+
 interface PirkeiAvosSingle {
   type: "Single";
   perek: number;
@@ -56,7 +58,7 @@ function hebcalToOurFormat(
 
 describe("Pirkei Avos - Diaspora", () => {
   test("matches @hebcal/learning implementation for random Shabbat dates 1900-2099 (diaspora)", () => {
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < ITERATIONS; i++) {
       const date = randomShabbatDate("1900-01-01", "2099-12-31");
 
       let wasmResult: PirkeiAvosResult | null = null;
@@ -150,7 +152,7 @@ describe("Pirkei Avos - Diaspora", () => {
 
 describe("Pirkei Avos - Israel", () => {
   test("matches @hebcal/learning implementation for random Shabbat dates 1900-2099 (Israel)", () => {
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < ITERATIONS; i++) {
       const date = randomShabbatDate("1900-01-01", "2099-12-31");
 
       let wasmResult: PirkeiAvosResult | null = null;

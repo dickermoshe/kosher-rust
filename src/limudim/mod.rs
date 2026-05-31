@@ -28,7 +28,7 @@
 //! use kosher_rust::limudim::prelude::*;
 //!
 //! let date = Date::try_new_gregorian(2017, 12, 28).unwrap();
-//! let daf = date.limud(DafYomiBavli).unwrap();
+//! let daf = date.limud(DafYomiBavli::default()).unwrap();
 //! assert_eq!(daf.tractate, Tractate::Shevuos);
 //! assert_eq!(daf.page, 30);
 //! ```
@@ -130,7 +130,7 @@ impl HebrewDateExt for Date<Hebrew> {
 }
 
 /// Total number of amudim (half-pages) in the Babylonian Talmud for Dirshu
-pub(crate) const BAVLI_TOTAL_AMUDIM: i32 = 5406;
+pub(crate) const BAVLI_TOTAL_AMUDIM: i32 = 5407;
 
 /// Number of dafim in Daf Yomi Bavli cycles 1-7 (before Shekalim expansion)
 pub(crate) const BAVLI_DAF_COUNT_EARLY: i32 = 2702;

@@ -7,6 +7,8 @@ import { yerushalmiYomi, vilna } from "@hebcal/learning";
 import { faker } from "@faker-js/faker";
 import { expect, test, describe } from "bun:test";
 
+const ITERATIONS = 10000;
+
 // Mapping from our tractate names to hebcal's tractate names (Yerushalmi)
 const TRACTATE_MAP: Record<string, string> = {
   // Yerushalmi-specific spellings
@@ -90,7 +92,7 @@ describe("Daf Yomi Yerushalmi", () => {
   test("matches @hebcal/learning for random dates 1980-2060", () => {
     // Skip day postponement logic doesn't match hebcal yet
     // When Tisha B'Av falls on Shabbat, hebcal's handling differs from ours
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < ITERATIONS; i++) {
       const date = randomDate("1900-01-01", "2060-12-31");
 
       // Extract year, month, day to avoid timezone issues

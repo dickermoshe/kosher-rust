@@ -55,3 +55,42 @@ pub(crate) trait InternalLimud<T> {
 /// Trait for calculators that can be used to calculate the limud for a given date.
 #[allow(private_bounds)]
 pub trait Limud<T>: InternalLimud<T> {}
+
+#[cfg(test)]
+#[allow(clippy::expect_used)]
+mod tests {
+    use icu_calendar::{Date, cal::Hebrew};
+
+    use crate::limudim::{HebrewDateExt, Limud, cycle::Cycle, from_gregorian_date, interval::Interval};
+
+    use super::*;
+
+    struct DailyCounter;
+
+    impl InternalLimud<u32> for DailyCounter {
+        fn cycle_finder(&self) -> CycleFinder {
+            CycleFinder::Initial(from_gregorian_date(2020, 1, 1))
+        }
+
+        fn cycle_end_calculation(hebrew_date: Date<Hebrew>, _iteration: Option<i32>) -> Option<Date<Hebrew>> {
+            hebrew_date.add_days(4)
+        }
+
+        fn interval_end_calculation(_cycle: Cycle, hebrew_date: Date<Hebrew>) -> Option<Date<Hebrew>> {
+            Some(hebrew_date)
+        }
+
+        fn unit_for_interval(&self, interval: &Interval, _limud_date: &Date<Hebrew>) -> Option<u32> {
+            Some(interval.iteration as u32)
+        }
+    }
+
+    impl Limud<u32> for DailyCounter {}
+
+    #[test]
+    fn default_limud_engine_terminates_for_toy_calculator() {
+        let calculator = DailyCounter;
+        let limud_date = from_gregorian_date(2020, 1, 3);
+        assert_eq!(calculator.limud(limud_date), Some(3));
+    }
+}

@@ -49,3 +49,55 @@ impl Interval {
         self.start_date <= date && date <= self.end_date
     }
 }
+
+#[cfg(test)]
+#[allow(clippy::expect_used)]
+mod tests {
+    use icu_calendar::{Date, cal::Hebrew};
+
+    use crate::limudim::{HebrewDateExt, cycle::Cycle, from_gregorian_date};
+
+    use super::*;
+
+    fn single_day_interval(_cycle: Cycle, date: Date<Hebrew>) -> Option<Date<Hebrew>> {
+        Some(date)
+    }
+
+    #[test]
+    fn contains_is_inclusive() {
+        let cycle = Cycle {
+            start_date: from_gregorian_date(2020, 1, 1),
+            end_date: from_gregorian_date(2020, 1, 7),
+            iteration: Some(1),
+        };
+        let interval = Interval::first_for_cycle(cycle, single_day_interval).expect("interval");
+        assert!(interval.contains(from_gregorian_date(2020, 1, 1)));
+        assert!(interval.contains(interval.end_date));
+        assert!(!interval.contains(from_gregorian_date(2020, 1, 2)));
+    }
+
+    #[test]
+    fn next_advances_iteration_within_cycle() {
+        let cycle = Cycle {
+            start_date: from_gregorian_date(2020, 1, 1),
+            end_date: from_gregorian_date(2020, 1, 10),
+            iteration: Some(1),
+        };
+        let first = Interval::first_for_cycle(cycle, single_day_interval).expect("first interval");
+        let second = first.next(single_day_interval).expect("second interval");
+        assert_eq!(second.iteration, 2);
+        assert_eq!(second.start_date, first.end_date.add_days(1).expect("next day"));
+    }
+
+    #[test]
+    fn skip_keeps_iteration() {
+        let cycle = Cycle {
+            start_date: from_gregorian_date(2020, 1, 1),
+            end_date: from_gregorian_date(2020, 1, 10),
+            iteration: Some(1),
+        };
+        let first = Interval::first_for_cycle(cycle, single_day_interval).expect("first interval");
+        let skipped = first.skip(single_day_interval).expect("skipped interval");
+        assert_eq!(skipped.iteration, first.iteration);
+    }
+}

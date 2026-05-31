@@ -83,14 +83,18 @@ pub const fn end_daf(tractate: Tractate, iteration: i32) -> Option<u16> {
 /// Calculates the Daf Yomi Bavli schedule.
 pub struct DafYomiBavli {}
 
+fn daf_yomi_bavli_for_date(limud_date: Date<Hebrew>) -> Option<Daf> {
+    let cycle = Cycle::from_cycle_initiation(initial_cycle_date(), DafYomiBavli::cycle_end_calculation, limud_date)?;
+    if limud_date > cycle.end_date {
+        return None;
+    }
+    let offset = cycle.start_date.days_until(&limud_date)? as usize;
+    daf_at_offset(cycle.iteration?, offset)
+}
+
 impl InternalLimud<Daf> for DafYomiBavli {
     fn limud(&self, limud_date: Date<Hebrew>) -> Option<Daf> {
-        let cycle = Cycle::from_cycle_initiation(initial_cycle_date(), Self::cycle_end_calculation, limud_date)?;
-        if limud_date > cycle.end_date {
-            return None;
-        }
-        let offset = cycle.start_date.days_until(&limud_date)? as usize;
-        daf_at_offset(cycle.iteration?, offset as usize)
+        daf_yomi_bavli_for_date(limud_date)
     }
 
     fn cycle_finder(&self) -> CycleFinder {
@@ -110,7 +114,7 @@ impl InternalLimud<Daf> for DafYomiBavli {
     }
 
     fn unit_for_interval(&self, _interval: &Interval, limud_date: &Date<Hebrew>) -> Option<Daf> {
-        self.limud(*limud_date)
+        daf_yomi_bavli_for_date(*limud_date)
     }
 }
 

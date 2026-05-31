@@ -7,6 +7,8 @@ import { dailyPsalms } from "@hebcal/learning";
 import { faker } from "@faker-js/faker";
 import { expect, test, describe } from "bun:test";
 
+const ITERATIONS = 10000;
+
 interface TehillimResultPsalms {
   type: "Psalms";
   start: number;
@@ -59,7 +61,7 @@ function parseHebcalPsalm(
 
 describe("Tehillim Monthly", () => {
   test("matches @hebcal/learning implementation for random dates 1900-2099", () => {
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < ITERATIONS; i++) {
       const date = randomDate("1900-01-01", "2099-12-31");
 
       let wasmResult: TehillimResult | null = null;

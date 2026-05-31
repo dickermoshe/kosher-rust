@@ -7,6 +7,8 @@ import { MishnaYomiIndex } from "@hebcal/learning";
 import { faker } from "@faker-js/faker";
 import { expect, test, describe } from "bun:test";
 
+const ITERATIONS = 10000;
+
 // Mapping from our tractate names to hebcal's tractate names
 const TRACTATE_MAP: Record<string, string> = {
   Berachos: "Berakhot",
@@ -100,7 +102,7 @@ describe("Mishna Yomi", () => {
   test("matches @hebcal/learning implementation for random dates 1947-2099", () => {
     const mishnaYomiIndex = new MishnaYomiIndex();
 
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < ITERATIONS; i++) {
       const date = randomDate("1947-05-20", "2099-12-31");
 
       let wasmResult: MishnaResult | null = null;
