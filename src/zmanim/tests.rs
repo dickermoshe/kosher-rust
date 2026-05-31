@@ -586,3 +586,36 @@ fn test_mcmurdo_antimeridian_alos_matches_java() {
     assert!(local.hour() < 12, "alos should be in the morning, got {local}");
     assert_time_str(alos, "1901-04-18T05:45:48.837784872+11:30", Some(1));
 }
+
+#[cfg(feature = "alloc")]
+#[test]
+#[allow(clippy::field_reassign_with_default)]
+fn test_preset_description_uses_chatzos_hayom_config_flag() {
+    let calc = new_calc(0.0);
+    let desc = CHATZOS_HAYOM.description(&calc);
+    assert!(desc.contains("astronomical chatzos (solar transit)"));
+
+    let mut config = CalculatorConfig::default();
+    config.use_astronomical_chatzos = false;
+    let calc = ZmanimCalculator::new(lakewood_location(0.0), lakewood_date(), config);
+    let desc = CHATZOS_HAYOM.description(&calc);
+    assert!(desc.contains("midpoint between sunrise and sunset"));
+}
+
+#[cfg(feature = "alloc")]
+#[test]
+#[allow(clippy::field_reassign_with_default)]
+fn test_preset_description_uses_chatzos_for_other_zmanim_config_flag() {
+    let mut config = CalculatorConfig::default();
+    config.use_astronomical_chatzos_for_other_zmanim = true;
+    let calc = ZmanimCalculator::new(lakewood_location(0.0), lakewood_date(), config);
+    let desc = SOF_ZMAN_SHMA_GRA.description(&calc);
+    assert!(desc.contains("divides the afternoon from astronomical chatzos"));
+    assert!(!desc.contains("midpoint between sunrise and sunset"));
+
+    config.use_astronomical_chatzos_for_other_zmanim = false;
+    let calc = ZmanimCalculator::new(lakewood_location(0.0), lakewood_date(), config);
+    let desc = SOF_ZMAN_SHMA_GRA.description(&calc);
+    assert!(desc.contains("fixed fraction of the sunrise-to-sunset interval"));
+    assert!(!desc.contains("divides the afternoon from astronomical chatzos"));
+}

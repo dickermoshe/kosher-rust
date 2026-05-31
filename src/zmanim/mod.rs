@@ -1,9 +1,70 @@
+//! Halachic time calculations (*zmanim*) for a geographic location and civil date.
+//!
+//! This module computes Jewish prayer and ritual times — sunrise, sunset, *alos*,
+//! *tzeis*, *chatzos*, candle lighting, and dozens of other presets aligned with
+//! [KosherJava](https://github.com/KosherJava/zmanim) method names. Results are
+//! [`jiff::Timestamp`] values in UTC; convert to local time with the location's
+//! timezone when presenting them to users.
+//!
+//! # How it fits together
+//!
+//! 1. Build a [`Location`] (latitude, longitude, elevation, optional timezone).
+//! 2. Create a [`ZmanimCalculator`] for that location, a [`jiff::civil::Date`], and
+//!    a [`CalculatorConfig`] that selects elevation and *chatzos* behavior.
+//! 3. Pass any [`ZmanLike`] value to [`ZmanimCalculator::calculate`].
+//!
+//! Most callers use the ready-made constants in [`presets`] (for example
+//! [`presets::ELEVATION_ADJUSTED_SUNRISE`]). Each preset is a [`ZmanPreset`] backed
+//! by a low-level [`ZmanPrimitive`] expression.
+//!
+//! Failures return [`ZmanimError`] — unlike calendar or limud lookups, which use
+//! `Option` when a value simply does not apply on a given date. Some zmanim cannot
+//! be calculated at extreme latitudes or on polar days; others require a timezone
+//! on the location (for example Kiddush Levana via [`molad::MoladCalendar`]).
+//!
+//! # Submodules
+//!
+//! - [`presets`] — named zman constants (`ELEVATION_ADJUSTED_SUNRISE`, `CANDLE_LIGHTING`, …)
+//! - [`types::config`] — [`CalculatorConfig`] options (elevation, *chatzos*, offsets)
+//! - [`types::location`] — [`Location`] validation and timezone requirements
+//! - [`types::error`] — [`ZmanimError`] returned by invalid input or impossible calculations
+//! - [`primitives`] — [`ZmanPrimitive`] building blocks for custom zman definitions
+//! - [`molad`] — molad and Kiddush Levana times via [`molad::MoladCalendar`]
+//!
+//! # Quick start
+//!
+//! ```
+//! use jiff::{civil::Date, tz::TimeZone};
+//! use kosher_rust::zmanim::prelude::*;
+//!
+//! let location = Location::new(
+//!     40.09,
+//!     -74.22,
+//!     0.0,
+//!     Some(TimeZone::get("America/New_York").unwrap()),
+//! )
+//! .unwrap();
+//! let calc = ZmanimCalculator::new(
+//!     location,
+//!     Date::new(2017, 10, 17).unwrap(),
+//!     CalculatorConfig::default(),
+//! );
+//! calc.calculate(&presets::ELEVATION_ADJUSTED_SUNRISE).unwrap();
+//! ```
+//!
+//! Import [`prelude`] (or [`crate::prelude`]) for calculator types, the [`presets`]
+//! module, and [`ZmanPrimitive`] building blocks.
+
 use jiff::{Timestamp, civil::Date};
 
 mod astronomy;
 
 pub mod presets;
 /// Core zmanim types: configuration, errors, and location.
+///
+/// - [`types::config`] — [`CalculatorConfig`]
+/// - [`types::error`] — [`ZmanimError`]
+/// - [`types::location`] — [`Location`]
 pub mod types {
     /// Calculator configuration options.
     pub mod config;
@@ -50,7 +111,7 @@ use alloc::string::String;
 /// value to [`ZmanimCalculator::calculate`].
 ///
 /// Most callers should use the ready-made definitions in [`presets`],
-/// such as `presets::SUNRISE`, instead of writing custom zman logic.
+/// such as `presets::ELEVATION_ADJUSTED_SUNRISE`, instead of writing custom zman logic.
 #[derive(Clone, Debug)]
 pub struct ZmanimCalculator {
     /// The location to calculate for.
@@ -89,6 +150,9 @@ pub trait ZmanLike {
 ///
 /// Most callers should use presets directly instead of constructing
 /// [`ZmanPrimitive`] values themselves.
+///
+/// With the default `alloc` feature, presets include a `description` field and
+/// [`ZmanPreset::description`].
 #[derive(Debug, Clone)]
 pub struct ZmanPreset {
     /// The primitive calculation used by this preset.
@@ -129,13 +193,22 @@ impl ZmanPreset {
                 desc.push_str("\n\nThis zman is calculated as though the configured location were at sea level.");
             }
         }
-        if self.event.uses_astronomical_chatzos_from_config()
-            || self.event.uses_astronomical_chatzos_for_other_zmanim_from_config()
-        {
+        if self.event.uses_astronomical_chatzos_from_config() {
             if calculator.config.use_astronomical_chatzos {
-                desc.push_str("\n\nThis zman uses astronomical chatzos as the midpoint of the day.");
+                desc.push_str("\n\nThis zman uses astronomical chatzos (solar transit) as the midpoint of the day.");
             } else {
                 desc.push_str("\n\nThis zman uses the midpoint between sunrise and sunset for chatzos.");
+            }
+        }
+        if self.event.uses_astronomical_chatzos_for_other_zmanim_from_config() {
+            if calculator.config.use_astronomical_chatzos_for_other_zmanim {
+                desc.push_str(
+                    "\n\nThis zman divides the afternoon from astronomical chatzos when calculating shaos zmaniyos.",
+                );
+            } else {
+                desc.push_str(
+                    "\n\nThis zman uses a fixed fraction of the sunrise-to-sunset interval for shaos zmaniyos, without dividing the day at astronomical chatzos.",
+                );
             }
         }
         desc

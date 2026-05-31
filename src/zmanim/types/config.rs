@@ -12,7 +12,7 @@ pub struct CalculatorConfig {
     pub use_elevation: bool,
     /// Offset added to elevation-adjusted sunset for the Ateret Torah opinion (see [`crate::zmanim::presets::TZAIS_ATERET_TORAH`]). Default: 40 min.
     pub ateret_torah_sunset_offset: SignedDuration,
-    /// Is [`crate::zmanim::presets::SUN_TRANSIT`] used for [`crate::zmanim::presets::CHATZOS_HAYOM`] and [`crate::zmanim::presets::CHATZOS_HALAYLA`] for enhanced accuracy. Default: `true`.
+    /// When true, [`crate::zmanim::presets::SUN_TRANSIT`] is used for [`crate::zmanim::presets::CHATZOS_HAYOM`] and [`crate::zmanim::presets::CHATZOS_HALAYLA`] for enhanced accuracy. Default: `true`.
     pub use_astronomical_chatzos: bool,
 }
 
