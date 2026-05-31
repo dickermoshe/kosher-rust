@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from pathlib import Path
 
 from dsl import (
@@ -319,6 +320,7 @@ def main() -> None:
     docs = validate_docs(DOCS)
     OUTPUT.write_text(generate(docs), encoding="utf-8", newline="\n")
     print(f"Wrote presets to {OUTPUT}.")
+    subprocess.run(["cargo", "fmt"], cwd=SCRIPT_DIR.parent, check=True)
 
 
 if __name__ == "__main__":

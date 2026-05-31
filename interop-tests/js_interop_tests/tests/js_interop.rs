@@ -1,17 +1,15 @@
 //! Runs the Bun/TypeScript WASM interop tests via Cargo.
 //!
 //! Requires [Bun](https://bun.sh/) and the `wasm32-unknown-unknown` target.
-//! Run with: `cargo test --test js_interop`
+//! Run with: `cargo test --test js_interop` (from this crate directory).
 #![allow(clippy::expect_used, clippy::panic)]
 use std::{
     path::{Path, PathBuf},
     process::Command,
 };
 
-fn js_interop_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("interop-tests")
-        .join("js_interop_tests")
+fn package_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
 
 fn run(working_dir: &Path, command: &str, args: &[&str]) {
@@ -38,7 +36,7 @@ fn maybe_bun_install(working_dir: &Path) {
 
 #[test]
 fn bun_interop_tests() {
-    let working_dir = js_interop_dir();
+    let working_dir = package_dir();
 
     maybe_bun_install(&working_dir);
     run(&working_dir, "bun", &["run", "build"]);

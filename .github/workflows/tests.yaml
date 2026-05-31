@@ -101,15 +101,9 @@ jobs:
           target: wasm32-unknown-unknown
       - uses: Swatinem/rust-cache@v2
       - uses: oven-sh/setup-bun@v2
-      - name: Install dependencies
+      - name: Run JS interop tests
         working-directory: interop-tests/js_interop_tests
-        run: bun install
-      - name: Build WASM
-        working-directory: interop-tests/js_interop_tests
-        run: bun run build
-      - name: Run tests
-        working-directory: interop-tests/js_interop_tests
-        run: bun test
+        run: cargo test --test js_interop
 
   java-interop-tests:
     name: Java Interop Tests

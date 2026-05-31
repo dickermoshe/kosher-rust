@@ -5,7 +5,13 @@ You must have [Bun](https://bun.sh/) installed to run the tests.
 
 ## Run tests
 
-Run the following commands to build and run the tests.
+From this directory, with [Bun](https://bun.sh/) and the `wasm32-unknown-unknown` target installed:
+
+```bash
+cargo test --test js_interop
+```
+
+Or run the Bun steps directly:
 
 ```bash
 bun install

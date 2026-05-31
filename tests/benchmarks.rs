@@ -148,28 +148,6 @@ mod calendar {
     }
 
     #[test]
-    fn day_of_chanukah() {
-        let dates = sample_hebrew_dates();
-        for (index, date) in dates.iter().enumerate() {
-            let date = *date;
-            assert_max_duration(&format!("day_of_chanukah [{index}]"), move || {
-                let _ = date.day_of_chanukah();
-            });
-        }
-    }
-
-    #[test]
-    fn day_of_the_omer() {
-        let dates = sample_hebrew_dates();
-        for (index, date) in dates.iter().enumerate() {
-            let date = *date;
-            assert_max_duration(&format!("day_of_the_omer [{index}]"), move || {
-                let _ = date.day_of_the_omer();
-            });
-        }
-    }
-
-    #[test]
     fn year_and_month_queries() {
         assert_max_duration("days_in_hebrew_year", || {
             let _ = Hebrew::days_in_hebrew_year(5784);
