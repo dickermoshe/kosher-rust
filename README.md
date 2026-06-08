@@ -36,7 +36,7 @@ Then add the zmanim definitions to `/tools/dsl.py` and run `tools/generate-rust.
 In some instances, you may need to add features to the DSL to support the new zmanim.
 Updates to preset documentation should be made in `/tools/dsl.py` as well.
 
-We are currently tracking commit https://github.com/KosherJava/zmanim/commit/76688b95cd5f195fe3c906bf7981aeccdc12ad62 of KosherJava.
+We are currently tracking commit [76688b](https://github.com/KosherJava/zmanim/commit/76688b95cd5f195fe3c906bf7981aeccdc12ad62) of KosherJava.
 
 # TODOs
 
