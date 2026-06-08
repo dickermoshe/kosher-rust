@@ -76,7 +76,7 @@ ZmanimMethod = Literal[
     "getMisheyakir9Point5Degrees",
     "getPlagHaminchaGRA",
     "getPlagAhavatShalom",
-    "getPlagAlos16Point1ToTzaisGeonim7Point083Degrees",
+    "getPlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees",
     "getPlagAlosToSunset",
     "getPlagHamincha60Minutes",
     "getPlagHamincha72Minutes",
@@ -120,7 +120,7 @@ ZmanimMethod = Literal[
     "getSofZmanShma3HoursBeforeChatzos",
     "getSofZmanShmaMGA120Minutes",
     "getSofZmanShmaAlos16Point1ToSunset",
-    "getSofZmanShmaAlos16Point1ToTzaisGeonim7Point083Degrees",
+    "getSofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees",
     "getSofZmanShmaAteretTorah",
     "getSofZmanShmaBaalHatanya",
     "getSofZmanShmaGRASunriseToFixedLocalChatzos",
@@ -1138,7 +1138,7 @@ ZMAN: list[Zman] = [
         zman=PlagAhavatShalom(),
     ),
     Zman(
-        id="getPlagAlos16Point1ToTzaisGeonim7Point083Degrees",
+        id="getPlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees",
         type_="plag_hamincha",
         name="Plag Hamincha (Alos 16.1 to Tzais Geonim 7.083 Degrees)",
         zman=PlagHamincha(
@@ -1729,7 +1729,7 @@ ZMAN: list[Zman] = [
         ),
     ),
     Zman(
-        id="getSofZmanShmaAlos16Point1ToTzaisGeonim7Point083Degrees",
+        id="getSofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees",
         type_="sof_zman_shma",
         name="Sof Zman Shma (Alos 16.1 to Tzais Geonim 7.083 Degrees)",
         zman=Shema(
@@ -2354,7 +2354,7 @@ DOCS = {
     "getMisheyakir7Point65Degrees": "Misheyakir according to the 35-36 minute approach.\n\nThe time when the sun is 7.65 degrees below the horizon before sunrise.\n\nThis is based on a 35-36 minute misheyakir around the equinox, when twilight is shortest.\n\nAt some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.",
     "getMisheyakir9Point5Degrees": "Misheyakir according to the 45-minute approach used by some communities.\n\nThe time when the sun is 9.5 degrees below the horizon before sunrise.\n\nThis is based on a 45-minute misheyakir calculation.\n\nAt some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.",
     "getPlagAhavatShalom": "Plag hamincha according to [Rabbi Yaakov Moshe Hillel](https://en.wikipedia.org/wiki/Yaakov_Moshe_Hillel), as published in the luach of the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.\n\n1.25 shaos zmaniyos before tzais 3.8 degrees, using a day from alos 16.1 degrees to tzais 3.8 degrees.\n\nAt some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.",
-    "getPlagAlos16Point1ToTzaisGeonim7Point083Degrees": "Plag hamincha based on a day from alos 16.1 degrees to tzais Geonim 7.083 degrees.\n\n10.75 shaos zmaniyos after alos 16.1 degrees.\n\nAt some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.",
+    "getPlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees": "Plag hamincha based on a day from alos 16.1 degrees to tzais Geonim 7.083 degrees.\n\n10.75 shaos zmaniyos after alos 16.1 degrees.\n\nAt some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.",
     "getPlagAlosToSunset": "Plag hamincha based on a day from alos 16.1 degrees to sea-level sunset.\n\n10.75 shaos zmaniyos after alos 16.1 degrees.\n\nThis zman should be used lechumra only. It can be a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.\n\nAt some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.",
     "getPlagHamincha120Minutes": "Plag hamincha according to the Magen Avraham, using the 120-minute day.\n\n10.75 shaos zmaniyos after alos 120 minutes before sunrise, using a day that starts 120 minutes before sunrise and ends 120 minutes after sunset.\n\nThis zman should be used lechumra only. It can be a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.\n\nIn places where sunrise or sunset cannot be calculated, this zman may not be available.",
     "getPlagHamincha120MinutesZmanis": "Plag hamincha based on alos 120 zmaniyos minutes (one-sixth of the day) before sunrise.\n\n10.75 shaos zmaniyos after that alos.\n\nThis zman should be used lechumra only. It can be a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.\n\nIn places where sunrise or sunset cannot be calculated, this zman may not be available.",
@@ -2392,7 +2392,7 @@ DOCS = {
     "getSofZmanKidushLevanaBetweenMoldos": "The latest time for Kiddush Levana according to the [Maharil](https://en.wikipedia.org/wiki/Yaakov_ben_Moshe_Levi_Moelin) - halfway between this molad and the next.\n\nHalf of the 29 days, 12 hours, and 793 chalakim interval between molad and molad (14 days, 18 hours, 22 minutes, and 666 milliseconds) after the month's molad.\n\nNote that although this time may be during the daytime, Kiddush Levana cannot be said during the daytime.",
     "getSofZmanShma3HoursBeforeChatzos": 'Sof zman krias shema - the latest time to recite morning Shema, calculated as 3 regular clock hours before chatzos hayom (not shaos zmaniyos). Often grouped with the "Komarno" zmanim after [Rav Yitzchak Eizik of Komarno](https://en.wikipedia.org/wiki/Komarno_(Hasidic_dynasty)#Rabbi_Yitzchak_Eisik_Safrin), though this calculation is much older.\n\n3 clock hours before chatzos hayom.\n\nThis view is cited by the Shach in Nekudas Hakesef (Yoreh Deah 184), [Rav Moshe Lifshitz](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=30) in [Lechem Mishneh on Brachos 1:2](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=50), the [Yaavetz](https://en.wikipedia.org/wiki/Jacob_Emden), and later by Komarno, Shevus Yaakov, Chasan Sofer, and others. See also [Yisrael Vehazmanim vol. 1, 7:3](https://hebrewbooks.org/pdfpager.aspx?req=9765&st=&pgnum=83).\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.',
     "getSofZmanShmaAlos16Point1ToSunset": "Sof zman krias shema - the latest time to recite morning Shema according to the opinion of the [Chidushei V'Chlalot HaRazah](https://hebrewbooks.org/40357) and the [Menorah HaTehorah](https://hebrewbooks.org/14799), as cited in [Yisrael Vehazmanim vol. 1, sec. 7, ch. 3 no. 16](https://hebrewbooks.org/pdfpager.aspx?req=9765&pgnum=81).\n\n3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to sea level sunset. By this calculation, chatzos is not at midday.\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.",
-    "getSofZmanShmaAlos16Point1ToTzaisGeonim7Point083Degrees": "Sof zman krias shema - the latest time to recite morning Shema using a day from alos at 16.1 degrees to tzais at 7.083 degrees.\n\n3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to tzais at 7.083 degrees. By this calculation, chatzos is not at midday.\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.",
+    "getSofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees": "Sof zman krias shema - the latest time to recite morning Shema using a day from alos at 16.1 degrees to tzais at 7.083 degrees.\n\n3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to tzais at 7.083 degrees. By this calculation, chatzos is not at midday.\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.",
     "getSofZmanShmaAteretTorah": "Sof zman krias shema - the latest time to recite morning Shema according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.\n\nAteret Torah zmanim use a day that begins at alos 1/10 of the day before sunrise and ends {ateret_torah_offset} after sunset. Sof zman krias shema is 3 of those shaos zmaniyos after that alos. By this calculation, chatzos is not at midday.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.",
     "getSofZmanShmaBaalHatanya": "Sof zman krias shema - the latest time to recite morning Shema according to the Baal Hatanya.\n\n3 shaos zmaniyos after netz amiti (true sunrise), with the day measured from Baal Hatanya sunrise to sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.",
     "getSofZmanShmaGRA": "Sof zman krias shema - the latest time to recite morning Shema according to the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon).\n\n3 shaos zmaniyos after sunrise. \n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.",

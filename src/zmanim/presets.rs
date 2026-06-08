@@ -1114,13 +1114,13 @@ pub static PLAG_AHAVAT_SHALOM: ZmanPreset = ZmanPreset {
 /// 10.75 shaos zmaniyos after alos 16.1 degrees.
 ///
 /// At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.
-pub static PLAG_ALOS_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083_DEGREES: ZmanPreset = ZmanPreset {
+pub static PLAG_ALOS_16_POINT_1_DEGREES_TO_TZAIS_GEONIM_7_POINT_083_DEGREES: ZmanPreset = ZmanPreset {
     event: ZmanPrimitive::PlagHamincha(
         &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
         &ZmanPrimitive::SunsetOffsetByDegrees(7.083333333333333),
         false,
     ),
-    method_name: "getPlagAlos16Point1ToTzaisGeonim7Point083Degrees",
+    method_name: "getPlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees",
     name: "Plag Hamincha (Alos 16.1 to Tzais Geonim 7.083 Degrees)",
     #[cfg(feature = "alloc")]
     description: |_| {
@@ -1858,6 +1858,26 @@ pub static SOF_ZMAN_SHMA_3_HOURS_BEFORE_CHATZOS: ZmanPreset = ZmanPreset {
     deprecated: false,
 };
 
+/// Sof zman krias shema - the latest time to recite morning Shema using a day from alos at 16.1 degrees to tzais at 7.083 degrees.
+///
+/// 3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to tzais at 7.083 degrees. By this calculation, chatzos is not at midday.
+///
+/// At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
+pub static SOF_ZMAN_SHMA_ALOS_16_POINT_1_DEGREES_TO_TZAIS_GEONIM_7_POINT_083_DEGREES: ZmanPreset = ZmanPreset {
+    event: ZmanPrimitive::Shema(
+        &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
+        &ZmanPrimitive::SunsetOffsetByDegrees(7.083333333333333),
+        false,
+    ),
+    method_name: "getSofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees",
+    name: "Sof Zman Shma (Alos 16.1 to Tzais Geonim 7.083 Degrees)",
+    #[cfg(feature = "alloc")]
+    description: |_| {
+        "Sof zman krias shema - the latest time to recite morning Shema using a day from alos at 16.1 degrees to tzais at 7.083 degrees.\n\n3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to tzais at 7.083 degrees. By this calculation, chatzos is not at midday.\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.".to_string()
+    },
+    deprecated: false,
+};
+
 /// Sof zman krias shema - the latest time to recite morning Shema according to the opinion of the [Chidushei V'Chlalot HaRazah](https://hebrewbooks.org/40357) and the [Menorah HaTehorah](https://hebrewbooks.org/14799), as cited in [Yisrael Vehazmanim vol. 1, sec. 7, ch. 3 no. 16](https://hebrewbooks.org/pdfpager.aspx?req=9765&pgnum=81).
 ///
 /// 3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to sea level sunset. By this calculation, chatzos is not at midday.
@@ -1874,26 +1894,6 @@ pub static SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_SUNSET: ZmanPreset = ZmanPreset {
     #[cfg(feature = "alloc")]
     description: |_| {
         "Sof zman krias shema - the latest time to recite morning Shema according to the opinion of the [Chidushei V'Chlalot HaRazah](https://hebrewbooks.org/40357) and the [Menorah HaTehorah](https://hebrewbooks.org/14799), as cited in [Yisrael Vehazmanim vol. 1, sec. 7, ch. 3 no. 16](https://hebrewbooks.org/pdfpager.aspx?req=9765&pgnum=81).\n\n3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to sea level sunset. By this calculation, chatzos is not at midday.\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.".to_string()
-    },
-    deprecated: false,
-};
-
-/// Sof zman krias shema - the latest time to recite morning Shema using a day from alos at 16.1 degrees to tzais at 7.083 degrees.
-///
-/// 3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to tzais at 7.083 degrees. By this calculation, chatzos is not at midday.
-///
-/// At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.
-pub static SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083_DEGREES: ZmanPreset = ZmanPreset {
-    event: ZmanPrimitive::Shema(
-        &ZmanPrimitive::SunriseOffsetByDegrees(16.1),
-        &ZmanPrimitive::SunsetOffsetByDegrees(7.083333333333333),
-        false,
-    ),
-    method_name: "getSofZmanShmaAlos16Point1ToTzaisGeonim7Point083Degrees",
-    name: "Sof Zman Shma (Alos 16.1 to Tzais Geonim 7.083 Degrees)",
-    #[cfg(feature = "alloc")]
-    description: |_| {
-        "Sof zman krias shema - the latest time to recite morning Shema using a day from alos at 16.1 degrees to tzais at 7.083 degrees.\n\n3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to tzais at 7.083 degrees. By this calculation, chatzos is not at midday.\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.".to_string()
     },
     deprecated: false,
 };
@@ -3166,7 +3166,7 @@ pub static ALL_ZMANIM: &[&ZmanPreset] = &[
     &MISHEYAKIR_7_POINT_65_DEGREES,
     &MISHEYAKIR_9_POINT_5_DEGREES,
     &PLAG_AHAVAT_SHALOM,
-    &PLAG_ALOS_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083_DEGREES,
+    &PLAG_ALOS_16_POINT_1_DEGREES_TO_TZAIS_GEONIM_7_POINT_083_DEGREES,
     &PLAG_ALOS_TO_SUNSET,
     &PLAG_HAMINCHA_120_MINUTES,
     &PLAG_HAMINCHA_120_MINUTES_ZMANIS,
@@ -3203,8 +3203,8 @@ pub static ALL_ZMANIM: &[&ZmanPreset] = &[
     &SOF_ZMAN_KIDUSH_LEVANA_15_DAYS,
     &SOF_ZMAN_KIDUSH_LEVANA_BETWEEN_MOLDOS,
     &SOF_ZMAN_SHMA_3_HOURS_BEFORE_CHATZOS,
+    &SOF_ZMAN_SHMA_ALOS_16_POINT_1_DEGREES_TO_TZAIS_GEONIM_7_POINT_083_DEGREES,
     &SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_SUNSET,
-    &SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083_DEGREES,
     &SOF_ZMAN_SHMA_ATERET_TORAH,
     &SOF_ZMAN_SHMA_BAAL_HATANYA,
     &SOF_ZMAN_SHMA_GRA,
@@ -3343,7 +3343,7 @@ macro_rules! for_all_zman_presets {
         $callback!(MISHEYAKIR_7_POINT_65_DEGREES);
         $callback!(MISHEYAKIR_9_POINT_5_DEGREES);
         $callback!(PLAG_AHAVAT_SHALOM);
-        $callback!(PLAG_ALOS_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083_DEGREES);
+        $callback!(PLAG_ALOS_16_POINT_1_DEGREES_TO_TZAIS_GEONIM_7_POINT_083_DEGREES);
         $callback!(PLAG_ALOS_TO_SUNSET);
         $callback!(PLAG_HAMINCHA_120_MINUTES);
         $callback!(PLAG_HAMINCHA_120_MINUTES_ZMANIS);
@@ -3380,8 +3380,8 @@ macro_rules! for_all_zman_presets {
         $callback!(SOF_ZMAN_KIDUSH_LEVANA_15_DAYS);
         $callback!(SOF_ZMAN_KIDUSH_LEVANA_BETWEEN_MOLDOS);
         $callback!(SOF_ZMAN_SHMA_3_HOURS_BEFORE_CHATZOS);
+        $callback!(SOF_ZMAN_SHMA_ALOS_16_POINT_1_DEGREES_TO_TZAIS_GEONIM_7_POINT_083_DEGREES);
         $callback!(SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_SUNSET);
-        $callback!(SOF_ZMAN_SHMA_ALOS_16_POINT_1_TO_TZAIS_GEONIM_7_POINT_083_DEGREES);
         $callback!(SOF_ZMAN_SHMA_ATERET_TORAH);
         $callback!(SOF_ZMAN_SHMA_BAAL_HATANYA);
         $callback!(SOF_ZMAN_SHMA_GRA);
