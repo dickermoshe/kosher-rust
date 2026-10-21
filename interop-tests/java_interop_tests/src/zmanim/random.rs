@@ -6,7 +6,7 @@ use jiff::{civil::Date, tz::TimeZone};
 use rand::{RngExt, rngs::StdRng};
 use tzf_rs::DefaultFinder;
 
-use kosher_rust::prelude::*;
+use kosher_rust::{Location, zmanim::*};
 
 use super::{java_reference::java_supported_timezones, policy, types::TestCase};
 

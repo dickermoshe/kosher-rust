@@ -14,7 +14,7 @@ pub(crate) mod java_bindings {
 
 pub(crate) mod calendar;
 pub(crate) mod limudim;
-pub(crate) mod zmanim;
+pub mod zmanim;
 
 use std::{error::Error, sync::OnceLock};
 

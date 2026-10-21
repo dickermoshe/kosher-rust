@@ -165,11 +165,12 @@ timezone. `ZmanimError` covers:
     `description(&Config) -> String` (the end-user display text, behind `alloc`).
   - Users can match on it, store it, and round-trip it through `java_name()`. It mirrors
     `MyZman`, which already works this way.
-- Custom times get three small public methods instead of a public expression language:
-  `sun_below_horizon(degrees, Morning | Evening)`, `shaah_zmanis(start, end)` and
-  `fraction_of_day(start, end, hours)`. That covers the realistic "my shul uses 8.5°" case.
+- Custom times get small public helpers instead of a public expression language:
+  `Zmanim::sunrise_offset_by_degrees`, `Zmanim::sunset_offset_by_degrees` (KosherJava's names)
+  and `zmanim::shaah_zmanis(start, end)`. That covers the realistic "my shul uses 8.5°" case.
 - `ZmanPrimitive` becomes private `Formula`. `ZmanLike`, `ZmanPreset` and
-  `for_all_zman_presets!` go. The Java suite iterates `Zman::ALL` and uses `java_name()`.
+  `for_all_zman_presets!` go. The Java suite generates its per-zman tests from `Zman::ALL` with
+  `libtest-mimic`.
 
 ### limudim
 

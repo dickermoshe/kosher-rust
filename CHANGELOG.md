@@ -46,3 +46,22 @@ checked against KosherJava and hebcal.
 | `ZmanimError::CalculationError`, `TimeConversionError`, `InvalidHours` | `ZmanimError::Internal` |
 
 Elevations must now be finite; an infinite observer elevation used to be accepted.
+
+#### Zmanim
+
+| 0.2 | 0.3 |
+|---|---|
+| `use kosher_rust::zmanim::prelude::*` | `use kosher_rust::{Location, Zman, Zmanim}` |
+| `ZmanimCalculator::new(location, date, config)` | `Zmanim::with_config(location, date, config)`, or `Zmanim::new(location, date)` for the defaults |
+| `calc.calculate(&presets::SOF_ZMAN_SHMA_GRA)` | `zmanim.get(Zman::SofZmanShmaGra)` |
+| `presets::ELEVATION_ADJUSTED_SUNRISE` and the other 166 statics | `Zman::Sunrise` and the other variants, named after the KosherJava getter without `get` |
+| `presets::ALL_ZMANIM` | `Zman::ALL` |
+| `preset.method_name`, `.name`, `.zman_type`, `.deprecated` | `zman.java_name()`, `.name()`, `.category()`, `.is_deprecated()`; `Zman::from_java_name(..)` goes the other way |
+| `preset.description(&calc)` | `zman.description(&config)` |
+| `ZmanType` | `Category` |
+| `CalculatorConfig` | `Config` |
+| `ZmanPrimitive`, `ZmanLike`, `ZmanPreset` | private. For a custom depression angle use `Zmanim::sunrise_offset_by_degrees` / `sunset_offset_by_degrees`; for proportional hours, `zmanim::shaah_zmanis` |
+| `kosher_rust::for_all_zman_presets!` | removed; iterate `Zman::ALL` |
+
+The 24 zmanim KosherJava deprecates are `#[deprecated]` variants: they still calculate, with a
+warning where you name them.

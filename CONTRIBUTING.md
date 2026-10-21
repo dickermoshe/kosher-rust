@@ -53,5 +53,15 @@ Java conformance suite compares against. Currently tracked: commit
 git subtree pull --prefix=third-party/kosher-java https://github.com/KosherJava/zmanim <tag-or-branch> --squash
 ```
 
-Then port any new or changed zmanim to the preset definitions in `tools/dsl.py`, run
-`tools/generate-rust.py`, update the tracked commit above, and run the Java conformance suite.
+Then port any new or changed zmanim (see below), update the tracked commit above, and run the
+Java conformance suite.
+
+## Adding a zman
+
+Every zman is one entry in [`src/zmanim/catalog.rs`](src/zmanim/catalog.rs), under its
+category: a doc comment for developers, the KosherJava getter, a display name, the formula, and
+an `about` text for end users. Then:
+
+1. `cargo test -p kosher-rust catalog_snapshot` fails, showing the new entry.
+2. Regenerate the snapshot with `UPDATE_SNAPSHOT=1` and check the diff contains only your entry.
+3. Run the Java conformance suite; it picks the new zman up from `Zman::ALL`.

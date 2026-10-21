@@ -1,6 +1,6 @@
 //! Regression fixtures for zmanim Java parity tests.
 
-use kosher_rust::prelude::*;
+use kosher_rust::{Location, zmanim::*};
 
 use super::types::TestCase;
 
