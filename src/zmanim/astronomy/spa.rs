@@ -138,9 +138,9 @@ impl Spa {
         let jc = (julian_day_ut - JULIAN_DAY_JAN_1_2000) / JULIAN_DAYS_PER_CENTURY;
         let jme = jce / 10.0;
 
-        let earth_l = vsop87::earth_longitude(jme).to_degrees();
-        let earth_b = vsop87::earth_latitude(jme).to_degrees();
-        let radius = vsop87::earth_radius(jme);
+        let earth_l = vsop87::earth_longitude(jme, false).to_degrees();
+        let earth_b = vsop87::earth_latitude(jme, false).to_degrees();
+        let radius = vsop87::earth_radius(jme, false);
 
         let theta = (earth_l + 180.0) % 360.0;
         let beta = -earth_b;

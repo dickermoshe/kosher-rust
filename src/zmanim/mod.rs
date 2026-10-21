@@ -61,7 +61,7 @@
 
 use jiff::{Timestamp, civil::Date};
 
-mod astronomy;
+pub(crate) mod astronomy;
 
 pub mod presets;
 /// Core zmanim types: configuration, errors, and location.

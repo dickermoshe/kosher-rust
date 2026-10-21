@@ -10,9 +10,10 @@
 //! | [`calendar`] | Hebrew dates, holidays, *parshiyot*, month constants, and calendar traits |
 //! | [`zmanim`] | Sunrise, candle lighting, *alos*, *tzeis*, and other halachic times |
 //! | [`limudim`] | Daf Yomi, Mishna Yomis, Tehillim, Pirkei Avos, and related daily units |
+//! | [`myzmanim`] | The *zmanim* of MyZmanim's website, reproduced to the second, as a self-contained calendar |
 //!
-//! Each module has its own [`calendar::prelude`], [`zmanim::prelude`], or
-//! [`limudim::prelude`]. Use [`prelude`] at the crate root when an application
+//! Each module has its own [`calendar::prelude`], [`zmanim::prelude`],
+//! [`limudim::prelude`] or [`myzmanim::prelude`]. Use [`prelude`] at the crate root when an application
 //! needs more than one area.
 //!
 //!
@@ -33,6 +34,7 @@
 
 pub mod calendar;
 pub mod limudim;
+pub mod myzmanim;
 pub mod zmanim;
 
 /// Common imports across [`calendar`], [`zmanim`], and [`limudim`].

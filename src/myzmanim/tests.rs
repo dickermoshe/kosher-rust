@@ -1,0 +1,195 @@
+#![allow(clippy::unwrap_used, clippy::panic)]
+
+use jiff::{
+    SignedDuration, Timestamp,
+    civil::Date,
+    tz::{Offset, TimeZone},
+};
+
+use super::*;
+
+fn ts(iso: &str) -> Timestamp {
+    iso.parse().unwrap()
+}
+
+/// Anvers, Belgium (place 26244298 in the site data): flat, sea level, UTC+1.
+fn anvers(date: Date) -> MyZmanimCalendar {
+    let tz = TimeZone::fixed(Offset::from_hours(1).unwrap());
+    let location = Location::new(51.216667, 4.416667, 0.0, Some(tz)).unwrap();
+    MyZmanimCalendar::new(location, date)
+}
+
+/// Safed, Israel (place 27491341): 570 m up, eastern horizon level with the observer, western at sea level, UTC+2.
+fn safed(date: Date) -> MyZmanimCalendar {
+    let tz = TimeZone::fixed(Offset::from_hours(2).unwrap());
+    let location = Location::with_horizon_elevations(32.96464803, 35.49599712, 570.0, 570.0, 0.0, Some(tz)).unwrap();
+    MyZmanimCalendar::new(location, date).with_candle_lighting_minutes(30.0)
+}
+
+fn assert_site_second(calendar: &MyZmanimCalendar, zman: MyZman, site_local: &str, offset_hours: i8) {
+    let expected = ts(&format!("{site_local}+0{offset_hours}:00"));
+    let actual = calendar.calculate(zman).unwrap();
+    let diff = actual.duration_since(expected).abs();
+    assert!(
+        diff <= SignedDuration::from_millis(1000),
+        "{zman:?}: site {expected} ours {actual} (diff {diff:?})"
+    );
+}
+
+#[test]
+fn anvers_matches_site_rows() {
+    // Row 26244298,2027-03-01 of the site data (a weekday, so no candle-lighting row). Every
+    // row is within a second; the site's own per-date drift makes early November 1.5 s off.
+    let calendar = anvers(Date::new(2027, 3, 1).unwrap());
+    for (zman, site) in [
+        (MyZman::Dawn90Degrees, "2027-03-01T05:26:17"),
+        (MyZman::Dawn72Fixed, "2027-03-01T06:15:49"),
+        (MyZman::Dawn72Degrees, "2027-03-01T05:49:57"),
+        (MyZman::Talis11Point5Degrees, "2027-03-01T06:19:24"),
+        (MyZman::Talis11Degrees, "2027-03-01T06:22:36"),
+        (MyZman::Talis10Point2Degrees, "2027-03-01T06:27:42"),
+        (MyZman::SunriseLevel, "2027-03-01T07:27:49"),
+        (MyZman::SunriseElevated, "2027-03-01T07:27:49"),
+        (MyZman::ShemaMA90Degrees, "2027-03-01T09:10:47"),
+        (MyZman::ShemaMA72Fixed, "2027-03-01T09:35:28"),
+        (MyZman::ShemaMA72Degrees, "2027-03-01T09:22:35"),
+        (MyZman::ShemaGra, "2027-03-01T10:11:28"),
+        (MyZman::ShacharisMA90Degrees, "2027-03-01T10:25:37"),
+        (MyZman::ShacharisMA72Fixed, "2027-03-01T10:42:01"),
+        (MyZman::ShacharisMA72Degrees, "2027-03-01T10:33:28"),
+        (MyZman::ShacharisGra, "2027-03-01T11:06:01"),
+        (MyZman::Midday, "2027-03-01T12:55:07"),
+        (MyZman::Mincha30Fixed, "2027-03-01T13:25:07"),
+        (MyZman::MinchaGra, "2027-03-01T13:22:24"),
+        (MyZman::MinchaLechumra, "2027-03-01T13:25:07"),
+        (MyZman::MinchaMA72Fixed, "2027-03-01T13:28:24"),
+        (MyZman::KetanaGra, "2027-03-01T16:06:03"),
+        (MyZman::KetanaMA72Fixed, "2027-03-01T16:48:03"),
+        (MyZman::PlagGra, "2027-03-01T17:14:14"),
+        (MyZman::PlagMA72Fixed, "2027-03-01T18:11:14"),
+        (MyZman::SunsetLevel, "2027-03-01T18:22:26"),
+        (MyZman::SunsetElevated, "2027-03-01T18:22:26"),
+        (MyZman::NightGra18Minutes, "2027-03-01T18:40:41"),
+        (MyZman::NightGra22Point5Minutes, "2027-03-01T18:45:20"),
+        (MyZman::NightGra24Minutes, "2027-03-01T18:46:52"),
+        (MyZman::NightZalman, "2027-03-01T18:55:29"),
+        (MyZman::NightFastTukaccinsky, "2027-03-01T18:58:41"),
+        (MyZman::NightFastFeinstein, "2027-03-01T19:02:59"),
+        (MyZman::NightMoed, "2027-03-01T19:08:36"),
+        (MyZman::NightShabbos, "2027-03-01T19:11:48"),
+        (MyZman::NightChazonIsh, "2027-03-01T19:16:48"),
+        (MyZman::NightRTam72Fixed, "2027-03-01T19:34:26"),
+        (MyZman::NightRTam72Degrees, "2027-03-01T20:00:32"),
+        (MyZman::Midnight, "2027-03-02T00:54:04"),
+    ] {
+        assert_site_second(&calendar, zman, site, 1);
+    }
+}
+
+#[test]
+fn safed_hill_sunset_uses_western_horizon_and_dip() {
+    let calendar = safed(Date::new(2026, 11, 6).unwrap());
+    let level = calendar.calculate(MyZman::SunsetLevel).unwrap();
+    let elevated = calendar.calculate(MyZman::SunsetElevated).unwrap();
+    // 570 m above a sea-level western horizon: the dip (0.0347°·√570 ≈ 0.83°) sets later.
+    let later_by = elevated.duration_since(level);
+    assert!(
+        later_by > SignedDuration::from_mins(3) && later_by < SignedDuration::from_mins(6),
+        "{later_by:?}"
+    );
+    // The eastern horizon is level with the observer, so elevated sunrise is the level time.
+    assert_eq!(
+        calendar.calculate(MyZman::SunriseLevel).unwrap(),
+        calendar.calculate(MyZman::SunriseElevated).unwrap()
+    );
+    // Candle lighting (30 minutes here) and R' Tam count from the elevated sunset.
+    assert_eq!(
+        calendar.calculate(MyZman::CandleLighting).unwrap(),
+        elevated - SignedDuration::from_mins(30)
+    );
+    assert_eq!(
+        calendar.calculate(MyZman::NightRTam72Fixed).unwrap(),
+        elevated + SignedDuration::from_mins(72)
+    );
+}
+
+#[test]
+fn every_row_is_distinct_and_computes() {
+    let calendar = safed(Date::new(2026, 6, 21).unwrap());
+    let mut seen = std::collections::HashSet::new();
+    for zman in MyZman::ALL {
+        assert!(seen.insert(zman), "{zman:?} listed twice");
+        assert!(!zman.name().is_empty());
+        let time = calendar.calculate(zman).unwrap_or_else(|err| panic!("{zman:?}: {err}"));
+        assert_eq!(zman.calculate(&calendar).unwrap(), time);
+    }
+    assert_eq!(seen.len(), 40);
+    assert!(calendar.proportional_hour_gra().unwrap() > SignedDuration::from_mins(60));
+}
+
+#[test]
+fn polar_day_reports_errors_not_panics() {
+    let tz = TimeZone::get("Europe/Oslo").unwrap();
+    let location = Location::new(69.6492, 18.9553, 0.0, Some(tz)).unwrap();
+    let calendar = MyZmanimCalendar::new(location, Date::new(2017, 6, 21).unwrap());
+    assert_eq!(calendar.calculate(MyZman::SunriseLevel), Err(ZmanimError::AllDay));
+    assert_eq!(calendar.calculate(MyZman::Midday), Err(ZmanimError::AllDay));
+    assert_eq!(calendar.calculate(MyZman::Midnight), Err(ZmanimError::AllDay));
+    assert!(calendar.calculate(MyZman::Dawn90Degrees).is_err());
+    assert!(calendar.proportional_hour_gra().is_err());
+}
+
+#[test]
+fn candle_lighting_minutes_default_and_setter() {
+    let mut calendar = anvers(Date::new(2026, 11, 6).unwrap());
+    assert_eq!(calendar.candle_lighting_minutes(), DEFAULT_CANDLE_LIGHTING_MINUTES);
+    let sunset = calendar.calculate(MyZman::SunsetElevated).unwrap();
+    assert_eq!(
+        calendar.calculate(MyZman::CandleLighting).unwrap(),
+        sunset - SignedDuration::from_mins(18)
+    );
+    calendar.set_candle_lighting_minutes(40.5);
+    assert_eq!(
+        calendar.calculate(MyZman::CandleLighting).unwrap(),
+        sunset - SignedDuration::from_secs(40 * 60 + 30)
+    );
+    calendar.set_date(Date::new(2026, 11, 7).unwrap());
+    assert_eq!(calendar.date(), Date::new(2026, 11, 7).unwrap());
+    assert_ne!(calendar.calculate(MyZman::SunsetElevated).unwrap(), sunset);
+}
+
+#[test]
+fn refraction_and_dip_follow_the_measured_rules() {
+    assert!((refraction(0.0) - 33.66 / 60.0).abs() < 1e-12);
+    assert!(refraction(1000.0) < refraction(0.0));
+    assert!(
+        (refraction(1000.0) / refraction(0.0) - 0.8870).abs() < 1e-3,
+        "{}",
+        refraction(1000.0)
+    );
+    assert_eq!(dip(0.0), 0.0);
+    assert_eq!(dip(-5.0), 0.0);
+    assert!((dip(100.0) - 0.347).abs() < 1e-12);
+}
+
+#[test]
+fn website_arithmetic_rounds_like_java() {
+    let start = ts("2026-11-06T06:43:40.600Z"); // rounds up to :41
+    let end = ts("2026-11-06T16:07:33.400Z"); // rounds down to :33
+    // Day = 33_832 s; a twelfth is 2_819.333… s, integer-divided in nanos then scaled, so
+    // three hours land 8_457.999… s in and are cut back to 8_457 s.
+    let three_hours = proportional(start, end, 3.0).unwrap();
+    assert_eq!(three_hours, ts("2026-11-06T09:04:38Z"));
+    assert_eq!(three_hours.subsec_nanosecond(), 0);
+    let mid = midpoint(start, end).unwrap();
+    assert_eq!(mid, ts("2026-11-06T11:25:37Z"));
+    assert_eq!(
+        nearest_second(ts("2026-11-06T00:00:00.499999999Z")),
+        ts("2026-11-06T00:00:00Z")
+    );
+    assert_eq!(nearest_second(ts("2026-11-06T00:00:00.5Z")), ts("2026-11-06T00:00:01Z"));
+    assert_eq!(
+        floor_second(ts("1969-12-31T23:59:59.9Z")).unwrap(),
+        ts("1969-12-31T23:59:59Z")
+    );
+}

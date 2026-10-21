@@ -16,6 +16,7 @@ exclude = [
     "/interop-tests/",
     "/third-party/",
     "/tools/",
+    "/tests/fixtures/",
     "/crates/",
     "/.github/",
     "/REVIEW.md",
@@ -57,6 +58,10 @@ jiff = { version = "0.2.0", default-features = false, features = [
     "alloc",
     "tzdb-bundle-always",
 ] }
+# MyZmanim site fixture (tests/fixtures/myzmanim-site.bin): postcard-encoded, deflated.
+serde = { version = "1.0", features = ["derive"] }
+postcard = { version = "1.1", features = ["use-std"] }
+flate2 = "1.1"
 
 [lints]
 workspace = true

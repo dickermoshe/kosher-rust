@@ -19,7 +19,7 @@ use jiff::{SignedDuration, Timestamp, civil::Date, tz::TimeZone};
 
 use crate::zmanim::types::{config::AstronomicalCalculator, error::ZmanimError, location::Location};
 
-mod meeus;
+pub(crate) mod meeus;
 mod noaa;
 mod solar_radius_table;
 mod spa;
@@ -49,7 +49,7 @@ pub(crate) enum SolarEvent {
 /// `longitude_west` is positive west, and results are expressed relative to 0:00 UTC of
 /// `date`. Implementations must not normalise their results into `[0, 24)`; the callers
 /// in this module do that so the KosherJava date-rollover logic sees the same values.
-pub(super) trait SolarAlgorithm {
+pub(crate) trait SolarAlgorithm {
     /// UTC minutes after 0:00 at which the sun's center reaches `adjusted_zenith`.
     ///
     /// `adjusted_zenith` already includes refraction, solar radius and elevation dip when
@@ -80,7 +80,7 @@ impl SolarAlgorithm for AstronomicalCalculator {
         match *self {
             Self::Noaa => noaa::Noaa.rise_set_utc_minutes(date, location, adjusted_zenith, event),
             Self::Meeus { apply_delta_t } => {
-                meeus::Meeus { apply_delta_t }.rise_set_utc_minutes(date, location, adjusted_zenith, event)
+                meeus::Meeus::standard(apply_delta_t).rise_set_utc_minutes(date, location, adjusted_zenith, event)
             }
             Self::Spa { apply_delta_t } => {
                 spa::Spa { apply_delta_t }.rise_set_utc_minutes(date, location, adjusted_zenith, event)
@@ -92,7 +92,7 @@ impl SolarAlgorithm for AstronomicalCalculator {
         match *self {
             Self::Noaa => noaa::Noaa.noon_midnight_utc_minutes(date, longitude_west, event),
             Self::Meeus { apply_delta_t } => {
-                meeus::Meeus { apply_delta_t }.noon_midnight_utc_minutes(date, longitude_west, event)
+                meeus::Meeus::standard(apply_delta_t).noon_midnight_utc_minutes(date, longitude_west, event)
             }
             Self::Spa { apply_delta_t } => {
                 spa::Spa { apply_delta_t }.noon_midnight_utc_minutes(date, longitude_west, event)
@@ -104,7 +104,7 @@ impl SolarAlgorithm for AstronomicalCalculator {
         match *self {
             Self::Noaa => noaa::Noaa.time_at_azimuth_utc_hours(date, location, azimuth),
             Self::Meeus { apply_delta_t } => {
-                meeus::Meeus { apply_delta_t }.time_at_azimuth_utc_hours(date, location, azimuth)
+                meeus::Meeus::standard(apply_delta_t).time_at_azimuth_utc_hours(date, location, azimuth)
             }
             Self::Spa { apply_delta_t } => {
                 spa::Spa { apply_delta_t }.time_at_azimuth_utc_hours(date, location, azimuth)
@@ -226,6 +226,23 @@ fn rise_set(
     instant_from_utc_hours(hours, adjusted_date, location, event)
 }
 
+/// Sunrise or sunset of `algorithm` on an already adjusted civil date for a fully adjusted
+/// zenith: nothing is added for refraction, solar radius or dip here. Callers with their
+/// own horizon model (see [`crate::myzmanim`]) build the zenith themselves.
+pub(crate) fn rise_set_on_adjusted_date(
+    algorithm: &impl SolarAlgorithm,
+    adjusted_date: Date,
+    location: &Location,
+    adjusted_zenith: f64,
+    event: SolarEvent,
+) -> Result<Timestamp, ZmanimError> {
+    let utc_minutes = algorithm.rise_set_utc_minutes(adjusted_date, location, adjusted_zenith, event)?;
+    if utc_minutes.is_nan() {
+        return Err(ZmanimError::CalculationError);
+    }
+    instant_from_utc_hours(normalize_utc_hours(utc_minutes / 60.0), adjusted_date, location, event)
+}
+
 /// Mirrors KosherJava's `AstronomicalCalculator.getUTCSunrise` / `getUTCSunset`: the UTC
 /// time of the event in hours, normalised to `[0, 24)`, for the given (already adjusted)
 /// civil date.
@@ -329,7 +346,7 @@ pub(crate) fn adjusted_local_date(date: Date, location: &Location) -> Result<Dat
     }
 }
 
-fn instant_from_utc_hours(
+pub(crate) fn instant_from_utc_hours(
     time: f64,
     mut date: Date,
     location: &Location,
@@ -365,12 +382,12 @@ fn add_days(date: Date, days: i64) -> Result<Date, ZmanimError> {
         .map_err(|_| ZmanimError::TimeConversionError)
 }
 
-fn normalize_utc_hours(time: f64) -> f64 {
+pub(crate) fn normalize_utc_hours(time: f64) -> f64 {
     (time % 24.0 + 24.0) % 24.0
 }
 
 #[allow(clippy::unwrap_used, clippy::expect_used)]
-pub(super) fn apparent_solar_radius(date: Date) -> f64 {
+pub(crate) fn apparent_solar_radius(date: Date) -> f64 {
     let month = date.month();
     let day = date.day();
     let reference = if month == 2 && day == 29 {

@@ -16,14 +16,24 @@ use super::JULIAN_DAY_JAN_1_2000;
 /// One VSOP87 term `{A, B, C}` contributing `A · cos(B + C · τ)`.
 type Term = [f64; 3];
 
+/// The synodic month's frequency in the VSOP87 series, in radians per Julian millennium:
+/// the terms at this frequency are the Earth's own motion around the Earth–Moon barycenter.
+const SYNODIC_MONTH_FREQUENCY: f64 = 77713.77;
+
 /// Evaluates a VSOP87 series `Σₙ (Σᵢ Aᵢ · cos(Bᵢ + Cᵢ · τ)) · τⁿ` with coefficients stored in
 /// 1e-8 of the native unit (radians for longitude / latitude, AU for the radius vector).
-pub(super) fn sum_series(series: &[&[Term]], tau: f64) -> f64 {
+///
+/// With `barycenter` set, the terms at the synodic month's frequency are left out, which
+/// turns the Earth's own orbit into the Earth–Moon barycenter's.
+pub(super) fn sum_series(series: &[&[Term]], tau: f64, barycenter: bool) -> f64 {
     let mut total = 0.0;
     let mut tau_pow = 1.0;
     for terms in series {
         let mut sum = 0.0;
         for term in *terms {
+            if barycenter && (term[2] - SYNODIC_MONTH_FREQUENCY).abs() <= 0.1 {
+                continue;
+            }
             sum += term[0] * (term[1] + term[2] * tau).cos();
         }
         total += sum * tau_pow;
@@ -33,18 +43,18 @@ pub(super) fn sum_series(series: &[&[Term]], tau: f64) -> f64 {
 }
 
 /// Earth heliocentric longitude in radians for `tau` Julian millennia from J2000.0.
-pub(super) fn earth_longitude(tau: f64) -> f64 {
-    sum_series(EARTH_L, tau)
+pub(super) fn earth_longitude(tau: f64, barycenter: bool) -> f64 {
+    sum_series(EARTH_L, tau, barycenter)
 }
 
 /// Earth heliocentric latitude in radians for `tau` Julian millennia from J2000.0.
-pub(super) fn earth_latitude(tau: f64) -> f64 {
-    sum_series(EARTH_B, tau)
+pub(super) fn earth_latitude(tau: f64, barycenter: bool) -> f64 {
+    sum_series(EARTH_B, tau, barycenter)
 }
 
 /// Earth radius vector in AU for `tau` Julian millennia from J2000.0.
-pub(super) fn earth_radius(tau: f64) -> f64 {
-    sum_series(EARTH_R, tau)
+pub(super) fn earth_radius(tau: f64, barycenter: bool) -> f64 {
+    sum_series(EARTH_R, tau, barycenter)
 }
 
 /// Principal nutation terms in longitude (Δψ) and obliquity (Δε), in arc-seconds, for

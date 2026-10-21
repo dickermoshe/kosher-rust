@@ -12,6 +12,14 @@ Examples and API reference: **[docs.rs/kosher-rust](https://docs.rs/kosher-rust)
 cargo add kosher-rust jiff
 ```
 
+## MyZmanim
+
+`kosher_rust::myzmanim` is a separate, self-contained calendar that reproduces the *zmanim* of
+[MyZmanim](https://www.myzmanim.com/)'s website to the second: its own refraction, horizon dip, angles
+and second-rounded arithmetic, measured from the site rather than taken from KosherJava's presets.
+Give it a `Location` with the observer's and both horizons' elevations, a date and the candle-lighting
+minutes, and calculate any row of the site's "All zmanim" table through `MyZman`.
+
 ## Solar algorithms
 
 Every astronomical zman is computed by one of the three solar position algorithms that
