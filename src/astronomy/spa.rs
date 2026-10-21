@@ -25,7 +25,7 @@ use super::{
 use crate::{Location, zmanim::ZmanimError};
 
 /// Largest zenith residual, in degrees, accepted as a solved sunrise or sunset. Over 3 million
-/// random solves, converged roots ended below 8e-7 (floating-point noise) and 99% of failed
+/// random solves, converged roots ended below 8e-7 (floating-point noise) and 98.5% of failed
 /// iterations above 1e-3. 1e-4 leaves a wide margin above the noise and is still below SPA's
 /// stated accuracy of ±0.0003 degrees.
 const CONVERGED_ZENITH_DEGREES: f64 = 1e-4;
