@@ -36,7 +36,7 @@ pub enum AstronomicalCalculator {
     /// The NREL Solar Position Algorithm (KosherJava's `SPACalculator`, Reda and
     /// Andreas). Like [`Self::Meeus`] it is VSOP87-based, but sunrise and sunset are
     /// solved on the full topocentric zenith, so the observer's
-    /// [`elevation`](crate::zmanim::types::location::Location::elevation) feeds a
+    /// [`elevation`](crate::Location::with_elevation) feeds a
     /// parallax term even when elevation adjustment is disabled. ΔT is applied when
     /// `apply_delta_t` is `true` (KosherJava's default).
     Spa {

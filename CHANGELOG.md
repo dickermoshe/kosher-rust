@@ -28,3 +28,21 @@ checked against KosherJava and hebcal.
 `hebrew()` for the Hebrew one.
 
 `HebrewYear::days()`, `is_cheshvan_long()` and `is_kislev_short()` no longer return `Option`.
+
+#### Location and errors
+
+| 0.2 | 0.3 |
+|---|---|
+| `zmanim::types::location::Location` | `kosher_rust::Location` |
+| `Location::new(lat, lon, elevation, tz)` | `Location::new(lat, lon, tz)?.with_elevation(elevation)?` |
+| `Location::with_horizon_elevations(lat, lon, elevation, east, west, tz)` | `Location::new(lat, lon, tz)?.with_elevation(elevation)?.with_horizons(east, west)?` |
+| `location.latitude` and the other public fields | `location.latitude()` and the other getters |
+| `location.sunrise_elevation()`, `sunset_elevation()` | removed |
+| `zmanim::types::config::{CalculatorConfig, AstronomicalCalculator}` | `zmanim::{CalculatorConfig, AstronomicalCalculator}` |
+| `zmanim::types::error::ZmanimError` | `zmanim::ZmanimError` |
+| `ZmanimError::InvalidLatitude`, `InvalidLongitude`, `InvalidElevation` | `LocationError::*`, returned when the `Location` is built |
+| `ZmanimError::TimeZoneRequired` from `Location::new` | `LocationError::TimeZoneRequired`; `ZmanimError::TimeZoneRequired` is now only for the Kiddush Levana times |
+| `ZmanimError::InvalidForDate` | `ZmanimError::NotApplicable`, which the polar Ben Ish Chai times now also return on ordinary days |
+| `ZmanimError::CalculationError`, `TimeConversionError`, `InvalidHours` | `ZmanimError::Internal` |
+
+Elevations must now be finite; an infinite observer elevation used to be accepted.

@@ -34,10 +34,12 @@
 mod astronomy;
 pub mod calendar;
 pub mod limudim;
+mod location;
 pub mod myzmanim;
 pub mod zmanim;
 
 pub use calendar::{HebrewDate, Region};
+pub use location::{Location, LocationError};
 
 /// Common imports across [`zmanim`] and [`limudim`].
 ///

@@ -18,7 +18,7 @@ use super::{
         self, asin_degrees, cos_degrees, delta_t_seconds, nutation_arcsec, sin_degrees, sun_mean_longitude, tan_degrees,
     },
 };
-use crate::zmanim::types::{error::ZmanimError, location::Location};
+use crate::{Location, zmanim::ZmanimError};
 
 /// The Meeus algorithm.
 #[derive(Clone, Copy, Debug)]

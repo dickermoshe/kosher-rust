@@ -15,14 +15,17 @@ fn ts(iso: &str) -> Timestamp {
 /// Anvers, Belgium (place 26244298 in the site data): flat, sea level, UTC+1.
 fn anvers(date: Date) -> MyZmanimCalendar {
     let tz = TimeZone::fixed(Offset::from_hours(1).unwrap());
-    let location = Location::new(51.216667, 4.416667, 0.0, Some(tz)).unwrap();
+    let location = Location::new(51.216667, 4.416667, Some(tz)).unwrap();
     MyZmanimCalendar::new(location, date)
 }
 
 /// Safed, Israel (place 27491341): 570 m up, eastern horizon level with the observer, western at sea level, UTC+2.
 fn safed(date: Date) -> MyZmanimCalendar {
     let tz = TimeZone::fixed(Offset::from_hours(2).unwrap());
-    let location = Location::with_horizon_elevations(32.96464803, 35.49599712, 570.0, 570.0, 0.0, Some(tz)).unwrap();
+    let location = Location::new(32.96464803, 35.49599712, Some(tz))
+        .and_then(|l| l.with_elevation(570.0))
+        .and_then(|l| l.with_horizons(570.0, 0.0))
+        .unwrap();
     MyZmanimCalendar::new(location, date).with_candle_lighting_minutes(30.0)
 }
 
@@ -130,7 +133,7 @@ fn every_row_is_distinct_and_computes() {
 #[test]
 fn polar_day_reports_errors_not_panics() {
     let tz = TimeZone::get("Europe/Oslo").unwrap();
-    let location = Location::new(69.6492, 18.9553, 0.0, Some(tz)).unwrap();
+    let location = Location::new(69.6492, 18.9553, Some(tz)).unwrap();
     let calendar = MyZmanimCalendar::new(location, Date::new(2017, 6, 21).unwrap());
     assert_eq!(calendar.calculate(MyZman::SunriseLevel), Err(ZmanimError::AllDay));
     assert_eq!(calendar.calculate(MyZman::Midday), Err(ZmanimError::AllDay));

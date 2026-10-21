@@ -12,14 +12,10 @@ pub(super) fn calculate_rust_zman(
     preset: &'static ZmanPreset,
 ) -> Result<Option<ZmanResult>, ZmanimError> {
     let timezone = TimeZone::get(case.timezone).unwrap();
-    let location = Location::with_horizon_elevations(
-        case.latitude,
-        case.longitude,
-        case.elevation,
-        case.eastern_horizon_elevation,
-        case.western_horizon_elevation,
-        Some(timezone.clone()),
-    )?;
+    let location = Location::new(case.latitude, case.longitude, Some(timezone.clone()))
+        .and_then(|l| l.with_elevation(case.elevation))
+        .and_then(|l| l.with_horizons(case.eastern_horizon_elevation, case.western_horizon_elevation))
+        .expect("generated test locations are valid");
     let date = Date::new(case.year as i16, case.month as i8, case.day as i8).unwrap();
     let config = CalculatorConfig {
         candle_lighting_offset: Duration::from_mins(case.candle_lighting_offset_minutes),

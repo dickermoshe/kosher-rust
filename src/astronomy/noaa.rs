@@ -10,7 +10,7 @@ use jiff::civil::Date;
 use super::{
     SolarAlgorithm, SolarEvent, julian_centuries_from_julian_day, julian_day, sun_hour_angle, time_at_azimuth_iterative,
 };
-use crate::zmanim::types::{error::ZmanimError, location::Location};
+use crate::{Location, zmanim::ZmanimError};
 
 /// The NOAA algorithm. Stateless.
 pub(super) struct Noaa;
