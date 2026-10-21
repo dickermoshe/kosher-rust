@@ -4,15 +4,17 @@
 //! Run with: `cargo test --test benchmarks --release`
 
 #![cfg(not(debug_assertions))]
+// Times deprecated zmanim too: they are still calculated.
+#![allow(deprecated)]
 
 use std::time::{Duration, Instant};
 
 use icu_calendar::Date;
 use jiff::{civil::Date as CivilDate, tz::TimeZone};
+use kosher_rust::Location;
 use kosher_rust::calendar::{HebrewDate, HebrewMonth, HebrewYear, Region};
 use kosher_rust::limudim::prelude::*;
-use kosher_rust::zmanim::prelude::presets::*;
-use kosher_rust::zmanim::prelude::*;
+use kosher_rust::zmanim::{AstronomicalCalculator, Config, Zman, Zmanim};
 
 const MAX_DURATION: Duration = Duration::from_millis(10);
 const WARMUP_ITERATIONS: usize = 50;
@@ -264,7 +266,7 @@ mod zmanim {
         label: &'static str,
         location: Location,
         date: CivilDate,
-        config: CalculatorConfig,
+        config: Config,
     }
 
     fn sample_zmanim_cases() -> [ZmanimCase; 6] {
@@ -279,9 +281,9 @@ mod zmanim {
                 .and_then(|l| l.with_elevation(15.0))
                 .expect("valid location"),
                 date: CivilDate::new(2017, 10, 17).expect("valid date"),
-                config: CalculatorConfig {
+                config: Config {
                     astronomical_calculator: AstronomicalCalculator::Meeus { apply_delta_t: true },
-                    ..CalculatorConfig::default()
+                    ..Config::default()
                 },
             },
             ZmanimCase {
@@ -293,9 +295,9 @@ mod zmanim {
                 )
                 .expect("valid location"),
                 date: CivilDate::new(2017, 3, 21).expect("valid date"),
-                config: CalculatorConfig {
+                config: Config {
                     astronomical_calculator: AstronomicalCalculator::Spa { apply_delta_t: true },
-                    ..CalculatorConfig::default()
+                    ..Config::default()
                 },
             },
             ZmanimCase {
@@ -308,7 +310,7 @@ mod zmanim {
                 .and_then(|l| l.with_elevation(15.0))
                 .expect("valid location"),
                 date: CivilDate::new(2017, 10, 17).expect("valid date"),
-                config: CalculatorConfig::default(),
+                config: Config::default(),
             },
             ZmanimCase {
                 label: "jerusalem",
@@ -320,7 +322,7 @@ mod zmanim {
                 .and_then(|l| l.with_elevation(754.0))
                 .expect("valid location"),
                 date: CivilDate::new(2024, 4, 22).expect("valid date"),
-                config: CalculatorConfig::default(),
+                config: Config::default(),
             },
             ZmanimCase {
                 label: "reykjavik_equinox",
@@ -331,7 +333,7 @@ mod zmanim {
                 )
                 .expect("valid location"),
                 date: CivilDate::new(2017, 3, 21).expect("valid date"),
-                config: CalculatorConfig::default(),
+                config: Config::default(),
             },
             ZmanimCase {
                 label: "baltimore_kidush_levana",
@@ -342,13 +344,13 @@ mod zmanim {
                 )
                 .expect("valid location"),
                 date: CivilDate::new(2026, 1, 3).expect("valid date"),
-                config: CalculatorConfig::default(),
+                config: Config::default(),
             },
         ]
     }
 
-    fn calculator(case: &ZmanimCase) -> ZmanimCalculator {
-        ZmanimCalculator::new(case.location.clone(), case.date, case.config)
+    fn calculator(case: &ZmanimCase) -> Zmanim {
+        Zmanim::with_config(case.location.clone(), case.date, case.config)
     }
 
     #[test]
@@ -360,23 +362,23 @@ mod zmanim {
             assert_max_duration(&format!("ELEVATION_ADJUSTED_SUNRISE [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&ELEVATION_ADJUSTED_SUNRISE);
+                    let _ = calc.get(Zman::Sunrise);
                 }
             });
             assert_max_duration(&format!("ELEVATION_ADJUSTED_SUNSET [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&ELEVATION_ADJUSTED_SUNSET);
+                    let _ = calc.get(Zman::Sunset);
                 }
             });
             assert_max_duration(&format!("SEA_LEVEL_SUNRISE [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&SEA_LEVEL_SUNRISE);
+                    let _ = calc.get(Zman::SeaLevelSunrise);
                 }
             });
             assert_max_duration(&format!("SEA_LEVEL_SUNSET [{label}]"), move || {
-                let _ = calc.calculate(&SEA_LEVEL_SUNSET);
+                let _ = calc.get(Zman::SeaLevelSunset);
             });
         }
     }
@@ -390,13 +392,13 @@ mod zmanim {
             assert_max_duration(&format!("ALOS_16_POINT_1_DEGREES [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&ALOS_16_POINT_1_DEGREES);
+                    let _ = calc.get(Zman::Alos16Point1Degrees);
                 }
             });
             assert_max_duration(&format!("TZAIS_16_POINT_1_DEGREES [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&TZAIS_16_POINT_1_DEGREES);
+                    let _ = calc.get(Zman::Tzais16Point1Degrees);
                 }
             });
         }
@@ -411,13 +413,13 @@ mod zmanim {
             assert_max_duration(&format!("CHATZOS_HAYOM [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&CHATZOS_HAYOM);
+                    let _ = calc.get(Zman::ChatzosHayom);
                 }
             });
             assert_max_duration(&format!("CHATZOS_HALAYLA [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&CHATZOS_HALAYLA);
+                    let _ = calc.get(Zman::ChatzosHalayla);
                 }
             });
         }
@@ -432,25 +434,25 @@ mod zmanim {
             assert_max_duration(&format!("SOF_ZMAN_SHMA_GRA [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&SOF_ZMAN_SHMA_GRA);
+                    let _ = calc.get(Zman::SofZmanShmaGra);
                 }
             });
             assert_max_duration(&format!("MINCHA_GEDOLA_GRA [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&MINCHA_GEDOLA_GRA);
+                    let _ = calc.get(Zman::MinchaGedolaGra);
                 }
             });
             assert_max_duration(&format!("PLAG_HAMINCHA_16_POINT_1_DEGREES [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&PLAG_HAMINCHA_16_POINT_1_DEGREES);
+                    let _ = calc.get(Zman::PlagHamincha16Point1Degrees);
                 }
             });
             assert_max_duration(&format!("CANDLE_LIGHTING [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&CANDLE_LIGHTING);
+                    let _ = calc.get(Zman::CandleLighting);
                 }
             });
         }
@@ -465,13 +467,13 @@ mod zmanim {
             assert_max_duration(&format!("SOF_ZMAN_KIDUSH_LEVANA_BETWEEN_MOLDOS [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&SOF_ZMAN_KIDUSH_LEVANA_BETWEEN_MOLDOS);
+                    let _ = calc.get(Zman::SofZmanKidushLevanaBetweenMoldos);
                 }
             });
             assert_max_duration(&format!("SOF_ZMAN_KIDUSH_LEVANA_15_DAYS [{label}]"), {
                 let calc = calc.clone();
                 move || {
-                    let _ = calc.calculate(&SOF_ZMAN_KIDUSH_LEVANA_15_DAYS);
+                    let _ = calc.get(Zman::SofZmanKidushLevana15Days);
                 }
             });
         }
@@ -484,14 +486,14 @@ mod zmanim {
             let calc = calculator(case);
             let label = case.label;
             assert_max_duration(&format!("full_day_sheet [{label}]"), move || {
-                let _ = calc.calculate(&ALOS_16_POINT_1_DEGREES);
-                let _ = calc.calculate(&SOF_ZMAN_SHMA_GRA);
-                let _ = calc.calculate(&CHATZOS_HAYOM);
-                let _ = calc.calculate(&MINCHA_GEDOLA_GRA);
-                let _ = calc.calculate(&PLAG_HAMINCHA_16_POINT_1_DEGREES);
-                let _ = calc.calculate(&CANDLE_LIGHTING);
-                let _ = calc.calculate(&ELEVATION_ADJUSTED_SUNSET);
-                let _ = calc.calculate(&TZAIS_16_POINT_1_DEGREES);
+                let _ = calc.get(Zman::Alos16Point1Degrees);
+                let _ = calc.get(Zman::SofZmanShmaGra);
+                let _ = calc.get(Zman::ChatzosHayom);
+                let _ = calc.get(Zman::MinchaGedolaGra);
+                let _ = calc.get(Zman::PlagHamincha16Point1Degrees);
+                let _ = calc.get(Zman::CandleLighting);
+                let _ = calc.get(Zman::Sunset);
+                let _ = calc.get(Zman::Tzais16Point1Degrees);
             });
         }
     }

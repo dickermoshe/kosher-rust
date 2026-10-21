@@ -15,7 +15,6 @@ categories = ["date-and-time", "no-std", "internationalization"]
 exclude = [
     "/interop-tests/",
     "/third-party/",
-    "/tools/",
     "/tests/fixtures/",
     "/crates/",
     "/.github/",

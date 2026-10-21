@@ -13,7 +13,7 @@ use crate::java_bindings::com::kosherjava::zmanim::{ComprehensiveZmanimCalendar,
 
 use crate::{init_bindings, java_vm};
 
-use kosher_rust::prelude::*;
+use kosher_rust::{Location, zmanim::*};
 
 use super::types::{TestCase, ZmanResult};
 
@@ -62,11 +62,7 @@ pub(super) fn java_supported_timezones() -> &'static HashSet<String> {
 
 /// Calculates one preset with KosherJava for a parity [`TestCase`].
 
-pub(super) fn calculate_java_zman(
-    case: TestCase,
-
-    zman: &'static ZmanPreset,
-) -> Result<Option<ZmanResult>, Box<dyn Error>> {
+pub(super) fn calculate_java_zman(case: TestCase, zman: Zman) -> Result<Option<ZmanResult>, Box<dyn Error>> {
     java_vm().attach_current_thread(|env: &mut jni::Env<'_>| -> Result<Option<ZmanResult>, Box<dyn Error>> {
         init_bindings(env)?;
 
@@ -154,7 +150,7 @@ pub(super) fn calculate_java_zman(
         let instant = env
             .call_method(
                 &calendar,
-                JNIString::from(zman.method_name),
+                JNIString::from(zman.java_name()),
                 jni_sig!("()Ljava/time/Instant;"),
                 &[],
             )?

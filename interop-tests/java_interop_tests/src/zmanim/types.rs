@@ -1,6 +1,6 @@
 //! Shared types for zmanim Java parity tests.
 
-use kosher_rust::prelude::*;
+use kosher_rust::{Location, zmanim::*};
 
 #[derive(Clone, Copy, Debug)]
 pub(super) struct TestCase {

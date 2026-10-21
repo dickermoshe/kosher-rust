@@ -13,23 +13,15 @@ extern crate std;
 
 use std::{env, fmt::Write as _, fs, path::PathBuf, string::String, vec::Vec};
 
-use jiff::{SignedDuration, civil::Date, tz::TimeZone};
+use jiff::SignedDuration;
 
-use crate::{
-    Location,
-    zmanim::{AstronomicalCalculator, CalculatorConfig, ZmanimCalculator, presets::ALL_ZMANIM},
-};
+use crate::zmanim::{AstronomicalCalculator, Config, Zman};
 
 const SNAPSHOT_PATH: &str = "tests/fixtures/zman_catalog.snap";
 
-fn calculator(config: CalculatorConfig) -> ZmanimCalculator {
-    let location = Location::new(0.0, 0.0, Some(TimeZone::UTC)).unwrap();
-    ZmanimCalculator::new(location, Date::new(2024, 1, 1).unwrap(), config)
-}
-
-fn flipped_config() -> CalculatorConfig {
-    let default = CalculatorConfig::default();
-    CalculatorConfig {
+fn flipped_config() -> Config {
+    let default = Config::default();
+    Config {
         candle_lighting_offset: SignedDuration::from_mins(40),
         use_astronomical_chatzos_for_other_zmanim: !default.use_astronomical_chatzos_for_other_zmanim,
         use_elevation: !default.use_elevation,
@@ -40,22 +32,21 @@ fn flipped_config() -> CalculatorConfig {
 }
 
 fn render() -> String {
-    let default_calc = calculator(CalculatorConfig::default());
-    let flipped_calc = calculator(flipped_config());
+    let flipped = flipped_config();
 
-    let mut presets: Vec<_> = ALL_ZMANIM.iter().collect();
-    presets.sort_by_key(|preset| preset.method_name);
+    let mut zmanim: Vec<Zman> = Zman::ALL.to_vec();
+    zmanim.sort_by_key(|zman| zman.java_name());
 
     let mut out = String::new();
-    for preset in presets {
-        let description = preset.description(&default_calc);
-        let flipped_description = preset.description(&flipped_calc);
+    for zman in zmanim {
+        let description = zman.description(&Config::default());
+        let flipped_description = zman.description(&flipped);
 
-        writeln!(out, "{}", preset.method_name).unwrap();
-        writeln!(out, "  name: {}", preset.name).unwrap();
-        writeln!(out, "  category: {:?}", preset.zman_type).unwrap();
-        writeln!(out, "  deprecated: {}", preset.deprecated).unwrap();
-        writeln!(out, "  formula: {:?}", preset.event).unwrap();
+        writeln!(out, "{}", zman.java_name()).unwrap();
+        writeln!(out, "  name: {}", zman.name()).unwrap();
+        writeln!(out, "  category: {:?}", zman.category()).unwrap();
+        writeln!(out, "  deprecated: {}", zman.is_deprecated()).unwrap();
+        writeln!(out, "  formula: {:?}", zman.formula()).unwrap();
         writeln!(out, "  description: {description:?}").unwrap();
         if flipped_description != description {
             writeln!(out, "  description (flipped config): {flipped_description:?}").unwrap();

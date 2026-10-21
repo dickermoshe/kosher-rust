@@ -80,7 +80,7 @@ impl Location {
     /// The same location with the observer `meters` above sea level.
     ///
     /// Elevation makes sunrise earlier and sunset later. Which *zmanim* use it depends on
-    /// [`CalculatorConfig::use_elevation`](crate::zmanim::CalculatorConfig::use_elevation).
+    /// [`Config::use_elevation`](crate::zmanim::Config::use_elevation).
     ///
     /// # Errors
     ///

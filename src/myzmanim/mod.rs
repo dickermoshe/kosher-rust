@@ -1,7 +1,7 @@
 //! The *zmanim* of [MyZmanim](https://www.myzmanim.com/)'s website, reproduced to the second.
 //!
 //! This module is self-contained: it does not use the [`crate::zmanim`] presets or
-//! [`CalculatorConfig`](crate::zmanim::CalculatorConfig). Give it a [`Location`] (latitude, longitude, the
+//! [`Config`](crate::zmanim::Config). Give it a [`Location`] (latitude, longitude, the
 //! observer's elevation and the elevations of the eastern and western horizons), a date and
 //! optionally the candle-lighting minutes, and every row of the website's "All zmanim" table
 //! is a [`MyZman`].

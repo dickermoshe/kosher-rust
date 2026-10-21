@@ -4,7 +4,7 @@ use std::error::Error;
 
 use jiff::civil::Date;
 
-use kosher_rust::prelude::*;
+use kosher_rust::{Location, zmanim::*};
 
 use super::{
     java_reference::calculate_java_zman,
@@ -14,11 +14,7 @@ use super::{
 };
 
 /// Calculates one case with both implementations and asserts policy-compliant parity.
-pub(super) fn run_test_case(
-    case: TestCase,
-    preset: &'static ZmanPreset,
-    random_run: Option<CaseRun>,
-) -> Result<(), Box<dyn Error>> {
+pub(super) fn run_test_case(case: TestCase, preset: Zman, random_run: Option<CaseRun>) -> Result<(), Box<dyn Error>> {
     let java = calculate_java_zman(case, preset)?;
     let rust = calculate_rust_zman(case, preset)?;
 
