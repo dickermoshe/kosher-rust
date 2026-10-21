@@ -7,19 +7,34 @@ use icu_calendar::{
 use jiff::{SignedDuration, Timestamp, civil::Date as JiffDate, tz, tz::TimeZone};
 use jiff_icu::ConvertTryFrom;
 
-use crate::{
-    calendar::{chalakim_since_molad_tohu, prelude::*},
-    zmanim::types::error::ZmanimError,
-};
+use crate::{calendar::prelude::*, zmanim::types::error::ZmanimError};
 
-/// Number of chalakim in a day
-static CHALAKIM_PER_DAY: i64 = 25920;
+use super::month::HebrewMonthHelpers;
+
 /// Number of chalakim in a minute
 static CHALAKIM_PER_MINUTE: i64 = 18;
 /// Number of chalakim in an hour
 static CHALAKIM_PER_HOUR: i64 = 1080;
-/// Number of chalakim in a day
+/// Days from the start of the Gregorian calendar to the Hebrew calendar epoch, as in KosherJava.
 static JEWISH_EPOCH: i64 = -1373429;
+
+/// Number of chalakim (parts) from the molad tohu (theoretical first new moon)
+const CHALAKIM_MOLAD_TOHU: i64 = 31524;
+/// Number of chalakim in a lunar month
+pub(crate) const CHALAKIM_PER_MONTH: i64 = 765433;
+/// Number of chalakim in a day
+pub(crate) const CHALAKIM_PER_DAY: i64 = 25920;
+
+/// Returns the number of chalakim from the original hypothetical Molad Tohu
+pub(crate) fn chalakim_since_molad_tohu(year: i32, month: Month) -> Option<i64> {
+    let month_of_year = month.hebrew_month_of_year(year)?;
+    let months_elapsed = (235 * ((year - 1) / 19))
+        + (12 * ((year - 1) % 19))
+        + ((7 * ((year - 1) % 19) + 1) / 19)
+        + (month_of_year as i32 - 1);
+
+    Some(CHALAKIM_MOLAD_TOHU + (CHALAKIM_PER_MONTH * months_elapsed as i64))
+}
 
 /// A trait for calculating times related to the molad (new moon) and Kiddush Levana (blessing of the new moon).
 ///

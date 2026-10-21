@@ -1,12 +1,19 @@
 use icu_calendar::{Date, cal::Hebrew};
 
 use crate::limudim::{
-    BAVLI_DAF_COUNT_EARLY, BAVLI_DAF_COUNT_MODERN, HebrewDateExt, Limud, SHEKALIM_EXPANSION_CYCLE,
-    cycle::Cycle,
-    interval::Interval,
-    limud::{CycleFinder, InternalLimud},
+    Limud,
+    engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
     units::{BAVLI_TRACTATES, Daf, Tractate},
 };
+
+/// Dafim in Daf Yomi Bavli cycles 1-7, before Shekalim was expanded.
+const BAVLI_DAF_COUNT_EARLY: i32 = 2702;
+
+/// Dafim in Daf Yomi Bavli cycles 8 onward, with the Vilna Shekalim.
+pub(super) const BAVLI_DAF_COUNT_MODERN: i32 = 2711;
+
+/// The cycle in which Shekalim grew from 13 to 22 dafim (Vilna pagination).
+const SHEKALIM_EXPANSION_CYCLE: i32 = 8;
 
 fn initial_cycle_date() -> Date<Hebrew> {
     #[allow(clippy::expect_used)]
@@ -139,7 +146,7 @@ fn daf_at_offset(cycle_iteration: i32, offset: usize) -> Option<Daf> {
 #[cfg(test)]
 #[allow(clippy::expect_used)]
 mod tests {
-    use crate::limudim::from_gregorian_date;
+    use crate::limudim::engine::from_gregorian_date;
 
     use super::*;
 

@@ -32,6 +32,7 @@
 //!
 #![cfg_attr(not(test), no_std)]
 
+mod astronomy;
 pub mod calendar;
 pub mod limudim;
 pub mod myzmanim;

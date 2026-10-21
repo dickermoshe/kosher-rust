@@ -3,12 +3,14 @@ use icu_calendar::{Date, cal::Hebrew, types::Weekday};
 use crate::{
     calendar::prelude::*,
     limudim::{
-        HebrewDateExt, Limud, YERUSHALMI_DAF_COUNT,
-        interval::Interval,
-        limud::{CycleFinder, InternalLimud},
+        Limud,
+        engine::{CycleFinder, HebrewDateExt, InternalLimud, Interval},
         units::{Daf, YERUSHALMI_TRACTATES},
     },
 };
+
+/// Dafim in the Vilna Yerushalmi.
+const YERUSHALMI_DAF_COUNT: i32 = 1554;
 
 fn initial_cycle_date() -> Date<Hebrew> {
     #[allow(clippy::expect_used)]
@@ -141,7 +143,7 @@ fn is_skip_day(date: &Date<Hebrew>) -> bool {
 mod tests {
     use icu_calendar::{Date, cal::Hebrew};
 
-    use crate::{calendar::month::TISHREI, limudim::from_gregorian_date};
+    use crate::{calendar::month::TISHREI, limudim::engine::from_gregorian_date};
 
     use super::*;
     use crate::limudim::Tractate;

@@ -1,5 +1,6 @@
 use crate::calendar::prelude::*;
 
+use super::molad::{CHALAKIM_PER_MONTH, chalakim_since_molad_tohu};
 use super::*;
 use icu_calendar::Gregorian;
 use icu_calendar::{Date, cal::Hebrew};
@@ -241,7 +242,7 @@ fn test_parsha_on_shabbat() {
 
 #[test]
 fn valid_hebrew_years_have_parsha_list() {
-    use super::parsha::get_parsha_list;
+    use super::parsha_tables::get_parsha_list;
 
     for year in 5600..=5800 {
         let Ok(rh) = Date::try_new_hebrew_v2(year, TISHREI, 1) else {
