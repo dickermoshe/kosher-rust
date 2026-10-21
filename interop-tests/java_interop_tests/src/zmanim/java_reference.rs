@@ -83,16 +83,27 @@ pub(super) fn calculate_java_zman(
 
         let location_name = env.new_string("")?;
 
-        let location = GeoLocation::new5(
+        let location = GeoLocation::new7(
             env,
             location_name,
             case.latitude,
             case.longitude,
             case.elevation,
+            case.eastern_horizon_elevation,
+            case.western_horizon_elevation,
             &timezone,
         )?;
 
         let calendar = ComprehensiveZmanimCalendar::new_geo_location(env, location)?;
+
+        let astronomical_calculator = new_java_calculator(env, case.calculator)?;
+
+        env.call_method(
+            &calendar,
+            jni_str!("setAstronomicalCalculator"),
+            jni_sig!("(Lcom/kosherjava/zmanim/util/AstronomicalCalculator;)V"),
+            &[JValue::Object(&astronomical_calculator)],
+        )?;
 
         let local_date = new_local_date(env, case.year, case.month as i32, case.day as i32)?;
 
@@ -165,6 +176,37 @@ pub(super) fn calculate_java_zman(
             timestamp_ms,
         }))
     })
+}
+
+/// Instantiates the KosherJava `AstronomicalCalculator` matching a Rust [`AstronomicalCalculator`].
+fn new_java_calculator<'local>(
+    env: &mut jni::Env<'local>,
+    calculator: AstronomicalCalculator,
+) -> jni::errors::Result<JObject<'local>> {
+    let (class, apply_delta_t) = match calculator {
+        AstronomicalCalculator::Noaa => (jni_str!("com/kosherjava/zmanim/util/NOAACalculator"), None),
+        AstronomicalCalculator::Meeus { apply_delta_t } => (
+            jni_str!("com/kosherjava/zmanim/util/MeeusCalculator"),
+            Some(apply_delta_t),
+        ),
+        AstronomicalCalculator::Spa { apply_delta_t } => (
+            jni_str!("com/kosherjava/zmanim/util/SPACalculator"),
+            Some(apply_delta_t),
+        ),
+    };
+
+    let object = env.new_object(class, jni_sig!("()V"), &[])?;
+
+    if let Some(apply_delta_t) = apply_delta_t {
+        env.call_method(
+            &object,
+            jni_str!("setApplyDeltaT"),
+            jni_sig!("(Z)V"),
+            &[JValue::Bool(bool_to_jboolean(apply_delta_t))],
+        )?;
+    }
+
+    Ok(object)
 }
 
 pub(crate) fn new_local_date<'local>(

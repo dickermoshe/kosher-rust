@@ -267,8 +267,38 @@ mod zmanim {
         config: CalculatorConfig,
     }
 
-    fn sample_zmanim_cases() -> [ZmanimCase; 4] {
+    fn sample_zmanim_cases() -> [ZmanimCase; 6] {
         [
+            ZmanimCase {
+                label: "lakewood_meeus",
+                location: Location::new(
+                    40.0721087,
+                    -74.2400243,
+                    15.0,
+                    Some(TimeZone::get("America/New_York").expect("valid timezone")),
+                )
+                .expect("valid location"),
+                date: CivilDate::new(2017, 10, 17).expect("valid date"),
+                config: CalculatorConfig {
+                    astronomical_calculator: AstronomicalCalculator::Meeus { apply_delta_t: true },
+                    ..CalculatorConfig::default()
+                },
+            },
+            ZmanimCase {
+                label: "reykjavik_equinox_spa",
+                location: Location::new(
+                    64.1466,
+                    -21.9426,
+                    0.0,
+                    Some(TimeZone::get("Atlantic/Reykjavik").expect("valid timezone")),
+                )
+                .expect("valid location"),
+                date: CivilDate::new(2017, 3, 21).expect("valid date"),
+                config: CalculatorConfig {
+                    astronomical_calculator: AstronomicalCalculator::Spa { apply_delta_t: true },
+                    ..CalculatorConfig::default()
+                },
+            },
             ZmanimCase {
                 label: "lakewood",
                 location: Location::new(

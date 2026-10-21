@@ -8,9 +8,12 @@
 //!
 //! # How it fits together
 //!
-//! 1. Build a [`Location`] (latitude, longitude, elevation, optional timezone).
+//! 1. Build a [`Location`] (latitude, longitude, observer elevation, optional timezone). Use
+//!    [`Location::with_horizon_elevations`] when the eastern and western horizons sit at
+//!    different heights than sea level.
 //! 2. Create a [`ZmanimCalculator`] for that location, a [`jiff::civil::Date`], and
-//!    a [`CalculatorConfig`] that selects elevation and *chatzos* behavior.
+//!    a [`CalculatorConfig`] that selects elevation and *chatzos* behavior and the
+//!    [`AstronomicalCalculator`](types::config::AstronomicalCalculator) algorithm (NOAA by default, or Meeus / SPA).
 //! 3. Pass any [`ZmanLike`] value to [`ZmanimCalculator::calculate`].
 //!
 //! Most callers use the ready-made constants in [`presets`] (for example
@@ -25,7 +28,8 @@
 //! # Submodules
 //!
 //! - [`presets`] — named zman constants (`ELEVATION_ADJUSTED_SUNRISE`, `CANDLE_LIGHTING`, …)
-//! - [`types::config`] — [`CalculatorConfig`] options (elevation, *chatzos*, offsets)
+//! - [`types::config`] — [`CalculatorConfig`] options (elevation, *chatzos*, offsets) and the
+//!   [`AstronomicalCalculator`](types::config::AstronomicalCalculator) solar algorithm selector (NOAA, Meeus, SPA)
 //! - [`types::location`] — [`Location`] validation and timezone requirements
 //! - [`types::error`] — [`ZmanimError`] returned by invalid input or impossible calculations
 //! - [`primitives`] — [`ZmanPrimitive`] building blocks for custom zman definitions
@@ -85,7 +89,7 @@ pub mod primitives;
 pub mod prelude {
     pub use super::presets;
     pub use super::primitives::ZmanPrimitive;
-    pub use super::types::config::CalculatorConfig;
+    pub use super::types::config::{AstronomicalCalculator, CalculatorConfig};
     pub use super::types::error::ZmanimError;
     pub use super::types::location::Location;
     pub use super::{ZmanLike, ZmanPreset, ZmanType, ZmanimCalculator};

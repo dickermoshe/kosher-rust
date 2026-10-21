@@ -12,6 +12,24 @@ Examples and API reference: **[docs.rs/kosher-rust](https://docs.rs/kosher-rust)
 cargo add kosher-rust jiff
 ```
 
+## Solar algorithms
+
+Every astronomical zman is computed by one of the three solar position algorithms that
+KosherJava ships, selected through `CalculatorConfig::astronomical_calculator`:
+
+- `AstronomicalCalculator::Noaa` (default) — the NOAA algorithm, as in `NOAACalculator`
+- `AstronomicalCalculator::Meeus { apply_delta_t }` — Jean Meeus's higher-accuracy VSOP87 algorithm, as in `MeeusCalculator`
+- `AstronomicalCalculator::Spa { apply_delta_t }` — the NREL Solar Position Algorithm, as in `SPACalculator`
+
+```rust
+use kosher_rust::zmanim::prelude::*;
+
+let config = CalculatorConfig {
+    astronomical_calculator: AstronomicalCalculator::Meeus { apply_delta_t: true },
+    ..Default::default()
+};
+```
+
 ## Features
 
 - **`alloc`** (default) — Zman preset descriptions; without it the crate stays `no_std` and calculation APIs are unchanged
@@ -29,14 +47,14 @@ This project is based on the [KosherJava](https://github.com/KosherJava/zmanim) 
 
 To update the project to the latest version of KosherJava, run the following command:
 ```bash
-git subtree pull  --prefix=third-party/kosher-java  https://github.com/KosherJava/zmanim master  --squash
+git subtree pull  --prefix=third-party/kosher-java  https://github.com/KosherJava/zmanim <tag-or-branch>  --squash
 ```
 
 Then add the zmanim definitions to `/tools/dsl.py` and run `tools/generate-rust.py` to update the Rust code.
 In some instances, you may need to add features to the DSL to support the new zmanim.
 Updates to preset documentation should be made in `/tools/dsl.py` as well.
 
-We are currently tracking commit [c44b0bd](https://github.com/KosherJava/zmanim/commit/c44b0bdd20bc35d6a67b2ae19708424eff502e7a) of KosherJava.
+We are currently tracking commit [cb2b183](https://github.com/KosherJava/zmanim/commit/cb2b1835ae875c5fb2fbd3b35ae18f523ab93bfe) of KosherJava (post-3.0.0 master).
 
 # TODOs
 

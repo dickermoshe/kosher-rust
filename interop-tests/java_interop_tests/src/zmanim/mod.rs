@@ -50,25 +50,40 @@ pub(crate) fn test_regressions(preset: &'static ZmanPreset) {
     }
 }
 
-/// Checks one preset against Java for a standard Jerusalem case.
+/// Every KosherJava solar algorithm, with both ΔT settings where it applies.
+pub(crate) const ALL_CALCULATORS: [AstronomicalCalculator; 5] = [
+    AstronomicalCalculator::Noaa,
+    AstronomicalCalculator::Meeus { apply_delta_t: true },
+    AstronomicalCalculator::Meeus { apply_delta_t: false },
+    AstronomicalCalculator::Spa { apply_delta_t: true },
+    AstronomicalCalculator::Spa { apply_delta_t: false },
+];
+
+/// Checks one preset against Java for a standard Jerusalem case, once per solar algorithm.
 pub(crate) fn test_preset_in_jerusalem(preset: &'static ZmanPreset) -> Result<(), Box<dyn Error>> {
-    run_test_case(
-        TestCase {
-            year: 2024,
-            month: 4,
-            day: 22,
-            latitude: 31.778,
-            longitude: 35.235,
-            elevation: 754.0,
-            timezone: "Asia/Jerusalem",
-            preset_name: preset.method_name,
-            ateret_torah_sunset_offset_minutes: 0,
-            candle_lighting_offset_minutes: 18,
-            use_astronomical_chatzos_for_other_zmanim: false,
-            use_elevation: false,
-            use_astronomical_chatzos: true,
-        },
-        preset,
-        None,
-    )
+    for calculator in ALL_CALCULATORS {
+        run_test_case(
+            TestCase {
+                year: 2024,
+                month: 4,
+                day: 22,
+                latitude: 31.778,
+                longitude: 35.235,
+                elevation: 754.0,
+                eastern_horizon_elevation: 0.0,
+                western_horizon_elevation: 0.0,
+                timezone: "Asia/Jerusalem",
+                preset_name: preset.method_name,
+                ateret_torah_sunset_offset_minutes: 0,
+                candle_lighting_offset_minutes: 18,
+                use_astronomical_chatzos_for_other_zmanim: false,
+                use_elevation: false,
+                use_astronomical_chatzos: true,
+                calculator,
+            },
+            preset,
+            None,
+        )?;
+    }
+    Ok(())
 }

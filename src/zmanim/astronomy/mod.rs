@@ -1,0 +1,462 @@
+//! Solar position algorithms behind sunrise, sunset, solar noon / midnight and
+//! depression-angle zmanim.
+//!
+//! The public selector is [`AstronomicalCalculator`]. Each variant maps to one
+//! [`SolarAlgorithm`] implementation ported from KosherJava:
+//!
+//! - [`noaa::Noaa`] — the NOAA low-accuracy Meeus formulas (KosherJava's default).
+//! - [`meeus::Meeus`] — the higher-accuracy VSOP87 algorithm with ΔT.
+//! - [`spa::Spa`] — the NREL Solar Position Algorithm with a topocentric rise/set solve.
+//!
+//! Everything the algorithms share — the zenith adjustment for refraction, solar radius
+//! and elevation, Julian-day conversion, the KosherJava date-rollover rules and the
+//! conversion from UTC hours to a [`Timestamp`] — lives in this module so the
+//! backends only differ in their solar-position mathematics.
+
+#[allow(unused_imports)]
+use core_maths::*;
+use jiff::{SignedDuration, Timestamp, civil::Date, tz::TimeZone};
+
+use crate::zmanim::types::{config::AstronomicalCalculator, error::ZmanimError, location::Location};
+
+mod meeus;
+mod noaa;
+mod solar_radius_table;
+mod spa;
+mod vsop87;
+
+use solar_radius_table::SOLAR_RADIUS_BY_DAY_OF_YEAR;
+
+pub(crate) const GEOMETRIC_ZENITH: f64 = 90.0;
+pub(super) const REFRACTION: f64 = 34.0 / 60.0;
+const EARTH_RADIUS_KM: f64 = 6371.0088;
+pub(super) const JULIAN_DAY_JAN_1_2000: f64 = 2_451_545.0;
+pub(super) const JULIAN_DAYS_PER_CENTURY: f64 = 36_525.0;
+const HOUR_NANOS: f64 = 3_600_000.0 * 1_000_000.0;
+
+/// The solar event being solved for.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum SolarEvent {
+    Sunrise,
+    Sunset,
+    Noon,
+    Midnight,
+}
+
+/// A solar position algorithm, in KosherJava's `AstronomicalCalculator` conventions.
+///
+/// `date` is the already timezone-adjusted civil date (see [`adjusted_local_date`]),
+/// `longitude_west` is positive west, and results are expressed relative to 0:00 UTC of
+/// `date`. Implementations must not normalise their results into `[0, 24)`; the callers
+/// in this module do that so the KosherJava date-rollover logic sees the same values.
+pub(super) trait SolarAlgorithm {
+    /// UTC minutes after 0:00 at which the sun's center reaches `adjusted_zenith`.
+    ///
+    /// `adjusted_zenith` already includes refraction, solar radius and elevation dip when
+    /// the event is true sunrise / sunset.
+    fn rise_set_utc_minutes(
+        &self,
+        date: Date,
+        location: &Location,
+        adjusted_zenith: f64,
+        event: SolarEvent,
+    ) -> Result<f64, ZmanimError>;
+
+    /// UTC minutes after 0:00 of solar noon, or of the solar midnight that follows it.
+    fn noon_midnight_utc_minutes(&self, date: Date, longitude_west: f64, event: SolarEvent) -> f64;
+
+    /// UTC hours (not normalised) at which the sun reaches an azimuth of exactly 90° or 270°.
+    fn time_at_azimuth_utc_hours(&self, date: Date, location: &Location, azimuth: f64) -> Result<f64, ZmanimError>;
+}
+
+impl SolarAlgorithm for AstronomicalCalculator {
+    fn rise_set_utc_minutes(
+        &self,
+        date: Date,
+        location: &Location,
+        adjusted_zenith: f64,
+        event: SolarEvent,
+    ) -> Result<f64, ZmanimError> {
+        match *self {
+            Self::Noaa => noaa::Noaa.rise_set_utc_minutes(date, location, adjusted_zenith, event),
+            Self::Meeus { apply_delta_t } => {
+                meeus::Meeus { apply_delta_t }.rise_set_utc_minutes(date, location, adjusted_zenith, event)
+            }
+            Self::Spa { apply_delta_t } => {
+                spa::Spa { apply_delta_t }.rise_set_utc_minutes(date, location, adjusted_zenith, event)
+            }
+        }
+    }
+
+    fn noon_midnight_utc_minutes(&self, date: Date, longitude_west: f64, event: SolarEvent) -> f64 {
+        match *self {
+            Self::Noaa => noaa::Noaa.noon_midnight_utc_minutes(date, longitude_west, event),
+            Self::Meeus { apply_delta_t } => {
+                meeus::Meeus { apply_delta_t }.noon_midnight_utc_minutes(date, longitude_west, event)
+            }
+            Self::Spa { apply_delta_t } => {
+                spa::Spa { apply_delta_t }.noon_midnight_utc_minutes(date, longitude_west, event)
+            }
+        }
+    }
+
+    fn time_at_azimuth_utc_hours(&self, date: Date, location: &Location, azimuth: f64) -> Result<f64, ZmanimError> {
+        match *self {
+            Self::Noaa => noaa::Noaa.time_at_azimuth_utc_hours(date, location, azimuth),
+            Self::Meeus { apply_delta_t } => {
+                meeus::Meeus { apply_delta_t }.time_at_azimuth_utc_hours(date, location, azimuth)
+            }
+            Self::Spa { apply_delta_t } => {
+                spa::Spa { apply_delta_t }.time_at_azimuth_utc_hours(date, location, azimuth)
+            }
+        }
+    }
+}
+
+pub(crate) fn sunrise(
+    calculator: AstronomicalCalculator,
+    date: Date,
+    location: &Location,
+    adjust_for_elevation: bool,
+) -> Result<Timestamp, ZmanimError> {
+    rise_set(
+        calculator,
+        date,
+        location,
+        GEOMETRIC_ZENITH,
+        adjust_for_elevation,
+        SolarEvent::Sunrise,
+    )
+}
+
+pub(crate) fn sunset(
+    calculator: AstronomicalCalculator,
+    date: Date,
+    location: &Location,
+    adjust_for_elevation: bool,
+) -> Result<Timestamp, ZmanimError> {
+    rise_set(
+        calculator,
+        date,
+        location,
+        GEOMETRIC_ZENITH,
+        adjust_for_elevation,
+        SolarEvent::Sunset,
+    )
+}
+
+pub(crate) fn sunrise_offset_by_degrees(
+    calculator: AstronomicalCalculator,
+    date: Date,
+    location: &Location,
+    degrees: f64,
+) -> Result<Timestamp, ZmanimError> {
+    rise_set(
+        calculator,
+        date,
+        location,
+        GEOMETRIC_ZENITH + degrees,
+        false,
+        SolarEvent::Sunrise,
+    )
+}
+
+pub(crate) fn sunset_offset_by_degrees(
+    calculator: AstronomicalCalculator,
+    date: Date,
+    location: &Location,
+    degrees: f64,
+) -> Result<Timestamp, ZmanimError> {
+    rise_set(
+        calculator,
+        date,
+        location,
+        GEOMETRIC_ZENITH + degrees,
+        false,
+        SolarEvent::Sunset,
+    )
+}
+
+pub(crate) fn solar_noon(
+    calculator: AstronomicalCalculator,
+    date: Date,
+    location: &Location,
+) -> Result<Timestamp, ZmanimError> {
+    let adjusted_date = adjusted_local_date(date, location)?;
+    let noon = utc_noon_midnight_hours(calculator, adjusted_date, location, SolarEvent::Noon);
+    instant_from_utc_hours(noon, adjusted_date, location, SolarEvent::Noon)
+}
+
+pub(crate) fn solar_midnight(
+    calculator: AstronomicalCalculator,
+    date: Date,
+    location: &Location,
+) -> Result<Timestamp, ZmanimError> {
+    let adjusted_date = adjusted_local_date(date, location)?;
+    let midnight = utc_noon_midnight_hours(calculator, adjusted_date, location, SolarEvent::Midnight);
+    instant_from_utc_hours(midnight, adjusted_date, location, SolarEvent::Midnight)
+}
+
+pub(crate) fn time_at_azimuth(
+    calculator: AstronomicalCalculator,
+    date: Date,
+    location: &Location,
+    target_azimuth: f64,
+) -> Result<Timestamp, ZmanimError> {
+    let adjusted_date = adjusted_local_date(date, location)?;
+    let hours = utc_time_at_azimuth_hours(calculator, adjusted_date, location, target_azimuth)?;
+    let event = if target_azimuth == 90.0 {
+        SolarEvent::Sunrise
+    } else {
+        SolarEvent::Sunset
+    };
+    instant_from_utc_hours(hours, adjusted_date, location, event)
+}
+
+fn rise_set(
+    calculator: AstronomicalCalculator,
+    date: Date,
+    location: &Location,
+    zenith: f64,
+    adjust_for_elevation: bool,
+    event: SolarEvent,
+) -> Result<Timestamp, ZmanimError> {
+    let adjusted_date = adjusted_local_date(date, location)?;
+    let hours = utc_rise_set_hours(calculator, adjusted_date, location, zenith, adjust_for_elevation, event)?;
+    instant_from_utc_hours(hours, adjusted_date, location, event)
+}
+
+/// Mirrors KosherJava's `AstronomicalCalculator.getUTCSunrise` / `getUTCSunset`: the UTC
+/// time of the event in hours, normalised to `[0, 24)`, for the given (already adjusted)
+/// civil date.
+pub(crate) fn utc_rise_set_hours(
+    calculator: AstronomicalCalculator,
+    date: Date,
+    location: &Location,
+    zenith: f64,
+    adjust_for_elevation: bool,
+    event: SolarEvent,
+) -> Result<f64, ZmanimError> {
+    let elevation = match (adjust_for_elevation, event) {
+        (false, _) => 0.0,
+        (true, SolarEvent::Sunrise) => location.sunrise_elevation(),
+        (true, SolarEvent::Sunset) => location.sunset_elevation(),
+        (true, SolarEvent::Noon | SolarEvent::Midnight) => return Err(ZmanimError::CalculationError),
+    };
+    let adjusted_zenith = adjust_zenith(zenith, elevation, date);
+    let utc_minutes = calculator.rise_set_utc_minutes(date, location, adjusted_zenith, event)?;
+    if utc_minutes.is_nan() {
+        return Err(ZmanimError::CalculationError);
+    }
+    Ok(normalize_utc_hours(utc_minutes / 60.0))
+}
+
+/// Mirrors KosherJava's `AstronomicalCalculator.getUTCNoon` / `getUTCMidnight`: the UTC
+/// time in hours, normalised to `[0, 24)`, for the given (already adjusted) civil date.
+pub(crate) fn utc_noon_midnight_hours(
+    calculator: AstronomicalCalculator,
+    date: Date,
+    location: &Location,
+    event: SolarEvent,
+) -> f64 {
+    let minutes = calculator.noon_midnight_utc_minutes(date, -location.longitude, event);
+    normalize_utc_hours(minutes / 60.0)
+}
+
+/// Mirrors KosherJava's `AstronomicalCalculator.getTimeAtAzimuth`: the UTC time in hours,
+/// normalised to `[0, 24)`, at which the sun is due east (90°) or due west (270°).
+pub(crate) fn utc_time_at_azimuth_hours(
+    calculator: AstronomicalCalculator,
+    date: Date,
+    location: &Location,
+    target_azimuth: f64,
+) -> Result<f64, ZmanimError> {
+    if target_azimuth != 90.0 && target_azimuth != 270.0 {
+        return Err(ZmanimError::CalculationError);
+    }
+    let hours = calculator.time_at_azimuth_utc_hours(date, location, target_azimuth)?;
+    Ok(normalize_utc_hours(hours))
+}
+
+/// Shared body of every calculator's `getTimeAtAzimuth`: iterate on the hour angle at
+/// which the sun's declination places it due east / west, re-sampling the declination and
+/// equation of time (both supplied by `declination_and_eot` for a UT Julian day) each pass.
+pub(super) fn time_at_azimuth_iterative(
+    date: Date,
+    location: &Location,
+    target_azimuth: f64,
+    iterations: usize,
+    mut declination_and_eot: impl FnMut(f64) -> (f64, f64),
+) -> Result<f64, ZmanimError> {
+    let julian_day = julian_day(date);
+    let solar_noon_base = 0.5 - location.longitude / 360.0;
+    let mut date_time = solar_noon_base + if target_azimuth == 90.0 { 0.25 } else { 0.75 };
+
+    for _ in 0..iterations {
+        let (declination, equation_of_time) = declination_and_eot(julian_day + date_time);
+        let ratio = declination.to_radians().tan() / location.latitude.to_radians().tan();
+
+        if ratio.is_nan() || !(-1.0..=1.0).contains(&ratio) {
+            return Err(ZmanimError::CalculationError);
+        }
+
+        let direction = if target_azimuth == 90.0 { -1.0 } else { 1.0 };
+        let offset = direction * ratio.acos().to_degrees() / 360.0;
+        date_time = solar_noon_base + offset - equation_of_time / 1440.0;
+    }
+
+    Ok(date_time * 24.0)
+}
+
+pub(crate) fn adjusted_local_date(date: Date, location: &Location) -> Result<Date, ZmanimError> {
+    let Some(timezone) = &location.timezone else {
+        return Ok(date);
+    };
+
+    let midnight = timezone
+        .to_ambiguous_timestamp(date.at(0, 0, 0, 0))
+        .earlier()
+        .map_err(|_| ZmanimError::TimeConversionError)?;
+    let offset = midnight.to_zoned(timezone.clone()).offset().seconds();
+    let local_hours_offset = (location.longitude * 240.0 - f64::from(offset)) / 3600.0;
+
+    if local_hours_offset >= 20.0 {
+        add_days(date, 1)
+    } else if local_hours_offset <= -20.0 {
+        add_days(date, -1)
+    } else {
+        Ok(date)
+    }
+}
+
+fn instant_from_utc_hours(
+    time: f64,
+    mut date: Date,
+    location: &Location,
+    event: SolarEvent,
+) -> Result<Timestamp, ZmanimError> {
+    if time.is_nan() {
+        return Err(ZmanimError::CalculationError);
+    }
+
+    let local_time_hours = location.longitude / 15.0 + time;
+    match event {
+        SolarEvent::Sunrise if local_time_hours > 18.0 => date = add_days(date, -1)?,
+        SolarEvent::Sunset if local_time_hours < 6.0 => date = add_days(date, 1)?,
+        SolarEvent::Midnight if local_time_hours < 12.0 => date = add_days(date, 1)?,
+        SolarEvent::Noon if local_time_hours < 0.0 => date = add_days(date, 1)?,
+        SolarEvent::Noon if local_time_hours > 24.0 => date = add_days(date, -1)?,
+        _ => {}
+    }
+
+    let nanos = (time * HOUR_NANOS).round() as i64;
+    let date_time = date
+        .at(0, 0, 0, 0)
+        .checked_add(SignedDuration::from_nanos(nanos))
+        .map_err(|_| ZmanimError::TimeConversionError)?;
+    date_time
+        .to_zoned(TimeZone::UTC)
+        .map_err(|_| ZmanimError::TimeConversionError)
+        .map(|zdt| zdt.timestamp())
+}
+
+fn add_days(date: Date, days: i64) -> Result<Date, ZmanimError> {
+    date.checked_add(SignedDuration::from_hours(24 * days))
+        .map_err(|_| ZmanimError::TimeConversionError)
+}
+
+fn normalize_utc_hours(time: f64) -> f64 {
+    (time % 24.0 + 24.0) % 24.0
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+pub(super) fn apparent_solar_radius(date: Date) -> f64 {
+    let month = date.month();
+    let day = date.day();
+    let reference = if month == 2 && day == 29 {
+        Date::new(2050, 2, 28).unwrap()
+    } else {
+        Date::new(2050, month, day).unwrap()
+    };
+    let jan1 = Date::new(2050, 1, 1).unwrap();
+    let day_index = jan1
+        .until(reference)
+        .expect("reference date is on or after Jan 1 2050")
+        .get_days() as usize;
+    SOLAR_RADIUS_BY_DAY_OF_YEAR[day_index]
+}
+
+/// Adds refraction, the date-based apparent solar radius and the elevation dip to the
+/// zenith, but only for the geometric 90° zenith of true sunrise / sunset.
+fn adjust_zenith(zenith: f64, elevation: f64, date: Date) -> f64 {
+    if zenith == GEOMETRIC_ZENITH {
+        zenith + apparent_solar_radius(date) + REFRACTION + elevation_adjustment(elevation)
+    } else {
+        zenith
+    }
+}
+
+fn elevation_adjustment(elevation_m: f64) -> f64 {
+    (EARTH_RADIUS_KM / (EARTH_RADIUS_KM + elevation_m / 1000.0))
+        .acos()
+        .to_degrees()
+}
+
+/// Julian day for 0h UT of the date (Meeus chapter 7).
+pub(super) fn julian_day(date: Date) -> f64 {
+    let mut year = i32::from(date.year());
+    let mut month = i32::from(date.month());
+    let day = i32::from(date.day());
+
+    if month <= 2 {
+        year -= 1;
+        month += 12;
+    }
+
+    let a = year / 100;
+    let b = 2 - a + a / 4;
+
+    (365.25 * f64::from(year + 4716)).floor() + (30.6001 * f64::from(month + 1)).floor() + f64::from(day) + f64::from(b)
+        - 1524.5
+}
+
+/// Julian centuries since J2000.0, with no ΔT applied.
+pub(super) fn julian_centuries_from_julian_day(julian_day: f64) -> f64 {
+    (julian_day - JULIAN_DAY_JAN_1_2000) / JULIAN_DAYS_PER_CENTURY
+}
+
+/// Hour angle of the sun in radians for the given latitude, declination and zenith.
+///
+/// Returns [`ZmanimError::AllNight`] when the sun never rises to the zenith and
+/// [`ZmanimError::AllDay`] when it never sets below it (KosherJava returns `NaN` for both).
+pub(super) fn sun_hour_angle(
+    latitude: f64,
+    solar_declination: f64,
+    zenith: f64,
+    event: SolarEvent,
+) -> Result<f64, ZmanimError> {
+    let lat_rad = latitude.to_radians();
+    let sd_rad = solar_declination.to_radians();
+    let cos_hour_angle = zenith.to_radians().cos() / (lat_rad.cos() * sd_rad.cos()) - lat_rad.tan() * sd_rad.tan();
+    hour_angle_from_cos(cos_hour_angle, event)
+}
+
+/// Converts `cos(H₀)` into a signed hour angle in radians (negative for sunset), mapping
+/// out-of-range values to the polar-day / polar-night errors.
+pub(super) fn hour_angle_from_cos(cos_hour_angle: f64, event: SolarEvent) -> Result<f64, ZmanimError> {
+    if cos_hour_angle > 1.0 {
+        return Err(ZmanimError::AllNight);
+    }
+    if cos_hour_angle < -1.0 {
+        return Err(ZmanimError::AllDay);
+    }
+
+    let mut hour_angle = cos_hour_angle.acos();
+    if event == SolarEvent::Sunset {
+        hour_angle = -hour_angle;
+    }
+    Ok(hour_angle)
+}
+
+#[cfg(test)]
+mod tests;

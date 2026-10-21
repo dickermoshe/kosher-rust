@@ -35,6 +35,7 @@ fn new_calc(elevation_m: f64) -> ZmanimCalculator {
             use_elevation: true,
             ateret_torah_sunset_offset: Duration::from_mins(40),
             use_astronomical_chatzos: true,
+            astronomical_calculator: AstronomicalCalculator::Noaa,
         },
     )
 }
@@ -171,6 +172,33 @@ fn test_extreme_elevation_shifts_sunrise_sunset() {
     let sunset_high = ZmanPrimitive::ElevationAdjustedSunset.calculate(&high).unwrap();
     let sunset_sea = ZmanPrimitive::ElevationAdjustedSunset.calculate(&sea).unwrap();
     assert!(sunset_high > sunset_sea);
+}
+
+#[test]
+fn test_split_horizons_use_east_for_sunrise_and_west_for_sunset() {
+    let date = Date::new(2017, 10, 17).unwrap();
+    let tz = TimeZone::get("Asia/Kathmandu").unwrap();
+    let split_location =
+        Location::with_horizon_elevations(27.9881, 86.9250, 8848.0, 0.0, 8848.0, Some(tz.clone())).unwrap();
+    let split = ZmanimCalculator::new(
+        split_location,
+        date,
+        CalculatorConfig {
+            use_elevation: true,
+            ..Default::default()
+        },
+    );
+    let high = calc_for(27.9881, 86.9250, 8848.0, tz.clone(), date);
+    let sea = calc_for(27.9881, 86.9250, 0.0, tz, date);
+
+    assert_eq!(
+        ZmanPrimitive::ElevationAdjustedSunrise.calculate(&split).unwrap(),
+        ZmanPrimitive::ElevationAdjustedSunrise.calculate(&high).unwrap()
+    );
+    assert_eq!(
+        ZmanPrimitive::ElevationAdjustedSunset.calculate(&split).unwrap(),
+        ZmanPrimitive::ElevationAdjustedSunset.calculate(&sea).unwrap()
+    );
 }
 
 #[test]
@@ -595,6 +623,7 @@ fn test_mcmurdo_antimeridian_alos_matches_java() {
         use_elevation: false,
         ateret_torah_sunset_offset: Duration::from_mins(4),
         use_astronomical_chatzos: false,
+        astronomical_calculator: AstronomicalCalculator::Noaa,
     };
     let calc = ZmanimCalculator::new(location, date, config);
 
@@ -604,6 +633,61 @@ fn test_mcmurdo_antimeridian_alos_matches_java() {
     assert_eq!(local.date(), date);
     assert!(local.hour() < 12, "alos should be in the morning, got {local}");
     assert_time_str(alos, "1901-04-18T05:45:48.837784872+11:30", Some(1));
+}
+
+#[test]
+fn test_astronomical_calculator_config_flows_through_presets() {
+    let noaa = new_calc(LAKEWOOD_ELEVATION_M);
+    let meeus = ZmanimCalculator::new(
+        lakewood_location(LAKEWOOD_ELEVATION_M),
+        lakewood_date(),
+        CalculatorConfig {
+            astronomical_calculator: AstronomicalCalculator::Meeus { apply_delta_t: true },
+            ..noaa.config
+        },
+    );
+    let spa = ZmanimCalculator::new(
+        lakewood_location(LAKEWOOD_ELEVATION_M),
+        lakewood_date(),
+        CalculatorConfig {
+            astronomical_calculator: AstronomicalCalculator::Spa { apply_delta_t: true },
+            ..noaa.config
+        },
+    );
+
+    for preset in [
+        &ELEVATION_ADJUSTED_SUNRISE,
+        &SEA_LEVEL_SUNSET,
+        &SUN_TRANSIT,
+        &SOLAR_MIDNIGHT,
+        &ALOS_16_POINT_1_DEGREES,
+        &TZAIS_GEONIM_8_POINT_5_DEGREES,
+        &SOF_ZMAN_SHMA_GRA,
+        &CHATZOS_HALAYLA,
+    ] {
+        let base = preset.calculate(&noaa).unwrap();
+        for other in [&meeus, &spa] {
+            let value = preset.calculate(other).unwrap();
+            let diff_s = value.duration_since(base).as_secs().abs();
+            assert_ne!(value, base, "{} should differ from NOAA", preset.name);
+            assert!(diff_s < 60, "{} differs from NOAA by {diff_s}s", preset.name);
+        }
+    }
+}
+
+#[test]
+fn test_polar_ben_ish_chai_available_for_every_calculator() {
+    for calculator in [
+        AstronomicalCalculator::Noaa,
+        AstronomicalCalculator::Meeus { apply_delta_t: true },
+        AstronomicalCalculator::Spa { apply_delta_t: false },
+    ] {
+        let mut calc = polar_day_calc();
+        calc.config.astronomical_calculator = calculator;
+        assert!(POLAR_SUNRISE_BEN_ISH_CHAI.calculate(&calc).is_ok(), "{calculator:?}");
+        assert!(POLAR_SUNSET_BEN_ISH_CHAI.calculate(&calc).is_ok(), "{calculator:?}");
+        assert!(ELEVATION_ADJUSTED_SUNRISE.calculate(&calc).is_err(), "{calculator:?}");
+    }
 }
 
 #[cfg(feature = "alloc")]

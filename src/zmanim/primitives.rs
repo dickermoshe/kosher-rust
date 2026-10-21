@@ -235,28 +235,52 @@ impl ZmanLike for ZmanPrimitive {
                     ZmanPrimitive::SeaLevelSunset.calculate(calculator)
                 }
             }
-            ZmanPrimitive::ElevationAdjustedSunrise => {
-                crate::zmanim::astronomy::sunrise(calculator.date, &calculator.location, true)
-            }
-            ZmanPrimitive::SeaLevelSunrise => {
-                crate::zmanim::astronomy::sunrise(calculator.date, &calculator.location, false)
-            }
-            ZmanPrimitive::SolarTransit => crate::zmanim::astronomy::solar_noon(calculator.date, &calculator.location),
-            ZmanPrimitive::SolarMidnight => {
-                crate::zmanim::astronomy::solar_midnight(calculator.date, &calculator.location)
-            }
-            ZmanPrimitive::ElevationAdjustedSunset => {
-                crate::zmanim::astronomy::sunset(calculator.date, &calculator.location, true)
-            }
-            ZmanPrimitive::SeaLevelSunset => {
-                crate::zmanim::astronomy::sunset(calculator.date, &calculator.location, false)
-            }
-            ZmanPrimitive::SunriseOffsetByDegrees(degrees) => {
-                crate::zmanim::astronomy::sunrise_offset_by_degrees(calculator.date, &calculator.location, degrees)
-            }
-            ZmanPrimitive::SunsetOffsetByDegrees(degrees) => {
-                crate::zmanim::astronomy::sunset_offset_by_degrees(calculator.date, &calculator.location, degrees)
-            }
+            ZmanPrimitive::ElevationAdjustedSunrise => crate::zmanim::astronomy::sunrise(
+                calculator.config.astronomical_calculator,
+                calculator.date,
+                &calculator.location,
+                true,
+            ),
+            ZmanPrimitive::SeaLevelSunrise => crate::zmanim::astronomy::sunrise(
+                calculator.config.astronomical_calculator,
+                calculator.date,
+                &calculator.location,
+                false,
+            ),
+            ZmanPrimitive::SolarTransit => crate::zmanim::astronomy::solar_noon(
+                calculator.config.astronomical_calculator,
+                calculator.date,
+                &calculator.location,
+            ),
+            ZmanPrimitive::SolarMidnight => crate::zmanim::astronomy::solar_midnight(
+                calculator.config.astronomical_calculator,
+                calculator.date,
+                &calculator.location,
+            ),
+            ZmanPrimitive::ElevationAdjustedSunset => crate::zmanim::astronomy::sunset(
+                calculator.config.astronomical_calculator,
+                calculator.date,
+                &calculator.location,
+                true,
+            ),
+            ZmanPrimitive::SeaLevelSunset => crate::zmanim::astronomy::sunset(
+                calculator.config.astronomical_calculator,
+                calculator.date,
+                &calculator.location,
+                false,
+            ),
+            ZmanPrimitive::SunriseOffsetByDegrees(degrees) => crate::zmanim::astronomy::sunrise_offset_by_degrees(
+                calculator.config.astronomical_calculator,
+                calculator.date,
+                &calculator.location,
+                degrees,
+            ),
+            ZmanPrimitive::SunsetOffsetByDegrees(degrees) => crate::zmanim::astronomy::sunset_offset_by_degrees(
+                calculator.config.astronomical_calculator,
+                calculator.date,
+                &calculator.location,
+                degrees,
+            ),
             ZmanPrimitive::LocalMeanTime(hours) => {
                 let date = calculator.date;
                 let location = calculator.location.clone();
@@ -593,16 +617,22 @@ impl ZmanLike for ZmanPrimitive {
             }
             ZmanPrimitive::PolarSunsetBenIshChai => match ZmanPrimitive::ConfiguredSunset.calculate(calculator) {
                 Ok(_) => Err(ZmanimError::CalculationError),
-                Err(ZmanimError::AllDay | ZmanimError::AllNight) => {
-                    crate::zmanim::astronomy::time_at_azimuth(calculator.date, &calculator.location, 270.0)
-                }
+                Err(ZmanimError::AllDay | ZmanimError::AllNight) => crate::zmanim::astronomy::time_at_azimuth(
+                    calculator.config.astronomical_calculator,
+                    calculator.date,
+                    &calculator.location,
+                    270.0,
+                ),
                 Err(error) => Err(error),
             },
             ZmanPrimitive::PolarSunriseBenIshChai => match ZmanPrimitive::ConfiguredSunrise.calculate(calculator) {
                 Ok(_) => Err(ZmanimError::CalculationError),
-                Err(ZmanimError::AllDay | ZmanimError::AllNight) => {
-                    crate::zmanim::astronomy::time_at_azimuth(calculator.date, &calculator.location, 90.0)
-                }
+                Err(ZmanimError::AllDay | ZmanimError::AllNight) => crate::zmanim::astronomy::time_at_azimuth(
+                    calculator.config.astronomical_calculator,
+                    calculator.date,
+                    &calculator.location,
+                    90.0,
+                ),
                 Err(error) => Err(error),
             },
             ZmanPrimitive::ChatzosHayomAsHalfDay => {
