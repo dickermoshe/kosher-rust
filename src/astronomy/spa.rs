@@ -24,6 +24,10 @@ use super::{
 };
 use crate::{Location, zmanim::ZmanimError};
 
+/// Largest zenith residual, in degrees, accepted as a solved sunrise or sunset. Real roots
+/// end below 1e-7; a failed iteration ends above 1e-5 and usually above 1e-3.
+const CONVERGED_ZENITH_DEGREES: f64 = 1e-6;
+
 /// The SPA algorithm.
 pub(super) struct Spa {
     /// Whether to apply ΔT (TT − UT). KosherJava defaults this to `true`.
@@ -94,6 +98,24 @@ impl SolarAlgorithm for Spa {
         }
         if t1.is_nan() {
             return Err(ZmanimError::Internal);
+        }
+        // KosherJava returns `t1` whatever `f1` is. Near the poles the closed-form guess can
+        // report an event the topocentric sun never reaches; the secant then wanders off and
+        // lands on an arbitrary time. A real root always ends far below this tolerance (the
+        // iteration usually stalls around 1e-8 degrees of floating-point noise, short of the
+        // 1e-9 loop guard), so a larger residual means there is no event on this date.
+        if f1.abs() > CONVERGED_ZENITH_DEGREES {
+            let night = noon_min + if event == SolarEvent::Sunrise { -720.0 } else { 720.0 };
+            let zenith_at = |t: f64| {
+                self.topocentric_true_zenith(jd_day + t / 1440.0, lat, location.longitude, elevation) - adjusted_zenith
+            };
+            return Err(if zenith_at(night) < 0.0 {
+                ZmanimError::AllDay
+            } else if zenith_at(noon_min) > 0.0 {
+                ZmanimError::AllNight
+            } else {
+                ZmanimError::Internal
+            });
         }
         Ok(t1)
     }
@@ -251,4 +273,43 @@ fn mean_obliquity(jme: f64) -> f64 {
 fn nutation_degrees(jce: f64) -> (f64, f64) {
     let (delta_psi_arcsec, delta_eps_arcsec) = nutation_arcsec(jce);
     (delta_psi_arcsec / 3600.0, delta_eps_arcsec / 3600.0)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::*;
+
+    /// Java parity seed 3772238446801125509, iteration 7387: Misheyakir at 10.2 degrees near
+    /// the south pole in March. The closed-form guess says the sun reaches 100.2 degrees just
+    /// before midnight, but the topocentric sun gets no lower than about 100.04 degrees, so
+    /// the secant never converges and used to return an arbitrary time.
+    #[test]
+    fn unreached_depression_near_the_pole_is_all_day() {
+        let date = Date::new(2127, 3, 14).unwrap();
+        let location = Location::new(-77.26876171057897, -92.86928302120835, None)
+            .and_then(|l| l.with_elevation(3965.3333110036533))
+            .unwrap();
+        let spa = Spa { apply_delta_t: true };
+        let zenith = 100.2;
+
+        let jd = julian_day(date);
+        let deepest = (0..=1440)
+            .map(|minute| {
+                spa.topocentric_true_zenith(
+                    jd + f64::from(minute) / 1440.0,
+                    location.latitude,
+                    location.longitude,
+                    location.elevation,
+                )
+            })
+            .fold(f64::MIN, f64::max);
+        assert!(deepest < zenith, "sun reaches {deepest} degrees");
+
+        assert_eq!(
+            spa.rise_set_utc_minutes(date, &location, zenith, SolarEvent::Sunrise),
+            Err(ZmanimError::AllDay)
+        );
+    }
 }

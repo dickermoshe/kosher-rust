@@ -40,6 +40,7 @@ fn assert_results_match(
         .unwrap_or_default();
     match (java, rust) {
         (None, None) => Ok(()),
+        (Some(_), None) if policy::allow_java_only_result(case.calculator) => Ok(()),
         (Some(java), Some(rust)) => {
             let difference = (java.timestamp_ms - rust.timestamp_ms).abs();
             let max_diff_ms = policy::max_diff_ms_for_preset(case.preset_name);

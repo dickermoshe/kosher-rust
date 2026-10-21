@@ -1069,4 +1069,24 @@ pub(super) const REGRESSION_CASES: &[TestCase] = &[
         use_astronomical_chatzos: true,
         calculator: AstronomicalCalculator::Spa { apply_delta_t: false },
     },
+    // Java's SPA secant does not converge (the sun never gets 10.2 degrees down) and returns
+    // an arbitrary time; Rust reports AllDay. Seed 3772238446801125509, iteration 7387.
+    TestCase {
+        year: 2127,
+        month: 3,
+        day: 14,
+        latitude: -77.26876171057897,
+        longitude: -92.86928302120835,
+        elevation: 3965.3333110036533,
+        eastern_horizon_elevation: 1455.6386751841596,
+        western_horizon_elevation: 3487.904647802594,
+        timezone: "Etc/GMT+6",
+        preset_name: "getMisheyakir10Point2Degrees",
+        ateret_torah_sunset_offset_minutes: 43,
+        candle_lighting_offset_minutes: 7,
+        use_astronomical_chatzos_for_other_zmanim: false,
+        use_elevation: true,
+        use_astronomical_chatzos: true,
+        calculator: AstronomicalCalculator::Spa { apply_delta_t: true },
+    },
 ];

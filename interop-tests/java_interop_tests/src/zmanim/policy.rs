@@ -2,6 +2,8 @@
 
 use std::{env, sync::OnceLock};
 
+use kosher_rust::zmanim::AstronomicalCalculator;
+
 pub(super) const DEFAULT_RANDOM_PARITY_ITERATIONS: u64 = 1_000;
 
 pub(super) const MAX_TIMEZONE_ATTEMPTS: u32 = 1_000;
@@ -20,6 +22,19 @@ pub(super) fn test_iterations() -> u64 {
 
 pub(super) fn max_diff_ms_for_preset(_preset_name: &str) -> i64 {
     DEFAULT_MAX_DIFF_MS
+}
+
+/// Whether a case where Java returns a time and Rust reports no event is accepted.
+///
+/// KosherJava's `SPACalculator.solveRiseSet` returns the last secant iterate even when the
+/// iteration has not converged. Near the poles its closed-form first guess can report an
+/// event the topocentric sun never reaches; the secant then wanders off and Java returns an
+/// arbitrary time. Rust runs the same solve and reports no event when the final zenith
+/// residual shows the iteration failed (see `src/astronomy/spa.rs`). The closed-form
+/// rejection is the same on both sides, so for SPA this is the only way Rust can be empty
+/// where Java is not.
+pub(super) fn allow_java_only_result(calculator: AstronomicalCalculator) -> bool {
+    matches!(calculator, AstronomicalCalculator::Spa { .. })
 }
 
 /// Seed used by randomized test cases.
