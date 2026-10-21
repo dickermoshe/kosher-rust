@@ -98,6 +98,9 @@ pub mod prelude {
 #[cfg(test)]
 mod tests;
 
+#[cfg(all(test, feature = "alloc"))]
+mod catalog_snapshot;
+
 use crate::zmanim::{
     primitives::ZmanPrimitive,
     types::{config::CalculatorConfig, error::ZmanimError, location::Location},
