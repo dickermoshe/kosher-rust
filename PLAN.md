@@ -159,7 +159,9 @@ timezone. `ZmanimError` covers:
 - `zmanim::Config` (was `CalculatorConfig`) keeps its fields and `Default`.
 - **`Zman` enum, 167 variants**, replacing 167 `static ZmanPreset`s. Each variant has a
   one-line doc that names the opinion. KosherJava-deprecated ones get `#[deprecated]`.
-  - Methods: `ALL`, `name()`, `category() -> Category`, `java_name()`, and
+  - Variant names are the KosherJava getter minus `get`, with acronyms title-cased:
+    `getSofZmanShmaGRA` → `SofZmanShmaGra`, `getSunrise` → `Sunrise`.
+  - Methods: `ALL`, `name()`, `category() -> Category`, `java_name()`, `from_java_name()`, and
     `description(&Config) -> String` (the end-user display text, behind `alloc`).
   - Users can match on it, store it, and round-trip it through `java_name()`. It mirrors
     `MyZman`, which already works this way.
@@ -299,7 +301,7 @@ uglier, the API is wrong.
 | # | Phase | What lands |
 |---|---|---|
 | 0 | **Safety net** | `tests/catalog_snapshot.rs`: a sorted dump of `(java name, display name, category, deprecated, formula Debug)` for every preset, committed. Confirm all three conformance suites run from one documented command. |
-| 1 | **README first** | Write the new README, module guides and `examples/today.rs` against the target API, with doctests marked `ignore`. Un-ignore each one as its phase lands. This is the spec, so review it before writing code. |
+| 1 | **README first** | Rewrite the README against the target API. It is the spec, so review it before writing code. Its examples use real values computed with the current crate. Module guides and `examples/today.rs` land with the phase that makes them compile; `lib.rs` includes the README as a doctest in phase 8. |
 | 2 | **Move internals** | `astronomy/` out of `zmanim/`, molad into `calendar/`, schedule constants into their schedule files, `cycle` + `interval` + `limud` → `engine.rs`. No public change. |
 | 3 | **Calendar** | `HebrewDate`, `HebrewMonth`, `HebrewYear`, `Region`, `Molad`, plus `Display`/`hebrew()` on `Holiday` and `Parsha`. Remove the ext traits and ICU from signatures. |
 | 4 | **Location + errors** | `new(lat, lon, Option<TimeZone>)`, `with_elevation`, `with_horizons`, `LocationError`, slimmer `ZmanimError`. |

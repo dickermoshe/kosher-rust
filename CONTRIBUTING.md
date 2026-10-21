@@ -41,3 +41,17 @@ purpose, regenerate the snapshot and review the diff:
 ```bash
 UPDATE_SNAPSHOT=1 cargo test -p kosher-rust catalog_snapshot
 ```
+
+## Updating the vendored KosherJava
+
+`third-party/kosher-java` is a git subtree of upstream KosherJava. It is the reference the
+Java conformance suite compares against. Currently tracked: commit
+[cb2b183](https://github.com/KosherJava/zmanim/commit/cb2b1835ae875c5fb2fbd3b35ae18f523ab93bfe)
+(post-3.0.0 master).
+
+```bash
+git subtree pull --prefix=third-party/kosher-java https://github.com/KosherJava/zmanim <tag-or-branch> --squash
+```
+
+Then port any new or changed zmanim to the preset definitions in `tools/dsl.py`, run
+`tools/generate-rust.py`, update the tracked commit above, and run the Java conformance suite.
