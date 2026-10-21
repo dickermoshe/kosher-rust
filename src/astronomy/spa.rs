@@ -22,7 +22,7 @@ use super::{
         self, asin_degrees, cos_degrees, delta_t_seconds, nutation_arcsec, sin_degrees, sun_mean_longitude, tan_degrees,
     },
 };
-use crate::zmanim::types::{error::ZmanimError, location::Location};
+use crate::{Location, zmanim::ZmanimError};
 
 /// The SPA algorithm.
 pub(super) struct Spa {
@@ -93,7 +93,7 @@ impl SolarAlgorithm for Spa {
                 - adjusted_zenith;
         }
         if t1.is_nan() {
-            return Err(ZmanimError::CalculationError);
+            return Err(ZmanimError::Internal);
         }
         Ok(t1)
     }

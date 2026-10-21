@@ -1,7 +1,7 @@
 //! The *zmanim* of [MyZmanim](https://www.myzmanim.com/)'s website, reproduced to the second.
 //!
 //! This module is self-contained: it does not use the [`crate::zmanim`] presets or
-//! [`CalculatorConfig`](crate::zmanim::types::config::CalculatorConfig). Give it a [`Location`] (latitude, longitude, the
+//! [`CalculatorConfig`](crate::zmanim::CalculatorConfig). Give it a [`Location`] (latitude, longitude, the
 //! observer's elevation and the elevations of the eastern and western horizons), a date and
 //! optionally the candle-lighting minutes, and every row of the website's "All zmanim" table
 //! is a [`MyZman`].
@@ -32,15 +32,10 @@
 //! use jiff::{civil::Date, tz::TimeZone};
 //! use kosher_rust::myzmanim::prelude::*;
 //!
-//! let location = Location::with_horizon_elevations(
-//!     31.778,  // latitude
-//!     35.235,  // longitude
-//!     754.0,   // observer elevation in meters
-//!     754.0,   // eastern horizon elevation in meters
-//!     0.0,     // western horizon elevation in meters
-//!     Some(TimeZone::get("Asia/Jerusalem").unwrap()),
-//! )
-//! .unwrap();
+//! let location = Location::new(31.778, 35.235, Some(TimeZone::get("Asia/Jerusalem").unwrap()))
+//!     .and_then(|l| l.with_elevation(754.0))
+//!     .and_then(|l| l.with_horizons(754.0, 0.0))
+//!     .unwrap();
 //! let calendar = MyZmanimCalendar::new(location, Date::new(2026, 11, 6).unwrap());
 //! let sunset = calendar.calculate(MyZman::SunsetElevated).unwrap();
 //! let candles = calendar.calculate(MyZman::CandleLighting).unwrap();
@@ -53,17 +48,18 @@ use jiff::{SignedDuration, Timestamp, civil::Date};
 use core_maths::*;
 
 use crate::{
+    Location,
     astronomy::{
         GEOMETRIC_ZENITH, SolarEvent, adjusted_local_date, apparent_solar_radius, meeus::Meeus,
         rise_set_on_adjusted_date,
     },
-    zmanim::types::{error::ZmanimError, location::Location},
+    zmanim::ZmanimError,
 };
 
 /// Common MyZmanim imports: the calendar, its *zmanim*, and the location and error types.
 pub mod prelude {
     pub use super::{MyZman, MyZmanimCalendar};
-    pub use crate::zmanim::types::{error::ZmanimError, location::Location};
+    pub use crate::{Location, zmanim::ZmanimError};
 }
 
 #[cfg(test)]
@@ -91,9 +87,8 @@ const NANOS_PER_SECOND: i128 = 1_000_000_000;
 /// One row of MyZmanim's "All zmanim" table, in the table's order.
 ///
 /// Calculate one with [`MyZmanimCalendar::calculate`]. Every variant returns an error where
-/// the website shows no time: [`ZmanimError::AllDay`] / [`ZmanimError::AllNight`] where the
-/// sun never reaches the angle, and [`ZmanimError::CalculationError`] where a derived time
-/// has no inputs.
+/// the website shows no time: [`ZmanimError::AllDay`] or [`ZmanimError::AllNight`] where the
+/// sun never reaches the angle that time, or a time it is built from, needs.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum MyZman {
@@ -387,7 +382,7 @@ impl MyZmanimCalendar {
             NightRTam72Degrees => self.rise_set_by_degrees(SolarEvent::Sunset, DAWN_72_DEGREES),
             Midnight => {
                 let sunset = self.calculate(SunsetLevel)?;
-                let tomorrow = self.date.tomorrow().map_err(|_| ZmanimError::TimeConversionError)?;
+                let tomorrow = self.date.tomorrow().map_err(|_| ZmanimError::Internal)?;
                 let next_sunrise = Self::new(self.location.clone(), tomorrow).calculate(SunriseLevel)?;
                 midpoint(sunset, next_sunrise)
             }
@@ -532,9 +527,9 @@ fn nearest_second(time: Timestamp) -> Timestamp {
 
 fn floor_second(time: Timestamp) -> Result<Timestamp, ZmanimError> {
     let seconds = time.as_nanosecond().div_euclid(NANOS_PER_SECOND);
-    Timestamp::from_second(seconds as i64).map_err(|_| ZmanimError::TimeConversionError)
+    Timestamp::from_second(seconds as i64).map_err(|_| ZmanimError::Internal)
 }
 
 fn timestamp_from_nanos(nanos: i128) -> Result<Timestamp, ZmanimError> {
-    Timestamp::from_nanosecond(nanos).map_err(|_| ZmanimError::TimeConversionError)
+    Timestamp::from_nanosecond(nanos).map_err(|_| ZmanimError::Internal)
 }

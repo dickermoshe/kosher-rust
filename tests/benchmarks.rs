@@ -274,9 +274,9 @@ mod zmanim {
                 location: Location::new(
                     40.0721087,
                     -74.2400243,
-                    15.0,
                     Some(TimeZone::get("America/New_York").expect("valid timezone")),
                 )
+                .and_then(|l| l.with_elevation(15.0))
                 .expect("valid location"),
                 date: CivilDate::new(2017, 10, 17).expect("valid date"),
                 config: CalculatorConfig {
@@ -289,7 +289,6 @@ mod zmanim {
                 location: Location::new(
                     64.1466,
                     -21.9426,
-                    0.0,
                     Some(TimeZone::get("Atlantic/Reykjavik").expect("valid timezone")),
                 )
                 .expect("valid location"),
@@ -304,9 +303,9 @@ mod zmanim {
                 location: Location::new(
                     40.0721087,
                     -74.2400243,
-                    15.0,
                     Some(TimeZone::get("America/New_York").expect("valid timezone")),
                 )
+                .and_then(|l| l.with_elevation(15.0))
                 .expect("valid location"),
                 date: CivilDate::new(2017, 10, 17).expect("valid date"),
                 config: CalculatorConfig::default(),
@@ -316,9 +315,9 @@ mod zmanim {
                 location: Location::new(
                     31.778,
                     35.235,
-                    754.0,
                     Some(TimeZone::get("Asia/Jerusalem").expect("valid timezone")),
                 )
+                .and_then(|l| l.with_elevation(754.0))
                 .expect("valid location"),
                 date: CivilDate::new(2024, 4, 22).expect("valid date"),
                 config: CalculatorConfig::default(),
@@ -328,7 +327,6 @@ mod zmanim {
                 location: Location::new(
                     64.1466,
                     -21.9426,
-                    0.0,
                     Some(TimeZone::get("Atlantic/Reykjavik").expect("valid timezone")),
                 )
                 .expect("valid location"),
@@ -340,7 +338,6 @@ mod zmanim {
                 location: Location::new(
                     39.36463,
                     -76.70222,
-                    0.0,
                     Some(TimeZone::get("America/New_York").expect("valid timezone")),
                 )
                 .expect("valid location"),

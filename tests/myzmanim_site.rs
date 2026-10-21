@@ -363,15 +363,10 @@ fn site_diffs() -> (Vec<Diff>, Vec<String>) {
     let mut far_off = Vec::new();
     for day in decode(FIXTURE) {
         let timezone = TimeZone::fixed(Offset::from_seconds(day.place.offset_seconds).unwrap());
-        let location = Location::with_horizon_elevations(
-            day.place.latitude,
-            day.place.longitude,
-            day.heights[0],
-            day.heights[1],
-            day.heights[2],
-            Some(timezone.clone()),
-        )
-        .unwrap();
+        let location = Location::new(day.place.latitude, day.place.longitude, Some(timezone.clone()))
+            .and_then(|l| l.with_elevation(day.heights[0]))
+            .and_then(|l| l.with_horizons(day.heights[1], day.heights[2]))
+            .unwrap();
         let calendar = MyZmanimCalendar::new(location, day.date)
             .with_candle_lighting_minutes(f64::from(day.place.candle_tenths) / 10.0);
 

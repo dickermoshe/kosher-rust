@@ -22,7 +22,7 @@ use crate::{
         HebrewDate, Holiday, Region,
         molad::{is_same_gregorian_day, months_molad},
     },
-    zmanim::{ZmanLike, ZmanimCalculator, types::error::ZmanimError},
+    zmanim::{ZmanLike, ZmanimCalculator, ZmanimError},
 };
 
 static CIVIL_ZENITH: f64 = 6.0;
@@ -284,7 +284,7 @@ impl ZmanLike for ZmanPrimitive {
                 let date = calculator.date;
                 let location = calculator.location.clone();
                 if !(0.0..24.0).contains(&hours) {
-                    return Err(ZmanimError::InvalidHours);
+                    return Err(ZmanimError::Internal);
                 }
 
                 let adjusted_date = crate::astronomy::adjusted_local_date(date, &location)?;
@@ -294,10 +294,10 @@ impl ZmanLike for ZmanPrimitive {
                 let lmt_dt = midnight
                     .checked_add(Duration::from_nanos(lmt_nanos))
                     .and_then(|dt| dt.checked_sub(Duration::from_nanos(offset_nanos)))
-                    .map_err(|_| ZmanimError::TimeConversionError)?;
+                    .map_err(|_| ZmanimError::Internal)?;
                 let utc = lmt_dt
                     .to_zoned(TimeZone::UTC)
-                    .map_err(|_| ZmanimError::TimeConversionError)?
+                    .map_err(|_| ZmanimError::Internal)?
                     .timestamp();
 
                 Ok(utc)
@@ -433,7 +433,7 @@ impl ZmanLike for ZmanPrimitive {
                     .holidays(Region::Diaspora)
                     .any(|h| h == Holiday::ErevPesach)
                 {
-                    return Err(ZmanimError::InvalidForDate);
+                    return Err(ZmanimError::NotApplicable);
                 }
                 let primitive = if calculator.config.use_astronomical_chatzos_for_other_zmanim && synchronous {
                     ZmanPrimitive::HalfDayBasedOffset(event1, &ZmanPrimitive::ChatzosHayom, 5.0)
@@ -451,7 +451,7 @@ impl ZmanLike for ZmanPrimitive {
                     .holidays(Region::Diaspora)
                     .any(|h| h == Holiday::ErevPesach)
                 {
-                    return Err(ZmanimError::InvalidForDate);
+                    return Err(ZmanimError::NotApplicable);
                 }
                 let event1_time = event1.calculate(calculator)?;
                 let event2_time = event2.calculate(calculator);
@@ -480,14 +480,13 @@ impl ZmanLike for ZmanPrimitive {
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 17 {
-                    return Err(ZmanimError::InvalidForDate);
+                    return Err(ZmanimError::NotApplicable);
                 }
-                let molad =
-                    months_molad(&hebrew).ok_or(ZmanimError::TimeConversionError)? + Duration::from_hours(24 * 15);
+                let molad = months_molad(&hebrew).ok_or(ZmanimError::Internal)? + Duration::from_hours(24 * 15);
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
                     return Ok(molad);
                 }
-                Err(ZmanimError::InvalidForDate)
+                Err(ZmanimError::NotApplicable)
             }
             ZmanPrimitive::SofZmanKidushLevanaBetweenMoldos => {
                 let tz = calculator
@@ -498,9 +497,9 @@ impl ZmanLike for ZmanPrimitive {
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 16 {
-                    return Err(ZmanimError::InvalidForDate);
+                    return Err(ZmanimError::NotApplicable);
                 }
-                let molad = months_molad(&hebrew).ok_or(ZmanimError::TimeConversionError)?
+                let molad = months_molad(&hebrew).ok_or(ZmanimError::Internal)?
                     + Duration::from_hours(24 * 14 + 18)
                     + Duration::from_mins(22)
                     + Duration::from_secs(1)
@@ -508,7 +507,7 @@ impl ZmanLike for ZmanPrimitive {
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
                     return Ok(molad);
                 }
-                Err(ZmanimError::InvalidForDate)
+                Err(ZmanimError::NotApplicable)
             }
             ZmanPrimitive::TchilasZmanKidushLevana3Days => {
                 let tz = calculator
@@ -519,9 +518,9 @@ impl ZmanLike for ZmanPrimitive {
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 > 5 && hebrew.day_of_month().0 < 30 {
-                    return Err(ZmanimError::InvalidForDate);
+                    return Err(ZmanimError::NotApplicable);
                 }
-                let molad = months_molad(&hebrew).ok_or(ZmanimError::TimeConversionError)? + Duration::from_hours(72);
+                let molad = months_molad(&hebrew).ok_or(ZmanimError::Internal)? + Duration::from_hours(72);
 
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
                     return Ok(molad);
@@ -533,13 +532,13 @@ impl ZmanLike for ZmanPrimitive {
 
                     let new = hebrew
                         .try_added_with_options(DateDuration::for_months(1), add_option)
-                        .map_err(|_| ZmanimError::TimeConversionError)?;
-                    let molad = months_molad(&new).ok_or(ZmanimError::TimeConversionError)? + Duration::from_hours(72);
+                        .map_err(|_| ZmanimError::Internal)?;
+                    let molad = months_molad(&new).ok_or(ZmanimError::Internal)? + Duration::from_hours(72);
                     if is_same_gregorian_day(&hebrew, &molad, tz) {
                         return Ok(molad);
                     }
                 }
-                Err(ZmanimError::InvalidForDate)
+                Err(ZmanimError::NotApplicable)
             }
             ZmanPrimitive::TchilasZmanKidushLevana7Days => {
                 let tz = calculator
@@ -550,13 +549,13 @@ impl ZmanLike for ZmanPrimitive {
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 4 || hebrew.day_of_month().0 > 9 {
-                    return Err(ZmanimError::InvalidForDate);
+                    return Err(ZmanimError::NotApplicable);
                 }
-                let molad = months_molad(&hebrew).ok_or(ZmanimError::TimeConversionError)? + Duration::from_hours(168);
+                let molad = months_molad(&hebrew).ok_or(ZmanimError::Internal)? + Duration::from_hours(168);
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
                     return Ok(molad);
                 }
-                Err(ZmanimError::InvalidForDate)
+                Err(ZmanimError::NotApplicable)
             }
             ZmanPrimitive::BainHashmashosRt2Stars => {
                 let alos19_point_8 = ZmanPrimitive::SunriseOffsetByDegrees(19.8).calculate(calculator)?;
@@ -622,7 +621,7 @@ impl ZmanLike for ZmanPrimitive {
                 calculator.calculate(&ZmanPrimitive::SunsetOffsetByDegrees(ASTRONOMICAL_ZENITH))
             }
             ZmanPrimitive::PolarSunsetBenIshChai => match ZmanPrimitive::ConfiguredSunset.calculate(calculator) {
-                Ok(_) => Err(ZmanimError::CalculationError),
+                Ok(_) => Err(ZmanimError::NotApplicable),
                 Err(ZmanimError::AllDay | ZmanimError::AllNight) => crate::astronomy::time_at_azimuth(
                     calculator.config.astronomical_calculator,
                     calculator.date,
@@ -632,7 +631,7 @@ impl ZmanLike for ZmanPrimitive {
                 Err(error) => Err(error),
             },
             ZmanPrimitive::PolarSunriseBenIshChai => match ZmanPrimitive::ConfiguredSunrise.calculate(calculator) {
-                Ok(_) => Err(ZmanimError::CalculationError),
+                Ok(_) => Err(ZmanimError::NotApplicable),
                 Err(ZmanimError::AllDay | ZmanimError::AllNight) => crate::astronomy::time_at_azimuth(
                     calculator.config.astronomical_calculator,
                     calculator.date,
@@ -661,10 +660,7 @@ impl ZmanLike for ZmanPrimitive {
                 let sunset = ZmanPrimitive::SeaLevelSunset.calculate(calculator)?;
                 // Create a copy of the calculator and increment the date by one day
                 let mut tomorrow = calculator.clone();
-                tomorrow.date = tomorrow
-                    .date
-                    .checked_add(1.day())
-                    .map_err(|_| ZmanimError::TimeConversionError)?;
+                tomorrow.date = tomorrow.date.checked_add(1.day()).map_err(|_| ZmanimError::Internal)?;
                 let sunrise = ZmanPrimitive::SeaLevelSunrise.calculate(&tomorrow)?;
                 let diff = sunrise.duration_since(sunset) / 2;
                 Ok(sunset + diff)

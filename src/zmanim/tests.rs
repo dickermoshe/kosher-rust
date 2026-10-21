@@ -18,7 +18,9 @@ fn lakewood_tz() -> TimeZone {
 }
 
 fn lakewood_location(elevation_m: f64) -> Location {
-    Location::new(LAKEWOOD_LAT, LAKEWOOD_LON, elevation_m, Some(lakewood_tz())).unwrap()
+    Location::new(LAKEWOOD_LAT, LAKEWOOD_LON, Some(lakewood_tz()))
+        .and_then(|l| l.with_elevation(elevation_m))
+        .unwrap()
 }
 
 fn lakewood_date() -> Date {
@@ -41,7 +43,9 @@ fn new_calc(elevation_m: f64) -> ZmanimCalculator {
 }
 
 fn calc_for(lat: f64, lon: f64, elevation: f64, tz: TimeZone, date: Date) -> ZmanimCalculator {
-    let location = Location::new(lat, lon, elevation, Some(tz)).unwrap();
+    let location = Location::new(lat, lon, Some(tz))
+        .and_then(|l| l.with_elevation(elevation))
+        .unwrap();
     ZmanimCalculator::new(location, date, Default::default())
 }
 
@@ -178,8 +182,10 @@ fn test_extreme_elevation_shifts_sunrise_sunset() {
 fn test_split_horizons_use_east_for_sunrise_and_west_for_sunset() {
     let date = Date::new(2017, 10, 17).unwrap();
     let tz = TimeZone::get("Asia/Kathmandu").unwrap();
-    let split_location =
-        Location::with_horizon_elevations(27.9881, 86.9250, 8848.0, 0.0, 8848.0, Some(tz.clone())).unwrap();
+    let split_location = Location::new(27.9881, 86.9250, Some(tz.clone()))
+        .and_then(|l| l.with_elevation(8848.0))
+        .and_then(|l| l.with_horizons(0.0, 8848.0))
+        .unwrap();
     let split = ZmanimCalculator::new(
         split_location,
         date,
@@ -550,7 +556,7 @@ fn test_use_elevation_shaah_zmanis() {
 
 fn polar_day_calc() -> ZmanimCalculator {
     let date = Date::new(2017, 6, 21).unwrap();
-    let location = Location::new(69.6492, 18.9553, 0.0, Some(TimeZone::get("Europe/Oslo").unwrap())).unwrap();
+    let location = Location::new(69.6492, 18.9553, Some(TimeZone::get("Europe/Oslo").unwrap())).unwrap();
     ZmanimCalculator::new(location, date, Default::default())
 }
 
@@ -610,13 +616,9 @@ fn test_polar_day_zmanim_return_none() {
 fn test_mcmurdo_antimeridian_alos_matches_java() {
     let tz = TimeZone::get("Antarctica/McMurdo").unwrap();
     let date = Date::new(1901, 4, 18).unwrap();
-    let location = Location::new(
-        -77.10300593682803,
-        -166.39303270398793,
-        61.48216934280892,
-        Some(tz.clone()),
-    )
-    .unwrap();
+    let location = Location::new(-77.10300593682803, -166.39303270398793, Some(tz.clone()))
+        .and_then(|l| l.with_elevation(61.48216934280892))
+        .unwrap();
     let config = CalculatorConfig {
         candle_lighting_offset: Duration::from_mins(12),
         use_astronomical_chatzos_for_other_zmanim: true,

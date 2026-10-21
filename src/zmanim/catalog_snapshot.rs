@@ -15,19 +15,15 @@ use std::{env, fmt::Write as _, fs, path::PathBuf, string::String, vec::Vec};
 
 use jiff::{SignedDuration, civil::Date, tz::TimeZone};
 
-use crate::zmanim::{
-    ZmanimCalculator,
-    presets::ALL_ZMANIM,
-    types::{
-        config::{AstronomicalCalculator, CalculatorConfig},
-        location::Location,
-    },
+use crate::{
+    Location,
+    zmanim::{AstronomicalCalculator, CalculatorConfig, ZmanimCalculator, presets::ALL_ZMANIM},
 };
 
 const SNAPSHOT_PATH: &str = "tests/fixtures/zman_catalog.snap";
 
 fn calculator(config: CalculatorConfig) -> ZmanimCalculator {
-    let location = Location::new(0.0, 0.0, 0.0, Some(TimeZone::UTC)).unwrap();
+    let location = Location::new(0.0, 0.0, Some(TimeZone::UTC)).unwrap();
     ZmanimCalculator::new(location, Date::new(2024, 1, 1).unwrap(), config)
 }
 

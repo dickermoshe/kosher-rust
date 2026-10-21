@@ -38,7 +38,9 @@ impl TestLocation {
             Self::Suva => (-18.1416, 178.4419, 6.0),
             Self::Ushuaia => (-54.8019, -68.3030, 23.0),
         };
-        Location::new(latitude, longitude, elevation, Some(TimeZone::UTC)).unwrap()
+        Location::new(latitude, longitude, Some(TimeZone::UTC))
+            .and_then(|l| l.with_elevation(elevation))
+            .unwrap()
     }
 }
 
@@ -530,7 +532,7 @@ const ALL_CALCULATORS: [AstronomicalCalculator; 5] = [NOAA, MEEUS, MEEUS_NO_DELT
 fn every_calculator_rejects_unsupported_azimuth() {
     for calculator in ALL_CALCULATORS {
         let result = utc_time_at_azimuth_hours(calculator, date("2017-10-17"), &TestLocation::Nj.location(), 123.0);
-        assert_eq!(result, Err(ZmanimError::CalculationError), "{calculator:?}");
+        assert_eq!(result, Err(ZmanimError::Internal), "{calculator:?}");
     }
 }
 
@@ -579,8 +581,10 @@ fn spa_sunrise_depends_on_observer_elevation_even_at_sea_level_horizon() {
     // SPA feeds the observer elevation into its parallax term, so the sea-level sunrise
     // (no horizon dip) still moves with elevation; NOAA and Meeus ignore it entirely.
     let day = date("2017-10-17");
-    let low = Location::new(41.1181036, -74.0840691, 0.0, Some(TimeZone::UTC)).unwrap();
-    let high = Location::new(41.1181036, -74.0840691, 4000.0, Some(TimeZone::UTC)).unwrap();
+    let low = Location::new(41.1181036, -74.0840691, Some(TimeZone::UTC)).unwrap();
+    let high = Location::new(41.1181036, -74.0840691, Some(TimeZone::UTC))
+        .and_then(|l| l.with_elevation(4000.0))
+        .unwrap();
     let spa_low = utc_rise_set_hours(SPA, day, &low, GEOMETRIC_ZENITH, false, SolarEvent::Sunrise).unwrap();
     let spa_high = utc_rise_set_hours(SPA, day, &high, GEOMETRIC_ZENITH, false, SolarEvent::Sunrise).unwrap();
     assert_ne!(spa_low, spa_high);
@@ -613,7 +617,6 @@ fn test_location() -> Location {
     Location::new(
         40.0721087,
         -74.2400243,
-        0.0,
         Some(TimeZone::get("America/New_York").unwrap()),
     )
     .unwrap()
@@ -666,7 +669,7 @@ fn apparent_solar_radius_changes_sunrise_vs_fixed_radius() {
 
 #[test]
 fn solar_midnight_succeeds_near_antimeridian() {
-    let location = Location::new(-14.2750, -170.7020, 0.0, Some(TimeZone::get("Pacific/Apia").unwrap())).unwrap();
+    let location = Location::new(-14.2750, -170.7020, Some(TimeZone::get("Pacific/Apia").unwrap())).unwrap();
     let date = Date::new(2011, 12, 29).unwrap();
     for calculator in ALL_CALCULATORS {
         assert!(solar_midnight(calculator, date, &location).is_ok(), "{calculator:?}");
@@ -675,7 +678,7 @@ fn solar_midnight_succeeds_near_antimeridian() {
 
 #[test]
 fn time_at_azimuth_normalizes_hours_before_timestamp() {
-    let location = Location::new(69.6492, 18.9553, 0.0, Some(TimeZone::get("Europe/Oslo").unwrap())).unwrap();
+    let location = Location::new(69.6492, 18.9553, Some(TimeZone::get("Europe/Oslo").unwrap())).unwrap();
     let date = Date::new(2017, 6, 21).unwrap();
     for calculator in ALL_CALCULATORS {
         let azimuth_time = time_at_azimuth(calculator, date, &location, 90.0).unwrap();

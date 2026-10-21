@@ -17,7 +17,10 @@
 use core_maths::*;
 use jiff::{SignedDuration, Timestamp, civil::Date, tz::TimeZone};
 
-use crate::zmanim::types::{config::AstronomicalCalculator, error::ZmanimError, location::Location};
+use crate::{
+    Location,
+    zmanim::{AstronomicalCalculator, ZmanimError},
+};
 
 pub(crate) mod meeus;
 mod noaa;
@@ -238,7 +241,7 @@ pub(crate) fn rise_set_on_adjusted_date(
 ) -> Result<Timestamp, ZmanimError> {
     let utc_minutes = algorithm.rise_set_utc_minutes(adjusted_date, location, adjusted_zenith, event)?;
     if utc_minutes.is_nan() {
-        return Err(ZmanimError::CalculationError);
+        return Err(ZmanimError::Internal);
     }
     instant_from_utc_hours(normalize_utc_hours(utc_minutes / 60.0), adjusted_date, location, event)
 }
@@ -258,12 +261,12 @@ pub(crate) fn utc_rise_set_hours(
         (false, _) => 0.0,
         (true, SolarEvent::Sunrise) => location.sunrise_elevation(),
         (true, SolarEvent::Sunset) => location.sunset_elevation(),
-        (true, SolarEvent::Noon | SolarEvent::Midnight) => return Err(ZmanimError::CalculationError),
+        (true, SolarEvent::Noon | SolarEvent::Midnight) => return Err(ZmanimError::Internal),
     };
     let adjusted_zenith = adjust_zenith(zenith, elevation, date);
     let utc_minutes = calculator.rise_set_utc_minutes(date, location, adjusted_zenith, event)?;
     if utc_minutes.is_nan() {
-        return Err(ZmanimError::CalculationError);
+        return Err(ZmanimError::Internal);
     }
     Ok(normalize_utc_hours(utc_minutes / 60.0))
 }
@@ -289,7 +292,7 @@ pub(crate) fn utc_time_at_azimuth_hours(
     target_azimuth: f64,
 ) -> Result<f64, ZmanimError> {
     if target_azimuth != 90.0 && target_azimuth != 270.0 {
-        return Err(ZmanimError::CalculationError);
+        return Err(ZmanimError::Internal);
     }
     let hours = calculator.time_at_azimuth_utc_hours(date, location, target_azimuth)?;
     Ok(normalize_utc_hours(hours))
@@ -314,7 +317,7 @@ pub(super) fn time_at_azimuth_iterative(
         let ratio = declination.to_radians().tan() / location.latitude.to_radians().tan();
 
         if ratio.is_nan() || !(-1.0..=1.0).contains(&ratio) {
-            return Err(ZmanimError::CalculationError);
+            return Err(ZmanimError::NotApplicable);
         }
 
         let direction = if target_azimuth == 90.0 { -1.0 } else { 1.0 };
@@ -333,7 +336,7 @@ pub(crate) fn adjusted_local_date(date: Date, location: &Location) -> Result<Dat
     let midnight = timezone
         .to_ambiguous_timestamp(date.at(0, 0, 0, 0))
         .earlier()
-        .map_err(|_| ZmanimError::TimeConversionError)?;
+        .map_err(|_| ZmanimError::Internal)?;
     let offset = midnight.to_zoned(timezone.clone()).offset().seconds();
     let local_hours_offset = (location.longitude * 240.0 - f64::from(offset)) / 3600.0;
 
@@ -353,7 +356,7 @@ pub(crate) fn instant_from_utc_hours(
     event: SolarEvent,
 ) -> Result<Timestamp, ZmanimError> {
     if time.is_nan() {
-        return Err(ZmanimError::CalculationError);
+        return Err(ZmanimError::Internal);
     }
 
     let local_time_hours = location.longitude / 15.0 + time;
@@ -370,16 +373,16 @@ pub(crate) fn instant_from_utc_hours(
     let date_time = date
         .at(0, 0, 0, 0)
         .checked_add(SignedDuration::from_nanos(nanos))
-        .map_err(|_| ZmanimError::TimeConversionError)?;
+        .map_err(|_| ZmanimError::Internal)?;
     date_time
         .to_zoned(TimeZone::UTC)
-        .map_err(|_| ZmanimError::TimeConversionError)
+        .map_err(|_| ZmanimError::Internal)
         .map(|zdt| zdt.timestamp())
 }
 
 fn add_days(date: Date, days: i64) -> Result<Date, ZmanimError> {
     date.checked_add(SignedDuration::from_hours(24 * days))
-        .map_err(|_| ZmanimError::TimeConversionError)
+        .map_err(|_| ZmanimError::Internal)
 }
 
 pub(crate) fn normalize_utc_hours(time: f64) -> f64 {

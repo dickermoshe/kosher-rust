@@ -8,12 +8,11 @@
 //!
 //! # How it fits together
 //!
-//! 1. Build a [`Location`] (latitude, longitude, observer elevation, optional timezone). Use
-//!    [`Location::with_horizon_elevations`] when the eastern and western horizons sit at
-//!    different heights than sea level.
+//! 1. Build a [`Location`]: latitude, longitude, optional time zone, then
+//!    elevation and horizon heights.
 //! 2. Create a [`ZmanimCalculator`] for that location, a [`jiff::civil::Date`], and
 //!    a [`CalculatorConfig`] that selects elevation and *chatzos* behavior and the
-//!    [`AstronomicalCalculator`](types::config::AstronomicalCalculator) algorithm (NOAA by default, or Meeus / SPA).
+//!    [`AstronomicalCalculator`] algorithm (NOAA by default, or Meeus / SPA).
 //! 3. Pass any [`ZmanLike`] value to [`ZmanimCalculator::calculate`].
 //!
 //! Most callers use the ready-made constants in [`presets`] (for example
@@ -28,10 +27,9 @@
 //! # Submodules
 //!
 //! - [`presets`] — named zman constants (`ELEVATION_ADJUSTED_SUNRISE`, `CANDLE_LIGHTING`, …)
-//! - [`types::config`] — [`CalculatorConfig`] options (elevation, *chatzos*, offsets) and the
-//!   [`AstronomicalCalculator`](types::config::AstronomicalCalculator) solar algorithm selector (NOAA, Meeus, SPA)
-//! - [`types::location`] — [`Location`] validation and timezone requirements
-//! - [`types::error`] — [`ZmanimError`] returned by invalid input or impossible calculations
+//! - [`CalculatorConfig`] options (elevation, *chatzos*, offsets) and the
+//!   [`AstronomicalCalculator`] solar algorithm selector (NOAA, Meeus, SPA)
+//! - [`ZmanimError`], returned when a time does not exist for that place and date
 //! - [`primitives`] — [`ZmanPrimitive`] building blocks for custom zman definitions
 //!
 //! # Quick start
@@ -40,13 +38,7 @@
 //! use jiff::{civil::Date, tz::TimeZone};
 //! use kosher_rust::zmanim::prelude::*;
 //!
-//! let location = Location::new(
-//!     40.09,
-//!     -74.22,
-//!     0.0,
-//!     Some(TimeZone::get("America/New_York").unwrap()),
-//! )
-//! .unwrap();
+//! let location = Location::new(40.09, -74.22, Some(TimeZone::get("America/New_York").unwrap())).unwrap();
 //! let calc = ZmanimCalculator::new(
 //!     location,
 //!     Date::new(2017, 10, 17).unwrap(),
@@ -60,20 +52,12 @@
 
 use jiff::{Timestamp, civil::Date};
 
+mod config;
+mod error;
 pub mod presets;
-/// Core zmanim types: configuration, errors, and location.
-///
-/// - [`types::config`] — [`CalculatorConfig`]
-/// - [`types::error`] — [`ZmanimError`]
-/// - [`types::location`] — [`Location`]
-pub mod types {
-    /// Calculator configuration options.
-    pub mod config;
-    /// Error types returned by zmanim calculations.
-    pub mod error;
-    /// Geographic location with optional timezone.
-    pub mod location;
-}
+
+pub use config::{AstronomicalCalculator, CalculatorConfig};
+pub use error::ZmanimError;
 
 pub mod primitives;
 
@@ -84,10 +68,9 @@ pub mod primitives;
 pub mod prelude {
     pub use super::presets;
     pub use super::primitives::ZmanPrimitive;
-    pub use super::types::config::{AstronomicalCalculator, CalculatorConfig};
-    pub use super::types::error::ZmanimError;
-    pub use super::types::location::Location;
+    pub use super::{AstronomicalCalculator, CalculatorConfig, ZmanimError};
     pub use super::{ZmanLike, ZmanPreset, ZmanType, ZmanimCalculator};
+    pub use crate::Location;
 }
 
 #[cfg(test)]
@@ -96,10 +79,7 @@ mod tests;
 #[cfg(all(test, feature = "alloc"))]
 mod catalog_snapshot;
 
-use crate::zmanim::{
-    primitives::ZmanPrimitive,
-    types::{config::CalculatorConfig, error::ZmanimError, location::Location},
-};
+use crate::{Location, zmanim::primitives::ZmanPrimitive};
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
