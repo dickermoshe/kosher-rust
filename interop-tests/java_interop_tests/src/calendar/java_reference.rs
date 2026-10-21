@@ -10,7 +10,7 @@ use jni::{
 
 use crate::{init_bindings, java_vm};
 
-use kosher_rust::calendar::prelude::*;
+use kosher_rust::calendar::Holiday;
 
 use crate::java_bindings::com::kosherjava::zmanim::hebrewcalendar::{
     JewishCalendar, JewishCalendarParshah, JewishDate,

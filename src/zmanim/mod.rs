@@ -23,7 +23,7 @@
 //! Failures return [`ZmanimError`] — unlike calendar or limud lookups, which use
 //! `Option` when a value simply does not apply on a given date. Some zmanim cannot
 //! be calculated at extreme latitudes or on polar days; others require a timezone
-//! on the location (for example Kiddush Levana via [`molad::MoladCalendar`]).
+//! on the location (for example the Kiddush Levana times).
 //!
 //! # Submodules
 //!
@@ -33,7 +33,6 @@
 //! - [`types::location`] — [`Location`] validation and timezone requirements
 //! - [`types::error`] — [`ZmanimError`] returned by invalid input or impossible calculations
 //! - [`primitives`] — [`ZmanPrimitive`] building blocks for custom zman definitions
-//! - [`molad`] — molad and Kiddush Levana times via [`molad::MoladCalendar`]
 //!
 //! # Quick start
 //!
@@ -74,10 +73,6 @@ pub mod types {
     pub mod error;
     /// Geographic location with optional timezone.
     pub mod location;
-}
-/// Molad and Kiddush Levana time calculations.
-pub mod molad {
-    pub use crate::calendar::molad::MoladCalendar;
 }
 
 pub mod primitives;

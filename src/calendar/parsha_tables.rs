@@ -6,12 +6,11 @@
 use icu_calendar::types::Weekday;
 use icu_calendar::{Date, cal::Hebrew};
 
-use super::HebrewCalendar;
-use super::get_hebrew_elapsed_days;
 use super::parsha::Parsha;
+use super::year::{HebrewYear, elapsed_days};
 
-pub(super) type ParshaList = [Option<Parsha>; 56];
-pub(super) static PARSHA_LIST_0: ParshaList = [
+pub(crate) type ParshaList = [Option<Parsha>; 56];
+pub(crate) static PARSHA_LIST_0: ParshaList = [
     None,
     Some(Parsha::Vayeilech),
     Some(Parsha::HaAzinu),
@@ -1010,9 +1009,10 @@ pub(crate) fn get_parsha_list(date: &Date<Hebrew>, in_israel: bool) -> Option<Pa
         Weekday::Friday,
     ];
     let rosh_hashana_day_of_week =
-        ROSH_HASHANA_WEEKDAYS[(get_hebrew_elapsed_days(date.year().extended_year())? + 1) as usize % 7];
-    let is_kislev_short = Hebrew::is_kislev_short(date.year().extended_year())?;
-    let is_cheshvan_long = Hebrew::is_cheshvan_long(date.year().extended_year())?;
+        ROSH_HASHANA_WEEKDAYS[(elapsed_days(date.year().extended_year() as i64) + 1) as usize % 7];
+    let year = HebrewYear::new(date.year().extended_year());
+    let is_kislev_short = year.is_kislev_short();
+    let is_cheshvan_long = year.is_cheshvan_long();
 
     if date.is_in_leap_year() {
         match rosh_hashana_day_of_week {
