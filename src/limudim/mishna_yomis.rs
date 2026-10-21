@@ -1,12 +1,13 @@
 use icu_calendar::{Date, cal::Hebrew};
 
 use crate::limudim::{
-    HebrewDateExt, Limud, MISHNA_YOMIS_CYCLE_DAYS,
-    cycle::Cycle,
-    interval::Interval,
-    limud::{CycleFinder, InternalLimud},
+    Limud,
+    engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
     units::{Mishna, TRACTATES, Tractate},
 };
+
+/// Days from the first to the last day of a cycle (4,192 mishnayos at two a day is 2,096 days).
+const MISHNA_YOMIS_CYCLE_DAYS: i32 = 2095;
 
 fn initial_cycle_date() -> Date<Hebrew> {
     #[allow(clippy::expect_used)]
@@ -233,7 +234,7 @@ fn mishnas_for_iteration(iteration: u32) -> Option<Mishnas> {
 #[cfg(test)]
 #[allow(clippy::expect_used)]
 mod tests {
-    use crate::limudim::from_gregorian_date;
+    use crate::limudim::engine::from_gregorian_date;
 
     use super::*;
 

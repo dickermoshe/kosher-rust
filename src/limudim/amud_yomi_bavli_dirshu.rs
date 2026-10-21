@@ -1,12 +1,13 @@
 use icu_calendar::{Date, cal::Hebrew};
 
 use crate::limudim::{
-    BAVLI_TOTAL_AMUDIM, HebrewDateExt, Limud,
-    cycle::Cycle,
-    interval::Interval,
-    limud::{CycleFinder, InternalLimud},
+    Limud,
+    engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
     units::*,
 };
+
+/// Amudim in the Bavli as Dirshu divides it: the length of one cycle in days.
+const BAVLI_TOTAL_AMUDIM: i32 = 5407;
 
 fn initial_cycle_date() -> Date<Hebrew> {
     #[allow(clippy::expect_used)]
@@ -120,7 +121,7 @@ impl Limud<Amud> for AmudYomiBavliDirshu {}
 #[cfg(test)]
 #[allow(clippy::expect_used)]
 mod tests {
-    use crate::limudim::from_gregorian_date;
+    use crate::limudim::engine::from_gregorian_date;
 
     use super::*;
 

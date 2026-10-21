@@ -4,8 +4,7 @@ use crate::{
     calendar::HebrewHolidayCalendar,
     limudim::{
         Limud,
-        interval::Interval,
-        limud::{CycleFinder, InternalLimud},
+        engine::{CycleFinder, InternalLimud, Interval},
     },
 };
 

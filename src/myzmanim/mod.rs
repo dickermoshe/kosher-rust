@@ -52,12 +52,12 @@ use jiff::{SignedDuration, Timestamp, civil::Date};
 #[allow(unused_imports)]
 use core_maths::*;
 
-use crate::zmanim::{
+use crate::{
     astronomy::{
         GEOMETRIC_ZENITH, SolarEvent, adjusted_local_date, apparent_solar_radius, meeus::Meeus,
         rise_set_on_adjusted_date,
     },
-    types::{error::ZmanimError, location::Location},
+    zmanim::types::{error::ZmanimError, location::Location},
 };
 
 /// Common MyZmanim imports: the calendar, its *zmanim*, and the location and error types.

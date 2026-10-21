@@ -61,8 +61,6 @@
 
 use jiff::{Timestamp, civil::Date};
 
-pub(crate) mod astronomy;
-
 pub mod presets;
 /// Core zmanim types: configuration, errors, and location.
 ///
@@ -78,7 +76,9 @@ pub mod types {
     pub mod location;
 }
 /// Molad and Kiddush Levana time calculations.
-pub mod molad;
+pub mod molad {
+    pub use crate::calendar::molad::MoladCalendar;
+}
 
 pub mod primitives;
 
