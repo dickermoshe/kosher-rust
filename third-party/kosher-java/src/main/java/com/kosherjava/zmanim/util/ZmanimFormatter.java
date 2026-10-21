@@ -1,10 +1,9 @@
 /*
  * Zmanim Java API
- * Copyright (C) 2004-2026 Eliyahu Hershfeld
+ * Copyright © 2004-2026 Eliyahu Hershfeld
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
- * Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * Public License as published by the Free Software Foundation; version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
@@ -548,14 +547,6 @@ public class ZmanimFormatter {
 	 * @return if the method should be included in serialization
 	 */
 	private static boolean includeMethod(Method method) {
-		List<String> methodWhiteList = new ArrayList<>();
-		List<String> methodBlackList = new ArrayList<>();
-
-		if (methodWhiteList.contains(method.getName()))
-			return true;
-		if (methodBlackList.contains(method.getName()))
-			return false;
-
 		if (method.getParameterTypes().length > 0)
 			return false; // Skip get methods with parameters since we do not know what value to pass
 		if (!method.getName().startsWith("get"))

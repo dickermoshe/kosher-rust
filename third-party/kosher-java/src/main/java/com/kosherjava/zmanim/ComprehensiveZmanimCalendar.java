@@ -3,8 +3,7 @@
  * Copyright © 2004-2026 Eliyahu Hershfeld
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
- * Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * Public License as published by the Free Software Foundation; version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
@@ -18,6 +17,8 @@ package com.kosherjava.zmanim;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+
 import com.kosherjava.zmanim.util.AstronomicalCalculator;
 import com.kosherjava.zmanim.util.GeoLocation;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -1272,14 +1273,16 @@ public class ComprehensiveZmanimCalendar extends ZmanimCalendar {
 	 * This method returns the latest <em>zman krias shema</em> (time to recite <em>Shema</em> in the morning) based on the opinion
 	 * that the day starts at {@link #getAlos16Point1Degrees() <em>alos</em> 16.1°} and ends at {@link
 	 * #getSeaLevelSunset() sea level sunset}. This is the opinion of the <a href=
-	 * "https://hebrewbooks.org/40357">חידושי וכללות הרז״ה</a> and the <a href="https://hebrewbooks.org/14799">מנורה הטהורה</a> as
-	 * mentioned by Yisrael Vehazmanim <a href="https://hebrewbooks.org/pdfpager.aspx?req=9765&pgnum=81">vol 1, sec. 7, ch. 3 no.
-	 * 16</a>. Three <em>shaos zmaniyos</em> are calculated based on this day and added to {@link #getAlos16Point1Degrees()
-	 * <em>alos</em>} to reach this time. This time is 3 <em>shaos zmaniyos</em> (solar hours) after {@link #getAlos16Point1Degrees()}
-	 * based on the opinion that the day is calculated from a <em>alos</em> 16.1° to {@link #getSeaLevelSunset()}. <b>Note: </b>
-	 * Based on this calculation <em>chatzos</em> will not be at midday and {@link #isUseAstronomicalChatzosForOtherZmanim()} will be
-	 * ignored. Sources for an asymmetrical day-based calculation can be seen in the documentation of
-	 * {@link #getSofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees}.
+	 * "https://hebrewbooks.org/40357">חידושי וכללות הרז״ה</a> in <a href="https://hebrewbooks.org/pdfpager.aspx?req=40357&pgnum=71"
+	 * >סימן ב׳ סע״ג וסע״ד</a> and <a href="https://hebrewbooks.org/pdfpager.aspx?req=40357&pgnum=93">סי׳ ז׳ סע״ב</a> and the <a href=
+	 * "https://hebrewbooks.org/14799">מנורה הטהורה</a> as mentioned by <span>ישראל והזמנים</span> <a href=
+	 * "https://hebrewbooks.org/pdfpager.aspx?req=9765&pgnum=81">ח״א סי׳ ז׳ פ״ג או׳ ט״ז</a>. Also see <a href=
+	 * "https://hebrewbooks.org/pdfpager.aspx?req=67890&pgnum=29">אשר לשלמה, מועד, סי׳ ה׳</a>. Three <em>shaos zmaniyos</em> are calculated
+	 * based on this day and added to {@link #getAlos16Point1Degrees() <em>alos</em>} to reach this time. This time is 3 <em>shaos
+	 * zmaniyos</em> (solar hours) after {@link #getAlos16Point1Degrees()} based on the opinion that the day is calculated from
+	 * <em>alos</em> 16.1° to {@link #getSeaLevelSunset()}. <b>Note: </b> Based on this calculation <em>chatzos</em> will not be at
+	 * midday and {@link #isUseAstronomicalChatzosForOtherZmanim()} will be ignored. Sources for an asymmetrical day-based
+	 * calculation can be seen in the documentation of {@link #getSofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees}.
 	 * 
 	 * @return the {@code Instant} of the latest <em>zman krias shema</em> based on this day. If the calculation can't
 	 *         be computed such as northern and southern locations even south of the Arctic Circle and north of the
@@ -3888,6 +3891,106 @@ public class ComprehensiveZmanimCalendar extends ZmanimCalendar {
 			return getTimeAtAzimuth90Or270(90);
 		}
 		return null;
+	}
+	
+	/**
+	 * A method that returns <em>Plag Hamincha</em> in <a href="https://en.wikipedia.org/wiki/Polar_regions_of_Earth">Polar
+	 * regions</a> on days that there are no {@link #getSunriseBasedOnElevationSetting() sunrise} and {@link
+	 * #getSunsetBasedOnElevationSetting() sunset}, calculated 10.75 <em>shaaos zmaniyos</em> of a day calculated starting at
+	 * {@link #getPolarSunriseBenIshChai()} and ending at {@link #getPolarSunsetBenIshChai()}. This is the opinion of <a href=
+	 * "https://en.wikipedia.org/wiki/Joseph_Schwarz_(geographer)">Rabbi Yehosef Schwarz</a> in his <a href=
+	 * "https://hebrewbooks.org/pdfpager.aspx?req=31703&pgnum=134">דברי יוסף – דרך מבוא השמש</a> and <a href=
+	 * "https://hebrewbooks.org/pdfpager.aspx?req=159&pgnum=83">דברי יוסף – תשובות, שאלה ח׳</a>. This is brought down <em>lehalacha</em>
+	 * by The <a href="https://en.wikipedia.org/wiki/Yosef_Hayyim">Ben Ish Chai</a> in the <a href=
+	 * "https://hebrewbooks.org/pdfpager.aspx?req=1401&pgnum=461">רב פעלים – חלק ב׳, סוד ישרים ס׳ ד׳</a>.
+	 * 
+	 * @return <em>Plag Hamincha</em> according to the Ben Ish Chai in Polar regions on days that there is no sunrise or sunset.
+	 *         If there is sunrise or sunset that day, a {@code null} will be returned.
+	 * @see #getPolarSunriseBenIshChai()
+	 * @see #getPolarSunsetBenIshChai()
+	 * @see #getPlagHamincha(Instant, Instant, boolean)
+	 */
+	public Instant getPolarPlagHaminchaBenIshChai() {
+		return getPlagHamincha(getPolarSunriseBenIshChai(), getPolarSunsetBenIshChai(), true);
+	}
+	
+	/**
+	 * In Polar regions during the period where the sun is above the horizon 24-hours a day, <a href=
+	 * "https://en.wikipedia.org/wiki/Moshe_Sternbuch">Rav Moshe Sternbuch</a> in <a href=
+	 * "https://hebrewbooks.org/pdfpager.aspx?req=19963&st=&pgnum=316">מועדים וזמנים ח״ב ס׳ קנ״ה הע׳ א׳</a> (<span>ח״ד ס׳ ת״א
+	 * הע׳ א׳</span> in the new edition) and in תשובות והנהגות <a href=
+	 * "https://hebrewbooks.org/pdfpager.aspx?req=20025&st=&pgnum=224">ח״א ס׳ שט״ו,</a> and <a href=
+	 * "https://hebrewbooks.org/pdfpager.aspx?req=69067&st=&pgnum=135">ח״ה ס׳ פ״ד</a> ruled that during the Polar summer night-based
+	 * <em>mitzvos</em> are not applicable, and during the Polar winter, day-based mitzvos are not applicable. Despite this, the day
+	 * of the calendar week changes when the sun is at its lowest position (an instantaneous set and rise) at {@link
+	 * #getChatzosHalayla()} in the Polar summer and when it is at its highest position in the Polar winter that occurs at {@link
+	 * #getChatzosHayom()}. Rabbi Dovid Heber the author of the <a href="https://hebrewbooks.org/53000">שערי זמנים</a> who <a href=
+	 * "https://hebrewbooks.org/pdfpager.aspx?req=53000&st=&pgnum=111">discusses the Moadim Uzmanim's opinion</a> clarified to me
+	 * that in the Polar winter this really only applies when there is no <em>alos hashachar</em>. The lack of <em>alos
+	 * hashachar</em> only occurs in Antarctica and in uninhabited extreme northern regions. This means almost every northern
+	 * inhabited location has an <em>alos hashachar</em> and "day" even on December 21st. This method considers <em>alos</em> to be
+	 * {@link #getAlos16Point1Degrees()}.
+	 * <p> It should be noted that in the <span>מועדים וזמנים</span> linked above that was published in 1961, Rav Moshe
+	 * Sternbuch mentions that [<span>ולתפלה, היום מתהלק, עד י״ב שעות שחרית,  ומאז מנחה, ומעריב מתפלל סמוך ללילה כרבי יהודה כנל״ד ...</span>].
+	 * This comment (in () in the original, and [] in the new edition published in 2023) was not brought down in the
+	 * <span>תשובות והנהגות</span> vol. 1 that was published in 1977 nor in vol. 5. published in 2009. Since it is not clear to me if this
+	 * constitutes a retraction, the calculations for the start of <em>mincha</em> mentioned in the Moadim Uzmanim was omitted. This
+	 * is 12 hours after the start of the day (either {@link #getChatzosHalayla()}  in the Polar summer, or {@link #getChatzosHayom()}
+	 * in the Polar winter. {@link #getPolarPlagHaminchaTeshuvosVehanhagos()} was included and is the start of the time that
+	 * <em>maariv</em> can be recited (until the end of the Polar day).
+	 * was omitted.
+	 * 
+	 *  <em>plag hamincha</em>
+	 * were not implemented. For those* who want the zmanim, the end of <em>Shacharis</em> is essentially 12 hours after the start of the day (either {@link
+	 * #getChatzosHalayla()}  in the Polar summer, or {@link #getChatzosHayom()} in the Polar winter, while mincha will start at that
+	 * point and can in daven mincha until night (or plag).
+	 * <p>FIXME:
+	 * <ul>
+	 *   <li>Attempt to clarify the discrepancy.</li>
+	 *   <li>Research if an earlier alos such as 18° should be used</li>
+	 *   <li>Consider logic for day with EITHER an <em>alos</em> or a sunset</li>
+	 * </ul>
+	 * @return the time of the Jewish calendar transition to the next day in Polar regions according to Rav Moshe Sternbuch.
+	 * @see #getPolarPlagHaminchaTeshuvosVehanhagos()
+	 */
+	public Instant getPolarStartOfDayTeshuvosVehanhagos() {
+		if(getSunriseBasedOnElevationSetting() == null && getSunsetBasedOnElevationSetting() == null) {
+			Instant chatzosHayom = getChatzosHayom();
+			Instant chatzosHalayla = getChatzosHalayla();
+			double chatzosHayomSolarElevation = getAstronomicalCalculator().getSolarElevation(chatzosHayom, getGeoLocation());
+			double chatzosHalaylaSolarElevation = getAstronomicalCalculator().getSolarElevation(chatzosHalayla, getGeoLocation());
+			double sunriseElevation = getAstronomicalCalculator().getSolarRadius() + getAstronomicalCalculator().getRefraction();
+			if(chatzosHayomSolarElevation < (0 - sunriseElevation) && chatzosHalaylaSolarElevation < (0 - sunriseElevation) && // and the sun is always below the horizon
+					getAlos16Point1Degrees() == null && getSunriseBasedOnElevationSetting() == null) { // Polar winter in either hemisphere no alos 16.1 or sunrise
+				return chatzosHayom; // the "sunrise" as the closest to the horizon
+			} else if(chatzosHayomSolarElevation > (0 - sunriseElevation) && chatzosHalaylaSolarElevation > (0 - sunriseElevation)) { // Polar summer when both are above the horizon
+				return chatzosHalayla;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * In Polar regions during the period where the sun is above the horizon 24-hours a day, <a href=
+	 * "https://en.wikipedia.org/wiki/Moshe_Sternbuch">Rav Moshe Sternbuch</a> in <a href=
+	 * "https://hebrewbooks.org/pdfpager.aspx?req=19963&st=&pgnum=316">מועדים וזמנים ח״ב ס׳ קנ״ה הע׳ א׳</a> (<span>ח״ד ס׳ ת״א
+	 * הע׳ א׳</span> in the new edition) mentions the concept of zmanim based on his {@link #getPolarStartOfDayTeshuvosVehanhagos()}.
+	 * This calculates {@link #getPlagHamincha(Instant, Instant, boolean)} as 10.75 <em>sha'os zmaniyos</em> starting 24 hours prior
+	 * to the current start/end of the current day. This will be very close to 2.5 clock hours before the start/end of the day.
+	 * @return <em>plag hamincha</em> as 2.5 hours prior to the start of the next day.
+	 * 
+	 * @see #getPolarStartOfDayTeshuvosVehanhagos() for more details on this opinion.
+	 * @see #getPlagHamincha(Instant, Instant, boolean)
+	 */
+	public Instant getPolarPlagHaminchaTeshuvosVehanhagos() {
+		Instant polarStartOfDay = getPolarStartOfDayTeshuvosVehanhagos();
+		if(polarStartOfDay == null) {
+			return null;
+		} else {
+			Instant yesterday = polarStartOfDay.minus(1, ChronoUnit.DAYS);
+			return getPlagHamincha(yesterday, polarStartOfDay, true);
+		}
+		
 	}
 	
 	/**

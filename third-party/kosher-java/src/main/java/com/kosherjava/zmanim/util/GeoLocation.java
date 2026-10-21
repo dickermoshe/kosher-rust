@@ -3,8 +3,7 @@
  * Copyright © 2004-2026 Eliyahu Hershfeld
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
- * Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * Public License as published by the Free Software Foundation; version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
@@ -101,8 +100,11 @@ public class GeoLocation implements Cloneable {
 	}
 
 	/**
-	 * Method to set the elevation in Meters <b>above</b> sea level.
-	 * 
+	 * Method to set the elevation in Meters <b>above</b> sea level. Locations with an elevation below sea level should use a sea level 
+	 * value, since the delay in sunrise and sunset is due to obstructions (natural in this case) on the horizon that should be discounted.
+	 * Natural obstructions such as the walls of the Grand Canyon that block visibility to the sun to a person at the bottom of the canyon
+	 * (that is actually above sea level) for 3 to 4 hours after sunrise would not mean that <em>halachic</em> sunrise would be 3 hours after
+	 * sea level sunrise and sunset 3 hours before sea level sunset at that location.
 	 * @param elevation The elevation to set in Meters. An IllegalArgumentException will be thrown if the value is a negative,
 	 *         {@link java.lang.Double#isNaN(double)}  or {@link java.lang.Double#isInfinite(double)}.
 	 */
