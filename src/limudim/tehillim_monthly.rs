@@ -1,11 +1,8 @@
 use icu_calendar::{Date, cal::Hebrew};
 
-use crate::{
-    calendar::HebrewHolidayCalendar,
-    limudim::{
-        Limud,
-        engine::{CycleFinder, InternalLimud, Interval},
-    },
+use crate::limudim::{
+    Limud,
+    engine::{CycleFinder, InternalLimud, Interval},
 };
 
 /// Cumulative ending psalm for each day of the month (0-indexed by day-1)
@@ -37,7 +34,7 @@ pub struct TehillimMonthly;
 /// Find the 1st of the current Hebrew month and the last day of the month
 fn find_monthly_cycle(date: Date<Hebrew>) -> Option<(Date<Hebrew>, Date<Hebrew>)> {
     let year = date.year().extended_year();
-    let month = date.input_month();
+    let month = date.month().to_input();
 
     // Start of cycle: 1st of current month
     let start = Date::try_new_hebrew_v2(year, month, 1).ok()?;

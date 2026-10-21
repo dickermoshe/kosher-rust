@@ -3,7 +3,7 @@
 //! This module maps a Hebrew calendar date to the learning unit assigned by a
 //! particular program: Daf Yomi, Mishna Yomis, Pirkei Avos, monthly Tehillim,
 //! and others. Each schedule is a zero-sized calculator type implementing
-//! [`Limud`]; call [`LimudCalendar::limud`] on any [`HebrewCalendarDate`] to
+//! [`Limud`]; call [`LimudCalendar::limud`] on any date that converts to a [`HebrewDate`] to
 //! look up that day's assignment.
 //!
 //! # Schedules
@@ -62,10 +62,10 @@ pub trait LimudCalendar {
 }
 impl<T> LimudCalendar for T
 where
-    T: HebrewCalendarDate,
+    T: Clone + Into<HebrewDate>,
 {
     fn limud<U>(&self, limud: impl Limud<U>) -> Option<U> {
-        limud.limud(self.hebrew_date())
+        limud.limud(self.clone().into().icu())
     }
 }
 pub use amud_yomi_bavli_dirshu::AmudYomiBavliDirshu;
@@ -84,7 +84,7 @@ pub use units::{Amud, Daf, Mishna, Side, Tractate};
 #[allow(private_bounds)]
 pub trait Limud<T>: engine::InternalLimud<T> {}
 
-use crate::calendar::HebrewCalendarDate;
+use crate::calendar::HebrewDate;
 
 /// Common limudim imports.
 ///

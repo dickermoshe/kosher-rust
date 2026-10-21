@@ -7,9 +7,9 @@
 
 use std::time::{Duration, Instant};
 
-use icu_calendar::{Date, cal::Hebrew};
+use icu_calendar::Date;
 use jiff::{civil::Date as CivilDate, tz::TimeZone};
-use kosher_rust::calendar::{HebrewCalendar, HebrewCalendarDate, HebrewHolidayCalendar, month::*};
+use kosher_rust::calendar::{HebrewDate, HebrewMonth, HebrewYear, Region};
 use kosher_rust::limudim::prelude::*;
 use kosher_rust::zmanim::prelude::presets::*;
 use kosher_rust::zmanim::prelude::*;
@@ -37,14 +37,14 @@ fn assert_max_duration(name: &str, mut operation: impl FnMut()) {
     );
 }
 
-fn sample_hebrew_dates() -> [Date<Hebrew>; 6] {
+fn sample_hebrew_dates() -> [HebrewDate; 6] {
     [
-        Date::try_new_hebrew_v2(5784, TISHREI, 1).expect("valid date"),
-        Date::try_new_hebrew_v2(5784, NISAN, 15).expect("valid date"),
-        Date::try_new_hebrew_v2(5784, KISLEV, 25).expect("valid date"),
-        Date::try_new_hebrew_v2(5784, ADAR, 14).expect("valid date"),
-        Date::try_new_hebrew_v2(5784, AV, 9).expect("valid date"),
-        Date::try_new_hebrew_v2(5784, ADARI, 10).expect("valid date"),
+        HebrewDate::new(5784, HebrewMonth::Tishrei, 1).expect("valid date"),
+        HebrewDate::new(5784, HebrewMonth::Nisan, 15).expect("valid date"),
+        HebrewDate::new(5784, HebrewMonth::Kislev, 25).expect("valid date"),
+        HebrewDate::new(5784, HebrewMonth::Adar, 14).expect("valid date"),
+        HebrewDate::new(5784, HebrewMonth::Av, 9).expect("valid date"),
+        HebrewDate::new(5784, HebrewMonth::AdarI, 10).expect("valid date"),
     ]
 }
 
@@ -65,7 +65,7 @@ mod calendar {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("hebrew_date conversion [{index}]"), move || {
-                let _ = date.hebrew_date();
+                let _ = HebrewDate::from(date);
             });
         }
     }
@@ -76,7 +76,7 @@ mod calendar {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("holidays [{index}]"), move || {
-                let _ = date.holidays(false, true).count();
+                let _ = date.holidays(Region::Diaspora).count();
             });
         }
     }
@@ -87,7 +87,7 @@ mod calendar {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("is_assur_bemelacha [{index}]"), move || {
-                let _ = date.is_assur_bemelacha(false);
+                let _ = date.is_assur_bemelacha(Region::Diaspora);
             });
         }
     }
@@ -98,7 +98,7 @@ mod calendar {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("has_candle_lighting [{index}]"), move || {
-                let _ = date.has_candle_lighting(false);
+                let _ = date.has_candle_lighting(Region::Diaspora);
             });
         }
     }
@@ -120,7 +120,7 @@ mod calendar {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("todays_parsha [{index}]"), move || {
-                let _ = date.todays_parsha(false);
+                let _ = date.parsha(Region::Diaspora);
             });
         }
     }
@@ -131,7 +131,7 @@ mod calendar {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("special_parsha [{index}]"), move || {
-                let _ = date.special_parsha(false);
+                let _ = date.special_parsha(Region::Diaspora);
             });
         }
     }
@@ -142,7 +142,7 @@ mod calendar {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("upcoming_parsha [{index}]"), move || {
-                let _ = date.upcoming_parsha(false);
+                let _ = date.next_parsha(Region::Diaspora);
             });
         }
     }
@@ -150,16 +150,16 @@ mod calendar {
     #[test]
     fn year_and_month_queries() {
         assert_max_duration("days_in_hebrew_year", || {
-            let _ = Hebrew::days_in_hebrew_year(5784);
+            let _ = HebrewYear::new(5784).days();
         });
         assert_max_duration("days_in_hebrew_month", || {
-            let _ = Hebrew::days_in_hebrew_month(5784, NISAN);
+            let _ = HebrewYear::new(5784).days_in(HebrewMonth::Nisan);
         });
         assert_max_duration("is_hebrew_leap_year", || {
-            let _ = Hebrew::is_hebrew_leap_year(5784);
+            let _ = HebrewYear::new(5784).is_leap();
         });
         assert_max_duration("cheshvan_kislev_kviah", || {
-            let _ = Hebrew::cheshvan_kislev_kviah(5784);
+            let _ = HebrewYear::new(5784).length();
         });
     }
 }
@@ -167,12 +167,12 @@ mod calendar {
 mod limudim {
     use super::*;
 
-    fn limud_dates() -> [Date<Hebrew>; 4] {
+    fn limud_dates() -> [HebrewDate; 4] {
         [
-            Date::try_new_hebrew_v2(5784, TISHREI, 10).expect("valid date"),
-            Date::try_new_hebrew_v2(5784, NISAN, 15).expect("valid date"),
-            Date::try_new_hebrew_v2(5784, AV, 9).expect("valid date"),
-            Date::try_new_hebrew_v2(5785, IYYAR, 18).expect("valid date"),
+            HebrewDate::new(5784, HebrewMonth::Tishrei, 10).expect("valid date"),
+            HebrewDate::new(5784, HebrewMonth::Nisan, 15).expect("valid date"),
+            HebrewDate::new(5784, HebrewMonth::Av, 9).expect("valid date"),
+            HebrewDate::new(5785, HebrewMonth::Iyar, 18).expect("valid date"),
         ]
     }
 

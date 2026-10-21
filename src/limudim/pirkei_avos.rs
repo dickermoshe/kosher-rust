@@ -5,10 +5,7 @@ use icu_calendar::{
 };
 
 use crate::{
-    calendar::{
-        HebrewHolidayCalendar,
-        month::{AV, NISAN, SIVAN, TISHREI},
-    },
+    calendar::month::{AV, NISAN, SIVAN, TISHREI},
     limudim::{
         Limud,
         engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
@@ -98,7 +95,7 @@ impl InternalLimud<PirkeiAvosUnit> for PirkeiAvos {
     }
 
     fn is_skip_interval(&self, interval: &Interval) -> bool {
-        let end_month = interval.end_date.input_month();
+        let end_month = interval.end_date.month().to_input();
         let end_day = interval.end_date.day_of_month().0;
 
         // Skip erev Tisha B'Av (8th of Av) - applies to both Israel and diaspora

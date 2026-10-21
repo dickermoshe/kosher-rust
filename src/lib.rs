@@ -7,14 +7,13 @@
 //!
 //! | Module | Purpose |
 //! |--------|---------|
-//! | [`calendar`] | Hebrew dates, holidays, *parshiyot*, month constants, and calendar traits |
+//! | [`calendar`] | Hebrew dates, holidays, the weekly *parsha*, and the molad |
 //! | [`zmanim`] | Sunrise, candle lighting, *alos*, *tzeis*, and other halachic times |
 //! | [`limudim`] | Daf Yomi, Mishna Yomis, Tehillim, Pirkei Avos, and related daily units |
 //! | [`myzmanim`] | The *zmanim* of MyZmanim's website, reproduced to the second, as a self-contained calendar |
 //!
-//! Each module has its own [`calendar::prelude`], [`zmanim::prelude`],
-//! [`limudim::prelude`] or [`myzmanim::prelude`]. Use [`prelude`] at the crate root when an application
-//! needs more than one area.
+//! [`zmanim`], [`limudim`] and [`myzmanim`] each have a prelude. Use [`prelude`] at the crate
+//! root when an application needs more than one area.
 //!
 //!
 //! See each module's documentation for focused examples: [`calendar`] for holidays
@@ -38,7 +37,9 @@ pub mod limudim;
 pub mod myzmanim;
 pub mod zmanim;
 
-/// Common imports across [`calendar`], [`zmanim`], and [`limudim`].
+pub use calendar::{HebrewDate, Region};
+
+/// Common imports across [`zmanim`] and [`limudim`].
 ///
 /// Re-exports each submodule's prelude. Prefer a submodule prelude when you only
 /// need one area — for example [`zmanim::prelude`] alone avoids pulling limudim
@@ -48,7 +49,6 @@ pub mod zmanim;
 /// use kosher_rust::prelude::*;
 /// ```
 pub mod prelude {
-    pub use crate::calendar::prelude::*;
     pub use crate::limudim::prelude::*;
     pub use crate::zmanim::prelude::*;
 }

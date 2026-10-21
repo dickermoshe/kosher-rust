@@ -1,7 +1,7 @@
 use icu_calendar::{Date, cal::Hebrew, types::Weekday};
 
 use crate::{
-    calendar::prelude::*,
+    calendar::{HebrewDate, Holiday, Region, month},
     limudim::{
         Limud,
         engine::{CycleFinder, HebrewDateExt, InternalLimud, Interval},
@@ -134,7 +134,8 @@ fn count_special_days(start: Date<Hebrew>, end: Date<Hebrew>) -> Option<u32> {
 }
 
 fn is_skip_day(date: &Date<Hebrew>) -> bool {
-    date.holidays(false, false)
+    HebrewDate::from_icu(*date)
+        .holidays(Region::Diaspora)
         .any(|h| h == Holiday::TishahBav || h == Holiday::YomKippur)
 }
 

@@ -1,119 +1,159 @@
-use icu_calendar::{cal::Hebrew, types::Month};
-use num_enum::{IntoPrimitive, TryFromPrimitive};
+use core::fmt;
 
-use super::molad::{CHALAKIM_PER_DAY, chalakim_since_molad_tohu};
-use super::month::*;
+use icu_calendar::Date;
 
-/// Represents the length type of a Hebrew year based on Cheshvan and Kislev.
+use super::date::HebrewDate;
+use super::molad::{CHALAKIM_PER_DAY, chalakim_at_month_index};
+use super::month::HebrewMonth;
+
+/// A year of the Hebrew calendar, counted from creation (5784 began in September 2023).
 ///
-/// - `Chaserim`: Both months are short (Cheshvan 29 days, Kislev 29 days)
-/// - `Kesidran`: Normal length (Cheshvan 29 days, Kislev 30 days)
-/// - `Shelaimim`: Both months are long (Cheshvan 30 days, Kislev 30 days)
-#[derive(Debug, PartialEq, Eq, Clone, Copy, IntoPrimitive, TryFromPrimitive)]
-#[repr(u8)]
-pub enum YearLengthType {
-    /// Cheshvan and Kislev are both short (29 days).
-    Chaserim = 0,
-    /// Cheshvan is short and Kislev is long (typical year).
-    Kesidran = 1,
-    /// Cheshvan and Kislev are both long (30 days).
-    Shelaimim = 2,
+/// Get one from [`HebrewDate::year`] or [`HebrewYear::new`]. Results are meaningful for years 1
+/// and later.
+///
+/// ```
+/// use kosher_rust::calendar::{HebrewYear, YearLength};
+///
+/// let year = HebrewYear::new(5784);
+/// assert!(year.is_leap());
+/// assert_eq!(year.days(), 383);
+/// assert_eq!(year.length(), YearLength::Chaserim);
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub struct HebrewYear(i32);
+
+/// Whether Cheshvan and Kislev are long or short in a year, which sets its length.
+///
+/// Called the year's *kviah* along with the weekday of Rosh Hashana.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum YearLength {
+    /// Deficient: Cheshvan and Kislev both have 29 days (353 or 383 days in the year).
+    Chaserim,
+    /// Regular: Cheshvan has 29 days and Kislev 30 (354 or 384 days).
+    Kesidran,
+    /// Complete: Cheshvan and Kislev both have 30 days (355 or 385 days).
+    Shelaimim,
 }
 
-/// Returns elapsed days through Rosh Hashana of `year`, including the standard
-/// molad postponement rules.
-pub(crate) fn get_hebrew_elapsed_days(year: i32) -> Option<i32> {
-    let chalakim_since = chalakim_since_molad_tohu(year, TISHREI)?;
+impl HebrewYear {
+    /// The Hebrew year `year`, for example `HebrewYear::new(5785)`.
+    pub const fn new(year: i32) -> Self {
+        Self(year)
+    }
+
+    /// The year as a number.
+    pub const fn get(self) -> i32 {
+        self.0
+    }
+
+    /// Whether this year has thirteen months (years 3, 6, 8, 11, 14, 17 and 19 of the 19-year cycle).
+    pub const fn is_leap(self) -> bool {
+        let year_in_cycle = ((self.0 as i64 - 1) % 19) + 1;
+        matches!(year_in_cycle, 3 | 6 | 8 | 11 | 14 | 17 | 19)
+    }
+
+    /// The number of days in the year: 353, 354 or 355, or 383, 384 or 385 in a leap year.
+    pub fn days(self) -> u16 {
+        (elapsed_days(self.0 as i64 + 1) - elapsed_days(self.0 as i64)) as u16
+    }
+
+    /// Whether Cheshvan and Kislev are long or short this year.
+    pub fn length(self) -> YearLength {
+        match (self.is_cheshvan_long(), self.is_kislev_short()) {
+            (true, false) => YearLength::Shelaimim,
+            (false, true) => YearLength::Chaserim,
+            _ => YearLength::Kesidran,
+        }
+    }
+
+    /// Whether Cheshvan has 30 days this year.
+    pub fn is_cheshvan_long(self) -> bool {
+        self.days() % 10 == 5
+    }
+
+    /// Whether Kislev has 29 days this year.
+    pub fn is_kislev_short(self) -> bool {
+        self.days() % 10 == 3
+    }
+
+    /// The months of this year in order from Tishrei: 12, or 13 in a leap year.
+    pub const fn months(self) -> &'static [HebrewMonth] {
+        if self.is_leap() {
+            &HebrewMonth::LEAP_YEAR
+        } else {
+            &HebrewMonth::COMMON_YEAR
+        }
+    }
+
+    /// The number of days in `month` this year.
+    ///
+    /// Returns `None` for [`HebrewMonth::AdarI`] in a common year.
+    pub fn days_in(self, month: HebrewMonth) -> Option<u8> {
+        Some(match month {
+            HebrewMonth::AdarI if !self.is_leap() => return None,
+            HebrewMonth::Cheshvan if self.is_cheshvan_long() => 30,
+            HebrewMonth::Kislev if self.is_kislev_short() => 29,
+            HebrewMonth::Iyar
+            | HebrewMonth::Tammuz
+            | HebrewMonth::Elul
+            | HebrewMonth::Teves
+            | HebrewMonth::Adar
+            | HebrewMonth::Cheshvan => 29,
+            HebrewMonth::Tishrei
+            | HebrewMonth::Kislev
+            | HebrewMonth::Shevat
+            | HebrewMonth::AdarI
+            | HebrewMonth::Nisan
+            | HebrewMonth::Sivan
+            | HebrewMonth::Av => 30,
+        })
+    }
+
+    /// The first day of the year, 1 Tishrei.
+    ///
+    /// Returns `None` for years outside the range the underlying calendar supports.
+    pub fn rosh_hashana(self) -> Option<HebrewDate> {
+        Date::try_new_hebrew_v2(self.0, super::month::TISHREI, 1)
+            .ok()
+            .map(HebrewDate::from_icu)
+    }
+}
+
+impl From<HebrewYear> for i32 {
+    fn from(year: HebrewYear) -> Self {
+        year.0
+    }
+}
+
+impl fmt::Display for HebrewYear {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Display::fmt(&self.0, f)
+    }
+}
+
+/// Days from the epoch to Rosh Hashana of `year`: the day of the molad of Tishrei, postponed by
+/// the four *dechiyos*.
+pub(crate) fn elapsed_days(year: i64) -> i64 {
+    let chalakim_since = chalakim_at_month_index(year, 1);
     let molad_day = chalakim_since / CHALAKIM_PER_DAY;
     let molad_parts = chalakim_since - molad_day * CHALAKIM_PER_DAY;
     let mut rosh_hashana_day = molad_day;
 
+    let is_leap = |year: i64| HebrewYear::new(year as i32).is_leap();
+    // Molad zaken, and GaTaRaD / BeTUTaKPaT.
     if (molad_parts >= 19440)
-        || (((molad_day % 7) == 2) && (molad_parts >= 9924) && !Hebrew::is_hebrew_leap_year(year))
-        || (((molad_day % 7) == 1) && (molad_parts >= 16789) && (Hebrew::is_hebrew_leap_year(year - 1)))
+        || (((molad_day % 7) == 2) && (molad_parts >= 9924) && !is_leap(year))
+        || (((molad_day % 7) == 1) && (molad_parts >= 16789) && is_leap(year - 1))
     {
         rosh_hashana_day += 1;
     }
 
+    // Lo ADU Rosh: never on Sunday, Wednesday or Friday.
     if ((rosh_hashana_day % 7) == 0) || ((rosh_hashana_day % 7) == 3) || ((rosh_hashana_day % 7) == 5) {
         rosh_hashana_day += 1;
     }
 
-    Some(rosh_hashana_day as i32)
-}
-
-/// Year-level Hebrew calendar calculations for ICU [`Hebrew`].
-///
-/// Import this trait to call `Hebrew::days_in_hebrew_year(...)` and related helpers.
-pub trait HebrewCalendar {
-    /// Returns the number of days in the given Hebrew year.
-    fn days_in_hebrew_year(year: i32) -> Option<i32>;
-
-    /// Returns the number of days in the given Hebrew month for a specific year.
-    ///
-    /// Returns `None` if `month` is not valid for `year`.
-    fn days_in_hebrew_month(year: i32, month: Month) -> Option<u8>;
-
-    /// Returns whether Cheshvan has 30 days (long) in the given year.
-    fn is_cheshvan_long(year: i32) -> Option<bool>;
-
-    /// Returns whether Kislev has 29 days (short) in the given year.
-    fn is_kislev_short(year: i32) -> Option<bool>;
-
-    /// Returns whether the given year is a Hebrew leap year.
-    fn is_hebrew_leap_year(year: i32) -> bool;
-
-    /// Returns the year type based on the lengths of Cheshvan and Kislev.
-    fn cheshvan_kislev_kviah(year: i32) -> Option<YearLengthType>;
-}
-
-impl HebrewCalendar for Hebrew {
-    #[inline]
-    fn days_in_hebrew_year(year: i32) -> Option<i32> {
-        Some(get_hebrew_elapsed_days(year + 1)? - get_hebrew_elapsed_days(year)?)
-    }
-
-    #[inline]
-    fn days_in_hebrew_month(year: i32, month: Month) -> Option<u8> {
-        month.hebrew_month_of_year(year)?;
-
-        Some(match month {
-            IYYAR | TAMMUZ | ELUL | TEVET => 29,
-            ḤESHVAN if Self::is_cheshvan_long(year)? => 30,
-            ḤESHVAN => 29,
-            KISLEV if Self::is_kislev_short(year)? => 29,
-            KISLEV => 30,
-            ADARI => 30,
-            ADAR => 29,
-            TISHREI | SHEVAT | NISAN | SIVAN | AV => 30,
-            _ => return None,
-        })
-    }
-
-    #[inline]
-    fn is_cheshvan_long(year: i32) -> Option<bool> {
-        Some(Self::days_in_hebrew_year(year)? % 10 == 5)
-    }
-
-    #[inline]
-    fn is_kislev_short(year: i32) -> Option<bool> {
-        Some(Self::days_in_hebrew_year(year)? % 10 == 3)
-    }
-
-    #[inline]
-    fn is_hebrew_leap_year(year: i32) -> bool {
-        let year_in_cycle = ((year - 1) % 19) + 1;
-        matches!(year_in_cycle, 3 | 6 | 8 | 11 | 14 | 17 | 19)
-    }
-
-    #[inline]
-    fn cheshvan_kislev_kviah(year: i32) -> Option<YearLengthType> {
-        Some(if Self::is_cheshvan_long(year)? && !Self::is_kislev_short(year)? {
-            YearLengthType::Shelaimim
-        } else if !Self::is_cheshvan_long(year)? && Self::is_kislev_short(year)? {
-            YearLengthType::Chaserim
-        } else {
-            YearLengthType::Kesidran
-        })
-    }
+    rosh_hashana_day
 }

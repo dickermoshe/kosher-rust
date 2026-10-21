@@ -19,8 +19,7 @@ use jiff::{SignedDuration as Duration, Timestamp, ToSpan, tz::TimeZone};
 
 use crate::{
     calendar::{
-        HebrewCalendarDate, HebrewHolidayCalendar,
-        holiday::Holiday,
+        HebrewDate, Holiday, Region,
         molad::{is_same_gregorian_day, months_molad},
     },
     zmanim::{ZmanLike, ZmanimCalculator, types::error::ZmanimError},
@@ -430,7 +429,10 @@ impl ZmanLike for ZmanPrimitive {
                 }
             }
             ZmanPrimitive::SofZmanBiurChametz(event1, event2, synchronous) => {
-                if !calculator.date.holidays(false, false).any(|h| h == Holiday::ErevPesach) {
+                if !HebrewDate::from(calculator.date)
+                    .holidays(Region::Diaspora)
+                    .any(|h| h == Holiday::ErevPesach)
+                {
                     return Err(ZmanimError::InvalidForDate);
                 }
                 let primitive = if calculator.config.use_astronomical_chatzos_for_other_zmanim && synchronous {
@@ -445,7 +447,10 @@ impl ZmanLike for ZmanPrimitive {
                 primitive.calculate(calculator)
             }
             ZmanPrimitive::SofZmanAchilasChametz(event1, event2, synchronous) => {
-                if !calculator.date.holidays(false, false).any(|h| h == Holiday::ErevPesach) {
+                if !HebrewDate::from(calculator.date)
+                    .holidays(Region::Diaspora)
+                    .any(|h| h == Holiday::ErevPesach)
+                {
                     return Err(ZmanimError::InvalidForDate);
                 }
                 let event1_time = event1.calculate(calculator)?;
@@ -472,12 +477,13 @@ impl ZmanLike for ZmanPrimitive {
                     .timezone
                     .as_ref()
                     .ok_or(ZmanimError::TimeZoneRequired)?;
-                let hebrew = calculator.date.hebrew_date();
+                let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 17 {
                     return Err(ZmanimError::InvalidForDate);
                 }
-                let molad = months_molad(&hebrew)? + Duration::from_hours(24 * 15);
+                let molad =
+                    months_molad(&hebrew).ok_or(ZmanimError::TimeConversionError)? + Duration::from_hours(24 * 15);
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
                     return Ok(molad);
                 }
@@ -489,12 +495,12 @@ impl ZmanLike for ZmanPrimitive {
                     .timezone
                     .as_ref()
                     .ok_or(ZmanimError::TimeZoneRequired)?;
-                let hebrew = calculator.date.hebrew_date();
+                let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 16 {
                     return Err(ZmanimError::InvalidForDate);
                 }
-                let molad = months_molad(&hebrew)?
+                let molad = months_molad(&hebrew).ok_or(ZmanimError::TimeConversionError)?
                     + Duration::from_hours(24 * 14 + 18)
                     + Duration::from_mins(22)
                     + Duration::from_secs(1)
@@ -510,12 +516,12 @@ impl ZmanLike for ZmanPrimitive {
                     .timezone
                     .as_ref()
                     .ok_or(ZmanimError::TimeZoneRequired)?;
-                let hebrew = calculator.date.hebrew_date();
+                let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 > 5 && hebrew.day_of_month().0 < 30 {
                     return Err(ZmanimError::InvalidForDate);
                 }
-                let molad = months_molad(&hebrew)? + Duration::from_hours(72);
+                let molad = months_molad(&hebrew).ok_or(ZmanimError::TimeConversionError)? + Duration::from_hours(72);
 
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
                     return Ok(molad);
@@ -528,7 +534,7 @@ impl ZmanLike for ZmanPrimitive {
                     let new = hebrew
                         .try_added_with_options(DateDuration::for_months(1), add_option)
                         .map_err(|_| ZmanimError::TimeConversionError)?;
-                    let molad = months_molad(&new)? + Duration::from_hours(72);
+                    let molad = months_molad(&new).ok_or(ZmanimError::TimeConversionError)? + Duration::from_hours(72);
                     if is_same_gregorian_day(&hebrew, &molad, tz) {
                         return Ok(molad);
                     }
@@ -541,12 +547,12 @@ impl ZmanLike for ZmanPrimitive {
                     .timezone
                     .as_ref()
                     .ok_or(ZmanimError::TimeZoneRequired)?;
-                let hebrew = calculator.date.hebrew_date();
+                let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 4 || hebrew.day_of_month().0 > 9 {
                     return Err(ZmanimError::InvalidForDate);
                 }
-                let molad = months_molad(&hebrew)? + Duration::from_hours(168);
+                let molad = months_molad(&hebrew).ok_or(ZmanimError::TimeConversionError)? + Duration::from_hours(168);
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
                     return Ok(molad);
                 }
