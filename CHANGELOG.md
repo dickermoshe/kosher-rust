@@ -83,3 +83,15 @@ warning where you name them.
 `Daf`, `Amud`, `Mishna`, `MishnaPair`, `TehillimUnit`, `PirkeiAvosUnit` and `Tractate` implement
 `Display` ("Bava Metzia 55", "Nazir 5:5-6", "Tehillim 119:1-96"); `Tractate::hebrew()` gives the
 Hebrew name.
+
+#### MyZmanim
+
+| 0.2 | 0.3 |
+|---|---|
+| `use kosher_rust::myzmanim::prelude::*` | `use kosher_rust::myzmanim::{MyZman, MyZmanim}` |
+| `MyZmanimCalendar::new(location, date)` | `MyZmanim::new(location, date)` |
+| `.with_candle_lighting_minutes(m)` | `.candle_lighting(m)` |
+| `calendar.calculate(MyZman::X)`, `MyZman::X.calculate(&calendar)` | `times.get(MyZman::X)` |
+| `set_date`, `set_candle_lighting_minutes` | build a new `MyZmanim` |
+
+`MyZman` implements `Display` with the site's label.

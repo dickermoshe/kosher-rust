@@ -1,7 +1,7 @@
 //! Checks [`kosher_rust::myzmanim`] against MyZmanim's website.
 //!
 //! `tests/fixtures/myzmanim-site.bin` holds the whole data set gathered for the KosherJava
-//! `MyZmanimCalendar`: 284 places over a year, every row of the site's "All zmanim" table with
+//! `MyZmanim`: 284 places over a year, every row of the site's "All zmanim" table with
 //! the observer and horizon heights the site used that day and each place's coordinates,
 //! standard UTC offset and candle-lighting minutes. It is the site's three CSV files
 //! (`places.csv`, `heights.csv`, `days.csv`) as a [`SiteData`] value, postcard-encoded and
@@ -32,7 +32,8 @@ use jiff::{
     civil::{Date, DateTime},
     tz::{Offset, TimeZone},
 };
-use kosher_rust::myzmanim::prelude::*;
+use kosher_rust::Location;
+use kosher_rust::myzmanim::{MyZman, MyZmanim};
 use serde::{Deserialize, Serialize};
 
 const FIXTURE: &[u8] = include_bytes!("fixtures/myzmanim-site.bin");
@@ -367,12 +368,11 @@ fn site_diffs() -> (Vec<Diff>, Vec<String>) {
             .and_then(|l| l.with_elevation(day.heights[0]))
             .and_then(|l| l.with_horizons(day.heights[1], day.heights[2]))
             .unwrap();
-        let calendar = MyZmanimCalendar::new(location, day.date)
-            .with_candle_lighting_minutes(f64::from(day.place.candle_tenths) / 10.0);
+        let calendar = MyZmanim::new(location, day.date).candle_lighting(f64::from(day.place.candle_tenths) / 10.0);
 
         for (column, theirs) in &day.times {
             let zman = COLUMNS.iter().find(|(name, _)| name == column).unwrap().1;
-            let Ok(ours) = calendar.calculate(zman) else { continue };
+            let Ok(ours) = calendar.get(zman) else { continue };
             let theirs: Timestamp = theirs.to_zoned(timezone.clone()).unwrap().timestamp();
             let mut seconds = (ours.as_millisecond() - theirs.as_millisecond()) as f64 / 1000.0;
             seconds -= (seconds / 3600.0).round() * 3600.0; // MyZmanim's daylight-saving hour

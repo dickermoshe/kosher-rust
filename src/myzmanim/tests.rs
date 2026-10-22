@@ -13,25 +13,25 @@ fn ts(iso: &str) -> Timestamp {
 }
 
 /// Anvers, Belgium (place 26244298 in the site data): flat, sea level, UTC+1.
-fn anvers(date: Date) -> MyZmanimCalendar {
+fn anvers(date: Date) -> MyZmanim {
     let tz = TimeZone::fixed(Offset::from_hours(1).unwrap());
     let location = Location::new(51.216667, 4.416667, Some(tz)).unwrap();
-    MyZmanimCalendar::new(location, date)
+    MyZmanim::new(location, date)
 }
 
 /// Safed, Israel (place 27491341): 570 m up, eastern horizon level with the observer, western at sea level, UTC+2.
-fn safed(date: Date) -> MyZmanimCalendar {
+fn safed(date: Date) -> MyZmanim {
     let tz = TimeZone::fixed(Offset::from_hours(2).unwrap());
     let location = Location::new(32.96464803, 35.49599712, Some(tz))
         .and_then(|l| l.with_elevation(570.0))
         .and_then(|l| l.with_horizons(570.0, 0.0))
         .unwrap();
-    MyZmanimCalendar::new(location, date).with_candle_lighting_minutes(30.0)
+    MyZmanim::new(location, date).candle_lighting(30.0)
 }
 
-fn assert_site_second(calendar: &MyZmanimCalendar, zman: MyZman, site_local: &str, offset_hours: i8) {
+fn assert_site_second(calendar: &MyZmanim, zman: MyZman, site_local: &str, offset_hours: i8) {
     let expected = ts(&format!("{site_local}+0{offset_hours}:00"));
-    let actual = calendar.calculate(zman).unwrap();
+    let actual = calendar.get(zman).unwrap();
     let diff = actual.duration_since(expected).abs();
     assert!(
         diff <= SignedDuration::from_millis(1000),
@@ -92,8 +92,8 @@ fn anvers_matches_site_rows() {
 #[test]
 fn safed_hill_sunset_uses_western_horizon_and_dip() {
     let calendar = safed(Date::new(2026, 11, 6).unwrap());
-    let level = calendar.calculate(MyZman::SunsetLevel).unwrap();
-    let elevated = calendar.calculate(MyZman::SunsetElevated).unwrap();
+    let level = calendar.get(MyZman::SunsetLevel).unwrap();
+    let elevated = calendar.get(MyZman::SunsetElevated).unwrap();
     // 570 m above a sea-level western horizon: the dip (0.0347°·√570 ≈ 0.83°) sets later.
     let later_by = elevated.duration_since(level);
     assert!(
@@ -102,16 +102,16 @@ fn safed_hill_sunset_uses_western_horizon_and_dip() {
     );
     // The eastern horizon is level with the observer, so elevated sunrise is the level time.
     assert_eq!(
-        calendar.calculate(MyZman::SunriseLevel).unwrap(),
-        calendar.calculate(MyZman::SunriseElevated).unwrap()
+        calendar.get(MyZman::SunriseLevel).unwrap(),
+        calendar.get(MyZman::SunriseElevated).unwrap()
     );
     // Candle lighting (30 minutes here) and R' Tam count from the elevated sunset.
     assert_eq!(
-        calendar.calculate(MyZman::CandleLighting).unwrap(),
+        calendar.get(MyZman::CandleLighting).unwrap(),
         elevated - SignedDuration::from_mins(30)
     );
     assert_eq!(
-        calendar.calculate(MyZman::NightRTam72Fixed).unwrap(),
+        calendar.get(MyZman::NightRTam72Fixed).unwrap(),
         elevated + SignedDuration::from_mins(72)
     );
 }
@@ -123,8 +123,9 @@ fn every_row_is_distinct_and_computes() {
     for zman in MyZman::ALL {
         assert!(seen.insert(zman), "{zman:?} listed twice");
         assert!(!zman.name().is_empty());
-        let time = calendar.calculate(zman).unwrap_or_else(|err| panic!("{zman:?}: {err}"));
-        assert_eq!(zman.calculate(&calendar).unwrap(), time);
+        let time = calendar.get(zman).unwrap_or_else(|err| panic!("{zman:?}: {err}"));
+        assert_eq!(zman.to_string(), zman.name());
+        let _ = time;
     }
     assert_eq!(seen.len(), 40);
     assert!(calendar.proportional_hour_gra().unwrap() > SignedDuration::from_mins(60));
@@ -134,31 +135,32 @@ fn every_row_is_distinct_and_computes() {
 fn polar_day_reports_errors_not_panics() {
     let tz = TimeZone::get("Europe/Oslo").unwrap();
     let location = Location::new(69.6492, 18.9553, Some(tz)).unwrap();
-    let calendar = MyZmanimCalendar::new(location, Date::new(2017, 6, 21).unwrap());
-    assert_eq!(calendar.calculate(MyZman::SunriseLevel), Err(ZmanimError::AllDay));
-    assert_eq!(calendar.calculate(MyZman::Midday), Err(ZmanimError::AllDay));
-    assert_eq!(calendar.calculate(MyZman::Midnight), Err(ZmanimError::AllDay));
-    assert!(calendar.calculate(MyZman::Dawn90Degrees).is_err());
+    let calendar = MyZmanim::new(location, Date::new(2017, 6, 21).unwrap());
+    assert_eq!(calendar.get(MyZman::SunriseLevel), Err(ZmanimError::AllDay));
+    assert_eq!(calendar.get(MyZman::Midday), Err(ZmanimError::AllDay));
+    assert_eq!(calendar.get(MyZman::Midnight), Err(ZmanimError::AllDay));
+    assert!(calendar.get(MyZman::Dawn90Degrees).is_err());
     assert!(calendar.proportional_hour_gra().is_err());
 }
 
 #[test]
-fn candle_lighting_minutes_default_and_setter() {
-    let mut calendar = anvers(Date::new(2026, 11, 6).unwrap());
+fn candle_lighting_minutes_default_and_override() {
+    let calendar = anvers(Date::new(2026, 11, 6).unwrap());
     assert_eq!(calendar.candle_lighting_minutes(), DEFAULT_CANDLE_LIGHTING_MINUTES);
-    let sunset = calendar.calculate(MyZman::SunsetElevated).unwrap();
+    let sunset = calendar.get(MyZman::SunsetElevated).unwrap();
     assert_eq!(
-        calendar.calculate(MyZman::CandleLighting).unwrap(),
+        calendar.get(MyZman::CandleLighting).unwrap(),
         sunset - SignedDuration::from_mins(18)
     );
-    calendar.set_candle_lighting_minutes(40.5);
+    let calendar = calendar.candle_lighting(40.5);
+    assert_eq!(calendar.candle_lighting_minutes(), 40.5);
     assert_eq!(
-        calendar.calculate(MyZman::CandleLighting).unwrap(),
+        calendar.get(MyZman::CandleLighting).unwrap(),
         sunset - SignedDuration::from_secs(40 * 60 + 30)
     );
-    calendar.set_date(Date::new(2026, 11, 7).unwrap());
-    assert_eq!(calendar.date(), Date::new(2026, 11, 7).unwrap());
-    assert_ne!(calendar.calculate(MyZman::SunsetElevated).unwrap(), sunset);
+    let next_day = MyZmanim::new(calendar.location().clone(), Date::new(2026, 11, 7).unwrap());
+    assert_eq!(next_day.date(), Date::new(2026, 11, 7).unwrap());
+    assert_ne!(next_day.get(MyZman::SunsetElevated).unwrap(), sunset);
 }
 
 #[test]
