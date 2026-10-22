@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+use crate::calendar::DateOutOfRange;
+
 /// Why a time could not be calculated for this place and date.
 #[derive(Debug, Error, PartialEq, Eq, Clone, Copy, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
@@ -25,4 +27,21 @@ pub enum ZmanimError {
     /// and date.
     #[error("internal calculation error; please report the location and date")]
     Internal,
+}
+
+/// A date outside the range a [`HebrewDate`] covers, which a calculation should not reach.
+///
+/// [`HebrewDate`]: crate::HebrewDate
+impl From<DateOutOfRange> for ZmanimError {
+    fn from(_: DateOutOfRange) -> Self {
+        Self::Internal
+    }
+}
+
+/// Date and time arithmetic fails only past the ends of the range jiff holds, which a calculation
+/// should not reach.
+impl From<jiff::Error> for ZmanimError {
+    fn from(_: jiff::Error) -> Self {
+        Self::Internal
+    }
 }
