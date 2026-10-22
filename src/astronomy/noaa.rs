@@ -30,7 +30,21 @@ impl SolarAlgorithm for Noaa {
         let tnoon = julian_centuries_from_julian_day(julian_day + noon_min / 1440.0);
         let mut eq_time = equation_of_time(tnoon);
         let mut solar_declination = sun_declination(tnoon);
-        let mut hour_angle = sun_hour_angle(latitude, solar_declination, adjusted_zenith, event)?;
+        let mut hour_angle = match sun_hour_angle(latitude, solar_declination, adjusted_zenith, event) {
+            Ok(hour_angle) => hour_angle,
+            Err(_) => {
+                // Using the sun's declination at noon, the sun never reaches this zenith today. But the
+                // declination changes during the day (by up to about 0.2° in 12 hours), so the sun may
+                // still just reach it around midnight, when it is at its lowest. Before reporting that
+                // there is no event, try again with the declination and equation of time at that solar
+                // midnight: the one before sunrise, or the one after sunset.
+                let midnight = noon_min + if event == SolarEvent::Sunrise { -720.0 } else { 720.0 };
+                let tmidnight = julian_centuries_from_julian_day(julian_day + midnight / 1440.0);
+                eq_time = equation_of_time(tmidnight);
+                solar_declination = sun_declination(tmidnight);
+                sun_hour_angle(latitude, solar_declination, adjusted_zenith, event)?
+            }
+        };
         let mut delta = longitude - hour_angle.to_degrees();
         let mut time_diff = 4.0 * delta;
         let mut time_utc = 720.0 + time_diff - eq_time;

@@ -418,6 +418,61 @@ fn meeus_utc_sunrise_with_delta_t_disabled_matches_java() {
     );
 }
 
+/// Days when the sun only just reaches the zenith, around midnight. Using the sun's declination at
+/// noon the zenith looks out of reach, but using the declination at solar midnight it is reached,
+/// so these return a time rather than no event.
+fn check_only_just_reached(calculator: AstronomicalCalculator, expected: [f64; 3]) {
+    let london = Location::new(51.5074, -0.1278, Some(TimeZone::UTC)).unwrap();
+    let arctic = Location::new(75.51550698948259, -0.9961193842273985, Some(TimeZone::UTC))
+        .and_then(|l| l.with_elevation(1516.0617032522935))
+        .unwrap();
+    let cases = [
+        (
+            "London 16.1° alos",
+            &london,
+            "2024-06-03",
+            106.1,
+            false,
+            SolarEvent::Sunrise,
+        ),
+        (
+            "London 18° tzais",
+            &london,
+            "2024-07-20",
+            108.0,
+            false,
+            SolarEvent::Sunset,
+        ),
+        (
+            "75.5°N sunrise",
+            &arctic,
+            "2093-04-22",
+            GEOMETRIC_ZENITH,
+            true,
+            SolarEvent::Sunrise,
+        ),
+    ];
+    for ((label, location, iso, zenith, adjust, event), expected) in cases.into_iter().zip(expected) {
+        let actual = utc_rise_set_hours(calculator, date(iso), location, zenith, adjust, event);
+        assert_java_hours(
+            &format!("{calculator:?} {label}"),
+            Some(expected),
+            actual,
+            tolerance(calculator),
+        );
+    }
+}
+
+#[test]
+fn noaa_utc_rise_set_when_only_just_reached_matches_java() {
+    check_only_just_reached(NOAA, [0.17183556, 23.85934340, 0.21591651]);
+}
+
+#[test]
+fn meeus_utc_rise_set_when_only_just_reached_matches_java() {
+    check_only_just_reached(MEEUS, [0.17268715, 23.85897993, 0.22098753]);
+}
+
 // ---------------------------------------------------------------------------------------
 // SPA
 // ---------------------------------------------------------------------------------------
