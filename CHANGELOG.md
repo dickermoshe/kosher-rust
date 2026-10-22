@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (0.3.0)
+## 0.3.0 (2026-10-22)
 
 0.3 rebuilds the public API around what users do. The calculations are unchanged and still
 checked against KosherJava and hebcal.
