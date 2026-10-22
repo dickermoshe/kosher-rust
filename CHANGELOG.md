@@ -2,8 +2,23 @@
 
 ## 0.3.0 (2026-10-22)
 
-0.3 rebuilds the public API around what users do. The calculations are unchanged and still
-checked against KosherJava and hebcal.
+0.3 rebuilds the public API around what users do. Apart from the fixes below, the calculations
+are unchanged, and they are still checked against KosherJava and hebcal.
+
+### Fixes
+
+- **Meeus and NOAA no longer miss events near the threshold.** On days when the sun only just
+  reaches an angle (sunrise and sunset in the far north and south, twilight angles from about
+  50° latitude), they reported no time because the first estimate used the sun's position at
+  noon. They now retry at the solar midnight next to the event, as KosherJava does since
+  [0bd7893](https://github.com/KosherJava/zmanim/commit/0bd78932fe9b42e38ecd5ceab036c90d96fc3d99).
+- **SPA is a port of Klaus Brunner's solarpositioning 3.0.3.** Sunrise and sunset are searched
+  in the window belonging to the date, so polar and grazing days no longer return a time from
+  the wrong day or a time when the sun never reaches the angle. Results agree with KosherJava's
+  `SPACalculator` to within a few milliseconds.
+- **MyZmanim** uses the Meeus fix too: 14 more times in the site data now have a value. The
+  worst difference from the site is 13.6 seconds, a *misheyakir* on a day the sun only just
+  reaches 11.5°.
 
 ### Migrating from 0.2
 
