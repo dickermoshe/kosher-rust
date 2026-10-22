@@ -1,7 +1,8 @@
+use core::fmt;
+
 use icu_calendar::{Date, cal::Hebrew};
 
 use crate::limudim::{
-    Limud,
     engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
     units::{Mishna, TRACTATES, Tractate},
 };
@@ -191,15 +192,34 @@ fn mishna_at_offset(offset: usize) -> Option<Mishna> {
     None
 }
 
+/// The two *mishnayos* of a day of Mishna Yomis. Prints as "Nazir 5:5-6", "Nazir 5:10-6:1" or
+/// "Nazir 9:5-Sotah 1:1".
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
-/// Represents a pair of mishnayos.
-pub struct Mishnas(pub Mishna, pub Mishna);
+pub struct MishnaPair {
+    /// The first *mishnah*.
+    pub first: Mishna,
+    /// The second, the next *mishnah* in order.
+    pub second: Mishna,
+}
 
-#[derive(Default)]
-/// Calculates the Mishna Yomis schedule.
+impl fmt::Display for MishnaPair {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let (a, b) = (self.first, self.second);
+        if a.tractate != b.tractate {
+            write!(f, "{a}-{b}")
+        } else if a.chapter != b.chapter {
+            write!(f, "{a}-{}:{}", b.chapter, b.mishna)
+        } else {
+            write!(f, "{a}-{}", b.mishna)
+        }
+    }
+}
+
+/// Mishna Yomis: two *mishnayos* a day, from 20 May 1947.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct MishnaYomis;
-fn mishna_yomis_for_date(limud_date: Date<Hebrew>) -> Option<Mishnas> {
+fn mishna_yomis_for_date(limud_date: Date<Hebrew>) -> Option<MishnaPair> {
     let cycle = Cycle::from_cycle_initiation(initial_cycle_date(), MishnaYomis::cycle_end_calculation, limud_date)?;
     if limud_date > cycle.end_date {
         return None;
@@ -208,8 +228,8 @@ fn mishna_yomis_for_date(limud_date: Date<Hebrew>) -> Option<Mishnas> {
     mishnas_for_iteration(iteration)
 }
 
-impl InternalLimud<Mishnas> for MishnaYomis {
-    fn limud(&self, limud_date: Date<Hebrew>) -> Option<Mishnas> {
+impl InternalLimud<MishnaPair> for MishnaYomis {
+    fn limud(&self, limud_date: Date<Hebrew>) -> Option<MishnaPair> {
         mishna_yomis_for_date(limud_date)
     }
 
@@ -217,18 +237,21 @@ impl InternalLimud<Mishnas> for MishnaYomis {
         CycleFinder::Initial(initial_cycle_date())
     }
 
-    fn unit_for_interval(&self, _interval: &Interval, limud_date: &Date<Hebrew>) -> Option<Mishnas> {
+    fn unit_for_interval(&self, _interval: &Interval, limud_date: &Date<Hebrew>) -> Option<MishnaPair> {
         mishna_yomis_for_date(*limud_date)
     }
     fn cycle_end_calculation(hebrew_date: Date<Hebrew>, _iteration: Option<i32>) -> Option<Date<Hebrew>> {
         hebrew_date.add_days(MISHNA_YOMIS_CYCLE_DAYS)
     }
 }
-impl Limud<Mishnas> for MishnaYomis {}
+super::schedule!(MishnaYomis => MishnaPair);
 
-fn mishnas_for_iteration(iteration: u32) -> Option<Mishnas> {
+fn mishnas_for_iteration(iteration: u32) -> Option<MishnaPair> {
     let base = ((iteration - 1) * 2) as usize;
-    Some(Mishnas(mishna_at_offset(base)?, mishna_at_offset(base + 1)?))
+    Some(MishnaPair {
+        first: mishna_at_offset(base)?,
+        second: mishna_at_offset(base + 1)?,
+    })
 }
 
 #[cfg(test)]
@@ -243,12 +266,12 @@ mod tests {
         let test_date = from_gregorian_date(2017, 12, 28);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
         // Python test expects: 'megillah 3:4-5'
-        assert_eq!(limud.0.tractate, Tractate::Megillah);
-        assert_eq!(limud.0.chapter, 3);
-        assert_eq!(limud.0.mishna, 4);
-        assert_eq!(limud.1.tractate, Tractate::Megillah);
-        assert_eq!(limud.1.chapter, 3);
-        assert_eq!(limud.1.mishna, 5);
+        assert_eq!(limud.first.tractate, Tractate::Megillah);
+        assert_eq!(limud.first.chapter, 3);
+        assert_eq!(limud.first.mishna, 4);
+        assert_eq!(limud.second.tractate, Tractate::Megillah);
+        assert_eq!(limud.second.chapter, 3);
+        assert_eq!(limud.second.mishna, 5);
     }
 
     #[test]
@@ -263,12 +286,12 @@ mod tests {
         let test_date = from_gregorian_date(2016, 3, 30);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
         // Python test expects: 'berachos 1:1-2'
-        assert_eq!(limud.0.tractate, Tractate::Berachos);
-        assert_eq!(limud.0.chapter, 1);
-        assert_eq!(limud.0.mishna, 1);
-        assert_eq!(limud.1.tractate, Tractate::Berachos);
-        assert_eq!(limud.1.chapter, 1);
-        assert_eq!(limud.1.mishna, 2);
+        assert_eq!(limud.first.tractate, Tractate::Berachos);
+        assert_eq!(limud.first.chapter, 1);
+        assert_eq!(limud.first.mishna, 1);
+        assert_eq!(limud.second.tractate, Tractate::Berachos);
+        assert_eq!(limud.second.chapter, 1);
+        assert_eq!(limud.second.mishna, 2);
     }
 
     #[test]
@@ -276,12 +299,12 @@ mod tests {
         let test_date = from_gregorian_date(2016, 3, 29);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
         // Python test expects: 'uktzin 3:11-12'
-        assert_eq!(limud.0.tractate, Tractate::Uktzin);
-        assert_eq!(limud.0.chapter, 3);
-        assert_eq!(limud.0.mishna, 11);
-        assert_eq!(limud.1.tractate, Tractate::Uktzin);
-        assert_eq!(limud.1.chapter, 3);
-        assert_eq!(limud.1.mishna, 12);
+        assert_eq!(limud.first.tractate, Tractate::Uktzin);
+        assert_eq!(limud.first.chapter, 3);
+        assert_eq!(limud.first.mishna, 11);
+        assert_eq!(limud.second.tractate, Tractate::Uktzin);
+        assert_eq!(limud.second.chapter, 3);
+        assert_eq!(limud.second.mishna, 12);
     }
 
     #[test]
@@ -289,12 +312,12 @@ mod tests {
         let test_date = from_gregorian_date(2016, 4, 27);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
         // Python test expects: 'berachos 9:5 - peah 1:1'
-        assert_eq!(limud.0.tractate, Tractate::Berachos);
-        assert_eq!(limud.0.chapter, 9);
-        assert_eq!(limud.0.mishna, 5);
-        assert_eq!(limud.1.tractate, Tractate::Peah);
-        assert_eq!(limud.1.chapter, 1);
-        assert_eq!(limud.1.mishna, 1);
+        assert_eq!(limud.first.tractate, Tractate::Berachos);
+        assert_eq!(limud.first.chapter, 9);
+        assert_eq!(limud.first.mishna, 5);
+        assert_eq!(limud.second.tractate, Tractate::Peah);
+        assert_eq!(limud.second.chapter, 1);
+        assert_eq!(limud.second.mishna, 1);
     }
 
     #[test]
@@ -302,108 +325,108 @@ mod tests {
         let test_date = from_gregorian_date(2017, 12, 23);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
         // Python test expects: 'megillah 1:11-2:1'
-        assert_eq!(limud.0.tractate, Tractate::Megillah);
-        assert_eq!(limud.0.chapter, 1);
-        assert_eq!(limud.0.mishna, 11);
-        assert_eq!(limud.1.tractate, Tractate::Megillah);
-        assert_eq!(limud.1.chapter, 2);
-        assert_eq!(limud.1.mishna, 1);
+        assert_eq!(limud.first.tractate, Tractate::Megillah);
+        assert_eq!(limud.first.chapter, 1);
+        assert_eq!(limud.first.mishna, 11);
+        assert_eq!(limud.second.tractate, Tractate::Megillah);
+        assert_eq!(limud.second.chapter, 2);
+        assert_eq!(limud.second.mishna, 1);
     }
 
     #[test]
     fn mishna_yomis_1947_05_20() {
         let test_date = from_gregorian_date(1947, 5, 20);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Berachos);
-        assert_eq!(limud.0.chapter, 1);
-        assert_eq!(limud.0.mishna, 1);
-        assert_eq!(limud.1.tractate, Tractate::Berachos);
-        assert_eq!(limud.1.chapter, 1);
-        assert_eq!(limud.1.mishna, 2);
+        assert_eq!(limud.first.tractate, Tractate::Berachos);
+        assert_eq!(limud.first.chapter, 1);
+        assert_eq!(limud.first.mishna, 1);
+        assert_eq!(limud.second.tractate, Tractate::Berachos);
+        assert_eq!(limud.second.chapter, 1);
+        assert_eq!(limud.second.mishna, 2);
     }
 
     #[test]
     fn mishna_yomis_1950_01_01() {
         let test_date = from_gregorian_date(1950, 1, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::BavaKamma);
-        assert_eq!(limud.0.chapter, 1);
-        assert_eq!(limud.0.mishna, 1);
-        assert_eq!(limud.1.tractate, Tractate::BavaKamma);
-        assert_eq!(limud.1.chapter, 1);
-        assert_eq!(limud.1.mishna, 2);
+        assert_eq!(limud.first.tractate, Tractate::BavaKamma);
+        assert_eq!(limud.first.chapter, 1);
+        assert_eq!(limud.first.mishna, 1);
+        assert_eq!(limud.second.tractate, Tractate::BavaKamma);
+        assert_eq!(limud.second.chapter, 1);
+        assert_eq!(limud.second.mishna, 2);
     }
 
     #[test]
     fn mishna_yomis_1960_01_01() {
         let test_date = from_gregorian_date(1960, 1, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Eruvin);
-        assert_eq!(limud.0.chapter, 5);
-        assert_eq!(limud.0.mishna, 5);
-        assert_eq!(limud.1.tractate, Tractate::Eruvin);
-        assert_eq!(limud.1.chapter, 5);
-        assert_eq!(limud.1.mishna, 6);
+        assert_eq!(limud.first.tractate, Tractate::Eruvin);
+        assert_eq!(limud.first.chapter, 5);
+        assert_eq!(limud.first.mishna, 5);
+        assert_eq!(limud.second.tractate, Tractate::Eruvin);
+        assert_eq!(limud.second.chapter, 5);
+        assert_eq!(limud.second.mishna, 6);
     }
 
     #[test]
     fn mishna_yomis_1970_01_01() {
         let test_date = from_gregorian_date(1970, 1, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Mikvaos);
-        assert_eq!(limud.0.chapter, 10);
-        assert_eq!(limud.0.mishna, 6);
-        assert_eq!(limud.1.tractate, Tractate::Mikvaos);
-        assert_eq!(limud.1.chapter, 10);
-        assert_eq!(limud.1.mishna, 7);
+        assert_eq!(limud.first.tractate, Tractate::Mikvaos);
+        assert_eq!(limud.first.chapter, 10);
+        assert_eq!(limud.first.mishna, 6);
+        assert_eq!(limud.second.tractate, Tractate::Mikvaos);
+        assert_eq!(limud.second.chapter, 10);
+        assert_eq!(limud.second.mishna, 7);
     }
 
     #[test]
     fn mishna_yomis_1980_01_01() {
         let test_date = from_gregorian_date(1980, 1, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Bechoros);
-        assert_eq!(limud.0.chapter, 1);
-        assert_eq!(limud.0.mishna, 2);
-        assert_eq!(limud.1.tractate, Tractate::Bechoros);
-        assert_eq!(limud.1.chapter, 1);
-        assert_eq!(limud.1.mishna, 3);
+        assert_eq!(limud.first.tractate, Tractate::Bechoros);
+        assert_eq!(limud.first.chapter, 1);
+        assert_eq!(limud.first.mishna, 2);
+        assert_eq!(limud.second.tractate, Tractate::Bechoros);
+        assert_eq!(limud.second.chapter, 1);
+        assert_eq!(limud.second.mishna, 3);
     }
 
     #[test]
     fn mishna_yomis_1990_01_01() {
         let test_date = from_gregorian_date(1990, 1, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Sotah);
-        assert_eq!(limud.0.chapter, 9);
-        assert_eq!(limud.0.mishna, 14);
-        assert_eq!(limud.1.tractate, Tractate::Sotah);
-        assert_eq!(limud.1.chapter, 9);
-        assert_eq!(limud.1.mishna, 15);
+        assert_eq!(limud.first.tractate, Tractate::Sotah);
+        assert_eq!(limud.first.chapter, 9);
+        assert_eq!(limud.first.mishna, 14);
+        assert_eq!(limud.second.tractate, Tractate::Sotah);
+        assert_eq!(limud.second.chapter, 9);
+        assert_eq!(limud.second.mishna, 15);
     }
 
     #[test]
     fn mishna_yomis_2000_01_01() {
         let test_date = from_gregorian_date(2000, 1, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Shabbos);
-        assert_eq!(limud.0.chapter, 9);
-        assert_eq!(limud.0.mishna, 5);
-        assert_eq!(limud.1.tractate, Tractate::Shabbos);
-        assert_eq!(limud.1.chapter, 9);
-        assert_eq!(limud.1.mishna, 6);
+        assert_eq!(limud.first.tractate, Tractate::Shabbos);
+        assert_eq!(limud.first.chapter, 9);
+        assert_eq!(limud.first.mishna, 5);
+        assert_eq!(limud.second.tractate, Tractate::Shabbos);
+        assert_eq!(limud.second.chapter, 9);
+        assert_eq!(limud.second.mishna, 6);
     }
 
     #[test]
     fn mishna_yomis_2010_01_01() {
         let test_date = from_gregorian_date(2010, 1, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Taharos);
-        assert_eq!(limud.0.chapter, 4);
-        assert_eq!(limud.0.mishna, 12);
-        assert_eq!(limud.1.tractate, Tractate::Taharos);
-        assert_eq!(limud.1.chapter, 4);
-        assert_eq!(limud.1.mishna, 13);
+        assert_eq!(limud.first.tractate, Tractate::Taharos);
+        assert_eq!(limud.first.chapter, 4);
+        assert_eq!(limud.first.mishna, 12);
+        assert_eq!(limud.second.tractate, Tractate::Taharos);
+        assert_eq!(limud.second.chapter, 4);
+        assert_eq!(limud.second.mishna, 13);
     }
 
     #[test]
@@ -411,132 +434,132 @@ mod tests {
         let test_date = from_gregorian_date(2016, 4, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
         // Python: 'berachos 1:5-2:1' - spans two chapters
-        assert_eq!(limud.0.tractate, Tractate::Berachos);
-        assert_eq!(limud.0.chapter, 1);
-        assert_eq!(limud.0.mishna, 5);
-        assert_eq!(limud.1.tractate, Tractate::Berachos);
-        assert_eq!(limud.1.chapter, 2);
-        assert_eq!(limud.1.mishna, 1);
+        assert_eq!(limud.first.tractate, Tractate::Berachos);
+        assert_eq!(limud.first.chapter, 1);
+        assert_eq!(limud.first.mishna, 5);
+        assert_eq!(limud.second.tractate, Tractate::Berachos);
+        assert_eq!(limud.second.chapter, 2);
+        assert_eq!(limud.second.mishna, 1);
     }
 
     #[test]
     fn mishna_yomis_2016_05_01() {
         let test_date = from_gregorian_date(2016, 5, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Peah);
-        assert_eq!(limud.0.chapter, 2);
-        assert_eq!(limud.0.mishna, 2);
-        assert_eq!(limud.1.tractate, Tractate::Peah);
-        assert_eq!(limud.1.chapter, 2);
-        assert_eq!(limud.1.mishna, 3);
+        assert_eq!(limud.first.tractate, Tractate::Peah);
+        assert_eq!(limud.first.chapter, 2);
+        assert_eq!(limud.first.mishna, 2);
+        assert_eq!(limud.second.tractate, Tractate::Peah);
+        assert_eq!(limud.second.chapter, 2);
+        assert_eq!(limud.second.mishna, 3);
     }
 
     #[test]
     fn mishna_yomis_2017_01_01() {
         let test_date = from_gregorian_date(2017, 1, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Chalah);
-        assert_eq!(limud.0.chapter, 2);
-        assert_eq!(limud.0.mishna, 3);
-        assert_eq!(limud.1.tractate, Tractate::Chalah);
-        assert_eq!(limud.1.chapter, 2);
-        assert_eq!(limud.1.mishna, 4);
+        assert_eq!(limud.first.tractate, Tractate::Chalah);
+        assert_eq!(limud.first.chapter, 2);
+        assert_eq!(limud.first.mishna, 3);
+        assert_eq!(limud.second.tractate, Tractate::Chalah);
+        assert_eq!(limud.second.chapter, 2);
+        assert_eq!(limud.second.mishna, 4);
     }
 
     #[test]
     fn mishna_yomis_2017_06_01() {
         let test_date = from_gregorian_date(2017, 6, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Eruvin);
-        assert_eq!(limud.0.chapter, 7);
-        assert_eq!(limud.0.mishna, 8);
-        assert_eq!(limud.1.tractate, Tractate::Eruvin);
-        assert_eq!(limud.1.chapter, 7);
-        assert_eq!(limud.1.mishna, 9);
+        assert_eq!(limud.first.tractate, Tractate::Eruvin);
+        assert_eq!(limud.first.chapter, 7);
+        assert_eq!(limud.first.mishna, 8);
+        assert_eq!(limud.second.tractate, Tractate::Eruvin);
+        assert_eq!(limud.second.chapter, 7);
+        assert_eq!(limud.second.mishna, 9);
     }
 
     #[test]
     fn mishna_yomis_2017_12_01() {
         let test_date = from_gregorian_date(2017, 12, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Taanis);
-        assert_eq!(limud.0.chapter, 1);
-        assert_eq!(limud.0.mishna, 1);
-        assert_eq!(limud.1.tractate, Tractate::Taanis);
-        assert_eq!(limud.1.chapter, 1);
-        assert_eq!(limud.1.mishna, 2);
+        assert_eq!(limud.first.tractate, Tractate::Taanis);
+        assert_eq!(limud.first.chapter, 1);
+        assert_eq!(limud.first.mishna, 1);
+        assert_eq!(limud.second.tractate, Tractate::Taanis);
+        assert_eq!(limud.second.chapter, 1);
+        assert_eq!(limud.second.mishna, 2);
     }
 
     #[test]
     fn mishna_yomis_2018_01_01() {
         let test_date = from_gregorian_date(2018, 1, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Megillah);
-        assert_eq!(limud.0.chapter, 4);
-        assert_eq!(limud.0.mishna, 6);
-        assert_eq!(limud.1.tractate, Tractate::Megillah);
-        assert_eq!(limud.1.chapter, 4);
-        assert_eq!(limud.1.mishna, 7);
+        assert_eq!(limud.first.tractate, Tractate::Megillah);
+        assert_eq!(limud.first.chapter, 4);
+        assert_eq!(limud.first.mishna, 6);
+        assert_eq!(limud.second.tractate, Tractate::Megillah);
+        assert_eq!(limud.second.chapter, 4);
+        assert_eq!(limud.second.mishna, 7);
     }
 
     #[test]
     fn mishna_yomis_2020_01_01() {
         let test_date = from_gregorian_date(2020, 1, 1);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Menachos);
-        assert_eq!(limud.0.chapter, 8);
-        assert_eq!(limud.0.mishna, 2);
-        assert_eq!(limud.1.tractate, Tractate::Menachos);
-        assert_eq!(limud.1.chapter, 8);
-        assert_eq!(limud.1.mishna, 3);
+        assert_eq!(limud.first.tractate, Tractate::Menachos);
+        assert_eq!(limud.first.chapter, 8);
+        assert_eq!(limud.first.mishna, 2);
+        assert_eq!(limud.second.tractate, Tractate::Menachos);
+        assert_eq!(limud.second.chapter, 8);
+        assert_eq!(limud.second.mishna, 3);
     }
 
     #[test]
     fn mishna_yomis_2016_03_31() {
         let test_date = from_gregorian_date(2016, 3, 31);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Berachos);
-        assert_eq!(limud.0.chapter, 1);
-        assert_eq!(limud.0.mishna, 3);
-        assert_eq!(limud.1.tractate, Tractate::Berachos);
-        assert_eq!(limud.1.chapter, 1);
-        assert_eq!(limud.1.mishna, 4);
+        assert_eq!(limud.first.tractate, Tractate::Berachos);
+        assert_eq!(limud.first.chapter, 1);
+        assert_eq!(limud.first.mishna, 3);
+        assert_eq!(limud.second.tractate, Tractate::Berachos);
+        assert_eq!(limud.second.chapter, 1);
+        assert_eq!(limud.second.mishna, 4);
     }
 
     #[test]
     fn mishna_yomis_2016_04_02() {
         let test_date = from_gregorian_date(2016, 4, 2);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Berachos);
-        assert_eq!(limud.0.chapter, 2);
-        assert_eq!(limud.0.mishna, 2);
-        assert_eq!(limud.1.tractate, Tractate::Berachos);
-        assert_eq!(limud.1.chapter, 2);
-        assert_eq!(limud.1.mishna, 3);
+        assert_eq!(limud.first.tractate, Tractate::Berachos);
+        assert_eq!(limud.first.chapter, 2);
+        assert_eq!(limud.first.mishna, 2);
+        assert_eq!(limud.second.tractate, Tractate::Berachos);
+        assert_eq!(limud.second.chapter, 2);
+        assert_eq!(limud.second.mishna, 3);
     }
 
     #[test]
     fn mishna_yomis_2017_12_24() {
         let test_date = from_gregorian_date(2017, 12, 24);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Megillah);
-        assert_eq!(limud.0.chapter, 2);
-        assert_eq!(limud.0.mishna, 2);
-        assert_eq!(limud.1.tractate, Tractate::Megillah);
-        assert_eq!(limud.1.chapter, 2);
-        assert_eq!(limud.1.mishna, 3);
+        assert_eq!(limud.first.tractate, Tractate::Megillah);
+        assert_eq!(limud.first.chapter, 2);
+        assert_eq!(limud.first.mishna, 2);
+        assert_eq!(limud.second.tractate, Tractate::Megillah);
+        assert_eq!(limud.second.chapter, 2);
+        assert_eq!(limud.second.mishna, 3);
     }
 
     #[test]
     fn mishna_yomis_2017_12_25() {
         let test_date = from_gregorian_date(2017, 12, 25);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Megillah);
-        assert_eq!(limud.0.chapter, 2);
-        assert_eq!(limud.0.mishna, 4);
-        assert_eq!(limud.1.tractate, Tractate::Megillah);
-        assert_eq!(limud.1.chapter, 2);
-        assert_eq!(limud.1.mishna, 5);
+        assert_eq!(limud.first.tractate, Tractate::Megillah);
+        assert_eq!(limud.first.chapter, 2);
+        assert_eq!(limud.first.mishna, 4);
+        assert_eq!(limud.second.tractate, Tractate::Megillah);
+        assert_eq!(limud.second.chapter, 2);
+        assert_eq!(limud.second.mishna, 5);
     }
 
     #[test]
@@ -544,24 +567,24 @@ mod tests {
         let test_date = from_gregorian_date(2017, 12, 26);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
         // Python: 'megillah 2:6-3:1' - spans two chapters
-        assert_eq!(limud.0.tractate, Tractate::Megillah);
-        assert_eq!(limud.0.chapter, 2);
-        assert_eq!(limud.0.mishna, 6);
-        assert_eq!(limud.1.tractate, Tractate::Megillah);
-        assert_eq!(limud.1.chapter, 3);
-        assert_eq!(limud.1.mishna, 1);
+        assert_eq!(limud.first.tractate, Tractate::Megillah);
+        assert_eq!(limud.first.chapter, 2);
+        assert_eq!(limud.first.mishna, 6);
+        assert_eq!(limud.second.tractate, Tractate::Megillah);
+        assert_eq!(limud.second.chapter, 3);
+        assert_eq!(limud.second.mishna, 1);
     }
 
     #[test]
     fn mishna_yomis_2017_12_27() {
         let test_date = from_gregorian_date(2017, 12, 27);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::Megillah);
-        assert_eq!(limud.0.chapter, 3);
-        assert_eq!(limud.0.mishna, 2);
-        assert_eq!(limud.1.tractate, Tractate::Megillah);
-        assert_eq!(limud.1.chapter, 3);
-        assert_eq!(limud.1.mishna, 3);
+        assert_eq!(limud.first.tractate, Tractate::Megillah);
+        assert_eq!(limud.first.chapter, 3);
+        assert_eq!(limud.first.mishna, 2);
+        assert_eq!(limud.second.tractate, Tractate::Megillah);
+        assert_eq!(limud.second.chapter, 3);
+        assert_eq!(limud.second.mishna, 3);
     }
 
     #[test]
@@ -570,12 +593,12 @@ mod tests {
         // This date crosses from chapter 2 to chapter 3
         let test_date = from_gregorian_date(2012, 2, 26);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::RoshHashanah);
-        assert_eq!(limud.0.chapter, 2);
-        assert_eq!(limud.0.mishna, 9);
-        assert_eq!(limud.1.tractate, Tractate::RoshHashanah);
-        assert_eq!(limud.1.chapter, 3);
-        assert_eq!(limud.1.mishna, 1);
+        assert_eq!(limud.first.tractate, Tractate::RoshHashanah);
+        assert_eq!(limud.first.chapter, 2);
+        assert_eq!(limud.first.mishna, 9);
+        assert_eq!(limud.second.tractate, Tractate::RoshHashanah);
+        assert_eq!(limud.second.chapter, 3);
+        assert_eq!(limud.second.mishna, 1);
     }
 
     #[test]
@@ -583,11 +606,11 @@ mod tests {
         // Regression test: Day after crossing chapter boundary
         let test_date = from_gregorian_date(2012, 2, 27);
         let limud = MishnaYomis.limud(test_date).expect("limud exists");
-        assert_eq!(limud.0.tractate, Tractate::RoshHashanah);
-        assert_eq!(limud.0.chapter, 3);
-        assert_eq!(limud.0.mishna, 2);
-        assert_eq!(limud.1.tractate, Tractate::RoshHashanah);
-        assert_eq!(limud.1.chapter, 3);
-        assert_eq!(limud.1.mishna, 3);
+        assert_eq!(limud.first.tractate, Tractate::RoshHashanah);
+        assert_eq!(limud.first.chapter, 3);
+        assert_eq!(limud.first.mishna, 2);
+        assert_eq!(limud.second.tractate, Tractate::RoshHashanah);
+        assert_eq!(limud.second.chapter, 3);
+        assert_eq!(limud.second.mishna, 3);
     }
 }

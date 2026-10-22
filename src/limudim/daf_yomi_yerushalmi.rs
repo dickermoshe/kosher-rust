@@ -3,7 +3,6 @@ use icu_calendar::{Date, cal::Hebrew, types::Weekday};
 use crate::{
     calendar::{HebrewDate, Holiday, Region, month},
     limudim::{
-        Limud,
         engine::{CycleFinder, HebrewDateExt, InternalLimud, Interval},
         units::{Daf, YERUSHALMI_TRACTATES},
     },
@@ -26,17 +25,18 @@ const YERUSHALMI_BLATT_PER_MASECHTA: [u16; 39] = [
     48, 44, 37, 34, 44, 9, 57, 37, 19, 13,
 ];
 
-#[derive(Default)]
-/// Calculates the Daf Yomi Yerushalmi schedule using the Vilna Edition of the Jerusalem Talmud.
-pub struct DafYomiYerushalmiVilna {}
+/// Daf Yomi Yerushalmi: one page of the Vilna Yerushalmi a day, from 2 February 1980. No page is
+/// learned on Yom Kippur or Tishah B'Av.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
+pub struct DafYomiYerushalmi;
 
-impl DafYomiYerushalmiVilna {
+impl DafYomiYerushalmi {
     fn cycle_start_date() -> Date<Hebrew> {
         initial_cycle_date()
     }
 }
 
-impl InternalLimud<Daf> for DafYomiYerushalmiVilna {
+impl InternalLimud<Daf> for DafYomiYerushalmi {
     fn limud(&self, limud_date: Date<Hebrew>) -> Option<Daf> {
         daf_yomi_yerushalmi_for_date(limud_date)
     }
@@ -59,7 +59,7 @@ impl InternalLimud<Daf> for DafYomiYerushalmiVilna {
 }
 
 fn daf_yomi_yerushalmi_for_date(limud_date: Date<Hebrew>) -> Option<Daf> {
-    let cycle_start = DafYomiYerushalmiVilna::cycle_start_date();
+    let cycle_start = DafYomiYerushalmi::cycle_start_date();
     if limud_date < cycle_start {
         return None;
     }
@@ -82,7 +82,7 @@ fn daf_yomi_yerushalmi_for_date(limud_date: Date<Hebrew>) -> Option<Daf> {
         if total < blatt {
             return Some(Daf {
                 tractate,
-                page: (total + 1) as u16,
+                daf: (total + 1) as u16,
             });
         }
         total -= blatt;
@@ -91,7 +91,7 @@ fn daf_yomi_yerushalmi_for_date(limud_date: Date<Hebrew>) -> Option<Daf> {
     None
 }
 
-impl Limud<Daf> for DafYomiYerushalmiVilna {}
+super::schedule!(DafYomiYerushalmi => Daf);
 
 fn cycle_end_date(cycle_start: Date<Hebrew>) -> Option<Date<Hebrew>> {
     let mut end_date = cycle_start.add_days(YERUSHALMI_DAF_COUNT - 1)?;
@@ -152,37 +152,31 @@ mod tests {
     #[test]
     fn daf_yomi_yerushalmi_simple_date() {
         let test_date = from_gregorian_date(2017, 12, 28);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 33);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 33);
         assert_eq!(limud.tractate, Tractate::BavaMetzia);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_before_cycle_began() {
         let test_date = from_gregorian_date(1980, 1, 1);
-        let limud = DafYomiYerushalmiVilna::default().limud(test_date);
+        let limud = DafYomiYerushalmi.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn daf_yomi_yerushalmi_first_day_of_cycle() {
         let test_date = from_gregorian_date(2005, 10, 3);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 1);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 1);
         assert_eq!(limud.tractate, Tractate::Berachos);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_last_day_of_cycle() {
         let test_date = from_gregorian_date(2010, 1, 12);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 13);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 13);
         assert_eq!(limud.tractate, Tractate::Niddah);
     }
 
@@ -190,7 +184,7 @@ mod tests {
     fn daf_yomi_yerushalmi_last_skip_day() {
         // JewishDate(5778, 7, 10) is Tishrei 10 (Yom Kippur) - a skip day
         let test_date = Date::<Hebrew>::try_new_hebrew_v2(5778, TISHREI, 10).expect("valid hebrew date");
-        let limud = DafYomiYerushalmiVilna::default().limud(test_date);
+        let limud = DafYomiYerushalmi.limud(test_date);
 
         assert!(limud.is_none());
     }
@@ -198,206 +192,176 @@ mod tests {
     #[test]
     fn daf_yomi_yerushalmi_1980_02_02() {
         let test_date = from_gregorian_date(1980, 2, 2);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 1);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 1);
         assert_eq!(limud.tractate, Tractate::Berachos);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_1982_05_15() {
         let test_date = from_gregorian_date(1982, 5, 15);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 4);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 4);
         assert_eq!(limud.tractate, Tractate::Chagigah);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_1984_05_12() {
         let test_date = from_gregorian_date(1984, 5, 12);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 13);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 13);
         assert_eq!(limud.tractate, Tractate::Niddah);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_1984_05_13() {
         let test_date = from_gregorian_date(1984, 5, 13);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 1);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 1);
         assert_eq!(limud.tractate, Tractate::Berachos);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_1990_08_01() {
         let test_date = from_gregorian_date(1990, 8, 1);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 40);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 40);
         assert_eq!(limud.tractate, Tractate::Yoma);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_2000_01_01() {
         let test_date = from_gregorian_date(2000, 1, 1);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 66);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 66);
         assert_eq!(limud.tractate, Tractate::Kesubos);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_2005_10_02() {
         let test_date = from_gregorian_date(2005, 10, 2);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 13);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 13);
         assert_eq!(limud.tractate, Tractate::Niddah);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_2007_06_15() {
         let test_date = from_gregorian_date(2007, 6, 15);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 68);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 68);
         assert_eq!(limud.tractate, Tractate::Pesachim);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_2010_01_11() {
         let test_date = from_gregorian_date(2010, 1, 11);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 12);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 12);
         assert_eq!(limud.tractate, Tractate::Niddah);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_2015_04_23() {
         let test_date = from_gregorian_date(2015, 4, 23);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 3);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 3);
         assert_eq!(limud.tractate, Tractate::Orlah);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_2020_01_01() {
         let test_date = from_gregorian_date(2020, 1, 1);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 28);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 28);
         assert_eq!(limud.tractate, Tractate::Eruvin);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_2025_10_02() {
         let test_date = from_gregorian_date(2025, 10, 2);
-        let limud = DafYomiYerushalmiVilna::default().limud(test_date);
+        let limud = DafYomiYerushalmi.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn daf_yomi_yerushalmi_1980_09_20() {
         let test_date = from_gregorian_date(1980, 9, 20);
-        let limud = DafYomiYerushalmiVilna::default().limud(test_date);
+        let limud = DafYomiYerushalmi.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn daf_yomi_yerushalmi_1990_09_29() {
         let test_date = from_gregorian_date(1990, 9, 29);
-        let limud = DafYomiYerushalmiVilna::default().limud(test_date);
+        let limud = DafYomiYerushalmi.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn daf_yomi_yerushalmi_2000_10_09() {
         let test_date = from_gregorian_date(2000, 10, 9);
-        let limud = DafYomiYerushalmiVilna::default().limud(test_date);
+        let limud = DafYomiYerushalmi.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn daf_yomi_yerushalmi_2010_09_18() {
         let test_date = from_gregorian_date(2010, 9, 18);
-        let limud = DafYomiYerushalmiVilna::default().limud(test_date);
+        let limud = DafYomiYerushalmi.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn daf_yomi_yerushalmi_1980_07_21() {
         let test_date = from_gregorian_date(1980, 7, 21);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 32);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 32);
         assert_eq!(limud.tractate, Tractate::Kilayim);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_1990_07_31() {
         let test_date = from_gregorian_date(1990, 7, 31);
-        let limud = DafYomiYerushalmiVilna::default().limud(test_date);
+        let limud = DafYomiYerushalmi.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn daf_yomi_yerushalmi_2000_08_10() {
         let test_date = from_gregorian_date(2000, 8, 10);
-        let limud = DafYomiYerushalmiVilna::default().limud(test_date);
+        let limud = DafYomiYerushalmi.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn daf_yomi_yerushalmi_2010_07_20() {
         let test_date = from_gregorian_date(2010, 7, 20);
-        let limud = DafYomiYerushalmiVilna::default().limud(test_date);
+        let limud = DafYomiYerushalmi.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn daf_yomi_yerushalmi_1980_03_01() {
         let test_date = from_gregorian_date(1980, 3, 1);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 29);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 29);
         assert_eq!(limud.tractate, Tractate::Berachos);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_1982_01_01() {
         let test_date = from_gregorian_date(1982, 1, 1);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 31);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 31);
         assert_eq!(limud.tractate, Tractate::Yoma);
     }
 
     #[test]
     fn daf_yomi_yerushalmi_1984_04_01() {
         let test_date = from_gregorian_date(1984, 4, 1);
-        let limud = DafYomiYerushalmiVilna::default()
-            .limud(test_date)
-            .expect("limud exists");
-        assert_eq!(limud.page, 28);
+        let limud = DafYomiYerushalmi.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 28);
         assert_eq!(limud.tractate, Tractate::AvodahZarah);
     }
 }

@@ -1,3 +1,5 @@
+use core::fmt;
+
 use icu_calendar::{
     Date,
     cal::Hebrew,
@@ -5,11 +7,11 @@ use icu_calendar::{
 };
 
 use crate::{
-    calendar::month::{AV, NISAN, SIVAN, TISHREI},
-    limudim::{
-        Limud,
-        engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
+    calendar::{
+        Region,
+        month::{AV, NISAN, SIVAN, TISHREI},
     },
+    limudim::engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
 };
 
 #[allow(clippy::expect_used)]
@@ -29,26 +31,34 @@ fn day_of_week_number(date: Date<Hebrew>) -> i32 {
     }
 }
 
-/// Represents a Pirkei Avos reading unit
+/// The Pirkei Avos read on a Shabbos afternoon. Prints as "Pirkei Avos 3" or "Pirkei Avos 5-6".
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum PirkeiAvosUnit {
-    /// A single perek (chapter)
+    /// One chapter (*perek*), 1 to 6.
     Single(u8),
-    /// Two consecutive perekim (chapters)
+    /// Two chapters read together, at the end of the summer.
     Combined(u8, u8),
 }
 
-#[derive(Default)]
-/// Calculates the Pirkei Avos schedule.
-pub struct PirkeiAvos {
-    /// Whether the calculator is for Israel or the diaspora
-    pub in_israel: bool,
+impl fmt::Display for PirkeiAvosUnit {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            PirkeiAvosUnit::Single(chapter) => write!(f, "Pirkei Avos {chapter}"),
+            PirkeiAvosUnit::Combined(first, second) => write!(f, "Pirkei Avos {first}-{second}"),
+        }
+    }
 }
+
+/// Pirkei Avos: a chapter each Shabbos afternoon from Pesach to Rosh Hashana, doubled up at the
+/// end of the summer. The [`Region`] matters because the second day of Yom Tov in the diaspora
+/// can fall on Shabbos.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct PirkeiAvos(pub Region);
 
 impl InternalLimud<PirkeiAvosUnit> for PirkeiAvos {
     fn cycle_finder(&self) -> CycleFinder {
-        if self.in_israel {
+        if self.0.in_israel() {
             CycleFinder::Perpetual(Self::find_yearly_cycle_israel)
         } else {
             CycleFinder::Perpetual(Self::find_yearly_cycle_diaspora)
@@ -109,27 +119,16 @@ impl InternalLimud<PirkeiAvosUnit> for PirkeiAvos {
         }
 
         // Skip 7th of Sivan (2nd day Shavuot) - only outside Israel
-        if !self.in_israel && end_month == SIVAN && end_day == 7 {
+        if !self.0.in_israel() && end_month == SIVAN && end_day == 7 {
             return true;
         }
 
         false
     }
 }
-impl Limud<PirkeiAvosUnit> for PirkeiAvos {}
+super::schedule!(PirkeiAvos => PirkeiAvosUnit);
 
 impl PirkeiAvos {
-    /// Create a new Pirkei Avos calculator.
-    ///
-    /// # Arguments
-    /// * `in_israel` - Whether the calculator is for Israel or the diaspora
-    ///
-    /// # Returns
-    /// A new Pirkei Avos calculator.
-    pub fn new(in_israel: bool) -> Self {
-        Self { in_israel }
-    }
-
     fn find_yearly_cycle_israel(date: Date<Hebrew>) -> Option<(Date<Hebrew>, Date<Hebrew>)> {
         Some(Self::find_yearly_cycle(true, date))
     }
@@ -180,7 +179,7 @@ mod tests {
     fn test_simple_date() {
         // JewishDate(5778, 3, 1) - 1st of Sivan 5778
         let test_date = from_hebrew_date(5778, SIVAN, 1);
-        let calculator = PirkeiAvos::new(false);
+        let calculator = PirkeiAvos(Region::Diaspora);
         let limud = calculator.limud(test_date).expect("limud exists");
         // Python test expects description '6'
         assert_eq!(limud, PirkeiAvosUnit::Single(6));
@@ -190,7 +189,7 @@ mod tests {
     fn test_near_end_of_cycle() {
         // JewishDate(5778, 6, 20) - 20th of Elul 5778
         let test_date = from_hebrew_date(5778, ELUL, 20);
-        let calculator = PirkeiAvos::new(false);
+        let calculator = PirkeiAvos(Region::Diaspora);
         let limud = calculator.limud(test_date).expect("limud exists");
         // Python test expects description '3 - 4'
         assert_eq!(limud, PirkeiAvosUnit::Combined(3, 4));
@@ -200,7 +199,7 @@ mod tests {
     fn test_after_cycle_completes() {
         // JewishDate(5778, 6, 29) - 29th of Elul 5778
         let test_date = from_hebrew_date(5778, ELUL, 29);
-        let calculator = PirkeiAvos::new(false);
+        let calculator = PirkeiAvos(Region::Diaspora);
         let limud = calculator.limud(test_date);
         assert!(limud.is_none());
     }
@@ -209,7 +208,7 @@ mod tests {
     fn test_before_cycle_starts() {
         // JewishDate(5778, 1, 20) - 20th of Nissan 5778
         let test_date = from_hebrew_date(5778, NISAN, 20);
-        let calculator = PirkeiAvos::new(false);
+        let calculator = PirkeiAvos(Region::Diaspora);
         let limud = calculator.limud(test_date);
         assert!(limud.is_none());
     }
@@ -218,7 +217,7 @@ mod tests {
     fn test_8th_day_pesach_outside_israel() {
         // JewishDate(5778, 1, 22) - 22nd of Nissan 5778
         let test_date = from_hebrew_date(5778, NISAN, 22);
-        let calculator = PirkeiAvos::new(false);
+        let calculator = PirkeiAvos(Region::Diaspora);
         let limud = calculator.limud(test_date);
         assert!(limud.is_none());
     }
@@ -227,7 +226,7 @@ mod tests {
     fn test_day_after_pesach_outside_israel() {
         // JewishDate(5778, 1, 23) - 23rd of Nissan 5778
         let test_date = from_hebrew_date(5778, NISAN, 23);
-        let calculator = PirkeiAvos::new(false);
+        let calculator = PirkeiAvos(Region::Diaspora);
         let limud = calculator.limud(test_date).expect("limud exists");
         // Python test expects description '1'
         assert_eq!(limud, PirkeiAvosUnit::Single(1));
@@ -237,7 +236,7 @@ mod tests {
     fn test_compounding_before_cycle_end_outside_israel() {
         // JewishDate(5778, 6, 14) - 14th of Elul 5778
         let test_date = from_hebrew_date(5778, ELUL, 14);
-        let calculator = PirkeiAvos::new(false);
+        let calculator = PirkeiAvos(Region::Diaspora);
         let limud = calculator.limud(test_date).expect("limud exists");
         assert_eq!(limud, PirkeiAvosUnit::Combined(1, 2));
 
@@ -251,7 +250,7 @@ mod tests {
     fn test_8th_day_pesach_in_israel() {
         // JewishDate(5778, 1, 22) - 22nd of Nissan 5778 (Shabbos)
         let test_date = from_hebrew_date(5778, NISAN, 22);
-        let calculator = PirkeiAvos::new(true);
+        let calculator = PirkeiAvos(Region::Israel);
         let limud = calculator.limud(test_date).expect("limud exists");
         // In Israel, cycle starts on 22nd, and if it's Shabbos, that's the first interval
         assert_eq!(limud, PirkeiAvosUnit::Single(1));
@@ -261,7 +260,7 @@ mod tests {
     fn test_day_after_pesach_in_israel() {
         // JewishDate(5778, 1, 23) - 23rd of Nissan 5778
         let test_date = from_hebrew_date(5778, NISAN, 23);
-        let calculator = PirkeiAvos::new(true);
+        let calculator = PirkeiAvos(Region::Israel);
         let limud = calculator.limud(test_date).expect("limud exists");
         // Python test expects description '2'
         assert_eq!(limud, PirkeiAvosUnit::Single(2));
@@ -271,7 +270,7 @@ mod tests {
     fn test_compounding_before_cycle_end_in_israel() {
         // JewishDate(5778, 6, 21) - 21st of Elul 5778
         let test_date = from_hebrew_date(5778, ELUL, 21);
-        let calculator = PirkeiAvos::new(true);
+        let calculator = PirkeiAvos(Region::Israel);
         let limud = calculator.limud(test_date).expect("limud exists");
         assert_eq!(limud, PirkeiAvosUnit::Combined(3, 4));
     }
@@ -281,7 +280,7 @@ mod tests {
         // 5769 - Sivan 7 falls on Shabbos outside Israel
         // JewishDate(5769, 3, 3) - 3rd of Sivan 5769
         let test_date = from_hebrew_date(5769, SIVAN, 3);
-        let calculator = PirkeiAvos::new(false);
+        let calculator = PirkeiAvos(Region::Diaspora);
         let limud = calculator.limud(test_date);
         // This interval should be skipped, returning None for the unit
         // The Python test expects limud to exist but with None unit
@@ -293,7 +292,7 @@ mod tests {
     fn test_iteration_following_7_sivan_on_shabbos_outside_israel() {
         // JewishDate(5769, 3, 8) - 8th of Sivan 5769
         let test_date = from_hebrew_date(5769, SIVAN, 8);
-        let calculator = PirkeiAvos::new(false);
+        let calculator = PirkeiAvos(Region::Diaspora);
         let limud = calculator.limud(test_date).expect("limud exists");
         // Python test expects description '1' (starts new sub-cycle)
         assert_eq!(limud, PirkeiAvosUnit::Single(1));
@@ -303,7 +302,7 @@ mod tests {
     fn test_7_sivan_on_shabbos_in_israel() {
         // JewishDate(5769, 3, 3) - 3rd of Sivan 5769
         let test_date = from_hebrew_date(5769, SIVAN, 3);
-        let calculator = PirkeiAvos::new(true);
+        let calculator = PirkeiAvos(Region::Israel);
         let limud = calculator.limud(test_date).expect("limud exists");
         // In Israel, no skip - Python test expects description '1'
         assert_eq!(limud, PirkeiAvosUnit::Single(1));
@@ -313,7 +312,7 @@ mod tests {
     fn test_iteration_following_7_sivan_on_shabbos_in_israel() {
         // JewishDate(5769, 3, 8) - 8th of Sivan 5769
         let test_date = from_hebrew_date(5769, SIVAN, 8);
-        let calculator = PirkeiAvos::new(true);
+        let calculator = PirkeiAvos(Region::Israel);
         let limud = calculator.limud(test_date).expect("limud exists");
         // Python test expects description '2'
         assert_eq!(limud, PirkeiAvosUnit::Single(2));

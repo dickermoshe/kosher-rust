@@ -207,7 +207,6 @@ mod tests {
     use icu_calendar::{Date, cal::Hebrew};
 
     use super::*;
-    use crate::limudim::Limud;
 
     fn cycle_end(_start: Date<Hebrew>, _iteration: Option<i32>) -> Option<Date<Hebrew>> {
         Some(_start)
@@ -311,8 +310,6 @@ mod tests {
             Some(interval.iteration as u32)
         }
     }
-
-    impl Limud<u32> for DailyCounter {}
 
     #[test]
     fn default_limud_engine_terminates_for_toy_calculator() {

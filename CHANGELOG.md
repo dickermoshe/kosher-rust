@@ -65,3 +65,21 @@ Elevations must now be finite; an infinite observer elevation used to be accepte
 
 The 24 zmanim KosherJava deprecates are `#[deprecated]` variants: they still calculate, with a
 warning where you name them.
+
+#### Limudim
+
+| 0.2 | 0.3 |
+|---|---|
+| `use kosher_rust::limudim::prelude::*`, `kosher_rust::prelude::*` | `use kosher_rust::limudim::{DafYomiBavli, Schedule, ..}`; the preludes are gone |
+| `date.limud(DafYomiBavli::default())` (`LimudCalendar`) | `DafYomiBavli.on(date)` (`Schedule`) |
+| `Limud<T>` | `Schedule`, with the unit as `Schedule::Unit` |
+| `AmudYomiBavliDirshu` | `AmudYomiDirshu` |
+| `DafYomiYerushalmiVilna` | `DafYomiYerushalmi` |
+| `PirkeiAvos { in_israel }`, `PirkeiAvos::new(in_israel)` | `PirkeiAvos(Region::Israel)` / `PirkeiAvos(Region::Diaspora)` |
+| `Mishnas(first, second)` | `MishnaPair { first, second }` |
+| `Daf::page`, `Amud::page` | `Daf::daf`, `Amud::daf` |
+| `Amud::amudim_to`, `Amud::at_offset` | removed |
+
+`Daf`, `Amud`, `Mishna`, `MishnaPair`, `TehillimUnit`, `PirkeiAvosUnit` and `Tractate` implement
+`Display` ("Bava Metzia 55", "Nazir 5:5-6", "Tehillim 119:1-96"); `Tractate::hebrew()` gives the
+Hebrew name.

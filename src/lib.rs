@@ -36,13 +36,3 @@ pub mod zmanim;
 pub use calendar::{HebrewDate, Region};
 pub use location::{Location, LocationError};
 pub use zmanim::{Zman, Zmanim};
-
-/// The [`limudim`] schedules and unit types, and the [`LimudCalendar`](limudim::LimudCalendar)
-/// trait.
-///
-/// ```
-/// use kosher_rust::prelude::*;
-/// ```
-pub mod prelude {
-    pub use crate::limudim::prelude::*;
-}

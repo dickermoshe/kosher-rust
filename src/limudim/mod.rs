@@ -1,42 +1,30 @@
-//! Daily Torah and Talmud learning schedules (*limudim*).
+//! Learning schedules (*limudim*): what Daf Yomi, Mishna Yomis, Tehillim and the others assign
+//! on a given day.
 //!
-//! This module maps a Hebrew calendar date to the learning unit assigned by a
-//! particular program: Daf Yomi, Mishna Yomis, Pirkei Avos, monthly Tehillim,
-//! and others. Each schedule is a zero-sized calculator type implementing
-//! [`Limud`]; call [`LimudCalendar::limud`] on any date that converts to a [`HebrewDate`] to
-//! look up that day's assignment.
-//!
-//! # Schedules
-//!
-//! | Calculator | Unit type | Notes |
-//! |------------|-----------|-------|
-//! | [`DafYomiBavli`] | [`Daf`] | Daily Bavli daf; cycle 1 began 1923-09-11 |
-//! | [`DafHashavuaBavli`] | [`Daf`] | Weekly Bavli daf (Sunday–Friday); began 2005-03-06 |
-//! | [`AmudYomiBavliDirshu`] | [`Amud`] | Daily Bavli amud (Dirshu); began 2023-10-16 |
-//! | [`DafYomiYerushalmiVilna`] | [`Daf`] | Daily Yerushalmi daf (Vilna edition); began 1980-02-02 |
-//! | [`MishnaYomis`] | [`Mishnas`] | Two mishnayos per day; began 1947-05-20 |
-//! | [`PirkeiAvos`] | [`PirkeiAvosUnit`] | Summer Shabbos afternoons; Israel vs. diaspora |
-//! | [`TehillimMonthly`] | [`TehillimUnit`] | Psalms divided across the Hebrew month |
-//!
-//! Returns `None` when no learning is scheduled (for example, before a cycle
-//! starts, on Shabbat for weekly programs, or outside Pirkei Avos season).
-//!
-//! # Quick start
+//! Every schedule implements [`Schedule`]: call [`on`](Schedule::on) with a date and get that
+//! day's portion, or `None` when nothing is scheduled (before the program began, on Shabbos for a
+//! weekly program, outside the Pirkei Avos season).
 //!
 //! ```
-//! use jiff::civil;
-//! use kosher_rust::limudim::prelude::*;
+//! use jiff::civil::date;
+//! use kosher_rust::limudim::{DafYomiBavli, MishnaYomis, Schedule};
 //!
-//! let date = civil::date(2017, 12, 28);
-//! let daf = date.limud(DafYomiBavli::default()).unwrap();
-//! assert_eq!(daf.tractate, Tractate::Shevuos);
-//! assert_eq!(daf.page, 30);
+//! let day = date(2024, 4, 23);
+//! assert_eq!(DafYomiBavli.on(day).unwrap().to_string(), "Bava Metzia 55");
+//! assert_eq!(MishnaYomis.on(day).unwrap().to_string(), "Nazir 5:5-6");
 //! ```
 //!
-//! Import [`prelude`] (or [`crate::prelude`]) for calculators,
-//! unit types, and [`LimudCalendar`].
+//! | Schedule | Gives |
+//! |---|---|
+//! | [`DafYomiBavli`] | [`Daf`] |
+//! | [`DafHashavuaBavli`] | [`Daf`] |
+//! | [`AmudYomiDirshu`] | [`Amud`] |
+//! | [`DafYomiYerushalmi`] | [`Daf`] |
+//! | [`MishnaYomis`] | [`MishnaPair`] |
+//! | [`TehillimMonthly`] | [`TehillimUnit`] |
+//! | [`PirkeiAvos`] | [`PirkeiAvosUnit`] |
 
-mod amud_yomi_bavli_dirshu;
+mod amud_yomi_dirshu;
 mod daf_hashavua_bavli;
 mod daf_yomi_bavli;
 mod daf_yomi_yerushalmi;
@@ -46,53 +34,47 @@ mod pirkei_avos;
 mod tehillim_monthly;
 mod units;
 
-/// Looks up the scheduled daily limud for a calendar date.
-///
-/// Implemented for any type that can be viewed as a Hebrew date (ICU, Jiff, etc.).
-/// Pass a [`Limud`] such as [`DafYomiBavli`] to select the schedule.
-pub trait LimudCalendar {
-    /// Calculate the limud (learning unit) for this date using the given calculator.
-    ///
-    /// # Arguments
-    /// * `limud_calculator` - A calculator implementing the [`Limud`] trait
-    ///
-    /// # Returns
-    /// The learning unit for this date, or `None` if no learning is scheduled
-    fn limud<U>(&self, limud: impl Limud<U>) -> Option<U>;
-}
-impl<T> LimudCalendar for T
-where
-    T: Clone + Into<HebrewDate>,
-{
-    fn limud<U>(&self, limud: impl Limud<U>) -> Option<U> {
-        limud.limud(self.clone().into().icu())
-    }
-}
-pub use amud_yomi_bavli_dirshu::AmudYomiBavliDirshu;
+pub use amud_yomi_dirshu::AmudYomiDirshu;
 pub use daf_hashavua_bavli::DafHashavuaBavli;
 pub use daf_yomi_bavli::DafYomiBavli;
-pub use daf_yomi_yerushalmi::DafYomiYerushalmiVilna;
-pub use mishna_yomis::{MishnaYomis, Mishnas};
+pub use daf_yomi_yerushalmi::DafYomiYerushalmi;
+pub use mishna_yomis::{MishnaPair, MishnaYomis};
 pub use pirkei_avos::{PirkeiAvos, PirkeiAvosUnit};
 pub use tehillim_monthly::{TehillimMonthly, TehillimUnit};
-
 pub use units::{Amud, Daf, Mishna, Side, Tractate};
-
-/// A learning schedule: the calculators in this module, passed to [`LimudCalendar::limud`].
-///
-/// Sealed: only this crate's schedules implement it.
-#[allow(private_bounds)]
-pub trait Limud<T>: engine::InternalLimud<T> {}
 
 use crate::calendar::HebrewDate;
 
-/// Common limudim imports.
+/// A learning program: maps a date to that day's portion.
 ///
-/// Import this module to bring the limud extension trait, calculators, unit
-/// types, and public schedule constants into scope.
-pub mod prelude {
-    pub use super::{
-        Amud, AmudYomiBavliDirshu, Daf, DafHashavuaBavli, DafYomiBavli, DafYomiYerushalmiVilna, Limud, LimudCalendar,
-        Mishna, MishnaYomis, Mishnas, PirkeiAvos, PirkeiAvosUnit, Side, TehillimMonthly, TehillimUnit, Tractate,
+/// Implemented by the schedules in this module, and only by them.
+pub trait Schedule: sealed::Sealed {
+    /// What one day's portion is: a [`Daf`], an [`Amud`], a [`MishnaPair`], and so on.
+    type Unit;
+
+    /// The portion scheduled for `date`, which may be a [`jiff::civil::Date`], an ICU date or a
+    /// [`HebrewDate`].
+    ///
+    /// Returns `None` when nothing is scheduled that day.
+    fn on(&self, date: impl Into<HebrewDate>) -> Option<Self::Unit>;
+}
+
+mod sealed {
+    pub trait Sealed {}
+}
+
+/// Implements [`Schedule`] for a type that implements the private cycle engine.
+macro_rules! schedule {
+    ($schedule:ty => $unit:ty) => {
+        impl $crate::limudim::sealed::Sealed for $schedule {}
+
+        impl $crate::limudim::Schedule for $schedule {
+            type Unit = $unit;
+
+            fn on(&self, date: impl Into<$crate::calendar::HebrewDate>) -> Option<$unit> {
+                $crate::limudim::engine::InternalLimud::limud(self, date.into().icu())
+            }
+        }
     };
 }
+use schedule;

@@ -13,7 +13,10 @@ use icu_calendar::Date;
 use jiff::{civil::Date as CivilDate, tz::TimeZone};
 use kosher_rust::Location;
 use kosher_rust::calendar::{HebrewDate, HebrewMonth, HebrewYear, Region};
-use kosher_rust::limudim::prelude::*;
+use kosher_rust::limudim::{
+    AmudYomiDirshu, DafHashavuaBavli, DafYomiBavli, DafYomiYerushalmi, MishnaYomis, PirkeiAvos, Schedule,
+    TehillimMonthly,
+};
 use kosher_rust::zmanim::{AstronomicalCalculator, Config, Zman, Zmanim};
 
 const MAX_DURATION: Duration = Duration::from_millis(10);
@@ -184,7 +187,7 @@ mod limudim {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("DafYomiBavli [{index}]"), move || {
-                let _ = date.limud(DafYomiBavli::default());
+                let _ = DafYomiBavli.on(date);
             });
         }
     }
@@ -194,8 +197,8 @@ mod limudim {
         let dates = limud_dates();
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
-            assert_max_duration(&format!("DafYomiYerushalmiVilna [{index}]"), move || {
-                let _ = date.limud(DafYomiYerushalmiVilna::default());
+            assert_max_duration(&format!("DafYomiYerushalmi [{index}]"), move || {
+                let _ = DafYomiYerushalmi.on(date);
             });
         }
     }
@@ -206,7 +209,7 @@ mod limudim {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("DafHashavuaBavli [{index}]"), move || {
-                let _ = date.limud(DafHashavuaBavli::default());
+                let _ = DafHashavuaBavli.on(date);
             });
         }
     }
@@ -216,8 +219,8 @@ mod limudim {
         let dates = limud_dates();
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
-            assert_max_duration(&format!("AmudYomiBavliDirshu [{index}]"), move || {
-                let _ = date.limud(AmudYomiBavliDirshu::default());
+            assert_max_duration(&format!("AmudYomiDirshu [{index}]"), move || {
+                let _ = AmudYomiDirshu.on(date);
             });
         }
     }
@@ -228,7 +231,7 @@ mod limudim {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("MishnaYomis [{index}]"), move || {
-                let _ = date.limud(MishnaYomis);
+                let _ = MishnaYomis.on(date);
             });
         }
     }
@@ -239,10 +242,10 @@ mod limudim {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("PirkeiAvos diaspora [{index}]"), move || {
-                let _ = date.limud(PirkeiAvos { in_israel: false });
+                let _ = PirkeiAvos(Region::Diaspora).on(date);
             });
             assert_max_duration(&format!("PirkeiAvos israel [{index}]"), move || {
-                let _ = date.limud(PirkeiAvos { in_israel: true });
+                let _ = PirkeiAvos(Region::Israel).on(date);
             });
         }
     }
@@ -253,7 +256,7 @@ mod limudim {
         for (index, date) in dates.iter().enumerate() {
             let date = *date;
             assert_max_duration(&format!("TehillimMonthly [{index}]"), move || {
-                let _ = date.limud(TehillimMonthly);
+                let _ = TehillimMonthly.on(date);
             });
         }
     }

@@ -1,7 +1,6 @@
 use icu_calendar::{Date, cal::Hebrew, types::Weekday};
 
 use crate::limudim::{
-    Limud,
     engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
     units::{BAVLI_TRACTATES, Daf, Tractate},
 };
@@ -84,9 +83,9 @@ const fn end_daf(tractate: Tractate) -> Option<u16> {
     if daf == 0 { None } else { Some(daf) }
 }
 
-#[derive(Default)]
-/// Calculates the Daf Hashavua Bavli schedule.
-pub struct DafHashavuaBavli {}
+/// Daf HaShavua: one page of the Bavli a week, Sunday to Shabbos, from 6 March 2005.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
+pub struct DafHashavuaBavli;
 
 impl InternalLimud<Daf> for DafHashavuaBavli {
     fn interval_end_calculation(_cycle: Cycle, hebrew_date: Date<Hebrew>) -> Option<Date<Hebrew>> {
@@ -107,7 +106,7 @@ impl InternalLimud<Daf> for DafHashavuaBavli {
     }
 }
 
-impl Limud<Daf> for DafHashavuaBavli {}
+super::schedule!(DafHashavuaBavli => Daf);
 
 fn daf_at_offset(offset: usize) -> Option<Daf> {
     let mut remaining = offset;
@@ -118,7 +117,7 @@ fn daf_at_offset(offset: usize) -> Option<Daf> {
         if remaining < count {
             return Some(Daf {
                 tractate,
-                page: start + remaining as u16,
+                daf: start + remaining as u16,
             });
         }
         remaining -= count;
@@ -135,31 +134,31 @@ mod tests {
     #[test]
     fn daf_hashavua_bavli_simple_date() {
         let test_date = from_gregorian_date(2018, 10, 10);
-        let limud = DafHashavuaBavli::default().limud(test_date).expect("limud exists");
+        let limud = DafHashavuaBavli.limud(test_date).expect("limud exists");
         assert_eq!(limud.tractate, Tractate::Megillah);
-        assert_eq!(limud.page, 2);
+        assert_eq!(limud.daf, 2);
     }
 
     #[test]
     fn daf_hashavua_bavli_before_cycle_began() {
         let test_date = from_gregorian_date(2005, 3, 5);
-        let limud = DafHashavuaBavli::default().limud(test_date);
+        let limud = DafHashavuaBavli.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn daf_hashavua_bavli_first_day_of_cycle() {
         let test_date = from_gregorian_date(2057, 2, 18);
-        let limud = DafHashavuaBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 2);
+        let limud = DafHashavuaBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 2);
         assert_eq!(limud.tractate, Tractate::Berachos);
     }
 
     #[test]
     fn daf_hashavua_bavli_last_day_of_cycle() {
         let test_date = from_gregorian_date(2057, 2, 17);
-        let limud = DafHashavuaBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 73);
+        let limud = DafHashavuaBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 73);
         assert_eq!(limud.tractate, Tractate::Niddah);
     }
 }

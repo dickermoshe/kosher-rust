@@ -1,7 +1,6 @@
 use icu_calendar::{Date, cal::Hebrew};
 
 use crate::limudim::{
-    Limud,
     engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
     units::*,
 };
@@ -70,19 +69,15 @@ pub const fn end_daf(tractate: Tractate) -> Option<Amud> {
         Tractate::Niddah => Amud::new(Tractate::Niddah, 73, Side::Aleph),
         _ => Amud::new(Tractate::Bechoros, 0, Side::Aleph),
     };
-    if amud.page == 0 { None } else { Some(amud) }
+    if amud.daf == 0 { None } else { Some(amud) }
 }
 
-#[derive(Default)]
-/// Calculates the Amud Yomi Bavli Dirshu schedule.
-pub struct AmudYomiBavliDirshu {}
+/// Dirshu's Amud Yomi: one side of a page of the Bavli a day, from 16 October 2023.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
+pub struct AmudYomiDirshu;
 
 fn amud_yomi_bavli_dirshu_for_date(limud_date: Date<Hebrew>) -> Option<Amud> {
-    let cycle = Cycle::from_cycle_initiation(
-        initial_cycle_date(),
-        AmudYomiBavliDirshu::cycle_end_calculation,
-        limud_date,
-    )?;
+    let cycle = Cycle::from_cycle_initiation(initial_cycle_date(), AmudYomiDirshu::cycle_end_calculation, limud_date)?;
     if limud_date > cycle.end_date {
         return None;
     }
@@ -100,7 +95,7 @@ fn amud_yomi_bavli_dirshu_for_date(limud_date: Date<Hebrew>) -> Option<Amud> {
     None
 }
 
-impl InternalLimud<Amud> for AmudYomiBavliDirshu {
+impl InternalLimud<Amud> for AmudYomiDirshu {
     fn limud(&self, limud_date: Date<Hebrew>) -> Option<Amud> {
         amud_yomi_bavli_dirshu_for_date(limud_date)
     }
@@ -116,7 +111,7 @@ impl InternalLimud<Amud> for AmudYomiBavliDirshu {
         amud_yomi_bavli_dirshu_for_date(*limud_date)
     }
 }
-impl Limud<Amud> for AmudYomiBavliDirshu {}
+super::schedule!(AmudYomiDirshu => Amud);
 
 #[cfg(test)]
 #[allow(clippy::expect_used)]
@@ -128,8 +123,8 @@ mod tests {
     #[test]
     fn amud_yomi_bavli_dirshu_simple_date() {
         let test_date = from_gregorian_date(2024, 5, 30);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 53);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 53);
         assert_eq!(limud.side, Side::Aleph);
         assert_eq!(limud.tractate, Tractate::Shabbos);
     }
@@ -137,15 +132,15 @@ mod tests {
     #[test]
     fn amud_yomi_bavli_dirshu_before_cycle_began() {
         let test_date = from_gregorian_date(2023, 1, 1);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date);
+        let limud = AmudYomiDirshu.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn amud_yomi_bavli_dirshu_first_day_of_cycle() {
         let test_date = from_gregorian_date(2038, 8, 5);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 2);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 2);
         assert_eq!(limud.side, Side::Aleph);
         assert_eq!(limud.tractate, Tractate::Berachos);
     }
@@ -153,8 +148,8 @@ mod tests {
     #[test]
     fn amud_yomi_bavli_dirshu_last_day_of_cycle() {
         let test_date = from_gregorian_date(2038, 8, 4);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 73);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 73);
         assert_eq!(limud.side, Side::Aleph);
         assert_eq!(limud.tractate, Tractate::Niddah);
     }
@@ -162,8 +157,8 @@ mod tests {
     #[test]
     fn amud_yomi_bavli_dirshu_end_of_meilah() {
         let test_date = from_gregorian_date(2038, 2, 10);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 21);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 21);
         assert_eq!(limud.side, Side::Bet);
         assert_eq!(limud.tractate, Tractate::Meilah);
     }
@@ -171,8 +166,8 @@ mod tests {
     #[test]
     fn amud_yomi_bavli_dirshu_beginning_of_kinnim() {
         let test_date = from_gregorian_date(2038, 2, 12);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 22);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 22);
         assert_eq!(limud.side, Side::Bet);
         assert_eq!(limud.tractate, Tractate::Kinnim);
     }
@@ -180,8 +175,8 @@ mod tests {
     #[test]
     fn amud_yomi_bavli_dirshu_end_of_kinnim() {
         let test_date = from_gregorian_date(2038, 2, 17);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 25);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 25);
         assert_eq!(limud.side, Side::Aleph);
         assert_eq!(limud.tractate, Tractate::Kinnim);
     }
@@ -189,8 +184,8 @@ mod tests {
     #[test]
     fn amud_yomi_bavli_dirshu_beginning_of_tamid() {
         let test_date = from_gregorian_date(2038, 2, 18);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 25);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 25);
         assert_eq!(limud.side, Side::Bet);
         assert_eq!(limud.tractate, Tractate::Tamid);
     }
@@ -198,8 +193,8 @@ mod tests {
     #[test]
     fn amud_yomi_bavli_dirshu_end_of_tamid() {
         let test_date = from_gregorian_date(2038, 3, 6);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 33);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 33);
         assert_eq!(limud.side, Side::Bet);
         assert_eq!(limud.tractate, Tractate::Tamid);
     }
@@ -207,8 +202,8 @@ mod tests {
     #[test]
     fn amud_yomi_bavli_dirshu_beginning_of_midos() {
         let test_date = from_gregorian_date(2038, 3, 7);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 34);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 34);
         assert_eq!(limud.side, Side::Aleph);
         assert_eq!(limud.tractate, Tractate::Midos);
     }
@@ -216,8 +211,8 @@ mod tests {
     #[test]
     fn amud_yomi_bavli_dirshu_end_of_midos() {
         let test_date = from_gregorian_date(2038, 3, 14);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 37);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 37);
         assert_eq!(limud.side, Side::Bet);
         assert_eq!(limud.tractate, Tractate::Midos);
     }
@@ -225,16 +220,16 @@ mod tests {
     #[test]
     fn amud_yomi_bavli_dirshu_after_midos() {
         let test_date = from_gregorian_date(2038, 3, 15);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 2);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 2);
         assert_eq!(limud.side, Side::Aleph);
         assert_eq!(limud.tractate, Tractate::Niddah);
     }
     #[test]
     fn amud_yomi_bavli_2025_23_9() {
         let test_date = from_gregorian_date(2025, 9, 23);
-        let limud = AmudYomiBavliDirshu::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 34);
+        let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 34);
         assert_eq!(limud.side, Side::Aleph);
         assert_eq!(limud.tractate, Tractate::Pesachim);
     }
