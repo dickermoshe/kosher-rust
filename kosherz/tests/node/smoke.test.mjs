@@ -1,5 +1,5 @@
 // Calls the generated Node bindings. Run after `weaveffi generate --target node` and
-// `npm install` in generated/node (see .github/workflows/tests.yaml):
+// `npm install` in generated/node (see .github/workflows/bindings.yaml):
 //
 //     node --test tests/node/*.test.mjs
 import { test } from 'node:test';

@@ -193,7 +193,7 @@ jobs:
           name: libkosherz
           path: target/debug
       - name: Swift smoke test
-        working-directory: kosherz/tests/swift
+        working-directory: kosherz/tests/swift/KosherzSmoke
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/target/debug
         run: swift run -Xlinker -L${{ github.workspace }}/target/debug

@@ -1,5 +1,5 @@
 // Calls the generated .NET bindings. Run from this directory after `cargo build -p kosherz`
-// (see .github/workflows/tests.yaml):
+// (see .github/workflows/bindings.yaml):
 //
 //     KOSHERZ_LIBRARY=../../../target/debug/libkosherz.so dotnet run
 using System;

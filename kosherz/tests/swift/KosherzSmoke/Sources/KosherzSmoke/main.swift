@@ -1,7 +1,7 @@
 // Calls the generated Swift bindings. Run from this directory after `cargo build -p kosherz`
-// (see .github/workflows/tests.yaml):
+// (see .github/workflows/bindings.yaml):
 //
-//     LD_LIBRARY_PATH=../../../target/debug swift run -Xlinker -L$PWD/../../../target/debug
+//     LD_LIBRARY_PATH=../../../../target/debug swift run -Xlinker -L$PWD/../../../../target/debug
 import Foundation
 import Kosherz
 

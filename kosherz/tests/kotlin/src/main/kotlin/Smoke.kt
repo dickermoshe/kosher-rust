@@ -1,5 +1,5 @@
 // Calls the generated Kotlin bindings on a desktop JVM. Run from this directory after
-// `cargo build -p kosherz` (see .github/workflows/tests.yaml):
+// `cargo build -p kosherz` (see .github/workflows/bindings.yaml):
 //
 //     cmake -S ../../generated/kotlin/src/main/cpp -B build/jni -DKOSHERZ_LIBRARY_DIR=$PWD/../../../target/debug
 //     cmake --build build/jni

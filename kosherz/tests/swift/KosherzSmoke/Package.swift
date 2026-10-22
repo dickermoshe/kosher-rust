@@ -5,7 +5,7 @@ let package = Package(
     name: "KosherzSmoke",
     platforms: [.macOS("11.0")],
     dependencies: [
-        .package(path: "../../generated/swift"),
+        .package(path: "../../../generated/swift"),
     ],
     targets: [
         .executableTarget(
