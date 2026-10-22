@@ -258,7 +258,7 @@ static HOLIDAY_RULES: [SpecialDayRule; 42] = [
         let day_of_chanukah = if month == KISLEV && day >= 25 {
             day - 24
         } else if month == TEVET {
-            let is_kislev_short = HebrewYear::new(date.year().extended_year()).is_kislev_short();
+            let is_kislev_short = HebrewYear::unchecked(date.year().extended_year()).is_kislev_short();
             let max_teves_day = if is_kislev_short { 3 } else { 2 };
             if day <= max_teves_day {
                 if is_kislev_short { day + 5 } else { day + 6 }

@@ -276,8 +276,8 @@ const TRANSIT_CURVATURE: f64 = 0.1;
 const TRANSIT_WINDOW_MINUTES: f64 = 360.0;
 
 /// The window, in UTC minutes after 0:00 of the date, in which a sunrise or sunset belongs to the
-/// date: `(18:00, 18:00]` local mean time from the evening before for a sunrise, and `(06:00,
-/// 06:00]` local mean time into the next morning for a sunset. These are the inverse of
+/// date: `(18:00, 18:00]` local mean time from the evening before for a sunrise, and `[06:00,
+/// 06:00)` local mean time into the next morning for a sunset. These are the inverse of
 /// [`super::instant_from_utc_hours`], which assigns a sunrise after 18:00 to the previous date and
 /// a sunset before 06:00 to the next, so a result found here always maps back to this date.
 fn rise_set_window_minutes(longitude: f64, event: SolarEvent) -> (f64, f64) {
@@ -411,7 +411,11 @@ fn secant_rise_set(
         f1 = zenith_difference(t1);
     }
 
-    let in_window = t1 > window.0 && t1 <= window.1;
+    let in_window = if event == SolarEvent::Sunrise {
+        t1 > window.0 && t1 <= window.1
+    } else {
+        t1 >= window.0 && t1 < window.1
+    };
     (in_window && f1.abs() <= MAX_ZENITH_RESIDUAL && min_slope >= GRAZING_MIN_SLOPE).then_some(t1)
 }
 

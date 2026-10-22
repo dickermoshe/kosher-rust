@@ -41,7 +41,7 @@ export declare namespace calendar {
   export class CalendarError extends $Error {
     constructor(code: number, message?: string);
   }
-  /** The date does not exist, or is outside Hebrew years 1 to 9999. */
+  /** The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999. */
   export class InvalidDateError extends calendar.CalendarError {
     static readonly CODE: 1;
     constructor(message?: string);
@@ -377,7 +377,7 @@ export declare namespace calendar {
   }
   /**
    * A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
-   * begins at nightfall. Years 1 to 9999.
+   * begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
    */
   export class HebrewDate {
     /**
@@ -395,8 +395,8 @@ export declare namespace calendar {
      *
      * # Errors
      *
-     * `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
-     * to 9999.
+     * `CalendarError::InvalidDate` when `date` does not exist, or falls outside 1 January of
+     * year 1 to 29 Elul 9999.
      * @throws {calendar.CalendarError}
      */
     static fromGregorian(date: calendar.GregorianDate): calendar.HebrewDate;
@@ -417,7 +417,7 @@ export declare namespace calendar {
      *
      * # Errors
      *
-     * `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+     * `CalendarError::InvalidDate` outside 1 January of year 1 to 29 Elul 9999.
      * @throws {calendar.CalendarError}
      */
     addDays(days: number): calendar.HebrewDate;
@@ -457,13 +457,13 @@ export declare namespace calendar {
    *
    * # Errors
    *
-   * `CalendarError::InvalidDate` for a year outside 1 to 9999.
+   * `CalendarError::InvalidDate` for a year outside 3761 to 9999.
    * @throws {calendar.CalendarError}
    */
   export function yearInfo(year: number): calendar.YearInfo;
   /**
    * The number of days in `month` of `year`, or none when the year has no such month or is
-   * outside 1 to 9999.
+   * outside 3761 to 9999.
    */
   export function daysInMonth(year: number, month: calendar.HebrewMonth): number | null;
   /**
@@ -471,7 +471,7 @@ export declare namespace calendar {
    *
    * # Errors
    *
-   * `CalendarError::InvalidDate` for a year outside 1 to 9999.
+   * `CalendarError::InvalidDate` for a year outside 3762 to 9999.
    * @throws {calendar.CalendarError}
    */
   export function roshHashana(year: number): calendar.HebrewDate;

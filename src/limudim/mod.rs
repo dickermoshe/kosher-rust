@@ -55,8 +55,9 @@ pub trait Schedule: sealed::Sealed {
     /// The portion scheduled for `date`, which may be a [`jiff::civil::Date`], an ICU date or a
     /// [`HebrewDate`].
     ///
-    /// Returns `None` when nothing is scheduled that day.
-    fn on(&self, date: impl Into<HebrewDate>) -> Option<Self::Unit>;
+    /// Returns `None` when nothing is scheduled that day, or when `date` is outside the range a
+    /// [`HebrewDate`] covers.
+    fn on(&self, date: impl TryInto<HebrewDate>) -> Option<Self::Unit>;
 }
 
 mod sealed {
@@ -71,8 +72,8 @@ macro_rules! schedule {
         impl $crate::limudim::Schedule for $schedule {
             type Unit = $unit;
 
-            fn on(&self, date: impl Into<$crate::calendar::HebrewDate>) -> Option<$unit> {
-                $crate::limudim::engine::InternalLimud::limud(self, date.into().icu())
+            fn on(&self, date: impl TryInto<$crate::calendar::HebrewDate>) -> Option<$unit> {
+                $crate::limudim::engine::InternalLimud::limud(self, date.try_into().ok()?.icu())
             }
         }
     };

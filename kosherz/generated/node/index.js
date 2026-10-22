@@ -197,7 +197,7 @@ export function __debugLive(kind) {
 const calendar$CalendarError = class CalendarError extends $Error {};
 const calendar$InvalidDateError = class InvalidDateError extends calendar$CalendarError {
   static CODE = 1;
-  constructor(message = 'The date does not exist, or is outside Hebrew years 1 to 9999.') {
+  constructor(message = 'The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.') {
     super(1, message);
   }
 };

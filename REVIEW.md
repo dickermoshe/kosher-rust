@@ -260,7 +260,7 @@ These were checked and found correct, so they don't need another look.
   for a sunrise, and (6, 30] for a sunset, which should become [6, 30) (C8 (a)). This deliberately departs from KosherJava, so the Java
   parity suite needs a documented exception for these cases. Consider reporting it upstream.
 
-- [ ] **C2. Calendar arithmetic is wrong for Hebrew year 0 and earlier.** Low. Reproduced
+- [x] **C2. Calendar arithmetic is wrong for Hebrew year 0 and earlier.** Low. Reproduced
   (`is_leap`) and confirmed (the rest).
 
   **What happens.** Several places use `%` and `/`, which round toward zero, on values that are
@@ -296,7 +296,7 @@ These were checked and found correct, so they don't need another look.
   - Declare that Hebrew years before 1 are unsupported, and say so on `HebrewDate`, not only on
     `HebrewYear`. Java rejects them.
 
-- [ ] **C3. `molad()` is wrong or `None` for Hebrew years 1 to 3760.** Low. Confirmed.
+- [x] **C3. `molad()` is wrong or `None` for Hebrew years 1 to 3760.** Low. Confirmed.
 
   **What happens.** `abs_date_to_gregorian_date` at
   [src/calendar/molad.rs:99-117](src/calendar/molad.rs#L99) is a hand-written day-number to
@@ -311,7 +311,7 @@ These were checked and found correct, so they don't need another look.
   **Fix.** Replace the hand-written conversion with ICU's `Date::from_rata_die`, or compute the
   `Timestamp` directly from the day number. The first fix for B1 covers this too.
 
-- [ ] **C4. Some functions stop at Hebrew year 9999, though dates go on to 13760.** Low.
+- [x] **C4. Some functions stop at Hebrew year 9999, though dates go on to 13760.** Low.
   Confirmed.
 
   **What happens.** ICU's `Date::try_new_hebrew_v2` only accepts years -9999 to 9999. A

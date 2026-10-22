@@ -26,7 +26,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     };
 
     let today = Zoned::now().with_time_zone(tz.clone()).date();
-    let hebrew = HebrewDate::from(today);
+    let hebrew = HebrewDate::try_from(today)?;
     println!("{today}  {hebrew}");
 
     for special_day in hebrew.special_days(region) {

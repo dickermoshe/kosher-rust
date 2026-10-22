@@ -31,7 +31,8 @@ fn region(in_israel: bool) -> Region {
 /// The holidays on `date`, without the modern Israeli ones unless `use_modern_holidays`, as
 /// KosherJava's `setUseModernHolidays` does.
 fn special_days(date: &Date<Hebrew>, in_israel: bool, use_modern_holidays: bool) -> Vec<SpecialDay> {
-    HebrewDate::from(*date)
+    HebrewDate::try_from(*date)
+        .expect("parity dates are in range")
         .special_days(region(in_israel))
         .filter(|special_day| use_modern_holidays || !special_day.is_modern())
         .collect()
@@ -143,7 +144,7 @@ pub(super) fn rust_jewish_calendar_snapshot(
 ) -> Option<JewishCalendarSnapshot> {
     let hebrew = rust_hebrew_date(date)?;
     let rust_special_days = special_days(&hebrew, in_israel, use_modern_holidays);
-    let day = HebrewDate::from(hebrew);
+    let day = HebrewDate::try_from(hebrew).expect("parity dates are in range");
     let region = region(in_israel);
     let day_of_chanukah = rust_special_days.iter().find_map(|special_day| match special_day {
         SpecialDay::Chanukah(day) => Some(*day),
@@ -288,9 +289,9 @@ fn hebrew_month_from_java(year: i32, java_month: u8) -> Option<Month> {
         9 => Some(KISLEV),
         10 => Some(TEVET),
         11 => Some(SHEVAT),
-        12 if HebrewYear::new(year).is_leap() => Some(ADARI),
+        12 if HebrewYear::new(year).is_some_and(|year| year.is_leap()) => Some(ADARI),
         12 => Some(ADAR),
-        13 if HebrewYear::new(year).is_leap() => Some(ADAR),
+        13 if HebrewYear::new(year).is_some_and(|year| year.is_leap()) => Some(ADAR),
         _ => None,
     }
 }
@@ -309,7 +310,7 @@ fn java_month_from_hebrew(month: Month, year: i32) -> Option<u8> {
         TEVET => 10,
         SHEVAT => 11,
         ADARI => 12,
-        ADAR if HebrewYear::new(year).is_leap() => 13,
+        ADAR if HebrewYear::new(year).is_some_and(|year| year.is_leap()) => 13,
         ADAR => 12,
         _ => return None,
     })
@@ -407,5 +408,7 @@ fn rust_is_tomorrow_shabbos_or_yom_tov(date: &Date<Hebrew>, in_israel: bool) -> 
     let next_day = date
         .try_added_with_options(DateDuration::for_days(1), constrained_date_add_options())
         .expect("adding one day to valid Hebrew date should work");
-    HebrewDate::from(next_day).is_assur_bemelacha(region(in_israel))
+    HebrewDate::try_from(next_day)
+        .expect("parity dates are in range")
+        .is_assur_bemelacha(region(in_israel))
 }

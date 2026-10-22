@@ -35,7 +35,7 @@ mod calendar {
 
     #[divan::bench]
     fn convert_from_gregorian() -> HebrewDate {
-        HebrewDate::from(black_box(date(2024, 4, 23)))
+        HebrewDate::try_from(black_box(date(2024, 4, 23))).unwrap()
     }
 
     #[divan::bench]
@@ -45,7 +45,7 @@ mod calendar {
 
     #[divan::bench]
     fn parsha() {
-        black_box(HebrewDate::from(date(2024, 5, 4)).parsha(Region::Diaspora));
+        black_box(HebrewDate::try_from(date(2024, 5, 4)).unwrap().parsha(Region::Diaspora));
     }
 
     #[divan::bench]
@@ -55,7 +55,7 @@ mod calendar {
 
     #[divan::bench]
     fn year_length() -> u16 {
-        black_box(HebrewYear::new(5784)).days()
+        black_box(HebrewYear::new(5784).unwrap()).days()
     }
 
     #[divan::bench]

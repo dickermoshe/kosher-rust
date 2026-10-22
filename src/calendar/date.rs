@@ -6,13 +6,14 @@ use icu_calendar::types::{DateDuration, Weekday as IcuWeekday};
 use icu_calendar::{AsCalendar, Date, Gregorian, Iso, cal::Hebrew};
 use jiff::civil::{self, Weekday};
 use jiff_icu::{ConvertFrom, ConvertTryFrom};
+use thiserror::Error;
 
 use super::molad::{Molad, molad_of_month};
 use super::month::{ADAR, ADARI, AV, HebrewMonth, NISAN, SHEVAT, TISHREI};
 use super::parsha::Parsha;
 use super::parsha_tables::get_parsha_list;
 use super::special_day::{SpecialDay, SpecialDayIterator};
-use super::year::{HebrewYear, elapsed_days};
+use super::year::{HebrewYear, LAST_YEAR, elapsed_days};
 
 /// Where the calendar is kept: Israel or the diaspora.
 ///
@@ -35,31 +36,48 @@ impl Region {
 
 /// A day on the Hebrew calendar, and everything the calendar says about it.
 ///
-/// Convert from a [`jiff::civil::Date`] or any ICU date with `HebrewDate::from`, or build one with
-/// [`HebrewDate::new`]. A Hebrew day begins at nightfall, but a `HebrewDate` is the civil day it
-/// mostly overlaps: `HebrewDate::from(date(2024, 4, 23))` is 15 Nisan, the first day of Pesach,
-/// not the evening before.
+/// Convert from a [`jiff::civil::Date`] or any ICU date with `HebrewDate::try_from`, or build one
+/// with [`HebrewDate::new`]. A Hebrew day begins at nightfall, but a `HebrewDate` is the civil day
+/// it mostly overlaps. So `HebrewDate::try_from(date(2024, 4, 23))` is 15 Nisan, the first day of
+/// Pesach, not the evening before.
+///
+/// A `HebrewDate` covers 1 January of year 1, which is 18 Teves 3761, through 29 Elul 9999, which
+/// is in Gregorian 6239. Converting a date outside that range fails with [`DateOutOfRange`].
 ///
 /// ```
 /// use jiff::civil::date;
 /// use kosher_rust::calendar::{SpecialDay, HebrewDate, HebrewMonth, Region};
 ///
-/// let day = HebrewDate::from(date(2024, 4, 23));
+/// let day = HebrewDate::try_from(date(2024, 4, 23))?;
 /// assert_eq!(day.to_string(), "15 Nisan 5784");
 /// assert_eq!(day.month(), HebrewMonth::Nisan);
 /// assert!(day.special_days(Region::Diaspora).any(|h| h == SpecialDay::Pesach));
 /// assert_eq!(day.to_gregorian(), Some(date(2024, 4, 23)));
+/// # Ok::<(), kosher_rust::calendar::DateOutOfRange>(())
 /// ```
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct HebrewDate(Date<Hebrew>);
+
+/// A date outside the range a [`HebrewDate`] covers, which is 1 January of year 1 (18 Teves 3761)
+/// through 29 Elul 9999.
+#[derive(Debug, Error, PartialEq, Eq, Clone, Copy, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[error("the date is outside the range a HebrewDate covers, 1 January of year 1 through 29 Elul 9999")]
+pub struct DateOutOfRange;
 
 impl HebrewDate {
     /// The date `day` `month` `year`, for example `HebrewDate::new(5785, HebrewMonth::Nisan, 15)`.
     ///
     /// Returns `None` when there is no such day: day 0, day 30 of a 29-day month, Adar I in a
-    /// common year, or a year the underlying calendar does not support.
+    /// common year, or a date outside the range a `HebrewDate` covers.
     pub fn new(year: i32, month: HebrewMonth, day: u8) -> Option<Self> {
-        Date::try_new_hebrew_v2(year, month.to_icu(), day).ok().map(Self)
+        Self::checked(Date::try_new_hebrew_v2(year, month.to_icu(), day).ok()?)
+    }
+
+    /// `date`, if it is in the range a `HebrewDate` covers.
+    pub(crate) fn checked(date: Date<Hebrew>) -> Option<Self> {
+        let first_day = Date::try_new_iso(1, 1, 1).ok()?.to_calendar(Hebrew);
+        (date >= first_day && date.year().extended_year() <= LAST_YEAR).then_some(Self(date))
     }
 
     pub(crate) const fn from_icu(date: Date<Hebrew>) -> Self {
@@ -72,7 +90,7 @@ impl HebrewDate {
 
     /// The year.
     pub fn year(self) -> HebrewYear {
-        HebrewYear::new(self.0.year().extended_year())
+        HebrewYear::unchecked(self.0.year().extended_year())
     }
 
     /// The month.
@@ -105,12 +123,13 @@ impl HebrewDate {
 
     /// The date `days` days later, or earlier when `days` is negative.
     ///
-    /// Returns `None` past the range the underlying calendar supports.
+    /// Returns `None` past either end of the range a `HebrewDate` covers.
     pub fn add_days(self, days: i32) -> Option<Self> {
-        self.0
-            .try_added_with_options(DateDuration::for_days(days), DateAddOptions::default())
-            .ok()
-            .map(Self)
+        Self::checked(
+            self.0
+                .try_added_with_options(DateDuration::for_days(days), DateAddOptions::default())
+                .ok()?,
+        )
     }
 
     /// The holidays, fasts and other notable days that fall on this date, in calendar order.
@@ -123,9 +142,10 @@ impl HebrewDate {
     /// use kosher_rust::calendar::{SpecialDay, HebrewDate, Region};
     ///
     /// // 16 Nisan: the second day of Pesach in the diaspora, Chol Hamoed in Israel.
-    /// let day = HebrewDate::from(date(2024, 4, 24));
+    /// let day = HebrewDate::try_from(date(2024, 4, 24))?;
     /// assert!(day.special_days(Region::Diaspora).any(|h| h == SpecialDay::Pesach));
     /// assert!(day.special_days(Region::Israel).any(|h| h == SpecialDay::CholHamoedPesach));
+    /// # Ok::<(), kosher_rust::calendar::DateOutOfRange>(())
     /// ```
     pub fn special_days(self, region: Region) -> impl FusedIterator<Item = SpecialDay> {
         SpecialDayIterator::new(self.0, region.in_israel())
@@ -259,21 +279,25 @@ impl HebrewDate {
 
     /// The molad of this date's month.
     ///
-    /// Returns `None` before Hebrew year 1 and near the limits of the supported date range.
+    /// Returns `None` near the ends of the range a `HebrewDate` covers.
     pub fn molad(self) -> Option<Molad> {
         molad_of_month(&self.0)
     }
 }
 
-impl From<civil::Date> for HebrewDate {
-    fn from(date: civil::Date) -> Self {
-        Self(Date::<Iso>::convert_from(date).to_calendar(Hebrew))
+impl TryFrom<civil::Date> for HebrewDate {
+    type Error = DateOutOfRange;
+
+    fn try_from(date: civil::Date) -> Result<Self, DateOutOfRange> {
+        Self::checked(Date::<Iso>::convert_from(date).to_calendar(Hebrew)).ok_or(DateOutOfRange)
     }
 }
 
-impl<C: AsCalendar> From<Date<C>> for HebrewDate {
-    fn from(date: Date<C>) -> Self {
-        Self(date.to_calendar(Hebrew))
+impl<C: AsCalendar> TryFrom<Date<C>> for HebrewDate {
+    type Error = DateOutOfRange;
+
+    fn try_from(date: Date<C>) -> Result<Self, DateOutOfRange> {
+        Self::checked(date.to_calendar(Hebrew)).ok_or(DateOutOfRange)
     }
 }
 

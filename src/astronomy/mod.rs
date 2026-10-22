@@ -392,19 +392,12 @@ pub(crate) fn instant_from_utc_hours(
     }
 
     let nanos = (time * HOUR_NANOS).round() as i64;
-    let date_time = date
-        .at(0, 0, 0, 0)
-        .checked_add(SignedDuration::from_nanos(nanos))
-        .map_err(|_| ZmanimError::Internal)?;
-    date_time
-        .to_zoned(TimeZone::UTC)
-        .map_err(|_| ZmanimError::Internal)
-        .map(|zdt| zdt.timestamp())
+    let date_time = date.at(0, 0, 0, 0).checked_add(SignedDuration::from_nanos(nanos))?;
+    Ok(date_time.to_zoned(TimeZone::UTC)?.timestamp())
 }
 
 fn add_days(date: Date, days: i64) -> Result<Date, ZmanimError> {
-    date.checked_add(SignedDuration::from_hours(24 * days))
-        .map_err(|_| ZmanimError::Internal)
+    Ok(date.checked_add(SignedDuration::from_hours(24 * days))?)
 }
 
 pub(crate) fn normalize_utc_hours(time: f64) -> f64 {

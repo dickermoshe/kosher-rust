@@ -6,7 +6,9 @@
 use icu_calendar::Date;
 use jiff::civil::{Weekday, date};
 use jiff::tz::TimeZone;
-use kosher_rust::calendar::{HebrewDate, HebrewMonth, HebrewYear, Parsha, Region, SpecialDay, YearLength};
+use kosher_rust::calendar::{
+    DateOutOfRange, HebrewDate, HebrewMonth, HebrewYear, Parsha, Region, SpecialDay, YearLength,
+};
 
 fn hebrew(year: i32, month: HebrewMonth, day: u8) -> HebrewDate {
     HebrewDate::new(year, month, day).unwrap()
@@ -18,9 +20,9 @@ fn special_days(day: HebrewDate, region: Region) -> Vec<SpecialDay> {
 
 #[test]
 fn converts_from_jiff_and_icu_dates() {
-    let from_jiff = HebrewDate::from(date(2024, 4, 23));
-    let from_icu = HebrewDate::from(Date::try_new_gregorian(2024, 4, 23).unwrap());
-    let from_iso = HebrewDate::from(Date::try_new_iso(2024, 4, 23).unwrap());
+    let from_jiff = HebrewDate::try_from(date(2024, 4, 23)).unwrap();
+    let from_icu = HebrewDate::try_from(Date::try_new_gregorian(2024, 4, 23).unwrap()).unwrap();
+    let from_iso = HebrewDate::try_from(Date::try_new_iso(2024, 4, 23).unwrap()).unwrap();
 
     assert_eq!(from_jiff, hebrew(5784, HebrewMonth::Nisan, 15));
     assert_eq!(from_icu, from_jiff);
@@ -31,7 +33,7 @@ fn converts_from_jiff_and_icu_dates() {
 #[test]
 fn reads_year_month_day_and_weekday() {
     let day = hebrew(5784, HebrewMonth::Tishrei, 1);
-    assert_eq!(day.year(), HebrewYear::new(5784));
+    assert_eq!(day.year(), HebrewYear::new(5784).unwrap());
     assert_eq!(day.month(), HebrewMonth::Tishrei);
     assert_eq!(day.day(), 1);
     assert_eq!(day.day_of_year(), 1);
@@ -62,21 +64,21 @@ fn adds_days_across_months() {
 
 #[test]
 fn year_facts() {
-    assert!(HebrewYear::new(5784).is_leap());
-    assert!(!HebrewYear::new(5785).is_leap());
-    assert!(HebrewYear::new(5787).is_leap());
-    assert!(HebrewYear::new(5790).is_leap());
+    assert!(HebrewYear::new(5784).unwrap().is_leap());
+    assert!(!HebrewYear::new(5785).unwrap().is_leap());
+    assert!(HebrewYear::new(5787).unwrap().is_leap());
+    assert!(HebrewYear::new(5790).unwrap().is_leap());
 
-    let year = HebrewYear::new(5784);
+    let year = HebrewYear::new(5784).unwrap();
     assert_eq!(year.days(), 383);
     assert_eq!(year.length(), YearLength::Chaserim);
     assert!(!year.is_cheshvan_long() && year.is_kislev_short());
     assert_eq!(year.months().len(), 13);
-    assert_eq!(HebrewYear::new(5785).months().len(), 12);
+    assert_eq!(HebrewYear::new(5785).unwrap().months().len(), 12);
     assert_eq!(year.rosh_hashana(), Some(hebrew(5784, HebrewMonth::Tishrei, 1)));
 
     for year in 5700..5900 {
-        let year = HebrewYear::new(year);
+        let year = HebrewYear::new(year).unwrap();
         let expected = match year.length() {
             YearLength::Chaserim => 353,
             YearLength::Kesidran => 354,
@@ -90,11 +92,11 @@ fn year_facts() {
 
 #[test]
 fn month_lengths() {
-    assert_eq!(HebrewYear::new(5784).days_in(HebrewMonth::Nisan), Some(30));
-    assert_eq!(HebrewYear::new(5784).days_in(HebrewMonth::Iyar), Some(29));
-    assert_eq!(HebrewYear::new(5785).days_in(HebrewMonth::Adar), Some(29));
-    assert_eq!(HebrewYear::new(5784).days_in(HebrewMonth::AdarI), Some(30));
-    assert_eq!(HebrewYear::new(5785).days_in(HebrewMonth::AdarI), None);
+    assert_eq!(HebrewYear::new(5784).unwrap().days_in(HebrewMonth::Nisan), Some(30));
+    assert_eq!(HebrewYear::new(5784).unwrap().days_in(HebrewMonth::Iyar), Some(29));
+    assert_eq!(HebrewYear::new(5785).unwrap().days_in(HebrewMonth::Adar), Some(29));
+    assert_eq!(HebrewYear::new(5784).unwrap().days_in(HebrewMonth::AdarI), Some(30));
+    assert_eq!(HebrewYear::new(5785).unwrap().days_in(HebrewMonth::AdarI), None);
 }
 
 #[test]
@@ -167,14 +169,14 @@ fn modern_holidays_are_yielded_and_flagged() {
 
 #[test]
 fn candle_lighting_on_erev_shabbos_and_yom_tov() {
-    let friday = HebrewDate::from(date(2024, 4, 26));
+    let friday = HebrewDate::try_from(date(2024, 4, 26)).unwrap();
     assert_eq!(friday.weekday(), Weekday::Friday);
     assert!(friday.has_candle_lighting(Region::Diaspora));
 
     let erev_pesach = hebrew(5784, HebrewMonth::Nisan, 14);
     assert!(erev_pesach.has_candle_lighting(Region::Israel));
 
-    let wednesday = HebrewDate::from(date(2024, 5, 1));
+    let wednesday = HebrewDate::try_from(date(2024, 5, 1)).unwrap();
     assert!(!wednesday.has_candle_lighting(Region::Diaspora));
 }
 
@@ -185,15 +187,18 @@ fn weekly_parsha() {
     assert_eq!(bo.parsha(Region::Diaspora), Some(Parsha::Bo));
 
     assert_eq!(
-        HebrewDate::from(date(2024, 5, 4)).parsha(Region::Israel),
+        HebrewDate::try_from(date(2024, 5, 4)).unwrap().parsha(Region::Israel),
         Some(Parsha::AchreiMos)
     );
 
     // No parsha on a weekday.
-    assert_eq!(HebrewDate::from(date(2024, 5, 1)).parsha(Region::Diaspora), None);
+    assert_eq!(
+        HebrewDate::try_from(date(2024, 5, 1)).unwrap().parsha(Region::Diaspora),
+        None
+    );
 
     // Shabbos Chol Hamoed Succos 5784 has the Yom Tov reading.
-    let chol_hamoed = HebrewDate::from(date(2023, 10, 7));
+    let chol_hamoed = HebrewDate::try_from(date(2023, 10, 7)).unwrap();
     assert_eq!(chol_hamoed.weekday(), Weekday::Saturday);
     assert_eq!(chol_hamoed.parsha(Region::Diaspora), None);
 }
@@ -201,7 +206,7 @@ fn weekly_parsha() {
 #[test]
 fn next_parsha_skips_yom_tov() {
     // Tuesday 15 Nisan 5784: the next Shabbos is Chol Hamoed, so the next reading is Achrei Mos.
-    let pesach = HebrewDate::from(date(2024, 4, 23));
+    let pesach = HebrewDate::try_from(date(2024, 4, 23)).unwrap();
     assert_eq!(pesach.next_parsha(Region::Diaspora), Some(Parsha::AchreiMos));
 }
 
@@ -243,14 +248,15 @@ fn extreme_dates_do_not_panic() {
     let samples = [
         (HebrewMonth::Tishrei, 1),
         (HebrewMonth::Tishrei, 30),
+        (HebrewMonth::Teves, 18),
         (HebrewMonth::Nisan, 15),
         (HebrewMonth::Adar, 14),
         (HebrewMonth::AdarI, 1),
         (HebrewMonth::Kislev, 25),
+        (HebrewMonth::Elul, 29),
     ];
-    // ICU builds dates for years -9999 to 9999 only, so stay inside that range.
-    for year in [-9999, -1, 0, 1, 2, 3761, 9999] {
-        let y = HebrewYear::new(year);
+    for year in [3761, 3762, 9998, 9999] {
+        let y = HebrewYear::new(year).unwrap();
         let _ = (y.days(), y.length(), y.is_leap(), y.rosh_hashana());
         for &month in y.months() {
             let _ = y.days_in(month);
@@ -260,24 +266,27 @@ fn extreme_dates_do_not_panic() {
                 exercise(day);
             }
         }
-        if let Ok(gregorian) = Date::try_new_gregorian(year, 6, 15) {
-            exercise(HebrewDate::from(gregorian));
-        }
-    }
-    for gregorian in [
-        jiff::civil::Date::MIN,
-        date(-3760, 5, 12),
-        date(-4151, 8, 10),
-        jiff::civil::Date::MAX,
-    ] {
-        exercise(HebrewDate::from(gregorian));
     }
 }
 
 #[test]
-fn no_molad_before_year_one() {
-    assert_eq!(HebrewDate::from(date(-3760, 5, 12)).molad(), None);
-    assert!(hebrew(3762, HebrewMonth::Tishrei, 1).molad().is_some());
+fn covers_1_january_of_year_1_through_the_end_of_9999() {
+    let first = HebrewDate::try_from(date(1, 1, 1)).unwrap();
+    assert_eq!(first, hebrew(3761, HebrewMonth::Teves, 18));
+    assert_eq!(first.add_days(-1), None);
+    assert_eq!(HebrewDate::try_from(date(0, 12, 31)), Err(DateOutOfRange));
+    assert_eq!(HebrewDate::try_from(jiff::civil::Date::MIN), Err(DateOutOfRange));
+    assert_eq!(HebrewDate::new(3761, HebrewMonth::Teves, 17), None);
+
+    let last = hebrew(9999, HebrewMonth::Elul, 29);
+    assert_eq!(last.add_days(1), None);
+    let after = last.to_gregorian().unwrap().tomorrow().unwrap();
+    assert_eq!(HebrewDate::try_from(after), Err(DateOutOfRange));
+    assert_eq!(HebrewDate::try_from(jiff::civil::Date::MAX), Err(DateOutOfRange));
+
+    assert_eq!(HebrewYear::new(3760), None);
+    assert_eq!(HebrewYear::new(10000), None);
+    assert_eq!(HebrewYear::new(3761).unwrap().rosh_hashana(), None);
 }
 
 fn exercise(day: HebrewDate) {

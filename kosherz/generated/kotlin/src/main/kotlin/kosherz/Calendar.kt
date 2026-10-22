@@ -6,8 +6,8 @@ package kosherz
 
 /** Errors of the `CalendarError` domain. */
 sealed class CalendarException(code: Int, message: String) : FfiException(code, message) {
-    /** The date does not exist, or is outside Hebrew years 1 to 9999. */
-    class InvalidDate(message: String = "The date does not exist, or is outside Hebrew years 1 to 9999.") : CalendarException(1, message)
+    /** The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999. */
+    class InvalidDate(message: String = "The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.") : CalendarException(1, message)
     /** A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49. */
     class InvalidSpecialDay(message: String = "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.") : CalendarException(2, message)
 
@@ -523,7 +523,7 @@ internal fun unpackYearInfo(_r: BufferReader): YearInfo = YearInfo(
 
 /**
  * A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
- * begins at nightfall. Years 1 to 9999.
+ * begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
  */
 class HebrewDate private constructor(address: Long) : AutoCloseable {
     internal val handle: NativeHandle = NativeCleaner.register(this, NativeHandle(address, JniBridge::calendar_HebrewDate_destroy))
@@ -566,7 +566,7 @@ class HebrewDate private constructor(address: Long) : AutoCloseable {
      *
      * # Errors
      *
-     * `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+     * `CalendarError::InvalidDate` outside 1 January of year 1 to 29 Elul 9999.
      */
     fun addDays(days: Int): HebrewDate = handle.borrow { _self ->
         HebrewDate.fromHandle(JniBridge.calendar_HebrewDate_add_days(_self, days))
@@ -656,8 +656,8 @@ class HebrewDate private constructor(address: Long) : AutoCloseable {
          *
          * # Errors
          *
-         * `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
-         * to 9999.
+         * `CalendarError::InvalidDate` when `date` does not exist, or falls outside 1 January of
+         * year 1 to 29 Elul 9999.
          */
         fun fromGregorian(date: GregorianDate): HebrewDate = HebrewDate.fromHandle(JniBridge.calendar_HebrewDate_from_gregorian(encodeBuffer { _w -> packGregorianDate(_w, date) }))
     }
@@ -1011,13 +1011,13 @@ object Calendar {
      *
      * # Errors
      *
-     * `CalendarError::InvalidDate` for a year outside 1 to 9999.
+     * `CalendarError::InvalidDate` for a year outside 3761 to 9999.
      */
     fun yearInfo(year: Int): YearInfo = decodeBuffer(JniBridge.calendar_year_info(year)) { _r -> unpackYearInfo(_r) }
 
     /**
      * The number of days in `month` of `year`, or none when the year has no such month or is
-     * outside 1 to 9999.
+     * outside 3761 to 9999.
      */
     fun daysInMonth(year: Int, month: HebrewMonth): Int? = decodeBuffer(JniBridge.calendar_days_in_month(year, month.value)) { _r -> unpackOptionalOfI32(_r) }
 
@@ -1026,7 +1026,7 @@ object Calendar {
      *
      * # Errors
      *
-     * `CalendarError::InvalidDate` for a year outside 1 to 9999.
+     * `CalendarError::InvalidDate` for a year outside 3762 to 9999.
      */
     fun roshHashana(year: Int): HebrewDate = HebrewDate.fromHandle(JniBridge.calendar_rosh_hashana(year))
 

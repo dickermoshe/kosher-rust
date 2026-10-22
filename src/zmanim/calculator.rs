@@ -159,13 +159,13 @@ pub fn shaah_zmanis(start: Timestamp, end: Timestamp) -> SignedDuration {
 /// `time` plus `duration`, or [`ZmanimError::Internal`] past the last instant a [`Timestamp`]
 /// holds.
 pub(crate) fn plus(time: Timestamp, duration: SignedDuration) -> Result<Timestamp, ZmanimError> {
-    time.checked_add(duration).map_err(|_| ZmanimError::Internal)
+    Ok(time.checked_add(duration)?)
 }
 
 /// `time` minus `duration`, or [`ZmanimError::Internal`] before the first instant a
 /// [`Timestamp`] holds.
 pub(crate) fn minus(time: Timestamp, duration: SignedDuration) -> Result<Timestamp, ZmanimError> {
-    time.checked_sub(duration).map_err(|_| ZmanimError::Internal)
+    Ok(time.checked_sub(duration)?)
 }
 
 #[cfg(feature = "defmt")]

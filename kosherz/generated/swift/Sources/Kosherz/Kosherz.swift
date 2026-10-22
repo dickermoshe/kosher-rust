@@ -771,7 +771,7 @@ let wvContract: Void = {
 
 /// Typed errors reported by the `calendar` module.
 public enum CalendarError: Error, LocalizedError, Sendable {
-    /// The date does not exist, or is outside Hebrew years 1 to 9999.
+    /// The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
     case invalidDate(message: String)
     /// A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.
     case invalidSpecialDay(message: String)
@@ -796,7 +796,7 @@ public enum CalendarError: Error, LocalizedError, Sendable {
 func wvMapCalendar(_ err: WvError) -> Error {
     let message = wvErrorMessage(err)
     switch err.code {
-    case 1: return CalendarError.invalidDate(message: message.isEmpty ? "The date does not exist, or is outside Hebrew years 1 to 9999." : message)
+    case 1: return CalendarError.invalidDate(message: message.isEmpty ? "The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999." : message)
     case 2: return CalendarError.invalidSpecialDay(message: message.isEmpty ? "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49." : message)
     default: return wvRuntimeError(err)
     }
@@ -1337,7 +1337,7 @@ extension YearInfo: WvCodable {
 }
 
 /// A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
-/// begins at nightfall. Years 1 to 9999.
+/// begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
 public final class HebrewDate: @unchecked Sendable {
     let ptr: OpaquePointer
 
@@ -1375,8 +1375,8 @@ public final class HebrewDate: @unchecked Sendable {
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
-    /// to 9999.
+    /// `CalendarError::InvalidDate` when `date` does not exist, or falls outside 1 January of
+    /// year 1 to 29 Elul 9999.
     ///
     /// - Throws: ``CalendarError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
     public static func fromGregorian(date: GregorianDate) throws -> HebrewDate {
@@ -1442,7 +1442,7 @@ public final class HebrewDate: @unchecked Sendable {
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+    /// `CalendarError::InvalidDate` outside 1 January of year 1 to 29 Elul 9999.
     ///
     /// - Throws: ``CalendarError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
     public func addDays(days: Int32) throws -> HebrewDate {
@@ -3051,7 +3051,7 @@ public enum Calendar {
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidDate` for a year outside 1 to 9999.
+    /// `CalendarError::InvalidDate` for a year outside 3761 to 9999.
     ///
     /// - Throws: ``CalendarError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
     public static func yearInfo(year: Int32) throws -> YearInfo {
@@ -3064,7 +3064,7 @@ public enum Calendar {
     }
 
     /// The number of days in `month` of `year`, or none when the year has no such month or is
-    /// outside 1 to 9999.
+    /// outside 3761 to 9999.
     public static func daysInMonth(year: Int32, month: HebrewMonth) -> Int32? {
         wvLoad()
         var err = WvError()
@@ -3078,7 +3078,7 @@ public enum Calendar {
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidDate` for a year outside 1 to 9999.
+    /// `CalendarError::InvalidDate` for a year outside 3762 to 9999.
     ///
     /// - Throws: ``CalendarError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
     public static func roshHashana(year: Int32) throws -> HebrewDate {

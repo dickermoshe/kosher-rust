@@ -15,7 +15,7 @@ use kosher_rust::limudim::{
 fn accepts_jiff_icu_and_hebrew_dates() {
     let from_jiff = DafYomiBavli.on(date(2017, 12, 28));
     let from_icu = DafYomiBavli.on(Date::try_new_gregorian(2017, 12, 28).unwrap());
-    let from_hebrew = DafYomiBavli.on(HebrewDate::from(date(2017, 12, 28)));
+    let from_hebrew = DafYomiBavli.on(HebrewDate::try_from(date(2017, 12, 28)).unwrap());
     assert_eq!(from_jiff, from_icu);
     assert_eq!(from_jiff, from_hebrew);
     assert_eq!(from_jiff.unwrap().to_string(), "Shevuos 30");

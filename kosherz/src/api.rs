@@ -16,7 +16,7 @@ pub mod calendar {
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     #[repr(i32)]
     pub enum CalendarError {
-        /// The date does not exist, or is outside Hebrew years 1 to 9999.
+        /// The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
         InvalidDate = 1,
         /// A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.
         InvalidSpecialDay = 2,
@@ -385,7 +385,7 @@ pub mod calendar {
     }
 
     /// A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
-    /// begins at nightfall. Years 1 to 9999.
+    /// begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
     #[weaveffi::interface]
     pub struct HebrewDate {
         pub(crate) inner: kosher_rust::HebrewDate,
@@ -406,8 +406,8 @@ pub mod calendar {
         ///
         /// # Errors
         ///
-        /// `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
-        /// to 9999.
+        /// `CalendarError::InvalidDate` when `date` does not exist, or falls outside 1 January of
+        /// year 1 to 29 Elul 9999.
         pub fn from_gregorian(date: GregorianDate) -> Result<Self, CalendarError> {
             convert::calendar::from_gregorian(&date).map(|inner| Self { inner })
         }
@@ -446,7 +446,7 @@ pub mod calendar {
         ///
         /// # Errors
         ///
-        /// `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+        /// `CalendarError::InvalidDate` outside 1 January of year 1 to 29 Elul 9999.
         pub fn add_days(&self, days: i32) -> Result<Self, CalendarError> {
             convert::calendar::add_days(self.inner, days).map(|inner| Self { inner })
         }
@@ -514,14 +514,14 @@ pub mod calendar {
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidDate` for a year outside 1 to 9999.
+    /// `CalendarError::InvalidDate` for a year outside 3761 to 9999.
     #[weaveffi::export]
     pub fn year_info(year: i32) -> Result<YearInfo, CalendarError> {
         convert::calendar::year_info(year)
     }
 
     /// The number of days in `month` of `year`, or none when the year has no such month or is
-    /// outside 1 to 9999.
+    /// outside 3761 to 9999.
     #[weaveffi::export]
     pub fn days_in_month(year: i32, month: HebrewMonth) -> Option<i32> {
         convert::calendar::days_in_month(year, month)
@@ -531,7 +531,7 @@ pub mod calendar {
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidDate` for a year outside 1 to 9999.
+    /// `CalendarError::InvalidDate` for a year outside 3762 to 9999.
     #[weaveffi::export]
     pub fn rosh_hashana(year: i32) -> Result<HebrewDate, CalendarError> {
         convert::calendar::rosh_hashana(year).map(|inner| HebrewDate { inner })

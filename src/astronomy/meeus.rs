@@ -29,8 +29,8 @@ pub(crate) struct Meeus {
     /// Whether to apply nutation (the 18.6-year wobble of the Earth's axis). With it off,
     /// positions are referred to the mean equinox and obliquity of date. Default `true`.
     pub(crate) apply_nutation: bool,
-    /// Whether to take the Earth's position as the Earth–Moon barycenter's, leaving out the
-    /// Earth's monthly motion around it (up to 6.5″ of solar longitude). Default `false`.
+    /// Whether to leave out the synodic-month terms, which removes most of the Earth's monthly
+    /// motion around the Earth–Moon barycenter (up to 6.5″ of solar longitude). Default `false`.
     pub(crate) use_earth_moon_barycenter: bool,
 }
 

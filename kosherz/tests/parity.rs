@@ -669,7 +669,7 @@ fn calendar_matches_kosher_rust() {
     let mut date = civil::date(2023, 9, 1);
     while date < civil::date(2025, 10, 1) {
         let ours = HebrewDate::from_gregorian(date.into_gregorian()).unwrap();
-        let theirs = kosher_rust::HebrewDate::from(date);
+        let theirs = kosher_rust::HebrewDate::try_from(date).unwrap();
         assert_eq!(ours.year(), theirs.year().get());
         assert_eq!(kosher_rust::calendar::HebrewMonth::from(ours.month()), theirs.month());
         assert_eq!(ours.day(), i32::from(theirs.day()));
@@ -791,7 +791,7 @@ fn enums_round_trip() {
     }
     for year in [5784, 5785] {
         let info = calendar::year_info(year).unwrap();
-        let theirs = kosher_rust::calendar::HebrewYear::new(year);
+        let theirs = kosher_rust::calendar::HebrewYear::new(year).unwrap();
         assert_eq!(info.is_leap, theirs.is_leap());
         assert_eq!(info.days, i32::from(theirs.days()));
         assert_eq!(info.months.len(), theirs.months().len());
@@ -894,7 +894,7 @@ fn out_of_range_values_are_rejected() {
         );
     }
 
-    for year in [i32::MIN, -1, 0, 10_000, i32::MAX] {
+    for year in [i32::MIN, -1, 0, 1, 3760, 10_000, i32::MAX] {
         assert_eq!(calendar::year_info(year), Err(CalendarError::InvalidDate), "{year}");
         assert_eq!(calendar::days_in_month(year, HebrewMonth::Nisan), None, "{year}");
         assert!(calendar::rosh_hashana(year).is_err(), "{year}");
@@ -908,8 +908,18 @@ fn out_of_range_values_are_rejected() {
     }
     let last = HebrewDate::new(9999, HebrewMonth::Elul, 29).unwrap();
     assert!(last.add_days(1).is_err());
-    let first = HebrewDate::new(1, HebrewMonth::Tishrei, 1).unwrap();
+    let first = HebrewDate::new(3761, HebrewMonth::Teves, 18).unwrap();
     assert!(first.add_days(-1).is_err());
+    assert!(HebrewDate::new(3761, HebrewMonth::Teves, 17).is_err());
+    assert!(HebrewDate::new(1, HebrewMonth::Tishrei, 1).is_err());
+    assert_eq!(
+        first.to_gregorian().unwrap(),
+        GregorianDate {
+            year: 1,
+            month: 1,
+            day: 1
+        }
+    );
     assert_eq!(
         HebrewDate::from_gregorian(last.to_gregorian().unwrap()).unwrap().year(),
         9999

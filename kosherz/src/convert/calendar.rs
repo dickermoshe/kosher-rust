@@ -1,5 +1,3 @@
-use std::ops::RangeInclusive;
-
 use jiff::civil;
 use kosher_rust::calendar::{self as k, HebrewYear};
 
@@ -8,20 +6,8 @@ use crate::api::calendar::{
     CalendarError, GregorianDate, HebrewMonth, Parsha, Region, SpecialDay, Weekday, YearInfo, YearLength,
 };
 
-/// The Hebrew years the bindings take and give: the years a date can be built from.
-const YEARS: RangeInclusive<i32> = 1..=9999;
-
 fn hebrew_year(year: i32) -> Result<HebrewYear, CalendarError> {
-    if YEARS.contains(&year) {
-        Ok(HebrewYear::new(year))
-    } else {
-        Err(CalendarError::InvalidDate)
-    }
-}
-
-/// `date`, if its year is in [`YEARS`].
-fn in_range(date: k::HebrewDate) -> Result<k::HebrewDate, CalendarError> {
-    hebrew_year(date.year().get()).map(|_| date)
+    HebrewYear::new(year).ok_or(CalendarError::InvalidDate)
 }
 
 pub(crate) fn hebrew_date(year: i32, month: HebrewMonth, day: i32) -> Result<k::HebrewDate, CalendarError> {
@@ -30,11 +16,12 @@ pub(crate) fn hebrew_date(year: i32, month: HebrewMonth, day: i32) -> Result<k::
 }
 
 pub(crate) fn from_gregorian(date: &GregorianDate) -> Result<k::HebrewDate, CalendarError> {
-    in_range(super::civil_date(date).ok_or(CalendarError::InvalidDate)?.into())
+    let date = super::civil_date(date).ok_or(CalendarError::InvalidDate)?;
+    Ok(k::HebrewDate::try_from(date)?)
 }
 
 pub(crate) fn add_days(date: k::HebrewDate, days: i32) -> Result<k::HebrewDate, CalendarError> {
-    in_range(date.add_days(days).ok_or(CalendarError::InvalidDate)?)
+    date.add_days(days).ok_or(CalendarError::InvalidDate)
 }
 
 pub(crate) fn year_info(year: i32) -> Result<YearInfo, CalendarError> {

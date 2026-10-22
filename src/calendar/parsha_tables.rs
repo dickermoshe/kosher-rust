@@ -1010,7 +1010,7 @@ pub(crate) fn get_parsha_list(date: &Date<Hebrew>, in_israel: bool) -> Option<Pa
     ];
     let rosh_hashana_day_of_week =
         ROSH_HASHANA_WEEKDAYS[(elapsed_days(date.year().extended_year() as i64) + 1) as usize % 7];
-    let year = HebrewYear::new(date.year().extended_year());
+    let year = HebrewYear::unchecked(date.year().extended_year());
     let is_kislev_short = year.is_kislev_short();
     let is_cheshvan_long = year.is_cheshvan_long();
 

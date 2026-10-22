@@ -373,7 +373,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
             NightRTam72Degrees => self.rise_set_by_degrees(SolarEvent::Sunset, DAWN_72_DEGREES),
             Midnight => {
                 let sunset = self.get(SunsetLevel)?;
-                let tomorrow = self.date.tomorrow().map_err(|_| ZmanimError::Internal)?;
+                let tomorrow = self.date.tomorrow()?;
                 let next_sunrise = self.rise_set_on(tomorrow, SolarEvent::Sunrise, false)?;
                 midpoint(sunset, next_sunrise)
             }
@@ -527,9 +527,9 @@ fn nearest_second(time: Timestamp) -> Timestamp {
 
 fn floor_second(time: Timestamp) -> Result<Timestamp, ZmanimError> {
     let seconds = time.as_nanosecond().div_euclid(NANOS_PER_SECOND);
-    Timestamp::from_second(seconds as i64).map_err(|_| ZmanimError::Internal)
+    Ok(Timestamp::from_second(seconds as i64)?)
 }
 
 fn timestamp_from_nanos(nanos: i128) -> Result<Timestamp, ZmanimError> {
-    Timestamp::from_nanosecond(nanos).map_err(|_| ZmanimError::Internal)
+    Ok(Timestamp::from_nanosecond(nanos)?)
 }

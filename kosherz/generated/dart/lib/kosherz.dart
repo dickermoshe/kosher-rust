@@ -1095,10 +1095,10 @@ sealed class CalendarException extends NativeException {
   CalendarException(super.code, super.message);
 }
 
-/// The date does not exist, or is outside Hebrew years 1 to 9999.
+/// The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
 final class InvalidDateException extends CalendarException {
   /// Creates an [InvalidDateException] (code 1).
-  InvalidDateException([String message = 'The date does not exist, or is outside Hebrew years 1 to 9999.']) : super(1, message);
+  InvalidDateException([String message = 'The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.']) : super(1, message);
 }
 
 /// A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.
@@ -2400,7 +2400,7 @@ final _kosherzCalendarHebrewDateCompare = _lib.lookupFunction<
     int Function(Pointer<Void>, Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_compare');
 
 /// A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
-/// begins at nightfall. Years 1 to 9999.
+/// begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
 ///
 /// A reference-counted native object. Each instance holds one strong
 /// reference, released by [dispose] or, when an undisposed instance is
@@ -2438,8 +2438,8 @@ final class HebrewDate extends _NativeObject {
   ///
   /// # Errors
   ///
-  /// `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
-  /// to 9999.
+  /// `CalendarError::InvalidDate` when `date` does not exist, or falls outside 1 January of
+  /// year 1 to 29 Elul 9999.
   ///
   /// The returned object is owned by the caller: call its `dispose()`
   /// when you're done with it.
@@ -2533,7 +2533,7 @@ final class HebrewDate extends _NativeObject {
   ///
   /// # Errors
   ///
-  /// `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+  /// `CalendarError::InvalidDate` outside 1 January of year 1 to 29 Elul 9999.
   ///
   /// The returned object is owned by the caller: call its `dispose()`
   /// when you're done with it.
@@ -2697,7 +2697,7 @@ final _kosherzCalendarYearInfo = _lib.lookupFunction<
 ///
 /// # Errors
 ///
-/// `CalendarError::InvalidDate` for a year outside 1 to 9999.
+/// `CalendarError::InvalidDate` for a year outside 3761 to 9999.
 ///
 /// Throws [CalendarException] on domain errors.
 YearInfo yearInfo(int year) {
@@ -2711,7 +2711,7 @@ final _kosherzCalendarDaysInMonth = _lib.lookupFunction<
     Pointer<Uint8> Function(int, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_days_in_month');
 
 /// The number of days in `month` of `year`, or none when the year has no such month or is
-/// outside 1 to 9999.
+/// outside 3761 to 9999.
 int? daysInMonth(int year, HebrewMonth month) {
   final _result = _kosherzCalendarDaysInMonth(year, month.value, _outLen, _err);
   _check(_err);
@@ -2726,7 +2726,7 @@ final _kosherzCalendarRoshHashana = _lib.lookupFunction<
 ///
 /// # Errors
 ///
-/// `CalendarError::InvalidDate` for a year outside 1 to 9999.
+/// `CalendarError::InvalidDate` for a year outside 3762 to 9999.
 ///
 /// The returned object is owned by the caller: call its `dispose()`
 /// when you're done with it.

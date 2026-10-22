@@ -130,12 +130,12 @@ module Kosherz
 
   # Base error for the `calendar` module's error domain.
   class CalendarError < Error
-    # The date does not exist, or is outside Hebrew years 1 to 9999.
+    # The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
     class InvalidDate < CalendarError
       CODE = 1
 
       def initialize(message = nil)
-        super(CODE, message || 'The date does not exist, or is outside Hebrew years 1 to 9999.')
+        super(CODE, message || 'The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.')
       end
     end
 
@@ -1177,7 +1177,7 @@ module Kosherz
   end
 
   # A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
-  # begins at nightfall. Years 1 to 9999.
+  # begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
   class HebrewDate < WvObject
     WV_PTR = HebrewDatePtr
 
@@ -1203,8 +1203,8 @@ module Kosherz
     #
     # # Errors
     #
-    # `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
-    # to 9999.
+    # `CalendarError::InvalidDate` when `date` does not exist, or falls outside 1 January of
+    # year 1 to 29 Elul 9999.
     # @return [HebrewDate]
     def self.from_gregorian(date)
       date_s = Kosherz._wv_encode { |w| Kosherz._wv_write_gregorian_date(w, date) }
@@ -1285,7 +1285,7 @@ module Kosherz
     #
     # # Errors
     #
-    # `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+    # `CalendarError::InvalidDate` outside 1 January of year 1 to 29 Elul 9999.
     # @return [HebrewDate]
     def add_days(days)
       Kosherz._wv_pin(self) do |_wv_self|
@@ -1430,7 +1430,7 @@ module Kosherz
   #
   # # Errors
   #
-  # `CalendarError::InvalidDate` for a year outside 1 to 9999.
+  # `CalendarError::InvalidDate` for a year outside 3761 to 9999.
   # @return [YearInfo]
   def self.year_info(year)
     err = ErrorStruct.new
@@ -1441,7 +1441,7 @@ module Kosherz
   end
 
   # The number of days in `month` of `year`, or none when the year has no such month or is
-  # outside 1 to 9999.
+  # outside 3761 to 9999.
   # @return [Integer, nil]
   def self.days_in_month(year, month)
     err = ErrorStruct.new
@@ -1455,7 +1455,7 @@ module Kosherz
   #
   # # Errors
   #
-  # `CalendarError::InvalidDate` for a year outside 1 to 9999.
+  # `CalendarError::InvalidDate` for a year outside 3762 to 9999.
   # @return [HebrewDate]
   def self.rosh_hashana(year)
     err = ErrorStruct.new

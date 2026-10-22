@@ -31,9 +31,11 @@ are unchanged, and they are still checked against KosherJava and hebcal.
   times built by adding to or subtracting from another time panicked when the result fell
   outside the range, even with the default `Config`. They now return `ZmanimError::Internal`,
   as do candle-lighting and Ateret Torah offsets too large to add.
-- **No molad before Hebrew year 1.** `HebrewDate::molad` panicked for some dates before Hebrew
-  year 1, and so did the four Kiddush Levana times. `molad` now returns `None` there, and the
-  Kiddush Levana times return `ZmanimError::NotApplicable`.
+- **`HebrewDate` has a range.** It covers 1 January of year 1, which is 18 Teves 3761, through
+  29 Elul 9999. Converting a date outside that range fails with `DateOutOfRange`, where before it
+  gave wrong leap years, parshiyos and moladot, or a panic in `molad`. The times that need a
+  Hebrew date (Kiddush Levana and the chametz times) return `ZmanimError::Internal` outside it,
+  and the schedules return `None`.
 - **`PirkeiAvos` past Hebrew year 9999.** It panicked for every date from the summer of 9999
   (Gregorian 6239) on. That summer now has its portions, and from 10000 on there are none.
 
@@ -45,12 +47,12 @@ are unchanged, and they are still checked against KosherJava and hebcal.
 |---|---|
 | `use kosher_rust::calendar::prelude::*` | `use kosher_rust::{HebrewDate, Region}` |
 | `Holiday` | `SpecialDay`, since it also covers fasts, Rosh Chodesh, the Omer and other marked days |
-| `date.holidays(in_israel, use_modern)` on any date | `HebrewDate::from(date).special_days(Region::Israel)`; modern holidays are always included, filter with `SpecialDay::is_modern()` |
+| `date.holidays(in_israel, use_modern)` on any date | `HebrewDate::try_from(date)?.special_days(Region::Israel)`; modern holidays are always included, filter with `SpecialDay::is_modern()` |
 | `date.is_assur_bemelacha(in_israel)`, `has_candle_lighting(in_israel)` | same names on `HebrewDate`, taking a `Region` |
 | `date.todays_parsha(..)`, `upcoming_parsha(..)` | `HebrewDate::parsha(..)`, `next_parsha(..)` |
-| `date.hebrew_date()` (`HebrewCalendarDate`) | `HebrewDate::from(date)` |
-| `Hebrew::is_hebrew_leap_year(y)`, `days_in_hebrew_year(y)`, `days_in_hebrew_month(y, m)` | `HebrewYear::new(y).is_leap()`, `.days()`, `.days_in(month)` |
-| `Hebrew::cheshvan_kislev_kviah(y)` → `YearLengthType` | `HebrewYear::new(y).length()` → `YearLength` |
+| `date.hebrew_date()` (`HebrewCalendarDate`) | `HebrewDate::try_from(date)`, which fails outside 1 January of year 1 to 29 Elul 9999 |
+| `Hebrew::is_hebrew_leap_year(y)`, `days_in_hebrew_year(y)`, `days_in_hebrew_month(y, m)` | `HebrewYear::new(y)?.is_leap()`, `.days()`, `.days_in(month)`. `new` returns `None` outside the years 3761 to 9999 |
+| `Hebrew::cheshvan_kislev_kviah(y)` → `YearLengthType` | `HebrewYear::new(y)?.length()` → `YearLength` |
 | `calendar::month::NISAN` and the other ICU `Month` constants | `HebrewMonth::Nisan` |
 | `month.he(year)` (`HebrewMonthExt`) | `HebrewMonth::hebrew()` |
 | `Holiday::he()`, `Parsha::he()` | `hebrew()` |

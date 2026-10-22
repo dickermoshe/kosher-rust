@@ -23,8 +23,9 @@ const SYNODIC_MONTH_FREQUENCY: f64 = 77713.77;
 /// Evaluates a VSOP87 series `Σₙ (Σᵢ Aᵢ · cos(Bᵢ + Cᵢ · τ)) · τⁿ` with coefficients stored in
 /// 1e-8 of the native unit (radians for longitude / latitude, AU for the radius vector).
 ///
-/// With `barycenter` set, the terms at the synodic month's frequency are left out, which
-/// turns the Earth's own orbit into the Earth–Moon barycenter's.
+/// With `barycenter` set, the terms at the synodic month's frequency are left out. That removes
+/// most of the Earth's monthly motion around the Earth–Moon barycenter. A smaller Moon-driven
+/// latitude term, at frequency 84334.662, stays in.
 pub(super) fn sum_series(series: &[&[Term]], tau: f64, barycenter: bool) -> f64 {
     let mut total = 0.0;
     let mut tau_pow = 1.0;

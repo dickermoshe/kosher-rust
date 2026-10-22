@@ -581,7 +581,7 @@ typedef enum {
 } kosherz_calendar_SpecialDay_Tag;
 /** Error codes reported by throwing functions in the `calendar` module tree. */
 typedef enum {
-    /** The date does not exist, or is outside Hebrew years 1 to 9999. */
+    /** The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999. */
     kosherz_calendar_CalendarError_InvalidDate = 1,
     /** A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49. */
     kosherz_calendar_CalendarError_InvalidSpecialDay = 2
@@ -1437,7 +1437,7 @@ typedef struct kosherz_times_TimeZoneOffset_vtable {
 // Module: calendar
 /**
  * A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
- * begins at nightfall. Years 1 to 9999.
+ * begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
  */
 /**
  * The date `day` `month` `year`, for example 15 Nisan 5785.
@@ -1453,8 +1453,8 @@ KOSHERZ_API kosherz_calendar_HebrewDate* kosherz_calendar_HebrewDate_new(int32_t
  *
  * # Errors
  *
- * `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
- * to 9999.
+ * `CalendarError::InvalidDate` when `date` does not exist, or falls outside 1 January of
+ * year 1 to 29 Elul 9999.
  */
 KOSHERZ_API kosherz_calendar_HebrewDate* kosherz_calendar_HebrewDate_from_gregorian(const uint8_t* date_ptr, size_t date_len, kosherz_error* out_err);
 /** The year, for example 5785. */
@@ -1474,7 +1474,7 @@ KOSHERZ_API const uint8_t* kosherz_calendar_HebrewDate_to_gregorian(const kosher
  *
  * # Errors
  *
- * `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+ * `CalendarError::InvalidDate` outside 1 January of year 1 to 29 Elul 9999.
  */
 KOSHERZ_API kosherz_calendar_HebrewDate* kosherz_calendar_HebrewDate_add_days(const kosherz_calendar_HebrewDate* self, int32_t days, kosherz_error* out_err);
 /** The holidays, fasts and other marked days on this day. */
@@ -1509,12 +1509,12 @@ KOSHERZ_API void kosherz_calendar_HebrewDate_destroy(kosherz_calendar_HebrewDate
  *
  * # Errors
  *
- * `CalendarError::InvalidDate` for a year outside 1 to 9999.
+ * `CalendarError::InvalidDate` for a year outside 3761 to 9999.
  */
 KOSHERZ_API const uint8_t* kosherz_calendar_year_info(int32_t year, size_t* out_len, kosherz_error* out_err);
 /**
  * The number of days in `month` of `year`, or none when the year has no such month or is
- * outside 1 to 9999.
+ * outside 3761 to 9999.
  */
 KOSHERZ_API const uint8_t* kosherz_calendar_days_in_month(int32_t year, kosherz_calendar_HebrewMonth month, size_t* out_len, kosherz_error* out_err);
 /**
@@ -1522,7 +1522,7 @@ KOSHERZ_API const uint8_t* kosherz_calendar_days_in_month(int32_t year, kosherz_
  *
  * # Errors
  *
- * `CalendarError::InvalidDate` for a year outside 1 to 9999.
+ * `CalendarError::InvalidDate` for a year outside 3762 to 9999.
  */
 KOSHERZ_API kosherz_calendar_HebrewDate* kosherz_calendar_rosh_hashana(int32_t year, kosherz_error* out_err);
 /**

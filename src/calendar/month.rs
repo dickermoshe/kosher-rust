@@ -175,7 +175,7 @@ pub(crate) const ELUL: Month = Month::new(12);
 /// This month's 1-based position in `year`, counting from Tishrei, or `None` if `month` is not
 /// in that year (Adar I in a common year).
 pub(crate) fn month_of_year(month: Month, year: i32) -> Option<u8> {
-    let months: &[HebrewMonth] = if HebrewYear::new(year).is_leap() {
+    let months: &[HebrewMonth] = if HebrewYear::unchecked(year).is_leap() {
         &HebrewMonth::LEAP_YEAR
     } else {
         &HebrewMonth::COMMON_YEAR

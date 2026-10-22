@@ -17,7 +17,7 @@ pub(crate) fn message(error: impl Message) -> &'static str {
 impl Message for CalendarError {
     fn message(self) -> &'static str {
         match self {
-            Self::InvalidDate => "no such date, or outside Hebrew years 1 to 9999",
+            Self::InvalidDate => "no such date, or outside 1 January of year 1 to 29 Elul 9999",
             Self::InvalidSpecialDay => "the day of Chanukah or of the Omer is out of range",
         }
     }
@@ -88,5 +88,11 @@ impl From<ZmanimError> for ZmanFailure {
             | ZmanimError::InvalidDegrees
             | ZmanimError::Unexpected => Self::Unexpected,
         }
+    }
+}
+
+impl From<kosher_rust::calendar::DateOutOfRange> for CalendarError {
+    fn from(_: kosher_rust::calendar::DateOutOfRange) -> Self {
+        Self::InvalidDate
     }
 }

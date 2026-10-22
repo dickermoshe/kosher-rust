@@ -795,11 +795,11 @@ class CalendarError(Error):
 
 
 class InvalidDate(CalendarError):
-    """The date does not exist, or is outside Hebrew years 1 to 9999."""
+    """The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999."""
 
     CODE = 1
 
-    def __init__(self, message: str = "The date does not exist, or is outside Hebrew years 1 to 9999.") -> None:
+    def __init__(self, message: str = "The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.") -> None:
         super().__init__(1, message)
 
 
@@ -1849,7 +1849,7 @@ _c_calendar_HebrewDate_destroy = _bind("kosherz_calendar_HebrewDate_destroy", No
 
 class HebrewDate(_Object):
     """A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
-    begins at nightfall. Years 1 to 9999.
+    begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
     """
 
     _destroy = staticmethod(_c_calendar_HebrewDate_destroy)
@@ -1880,8 +1880,8 @@ class HebrewDate(_Object):
 
         # Errors
 
-        `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
-        to 9999.
+        `CalendarError::InvalidDate` when `date` does not exist, or falls outside 1 January of
+        year 1 to 29 Elul 9999.
 
         Raises
         ------
@@ -1975,7 +1975,7 @@ class HebrewDate(_Object):
 
         # Errors
 
-        `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+        `CalendarError::InvalidDate` outside 1 January of year 1 to 29 Elul 9999.
 
         Raises
         ------
@@ -2147,7 +2147,7 @@ def year_info(year: int) -> YearInfo:
 
     # Errors
 
-    `CalendarError::InvalidDate` for a year outside 1 to 9999.
+    `CalendarError::InvalidDate` for a year outside 3761 to 9999.
 
     Raises
     ------
@@ -2167,7 +2167,7 @@ _c_calendar_days_in_month = _bind("kosherz_calendar_days_in_month", ctypes.c_voi
 
 def days_in_month(year: int, month: HebrewMonth) -> Optional[int]:
     """The number of days in `month` of `year`, or none when the year has no such month or is
-    outside 1 to 9999.
+    outside 3761 to 9999.
     """
     _err = _ErrorStruct()
     _out_len = ctypes.c_size_t()
@@ -2185,7 +2185,7 @@ def rosh_hashana(year: int) -> HebrewDate:
 
     # Errors
 
-    `CalendarError::InvalidDate` for a year outside 1 to 9999.
+    `CalendarError::InvalidDate` for a year outside 3762 to 9999.
 
     Raises
     ------

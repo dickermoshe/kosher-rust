@@ -1,20 +1,24 @@
 use core::fmt;
 
-use icu_calendar::Date;
-
 use super::date::HebrewDate;
 use super::molad::{CHALAKIM_PER_DAY, chalakim_at_month_index};
 use super::month::HebrewMonth;
 
+/// The first Hebrew year a [`HebrewDate`] covers. Its first day is 1 January of year 1, which is
+/// 18 Teves 3761.
+pub(crate) const FIRST_YEAR: i32 = 3761;
+/// The last Hebrew year a [`HebrewDate`] covers, the last the calendar library builds dates for.
+pub(crate) const LAST_YEAR: i32 = 9999;
+
 /// A year of the Hebrew calendar, counted from creation (5784 began in September 2023).
 ///
-/// Get one from [`HebrewDate::year`] or [`HebrewYear::new`]. Results are meaningful for years 1
-/// and later.
+/// Get one from [`HebrewDate::year`] or [`HebrewYear::new`]. It covers the years 3761 to 9999, the
+/// same range as [`HebrewDate`].
 ///
 /// ```
 /// use kosher_rust::calendar::{HebrewYear, YearLength};
 ///
-/// let year = HebrewYear::new(5784);
+/// let year = HebrewYear::new(5784).unwrap();
 /// assert!(year.is_leap());
 /// assert_eq!(year.days(), 383);
 /// assert_eq!(year.length(), YearLength::Chaserim);
@@ -39,7 +43,18 @@ pub enum YearLength {
 
 impl HebrewYear {
     /// The Hebrew year `year`, for example `HebrewYear::new(5785)`.
-    pub const fn new(year: i32) -> Self {
+    ///
+    /// Returns `None` outside the years 3761 to 9999.
+    pub const fn new(year: i32) -> Option<Self> {
+        if year >= FIRST_YEAR && year <= LAST_YEAR {
+            Some(Self(year))
+        } else {
+            None
+        }
+    }
+
+    /// The year `year`, without checking the range. The arithmetic here holds for any year from 1.
+    pub(crate) const fn unchecked(year: i32) -> Self {
         Self(year)
     }
 
@@ -113,11 +128,9 @@ impl HebrewYear {
 
     /// The first day of the year, 1 Tishrei.
     ///
-    /// Returns `None` for years outside the range the underlying calendar supports.
+    /// Returns `None` for 3761, whose Rosh Hashana is before the first day a [`HebrewDate`] covers.
     pub fn rosh_hashana(self) -> Option<HebrewDate> {
-        Date::try_new_hebrew_v2(self.0, super::month::TISHREI, 1)
-            .ok()
-            .map(HebrewDate::from_icu)
+        HebrewDate::new(self.0, HebrewMonth::Tishrei, 1)
     }
 }
 
@@ -141,7 +154,7 @@ pub(crate) fn elapsed_days(year: i64) -> i64 {
     let molad_parts = chalakim_since - molad_day * CHALAKIM_PER_DAY;
     let mut rosh_hashana_day = molad_day;
 
-    let is_leap = |year: i64| HebrewYear::new(year as i32).is_leap();
+    let is_leap = |year: i64| HebrewYear::unchecked(year as i32).is_leap();
     // Molad zaken, and GaTaRaD / BeTUTaKPaT.
     if (molad_parts >= 19440)
         || (((molad_day % 7) == 2) && (molad_parts >= 9924) && !is_leap(year))

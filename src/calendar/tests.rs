@@ -12,7 +12,7 @@ fn elapsed_days_differ_by_the_year_length() {
     let this_year = elapsed_days(5784);
     let next_year = elapsed_days(5785);
     assert!(this_year > 0);
-    assert_eq!(next_year - this_year, i64::from(HebrewYear::new(5784).days()));
+    assert_eq!(next_year - this_year, i64::from(HebrewYear::new(5784).unwrap().days()));
 }
 
 #[test]
@@ -52,6 +52,7 @@ fn icu_month_round_trip() {
 fn extreme_years_do_not_overflow() {
     for year in [-20_000, 20_000, i32::MIN, i32::MAX] {
         let _ = elapsed_days(i64::from(year));
-        let _ = HebrewYear::new(year).is_leap();
+        let _ = HebrewYear::unchecked(year).is_leap();
+        assert_eq!(HebrewYear::new(year), None);
     }
 }

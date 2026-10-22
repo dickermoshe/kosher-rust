@@ -16,24 +16,28 @@ cargo add kosher-rust jiff
 
 ## The Hebrew calendar
 
-Any `jiff::civil::Date` (or ICU date) converts to a `HebrewDate`, which answers questions about
-that day. Pass a `Region` wherever Israel and the diaspora differ.
+A `jiff::civil::Date` (or ICU date) converts to a `HebrewDate`, which answers questions about
+that day. Pass a `Region` wherever Israel and the diaspora differ. A `HebrewDate` covers 1 January
+of year 1 through the end of Hebrew year 9999, and the conversion fails outside that range.
 
 ```rust
 use jiff::civil::date;
 use kosher_rust::{HebrewDate, Region};
 
-let day = HebrewDate::from(date(2024, 4, 23));
-assert_eq!(day.to_string(), "15 Nisan 5784");
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let day = HebrewDate::try_from(date(2024, 4, 23))?;
+    assert_eq!(day.to_string(), "15 Nisan 5784");
 
-for special_day in day.special_days(Region::Diaspora) {
-    println!("{special_day} ({})", special_day.hebrew());   // Pesach (פסח)
+    for special_day in day.special_days(Region::Diaspora) {
+        println!("{special_day} ({})", special_day.hebrew());   // Pesach (פסח)
+    }
+    assert!(day.is_assur_bemelacha(Region::Diaspora));
+    assert!(day.year().is_leap());
+
+    let shabbos = HebrewDate::try_from(date(2024, 5, 4))?;
+    println!("{}", shabbos.parsha(Region::Israel).unwrap());   // Achrei Mos
+    Ok(())
 }
-assert!(day.is_assur_bemelacha(Region::Diaspora));
-assert!(day.year().is_leap());
-
-let shabbos = HebrewDate::from(date(2024, 5, 4));
-println!("{}", shabbos.parsha(Region::Israel).unwrap());   // Achrei Mos
 ```
 
 ## Zmanim

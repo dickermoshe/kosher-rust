@@ -27,15 +27,15 @@ public abstract class CalendarException : NativeException
     {
     }
 
-    /// <summary>The date does not exist, or is outside Hebrew years 1 to 9999.</summary>
+    /// <summary>The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.</summary>
     public sealed class InvalidDate : CalendarException
     {
         /// <summary>The domain code, <c>1</c>.</summary>
         public const int ErrorCode = 1;
 
         /// <summary>Creates the error with <paramref name="message"/>, or the
-        /// default message "The date does not exist, or is outside Hebrew years 1 to 9999." when it's null.</summary>
-        public InvalidDate(string? message = null) : base(ErrorCode, message ?? "The date does not exist, or is outside Hebrew years 1 to 9999.")
+        /// default message "The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999." when it's null.</summary>
+        public InvalidDate(string? message = null) : base(ErrorCode, message ?? "The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.")
         {
         }
     }
@@ -1200,7 +1200,7 @@ public sealed class YearInfo
 
 /// <summary>
 /// A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
-/// begins at nightfall. Years 1 to 9999.
+/// begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
 /// </summary>
 public sealed unsafe class HebrewDate : IDisposable, IEquatable<HebrewDate>
 {
@@ -1247,8 +1247,8 @@ public sealed unsafe class HebrewDate : IDisposable, IEquatable<HebrewDate>
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
-    /// to 9999.
+    /// `CalendarError::InvalidDate` when `date` does not exist, or falls outside 1 January of
+    /// year 1 to 29 Elul 9999.
     /// </summary>
     /// <exception cref="CalendarException">The call reported a CalendarError code.</exception>
     public static HebrewDate FromGregorian(GregorianDate date)
@@ -1324,7 +1324,7 @@ public sealed unsafe class HebrewDate : IDisposable, IEquatable<HebrewDate>
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+    /// `CalendarError::InvalidDate` outside 1 January of year 1 to 29 Elul 9999.
     /// </summary>
     /// <exception cref="CalendarException">The call reported a CalendarError code.</exception>
     public HebrewDate AddDays(int days)
@@ -3295,7 +3295,7 @@ public static unsafe class Calendar
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidDate` for a year outside 1 to 9999.
+    /// `CalendarError::InvalidDate` for a year outside 3761 to 9999.
     /// </summary>
     /// <exception cref="CalendarException">The call reported a CalendarError code.</exception>
     public static YearInfo YearInfo(int year)
@@ -3309,7 +3309,7 @@ public static unsafe class Calendar
 
     /// <summary>
     /// The number of days in `month` of `year`, or none when the year has no such month or is
-    /// outside 1 to 9999.
+    /// outside 3761 to 9999.
     /// </summary>
     public static int? DaysInMonth(int year, HebrewMonth month)
     {
@@ -3325,7 +3325,7 @@ public static unsafe class Calendar
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidDate` for a year outside 1 to 9999.
+    /// `CalendarError::InvalidDate` for a year outside 3762 to 9999.
     /// </summary>
     /// <exception cref="CalendarException">The call reported a CalendarError code.</exception>
     public static HebrewDate RoshHashana(int year)

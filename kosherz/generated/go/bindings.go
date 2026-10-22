@@ -159,17 +159,18 @@ type CalendarError interface {
 }
 
 // InvalidDateError is the CalendarError code InvalidDate (1): The date does
-// not exist, or is outside Hebrew years 1 to 9999.
+// not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul
+// 9999.
 type InvalidDateError struct {
 	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "The date does not exist, or is outside Hebrew years 1 to 9999.".
+	// code's default message, "The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.".
 	Message string
 }
 
 // Error returns the error's message.
 func (e *InvalidDateError) Error() string {
 	if e.Message == "" {
-		return "The date does not exist, or is outside Hebrew years 1 to 9999."
+		return "The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999."
 	}
 	return e.Message
 }
@@ -946,7 +947,7 @@ func wvReadYearInfo(r *wvReader) YearInfo {
 }
 
 // HebrewDate is a day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
-// begins at nightfall. Years 1 to 9999.
+// begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
 //
 // Each wrapper holds one strong reference; Close releases it, and a finalizer
 // releases it if the wrapper is garbage collected first.
@@ -1019,8 +1020,8 @@ func NewHebrewDate(year int32, month HebrewMonth, day int32) (*HebrewDate, error
 //
 // # Errors
 //
-// `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
-// to 9999.
+// `CalendarError::InvalidDate` when `date` does not exist, or falls outside 1 January of
+// year 1 to 29 Elul 9999.
 func FromGregorianHebrewDate(date GregorianDate) (*HebrewDate, error) {
 	cDatePtr, cDateLen := wvBytes(wvEncode(date, wvWriteGregorianDate))
 	var cErr C.kosherz_error
@@ -1096,7 +1097,7 @@ func (s *HebrewDate) ToGregorian() *GregorianDate {
 //
 // # Errors
 //
-// `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+// `CalendarError::InvalidDate` outside 1 January of year 1 to 29 Elul 9999.
 func (s *HebrewDate) AddDays(days int32) (*HebrewDate, error) {
 	cSelf := s.native()
 	defer s.ref.release()
@@ -1232,7 +1233,7 @@ func (s *HebrewDate) Compare(other *HebrewDate) int32 {
 //
 // # Errors
 //
-// `CalendarError::InvalidDate` for a year outside 1 to 9999.
+// `CalendarError::InvalidDate` for a year outside 3761 to 9999.
 func CalendarYearInfo(year int32) (YearInfo, error) {
 	var cRetLen C.size_t
 	var cErr C.kosherz_error
@@ -1244,7 +1245,7 @@ func CalendarYearInfo(year int32) (YearInfo, error) {
 }
 
 // DaysInMonth returns the number of days in `month` of `year`, or none when the year has no such month or is
-// outside 1 to 9999.
+// outside 3761 to 9999.
 func DaysInMonth(year int32, month HebrewMonth) *int32 {
 	var cRetLen C.size_t
 	var cErr C.kosherz_error
@@ -1257,7 +1258,7 @@ func DaysInMonth(year int32, month HebrewMonth) *int32 {
 //
 // # Errors
 //
-// `CalendarError::InvalidDate` for a year outside 1 to 9999.
+// `CalendarError::InvalidDate` for a year outside 3762 to 9999.
 func RoshHashana(year int32) (*HebrewDate, error) {
 	var cErr C.kosherz_error
 	cRet := C.kosherz_calendar_rosh_hashana(C.int32_t(year), &cErr)

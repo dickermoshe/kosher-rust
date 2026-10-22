@@ -125,16 +125,12 @@ fn is_on_date(time: Timestamp, date: jiff::civil::Date, timezone: &impl TimeZone
             .local_to_timestamp(date.at(0, 0, 0, 0))
             .ok_or(ZmanimError::Internal)
     };
-    let tomorrow = date.tomorrow().map_err(|_| ZmanimError::Internal)?;
+    let tomorrow = date.tomorrow()?;
     Ok(time >= midnight(date)? && time <= midnight(tomorrow)?)
 }
 
-/// The molad of `date`'s month. There is none before Hebrew year 1, so the Kiddush Levana times
-/// don't apply there.
+/// The molad of `date`'s month.
 fn molad_of(date: &icu_calendar::Date<icu_calendar::cal::Hebrew>) -> Result<Timestamp, ZmanimError> {
-    if date.year().extended_year() < 1 {
-        return Err(ZmanimError::NotApplicable);
-    }
     months_molad(date).ok_or(ZmanimError::Internal)
 }
 
@@ -223,12 +219,8 @@ impl Formula {
                 let offset_nanos = CoreFloat::round(location.longitude * 240.0 * 1_000_000_000.0) as i64;
                 let lmt_dt = midnight
                     .checked_add(Duration::from_nanos(lmt_nanos))
-                    .and_then(|dt| dt.checked_sub(Duration::from_nanos(offset_nanos)))
-                    .map_err(|_| ZmanimError::Internal)?;
-                let utc = lmt_dt
-                    .to_zoned(TimeZone::UTC)
-                    .map_err(|_| ZmanimError::Internal)?
-                    .timestamp();
+                    .and_then(|dt| dt.checked_sub(Duration::from_nanos(offset_nanos)))?;
+                let utc = lmt_dt.to_zoned(TimeZone::UTC)?.timestamp();
 
                 Ok(utc)
             }
@@ -359,7 +351,7 @@ impl Formula {
                 }
             }
             Formula::SofZmanBiurChametz(event1, event2, synchronous) => {
-                if !HebrewDate::from(calculator.date)
+                if !HebrewDate::try_from(calculator.date)?
                     .special_days(Region::Diaspora)
                     .any(|h| h == SpecialDay::ErevPesach)
                 {
@@ -377,7 +369,7 @@ impl Formula {
                 primitive.evaluate(calculator)
             }
             Formula::SofZmanAchilasChametz(event1, event2, synchronous) => {
-                if !HebrewDate::from(calculator.date)
+                if !HebrewDate::try_from(calculator.date)?
                     .special_days(Region::Diaspora)
                     .any(|h| h == SpecialDay::ErevPesach)
                 {
@@ -403,7 +395,7 @@ impl Formula {
             }
             Formula::SofZmanKidushLevana15Days => {
                 let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
-                let hebrew = HebrewDate::from(calculator.date).icu();
+                let hebrew = HebrewDate::try_from(calculator.date)?.icu();
 
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 17 {
                     return Err(ZmanimError::NotApplicable);
@@ -416,7 +408,7 @@ impl Formula {
             }
             Formula::SofZmanKidushLevanaBetweenMoldos => {
                 let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
-                let hebrew = HebrewDate::from(calculator.date).icu();
+                let hebrew = HebrewDate::try_from(calculator.date)?.icu();
 
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 16 {
                     return Err(ZmanimError::NotApplicable);
@@ -435,7 +427,7 @@ impl Formula {
             }
             Formula::TchilasZmanKidushLevana3Days => {
                 let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
-                let hebrew = HebrewDate::from(calculator.date).icu();
+                let hebrew = HebrewDate::try_from(calculator.date)?.icu();
 
                 if hebrew.day_of_month().0 > 5 && hebrew.day_of_month().0 < 30 {
                     return Err(ZmanimError::NotApplicable);
@@ -462,7 +454,7 @@ impl Formula {
             }
             Formula::TchilasZmanKidushLevana7Days => {
                 let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
-                let hebrew = HebrewDate::from(calculator.date).icu();
+                let hebrew = HebrewDate::try_from(calculator.date)?.icu();
 
                 if hebrew.day_of_month().0 < 4 || hebrew.day_of_month().0 > 9 {
                     return Err(ZmanimError::NotApplicable);
@@ -565,10 +557,7 @@ impl Formula {
             }
             Formula::ChatzosHalaylaAsHalfDay => {
                 let sunset = Formula::SeaLevelSunset.evaluate(calculator)?;
-                let tomorrow = calculator
-                    .date
-                    .checked_add(1.day())
-                    .map_err(|_| ZmanimError::Internal)?;
+                let tomorrow = calculator.date.checked_add(1.day())?;
                 let sunrise = crate::astronomy::sunrise(
                     calculator.config.astronomical_calculator,
                     tomorrow,

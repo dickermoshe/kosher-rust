@@ -180,7 +180,9 @@ mod tests {
     fn test_past_year_9999() {
         let last_summer = from_hebrew_date(9999, TAMMUZ, 2);
         let year_10000 = from_hebrew_date(9999, ELUL, 29).add_days(1).expect("1 Tishrei 10000");
-        let far_future = crate::calendar::HebrewDate::from(jiff::civil::date(9999, 12, 31)).icu();
+        let far_future = icu_calendar::Date::try_new_iso(9999, 12, 31)
+            .expect("a valid date")
+            .to_calendar(icu_calendar::cal::Hebrew);
         for region in [Region::Israel, Region::Diaspora] {
             assert!(PirkeiAvos(region).limud(last_summer).is_some(), "{region:?}");
             assert_eq!(PirkeiAvos(region).limud(year_10000), None, "{region:?}");

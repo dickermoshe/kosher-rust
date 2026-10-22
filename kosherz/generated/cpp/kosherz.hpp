@@ -1626,7 +1626,7 @@ class MyZmanim;
 
 /**
  * A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
- * begins at nightfall. Years 1 to 9999.
+ * begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
  */
 class HebrewDate {
     kosherz_calendar_HebrewDate* raw_;
@@ -1692,8 +1692,8 @@ public:
      *
      * # Errors
      *
-     * `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
-     * to 9999.
+     * `CalendarError::InvalidDate` when `date` does not exist, or falls outside 1 January of
+     * year 1 to 29 Elul 9999.
      *
      * @throws CalendarError when the call fails with one of the domain's codes.
      */
@@ -1722,7 +1722,7 @@ public:
      *
      * # Errors
      *
-     * `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+     * `CalendarError::InvalidDate` outside 1 January of year 1 to 29 Elul 9999.
      *
      * @throws CalendarError when the call fails with one of the domain's codes.
      */
@@ -3216,7 +3216,7 @@ public:
 };
 
 /**
- * The date does not exist, or is outside Hebrew years 1 to 9999.
+ * The date does not exist, or is outside 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
  *
  * Code 1.
  */
@@ -3865,7 +3865,7 @@ namespace calendar {
  *
  * # Errors
  *
- * `CalendarError::InvalidDate` for a year outside 1 to 9999.
+ * `CalendarError::InvalidDate` for a year outside 3761 to 9999.
  *
  * @throws CalendarError when the call fails with one of the domain's codes.
  */
@@ -3880,7 +3880,7 @@ inline YearInfo year_info(int32_t year) {
 
 /**
  * The number of days in `month` of `year`, or none when the year has no such month or is
- * outside 1 to 9999.
+ * outside 3761 to 9999.
  */
 inline std::optional<int32_t> days_in_month(int32_t year, HebrewMonth month) {
     check_library();
@@ -3896,7 +3896,7 @@ inline std::optional<int32_t> days_in_month(int32_t year, HebrewMonth month) {
  *
  * # Errors
  *
- * `CalendarError::InvalidDate` for a year outside 1 to 9999.
+ * `CalendarError::InvalidDate` for a year outside 3762 to 9999.
  *
  * @throws CalendarError when the call fails with one of the domain's codes.
  */
