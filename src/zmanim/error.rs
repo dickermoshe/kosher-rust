@@ -15,8 +15,11 @@ pub enum ZmanimError {
     /// with a normal sunrise.
     #[error("this time does not apply on this date")]
     NotApplicable,
-    /// The time needs a time zone and the location has none. Only the Kiddush Levana times do.
-    #[error("this time needs a location with a time zone")]
+    /// The time needs a time zone and none was given.
+    ///
+    /// The four Kiddush Levana times always need a time zone. So does `get_zoned`. At a location
+    /// more than 150° from Greenwich every time needs one.
+    #[error("this time needs a time zone")]
     TimeZoneRequired,
     /// A calculation failed in a way that should not happen. Please report it with the location
     /// and date.

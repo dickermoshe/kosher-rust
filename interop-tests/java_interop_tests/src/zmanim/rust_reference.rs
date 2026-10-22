@@ -9,7 +9,7 @@ use super::types::{TestCase, ZmanResult};
 /// Calculates one case with the Rust implementation.
 pub(super) fn calculate_rust_zman(case: TestCase, preset: Zman) -> Result<Option<ZmanResult>, ZmanimError> {
     let timezone = TimeZone::get(case.timezone).unwrap();
-    let location = Location::new(case.latitude, case.longitude, Some(timezone.clone()))
+    let location = Location::new(case.latitude, case.longitude)
         .and_then(|l| l.with_elevation(case.elevation))
         .and_then(|l| l.with_horizons(case.eastern_horizon_elevation, case.western_horizon_elevation))
         .expect("generated test locations are valid");
@@ -22,7 +22,7 @@ pub(super) fn calculate_rust_zman(case: TestCase, preset: Zman) -> Result<Option
         use_astronomical_chatzos: case.use_astronomical_chatzos,
         astronomical_calculator: case.calculator,
     };
-    let zmanim = Zmanim::with_config(location, date, config);
+    let zmanim = Zmanim::with_config(location, date, Some(timezone.clone()), config);
 
     let dt = match zmanim.get(preset) {
         Ok(dt) => dt,

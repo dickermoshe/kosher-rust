@@ -39,7 +39,7 @@ enum TestLocation {
 }
 
 impl TestLocation {
-    fn location(self) -> Place {
+    fn location(self) -> Location {
         let (latitude, longitude, elevation) = match self {
             Self::Nj => (41.1181036, -74.0840691, 167.0),
             Self::La => (34.0201613, -118.6919095, 71.0),
@@ -50,10 +50,9 @@ impl TestLocation {
             Self::Suva => (-18.1416, 178.4419, 6.0),
             Self::Ushuaia => (-54.8019, -68.3030, 23.0),
         };
-        Location::new(latitude, longitude, Some(TimeZone::UTC))
+        Location::new(latitude, longitude)
             .and_then(|l| l.with_elevation(elevation))
             .unwrap()
-            .place()
     }
 }
 
@@ -423,11 +422,10 @@ fn meeus_utc_sunrise_with_delta_t_disabled_matches_java() {
 /// noon the zenith looks out of reach, but using the declination at solar midnight it is reached,
 /// so these return a time rather than no event.
 fn check_only_just_reached(calculator: AstronomicalCalculator, expected: [f64; 3]) {
-    let london = Location::new(51.5074, -0.1278, Some(TimeZone::UTC)).unwrap().place();
-    let arctic = Location::new(75.51550698948259, -0.9961193842273985, Some(TimeZone::UTC))
+    let london = Location::new(51.5074, -0.1278).unwrap();
+    let arctic = Location::new(75.51550698948259, -0.9961193842273985)
         .and_then(|l| l.with_elevation(1516.0617032522935))
-        .unwrap()
-        .place();
+        .unwrap();
     let cases = [
         (
             "London 16.1° alos",
@@ -679,13 +677,10 @@ fn spa_sunrise_depends_on_observer_elevation_even_at_sea_level_horizon() {
     // SPA feeds the observer elevation into its parallax term, so the sea-level sunrise
     // (no horizon dip) still moves with elevation; NOAA and Meeus ignore it entirely.
     let day = date("2017-10-17");
-    let low = Location::new(41.1181036, -74.0840691, Some(TimeZone::UTC))
-        .unwrap()
-        .place();
-    let high = Location::new(41.1181036, -74.0840691, Some(TimeZone::UTC))
+    let low = Location::new(41.1181036, -74.0840691).unwrap();
+    let high = Location::new(41.1181036, -74.0840691)
         .and_then(|l| l.with_elevation(4000.0))
-        .unwrap()
-        .place();
+        .unwrap();
     let spa_low = utc_rise_set_hours(SPA, day, &low, GEOMETRIC_ZENITH, false, SolarEvent::Sunrise).unwrap();
     let spa_high = utc_rise_set_hours(SPA, day, &high, GEOMETRIC_ZENITH, false, SolarEvent::Sunrise).unwrap();
     assert_ne!(spa_low, spa_high);
@@ -715,12 +710,11 @@ fn calculator_names_match_java() {
 // ---------------------------------------------------------------------------------------
 
 fn test_location() -> Location {
-    Location::new(
-        40.0721087,
-        -74.2400243,
-        Some(TimeZone::get("America/New_York").unwrap()),
-    )
-    .unwrap()
+    Location::new(40.0721087, -74.2400243).unwrap()
+}
+
+fn new_york() -> TimeZone {
+    TimeZone::get("America/New_York").unwrap()
 }
 
 #[test]
@@ -748,17 +742,17 @@ fn apparent_solar_radius_changes_sunrise_vs_fixed_radius() {
     for calculator in ALL_CALCULATORS {
         let location = test_location();
         let date = Date::new(2024, 1, 3).unwrap();
-        let apparent = sunrise(calculator, date, &location, false).unwrap();
+        let apparent = sunrise(calculator, date, &location, Some(&new_york()), false).unwrap();
 
         let fixed_zenith = GEOMETRIC_ZENITH + (16.0 / 60.0) + REFRACTION;
-        let adjusted_date = adjusted_local_date(date, &location).unwrap();
+        let adjusted_date = adjusted_local_date(date, &location, Some(&new_york())).unwrap();
         let utc_minutes = calculator
-            .rise_set_utc_minutes(adjusted_date, &location.place(), fixed_zenith, SolarEvent::Sunrise)
+            .rise_set_utc_minutes(adjusted_date, &location, fixed_zenith, SolarEvent::Sunrise)
             .unwrap();
         let fixed = instant_from_utc_hours(
             normalize_utc_hours(utc_minutes / 60.0),
             adjusted_date,
-            &location.place(),
+            &location,
             SolarEvent::Sunrise,
         )
         .unwrap();
@@ -770,27 +764,33 @@ fn apparent_solar_radius_changes_sunrise_vs_fixed_radius() {
 
 #[test]
 fn solar_midnight_succeeds_near_antimeridian() {
-    let location = Location::new(-14.2750, -170.7020, Some(TimeZone::get("Pacific/Apia").unwrap())).unwrap();
+    let location = Location::new(-14.2750, -170.7020).unwrap();
+    let apia = TimeZone::get("Pacific/Apia").unwrap();
     let date = Date::new(2011, 12, 29).unwrap();
     for calculator in ALL_CALCULATORS {
-        assert!(solar_midnight(calculator, date, &location).is_ok(), "{calculator:?}");
+        assert!(
+            solar_midnight(calculator, date, &location, Some(&apia)).is_ok(),
+            "{calculator:?}"
+        );
     }
 }
 
 #[test]
 fn time_at_azimuth_normalizes_hours_before_timestamp() {
-    let location = Location::new(69.6492, 18.9553, Some(TimeZone::get("Europe/Oslo").unwrap())).unwrap();
+    let location = Location::new(69.6492, 18.9553).unwrap();
+    let oslo = TimeZone::get("Europe/Oslo").unwrap();
     let date = Date::new(2017, 6, 21).unwrap();
     for calculator in ALL_CALCULATORS {
-        let azimuth_time = time_at_azimuth(calculator, date, &location, 90.0).unwrap();
+        let azimuth_time = time_at_azimuth(calculator, date, &location, Some(&oslo), 90.0).unwrap();
         let local = azimuth_time.to_zoned(TimeZone::get("Europe/Oslo").unwrap());
         assert_eq!(local.date(), Date::new(2017, 6, 21).unwrap(), "{calculator:?}");
     }
 }
 
-/// Reading the offset at noon UTC picks the same date as reading it at local midnight (the first
-/// midnight where it happens twice, the offset before the jump where it's skipped), at each zone's
-/// own place, every day from 1970 to 2040. Only a day the zone skipped entirely can differ.
+/// Reading the offset at noon UTC picks the same date as KosherJava's
+/// `GeoLocation.getAntimeridianAdjustment`, which reads it at `ZonedDateTime.of(date, MIDNIGHT,
+/// zone)`: the first midnight where it happens twice, and past the jump where it's skipped (jiff's
+/// `compatible`). At each zone's own place, every day from 1970 to 2040.
 #[test]
 fn adjusted_date_is_the_same_from_noon_as_from_local_midnight() {
     let zones = [
@@ -811,10 +811,10 @@ fn adjusted_date_is_the_same_from_noon_as_from_local_midnight() {
     let mut differences = std::vec::Vec::new();
     for (name, longitude) in zones {
         let tz = TimeZone::get(name).unwrap();
-        let location = Location::new(0.0, longitude, Some(tz.clone())).unwrap();
+        let location = Location::new(0.0, longitude).unwrap();
         let mut date = Date::new(1970, 1, 1).unwrap();
         while date.year() < 2040 {
-            let midnight = tz.to_ambiguous_timestamp(date.at(0, 0, 0, 0)).earlier().unwrap();
+            let midnight = tz.to_ambiguous_timestamp(date.at(0, 0, 0, 0)).compatible().unwrap();
             let offset = f64::from(tz.to_offset(midnight).seconds());
             let hours = (longitude * 240.0 - offset) / 3600.0;
             let days = if hours >= 20.0 {
@@ -825,19 +825,11 @@ fn adjusted_date_is_the_same_from_noon_as_from_local_midnight() {
                 0
             };
             let expected = date.checked_add(SignedDuration::from_hours(24 * days)).unwrap();
-            if adjusted_local_date(date, &location).unwrap() != expected {
+            if adjusted_local_date(date, &location, Some(&tz)).unwrap() != expected {
                 differences.push(std::format!("{name} {date}"));
             }
             date = date.tomorrow().unwrap();
         }
     }
-    assert_eq!(
-        differences,
-        [
-            "Pacific/Apia 2011-12-30",
-            "Pacific/Fakaofo 2011-12-30",
-            "Pacific/Kiritimati 1994-12-31",
-            "Pacific/Kwajalein 1993-08-21",
-        ]
-    );
+    assert_eq!(differences, std::vec::Vec::<std::string::String>::new());
 }

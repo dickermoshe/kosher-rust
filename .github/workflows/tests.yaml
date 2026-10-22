@@ -132,7 +132,7 @@ jobs:
         run: cargo test 
 
   bindings:
-    name: Bindings (Rust parity + Node)
+    name: Bindings (Rust parity, Node, Python, C, C++, Go, .NET)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -141,40 +141,55 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
       - name: Install the WeaveFFI CLI
         run: cargo install weaveffi-cli --version 0.25.0 --locked
       - name: Rust tests (parity with kosher-rust, generated enums up to date)
         run: cargo test -p kosherz
       - name: Generate bindings for every language
-        working-directory: bindings/kosher-rust-bindings
+        working-directory: kosherz
         run: weaveffi generate --warn
       - name: Check the committed bindings are up to date
         run: |
-          generated=bindings/kosher-rust-bindings/generated
+          generated=kosherz/generated
           if [ -n "$(git status --porcelain -- "$generated")" ]; then
             git status --short -- "$generated"
             git --no-pager diff --stat -- "$generated"
-            echo "::error::The committed bindings are out of date. Run 'weaveffi generate' in bindings/kosher-rust-bindings and commit $generated."
+            echo "::error::The committed bindings are out of date. Run 'weaveffi generate' in kosherz and commit $generated."
             exit 1
           fi
       - name: Build the Node addon
-        working-directory: bindings/kosher-rust-bindings/generated/node
+        working-directory: kosherz/generated/node
         env:
           KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug
         run: npm install --no-audit --no-fund
       - name: Node tests
-        working-directory: bindings/kosher-rust-bindings
+        working-directory: kosherz
         run: node --test tests/node/*.test.mjs
       - name: Python example
-        working-directory: bindings/kosher-rust-bindings
+        working-directory: kosherz
         env:
           KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug/libkosherz.so
           PYTHONPATH: generated/python
         run: python3 examples/smoke.py
       - name: C and C++ headers compile
-        working-directory: bindings/kosher-rust-bindings/generated
+        working-directory: kosherz/generated
         run: |
           for header in kosherz.h kosherz_buffer.h; do
             gcc -std=c11 -Wall -Wextra -Wno-unused-function -Werror -fsyntax-only -x c "c/$header"
           done
           echo '#include "kosherz.hpp"' | g++ -std=c++17 -Wall -Wextra -Wno-unused-function -Werror -fsyntax-only -I cpp -x c++ -
+      - name: Go package builds
+        working-directory: kosherz/generated/go
+        env:
+          CGO_LDFLAGS: -L${{ github.workspace }}/target/debug
+        run: go build ./...
+      - name: .NET package builds
+        working-directory: kosherz/generated/dotnet
+        run: dotnet build --nologo

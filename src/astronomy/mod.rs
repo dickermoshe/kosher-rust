@@ -19,7 +19,6 @@ use jiff::{SignedDuration, Timestamp, civil::Date, tz::TimeZone};
 
 use crate::{
     Location, TimeZoneLike,
-    location::Place,
     zmanim::{AstronomicalCalculator, ZmanimError},
 };
 
@@ -61,7 +60,7 @@ pub(crate) trait SolarAlgorithm {
     fn rise_set_utc_minutes(
         &self,
         date: Date,
-        location: &Place,
+        location: &Location,
         adjusted_zenith: f64,
         event: SolarEvent,
     ) -> Result<f64, ZmanimError>;
@@ -70,14 +69,14 @@ pub(crate) trait SolarAlgorithm {
     fn noon_midnight_utc_minutes(&self, date: Date, longitude_west: f64, event: SolarEvent) -> f64;
 
     /// UTC hours (not normalised) at which the sun reaches an azimuth of exactly 90° or 270°.
-    fn time_at_azimuth_utc_hours(&self, date: Date, location: &Place, azimuth: f64) -> Result<f64, ZmanimError>;
+    fn time_at_azimuth_utc_hours(&self, date: Date, location: &Location, azimuth: f64) -> Result<f64, ZmanimError>;
 }
 
 impl SolarAlgorithm for AstronomicalCalculator {
     fn rise_set_utc_minutes(
         &self,
         date: Date,
-        location: &Place,
+        location: &Location,
         adjusted_zenith: f64,
         event: SolarEvent,
     ) -> Result<f64, ZmanimError> {
@@ -104,7 +103,7 @@ impl SolarAlgorithm for AstronomicalCalculator {
         }
     }
 
-    fn time_at_azimuth_utc_hours(&self, date: Date, location: &Place, azimuth: f64) -> Result<f64, ZmanimError> {
+    fn time_at_azimuth_utc_hours(&self, date: Date, location: &Location, azimuth: f64) -> Result<f64, ZmanimError> {
         match *self {
             Self::Noaa => noaa::Noaa.time_at_azimuth_utc_hours(date, location, azimuth),
             Self::Meeus { apply_delta_t } => {
@@ -120,13 +119,15 @@ impl SolarAlgorithm for AstronomicalCalculator {
 pub(crate) fn sunrise(
     calculator: AstronomicalCalculator,
     date: Date,
-    location: &Location<impl TimeZoneLike>,
+    location: &Location,
+    timezone: Option<&impl TimeZoneLike>,
     adjust_for_elevation: bool,
 ) -> Result<Timestamp, ZmanimError> {
     rise_set(
         calculator,
         date,
         location,
+        timezone,
         GEOMETRIC_ZENITH,
         adjust_for_elevation,
         SolarEvent::Sunrise,
@@ -136,13 +137,15 @@ pub(crate) fn sunrise(
 pub(crate) fn sunset(
     calculator: AstronomicalCalculator,
     date: Date,
-    location: &Location<impl TimeZoneLike>,
+    location: &Location,
+    timezone: Option<&impl TimeZoneLike>,
     adjust_for_elevation: bool,
 ) -> Result<Timestamp, ZmanimError> {
     rise_set(
         calculator,
         date,
         location,
+        timezone,
         GEOMETRIC_ZENITH,
         adjust_for_elevation,
         SolarEvent::Sunset,
@@ -152,13 +155,15 @@ pub(crate) fn sunset(
 pub(crate) fn sunrise_offset_by_degrees(
     calculator: AstronomicalCalculator,
     date: Date,
-    location: &Location<impl TimeZoneLike>,
+    location: &Location,
+    timezone: Option<&impl TimeZoneLike>,
     degrees: f64,
 ) -> Result<Timestamp, ZmanimError> {
     rise_set(
         calculator,
         date,
         location,
+        timezone,
         GEOMETRIC_ZENITH + degrees,
         false,
         SolarEvent::Sunrise,
@@ -168,13 +173,15 @@ pub(crate) fn sunrise_offset_by_degrees(
 pub(crate) fn sunset_offset_by_degrees(
     calculator: AstronomicalCalculator,
     date: Date,
-    location: &Location<impl TimeZoneLike>,
+    location: &Location,
+    timezone: Option<&impl TimeZoneLike>,
     degrees: f64,
 ) -> Result<Timestamp, ZmanimError> {
     rise_set(
         calculator,
         date,
         location,
+        timezone,
         GEOMETRIC_ZENITH + degrees,
         false,
         SolarEvent::Sunset,
@@ -184,54 +191,54 @@ pub(crate) fn sunset_offset_by_degrees(
 pub(crate) fn solar_noon(
     calculator: AstronomicalCalculator,
     date: Date,
-    location: &Location<impl TimeZoneLike>,
+    location: &Location,
+    timezone: Option<&impl TimeZoneLike>,
 ) -> Result<Timestamp, ZmanimError> {
-    let adjusted_date = adjusted_local_date(date, location)?;
-    let place = location.place();
-    let noon = utc_noon_midnight_hours(calculator, adjusted_date, &place, SolarEvent::Noon);
-    instant_from_utc_hours(noon, adjusted_date, &place, SolarEvent::Noon)
+    let adjusted_date = adjusted_local_date(date, location, timezone)?;
+    let noon = utc_noon_midnight_hours(calculator, adjusted_date, location, SolarEvent::Noon);
+    instant_from_utc_hours(noon, adjusted_date, location, SolarEvent::Noon)
 }
 
 pub(crate) fn solar_midnight(
     calculator: AstronomicalCalculator,
     date: Date,
-    location: &Location<impl TimeZoneLike>,
+    location: &Location,
+    timezone: Option<&impl TimeZoneLike>,
 ) -> Result<Timestamp, ZmanimError> {
-    let adjusted_date = adjusted_local_date(date, location)?;
-    let place = location.place();
-    let midnight = utc_noon_midnight_hours(calculator, adjusted_date, &place, SolarEvent::Midnight);
-    instant_from_utc_hours(midnight, adjusted_date, &place, SolarEvent::Midnight)
+    let adjusted_date = adjusted_local_date(date, location, timezone)?;
+    let midnight = utc_noon_midnight_hours(calculator, adjusted_date, location, SolarEvent::Midnight);
+    instant_from_utc_hours(midnight, adjusted_date, location, SolarEvent::Midnight)
 }
 
 pub(crate) fn time_at_azimuth(
     calculator: AstronomicalCalculator,
     date: Date,
-    location: &Location<impl TimeZoneLike>,
+    location: &Location,
+    timezone: Option<&impl TimeZoneLike>,
     target_azimuth: f64,
 ) -> Result<Timestamp, ZmanimError> {
-    let adjusted_date = adjusted_local_date(date, location)?;
-    let place = location.place();
-    let hours = utc_time_at_azimuth_hours(calculator, adjusted_date, &place, target_azimuth)?;
+    let adjusted_date = adjusted_local_date(date, location, timezone)?;
+    let hours = utc_time_at_azimuth_hours(calculator, adjusted_date, location, target_azimuth)?;
     let event = if target_azimuth == 90.0 {
         SolarEvent::Sunrise
     } else {
         SolarEvent::Sunset
     };
-    instant_from_utc_hours(hours, adjusted_date, &place, event)
+    instant_from_utc_hours(hours, adjusted_date, location, event)
 }
 
 fn rise_set(
     calculator: AstronomicalCalculator,
     date: Date,
-    location: &Location<impl TimeZoneLike>,
+    location: &Location,
+    timezone: Option<&impl TimeZoneLike>,
     zenith: f64,
     adjust_for_elevation: bool,
     event: SolarEvent,
 ) -> Result<Timestamp, ZmanimError> {
-    let adjusted_date = adjusted_local_date(date, location)?;
-    let place = location.place();
-    let hours = utc_rise_set_hours(calculator, adjusted_date, &place, zenith, adjust_for_elevation, event)?;
-    instant_from_utc_hours(hours, adjusted_date, &place, event)
+    let adjusted_date = adjusted_local_date(date, location, timezone)?;
+    let hours = utc_rise_set_hours(calculator, adjusted_date, location, zenith, adjust_for_elevation, event)?;
+    instant_from_utc_hours(hours, adjusted_date, location, event)
 }
 
 /// Sunrise or sunset of `algorithm` on an already adjusted civil date for a fully adjusted
@@ -240,7 +247,7 @@ fn rise_set(
 pub(crate) fn rise_set_on_adjusted_date(
     algorithm: &impl SolarAlgorithm,
     adjusted_date: Date,
-    location: &Place,
+    location: &Location,
     adjusted_zenith: f64,
     event: SolarEvent,
 ) -> Result<Timestamp, ZmanimError> {
@@ -257,7 +264,7 @@ pub(crate) fn rise_set_on_adjusted_date(
 pub(crate) fn utc_rise_set_hours(
     calculator: AstronomicalCalculator,
     date: Date,
-    location: &Place,
+    location: &Location,
     zenith: f64,
     adjust_for_elevation: bool,
     event: SolarEvent,
@@ -281,7 +288,7 @@ pub(crate) fn utc_rise_set_hours(
 pub(crate) fn utc_noon_midnight_hours(
     calculator: AstronomicalCalculator,
     date: Date,
-    location: &Place,
+    location: &Location,
     event: SolarEvent,
 ) -> f64 {
     let minutes = calculator.noon_midnight_utc_minutes(date, -location.longitude, event);
@@ -293,7 +300,7 @@ pub(crate) fn utc_noon_midnight_hours(
 pub(crate) fn utc_time_at_azimuth_hours(
     calculator: AstronomicalCalculator,
     date: Date,
-    location: &Place,
+    location: &Location,
     target_azimuth: f64,
 ) -> Result<f64, ZmanimError> {
     if target_azimuth != 90.0 && target_azimuth != 270.0 {
@@ -308,7 +315,7 @@ pub(crate) fn utc_time_at_azimuth_hours(
 /// equation of time (both supplied by `declination_and_eot` for a UT Julian day) each pass.
 pub(super) fn time_at_azimuth_iterative(
     date: Date,
-    location: &Place,
+    location: &Location,
     target_azimuth: f64,
     iterations: usize,
     mut declination_and_eot: impl FnMut(f64) -> (f64, f64),
@@ -335,9 +342,17 @@ pub(super) fn time_at_azimuth_iterative(
 
 /// `date`, moved a day where the time zone's clock is a day or so from solar time, as across the
 /// date line. The time zone's offset is read at noon UTC on `date`.
-pub(crate) fn adjusted_local_date(date: Date, location: &Location<impl TimeZoneLike>) -> Result<Date, ZmanimError> {
-    let Some(timezone) = &location.timezone else {
-        return Ok(date);
+pub(crate) fn adjusted_local_date(
+    date: Date,
+    location: &Location,
+    timezone: Option<&impl TimeZoneLike>,
+) -> Result<Date, ZmanimError> {
+    let Some(timezone) = timezone else {
+        return if location.longitude.abs() > 150.0 {
+            Err(ZmanimError::TimeZoneRequired)
+        } else {
+            Ok(date)
+        };
     };
 
     let noon = date
@@ -360,7 +375,7 @@ pub(crate) fn adjusted_local_date(date: Date, location: &Location<impl TimeZoneL
 pub(crate) fn instant_from_utc_hours(
     time: f64,
     mut date: Date,
-    location: &Place,
+    location: &Location,
     event: SolarEvent,
 ) -> Result<Timestamp, ZmanimError> {
     if time.is_nan() {

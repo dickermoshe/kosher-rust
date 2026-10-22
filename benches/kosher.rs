@@ -22,7 +22,7 @@ fn pesach() -> HebrewDate {
 }
 
 fn jerusalem() -> Location {
-    Location::new(31.778, 35.235, Some(TimeZone::get("Asia/Jerusalem").unwrap()))
+    Location::new(31.778, 35.235)
         .unwrap()
         .with_elevation(754.0)
         .unwrap()
@@ -117,7 +117,12 @@ mod zmanim {
             astronomical_calculator: algorithm,
             ..Config::default()
         };
-        Zmanim::with_config(jerusalem(), date(2024, 4, 23), config)
+        Zmanim::with_config(
+            jerusalem(),
+            date(2024, 4, 23),
+            Some(TimeZone::get("Asia/Jerusalem").unwrap()),
+            config,
+        )
     }
 
     #[divan::bench(args = ALGORITHMS)]
@@ -144,7 +149,11 @@ mod myzmanim {
 
     #[divan::bench]
     fn every_row(bencher: Bencher) {
-        let times = MyZmanim::new(jerusalem(), date(2024, 4, 23));
+        let times = MyZmanim::new(
+            jerusalem(),
+            date(2024, 4, 23),
+            Some(TimeZone::get("Asia/Jerusalem").unwrap()),
+        );
         bencher.bench(|| MyZman::ALL.map(|zman| black_box(&times).get(zman)));
     }
 }

@@ -2795,6 +2795,9 @@ zman_catalog! {
     /// [Maharil's](https://en.wikipedia.org/wiki/Yaakov_ben_Moshe_Levi_Moelin) approach of calculating halfway
     /// between molad and molad, reflects the Mechaber's view as well. See Rabbi Dovid Heber's detailed write-up in
     /// siman daled (chapter 4) of [Shaarei Zmanim](https://hebrewbooks.org/53000).
+    ///
+    /// This time needs a time zone. Without one it returns
+    /// [`ZmanimError::TimeZoneRequired`](super::ZmanimError).
     SofZmanKidushLevana15Days {
         java: "getSofZmanKidushLevana15Days",
         name: "Sof Zman Kidush Levana (15 Days)",
@@ -2813,6 +2816,9 @@ zman_catalog! {
     ///
     /// Half of the 29 days, 12 hours, and 793 chalakim interval between molad and molad (14 days, 18 hours, 22
     /// minutes, and 666 milliseconds) after the month's molad.
+    ///
+    /// This time needs a time zone. Without one it returns
+    /// [`ZmanimError::TimeZoneRequired`](super::ZmanimError).
     SofZmanKidushLevanaBetweenMoldos {
         java: "getSofZmanKidushLevanaBetweenMoldos",
         name: "Sof Zman Kidush Levana (Between Moldos)",
@@ -2829,6 +2835,9 @@ zman_catalog! {
     /// Yonah](https://en.wikipedia.org/wiki/Yonah_Gerondi) - 3 days after the molad.
     ///
     /// Note that although this time may be during the daytime, Kiddush Levana cannot be said during the daytime.
+    ///
+    /// This time needs a time zone. Without one it returns
+    /// [`ZmanimError::TimeZoneRequired`](super::ZmanimError).
     TchilasZmanKidushLevana3Days {
         java: "getTchilasZmanKidushLevana3Days",
         name: "Tchilas Zman Kidush Levana (3 Days)",
@@ -2844,6 +2853,9 @@ zman_catalog! {
     /// the molad.
     ///
     /// Note that although this time may be during the daytime, Kiddush Levana cannot be said during the daytime.
+    ///
+    /// This time needs a time zone. Without one it returns
+    /// [`ZmanimError::TimeZoneRequired`](super::ZmanimError).
     TchilasZmanKidushLevana7Days {
         java: "getTchilasZmanKidushLevana7Days",
         name: "Tchilas Zman Kidush Levana (7 Days)",

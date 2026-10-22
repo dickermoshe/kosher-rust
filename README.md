@@ -47,15 +47,15 @@ use kosher_rust::{Location, Zman, Zmanim};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let tz = TimeZone::get("America/New_York")?;
-    let lakewood = Location::new(40.09, -74.22, Some(tz.clone()))?.with_elevation(30.0)?;
-    let zmanim = Zmanim::new(lakewood, date(2024, 4, 23));
+    let lakewood = Location::new(40.09, -74.22)?.with_elevation(30.0)?;
+    let zmanim = Zmanim::new(lakewood, date(2024, 4, 23), Some(tz));
 
-    let shma = zmanim.get(Zman::SofZmanShmaGra)?;
-    println!("{}", shma.to_zoned(tz.clone()).strftime("%H:%M")); // 09:31
+    let shma = zmanim.get_zoned(Zman::SofZmanShmaGra)?;
+    println!("{}", shma.strftime("%H:%M")); // 09:31
 
     for zman in Zman::ALL {
-        if let Ok(time) = zmanim.get(zman) {
-            println!("{:<45} {}", zman.name(), time.to_zoned(tz.clone()).strftime("%H:%M:%S"));
+        if let Ok(time) = zmanim.get_zoned(zman) {
+            println!("{:<45} {}", zman.name(), time.strftime("%H:%M:%S"));
         }
     }
     Ok(())
@@ -67,6 +67,24 @@ summer the sun never sinks 16.1° below the horizon, so there is no *alos* at 16
 
 To pick the solar algorithm (NOAA, Meeus or SPA), use elevation everywhere, or change the
 candle-lighting offset, build the calculator with `Zmanim::with_config` and a `zmanim::Config`.
+
+### Time zones
+
+You can give `Zmanim` and `MyZmanim` a time zone when you create them. With a time zone every
+time works. You can also read every time in that time zone with `get_zoned`.
+
+You can also leave the time zone out by passing `None`. Most times still work without one. These
+do not work without a time zone:
+
+- The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`. These are the four times:
+  - `TchilasZmanKidushLevana3Days`
+  - `TchilasZmanKidushLevana7Days`
+  - `SofZmanKidushLevanaBetweenMoldos`
+  - `SofZmanKidushLevana15Days`
+- `get_zoned` returns `ZmanimError::TimeZoneRequired`. You can still read the time as a
+  `Timestamp` with `get`.
+- A location more than 150° from Greenwich needs a time zone for every time. Without one every
+  time returns `ZmanimError::TimeZoneRequired`.
 
 ## Learning schedules
 
@@ -102,11 +120,12 @@ use kosher_rust::Location;
 use kosher_rust::myzmanim::{MyZman, MyZmanim};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let jerusalem = Location::new(31.778, 35.235, Some(TimeZone::get("Asia/Jerusalem")?))?
+    let jerusalem = Location::new(31.778, 35.235)?
         .with_elevation(754.0)?
         .with_horizons(754.0, 0.0)?;
-    let times = MyZmanim::new(jerusalem, date(2026, 11, 6)).candle_lighting(40.0);
-    println!("Candle lighting: {}", times.get(MyZman::CandleLighting)?);
+    let times = MyZmanim::new(jerusalem, date(2026, 11, 6), Some(TimeZone::get("Asia/Jerusalem")?))
+        .candle_lighting(40.0);
+    println!("Candle lighting: {}", times.get_zoned(MyZman::CandleLighting)?.strftime("%H:%M"));
     Ok(())
 }
 ```

@@ -31,10 +31,11 @@
 //! use kosher_rust::Location;
 //! use kosher_rust::myzmanim::{MyZman, MyZmanim};
 //!
-//! let jerusalem = Location::new(31.778, 35.235, Some(TimeZone::get("Asia/Jerusalem")?))?
+//! let jerusalem = Location::new(31.778, 35.235)?
 //!     .with_elevation(754.0)?
 //!     .with_horizons(754.0, 0.0)?;
-//! let times = MyZmanim::new(jerusalem, date(2026, 11, 6)).candle_lighting(40.0);
+//! let times = MyZmanim::new(jerusalem, date(2026, 11, 6), Some(TimeZone::get("Asia/Jerusalem")?))
+//!     .candle_lighting(40.0);
 //! assert!(times.get(MyZman::CandleLighting)? < times.get(MyZman::SunsetElevated)?);
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```

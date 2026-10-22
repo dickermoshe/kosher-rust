@@ -15,18 +15,18 @@ fn ts(iso: &str) -> Timestamp {
 /// Anvers, Belgium (place 26244298 in the site data): flat, sea level, UTC+1.
 fn anvers(date: Date) -> MyZmanim {
     let tz = TimeZone::fixed(Offset::from_hours(1).unwrap());
-    let location = Location::new(51.216667, 4.416667, Some(tz)).unwrap();
-    MyZmanim::new(location, date)
+    let location = Location::new(51.216667, 4.416667).unwrap();
+    MyZmanim::new(location, date, Some(tz))
 }
 
 /// Safed, Israel (place 27491341): 570 m up, eastern horizon level with the observer, western at sea level, UTC+2.
 fn safed(date: Date) -> MyZmanim {
     let tz = TimeZone::fixed(Offset::from_hours(2).unwrap());
-    let location = Location::new(32.96464803, 35.49599712, Some(tz))
+    let location = Location::new(32.96464803, 35.49599712)
         .and_then(|l| l.with_elevation(570.0))
         .and_then(|l| l.with_horizons(570.0, 0.0))
         .unwrap();
-    MyZmanim::new(location, date).candle_lighting(30.0)
+    MyZmanim::new(location, date, Some(tz)).candle_lighting(30.0)
 }
 
 fn assert_site_second(calendar: &MyZmanim, zman: MyZman, site_local: &str, offset_hours: i8) {
@@ -134,8 +134,8 @@ fn every_row_is_distinct_and_computes() {
 #[test]
 fn polar_day_reports_errors_not_panics() {
     let tz = TimeZone::get("Europe/Oslo").unwrap();
-    let location = Location::new(69.6492, 18.9553, Some(tz)).unwrap();
-    let calendar = MyZmanim::new(location, Date::new(2017, 6, 21).unwrap());
+    let location = Location::new(69.6492, 18.9553).unwrap();
+    let calendar = MyZmanim::new(location, Date::new(2017, 6, 21).unwrap(), Some(tz));
     assert_eq!(calendar.get(MyZman::SunriseLevel), Err(ZmanimError::AllDay));
     assert_eq!(calendar.get(MyZman::Midday), Err(ZmanimError::AllDay));
     assert_eq!(calendar.get(MyZman::Midnight), Err(ZmanimError::AllDay));
@@ -158,7 +158,7 @@ fn candle_lighting_minutes_default_and_override() {
         calendar.get(MyZman::CandleLighting).unwrap(),
         sunset - SignedDuration::from_secs(40 * 60 + 30)
     );
-    let next_day = MyZmanim::new(calendar.location().clone(), Date::new(2026, 11, 7).unwrap());
+    let next_day = MyZmanim::new(calendar.location().clone(), Date::new(2026, 11, 7).unwrap(), None);
     assert_eq!(next_day.date(), Date::new(2026, 11, 7).unwrap());
     assert_ne!(next_day.get(MyZman::SunsetElevated).unwrap(), sunset);
 }
@@ -214,16 +214,45 @@ fn range_edges_and_wild_candle_lighting_report_errors_not_panics() {
         for longitude in [-179.0, -55.0, 0.0, 55.0, 179.0] {
             let zone = TimeZone::fixed(Offset::from_hours((longitude / 15.0) as i8).unwrap());
             for timezone in [None, Some(zone)] {
-                let Ok(location) = Location::new(0.0, longitude, timezone) else {
+                let Ok(location) = Location::new(0.0, longitude) else {
                     continue;
                 };
                 for minutes in [18.0, f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 1e15, -1e15] {
-                    let times = MyZmanim::new(location.clone(), date).candle_lighting(minutes);
+                    let times = MyZmanim::new(location.clone(), date, timezone.clone()).candle_lighting(minutes);
                     for zman in MyZman::ALL {
                         let _ = times.get(zman);
                     }
                 }
             }
         }
+    }
+}
+
+/// `get_zoned` is `get` in the *zmanim*'s time zone, and needs one.
+#[test]
+fn get_zoned_uses_the_time_zone() {
+    let date = Date::new(2026, 11, 6).unwrap();
+    let times = anvers(date);
+    let candles = times.get_zoned(MyZman::CandleLighting).unwrap();
+    assert_eq!(candles.timestamp(), times.get(MyZman::CandleLighting).unwrap());
+    assert_eq!(candles.offset(), Offset::from_hours(1).unwrap());
+    let plain = MyZmanim::new(Location::new(51.216667, 4.416667).unwrap(), date, None);
+    assert_eq!(
+        plain.get_zoned(MyZman::CandleLighting),
+        Err(ZmanimError::TimeZoneRequired)
+    );
+}
+
+/// Without a time zone, every row works except more than 150° from Greenwich.
+#[test]
+fn what_needs_a_time_zone() {
+    let date = Date::new(2026, 11, 6).unwrap();
+    let plain = MyZmanim::new(Location::new(51.216667, 4.416667).unwrap(), date, None);
+    for zman in MyZman::ALL {
+        assert_ne!(plain.get(zman), Err(ZmanimError::TimeZoneRequired), "{zman:?}");
+    }
+    let far = MyZmanim::new(Location::new(0.0, 150.1).unwrap(), date, None);
+    for zman in MyZman::ALL {
+        assert_eq!(far.get(zman), Err(ZmanimError::TimeZoneRequired), "{zman:?}");
     }
 }

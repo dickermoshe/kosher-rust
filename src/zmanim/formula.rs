@@ -141,46 +141,54 @@ impl Formula {
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 true,
             ),
             Formula::SeaLevelSunrise => crate::astronomy::sunrise(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 false,
             ),
             Formula::SolarTransit => crate::astronomy::solar_noon(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
             ),
             Formula::SolarMidnight => crate::astronomy::solar_midnight(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
             ),
             Formula::ElevationAdjustedSunset => crate::astronomy::sunset(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 true,
             ),
             Formula::SeaLevelSunset => crate::astronomy::sunset(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 false,
             ),
             Formula::SunriseOffsetByDegrees(degrees) => crate::astronomy::sunrise_offset_by_degrees(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 degrees,
             ),
             Formula::SunsetOffsetByDegrees(degrees) => crate::astronomy::sunset_offset_by_degrees(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 degrees,
             ),
             Formula::LocalMeanTime(hours) => {
@@ -190,7 +198,8 @@ impl Formula {
                     return Err(ZmanimError::Internal);
                 }
 
-                let adjusted_date = crate::astronomy::adjusted_local_date(date, location)?;
+                let adjusted_date =
+                    crate::astronomy::adjusted_local_date(date, location, calculator.timezone.as_ref())?;
                 let midnight = adjusted_date.at(0, 0, 0, 0);
                 let lmt_nanos = CoreFloat::round(hours * 3600.0 * 1_000_000_000.0) as i64;
                 let offset_nanos = CoreFloat::round(location.longitude * 240.0 * 1_000_000_000.0) as i64;
@@ -375,11 +384,7 @@ impl Formula {
                 plus(sunset, calculator.config.ateret_torah_sunset_offset)
             }
             Formula::SofZmanKidushLevana15Days => {
-                let tz = calculator
-                    .location
-                    .timezone
-                    .as_ref()
-                    .ok_or(ZmanimError::TimeZoneRequired)?;
+                let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 17 {
@@ -395,11 +400,7 @@ impl Formula {
                 Err(ZmanimError::NotApplicable)
             }
             Formula::SofZmanKidushLevanaBetweenMoldos => {
-                let tz = calculator
-                    .location
-                    .timezone
-                    .as_ref()
-                    .ok_or(ZmanimError::TimeZoneRequired)?;
+                let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 16 {
@@ -418,11 +419,7 @@ impl Formula {
                 Err(ZmanimError::NotApplicable)
             }
             Formula::TchilasZmanKidushLevana3Days => {
-                let tz = calculator
-                    .location
-                    .timezone
-                    .as_ref()
-                    .ok_or(ZmanimError::TimeZoneRequired)?;
+                let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 > 5 && hebrew.day_of_month().0 < 30 {
@@ -455,11 +452,7 @@ impl Formula {
                 Err(ZmanimError::NotApplicable)
             }
             Formula::TchilasZmanKidushLevana7Days => {
-                let tz = calculator
-                    .location
-                    .timezone
-                    .as_ref()
-                    .ok_or(ZmanimError::TimeZoneRequired)?;
+                let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 4 || hebrew.day_of_month().0 > 9 {
@@ -532,6 +525,7 @@ impl Formula {
                     calculator.config.astronomical_calculator,
                     calculator.date,
                     &calculator.location,
+                    calculator.timezone.as_ref(),
                     270.0,
                 ),
                 Err(error) => Err(error),
@@ -542,6 +536,7 @@ impl Formula {
                     calculator.config.astronomical_calculator,
                     calculator.date,
                     &calculator.location,
+                    calculator.timezone.as_ref(),
                     90.0,
                 ),
                 Err(error) => Err(error),
@@ -572,6 +567,7 @@ impl Formula {
                     calculator.config.astronomical_calculator,
                     tomorrow,
                     &calculator.location,
+                    calculator.timezone.as_ref(),
                     false,
                 )?;
                 let diff = sunrise.duration_since(sunset) / 2;

@@ -6,11 +6,11 @@
 //! use kosher_rust::{Location, Zman, Zmanim};
 //!
 //! let tz = TimeZone::get("America/New_York")?;
-//! let zmanim = Zmanim::new(Location::new(40.09, -74.22, Some(tz.clone()))?, date(2024, 4, 23));
+//! let zmanim = Zmanim::new(Location::new(40.09, -74.22)?, date(2024, 4, 23), Some(tz));
 //!
 //! for zman in Zman::ALL {
-//!     if let Ok(time) = zmanim.get(zman) {
-//!         println!("{:<45} {}", zman.name(), time.to_zoned(tz.clone()).strftime("%H:%M:%S"));
+//!     if let Ok(time) = zmanim.get_zoned(zman) {
+//!         println!("{:<45} {}", zman.name(), time.strftime("%H:%M:%S"));
 //!     }
 //! }
 //! # Ok::<(), Box<dyn std::error::Error>>(())
