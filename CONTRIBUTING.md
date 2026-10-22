@@ -47,7 +47,7 @@ UPDATE_SNAPSHOT=1 cargo test -p kosher-rust catalog_snapshot
 
 `third-party/kosher-java` is a git subtree of upstream KosherJava. It is the reference the
 Java conformance suite compares against. Currently tracked: commit
-[0bd7893](https://github.com/KosherJava/zmanim/commit/0bd78932fe9b42e38ecd5ceab036c90d96fc3d99)
+[ffb0fef](https://github.com/KosherJava/zmanim/commit/ffb0fefdbc6c70fd1b4e708444da7967f5f95bef)
 (post-3.0.0 master).
 
 ```bash
