@@ -1,7 +1,7 @@
-use jiff::{SignedDuration, Timestamp, civil::Date};
+use jiff::{SignedDuration, Timestamp, civil::Date, tz::TimeZone};
 
 use super::{Config, Zman, ZmanimError, formula::Formula};
-use crate::Location;
+use crate::{Location, TimeZoneLike};
 
 /// The *zmanim* for one place on one day.
 ///
@@ -21,21 +21,21 @@ use crate::Location;
 /// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 #[derive(Clone, Debug)]
-pub struct Zmanim {
-    pub(crate) location: Location,
+pub struct Zmanim<Tz = TimeZone> {
+    pub(crate) location: Location<Tz>,
     pub(crate) date: Date,
     pub(crate) config: Config,
 }
 
-impl Zmanim {
+impl<Tz: TimeZoneLike> Zmanim<Tz> {
     /// The *zmanim* at `location` on `date`, with the default [`Config`].
-    pub fn new(location: Location, date: Date) -> Self {
+    pub fn new(location: Location<Tz>, date: Date) -> Self {
         Self::with_config(location, date, Config::default())
     }
 
     /// The *zmanim* at `location` on `date`, calculated with `config`: which solar algorithm,
     /// whether to use elevation, how to find *chatzos*, and the candle-lighting offset.
-    pub fn with_config(location: Location, date: Date, config: Config) -> Self {
+    pub fn with_config(location: Location<Tz>, date: Date, config: Config) -> Self {
         Self { location, date, config }
     }
 
@@ -76,7 +76,7 @@ impl Zmanim {
     }
 
     /// The location.
-    pub fn location(&self) -> &Location {
+    pub fn location(&self) -> &Location<Tz> {
         &self.location
     }
 
@@ -100,7 +100,7 @@ pub fn shaah_zmanis(start: Timestamp, end: Timestamp) -> SignedDuration {
 }
 
 #[cfg(feature = "defmt")]
-impl defmt::Format for Zmanim {
+impl<Tz> defmt::Format for Zmanim<Tz> {
     fn format(&self, fmt: defmt::Formatter) {
         defmt::write!(
             fmt,

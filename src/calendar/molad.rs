@@ -8,6 +8,7 @@ use jiff::{SignedDuration, Timestamp, civil::Date as JiffDate, tz, tz::TimeZone}
 use jiff_icu::ConvertTryFrom;
 
 use super::month::month_of_year;
+use crate::TimeZoneLike;
 
 /// The molad: the mean new moon that begins a Hebrew month, as the calendar reckons it.
 ///
@@ -57,8 +58,8 @@ pub(crate) fn molad_of_month(date: &Date<Hebrew>) -> Option<Molad> {
     months_molad(date).map(|timestamp| Molad { timestamp })
 }
 
-pub(crate) fn is_same_gregorian_day(hdate: &Date<Hebrew>, gdate: &Timestamp, tz: &TimeZone) -> bool {
-    let gdate_local = gdate.to_zoned(tz.clone()).date();
+pub(crate) fn is_same_gregorian_day(hdate: &Date<Hebrew>, gdate: &Timestamp, tz: &impl TimeZoneLike) -> bool {
+    let gdate_local = gdate.to_zoned(TimeZone::fixed(tz.offset_at(*gdate))).date();
     let hdate_greg = JiffDate::convert_try_from(hdate.to_calendar(Gregorian)).ok();
 
     Some(gdate_local) == hdate_greg

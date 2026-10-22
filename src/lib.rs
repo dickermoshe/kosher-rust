@@ -21,5 +21,5 @@ pub mod myzmanim;
 pub mod zmanim;
 
 pub use calendar::{HebrewDate, Region};
-pub use location::{Location, LocationError};
+pub use location::{Location, LocationError, TimeZoneLike};
 pub use zmanim::{Zman, Zmanim};

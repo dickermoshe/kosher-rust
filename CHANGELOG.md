@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **Custom time zones.** `Location`, `Zmanim` and `MyZmanim` take any `TimeZoneLike`: a type
+  that gives the UTC offset at an instant. `jiff::tz::TimeZone` is the default, so existing
+  code is unchanged; `Location::new_with_timezone` builds a location with your own.
+
 ## 0.3.0 (2026-10-22)
 
 0.3 rebuilds the public API around what users do. Apart from the fixes below, the calculations

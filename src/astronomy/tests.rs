@@ -782,3 +782,34 @@ fn time_at_azimuth_normalizes_hours_before_timestamp() {
         assert_eq!(local.date(), Date::new(2017, 6, 21).unwrap(), "{calculator:?}");
     }
 }
+
+/// `offset_at_local_midnight` only asks the zone for offsets at instants, yet must pick the same
+/// offset jiff does from the full rules, including where midnight is skipped or repeated.
+#[test]
+fn offset_at_local_midnight_matches_jiff() {
+    let zones = [
+        "America/New_York",
+        "Asia/Jerusalem",
+        "America/Havana",      // spring forward at midnight
+        "America/Santiago",    // transitions at 24:00
+        "America/Sao_Paulo",   // historical midnight transitions
+        "Asia/Beirut",         // midnight transitions
+        "Pacific/Apia",        // skipped 30 December 2011 entirely
+        "Pacific/Kiritimati",  // UTC+14
+        "Australia/Lord_Howe", // half-hour DST
+    ];
+    for name in zones {
+        let tz = TimeZone::get(name).unwrap();
+        let mut date = Date::new(1970, 1, 1).unwrap();
+        while date.year() < 2040 {
+            let expected = tz
+                .to_ambiguous_timestamp(date.at(0, 0, 0, 0))
+                .earlier()
+                .unwrap()
+                .to_zoned(tz.clone())
+                .offset();
+            assert_eq!(offset_at_local_midnight(&tz, date).unwrap(), expected, "{name} {date}");
+            date = date.tomorrow().unwrap();
+        }
+    }
+}
