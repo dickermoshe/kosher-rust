@@ -1,0 +1,4 @@
+[project]
+input = "."
+out = "generated"
+targets = ["c", "python", "node", "kotlin", "swift", "dart"]
