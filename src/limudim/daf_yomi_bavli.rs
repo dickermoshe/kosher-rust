@@ -22,7 +22,7 @@ fn initial_cycle_date() -> Date<Hebrew> {
     date
 }
 
-pub const fn start_daf(tractate: Tractate) -> u16 {
+pub(crate) const fn start_daf(tractate: Tractate) -> u16 {
     match tractate {
         Tractate::Kinnim => 23,
         Tractate::Tamid => 26,
@@ -32,7 +32,7 @@ pub const fn start_daf(tractate: Tractate) -> u16 {
 }
 
 /// Last daf number (Berachos ends at 64)
-pub const fn end_daf(tractate: Tractate, iteration: i32) -> Option<u16> {
+pub(crate) const fn end_daf(tractate: Tractate, iteration: i32) -> Option<u16> {
     let daf = match tractate {
         Tractate::Berachos => 64,
         Tractate::Shabbos => 157,

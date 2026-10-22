@@ -8,7 +8,7 @@ Jewish calendar, *zmanim* and daily learning schedules for Rust. A port of
   place on earth.
 - **Limudim:** Daf Yomi, Mishna Yomis, Yerushalmi, Tehillim, Pirkei Avos and more.
 
-`no_std` compatible.
+`no_std` compatible: it builds for microcontrollers, with or without an allocator.
 
 ```bash
 cargo add kosher-rust jiff
@@ -45,17 +45,20 @@ Give a `Location` and a date to `Zmanim`, then ask for any `Zman`. Times come ba
 use jiff::{civil::date, tz::TimeZone};
 use kosher_rust::{Location, Zman, Zmanim};
 
-let tz = TimeZone::get("America/New_York")?;
-let lakewood = Location::new(40.09, -74.22, Some(tz.clone()))?.with_elevation(30.0)?;
-let zmanim = Zmanim::new(lakewood, date(2024, 4, 23));
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let tz = TimeZone::get("America/New_York")?;
+    let lakewood = Location::new(40.09, -74.22, Some(tz.clone()))?.with_elevation(30.0)?;
+    let zmanim = Zmanim::new(lakewood, date(2024, 4, 23));
 
-let shma = zmanim.get(Zman::SofZmanShmaGra)?;
-println!("{}", shma.to_zoned(tz.clone()).strftime("%H:%M"));   // 09:31
+    let shma = zmanim.get(Zman::SofZmanShmaGra)?;
+    println!("{}", shma.to_zoned(tz.clone()).strftime("%H:%M")); // 09:31
 
-for zman in Zman::ALL {
-    if let Ok(time) = zmanim.get(zman) {
-        println!("{:<45} {}", zman.name(), time.to_zoned(tz.clone()).strftime("%H:%M:%S"));
+    for zman in Zman::ALL {
+        if let Ok(time) = zmanim.get(zman) {
+            println!("{:<45} {}", zman.name(), time.to_zoned(tz.clone()).strftime("%H:%M:%S"));
+        }
     }
+    Ok(())
 }
 ```
 
@@ -98,11 +101,14 @@ use jiff::{civil::date, tz::TimeZone};
 use kosher_rust::Location;
 use kosher_rust::myzmanim::{MyZman, MyZmanim};
 
-let jerusalem = Location::new(31.778, 35.235, Some(TimeZone::get("Asia/Jerusalem")?))?
-    .with_elevation(754.0)?
-    .with_horizons(754.0, 0.0)?;
-let times = MyZmanim::new(jerusalem, date(2026, 11, 6)).candle_lighting(40.0);
-let candles = times.get(MyZman::CandleLighting)?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let jerusalem = Location::new(31.778, 35.235, Some(TimeZone::get("Asia/Jerusalem")?))?
+        .with_elevation(754.0)?
+        .with_horizons(754.0, 0.0)?;
+    let times = MyZmanim::new(jerusalem, date(2026, 11, 6)).candle_lighting(40.0);
+    println!("Candle lighting: {}", times.get(MyZman::CandleLighting)?);
+    Ok(())
+}
 ```
 
 ## Coming from KosherJava

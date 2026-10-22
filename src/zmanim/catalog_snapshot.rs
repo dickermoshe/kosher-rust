@@ -66,8 +66,14 @@ fn catalog_snapshot() {
         return;
     }
 
-    let expected = fs::read_to_string(&path)
-        .unwrap_or_else(|_| panic!("{SNAPSHOT_PATH} is missing; run with UPDATE_SNAPSHOT=1 to create it"));
+    // The published crate leaves the fixtures out; the check runs in the repository.
+    let Ok(expected) = fs::read_to_string(&path) else {
+        assert!(
+            !PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(".git").exists(),
+            "{SNAPSHOT_PATH} is missing; run with UPDATE_SNAPSHOT=1 to create it"
+        );
+        return;
+    };
     // Normalise line endings so a Windows checkout with autocrlf still matches.
     let expected = expected.replace("\r\n", "\n");
 

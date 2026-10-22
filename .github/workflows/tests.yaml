@@ -3,7 +3,7 @@ name: Kosher Rust
 on:
   push:
   pull_request:
-    branches: [master]
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -67,15 +67,19 @@ jobs:
       - uses: taiki-e/install-action@cargo-hack
       - run: cargo hack test --feature-powerset --exclude-features defmt 
 
-  benchmarks:
-    name: Benchmarks
+  no-std:
+    name: no_std build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: thumbv7em-none-eabihf
       - uses: Swatinem/rust-cache@v2
-      - name: Run performance tests (10 ms limit)
-        run: cargo test --test benchmarks --release 
+      - name: Build for a Cortex-M target without std
+        run: cargo build -p kosher-rust --no-default-features --target thumbv7em-none-eabihf
+      - name: Build for a Cortex-M target without std, with alloc
+        run: cargo build -p kosher-rust --no-default-features --features alloc --target thumbv7em-none-eabihf
 
   js-interop-tests:
     name: JS Interop Tests

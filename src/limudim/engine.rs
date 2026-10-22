@@ -38,16 +38,16 @@ impl HebrewDateExt for Date<Hebrew> {
     }
 }
 
-pub type CycleEndCalculation = fn(Date<Hebrew>, Option<i32>) -> Option<Date<Hebrew>>;
+pub(crate) type CycleEndCalculation = fn(Date<Hebrew>, Option<i32>) -> Option<Date<Hebrew>>;
 
 #[derive(Clone, Copy)]
-pub struct Cycle {
-    pub start_date: Date<Hebrew>,
-    pub end_date: Date<Hebrew>,
-    pub iteration: Option<i32>,
+pub(crate) struct Cycle {
+    pub(crate) start_date: Date<Hebrew>,
+    pub(crate) end_date: Date<Hebrew>,
+    pub(crate) iteration: Option<i32>,
 }
 impl Cycle {
-    pub fn from_perpetual(finder: PerpetualCycleFinder, date: Date<Hebrew>) -> Option<Self> {
+    pub(crate) fn from_perpetual(finder: PerpetualCycleFinder, date: Date<Hebrew>) -> Option<Self> {
         let (start_date, end_date) = finder(date)?;
         Some(Self {
             start_date,
@@ -55,7 +55,7 @@ impl Cycle {
             iteration: None,
         })
     }
-    pub fn from_cycle_initiation(
+    pub(crate) fn from_cycle_initiation(
         initial_cycle_date: Date<Hebrew>,
         cycle_end_calculation: CycleEndCalculation,
         date: Date<Hebrew>,
@@ -76,7 +76,7 @@ impl Cycle {
         Some(cycle)
     }
 
-    pub fn next(&self, cycle_end_calculation: CycleEndCalculation) -> Option<Self> {
+    pub(crate) fn next(&self, cycle_end_calculation: CycleEndCalculation) -> Option<Self> {
         if let Some(iteration) = self.iteration {
             let new_iteration = iteration + 1;
             let new_start_date = self.end_date.add_days(1)?;
@@ -92,16 +92,16 @@ impl Cycle {
     }
 }
 
-pub type IntervalEndCalculation = fn(Cycle, Date<Hebrew>) -> Option<Date<Hebrew>>;
+pub(crate) type IntervalEndCalculation = fn(Cycle, Date<Hebrew>) -> Option<Date<Hebrew>>;
 
-pub struct Interval {
-    pub start_date: Date<Hebrew>,
-    pub end_date: Date<Hebrew>,
-    pub iteration: i32,
-    pub cycle: Cycle,
+pub(crate) struct Interval {
+    pub(crate) start_date: Date<Hebrew>,
+    pub(crate) end_date: Date<Hebrew>,
+    pub(crate) iteration: i32,
+    pub(crate) cycle: Cycle,
 }
 impl Interval {
-    pub fn first_for_cycle(cycle: Cycle, interval_end_calculation: IntervalEndCalculation) -> Option<Self> {
+    pub(crate) fn first_for_cycle(cycle: Cycle, interval_end_calculation: IntervalEndCalculation) -> Option<Self> {
         let start_date = cycle.start_date;
         let iteration = 1;
         let end_date = interval_end_calculation(cycle, start_date)?;
@@ -112,10 +112,10 @@ impl Interval {
             cycle,
         })
     }
-    pub fn next(&self, interval_end_calculation: IntervalEndCalculation) -> Option<Self> {
+    pub(crate) fn next(&self, interval_end_calculation: IntervalEndCalculation) -> Option<Self> {
         self._next_for_iteration(self.iteration + 1, interval_end_calculation)
     }
-    pub fn skip(&self, interval_end_calculation: IntervalEndCalculation) -> Option<Self> {
+    pub(crate) fn skip(&self, interval_end_calculation: IntervalEndCalculation) -> Option<Self> {
         self._next_for_iteration(self.iteration, interval_end_calculation)
     }
     fn _next_for_iteration(
@@ -135,14 +135,14 @@ impl Interval {
             cycle: self.cycle,
         })
     }
-    pub fn contains(&self, date: Date<Hebrew>) -> bool {
+    pub(crate) fn contains(&self, date: Date<Hebrew>) -> bool {
         self.start_date <= date && date <= self.end_date
     }
 }
 
-pub type PerpetualCycleFinder = fn(Date<Hebrew>) -> Option<(Date<Hebrew>, Date<Hebrew>)>;
+pub(crate) type PerpetualCycleFinder = fn(Date<Hebrew>) -> Option<(Date<Hebrew>, Date<Hebrew>)>;
 
-pub enum CycleFinder {
+pub(crate) enum CycleFinder {
     Initial(Date<Hebrew>),
     Perpetual(PerpetualCycleFinder),
 }

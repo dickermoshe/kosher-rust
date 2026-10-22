@@ -335,6 +335,10 @@ impl MyZmanim {
 
     /// "Proportional hour, Gra & Baal HaTanya": a twelfth of the day from sea-level sunrise
     /// to sea-level sunset.
+    ///
+    /// # Errors
+    ///
+    /// [`ZmanimError::AllDay`] or [`ZmanimError::AllNight`] when the sun doesn't rise or set.
     pub fn proportional_hour_gra(&self) -> Result<SignedDuration, ZmanimError> {
         let sunrise = self.get(MyZman::SunriseLevel)?;
         let sunset = self.get(MyZman::SunsetLevel)?;

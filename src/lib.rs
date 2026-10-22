@@ -1,26 +1,13 @@
-//! Rust port of [KosherJava](https://github.com/KosherJava/zmanim) for Jewish holidays,
-//! halachic times (*zmanim*), and Torah/Talmud learning schedules (e.g. Daf Yomi,
-//! Pirkei Avos). A `no_std` crate (optional `alloc`) for Hebrew calendar extensions,
-//! location-based *zmanim*, and *limudim* calculators.
+#![doc = include_str!("../README.md")]
 //!
-//! # Modules
+//! ## Modules
 //!
-//! | Module | Purpose |
-//! |--------|---------|
-//! | [`calendar`] | Hebrew dates, holidays, the weekly *parsha*, and the molad |
-//! | [`zmanim`] | Sunrise, candle lighting, *alos*, *tzeis*, and other halachic times |
-//! | [`limudim`] | Daf Yomi, Mishna Yomis, Tehillim, Pirkei Avos, and related daily units |
-//! | [`myzmanim`] | The *zmanim* of MyZmanim's website, reproduced to the second, as a self-contained calendar |
-//!
-//! The types you need most are at the crate root: [`HebrewDate`], [`Region`], [`Location`],
-//! [`Zmanim`] and [`Zman`]. Each module's page has a short example.
-//!
-//! # Features
-//!
-//! | Feature | Default | Effect |
-//! |---------|---------|--------|
-//! | `alloc` | yes | `Zman::description`, a paragraph explaining each zman to your users |
-//! | `defmt` | no | `defmt::Format` on calculator, config, location, and error types |
+//! | Module | For |
+//! |---|---|
+//! | [`calendar`] | [`HebrewDate`]: holidays, the weekly *parsha*, year and month lengths, the molad |
+//! | [`zmanim`] | [`Zmanim`] and [`Zman`]: halachic times for a [`Location`] |
+//! | [`limudim`] | Daf Yomi and the other learning schedules, through [`limudim::Schedule`] |
+//! | [`myzmanim`] | The times of the MyZmanim website, reproduced to the second |
 #![cfg_attr(not(test), no_std)]
 
 #[cfg(feature = "alloc")]

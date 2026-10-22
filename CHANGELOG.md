@@ -95,3 +95,11 @@ Hebrew name.
 | `set_date`, `set_candle_lighting_minutes` | build a new `MyZmanim` |
 
 `MyZman` implements `Display` with the site's label.
+
+### Also new in 0.3
+
+- The README is the crate's front page and its examples are tested; `examples/today.rs` prints
+  today's date, holidays, learning and zmanim.
+- `no_std` builds are checked in CI for `thumbv7em-none-eabihf`, with and without `alloc`.
+- `cargo bench` (divan) replaces the 10 ms timing assertions that ran as tests.
+- Every public item is documented, including every `Holiday`, `Parsha`, `Tractate` and `Zman`.

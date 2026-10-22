@@ -16,7 +16,7 @@ fn initial_cycle_date() -> Date<Hebrew> {
     date
 }
 
-pub const fn start_daf(tractate: Tractate) -> Amud {
+pub(crate) const fn start_daf(tractate: Tractate) -> Amud {
     match tractate {
         Tractate::Kinnim => Amud::new(Tractate::Kinnim, 22, Side::Bet),
         Tractate::Tamid => Amud::new(Tractate::Tamid, 25, Side::Bet),
@@ -25,7 +25,7 @@ pub const fn start_daf(tractate: Tractate) -> Amud {
     }
 }
 
-pub const fn end_daf(tractate: Tractate) -> Option<Amud> {
+pub(crate) const fn end_daf(tractate: Tractate) -> Option<Amud> {
     let amud = match tractate {
         Tractate::Berachos => Amud::new(Tractate::Berachos, 64, Side::Aleph),
         Tractate::Shabbos => Amud::new(Tractate::Shabbos, 157, Side::Bet),

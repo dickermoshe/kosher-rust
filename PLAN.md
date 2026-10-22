@@ -2,6 +2,8 @@
 
 Written 2026-10-21 against `east-west-horizon` (3595cc1).
 
+**Status (2026-10-22): phases 0–8 are done on `east-west-horizon`. 0.3.0 is ready to release.**
+
 ## The short version
 
 The maths is good. Three conformance suites (KosherJava over JNI, hebcal over WASM, the
