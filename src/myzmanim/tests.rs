@@ -198,3 +198,32 @@ fn website_arithmetic_rounds_like_java() {
         ts("1969-12-31T23:59:59Z")
     );
 }
+
+/// On the first and last days a `Timestamp` holds, with any candle-lighting minutes, every row
+/// is a time or an error.
+#[test]
+fn range_edges_and_wild_candle_lighting_report_errors_not_panics() {
+    let dates = [
+        Date::new(-9999, 1, 1).unwrap(),
+        Date::new(-9999, 1, 2).unwrap(),
+        Date::new(2026, 11, 6).unwrap(),
+        Date::new(9999, 12, 30).unwrap(),
+        Date::new(9999, 12, 31).unwrap(),
+    ];
+    for date in dates {
+        for longitude in [-179.0, -55.0, 0.0, 55.0, 179.0] {
+            let zone = TimeZone::fixed(Offset::from_hours((longitude / 15.0) as i8).unwrap());
+            for timezone in [None, Some(zone)] {
+                let Ok(location) = Location::new(0.0, longitude, timezone) else {
+                    continue;
+                };
+                for minutes in [18.0, f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 1e15, -1e15] {
+                    let times = MyZmanim::new(location.clone(), date).candle_lighting(minutes);
+                    for zman in MyZman::ALL {
+                        let _ = times.get(zman);
+                    }
+                }
+            }
+        }
+    }
+}

@@ -99,6 +99,18 @@ pub fn shaah_zmanis(start: Timestamp, end: Timestamp) -> SignedDuration {
     end.duration_since(start) / 12
 }
 
+/// `time` plus `duration`, or [`ZmanimError::Internal`] past the last instant a [`Timestamp`]
+/// holds.
+pub(crate) fn plus(time: Timestamp, duration: SignedDuration) -> Result<Timestamp, ZmanimError> {
+    time.checked_add(duration).map_err(|_| ZmanimError::Internal)
+}
+
+/// `time` minus `duration`, or [`ZmanimError::Internal`] before the first instant a
+/// [`Timestamp`] holds.
+pub(crate) fn minus(time: Timestamp, duration: SignedDuration) -> Result<Timestamp, ZmanimError> {
+    time.checked_sub(duration).map_err(|_| ZmanimError::Internal)
+}
+
 #[cfg(feature = "defmt")]
 impl<Tz> defmt::Format for Zmanim<Tz> {
     fn format(&self, fmt: defmt::Formatter) {

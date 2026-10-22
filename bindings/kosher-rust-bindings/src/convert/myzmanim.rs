@@ -3,7 +3,7 @@ use std::sync::Arc;
 use jiff::Timestamp;
 use kosher_rust::{myzmanim::MyZman, zmanim::ZmanimError};
 
-use super::{CallbackTimeZone, callback_failed};
+use super::{CallbackTimeZone, watching_callbacks};
 use crate::api::kosher::{GregorianDate, KosherError, Location, myzmanim::MyZmanTime, zmanim::TimeZoneOffset};
 
 pub(crate) type Inner = kosher_rust::myzmanim::MyZmanim<CallbackTimeZone>;
@@ -14,10 +14,10 @@ pub(crate) fn my_zmanim(
     candle_lighting_minutes: f64,
     time_zone: Option<Arc<dyn TimeZoneOffset>>,
 ) -> Result<Inner, KosherError> {
-    Ok(
-        kosher_rust::myzmanim::MyZmanim::new(super::location(location, time_zone)?, super::civil_date(date)?)
-            .candle_lighting(candle_lighting_minutes),
-    )
+    let location = super::location(location, time_zone)?;
+    let date = super::civil_date(date)?;
+    let candle_lighting_minutes = super::valid_minutes(candle_lighting_minutes)?;
+    Ok(kosher_rust::myzmanim::MyZmanim::new(location, date).candle_lighting(candle_lighting_minutes))
 }
 
 /// Runs `calculate`, reporting a failed time zone callback over its result.
@@ -25,16 +25,16 @@ pub(crate) fn checked(
     inner: &Inner,
     calculate: impl FnOnce(&Inner) -> Result<Timestamp, ZmanimError>,
 ) -> Result<i64, KosherError> {
-    let result = calculate(inner);
-    if callback_failed(inner.location()) {
+    let (result, callback_failed) = watching_callbacks(|| calculate(inner));
+    if callback_failed {
         return Err(KosherError::TimeZoneCallbackFailed);
     }
     Ok(result?.as_millisecond())
 }
 
 pub(crate) fn checked_duration(inner: &Inner) -> Result<i64, KosherError> {
-    let result = inner.proportional_hour_gra();
-    if callback_failed(inner.location()) {
+    let (result, callback_failed) = watching_callbacks(|| inner.proportional_hour_gra());
+    if callback_failed {
         return Err(KosherError::TimeZoneCallbackFailed);
     }
     // A twelfth of a day fits in i64 milliseconds many times over.

@@ -490,7 +490,10 @@ struct kosher_rust_bindings_kosher_calendar_Holiday {
 
 /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
 struct kosher_rust_bindings_kosher_zmanim_Config {
-    /** How long before sea-level sunset candle lighting is, in minutes. Default 18. */
+    /**
+     * How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
+     * way. Default 18.
+     */
     int32_t candle_lighting_minutes;
     /** Whether proportional zmanim divide the day at astronomical *chatzos*. Default false. */
     bool use_astronomical_chatzos_for_other_zmanim;
@@ -499,7 +502,10 @@ struct kosher_rust_bindings_kosher_zmanim_Config {
      * and sunset themselves. Default false.
      */
     bool use_elevation;
-    /** How long after sunset Tzais Ateret Torah is, in minutes. Default 40. */
+    /**
+     * How long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
+     * Default 40.
+     */
     int32_t ateret_torah_sunset_minutes;
     /**
      * Whether *chatzos* is the sun's transit rather than the midpoint of sunrise and

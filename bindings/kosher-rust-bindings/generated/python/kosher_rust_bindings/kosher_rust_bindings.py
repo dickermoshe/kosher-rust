@@ -211,7 +211,7 @@ _CONTRACTS: Dict[str, List[Tuple[int, int, str]]] = {
         (0xcffb36e0ca0b9371, 0x19a2809df98650c2, "kosher.limudim.pirkei_avos_display"),
         (0xd071f45bb69ffd10, 0x7110b3413cfd8e83, "kosher.Location"),
         (0xd17988807ad73a17, 0xf2a52228396d8635, "kosher.myzmanim.sea_level_refraction_arcminutes"),
-        (0xd3e595d5c721f7a9, 0xb0d75a9e88cb28e1, "kosher.KosherError"),
+        (0xd3e595d5c721f7a9, 0x62e66834b1549bbb, "kosher.KosherError"),
         (0xd6e2bb7649059df2, 0x4ba24826d4ea04e8, "kosher.calendar.holiday_is_modern"),
         (0xd7bdd85ada6f743d, 0x258faa23773bfcae, "kosher.myzmanim.MyZmanim.candle_lighting_minutes"),
         (0xdac1e65044d04433, 0x1c81765c98ab54f9, "kosher.calendar.HebrewDate.parsha"),
@@ -793,6 +793,7 @@ class KosherError(Error):
     InvalidDate: Type[InvalidDate]
     TimeZoneRequired: Type[TimeZoneRequired]
     TimeZoneCallbackFailed: Type[TimeZoneCallbackFailed]
+    InvalidMinutes: Type[InvalidMinutes]
     AllDay: Type[AllDay]
     AllNight: Type[AllNight]
     NotApplicable: Type[NotApplicable]
@@ -855,6 +856,17 @@ class TimeZoneCallbackFailed(KosherError):
         super().__init__(6, message)
 
 
+class InvalidMinutes(KosherError):
+    """A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
+    within a day (1440 minutes) either way.
+    """
+
+    CODE = 7
+
+    def __init__(self, message: str = "A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number") -> None:
+        super().__init__(7, message)
+
+
 class AllDay(KosherError):
     """The sun stays above the angle the time needs all day, as in the far north in summer."""
 
@@ -899,6 +911,7 @@ KosherError.InvalidElevation = InvalidElevation
 KosherError.InvalidDate = InvalidDate
 KosherError.TimeZoneRequired = TimeZoneRequired
 KosherError.TimeZoneCallbackFailed = TimeZoneCallbackFailed
+KosherError.InvalidMinutes = InvalidMinutes
 KosherError.AllDay = AllDay
 KosherError.AllNight = AllNight
 KosherError.NotApplicable = NotApplicable
@@ -921,6 +934,8 @@ def _kosher_error_from(code: int, message: str, payload: bytes = b"") -> Error:
         return TimeZoneRequired(message)
     if code == 6:
         return TimeZoneCallbackFailed(message)
+    if code == 7:
+        return InvalidMinutes(message)
     if code == 10:
         return AllDay(message)
     if code == 11:
@@ -2969,14 +2984,16 @@ class ZmanFailure(IntEnum):
 class Config:
     """How `Zmanim` calculates. `default_config` matches KosherJava's defaults."""
 
-    # How long before sea-level sunset candle lighting is, in minutes. Default 18.
+    # How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
+    # way. Default 18.
     candle_lighting_minutes: int
     # Whether proportional zmanim divide the day at astronomical *chatzos*. Default false.
     use_astronomical_chatzos_for_other_zmanim: bool
     # Whether elevation adjusts every zman built on sunrise and sunset, not only sunrise
     # and sunset themselves. Default false.
     use_elevation: bool
-    # How long after sunset Tzais Ateret Torah is, in minutes. Default 40.
+    # How long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
+    # Default 40.
     ateret_torah_sunset_minutes: int
     # Whether *chatzos* is the sun's transit rather than the midpoint of sunrise and
     # sunset. Default true.
@@ -3039,7 +3056,8 @@ class TimeZoneOffset(abc.ABC):
     """The time zone, supplied by the caller: the offset from UTC at an instant.
 
     Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
-    one. It is called synchronously, possibly several times per calculation.
+    one. It is called synchronously, and each `Zmanim` or `MyZmanim` remembers its answers,
+    so it must give the same offset whenever it is asked about the same instant.
 
     Subclass it and implement every method to pass an instance where the
     API takes a `TimeZoneOffset`. The producer may call the methods from any
@@ -3112,8 +3130,9 @@ class Zmanim(_Object):
 
         # Errors
 
-        `KosherError::InvalidDate` for a date that does not exist; the errors of
-        `validate_location`.
+        `KosherError::InvalidDate` for a date that does not exist;
+        `KosherError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
+        than a day; the errors of `validate_location`.
 
         Raises
         ------
@@ -4118,8 +4137,9 @@ class MyZmanim(_Object):
 
         # Errors
 
-        `KosherError::InvalidDate` for a date that does not exist; the errors of
-        `validate_location`.
+        `KosherError::InvalidDate` for a date that does not exist;
+        `KosherError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
+        of at most 1440 either way; the errors of `validate_location`.
 
         Raises
         ------
@@ -4505,6 +4525,7 @@ __all__ = [
     "InvalidDate",
     "TimeZoneRequired",
     "TimeZoneCallbackFailed",
+    "InvalidMinutes",
     "AllDay",
     "AllNight",
     "NotApplicable",

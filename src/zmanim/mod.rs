@@ -35,6 +35,7 @@ mod tests;
 mod catalog_snapshot;
 
 pub use calculator::{Zmanim, shaah_zmanis};
+pub(crate) use calculator::{minus, plus};
 pub use catalog::Zman;
 pub use config::{AstronomicalCalculator, Config};
 pub use error::ZmanimError;

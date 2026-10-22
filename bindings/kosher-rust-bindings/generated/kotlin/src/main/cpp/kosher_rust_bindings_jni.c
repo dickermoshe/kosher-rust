@@ -444,7 +444,7 @@ static const Jni_contract_entry Jni_contract_kosher[] = {
     {UINT64_C(0xcffb36e0ca0b9371), UINT64_C(0x19a2809df98650c2), "kosher.limudim.pirkei_avos_display"},
     {UINT64_C(0xd071f45bb69ffd10), UINT64_C(0x7110b3413cfd8e83), "kosher.Location"},
     {UINT64_C(0xd17988807ad73a17), UINT64_C(0xf2a52228396d8635), "kosher.myzmanim.sea_level_refraction_arcminutes"},
-    {UINT64_C(0xd3e595d5c721f7a9), UINT64_C(0xb0d75a9e88cb28e1), "kosher.KosherError"},
+    {UINT64_C(0xd3e595d5c721f7a9), UINT64_C(0x62e66834b1549bbb), "kosher.KosherError"},
     {UINT64_C(0xd6e2bb7649059df2), UINT64_C(0x4ba24826d4ea04e8), "kosher.calendar.holiday_is_modern"},
     {UINT64_C(0xd7bdd85ada6f743d), UINT64_C(0x258faa23773bfcae), "kosher.myzmanim.MyZmanim.candle_lighting_minutes"},
     {UINT64_C(0xdac1e65044d04433), UINT64_C(0x1c81765c98ab54f9), "kosher.calendar.HebrewDate.parsha"},

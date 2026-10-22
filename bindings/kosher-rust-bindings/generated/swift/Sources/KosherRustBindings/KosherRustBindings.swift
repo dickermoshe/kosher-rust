@@ -745,7 +745,7 @@ let wvContract: Void = {
         (0xcffb36e0ca0b9371, 0x19a2809df98650c2, "kosher.limudim.pirkei_avos_display"),
         (0xd071f45bb69ffd10, 0x7110b3413cfd8e83, "kosher.Location"),
         (0xd17988807ad73a17, 0xf2a52228396d8635, "kosher.myzmanim.sea_level_refraction_arcminutes"),
-        (0xd3e595d5c721f7a9, 0xb0d75a9e88cb28e1, "kosher.KosherError"),
+        (0xd3e595d5c721f7a9, 0x62e66834b1549bbb, "kosher.KosherError"),
         (0xd6e2bb7649059df2, 0x4ba24826d4ea04e8, "kosher.calendar.holiday_is_modern"),
         (0xd7bdd85ada6f743d, 0x258faa23773bfcae, "kosher.myzmanim.MyZmanim.candle_lighting_minutes"),
         (0xdac1e65044d04433, 0x1c81765c98ab54f9, "kosher.calendar.HebrewDate.parsha"),
@@ -781,6 +781,9 @@ public enum KosherError: Error, LocalizedError, Sendable {
     case timeZoneRequired(message: String)
     /// The time zone callback failed, or gave an offset of a day or more.
     case timeZoneCallbackFailed(message: String)
+    /// A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
+    /// within a day (1440 minutes) either way.
+    case invalidMinutes(message: String)
     /// The sun stays above the angle the time needs all day, as in the far north in summer.
     case allDay(message: String)
     /// The sun stays below the angle the time needs all day, as in the far north in winter.
@@ -800,6 +803,7 @@ public enum KosherError: Error, LocalizedError, Sendable {
         case let .invalidDate(message): return message
         case let .timeZoneRequired(message): return message
         case let .timeZoneCallbackFailed(message): return message
+        case let .invalidMinutes(message): return message
         case let .allDay(message): return message
         case let .allNight(message): return message
         case let .notApplicable(message): return message
@@ -816,6 +820,7 @@ public enum KosherError: Error, LocalizedError, Sendable {
         case .invalidDate: return 4
         case .timeZoneRequired: return 5
         case .timeZoneCallbackFailed: return 6
+        case .invalidMinutes: return 7
         case .allDay: return 10
         case .allNight: return 11
         case .notApplicable: return 12
@@ -833,6 +838,7 @@ func wvMapKosher(_ err: WvError) -> Error {
     case 4: return KosherError.invalidDate(message: message.isEmpty ? "The date does not exist, or is outside the supported range." : message)
     case 5: return KosherError.timeZoneRequired(message: message.isEmpty ? "The time needs a time zone and none was given: the Kiddush Levana times, and any time" : message)
     case 6: return KosherError.timeZoneCallbackFailed(message: message.isEmpty ? "The time zone callback failed, or gave an offset of a day or more." : message)
+    case 7: return KosherError.invalidMinutes(message: message.isEmpty ? "A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number" : message)
     case 10: return KosherError.allDay(message: message.isEmpty ? "The sun stays above the angle the time needs all day, as in the far north in summer." : message)
     case 11: return KosherError.allNight(message: message.isEmpty ? "The sun stays below the angle the time needs all day, as in the far north in winter." : message)
     case 12: return KosherError.notApplicable(message: message.isEmpty ? "The time only exists on certain dates, and this is not one." : message)
@@ -2097,14 +2103,16 @@ extension ZmanFailure: WvCEnum {}
 
 /// How `Zmanim` calculates. `default_config` matches KosherJava's defaults.
 public struct Config: Hashable, Sendable {
-    /// How long before sea-level sunset candle lighting is, in minutes. Default 18.
+    /// How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
+    /// way. Default 18.
     public var candleLightingMinutes: Int32
     /// Whether proportional zmanim divide the day at astronomical *chatzos*. Default false.
     public var useAstronomicalChatzosForOtherZmanim: Bool
     /// Whether elevation adjusts every zman built on sunrise and sunset, not only sunrise
     /// and sunset themselves. Default false.
     public var useElevation: Bool
-    /// How long after sunset Tzais Ateret Torah is, in minutes. Default 40.
+    /// How long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
+    /// Default 40.
     public var ateretTorahSunsetMinutes: Int32
     /// Whether *chatzos* is the sun's transit rather than the midpoint of sunrise and
     /// sunset. Default true.
@@ -2174,7 +2182,8 @@ extension ZmanTime: WvCodable {
 /// The time zone, supplied by the caller: the offset from UTC at an instant.
 ///
 /// Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
-/// one. It is called synchronously, possibly several times per calculation.
+/// one. It is called synchronously, and each `Zmanim` or `MyZmanim` remembers its answers,
+/// so it must give the same offset whenever it is asked about the same instant.
 ///
 /// Implement this protocol with a class and pass an instance where the API
 /// expects it. The library keeps the instance until it no longer needs it and
@@ -2233,8 +2242,9 @@ public final class Zmanim: @unchecked Sendable {
     ///
     /// # Errors
     ///
-    /// `KosherError::InvalidDate` for a date that does not exist; the errors of
-    /// `validate_location`.
+    /// `KosherError::InvalidDate` for a date that does not exist;
+    /// `KosherError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
+    /// than a day; the errors of `validate_location`.
     ///
     /// - Throws: ``KosherError`` for a declared failure, ``KosherRustBindingsRuntimeError`` otherwise.
     public init(location: Location, date: GregorianDate, config: Config, timeZone: (any TimeZoneOffset)?) throws {
@@ -2810,8 +2820,9 @@ public final class MyZmanim: @unchecked Sendable {
     ///
     /// # Errors
     ///
-    /// `KosherError::InvalidDate` for a date that does not exist; the errors of
-    /// `validate_location`.
+    /// `KosherError::InvalidDate` for a date that does not exist;
+    /// `KosherError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
+    /// of at most 1440 either way; the errors of `validate_location`.
     ///
     /// - Throws: ``KosherError`` for a declared failure, ``KosherRustBindingsRuntimeError`` otherwise.
     public init(location: Location, date: GregorianDate, candleLightingMinutes: Double, timeZone: (any TimeZoneOffset)?) throws {

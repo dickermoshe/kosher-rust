@@ -108,6 +108,22 @@ public abstract class KosherException : NativeException
         }
     }
 
+    /// <summary>
+    /// A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
+    /// within a day (1440 minutes) either way.
+    /// </summary>
+    public sealed class InvalidMinutes : KosherException
+    {
+        /// <summary>The domain code, <c>7</c>.</summary>
+        public const int ErrorCode = 7;
+
+        /// <summary>Creates the error with <paramref name="message"/>, or the
+        /// default message "A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number" when it's null.</summary>
+        public InvalidMinutes(string? message = null) : base(ErrorCode, message ?? "A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number")
+        {
+        }
+    }
+
     /// <summary>The sun stays above the angle the time needs all day, as in the far north in summer.</summary>
     public sealed class AllDay : KosherException
     {
@@ -181,6 +197,8 @@ public abstract class KosherException : NativeException
                 return new TimeZoneRequired(given);
             case TimeZoneCallbackFailed.ErrorCode:
                 return new TimeZoneCallbackFailed(given);
+            case InvalidMinutes.ErrorCode:
+                return new InvalidMinutes(given);
             case AllDay.ErrorCode:
                 return new AllDay(given);
             case AllNight.ErrorCode:
@@ -1924,7 +1942,10 @@ public enum ZmanFailure
 /// <summary>How `Zmanim` calculates. `default_config` matches KosherJava's defaults.</summary>
 public sealed class Config
 {
-    /// <summary>How long before sea-level sunset candle lighting is, in minutes. Default 18.</summary>
+    /// <summary>
+    /// How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
+    /// way. Default 18.
+    /// </summary>
     public int CandleLightingMinutes { get; }
 
     /// <summary>Whether proportional zmanim divide the day at astronomical *chatzos*. Default false.</summary>
@@ -1936,7 +1957,10 @@ public sealed class Config
     /// </summary>
     public bool UseElevation { get; }
 
-    /// <summary>How long after sunset Tzais Ateret Torah is, in minutes. Default 40.</summary>
+    /// <summary>
+    /// How long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
+    /// Default 40.
+    /// </summary>
     public int AteretTorahSunsetMinutes { get; }
 
     /// <summary>
@@ -2027,7 +2051,8 @@ public sealed class ZmanTime
 /// The time zone, supplied by the caller: the offset from UTC at an instant.
 ///
 /// Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
-/// one. It is called synchronously, possibly several times per calculation.
+/// one. It is called synchronously, and each `Zmanim` or `MyZmanim` remembers its answers,
+/// so it must give the same offset whenever it is asked about the same instant.
 /// </summary>
 /// <remarks>The native library may call any method from any thread until
 /// it releases its last reference to the implementation. Object arguments
@@ -2124,8 +2149,9 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     ///
     /// # Errors
     ///
-    /// `KosherError::InvalidDate` for a date that does not exist; the errors of
-    /// `validate_location`.
+    /// `KosherError::InvalidDate` for a date that does not exist;
+    /// `KosherError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
+    /// than a day; the errors of `validate_location`.
     /// </summary>
     /// <exception cref="KosherException">The call reported a KosherError code.</exception>
     public Zmanim(Location location, GregorianDate date, Config config, ITimeZoneOffset? timeZone)
@@ -2916,8 +2942,9 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     ///
     /// # Errors
     ///
-    /// `KosherError::InvalidDate` for a date that does not exist; the errors of
-    /// `validate_location`.
+    /// `KosherError::InvalidDate` for a date that does not exist;
+    /// `KosherError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
+    /// of at most 1440 either way; the errors of `validate_location`.
     /// </summary>
     /// <exception cref="KosherException">The call reported a KosherError code.</exception>
     public MyZmanim(Location location, GregorianDate date, double candleLightingMinutes, ITimeZoneOffset? timeZone)
@@ -3959,7 +3986,7 @@ internal static unsafe partial class NativeMethods
             (0xcffb36e0ca0b9371UL, 0x19a2809df98650c2UL, "kosher.limudim.pirkei_avos_display"),
             (0xd071f45bb69ffd10UL, 0x7110b3413cfd8e83UL, "kosher.Location"),
             (0xd17988807ad73a17UL, 0xf2a52228396d8635UL, "kosher.myzmanim.sea_level_refraction_arcminutes"),
-            (0xd3e595d5c721f7a9UL, 0xb0d75a9e88cb28e1UL, "kosher.KosherError"),
+            (0xd3e595d5c721f7a9UL, 0x62e66834b1549bbbUL, "kosher.KosherError"),
             (0xd6e2bb7649059df2UL, 0x4ba24826d4ea04e8UL, "kosher.calendar.holiday_is_modern"),
             (0xd7bdd85ada6f743dUL, 0x258faa23773bfcaeUL, "kosher.myzmanim.MyZmanim.candle_lighting_minutes"),
             (0xdac1e65044d04433UL, 0x1c81765c98ab54f9UL, "kosher.calendar.HebrewDate.parsha"),

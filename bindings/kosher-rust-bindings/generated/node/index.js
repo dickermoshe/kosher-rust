@@ -161,7 +161,7 @@ const $contract = [
     [0xcffb36e0ca0b9371n, 0x19a2809df98650c2n, 'kosher.limudim.pirkei_avos_display'],
     [0xd071f45bb69ffd10n, 0x7110b3413cfd8e83n, 'kosher.Location'],
     [0xd17988807ad73a17n, 0xf2a52228396d8635n, 'kosher.myzmanim.sea_level_refraction_arcminutes'],
-    [0xd3e595d5c721f7a9n, 0xb0d75a9e88cb28e1n, 'kosher.KosherError'],
+    [0xd3e595d5c721f7a9n, 0x62e66834b1549bbbn, 'kosher.KosherError'],
     [0xd6e2bb7649059df2n, 0x4ba24826d4ea04e8n, 'kosher.calendar.holiday_is_modern'],
     [0xd7bdd85ada6f743dn, 0x258faa23773bfcaen, 'kosher.myzmanim.MyZmanim.candle_lighting_minutes'],
     [0xdac1e65044d04433n, 0x1c81765c98ab54f9n, 'kosher.calendar.HebrewDate.parsha'],
@@ -228,6 +228,12 @@ const kosher$TimeZoneCallbackFailedError = class TimeZoneCallbackFailedError ext
     super(6, message);
   }
 };
+const kosher$InvalidMinutesError = class InvalidMinutesError extends kosher$KosherError {
+  static CODE = 7;
+  constructor(message = 'A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number') {
+    super(7, message);
+  }
+};
 const kosher$AllDayError = class AllDayError extends kosher$KosherError {
   static CODE = 10;
   constructor(message = 'The sun stays above the angle the time needs all day, as in the far north in summer.') {
@@ -259,6 +265,7 @@ const $codes$kosher$KosherError = new Map([
   [4, kosher$InvalidDateError],
   [5, kosher$TimeZoneRequiredError],
   [6, kosher$TimeZoneCallbackFailedError],
+  [7, kosher$InvalidMinutesError],
   [10, kosher$AllDayError],
   [11, kosher$AllNightError],
   [12, kosher$NotApplicableError],
@@ -2344,6 +2351,7 @@ export const kosher = Object.freeze({
   InvalidDateError: kosher$InvalidDateError,
   TimeZoneRequiredError: kosher$TimeZoneRequiredError,
   TimeZoneCallbackFailedError: kosher$TimeZoneCallbackFailedError,
+  InvalidMinutesError: kosher$InvalidMinutesError,
   AllDayError: kosher$AllDayError,
   AllNightError: kosher$AllNightError,
   NotApplicableError: kosher$NotApplicableError,

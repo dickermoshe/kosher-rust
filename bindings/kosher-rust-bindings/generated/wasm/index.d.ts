@@ -78,6 +78,14 @@ export declare namespace kosher {
     static readonly CODE: 6;
     constructor(message?: string);
   }
+  /**
+   * A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
+   * within a day (1440 minutes) either way.
+   */
+  export class InvalidMinutesError extends kosher.KosherError {
+    static readonly CODE: 7;
+    constructor(message?: string);
+  }
   /** The sun stays above the angle the time needs all day, as in the far north in summer. */
   export class AllDayError extends kosher.KosherError {
     static readonly CODE: 10;
@@ -1073,7 +1081,10 @@ export declare namespace kosher {
     }
     /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
     export interface Config {
-      /** How long before sea-level sunset candle lighting is, in minutes. Default 18. */
+      /**
+       * How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
+       * way. Default 18.
+       */
       candle_lighting_minutes: number;
       /** Whether proportional zmanim divide the day at astronomical *chatzos*. Default false. */
       use_astronomical_chatzos_for_other_zmanim: boolean;
@@ -1082,7 +1093,10 @@ export declare namespace kosher {
        * and sunset themselves. Default false.
        */
       use_elevation: boolean;
-      /** How long after sunset Tzais Ateret Torah is, in minutes. Default 40. */
+      /**
+       * How long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
+       * Default 40.
+       */
       ateret_torah_sunset_minutes: number;
       /**
        * Whether *chatzos* is the sun's transit rather than the midpoint of sunrise and
@@ -1107,7 +1121,8 @@ export declare namespace kosher {
      * The time zone, supplied by the caller: the offset from UTC at an instant.
      *
      * Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
-     * one. It is called synchronously, possibly several times per calculation.
+     * one. It is called synchronously, and each `Zmanim` or `MyZmanim` remembers its answers,
+     * so it must give the same offset whenever it is asked about the same instant.
      */
     export interface TimeZoneOffset {
       /**
@@ -1127,8 +1142,9 @@ export declare namespace kosher {
        *
        * # Errors
        *
-       * `KosherError::InvalidDate` for a date that does not exist; the errors of
-       * `validate_location`.
+       * `KosherError::InvalidDate` for a date that does not exist;
+       * `KosherError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
+       * than a day; the errors of `validate_location`.
        * @throws {kosher.KosherError}
        */
       constructor(location: kosher.Location, date: kosher.GregorianDate, config: kosher.zmanim.Config, timeZone: kosher.zmanim.TimeZoneOffset | null);
@@ -1531,8 +1547,9 @@ export declare namespace kosher {
        *
        * # Errors
        *
-       * `KosherError::InvalidDate` for a date that does not exist; the errors of
-       * `validate_location`.
+       * `KosherError::InvalidDate` for a date that does not exist;
+       * `KosherError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
+       * of at most 1440 either way; the errors of `validate_location`.
        * @throws {kosher.KosherError}
        */
       constructor(location: kosher.Location, date: kosher.GregorianDate, candleLightingMinutes: number, timeZone: kosher.zmanim.TimeZoneOffset | null);

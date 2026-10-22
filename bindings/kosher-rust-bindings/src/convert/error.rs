@@ -10,6 +10,7 @@ pub(crate) fn message(error: KosherError) -> &'static str {
         KosherError::InvalidDate => "no such date, or outside the supported range",
         KosherError::TimeZoneRequired => "this needs a time zone",
         KosherError::TimeZoneCallbackFailed => "the time zone callback failed or gave an offset of a day or more",
+        KosherError::InvalidMinutes => "minutes must be a finite number from -1440 to 1440",
         KosherError::AllDay => "the sun does not go low enough for this time on this date",
         KosherError::AllNight => "the sun does not rise high enough for this time on this date",
         KosherError::NotApplicable => "this time does not apply on this date",
@@ -52,6 +53,7 @@ impl From<KosherError> for ZmanFailure {
             | KosherError::InvalidLongitude
             | KosherError::InvalidElevation
             | KosherError::InvalidDate
+            | KosherError::InvalidMinutes
             | KosherError::Internal => Self::Internal,
         }
     }

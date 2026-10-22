@@ -40,7 +40,7 @@ use jiff::civil::Date;
 
 use self::coefficients::{NUTATION_COEFFS, OBLIQUITY_COEFFS, TERMS_B, TERMS_L, TERMS_PE, TERMS_R, TERMS_Y};
 use super::{SolarAlgorithm, SolarEvent, julian_day, time_at_azimuth_iterative, vsop87::sun_mean_longitude};
-use crate::{Location, TimeZoneLike, zmanim::ZmanimError};
+use crate::{location::Place, zmanim::ZmanimError};
 
 /// The SPA algorithm.
 pub(super) struct Spa {
@@ -359,7 +359,7 @@ const GRAZING_MIN_SLOPE: f64 = 0.02;
 fn secant_rise_set(
     jd_day: f64,
     delta_t: f64,
-    location: &Location<impl TimeZoneLike>,
+    location: &Place,
     adjusted_zenith: f64,
     event: SolarEvent,
     window: (f64, f64),
@@ -419,7 +419,7 @@ impl SolarAlgorithm for Spa {
     fn rise_set_utc_minutes(
         &self,
         date: Date,
-        location: &Location<impl TimeZoneLike>,
+        location: &Place,
         adjusted_zenith: f64,
         event: SolarEvent,
     ) -> Result<f64, ZmanimError> {
@@ -475,12 +475,7 @@ impl SolarAlgorithm for Spa {
         self.transit_minutes(date, longitude_west, event)
     }
 
-    fn time_at_azimuth_utc_hours(
-        &self,
-        date: Date,
-        location: &Location<impl TimeZoneLike>,
-        azimuth: f64,
-    ) -> Result<f64, ZmanimError> {
+    fn time_at_azimuth_utc_hours(&self, date: Date, location: &Place, azimuth: f64) -> Result<f64, ZmanimError> {
         let delta_t = self.delta_t(date);
         time_at_azimuth_iterative(date, location, azimuth, 4, |julian_day| {
             let time = JulianDate {

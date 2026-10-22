@@ -29,6 +29,9 @@ pub mod kosher {
         TimeZoneRequired = 5,
         /// The time zone callback failed, or gave an offset of a day or more.
         TimeZoneCallbackFailed = 6,
+        /// A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
+        /// within a day (1440 minutes) either way.
+        InvalidMinutes = 7,
         /// The sun stays above the angle the time needs all day, as in the far north in summer.
         AllDay = 10,
         /// The sun stays below the angle the time needs all day, as in the far north in winter.
@@ -671,7 +674,8 @@ pub mod kosher {
         /// The time zone, supplied by the caller: the offset from UTC at an instant.
         ///
         /// Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
-        /// one. It is called synchronously, possibly several times per calculation.
+        /// one. It is called synchronously, and each `Zmanim` or `MyZmanim` remembers its answers,
+        /// so it must give the same offset whenever it is asked about the same instant.
         #[weaveffi::callback_interface]
         pub trait TimeZoneOffset: Send + Sync {
             /// The offset from UTC, in seconds east, in effect at `unix_seconds`.
@@ -1137,14 +1141,16 @@ pub mod kosher {
         #[weaveffi::record]
         #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         pub struct Config {
-            /// How long before sea-level sunset candle lighting is, in minutes. Default 18.
+            /// How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
+            /// way. Default 18.
             pub candle_lighting_minutes: i32,
             /// Whether proportional zmanim divide the day at astronomical *chatzos*. Default false.
             pub use_astronomical_chatzos_for_other_zmanim: bool,
             /// Whether elevation adjusts every zman built on sunrise and sunset, not only sunrise
             /// and sunset themselves. Default false.
             pub use_elevation: bool,
-            /// How long after sunset Tzais Ateret Torah is, in minutes. Default 40.
+            /// How long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
+            /// Default 40.
             pub ateret_torah_sunset_minutes: i32,
             /// Whether *chatzos* is the sun's transit rather than the midpoint of sunrise and
             /// sunset. Default true.
@@ -1203,8 +1209,9 @@ pub mod kosher {
             ///
             /// # Errors
             ///
-            /// `KosherError::InvalidDate` for a date that does not exist; the errors of
-            /// `validate_location`.
+            /// `KosherError::InvalidDate` for a date that does not exist;
+            /// `KosherError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
+            /// than a day; the errors of `validate_location`.
             pub fn new(
                 location: Location,
                 date: GregorianDate,
@@ -1325,7 +1332,7 @@ pub mod kosher {
         /// milliseconds.
         #[weaveffi::export]
         pub fn shaah_zmanis(start: i64, end: i64) -> i64 {
-            (end - start) / 12
+            convert::zmanim::shaah_zmanis(start, end)
         }
     }
 
@@ -1764,8 +1771,9 @@ pub mod kosher {
             ///
             /// # Errors
             ///
-            /// `KosherError::InvalidDate` for a date that does not exist; the errors of
-            /// `validate_location`.
+            /// `KosherError::InvalidDate` for a date that does not exist;
+            /// `KosherError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
+            /// of at most 1440 either way; the errors of `validate_location`.
             pub fn new(
                 location: Location,
                 date: GregorianDate,

@@ -18,7 +18,7 @@ use super::{
         self, asin_degrees, cos_degrees, delta_t_seconds, nutation_arcsec, sin_degrees, sun_mean_longitude, tan_degrees,
     },
 };
-use crate::{Location, TimeZoneLike, zmanim::ZmanimError};
+use crate::{location::Place, zmanim::ZmanimError};
 
 /// The Meeus algorithm.
 #[derive(Clone, Copy, Debug)]
@@ -49,7 +49,7 @@ impl SolarAlgorithm for Meeus {
     fn rise_set_utc_minutes(
         &self,
         date: Date,
-        location: &Location<impl TimeZoneLike>,
+        location: &Place,
         adjusted_zenith: f64,
         event: SolarEvent,
     ) -> Result<f64, ZmanimError> {
@@ -109,12 +109,7 @@ impl SolarAlgorithm for Meeus {
         sol_noon_utc
     }
 
-    fn time_at_azimuth_utc_hours(
-        &self,
-        date: Date,
-        location: &Location<impl TimeZoneLike>,
-        azimuth: f64,
-    ) -> Result<f64, ZmanimError> {
+    fn time_at_azimuth_utc_hours(&self, date: Date, location: &Place, azimuth: f64) -> Result<f64, ZmanimError> {
         time_at_azimuth_iterative(date, location, azimuth, 3, |julian_day| {
             let julian_centuries = self.julian_centuries(julian_day);
             (

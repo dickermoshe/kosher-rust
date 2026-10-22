@@ -3,7 +3,7 @@ use std::sync::Arc;
 use jiff::{SignedDuration, Timestamp};
 use kosher_rust::zmanim::{self as k, AstronomicalCalculator, ZmanimError};
 
-use super::{CallbackTimeZone, calendar::mirror, callback_failed};
+use super::{CallbackTimeZone, calendar::mirror, watching_callbacks};
 use crate::api::kosher::{
     GregorianDate, KosherError, Location,
     zmanim::{Calculator, Category, Config, TimeZoneOffset, ZmanTime},
@@ -17,11 +17,17 @@ pub(crate) fn zmanim(
     config: &Config,
     time_zone: Option<Arc<dyn TimeZoneOffset>>,
 ) -> Result<Inner, KosherError> {
-    Ok(kosher_rust::Zmanim::with_config(
-        super::location(location, time_zone)?,
-        super::civil_date(date)?,
-        (*config).into(),
-    ))
+    let location = super::location(location, time_zone)?;
+    let date = super::civil_date(date)?;
+    super::valid_minutes(f64::from(config.candle_lighting_minutes))?;
+    super::valid_minutes(f64::from(config.ateret_torah_sunset_minutes))?;
+    Ok(kosher_rust::Zmanim::with_config(location, date, (*config).into()))
+}
+
+/// A twelfth of the time from `start` to `end`, in milliseconds. The difference is taken in
+/// `i128`; a twelfth of it always fits in an `i64`.
+pub(crate) fn shaah_zmanis(start: i64, end: i64) -> i64 {
+    ((i128::from(end) - i128::from(start)) / 12) as i64
 }
 
 /// Runs `calculate`, reporting a failed time zone callback over its result.
@@ -29,8 +35,8 @@ pub(crate) fn checked(
     inner: &Inner,
     calculate: impl FnOnce(&Inner) -> Result<Timestamp, ZmanimError>,
 ) -> Result<i64, KosherError> {
-    let result = calculate(inner);
-    if callback_failed(inner.location()) {
+    let (result, callback_failed) = watching_callbacks(|| calculate(inner));
+    if callback_failed {
         return Err(KosherError::TimeZoneCallbackFailed);
     }
     Ok(result?.as_millisecond())

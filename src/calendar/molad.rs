@@ -98,7 +98,10 @@ pub(crate) fn months_molad(date: &Date<Hebrew>) -> Option<Timestamp> {
     // Longitude of Har Habayis: 35.2354°
     // 35.2354° away from 35° (GMT+2 +  20 minutes) = 0.2354° = ~0.94 minutes
     // Total: 20 minutes 56.496 seconds ≈ 1256.496 seconds
-    Some(datetime_jerusalem.timestamp() - SignedDuration::from_millis(1_256_496))
+    datetime_jerusalem
+        .timestamp()
+        .checked_sub(SignedDuration::from_millis(1_256_496))
+        .ok()
 }
 
 fn abs_date_to_gregorian_date(abs_date: i64) -> Option<Date<Gregorian>> {

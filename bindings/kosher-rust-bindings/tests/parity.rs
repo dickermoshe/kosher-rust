@@ -41,6 +41,21 @@ impl TimeZoneOffset for Broken {
     }
 }
 
+/// A callback that fails for instants within three hours of `bad` and answers `zone` otherwise.
+struct FailsNear {
+    bad: i64,
+    zone: TimeZone,
+}
+
+impl TimeZoneOffset for FailsNear {
+    fn offset_seconds(&self, unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
+        if (unix_seconds - self.bad).abs() < 3 * 3600 {
+            return Err(weaveffi::ForeignError::new(1, "no offset"));
+        }
+        Jiff(self.zone.clone()).offset_seconds(unix_seconds)
+    }
+}
+
 /// A callback giving an offset no time zone has.
 struct TooFar;
 
@@ -362,6 +377,150 @@ fn errors() {
         "{failures:?}"
     );
     assert!(failures.contains(&ZmanFailure::TimeZoneCallbackFailed));
+}
+
+/// A callback giving one fixed offset.
+struct Fixed(i32);
+
+impl TimeZoneOffset for Fixed {
+    fn offset_seconds(&self, _unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
+        Ok(self.0)
+    }
+}
+
+/// Numbers at and past the limits the bindings accept.
+#[test]
+fn inputs_at_their_limits() {
+    let date = GregorianDate {
+        year: 2024,
+        month: 4,
+        day: 23,
+    };
+    let config = zmanim::default_config();
+    // Longitude 170 needs the time zone, so every time asks it.
+    let offset = |seconds: i32| {
+        Zmanim::new(
+            sea_level_location(0.0, 170.0),
+            date,
+            config,
+            Some(Arc::new(Fixed(seconds))),
+        )
+        .unwrap()
+        .get(zmanim::Zman::Sunrise)
+    };
+    for seconds in [i32::MIN, i32::MAX, -86_400, 86_400] {
+        assert_eq!(offset(seconds), Err(KosherError::TimeZoneCallbackFailed), "{seconds}");
+    }
+    for seconds in [-86_399, 0, 86_399] {
+        assert!(offset(seconds).is_ok(), "{seconds}");
+    }
+
+    assert_eq!(zmanim::shaah_zmanis(0, 12 * 3_600_000), 3_600_000);
+    assert_eq!(zmanim::shaah_zmanis(i64::MIN, i64::MAX), 1_537_228_672_809_129_301);
+    assert_eq!(zmanim::shaah_zmanis(i64::MAX, i64::MIN), -1_537_228_672_809_129_301);
+
+    let lakewood = sea_level_location(40.09, -74.22);
+    let with_minutes = |candle_lighting_minutes: i32, ateret_torah_sunset_minutes: i32| {
+        let config = zmanim::Config {
+            candle_lighting_minutes,
+            ateret_torah_sunset_minutes,
+            ..config
+        };
+        Zmanim::new(lakewood, date, config, None).map(|_| ())
+    };
+    assert_eq!(with_minutes(-1440, 1440), Ok(()));
+    assert_eq!(with_minutes(1441, 40), Err(KosherError::InvalidMinutes));
+    assert_eq!(with_minutes(18, -1441), Err(KosherError::InvalidMinutes));
+    assert_eq!(with_minutes(i32::MAX, i32::MIN), Err(KosherError::InvalidMinutes));
+
+    let candle_lighting = |minutes: f64| MyZmanim::new(lakewood, date, minutes, None).map(|_| ());
+    for minutes in [0.0, 40.5, -1440.0, 1440.0] {
+        assert_eq!(candle_lighting(minutes), Ok(()), "{minutes}");
+    }
+    for minutes in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 1440.5, -1e15] {
+        assert_eq!(candle_lighting(minutes), Err(KosherError::InvalidMinutes), "{minutes}");
+    }
+}
+
+/// A jiff time zone through the callback, counting the calls.
+struct Counting(TimeZone, AtomicUsize);
+
+impl TimeZoneOffset for Counting {
+    fn offset_seconds(&self, unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
+        self.1.fetch_add(1, Ordering::Relaxed);
+        Jiff(self.0.clone()).offset_seconds(unix_seconds)
+    }
+}
+
+/// The callback is called once per instant, however often kosher-rust asks about it.
+#[test]
+fn the_callback_is_asked_once_per_instant() {
+    let counting = Arc::new(Counting(
+        TimeZone::get("America/New_York").unwrap(),
+        AtomicUsize::new(0),
+    ));
+    let lakewood = sea_level_location(40.09, -74.22);
+    let date = GregorianDate {
+        year: 2024,
+        month: 11,
+        day: 4,
+    };
+    let calls = || counting.1.swap(0, Ordering::Relaxed);
+
+    let day = Zmanim::new(lakewood, date, zmanim::default_config(), Some(counting.clone())).unwrap();
+    day.all();
+    let first = calls();
+    assert!((1..=12).contains(&first), "{first}");
+    day.all();
+    assert_eq!(calls(), 0);
+
+    let my_day = MyZmanim::new(lakewood, date, 18.0, Some(counting.clone())).unwrap();
+    my_day.all();
+    let first = calls();
+    assert!((1..=12).contains(&first), "{first}");
+}
+
+/// One object used from two threads at once: a callback failure during one call is reported by
+/// that call, and never by a call running beside it.
+#[test]
+fn concurrent_calls_report_only_their_own_callback_failures() {
+    let new_york = TimeZone::get("America/New_York").unwrap();
+    // Kiddush Levana on this date asks the time zone about this instant; sunrise never does.
+    let molad = civil::datetime(2024, 11, 4, 8, 44, 50, 0)
+        .to_zoned(new_york.clone())
+        .unwrap()
+        .timestamp()
+        .as_second();
+    let shared = Arc::new(
+        Zmanim::new(
+            sea_level_location(40.09, -74.22),
+            GregorianDate {
+                year: 2024,
+                month: 11,
+                day: 4,
+            },
+            zmanim::default_config(),
+            Some(Arc::new(FailsNear {
+                bad: molad,
+                zone: new_york,
+            })),
+        )
+        .unwrap(),
+    );
+    let levana = zmanim::Zman::TchilasZmanKidushLevana3Days;
+    assert_eq!(shared.get(levana), Err(KosherError::TimeZoneCallbackFailed));
+    let sunrise = shared.get(zmanim::Zman::Sunrise).unwrap();
+
+    let other = Arc::clone(&shared);
+    let wrong_sunrises = std::thread::spawn(move || {
+        (0..20_000)
+            .filter(|_| other.get(zmanim::Zman::Sunrise) != Ok(sunrise))
+            .count()
+    });
+    let wrong_levanas = (0..20_000)
+        .filter(|_| shared.get(levana) != Err(KosherError::TimeZoneCallbackFailed))
+        .count();
+    assert_eq!((wrong_levanas, wrong_sunrises.join().unwrap()), (0, 0));
 }
 
 /// Kiddush Levana on the day after the clocks went back, through a callback: the day check

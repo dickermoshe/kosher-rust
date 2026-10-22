@@ -203,7 +203,7 @@ KOSHER_RUST_BINDINGS_API const kosher_rust_bindings_contract_entry* kosher_rust_
     {0xcffb36e0ca0b9371ull, 0x19a2809df98650c2ull}, /* kosher.limudim.pirkei_avos_display */ \
     {0xd071f45bb69ffd10ull, 0x7110b3413cfd8e83ull}, /* kosher.Location */ \
     {0xd17988807ad73a17ull, 0xf2a52228396d8635ull}, /* kosher.myzmanim.sea_level_refraction_arcminutes */ \
-    {0xd3e595d5c721f7a9ull, 0xb0d75a9e88cb28e1ull}, /* kosher.KosherError */ \
+    {0xd3e595d5c721f7a9ull, 0x62e66834b1549bbbull}, /* kosher.KosherError */ \
     {0xd6e2bb7649059df2ull, 0x4ba24826d4ea04e8ull}, /* kosher.calendar.holiday_is_modern */ \
     {0xd7bdd85ada6f743dull, 0x258faa23773bfcaeull}, /* kosher.myzmanim.MyZmanim.candle_lighting_minutes */ \
     {0xdac1e65044d04433ull, 0x1c81765c98ab54f9ull}, /* kosher.calendar.HebrewDate.parsha */ \
@@ -269,6 +269,11 @@ typedef enum {
     kosher_rust_bindings_kosher_KosherError_TimeZoneRequired = 5,
     /** The time zone callback failed, or gave an offset of a day or more. */
     kosher_rust_bindings_kosher_KosherError_TimeZoneCallbackFailed = 6,
+    /**
+     * A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
+     * within a day (1440 minutes) either way.
+     */
+    kosher_rust_bindings_kosher_KosherError_InvalidMinutes = 7,
     /** The sun stays above the angle the time needs all day, as in the far north in summer. */
     kosher_rust_bindings_kosher_KosherError_AllDay = 10,
     /** The sun stays below the angle the time needs all day, as in the far north in winter. */
@@ -1321,7 +1326,8 @@ typedef struct kosher_rust_bindings_kosher_myzmanim_MyZmanim kosher_rust_binding
  * The time zone, supplied by the caller: the offset from UTC at an instant.
  *
  * Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
- * one. It is called synchronously, possibly several times per calculation.
+ * one. It is called synchronously, and each `Zmanim` or `MyZmanim` remembers its answers,
+ * so it must give the same offset whenever it is asked about the same instant.
  *
  * Consumer-implemented callback interface. The consumer passes a context pointer plus a pointer to a static instance of this vtable, with `size` set to `sizeof` the vtable and `flags` to 0 (the producer rejects a smaller vtable). The producer may call any entry from any thread until it calls `free(ctx)` exactly once, also from any thread. A method reports failure with `error_set(out_err, ...)`; a string, bytes, or buffer return is a run the consumer allocates with `alloc` and writes to `out_ptr` and `out_len`, which the producer adopts.
  */
@@ -1461,8 +1467,9 @@ KOSHER_RUST_BINDINGS_API const uint8_t* kosher_rust_bindings_kosher_calendar_mon
  *
  * # Errors
  *
- * `KosherError::InvalidDate` for a date that does not exist; the errors of
- * `validate_location`.
+ * `KosherError::InvalidDate` for a date that does not exist;
+ * `KosherError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
+ * than a day; the errors of `validate_location`.
  */
 KOSHER_RUST_BINDINGS_API kosher_rust_bindings_kosher_zmanim_Zmanim* kosher_rust_bindings_kosher_zmanim_Zmanim_new(const uint8_t* location_ptr, size_t location_len, const uint8_t* date_ptr, size_t date_len, const uint8_t* config_ptr, size_t config_len, void* time_zone_ctx, const kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable* time_zone_vtable, kosher_rust_bindings_error* out_err);
 /**
@@ -1569,8 +1576,9 @@ KOSHER_RUST_BINDINGS_API const uint8_t* kosher_rust_bindings_kosher_limudim_pirk
  *
  * # Errors
  *
- * `KosherError::InvalidDate` for a date that does not exist; the errors of
- * `validate_location`.
+ * `KosherError::InvalidDate` for a date that does not exist;
+ * `KosherError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
+ * of at most 1440 either way; the errors of `validate_location`.
  */
 KOSHER_RUST_BINDINGS_API kosher_rust_bindings_kosher_myzmanim_MyZmanim* kosher_rust_bindings_kosher_myzmanim_MyZmanim_new(const uint8_t* location_ptr, size_t location_len, const uint8_t* date_ptr, size_t date_len, double candle_lighting_minutes, void* time_zone_ctx, const kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable* time_zone_vtable, kosher_rust_bindings_error* out_err);
 /**

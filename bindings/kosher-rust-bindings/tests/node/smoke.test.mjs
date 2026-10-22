@@ -82,6 +82,14 @@ test('invalid input is a typed error', () => {
     () => new zmanim.Zmanim(lakewood, { year: 2024, month: 2, day: 30 }, config, newYork),
     kosher.InvalidDateError,
   );
+  assert.throws(
+    () => new zmanim.Zmanim(lakewood, { year: 2024, month: 1, day: 1 }, { ...config, candle_lighting_minutes: 1441 }, newYork),
+    kosher.InvalidMinutesError,
+  );
+  assert.throws(
+    () => new myzmanim.MyZmanim(lakewood, { year: 2024, month: 1, day: 1 }, NaN, newYork),
+    kosher.InvalidMinutesError,
+  );
 });
 
 test('calendar', () => {

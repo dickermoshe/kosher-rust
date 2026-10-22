@@ -21,6 +21,11 @@ sealed class KosherException(code: Int, message: String) : FfiException(code, me
     class TimeZoneRequired(message: String = "The time needs a time zone and none was given: the Kiddush Levana times, and any time") : KosherException(5, message)
     /** The time zone callback failed, or gave an offset of a day or more. */
     class TimeZoneCallbackFailed(message: String = "The time zone callback failed, or gave an offset of a day or more.") : KosherException(6, message)
+    /**
+     * A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
+     * within a day (1440 minutes) either way.
+     */
+    class InvalidMinutes(message: String = "A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number") : KosherException(7, message)
     /** The sun stays above the angle the time needs all day, as in the far north in summer. */
     class AllDay(message: String = "The sun stays above the angle the time needs all day, as in the far north in summer.") : KosherException(10, message)
     /** The sun stays below the angle the time needs all day, as in the far north in winter. */
@@ -42,6 +47,7 @@ sealed class KosherException(code: Int, message: String) : FfiException(code, me
             4 -> InvalidDate(message)
             5 -> TimeZoneRequired(message)
             6 -> TimeZoneCallbackFailed(message)
+            7 -> InvalidMinutes(message)
             10 -> AllDay(message)
             11 -> AllNight(message)
             12 -> NotApplicable(message)
@@ -1260,7 +1266,10 @@ enum class ZmanFailure(val value: Int) {
 
 /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
 data class Config(
-    /** How long before sea-level sunset candle lighting is, in minutes. Default 18. */
+    /**
+     * How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
+     * way. Default 18.
+     */
     val candle_lighting_minutes: Int,
     /** Whether proportional zmanim divide the day at astronomical *chatzos*. Default false. */
     val use_astronomical_chatzos_for_other_zmanim: Boolean,
@@ -1269,7 +1278,10 @@ data class Config(
      * and sunset themselves. Default false.
      */
     val use_elevation: Boolean,
-    /** How long after sunset Tzais Ateret Torah is, in minutes. Default 40. */
+    /**
+     * How long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
+     * Default 40.
+     */
     val ateret_torah_sunset_minutes: Int,
     /**
      * Whether *chatzos* is the sun's transit rather than the midpoint of sunrise and
@@ -1328,7 +1340,8 @@ internal fun unpackZmanTime(_r: BufferReader): ZmanTime = ZmanTime(
  * The time zone, supplied by the caller: the offset from UTC at an instant.
  *
  * Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
- * one. It is called synchronously, possibly several times per calculation.
+ * one. It is called synchronously, and each `Zmanim` or `MyZmanim` remembers its answers,
+ * so it must give the same offset whenever it is asked about the same instant.
  */
 interface TimeZoneOffset {
     /**
@@ -1422,8 +1435,9 @@ class Zmanim private constructor(address: Long) : AutoCloseable {
          *
          * # Errors
          *
-         * `KosherError::InvalidDate` for a date that does not exist; the errors of
-         * `validate_location`.
+         * `KosherError::InvalidDate` for a date that does not exist;
+         * `KosherError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
+         * than a day; the errors of `validate_location`.
          */
         operator fun invoke(location: Location, date: GregorianDate, config: Config, timeZone: TimeZoneOffset?): Zmanim = Zmanim.fromHandle(JniBridge.kosher_zmanim_Zmanim_new(encodeBuffer { _w -> packLocation(_w, location) }, encodeBuffer { _w -> packGregorianDate(_w, date) }, encodeBuffer { _w -> packConfig(_w, config) }, timeZone))
     }
@@ -1934,8 +1948,9 @@ class MyZmanim private constructor(address: Long) : AutoCloseable {
          *
          * # Errors
          *
-         * `KosherError::InvalidDate` for a date that does not exist; the errors of
-         * `validate_location`.
+         * `KosherError::InvalidDate` for a date that does not exist;
+         * `KosherError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
+         * of at most 1440 either way; the errors of `validate_location`.
          */
         operator fun invoke(location: Location, date: GregorianDate, candleLightingMinutes: Double, timeZone: TimeZoneOffset?): MyZmanim = MyZmanim.fromHandle(JniBridge.kosher_myzmanim_MyZmanim_new(encodeBuffer { _w -> packLocation(_w, location) }, encodeBuffer { _w -> packGregorianDate(_w, date) }, candleLightingMinutes, timeZone))
     }

@@ -230,7 +230,7 @@ const List<(String, List<(int, int, String)>)> _contracts = [
     (0xcffb36e0ca0b9371, 0x19a2809df98650c2, 'kosher.limudim.pirkei_avos_display'),
     (0xd071f45bb69ffd10, 0x7110b3413cfd8e83, 'kosher.Location'),
     (0xd17988807ad73a17, 0xf2a52228396d8635, 'kosher.myzmanim.sea_level_refraction_arcminutes'),
-    (0xd3e595d5c721f7a9, 0xb0d75a9e88cb28e1, 'kosher.KosherError'),
+    (0xd3e595d5c721f7a9, 0x62e66834b1549bbb, 'kosher.KosherError'),
     (0xd6e2bb7649059df2, 0x4ba24826d4ea04e8, 'kosher.calendar.holiday_is_modern'),
     (0xd7bdd85ada6f743d, 0x258faa23773bfcae, 'kosher.myzmanim.MyZmanim.candle_lighting_minutes'),
     (0xdac1e65044d04433, 0x1c81765c98ab54f9, 'kosher.calendar.HebrewDate.parsha'),
@@ -1135,6 +1135,13 @@ final class TimeZoneCallbackFailedException extends KosherException {
   TimeZoneCallbackFailedException([String message = 'The time zone callback failed, or gave an offset of a day or more.']) : super(6, message);
 }
 
+/// A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
+/// within a day (1440 minutes) either way.
+final class InvalidMinutesException extends KosherException {
+  /// Creates an [InvalidMinutesException] (code 7).
+  InvalidMinutesException([String message = 'A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number']) : super(7, message);
+}
+
 /// The sun stays above the angle the time needs all day, as in the far north in summer.
 final class AllDayException extends KosherException {
   /// Creates an [AllDayException] (code 10).
@@ -1174,6 +1181,8 @@ NativeException _mapKosherException(int code, String message, Uint8List payload)
       return TimeZoneRequiredException(message);
     case 6:
       return TimeZoneCallbackFailedException(message);
+    case 7:
+      return InvalidMinutesException(message);
     case 10:
       return AllDayException(message);
     case 11:
@@ -3517,14 +3526,16 @@ final class Config {
   /// Creates a [Config].
   Config({required this.candleLightingMinutes, required this.useAstronomicalChatzosForOtherZmanim, required this.useElevation, required this.ateretTorahSunsetMinutes, required this.useAstronomicalChatzos, required this.calculator, required this.applyDeltaT});
 
-  /// How long before sea-level sunset candle lighting is, in minutes. Default 18.
+  /// How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
+  /// way. Default 18.
   final int candleLightingMinutes;
   /// Whether proportional zmanim divide the day at astronomical *chatzos*. Default false.
   final bool useAstronomicalChatzosForOtherZmanim;
   /// Whether elevation adjusts every zman built on sunrise and sunset, not only sunrise
   /// and sunset themselves. Default false.
   final bool useElevation;
-  /// How long after sunset Tzais Ateret Torah is, in minutes. Default 40.
+  /// How long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
+  /// Default 40.
   final int ateretTorahSunsetMinutes;
   /// Whether *chatzos* is the sun's transit rather than the midpoint of sunrise and
   /// sunset. Default true.
@@ -3615,7 +3626,8 @@ ZmanTime _unpackZmanTime(_BufferReader r) => ZmanTime(
 /// The time zone, supplied by the caller: the offset from UTC at an instant.
 ///
 /// Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
-/// one. It is called synchronously, possibly several times per calculation.
+/// one. It is called synchronously, and each `Zmanim` or `MyZmanim` remembers its answers,
+/// so it must give the same offset whenever it is asked about the same instant.
 ///
 /// A callback interface: implement it and pass an instance to any
 /// function taking a [TimeZoneOffset]. The library keeps the instance alive
@@ -3739,8 +3751,9 @@ final class Zmanim extends _NativeObject {
   ///
   /// # Errors
   ///
-  /// `KosherError::InvalidDate` for a date that does not exist; the errors of
-  /// `validate_location`.
+  /// `KosherError::InvalidDate` for a date that does not exist;
+  /// `KosherError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
+  /// than a day; the errors of `validate_location`.
   ///
   /// The returned object is owned by the caller: call its `dispose()`
   /// when you're done with it.
@@ -4842,8 +4855,9 @@ final class MyZmanim extends _NativeObject {
   ///
   /// # Errors
   ///
-  /// `KosherError::InvalidDate` for a date that does not exist; the errors of
-  /// `validate_location`.
+  /// `KosherError::InvalidDate` for a date that does not exist;
+  /// `KosherError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
+  /// of at most 1440 either way; the errors of `validate_location`.
   ///
   /// The returned object is owned by the caller: call its `dispose()`
   /// when you're done with it.

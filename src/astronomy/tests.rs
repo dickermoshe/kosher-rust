@@ -39,7 +39,7 @@ enum TestLocation {
 }
 
 impl TestLocation {
-    fn location(self) -> Location {
+    fn location(self) -> Place {
         let (latitude, longitude, elevation) = match self {
             Self::Nj => (41.1181036, -74.0840691, 167.0),
             Self::La => (34.0201613, -118.6919095, 71.0),
@@ -53,6 +53,7 @@ impl TestLocation {
         Location::new(latitude, longitude, Some(TimeZone::UTC))
             .and_then(|l| l.with_elevation(elevation))
             .unwrap()
+            .place()
     }
 }
 
@@ -422,10 +423,11 @@ fn meeus_utc_sunrise_with_delta_t_disabled_matches_java() {
 /// noon the zenith looks out of reach, but using the declination at solar midnight it is reached,
 /// so these return a time rather than no event.
 fn check_only_just_reached(calculator: AstronomicalCalculator, expected: [f64; 3]) {
-    let london = Location::new(51.5074, -0.1278, Some(TimeZone::UTC)).unwrap();
+    let london = Location::new(51.5074, -0.1278, Some(TimeZone::UTC)).unwrap().place();
     let arctic = Location::new(75.51550698948259, -0.9961193842273985, Some(TimeZone::UTC))
         .and_then(|l| l.with_elevation(1516.0617032522935))
-        .unwrap();
+        .unwrap()
+        .place();
     let cases = [
         (
             "London 16.1° alos",
@@ -677,10 +679,13 @@ fn spa_sunrise_depends_on_observer_elevation_even_at_sea_level_horizon() {
     // SPA feeds the observer elevation into its parallax term, so the sea-level sunrise
     // (no horizon dip) still moves with elevation; NOAA and Meeus ignore it entirely.
     let day = date("2017-10-17");
-    let low = Location::new(41.1181036, -74.0840691, Some(TimeZone::UTC)).unwrap();
+    let low = Location::new(41.1181036, -74.0840691, Some(TimeZone::UTC))
+        .unwrap()
+        .place();
     let high = Location::new(41.1181036, -74.0840691, Some(TimeZone::UTC))
         .and_then(|l| l.with_elevation(4000.0))
-        .unwrap();
+        .unwrap()
+        .place();
     let spa_low = utc_rise_set_hours(SPA, day, &low, GEOMETRIC_ZENITH, false, SolarEvent::Sunrise).unwrap();
     let spa_high = utc_rise_set_hours(SPA, day, &high, GEOMETRIC_ZENITH, false, SolarEvent::Sunrise).unwrap();
     assert_ne!(spa_low, spa_high);
@@ -748,12 +753,12 @@ fn apparent_solar_radius_changes_sunrise_vs_fixed_radius() {
         let fixed_zenith = GEOMETRIC_ZENITH + (16.0 / 60.0) + REFRACTION;
         let adjusted_date = adjusted_local_date(date, &location).unwrap();
         let utc_minutes = calculator
-            .rise_set_utc_minutes(adjusted_date, &location, fixed_zenith, SolarEvent::Sunrise)
+            .rise_set_utc_minutes(adjusted_date, &location.place(), fixed_zenith, SolarEvent::Sunrise)
             .unwrap();
         let fixed = instant_from_utc_hours(
             normalize_utc_hours(utc_minutes / 60.0),
             adjusted_date,
-            &location,
+            &location.place(),
             SolarEvent::Sunrise,
         )
         .unwrap();
@@ -780,36 +785,5 @@ fn time_at_azimuth_normalizes_hours_before_timestamp() {
         let azimuth_time = time_at_azimuth(calculator, date, &location, 90.0).unwrap();
         let local = azimuth_time.to_zoned(TimeZone::get("Europe/Oslo").unwrap());
         assert_eq!(local.date(), Date::new(2017, 6, 21).unwrap(), "{calculator:?}");
-    }
-}
-
-/// `offset_at_local_midnight` only asks the zone for offsets at instants, yet must pick the same
-/// offset jiff does from the full rules, including where midnight is skipped or repeated.
-#[test]
-fn offset_at_local_midnight_matches_jiff() {
-    let zones = [
-        "America/New_York",
-        "Asia/Jerusalem",
-        "America/Havana",      // spring forward at midnight
-        "America/Santiago",    // transitions at 24:00
-        "America/Sao_Paulo",   // historical midnight transitions
-        "Asia/Beirut",         // midnight transitions
-        "Pacific/Apia",        // skipped 30 December 2011 entirely
-        "Pacific/Kiritimati",  // UTC+14
-        "Australia/Lord_Howe", // half-hour DST
-    ];
-    for name in zones {
-        let tz = TimeZone::get(name).unwrap();
-        let mut date = Date::new(1970, 1, 1).unwrap();
-        while date.year() < 2040 {
-            let expected = tz
-                .to_ambiguous_timestamp(date.at(0, 0, 0, 0))
-                .earlier()
-                .unwrap()
-                .to_zoned(tz.clone())
-                .offset();
-            assert_eq!(offset_at_local_midnight(&tz, date).unwrap(), expected, "{name} {date}");
-            date = date.tomorrow().unwrap();
-        }
     }
 }
