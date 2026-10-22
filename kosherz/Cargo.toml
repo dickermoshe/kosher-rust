@@ -1,0 +1,21 @@
+[package]
+name = "kosherz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+description = "C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI."
+license = "LGPL-2.1-or-later"
+
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+kosher-rust = { path = ".." }
+jiff = { version = "0.2.0", default-features = false, features = ["std", "alloc"] }
+weaveffi = "0.25"
+
+[dev-dependencies]
+jiff = { version = "0.2.0", default-features = false, features = ["std", "alloc", "tzdb-bundle-always"] }
+
+[lints]
+workspace = true

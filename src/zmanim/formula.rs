@@ -12,10 +12,7 @@ use jiff::{SignedDuration as Duration, Timestamp, ToSpan, tz::TimeZone};
 
 use crate::{
     TimeZoneLike,
-    calendar::{
-        HebrewDate, Holiday, Region,
-        molad::{is_same_gregorian_day, months_molad},
-    },
+    calendar::{HebrewDate, Holiday, Region, molad::months_molad},
     zmanim::{Zmanim, ZmanimError, minus, plus},
 };
 
@@ -120,6 +117,18 @@ pub(crate) enum Formula {
     PolarSunriseBenIshChai,
 }
 
+/// Whether `time` falls on `date` in `timezone`: from the local midnight starting `date` through
+/// the local midnight ending it. This is the check KosherJava's `getMoladBasedTime` makes.
+fn is_on_date(time: Timestamp, date: jiff::civil::Date, timezone: &impl TimeZoneLike) -> Result<bool, ZmanimError> {
+    let midnight = |date: jiff::civil::Date| {
+        timezone
+            .local_to_timestamp(date.at(0, 0, 0, 0))
+            .ok_or(ZmanimError::Internal)
+    };
+    let tomorrow = date.tomorrow().map_err(|_| ZmanimError::Internal)?;
+    Ok(time >= midnight(date)? && time <= midnight(tomorrow)?)
+}
+
 impl Formula {
     pub(crate) fn evaluate<Tz: TimeZoneLike>(&self, calculator: &Zmanim<Tz>) -> Result<Timestamp, ZmanimError> {
         match *self {
@@ -141,46 +150,54 @@ impl Formula {
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 true,
             ),
             Formula::SeaLevelSunrise => crate::astronomy::sunrise(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 false,
             ),
             Formula::SolarTransit => crate::astronomy::solar_noon(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
             ),
             Formula::SolarMidnight => crate::astronomy::solar_midnight(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
             ),
             Formula::ElevationAdjustedSunset => crate::astronomy::sunset(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 true,
             ),
             Formula::SeaLevelSunset => crate::astronomy::sunset(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 false,
             ),
             Formula::SunriseOffsetByDegrees(degrees) => crate::astronomy::sunrise_offset_by_degrees(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 degrees,
             ),
             Formula::SunsetOffsetByDegrees(degrees) => crate::astronomy::sunset_offset_by_degrees(
                 calculator.config.astronomical_calculator,
                 calculator.date,
                 &calculator.location,
+                calculator.timezone.as_ref(),
                 degrees,
             ),
             Formula::LocalMeanTime(hours) => {
@@ -190,7 +207,8 @@ impl Formula {
                     return Err(ZmanimError::Internal);
                 }
 
-                let adjusted_date = crate::astronomy::adjusted_local_date(date, location)?;
+                let adjusted_date =
+                    crate::astronomy::adjusted_local_date(date, location, calculator.timezone.as_ref())?;
                 let midnight = adjusted_date.at(0, 0, 0, 0);
                 let lmt_nanos = CoreFloat::round(hours * 3600.0 * 1_000_000_000.0) as i64;
                 let offset_nanos = CoreFloat::round(location.longitude * 240.0 * 1_000_000_000.0) as i64;
@@ -375,11 +393,7 @@ impl Formula {
                 plus(sunset, calculator.config.ateret_torah_sunset_offset)
             }
             Formula::SofZmanKidushLevana15Days => {
-                let tz = calculator
-                    .location
-                    .timezone
-                    .as_ref()
-                    .ok_or(ZmanimError::TimeZoneRequired)?;
+                let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 17 {
@@ -389,17 +403,13 @@ impl Formula {
                     months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
                     Duration::from_hours(24 * 15),
                 )?;
-                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                if is_on_date(molad, calculator.date, tz)? {
                     return Ok(molad);
                 }
                 Err(ZmanimError::NotApplicable)
             }
             Formula::SofZmanKidushLevanaBetweenMoldos => {
-                let tz = calculator
-                    .location
-                    .timezone
-                    .as_ref()
-                    .ok_or(ZmanimError::TimeZoneRequired)?;
+                let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 16 {
@@ -412,17 +422,13 @@ impl Formula {
                         + Duration::from_secs(1)
                         + Duration::from_millis(666),
                 )?;
-                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                if is_on_date(molad, calculator.date, tz)? {
                     return Ok(molad);
                 }
                 Err(ZmanimError::NotApplicable)
             }
             Formula::TchilasZmanKidushLevana3Days => {
-                let tz = calculator
-                    .location
-                    .timezone
-                    .as_ref()
-                    .ok_or(ZmanimError::TimeZoneRequired)?;
+                let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 > 5 && hebrew.day_of_month().0 < 30 {
@@ -433,7 +439,7 @@ impl Formula {
                     Duration::from_hours(72),
                 )?;
 
-                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                if is_on_date(molad, calculator.date, tz)? {
                     return Ok(molad);
                 }
 
@@ -448,18 +454,14 @@ impl Formula {
                         months_molad(&new).ok_or(ZmanimError::Internal)?,
                         Duration::from_hours(72),
                     )?;
-                    if is_same_gregorian_day(&hebrew, &molad, tz) {
+                    if is_on_date(molad, calculator.date, tz)? {
                         return Ok(molad);
                     }
                 }
                 Err(ZmanimError::NotApplicable)
             }
             Formula::TchilasZmanKidushLevana7Days => {
-                let tz = calculator
-                    .location
-                    .timezone
-                    .as_ref()
-                    .ok_or(ZmanimError::TimeZoneRequired)?;
+                let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
                 let hebrew = HebrewDate::from(calculator.date).icu();
 
                 if hebrew.day_of_month().0 < 4 || hebrew.day_of_month().0 > 9 {
@@ -469,7 +471,7 @@ impl Formula {
                     months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
                     Duration::from_hours(168),
                 )?;
-                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                if is_on_date(molad, calculator.date, tz)? {
                     return Ok(molad);
                 }
                 Err(ZmanimError::NotApplicable)
@@ -532,6 +534,7 @@ impl Formula {
                     calculator.config.astronomical_calculator,
                     calculator.date,
                     &calculator.location,
+                    calculator.timezone.as_ref(),
                     270.0,
                 ),
                 Err(error) => Err(error),
@@ -542,6 +545,7 @@ impl Formula {
                     calculator.config.astronomical_calculator,
                     calculator.date,
                     &calculator.location,
+                    calculator.timezone.as_ref(),
                     90.0,
                 ),
                 Err(error) => Err(error),
@@ -572,6 +576,7 @@ impl Formula {
                     calculator.config.astronomical_calculator,
                     tomorrow,
                     &calculator.location,
+                    calculator.timezone.as_ref(),
                     false,
                 )?;
                 let diff = sunrise.duration_since(sunset) / 2;

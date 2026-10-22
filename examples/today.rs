@@ -53,7 +53,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     println!();
     println!("Zmanim at {latitude}, {longitude}");
-    let zmanim = Zmanim::new(Location::new(latitude, longitude, Some(tz.clone()))?, today);
+    let zmanim = Zmanim::new(Location::new(latitude, longitude)?, today, Some(tz));
     let headline = [
         Zman::Alos72Minutes,
         Zman::Sunrise,
@@ -67,22 +67,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         Zman::Tzais72Minutes,
     ];
     for zman in headline {
-        match zmanim.get(zman) {
-            Ok(time) => println!(
-                "  {:<32} {}",
-                zman.name(),
-                time.to_zoned(tz.clone()).strftime("%H:%M:%S")
-            ),
+        match zmanim.get_zoned(zman) {
+            Ok(time) => println!("  {:<32} {}", zman.name(), time.strftime("%H:%M:%S")),
             Err(error) => println!("  {:<32} ({error})", zman.name()),
         }
     }
     if hebrew.has_candle_lighting(region) {
-        let candles = zmanim.get(Zman::CandleLighting)?;
-        println!(
-            "  {:<32} {}",
-            Zman::CandleLighting.name(),
-            candles.to_zoned(tz).strftime("%H:%M")
-        );
+        let candles = zmanim.get_zoned(Zman::CandleLighting)?;
+        println!("  {:<32} {}", Zman::CandleLighting.name(), candles.strftime("%H:%M"));
     }
 
     let alos_opinions = Zman::ALL

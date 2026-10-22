@@ -36,7 +36,7 @@ fn lakewood_tz() -> TimeZone {
 }
 
 fn lakewood_location(elevation_m: f64) -> Location {
-    Location::new(LAKEWOOD_LAT, LAKEWOOD_LON, Some(lakewood_tz()))
+    Location::new(LAKEWOOD_LAT, LAKEWOOD_LON)
         .and_then(|l| l.with_elevation(elevation_m))
         .unwrap()
 }
@@ -49,6 +49,7 @@ fn new_calc(elevation_m: f64) -> Zmanim {
     Zmanim::with_config(
         lakewood_location(elevation_m),
         lakewood_date(),
+        Some(lakewood_tz()),
         Config {
             candle_lighting_offset: Duration::from_mins(18),
             use_astronomical_chatzos_for_other_zmanim: false,
@@ -61,10 +62,10 @@ fn new_calc(elevation_m: f64) -> Zmanim {
 }
 
 fn calc_for(lat: f64, lon: f64, elevation: f64, tz: TimeZone, date: Date) -> Zmanim {
-    let location = Location::new(lat, lon, Some(tz))
+    let location = Location::new(lat, lon)
         .and_then(|l| l.with_elevation(elevation))
         .unwrap();
-    Zmanim::with_config(location, date, Default::default())
+    Zmanim::with_config(location, date, Some(tz), Default::default())
 }
 
 fn fmt_local(dt: Timestamp) -> String {
@@ -200,13 +201,14 @@ fn test_extreme_elevation_shifts_sunrise_sunset() {
 fn test_split_horizons_use_east_for_sunrise_and_west_for_sunset() {
     let date = Date::new(2017, 10, 17).unwrap();
     let tz = TimeZone::get("Asia/Kathmandu").unwrap();
-    let split_location = Location::new(27.9881, 86.9250, Some(tz.clone()))
+    let split_location = Location::new(27.9881, 86.9250)
         .and_then(|l| l.with_elevation(8848.0))
         .and_then(|l| l.with_horizons(0.0, 8848.0))
         .unwrap();
     let split = Zmanim::with_config(
         split_location,
         date,
+        Some(tz.clone()),
         Config {
             use_elevation: true,
             ..Default::default()
@@ -574,8 +576,13 @@ fn test_use_elevation_shaah_zmanis() {
 
 fn polar_day_calc() -> Zmanim {
     let date = Date::new(2017, 6, 21).unwrap();
-    let location = Location::new(69.6492, 18.9553, Some(TimeZone::get("Europe/Oslo").unwrap())).unwrap();
-    Zmanim::with_config(location, date, Default::default())
+    let location = Location::new(69.6492, 18.9553).unwrap();
+    Zmanim::with_config(
+        location,
+        date,
+        Some(TimeZone::get("Europe/Oslo").unwrap()),
+        Default::default(),
+    )
 }
 
 #[test]
@@ -634,7 +641,7 @@ fn test_polar_day_zmanim_return_none() {
 fn test_mcmurdo_antimeridian_alos_matches_java() {
     let tz = TimeZone::get("Antarctica/McMurdo").unwrap();
     let date = Date::new(1901, 4, 18).unwrap();
-    let location = Location::new(-77.10300593682803, -166.39303270398793, Some(tz.clone()))
+    let location = Location::new(-77.10300593682803, -166.39303270398793)
         .and_then(|l| l.with_elevation(61.48216934280892))
         .unwrap();
     let config = Config {
@@ -645,7 +652,7 @@ fn test_mcmurdo_antimeridian_alos_matches_java() {
         use_astronomical_chatzos: false,
         astronomical_calculator: AstronomicalCalculator::Noaa,
     };
-    let calc = Zmanim::with_config(location, date, config);
+    let calc = Zmanim::with_config(location, date, Some(tz.clone()), config);
 
     let alos = Zman::Alos120Minutes.calculate(&calc).unwrap();
     let local = alos.to_zoned(tz);
@@ -661,6 +668,7 @@ fn test_astronomical_calculator_config_flows_through_presets() {
     let meeus = Zmanim::with_config(
         lakewood_location(LAKEWOOD_ELEVATION_M),
         lakewood_date(),
+        Some(lakewood_tz()),
         Config {
             astronomical_calculator: AstronomicalCalculator::Meeus { apply_delta_t: true },
             ..noaa.config
@@ -669,6 +677,7 @@ fn test_astronomical_calculator_config_flows_through_presets() {
     let spa = Zmanim::with_config(
         lakewood_location(LAKEWOOD_ELEVATION_M),
         lakewood_date(),
+        Some(lakewood_tz()),
         Config {
             astronomical_calculator: AstronomicalCalculator::Spa { apply_delta_t: true },
             ..noaa.config
@@ -720,7 +729,7 @@ fn test_preset_description_uses_chatzos_hayom_config_flag() {
 
     let mut config = Config::default();
     config.use_astronomical_chatzos = false;
-    let calc = Zmanim::with_config(lakewood_location(0.0), lakewood_date(), config);
+    let calc = Zmanim::with_config(lakewood_location(0.0), lakewood_date(), Some(lakewood_tz()), config);
     let desc = Zman::ChatzosHayom.description(calc.config());
     assert!(desc.contains("midpoint between sunrise and sunset"));
 }
@@ -731,13 +740,13 @@ fn test_preset_description_uses_chatzos_hayom_config_flag() {
 fn test_preset_description_uses_chatzos_for_other_zmanim_config_flag() {
     let mut config = Config::default();
     config.use_astronomical_chatzos_for_other_zmanim = true;
-    let calc = Zmanim::with_config(lakewood_location(0.0), lakewood_date(), config);
+    let calc = Zmanim::with_config(lakewood_location(0.0), lakewood_date(), Some(lakewood_tz()), config);
     let desc = Zman::SofZmanShmaGra.description(calc.config());
     assert!(desc.contains("divides the afternoon from astronomical chatzos"));
     assert!(!desc.contains("midpoint between sunrise and sunset"));
 
     config.use_astronomical_chatzos_for_other_zmanim = false;
-    let calc = Zmanim::with_config(lakewood_location(0.0), lakewood_date(), config);
+    let calc = Zmanim::with_config(lakewood_location(0.0), lakewood_date(), Some(lakewood_tz()), config);
     let desc = Zman::SofZmanShmaGra.description(calc.config());
     assert!(desc.contains("fixed fraction of the sunrise-to-sunset interval"));
     assert!(!desc.contains("divides the afternoon from astronomical chatzos"));
@@ -771,16 +780,72 @@ fn test_range_edges_report_errors_not_panics() {
         for longitude in [-179.0, -120.0, -55.0, 0.0, 55.0, 120.0, 179.0] {
             let zone = TimeZone::fixed(jiff::tz::Offset::from_hours((longitude / 15.0) as i8).unwrap());
             for timezone in [None, Some(zone)] {
-                let Ok(location) = Location::new(0.0, longitude, timezone) else {
+                let Ok(location) = Location::new(0.0, longitude) else {
                     continue;
                 };
                 for config in configs {
-                    let zmanim = Zmanim::with_config(location.clone(), date, config);
+                    let zmanim = Zmanim::with_config(location.clone(), date, timezone.clone(), config);
                     for zman in Zman::ALL {
                         let _ = zmanim.get(zman);
                     }
                 }
             }
         }
+    }
+}
+
+/// Without a time zone, a place more than 150° from Greenwich has no day to calculate for; up to
+/// 150° the date is used as given.
+#[test]
+fn test_time_zone_required_only_near_the_date_line() {
+    let date = Date::new(2024, 4, 23).unwrap();
+    let far = Zmanim::new(Location::new(0.0, 150.1).unwrap(), date, None);
+    assert_eq!(far.get(Zman::Sunrise), Err(ZmanimError::TimeZoneRequired));
+    let near = Zmanim::new(Location::new(0.0, 150.0).unwrap(), date, None);
+    assert!(near.get(Zman::Sunrise).is_ok());
+    let zoned = Zmanim::new(Location::new(0.0, 150.1).unwrap(), date, Some(TimeZone::UTC));
+    assert!(zoned.get(Zman::Sunrise).is_ok());
+}
+
+/// `get_zoned` is `get` in the *zmanim*'s time zone, and needs one.
+#[test]
+fn test_get_zoned() {
+    let location = Location::new(LAKEWOOD_LAT, LAKEWOOD_LON).unwrap();
+    let zoned = Zmanim::new(location.clone(), lakewood_date(), Some(lakewood_tz()));
+    let time = zoned.get_zoned(Zman::Sunrise).unwrap();
+    assert_eq!(time.timestamp(), zoned.get(Zman::Sunrise).unwrap());
+    assert_eq!(time.time_zone(), &lakewood_tz());
+    let plain = Zmanim::new(location, lakewood_date(), None);
+    assert_eq!(plain.get_zoned(Zman::Sunrise), Err(ZmanimError::TimeZoneRequired));
+}
+
+/// Without a time zone, only the four Kiddush Levana times need one; more than 150° from
+/// Greenwich, no time can be calculated.
+#[test]
+fn test_what_needs_a_time_zone() {
+    let kiddush_levana = [
+        Zman::TchilasZmanKidushLevana3Days,
+        Zman::TchilasZmanKidushLevana7Days,
+        Zman::SofZmanKidushLevanaBetweenMoldos,
+        Zman::SofZmanKidushLevana15Days,
+    ];
+    let mut date = Date::new(2024, 1, 1).unwrap();
+    while date.year() == 2024 {
+        let plain = Zmanim::new(Location::new(LAKEWOOD_LAT, LAKEWOOD_LON).unwrap(), date, None);
+        for zman in Zman::ALL {
+            let needs_one = plain.get(zman) == Err(ZmanimError::TimeZoneRequired);
+            assert_eq!(needs_one, kiddush_levana.contains(&zman), "{date} {zman:?}");
+        }
+        let far = Zmanim::new(Location::new(0.0, 150.1).unwrap(), date, None);
+        for zman in Zman::ALL {
+            assert!(
+                matches!(
+                    far.get(zman),
+                    Err(ZmanimError::TimeZoneRequired | ZmanimError::NotApplicable)
+                ),
+                "{date} {zman:?}"
+            );
+        }
+        date = date.tomorrow().unwrap();
     }
 }

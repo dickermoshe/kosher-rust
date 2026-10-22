@@ -1,42 +1,94 @@
-use jiff::{SignedDuration, Timestamp, civil::Date, tz::TimeZone};
+use jiff::{SignedDuration, Timestamp, Zoned, civil::Date, tz::TimeZone};
 
 use super::{Config, Zman, ZmanimError, formula::Formula};
 use crate::{Location, TimeZoneLike};
 
 /// The *zmanim* for one place on one day.
 ///
-/// Build one with [`Zmanim::new`], then [`get`](Self::get) any [`Zman`]. Times are
-/// [`Timestamp`]s; convert them to the location's time zone to display them.
+/// Create one with [`Zmanim::new`]. Then call [`get`](Self::get) for any [`Zman`]. It gives the
+/// time as a [`Timestamp`]. To show the time to someone call [`get_zoned`](Self::get_zoned)
+/// instead. It gives the time in the time zone of these *zmanim*.
 ///
 /// ```
 /// use jiff::{civil::date, tz::TimeZone};
 /// use kosher_rust::{Location, Zman, Zmanim};
 ///
 /// let tz = TimeZone::get("America/New_York")?;
-/// let lakewood = Location::new(40.09, -74.22, Some(tz.clone()))?;
-/// let zmanim = Zmanim::new(lakewood, date(2024, 4, 23));
+/// let lakewood = Location::new(40.09, -74.22)?;
+/// let zmanim = Zmanim::new(lakewood, date(2024, 4, 23), Some(tz));
 ///
-/// let shma = zmanim.get(Zman::SofZmanShmaGra)?;
-/// assert_eq!(shma.to_zoned(tz).strftime("%H:%M").to_string(), "09:31");
+/// let shma = zmanim.get_zoned(Zman::SofZmanShmaGra)?;
+/// assert_eq!(shma.strftime("%H:%M").to_string(), "09:31");
 /// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
+///
+/// # Time zones
+///
+/// You can give the *zmanim* a time zone when you create them. With a time zone every time
+/// works. You can also read every time in that time zone with [`get_zoned`](Self::get_zoned).
+///
+/// You can also leave the time zone out by passing `None`. Most times still work without one.
+/// These do not work without a time zone:
+///
+/// - The four Kiddush Levana times return [`ZmanimError::TimeZoneRequired`]. These are the four
+///   times:
+///   - [`Zman::TchilasZmanKidushLevana3Days`]
+///   - [`Zman::TchilasZmanKidushLevana7Days`]
+///   - [`Zman::SofZmanKidushLevanaBetweenMoldos`]
+///   - [`Zman::SofZmanKidushLevana15Days`]
+/// - [`get_zoned`](Self::get_zoned) returns [`ZmanimError::TimeZoneRequired`]. You can still
+///   read the time as a [`Timestamp`] with [`get`](Self::get).
+/// - A location more than 150° from Greenwich needs a time zone for every time. Without one
+///   every time returns [`ZmanimError::TimeZoneRequired`].
 #[derive(Clone, Debug)]
 pub struct Zmanim<Tz = TimeZone> {
-    pub(crate) location: Location<Tz>,
+    pub(crate) location: Location,
     pub(crate) date: Date,
     pub(crate) config: Config,
+    pub(crate) timezone: Option<Tz>,
+}
+
+impl Zmanim {
+    /// The *zmanim* at `location` on `date` in `timezone`, with the default [`Config`].
+    ///
+    /// Pass a time zone if you have one. Every time works with a time zone. Without one a few
+    /// times do not work. The section on [time zones](Zmanim#time-zones) lists them.
+    pub fn new(location: Location, date: Date, timezone: Option<TimeZone>) -> Self {
+        Self::with_config(location, date, timezone, Config::default())
+    }
+
+    /// The *zmanim* at `location` on `date` in `timezone`, calculated with `config`. The config
+    /// chooses the solar algorithm, whether to use elevation, how to find *chatzos*, and the
+    /// candle-lighting offset.
+    ///
+    /// Pass a time zone if you have one. Every time works with a time zone. Without one a few
+    /// times do not work. The section on [time zones](Zmanim#time-zones) lists them.
+    pub fn with_config(location: Location, date: Date, timezone: Option<TimeZone>, config: Config) -> Self {
+        Self::with_custom_timezone(location, date, timezone, config)
+    }
+
+    /// The time of `zman` in the time zone of these *zmanim*. Use it to show the time to someone.
+    ///
+    /// # Errors
+    ///
+    /// It returns the same errors as [`get`](Self::get). It also returns
+    /// [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone.
+    pub fn get_zoned(&self, zman: Zman) -> Result<Zoned, ZmanimError> {
+        let timezone = self.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
+        Ok(self.get(zman)?.to_zoned(timezone.clone()))
+    }
 }
 
 impl<Tz: TimeZoneLike> Zmanim<Tz> {
-    /// The *zmanim* at `location` on `date`, with the default [`Config`].
-    pub fn new(location: Location<Tz>, date: Date) -> Self {
-        Self::with_config(location, date, Config::default())
-    }
-
-    /// The *zmanim* at `location` on `date`, calculated with `config`: which solar algorithm,
-    /// whether to use elevation, how to find *chatzos*, and the candle-lighting offset.
-    pub fn with_config(location: Location<Tz>, date: Date, config: Config) -> Self {
-        Self { location, date, config }
+    /// The same as [`Zmanim::with_config`] with any [`TimeZoneLike`] as the time zone. The
+    /// section on [time zones](Zmanim#time-zones) lists the times that need one.
+    pub fn with_custom_timezone(location: Location, date: Date, timezone: Option<Tz>, config: Config) -> Self {
+        Self {
+            location,
+            date,
+            config,
+            timezone,
+        }
     }
 
     /// The time of `zman` on this day.
@@ -47,8 +99,8 @@ impl<Tz: TimeZoneLike> Zmanim<Tz> {
     ///   angle the time needs, as in the far north or south.
     /// - [`ZmanimError::NotApplicable`] for a time that only exists on some days, such as the
     ///   latest time to eat chametz outside Erev Pesach.
-    /// - [`ZmanimError::TimeZoneRequired`] for the Kiddush Levana times at a location without a
-    ///   time zone.
+    /// - [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone and the time
+    ///   needs one. The section on [time zones](Zmanim#time-zones) lists those times.
     pub fn get(&self, zman: Zman) -> Result<Timestamp, ZmanimError> {
         zman.formula().evaluate(self)
     }
@@ -76,8 +128,13 @@ impl<Tz: TimeZoneLike> Zmanim<Tz> {
     }
 
     /// The location.
-    pub fn location(&self) -> &Location<Tz> {
+    pub fn location(&self) -> &Location {
         &self.location
+    }
+
+    /// The time zone, if one was given.
+    pub fn timezone(&self) -> Option<&Tz> {
+        self.timezone.as_ref()
     }
 
     /// The date.

@@ -1,3 +1,3 @@
 tests/fixtures/*.bin binary
 # Written by `weaveffi generate`; LF everywhere so regenerating on Windows changes nothing.
-bindings/kosher-rust-bindings/generated/** linguist-generated=true text eol=lf
+kosherz/generated/** linguist-generated=true text eol=lf

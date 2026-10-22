@@ -2,13 +2,29 @@
 
 ## Unreleased
 
-- **Custom time zones.** `Location`, `Zmanim` and `MyZmanim` take any `TimeZoneLike`: a type
-  that gives the UTC offset at an instant. `jiff::tz::TimeZone` is the default, so existing
-  code is unchanged; `Location::new_with_timezone` builds a location with your own.
+- **The time zone moves from `Location` to `Zmanim` and `MyZmanim`.** `Location::new(lat, lon)`
+  no longer takes a time zone. You pass the time zone to `Zmanim::new`, `Zmanim::with_config`
+  or `MyZmanim::new` instead. A location more than 150° from Greenwich still needs a time zone.
+  Without one each time now returns `ZmanimError::TimeZoneRequired`. Before this change
+  `Location::new` returned `LocationError::TimeZoneRequired`. That error no longer exists.
+- **`get_zoned`.** `Zmanim` and `MyZmanim` have a new `get_zoned` method. It gives a time in the
+  time zone of the *zmanim*. Use it to show the time to someone.
+- **Custom time zones.** `Zmanim::with_custom_timezone` and `MyZmanim::with_custom_timezone` take
+  any `TimeZoneLike`. A `TimeZoneLike` answers two questions. It gives the UTC offset at an
+  instant. It also gives the instant of a local date and time, resolved the way Java's
+  `ZonedDateTime.of` resolves it. `jiff::tz::TimeZone` implements it.
+- **Kiddush Levana checks the day the way KosherJava does.** A Kiddush Levana time counts for a
+  date when it falls between the local midnight that starts the date and the local midnight that
+  ends it. A time exactly at the midnight that ends the date now counts for that date, as it does
+  in KosherJava.
 - **No panics at the ends of the date range.** Near the first and last days a `Timestamp` holds,
   times built by adding to or subtracting from another time panicked when the result fell
   outside the range, even with the default `Config`; they now return `ZmanimError::Internal`,
   as do candle-lighting and Ateret Torah offsets too large to add.
+- **Days a time zone skipped match KosherJava.** On a date whose midnight a zone skipped
+  entirely (Samoa and Tokelau on 30 December 2011, Kiritimati on 31 December 1994, Kwajalein
+  on 21 August 1993), the date-line adjustment used the offset from before the jump; it now
+  uses the one after, as KosherJava does.
 - **`PirkeiAvos` past Hebrew year 9999.** It panicked for every date from the summer of 9999
   (Gregorian 6239) on; that summer now has its portions, and from 10000 on there are none.
 

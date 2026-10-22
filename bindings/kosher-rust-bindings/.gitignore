@@ -1,6 +1,0 @@
-# generated/ is committed, and CI fails when it is out of date. Only what building the
-# generated packages leaves behind is ignored.
-generated/node/build/
-generated/node/node_modules/
-generated/node/package-lock.json
-__pycache__/

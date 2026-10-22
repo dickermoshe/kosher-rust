@@ -1,0 +1,266 @@
+name: Bindings
+
+# Runs on pull requests and on main, not on every push to a branch. Run it by hand on any branch
+# from the Actions tab.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  generate:
+    name: Rust tests and generated code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
+      - name: Install the WeaveFFI CLI
+        run: cargo install weaveffi-cli --version 0.25.0 --locked
+      - name: Rust tests (parity with kosher-rust, generated enums up to date)
+        run: cargo test -p kosherz
+      - name: Generate bindings for every language
+        working-directory: kosherz
+        run: weaveffi generate --warn
+      - name: Check the committed bindings are up to date
+        run: |
+          generated=kosherz/generated
+          if [ -n "$(git status --porcelain -- "$generated")" ]; then
+            git status --short -- "$generated"
+            git --no-pager diff --stat -- "$generated"
+            echo "::error::The committed bindings are out of date. Run 'weaveffi generate' in kosherz and commit $generated."
+            exit 1
+          fi
+      - name: Build the native library
+        run: cargo build -p kosherz
+      - uses: actions/upload-artifact@v5
+        with:
+          name: libkosherz
+          path: |
+            target/debug/libkosherz.so
+            target/debug/libkosherz.a
+          retention-days: 1
+
+  node:
+    name: Node
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v5
+        with:
+          name: libkosherz
+          path: target/debug
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build the Node addon
+        working-directory: kosherz/generated/node
+        env:
+          KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug
+        run: npm install --no-audit --no-fund
+      - name: Install the Node tests' Temporal polyfill
+        working-directory: kosherz/tests/node
+        run: npm install --no-audit --no-fund
+      - name: Node tests
+        working-directory: kosherz
+        run: node --test tests/node/*.test.mjs
+
+  python:
+    name: Python
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v5
+        with:
+          name: libkosherz
+          path: target/debug
+      - name: Python example
+        working-directory: kosherz
+        env:
+          KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug/libkosherz.so
+          PYTHONPATH: generated/python
+        run: python3 examples/smoke.py
+
+  c-cpp:
+    name: C and C++
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v5
+        with:
+          name: libkosherz
+          path: target/debug
+      - name: Headers compile without warnings
+        working-directory: kosherz/generated
+        run: |
+          for header in kosherz.h kosherz_buffer.h; do
+            gcc -std=c11 -Wall -Wextra -Wno-unused-function -Werror -fsyntax-only -x c "c/$header"
+          done
+          echo '#include "kosherz.hpp"' | g++ -std=c++17 -Wall -Wextra -Wno-unused-function -Werror -fsyntax-only -I cpp -x c++ -
+      - name: C smoke test
+        run: |
+          cc -std=c11 -Wall -I kosherz/generated/c kosherz/tests/c/smoke.c \
+            -L target/debug -lkosherz -Wl,-rpath,"$PWD/target/debug" -o target/smoke-c
+          ./target/smoke-c
+      - name: C++ smoke test
+        run: |
+          c++ -std=c++17 -Wall -I kosherz/generated/cpp kosherz/tests/cpp/smoke.cpp \
+            -L target/debug -lkosherz -Wl,-rpath,"$PWD/target/debug" -o target/smoke-cpp
+          ./target/smoke-cpp
+
+  go:
+    name: Go
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v5
+        with:
+          name: libkosherz
+          path: target/debug
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache: false
+      - name: Go smoke test
+        working-directory: kosherz/tests/go
+        env:
+          CGO_LDFLAGS: -L${{ github.workspace }}/target/debug -Wl,-rpath,${{ github.workspace }}/target/debug
+        run: go test -v ./...
+
+  dotnet:
+    name: .NET
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v5
+        with:
+          name: libkosherz
+          path: target/debug
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: .NET smoke test
+        working-directory: kosherz/tests/dotnet
+        env:
+          KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug/libkosherz.so
+        run: dotnet run
+
+  kotlin:
+    name: Kotlin (JVM)
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v5
+        with:
+          name: libkosherz
+          path: target/debug
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+      - name: Build the JNI library
+        working-directory: kosherz/tests/kotlin
+        run: |
+          cmake -S ../../generated/kotlin/src/main/cpp -B build/jni -DKOSHERZ_LIBRARY_DIR=${{ github.workspace }}/target/debug
+          cmake --build build/jni
+      - name: Kotlin smoke test
+        working-directory: kosherz/tests/kotlin
+        run: gradle run -PlibraryPath=${{ github.workspace }}/target/debug:${{ github.workspace }}/kosherz/tests/kotlin/build/jni
+
+  swift:
+    name: Swift
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v5
+        with:
+          name: libkosherz
+          path: target/debug
+      - name: Swift smoke test
+        working-directory: kosherz/tests/swift/KosherzSmoke
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/target/debug
+        run: swift run -Xlinker -L${{ github.workspace }}/target/debug
+
+  dart:
+    name: Dart
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v5
+        with:
+          name: libkosherz
+          path: target/debug
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - name: Dart smoke test
+        working-directory: kosherz/tests/dart
+        env:
+          KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug/libkosherz.so
+        run: |
+          dart pub get
+          dart run bin/smoke.dart
+
+  ruby:
+    name: Ruby
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v5
+        with:
+          name: libkosherz
+          path: target/debug
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+      - run: gem install ffi
+      - name: Ruby smoke test
+        working-directory: kosherz
+        env:
+          KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug/libkosherz.so
+        run: ruby -I generated/ruby/lib tests/ruby/smoke.rb
+
+  wasm:
+    name: WebAssembly
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build the WebAssembly module
+        env:
+          RUSTFLAGS: -C link-arg=--export-table -C link-arg=--growable-table
+        run: cargo build -p kosherz --target wasm32-unknown-unknown
+      - name: WebAssembly smoke test
+        working-directory: kosherz
+        env:
+          KOSHERZ_LIBRARY: ${{ github.workspace }}/target/wasm32-unknown-unknown/debug/kosherz.wasm
+        run: node --test tests/wasm/*.test.mjs

@@ -1,20 +1,22 @@
-use core::convert::Infallible;
-
 use jiff::{
     Timestamp,
+    civil::DateTime,
     tz::{Offset, TimeZone},
 };
 use thiserror::Error;
 
-/// A time zone: anything that can say what the UTC offset is at a given instant.
+/// A time zone. It answers the two questions the calculations ask a time zone.
+///
+/// The first question is the UTC offset in effect at an instant. The second is the instant of a
+/// local date and time. These are the same two answers KosherJava gets from Java's `ZoneId`.
 ///
 /// [`jiff::tz::TimeZone`] implements it. Implement it yourself to take time zone rules from
-/// somewhere else, such as the operating system or another language through FFI, then build the
-/// location with [`Location::new_with_timezone`].
+/// somewhere else, such as the operating system or another language through FFI. Then give it to
+/// [`Zmanim::with_custom_timezone`](crate::Zmanim::with_custom_timezone).
 ///
 /// ```
-/// use jiff::{Timestamp, tz::Offset};
-/// use kosher_rust::{Location, TimeZoneLike};
+/// use jiff::{SignedDuration, Timestamp, civil::{DateTime, date}, tz::{Offset, TimeZone}};
+/// use kosher_rust::{Location, TimeZoneLike, Zmanim, zmanim::Config};
 ///
 /// /// Israel Standard Time all year, ignoring daylight saving.
 /// struct IsraelStandardTime;
@@ -23,19 +25,37 @@ use thiserror::Error;
 ///     fn offset_at(&self, _timestamp: Timestamp) -> Offset {
 ///         Offset::constant(2)
 ///     }
+///
+///     fn local_to_timestamp(&self, datetime: DateTime) -> Option<Timestamp> {
+///         datetime.to_zoned(TimeZone::fixed(Offset::constant(2))).ok().map(|zoned| zoned.timestamp())
+///     }
 /// }
 ///
-/// let jerusalem = Location::new_with_timezone(31.778, 35.235, Some(IsraelStandardTime))?;
+/// let jerusalem = Location::new(31.778, 35.235)?;
+/// let zmanim =
+///     Zmanim::with_custom_timezone(jerusalem, date(2024, 4, 23), Some(IsraelStandardTime), Config::default());
 /// # Ok::<(), kosher_rust::LocationError>(())
 /// ```
 pub trait TimeZoneLike {
     /// The offset from UTC in effect at `timestamp`.
     fn offset_at(&self, timestamp: Timestamp) -> Offset;
+
+    /// The instant at which the clocks in this time zone show `datetime`.
+    ///
+    /// It must be resolved the way Java's `ZonedDateTime.of` resolves it. When the clocks skip
+    /// over `datetime`, the result is the instant one gap length later. When the clocks show
+    /// `datetime` twice, the result is the earlier of the two instants. jiff calls this the
+    /// `compatible` choice. Return `None` when the instant can't be found.
+    fn local_to_timestamp(&self, datetime: DateTime) -> Option<Timestamp>;
 }
 
 impl TimeZoneLike for TimeZone {
     fn offset_at(&self, timestamp: Timestamp) -> Offset {
         self.to_offset(timestamp)
+    }
+
+    fn local_to_timestamp(&self, datetime: DateTime) -> Option<Timestamp> {
+        self.to_ambiguous_timestamp(datetime).compatible().ok()
     }
 }
 
@@ -43,10 +63,11 @@ impl<T: TimeZoneLike + ?Sized> TimeZoneLike for &T {
     fn offset_at(&self, timestamp: Timestamp) -> Offset {
         (**self).offset_at(timestamp)
     }
-}
 
-/// A location's coordinates and heights without its time zone: what the solar calculations take.
-pub(crate) type Place = Location<Infallible>;
+    fn local_to_timestamp(&self, datetime: DateTime) -> Option<Timestamp> {
+        (**self).local_to_timestamp(datetime)
+    }
+}
 
 /// A place on earth: where to calculate *zmanim* for.
 ///
@@ -55,25 +76,23 @@ pub(crate) type Place = Location<Infallible>;
 /// [`with_horizons`](Self::with_horizons). Each step validates its input.
 ///
 /// ```
-/// use jiff::tz::TimeZone;
 /// use kosher_rust::Location;
 ///
-/// let jerusalem = Location::new(31.778, 35.235, Some(TimeZone::get("Asia/Jerusalem")?))?
+/// let jerusalem = Location::new(31.778, 35.235)?
 ///     .with_elevation(754.0)?
 ///     .with_horizons(754.0, 0.0)?;
-/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// # Ok::<(), kosher_rust::LocationError>(())
 /// ```
 ///
-/// The time zone is a [`jiff::tz::TimeZone`] by default; [`Location::new_with_timezone`] takes any
-/// [`TimeZoneLike`].
+/// The time zone is given to [`Zmanim`](crate::Zmanim) and
+/// [`MyZmanim`](crate::myzmanim::MyZmanim) when they are built.
 #[derive(Debug, Clone, PartialEq)]
-pub struct Location<Tz = TimeZone> {
+pub struct Location {
     pub(crate) latitude: f64,
     pub(crate) longitude: f64,
     pub(crate) elevation: f64,
     pub(crate) eastern_horizon_elevation: f64,
     pub(crate) western_horizon_elevation: f64,
-    pub(crate) timezone: Option<Tz>,
 }
 
 /// Why a [`Location`] was rejected.
@@ -89,43 +108,16 @@ pub enum LocationError {
     /// An elevation is negative or not a finite number.
     #[error("elevation must be a finite number of meters, 0 or more")]
     InvalidElevation,
-    /// The longitude is more than 150° from Greenwich, so a time zone is needed to know which
-    /// day a date means there.
-    #[error("locations more than 150 degrees from Greenwich need a time zone")]
-    TimeZoneRequired,
 }
 
 impl Location {
     /// A location at sea level, latitude and longitude in degrees (north and east positive).
     ///
-    /// The time zone may be `None`, except within 30° of the date line, where it decides which
-    /// day a date means. The Kiddush Levana times also need one.
-    ///
     /// # Errors
     ///
     /// - [`LocationError::InvalidLatitude`] outside -90° to 90°.
     /// - [`LocationError::InvalidLongitude`] outside -180° to 180°.
-    /// - [`LocationError::TimeZoneRequired`] when `timezone` is `None` and the longitude is
-    ///   beyond ±150°.
-    pub fn new(latitude: f64, longitude: f64, timezone: Option<TimeZone>) -> Result<Self, LocationError> {
-        Self::new_with_timezone(latitude, longitude, timezone)
-    }
-}
-
-impl<Tz: TimeZoneLike> Location<Tz> {
-    /// Like [`Location::new`], with any [`TimeZoneLike`] as the time zone.
-    ///
-    /// Passing `None` needs the time zone type spelled out, as in
-    /// `Location::<MyZone>::new_with_timezone(lat, lon, None)`; without a time zone of your own,
-    /// use [`Location::new`].
-    ///
-    /// # Errors
-    ///
-    /// The same as [`Location::new`].
-    pub fn new_with_timezone(latitude: f64, longitude: f64, timezone: Option<Tz>) -> Result<Self, LocationError> {
-        if timezone.is_none() && longitude.abs() > 150.0 {
-            return Err(LocationError::TimeZoneRequired);
-        }
+    pub fn new(latitude: f64, longitude: f64) -> Result<Self, LocationError> {
         if longitude.is_nan() || longitude.abs() > 180.0 {
             return Err(LocationError::InvalidLongitude);
         }
@@ -138,22 +130,7 @@ impl<Tz: TimeZoneLike> Location<Tz> {
             elevation: 0.0,
             eastern_horizon_elevation: 0.0,
             western_horizon_elevation: 0.0,
-            timezone,
         })
-    }
-}
-
-impl<Tz> Location<Tz> {
-    /// The same place without its time zone.
-    pub(crate) fn place(&self) -> Place {
-        Location {
-            latitude: self.latitude,
-            longitude: self.longitude,
-            elevation: self.elevation,
-            eastern_horizon_elevation: self.eastern_horizon_elevation,
-            western_horizon_elevation: self.western_horizon_elevation,
-            timezone: None,
-        }
     }
 
     /// The same location with the observer `meters` above sea level.
@@ -211,11 +188,6 @@ impl<Tz> Location<Tz> {
         self.western_horizon_elevation
     }
 
-    /// The time zone, if one was given.
-    pub fn timezone(&self) -> Option<&Tz> {
-        self.timezone.as_ref()
-    }
-
     /// The observer's height above the eastern horizon, which adjusts sunrise. Never negative.
     pub(crate) fn sunrise_elevation(&self) -> f64 {
         (self.elevation - self.eastern_horizon_elevation).max(0.0)
@@ -236,17 +208,16 @@ fn valid_elevation(meters: f64) -> Result<f64, LocationError> {
 }
 
 #[cfg(feature = "defmt")]
-impl<Tz> defmt::Format for Location<Tz> {
+impl defmt::Format for Location {
     fn format(&self, fmt: defmt::Formatter) {
         defmt::write!(
             fmt,
-            "Location {{ latitude: {}, longitude: {}, elevation: {}, eastern_horizon_elevation: {}, western_horizon_elevation: {}, has_timezone: {} }}",
+            "Location {{ latitude: {}, longitude: {}, elevation: {}, eastern_horizon_elevation: {}, western_horizon_elevation: {} }}",
             self.latitude,
             self.longitude,
             self.elevation,
             self.eastern_horizon_elevation,
             self.western_horizon_elevation,
-            self.timezone.is_some(),
         )
     }
 }
@@ -258,28 +229,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn requires_a_timezone_only_near_the_date_line() {
-        assert_eq!(Location::new(0.0, 150.1, None), Err(LocationError::TimeZoneRequired));
-        assert!(Location::new(0.0, 150.0, None).is_ok());
-        assert!(Location::new(0.0, 150.1, Some(TimeZone::UTC)).is_ok());
-    }
-
-    #[test]
     fn rejects_out_of_range_coordinates() {
-        assert_eq!(
-            Location::new(0.0, 181.0, Some(TimeZone::UTC)),
-            Err(LocationError::InvalidLongitude)
-        );
-        assert_eq!(
-            Location::new(91.0, 0.0, Some(TimeZone::UTC)),
-            Err(LocationError::InvalidLatitude)
-        );
-        assert_eq!(Location::new(f64::NAN, 0.0, None), Err(LocationError::InvalidLatitude));
+        assert_eq!(Location::new(0.0, 181.0), Err(LocationError::InvalidLongitude));
+        assert_eq!(Location::new(91.0, 0.0), Err(LocationError::InvalidLatitude));
+        assert_eq!(Location::new(f64::NAN, 0.0), Err(LocationError::InvalidLatitude));
     }
 
     #[test]
     fn rejects_invalid_elevations() {
-        let location = Location::new(0.0, 0.0, None).unwrap();
+        let location = Location::new(0.0, 0.0).unwrap();
         for bad in [-1.0, f64::NAN, f64::INFINITY] {
             assert_eq!(
                 location.clone().with_elevation(bad),
@@ -298,7 +256,7 @@ mod tests {
 
     #[test]
     fn horizons_default_to_sea_level() {
-        let location = Location::new(0.0, 0.0, None).unwrap().with_elevation(754.0).unwrap();
+        let location = Location::new(0.0, 0.0).unwrap().with_elevation(754.0).unwrap();
         assert_eq!(location.eastern_horizon_elevation(), 0.0);
         assert_eq!(location.western_horizon_elevation(), 0.0);
         assert_eq!(location.sunrise_elevation(), 754.0);
@@ -307,7 +265,7 @@ mod tests {
 
     #[test]
     fn height_above_a_higher_horizon_is_zero() {
-        let location = Location::new(0.0, 0.0, None)
+        let location = Location::new(0.0, 0.0)
             .unwrap()
             .with_elevation(1000.0)
             .unwrap()
