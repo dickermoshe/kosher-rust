@@ -333,15 +333,19 @@ pub(super) fn time_at_azimuth_iterative(
     Ok(date_time * 24.0)
 }
 
+/// `date`, moved a day where the time zone's clock is a day or so from solar time, as across the
+/// date line. The time zone's offset is read at noon UTC on `date`.
 pub(crate) fn adjusted_local_date(date: Date, location: &Location<impl TimeZoneLike>) -> Result<Date, ZmanimError> {
     let Some(timezone) = &location.timezone else {
         return Ok(date);
     };
 
-    let offset = timezone
-        .offset_at_midnight(date)
-        .ok_or(ZmanimError::Internal)?
-        .seconds();
+    let noon = date
+        .at(12, 0, 0, 0)
+        .to_zoned(TimeZone::UTC)
+        .map_err(|_| ZmanimError::Internal)?
+        .timestamp();
+    let offset = timezone.offset_at(noon).seconds();
     let local_hours_offset = (location.longitude * 240.0 - f64::from(offset)) / 3600.0;
 
     if local_hours_offset >= 20.0 {

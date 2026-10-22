@@ -1,8 +1,7 @@
 use core::convert::Infallible;
 
 use jiff::{
-    SignedDuration, Timestamp,
-    civil::Date,
+    Timestamp,
     tz::{Offset, TimeZone},
 };
 use thiserror::Error;
@@ -32,26 +31,11 @@ use thiserror::Error;
 pub trait TimeZoneLike {
     /// The offset from UTC in effect at `timestamp`.
     fn offset_at(&self, timestamp: Timestamp) -> Offset;
-
-    /// The offset from UTC at the first moment of `date`. Where the clocks show midnight twice,
-    /// that is the first time, the larger offset; where they skip midnight, the offset from before
-    /// the skip, the smaller. `None` only at the ends of the range a [`Timestamp`] holds.
-    ///
-    /// The default works it out from [`offset_at`](Self::offset_at). Override it when the time
-    /// zone can answer directly, as [`jiff::tz::TimeZone`] does.
-    fn offset_at_midnight(&self, date: Date) -> Option<Offset> {
-        offset_at_midnight_from_instants(self, date)
-    }
 }
 
 impl TimeZoneLike for TimeZone {
     fn offset_at(&self, timestamp: Timestamp) -> Offset {
         self.to_offset(timestamp)
-    }
-
-    fn offset_at_midnight(&self, date: Date) -> Option<Offset> {
-        let midnight = self.to_ambiguous_timestamp(date.at(0, 0, 0, 0)).earlier().ok()?;
-        Some(self.to_offset(midnight))
     }
 }
 
@@ -59,37 +43,6 @@ impl<T: TimeZoneLike + ?Sized> TimeZoneLike for &T {
     fn offset_at(&self, timestamp: Timestamp) -> Offset {
         (**self).offset_at(timestamp)
     }
-
-    fn offset_at_midnight(&self, date: Date) -> Option<Offset> {
-        (**self).offset_at_midnight(date)
-    }
-}
-
-/// [`TimeZoneLike::offset_at_midnight`] from offsets at instants alone, chosen as jiff's
-/// `to_ambiguous_timestamp(..).earlier()` chooses it.
-///
-/// The candidates are the offsets a day before, at, and a day after midnight read as UTC. If they
-/// agree, that is the answer. Otherwise it is the largest candidate in effect at the instant it
-/// puts midnight at, or the smallest candidate if none is.
-fn offset_at_midnight_from_instants<T: TimeZoneLike + ?Sized>(timezone: &T, date: Date) -> Option<Offset> {
-    let midnight_utc = date.at(0, 0, 0, 0).to_zoned(TimeZone::UTC).ok()?.timestamp();
-    let shifted = |seconds: i64| midnight_utc.checked_add(SignedDuration::from_secs(seconds)).ok();
-    let mut candidates = [0; 3];
-    for (candidate, day) in candidates.iter_mut().zip([-1, 0, 1]) {
-        *candidate = timezone.offset_at(shifted(day * 86_400)?).seconds();
-    }
-    if candidates[0] == candidates[1] && candidates[1] == candidates[2] {
-        return Offset::from_seconds(candidates[1]).ok();
-    }
-    let mut consistent = None;
-    for candidate in candidates {
-        let instant = shifted(-i64::from(candidate))?;
-        if timezone.offset_at(instant).seconds() == candidate {
-            consistent = consistent.max(Some(candidate));
-        }
-    }
-    let seconds = consistent.unwrap_or(candidates[0].min(candidates[1]).min(candidates[2]));
-    Offset::from_seconds(seconds).ok()
 }
 
 /// A location's coordinates and heights without its time zone: what the solar calculations take.
@@ -298,70 +251,7 @@ impl<Tz> defmt::Format for Location<Tz> {
 mod tests {
     #![allow(clippy::unwrap_used)]
 
-    use core::cell::Cell;
-
     use super::*;
-
-    /// A jiff time zone seen only through `offset_at`, counting the calls.
-    struct Instants(TimeZone, Cell<usize>);
-
-    impl TimeZoneLike for Instants {
-        fn offset_at(&self, timestamp: Timestamp) -> Offset {
-            self.1.set(self.1.get() + 1);
-            self.0.offset_at(timestamp)
-        }
-    }
-
-    /// The default `offset_at_midnight` matches jiff's, including where midnight is skipped or
-    /// repeated, and asks three times on a day away from any change of offset.
-    #[test]
-    fn offset_at_midnight_from_instants_matches_jiff() {
-        let zones = [
-            "America/New_York",
-            "Asia/Jerusalem",
-            "America/Havana",      // spring forward at midnight
-            "America/Santiago",    // transitions at 24:00
-            "America/Sao_Paulo",   // historical midnight transitions
-            "Asia/Beirut",         // midnight transitions
-            "Pacific/Apia",        // skipped 30 December 2011 entirely
-            "Pacific/Kiritimati",  // UTC+14
-            "Australia/Lord_Howe", // half-hour DST
-        ];
-        for name in zones {
-            let tz = TimeZone::get(name).unwrap();
-            let instants = Instants(tz.clone(), Cell::new(0));
-            let mut date = Date::new(1970, 1, 1).unwrap();
-            while date.year() < 2040 {
-                let expected = tz
-                    .to_ambiguous_timestamp(date.at(0, 0, 0, 0))
-                    .earlier()
-                    .unwrap()
-                    .to_zoned(tz.clone())
-                    .offset();
-                assert_eq!(tz.offset_at_midnight(date), Some(expected), "{name} {date}");
-                assert_eq!(
-                    <&TimeZone as TimeZoneLike>::offset_at_midnight(&&tz, date),
-                    Some(expected),
-                    "{name} {date}"
-                );
-                instants.1.set(0);
-                assert_eq!(instants.offset_at_midnight(date), Some(expected), "{name} {date}");
-                let calls = instants.1.get();
-                let steady = [-1, 1].iter().all(|&days| {
-                    let around = midnight_utc(date) + SignedDuration::from_hours(24 * days);
-                    tz.to_offset(around) == tz.to_offset(midnight_utc(date))
-                });
-                if steady {
-                    assert_eq!(calls, 3, "{name} {date}");
-                }
-                date = date.tomorrow().unwrap();
-            }
-        }
-    }
-
-    fn midnight_utc(date: Date) -> Timestamp {
-        date.at(0, 0, 0, 0).to_zoned(TimeZone::UTC).unwrap().timestamp()
-    }
 
     #[test]
     fn requires_a_timezone_only_near_the_date_line() {

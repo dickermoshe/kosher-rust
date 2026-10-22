@@ -41,7 +41,7 @@ impl TimeZoneOffset for Broken {
     }
 }
 
-/// A callback that fails for instants within three hours of `bad` and answers `zone` otherwise.
+/// A callback that fails for instants within an hour of `bad` and answers `zone` otherwise.
 struct FailsNear {
     bad: i64,
     zone: TimeZone,
@@ -49,7 +49,7 @@ struct FailsNear {
 
 impl TimeZoneOffset for FailsNear {
     fn offset_seconds(&self, unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
-        if (unix_seconds - self.bad).abs() < 3 * 3600 {
+        if (unix_seconds - self.bad).abs() < 3600 {
             return Err(weaveffi::ForeignError::new(1, "no offset"));
         }
         Jiff(self.zone.clone()).offset_seconds(unix_seconds)

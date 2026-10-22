@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::panic)]
 
-use jiff::{civil::Date, tz::TimeZone};
+use jiff::{SignedDuration, civil::Date, tz::TimeZone};
 
 use super::*;
 
@@ -786,4 +786,58 @@ fn time_at_azimuth_normalizes_hours_before_timestamp() {
         let local = azimuth_time.to_zoned(TimeZone::get("Europe/Oslo").unwrap());
         assert_eq!(local.date(), Date::new(2017, 6, 21).unwrap(), "{calculator:?}");
     }
+}
+
+/// Reading the offset at noon UTC picks the same date as reading it at local midnight (the first
+/// midnight where it happens twice, the offset before the jump where it's skipped), at each zone's
+/// own place, every day from 1970 to 2040. Only a day the zone skipped entirely can differ.
+#[test]
+fn adjusted_date_is_the_same_from_noon_as_from_local_midnight() {
+    let zones = [
+        ("America/New_York", -74.0),
+        ("America/Havana", -82.4),      // spring forward at midnight
+        ("America/Santiago", -70.7),    // transitions at 24:00
+        ("America/Sao_Paulo", -46.6),   // historical midnight transitions
+        ("Asia/Beirut", 35.5),          // midnight transitions
+        ("Pacific/Apia", -171.8),       // skipped 30 December 2011
+        ("Pacific/Fakaofo", -171.2),    // skipped 30 December 2011
+        ("Pacific/Kiritimati", -157.5), // skipped 31 December 1994; UTC+14
+        ("Pacific/Kwajalein", 167.7),   // skipped 21 August 1993
+        ("Pacific/Tongatapu", -175.2),  // UTC+13, with DST some years
+        ("Pacific/Chatham", -176.5),    // UTC+12:45, with DST
+        ("America/Adak", -176.7),       // UTC-10, with DST
+        ("Australia/Lord_Howe", 159.1), // half-hour DST
+    ];
+    let mut differences = std::vec::Vec::new();
+    for (name, longitude) in zones {
+        let tz = TimeZone::get(name).unwrap();
+        let location = Location::new(0.0, longitude, Some(tz.clone())).unwrap();
+        let mut date = Date::new(1970, 1, 1).unwrap();
+        while date.year() < 2040 {
+            let midnight = tz.to_ambiguous_timestamp(date.at(0, 0, 0, 0)).earlier().unwrap();
+            let offset = f64::from(tz.to_offset(midnight).seconds());
+            let hours = (longitude * 240.0 - offset) / 3600.0;
+            let days = if hours >= 20.0 {
+                1
+            } else if hours <= -20.0 {
+                -1
+            } else {
+                0
+            };
+            let expected = date.checked_add(SignedDuration::from_hours(24 * days)).unwrap();
+            if adjusted_local_date(date, &location).unwrap() != expected {
+                differences.push(std::format!("{name} {date}"));
+            }
+            date = date.tomorrow().unwrap();
+        }
+    }
+    assert_eq!(
+        differences,
+        [
+            "Pacific/Apia 2011-12-30",
+            "Pacific/Fakaofo 2011-12-30",
+            "Pacific/Kiritimati 1994-12-31",
+            "Pacific/Kwajalein 1993-08-21",
+        ]
+    );
 }

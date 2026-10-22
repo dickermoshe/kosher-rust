@@ -5,9 +5,6 @@
 - **Custom time zones.** `Location`, `Zmanim` and `MyZmanim` take any `TimeZoneLike`: a type
   that gives the UTC offset at an instant. `jiff::tz::TimeZone` is the default, so existing
   code is unchanged; `Location::new_with_timezone` builds a location with your own.
-- **`TimeZoneLike::offset_at_midnight`**, the offset at the start of a day. jiff's `TimeZone`
-  answers it directly; a time zone that only implements `offset_at` gets the same answer from
-  three calls on most days.
 - **No panics at the ends of the date range.** Near the first and last days a `Timestamp` holds,
   times built by adding to or subtracting from another time panicked when the result fell
   outside the range, even with the default `Config`; they now return `ZmanimError::Internal`,
