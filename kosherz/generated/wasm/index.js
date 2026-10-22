@@ -43,16 +43,18 @@ const $contract = [
   ['calendar', [
     [0x0076e887e475ab9fn, 0x96615bd3eb7f1761n, 'calendar.HebrewDate.molad'],
     [0x01344feb6b733690n, 0x47b992630b03d56an, 'calendar.HebrewDate.weekday'],
+    [0x04722a067e750ac7n, 0x10c6e1e0af9f20c4n, 'calendar.special_day_name'],
     [0x12decead9d8a44cfn, 0x4b1b3a695325cfcan, 'calendar.limudim.LimudimError'],
     [0x190ecd13c0fccffan, 0x35e622a32a88ef57n, 'calendar.limudim.mishna_yomis'],
     [0x1c33df579fac36d8n, 0x1175c871bc023b86n, 'calendar.HebrewDate.day_of_year'],
+    [0x1d2a2cfe983548a6n, 0x513b06d6c24719e2n, 'calendar.special_day_is_fast_day'],
     [0x235fd1db8b7dd5f5n, 0x399eab22141dffd3n, 'calendar.GregorianDate'],
     [0x2b066dc65c460024n, 0xf4f23e6586bd1dd7n, 'calendar.HebrewDate'],
     [0x2c8e60589f58d792n, 0xa0608634cb2f46cbn, 'calendar.limudim.Mishna'],
     [0x2da09ea1403b727en, 0x4d5e82347ae7a3fcn, 'calendar.HebrewMonth'],
     [0x2e1645ba38a77559n, 0x1c81765c98ab54f9n, 'calendar.HebrewDate.parsha'],
     [0x2e561d4c25bf877dn, 0x47ff51d038dbe0d8n, 'calendar.limudim.tehillim_display'],
-    [0x3a2980b734ba8883n, 0x2d505394972243a9n, 'calendar.HebrewDate.holidays'],
+    [0x34b343651b1fb8fen, 0x12159035b300983an, 'calendar.special_day_is_modern'],
     [0x3a3316910057484en, 0xd86a18c3b722f6c7n, 'calendar.limudim.tehillim_monthly'],
     [0x3c8950ed1f7f370cn, 0x19e0d2b3ff9d26fen, 'calendar.HebrewDate.day'],
     [0x422860078e596223n, 0x32c85d18778b0bb4n, 'calendar.HebrewDate.equals'],
@@ -65,28 +67,25 @@ const $contract = [
     [0x53798234777e19ean, 0x6c389ed6ad08dbe3n, 'calendar.rosh_hashana'],
     [0x58fc9af210a33bddn, 0xc3e1903a4dc8359dn, 'calendar.HebrewDate.is_aseres_yemei_teshuva'],
     [0x5c2a6a6f333ead35n, 0x74c7180edff5c022n, 'calendar.HebrewDate.from_gregorian'],
-    [0x5d5d66098ee06c49n, 0x8a4e9ca163a6a190n, 'calendar.Holiday'],
+    [0x6089a64539b542a8n, 0x404904f4331718c5n, 'calendar.SpecialDay'],
     [0x65535c1ad3d9f893n, 0x55884ddb65b50739n, 'calendar.HebrewDate.has_candle_lighting'],
     [0x6a0735856dec8d1an, 0xdc1addb4a7ab46efn, 'calendar.parsha_name'],
-    [0x6d120a34fc12b94en, 0x2444827e369b819bn, 'calendar.holiday_is_assur_bemelacha'],
     [0x734de195723c4becn, 0xc7f3965b813050f5n, 'calendar.HebrewDate.display'],
     [0x753c68bed189444bn, 0x8111a6d476ecf648n, 'calendar.Region'],
     [0x78416ddbbcc55dd6n, 0x6c9e0901963a2dfcn, 'calendar.limudim.tractate_hebrew'],
-    [0x7b66ec4056f4dcbcn, 0xe848ea2454d6e4c1n, 'calendar.holiday_is_fast_day'],
     [0x7ed52a27f9477122n, 0x6e401597e28209a9n, 'calendar.limudim.MishnaPair'],
     [0x82b460a35e9ba56an, 0x18c3086aa662d366n, 'calendar.limudim.amud_yomi_dirshu'],
     [0x854dedb50653c50fn, 0x914508f7681ccd43n, 'calendar.HebrewDate.next_parsha'],
-    [0x8f180424826294a4n, 0xa976cce390a71369n, 'calendar.holiday_is_modern'],
+    [0x9006c018e9f8aed8n, 0x8b43089a0dda99f4n, 'calendar.special_day_is_assur_bemelacha'],
     [0x924fdf3d84514e8en, 0xd6c2f5c20a8b129dn, 'calendar.limudim.TehillimUnit'],
     [0x93ceba93a2b10131n, 0xc7b188714edbf795n, 'calendar.HebrewDate.special_parsha'],
-    [0x94dc4cc8ea8c02c9n, 0x51105a7bb4b55bddn, 'calendar.holiday_name'],
     [0x98cc81d52e65776bn, 0x2bf1569214921669n, 'calendar.month_hebrew'],
     [0x9b48ba34fb52812dn, 0xff11e092dce92ed7n, 'calendar.limudim.Side'],
     [0x9e20ba757aee97c2n, 0x9328a81ac256b477n, 'calendar.parsha_hebrew'],
+    [0xa06798705423bcc5n, 0xba204574299d85b2n, 'calendar.HebrewDate.special_days'],
     [0xa1e3409cebf37881n, 0xfeebfaab6c533e17n, 'calendar.limudim.Daf'],
     [0xa5864219850af272n, 0xf8a4981ca376ff28n, 'calendar.HebrewDate.is_assur_bemelacha'],
     [0xaeb433ce589b7931n, 0x364d4d0b6a770631n, 'calendar.limudim.Amud'],
-    [0xaf5dd6acc2e8ba71n, 0xa2fdd5f43f90f755n, 'calendar.holiday_hebrew'],
     [0xbd8865ae2177f9ffn, 0x6bc5f7eea096d080n, 'calendar.year_info'],
     [0xc3fd51b677226babn, 0x684e92fa36717939n, 'calendar.month_name'],
     [0xc47f6755efcc97f2n, 0xb882de90a2c3493fn, 'calendar.YearLength'],
@@ -94,10 +93,11 @@ const $contract = [
     [0xd099b5b97c1dddb6n, 0x7321133365af2acbn, 'calendar.YearInfo'],
     [0xd542917e9468e665n, 0xc29b76894e14326cn, 'calendar.HebrewDate.compare'],
     [0xe055421dad70d98dn, 0xc2712588daaabbafn, 'calendar.limudim.pirkei_avos_display'],
+    [0xe48d4a72f047f917n, 0x2c39a2ab4fa38524n, 'calendar.special_day_hebrew'],
     [0xe5bd2ded003a830an, 0x21bf463baf36e8aen, 'calendar.limudim.daf_hashavua_bavli'],
     [0xe5f7bcecee7a3148n, 0xf9b3a1fb63fa80adn, 'calendar.HebrewDate.new'],
     [0xea80ab8c284067d9n, 0x96b30eb7f85eaf21n, 'calendar.limudim.daf_yomi_bavli'],
-    [0xeb41af932363bd25n, 0xc681430e19f4d7b1n, 'calendar.CalendarError'],
+    [0xeb41af932363bd25n, 0xc2d1a611bc5da8c6n, 'calendar.CalendarError'],
     [0xeb6a6e150a6abbe0n, 0xf5d8629c4bfb2f06n, 'calendar.limudim.Tractate'],
     [0xee029887d9af6ef8n, 0x54411bdda9d3b13bn, 'calendar.HebrewDate.month'],
     [0xefe1cb89cb8314f3n, 0x03b0248b8cfa2de8n, 'calendar.days_in_month'],
@@ -119,7 +119,6 @@ const $contract = [
     [0x38596a351e356743n, 0x685412d4d80250ean, 'times.Config'],
     [0x39389f0e68d3cc22n, 0x4af5df9a96d3f535n, 'times.myzmanim.MyZmanim.proportional_hour_gra'],
     [0x3c92cd49c8b4515bn, 0x5962ffa89080c41bn, 'times.shaah_zmanis'],
-    [0x4048d3ca4b000831n, 0xdf4697e13848d687n, 'times.zman_from_java_name'],
     [0x44a0809dedbd4a4dn, 0x9169cc1ef07d2488n, 'times.ZmanimError'],
     [0x4d259836d7137c43n, 0x0486761191984fd0n, 'times.Zman'],
     [0x57d7a9c5a715b9fan, 0x7110b3413cfd8e83n, 'times.Location'],
@@ -228,55 +227,55 @@ function $bind(m) {
       m.check();
       return r;
     },
-    kosherz_calendar_holiday_name: (a0) => {
+    kosherz_calendar_special_day_name: (a0) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        const r = x.kosherz_calendar_holiday_name(s0[0], s0[1], m.len, m.err);
+        const r = x.kosherz_calendar_special_day_name(s0[0], s0[1], m.len, m.err);
         m.check();
         return m.takeStr(r, m.outLen());
       } finally {
         m.unstage(s0);
       }
     },
-    kosherz_calendar_holiday_hebrew: (a0) => {
+    kosherz_calendar_special_day_hebrew: (a0) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        const r = x.kosherz_calendar_holiday_hebrew(s0[0], s0[1], m.len, m.err);
+        const r = x.kosherz_calendar_special_day_hebrew(s0[0], s0[1], m.len, m.err);
         m.check();
         return m.takeStr(r, m.outLen());
       } finally {
         m.unstage(s0);
       }
     },
-    kosherz_calendar_holiday_is_assur_bemelacha: (a0) => {
+    kosherz_calendar_special_day_is_assur_bemelacha: (a0) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        const r = x.kosherz_calendar_holiday_is_assur_bemelacha(s0[0], s0[1], m.err);
+        const r = x.kosherz_calendar_special_day_is_assur_bemelacha(s0[0], s0[1], m.err);
         m.check();
         return r !== 0;
       } finally {
         m.unstage(s0);
       }
     },
-    kosherz_calendar_holiday_is_modern: (a0) => {
+    kosherz_calendar_special_day_is_modern: (a0) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        const r = x.kosherz_calendar_holiday_is_modern(s0[0], s0[1], m.err);
+        const r = x.kosherz_calendar_special_day_is_modern(s0[0], s0[1], m.err);
         m.check();
         return r !== 0;
       } finally {
         m.unstage(s0);
       }
     },
-    kosherz_calendar_holiday_is_fast_day: (a0) => {
+    kosherz_calendar_special_day_is_fast_day: (a0) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        const r = x.kosherz_calendar_holiday_is_fast_day(s0[0], s0[1], m.err);
+        const r = x.kosherz_calendar_special_day_is_fast_day(s0[0], s0[1], m.err);
         m.check();
         return r !== 0;
       } finally {
@@ -354,8 +353,8 @@ function $bind(m) {
       m.check();
       return r;
     },
-    kosherz_calendar_HebrewDate_holidays: (self, a0) => {
-      const r = x.kosherz_calendar_HebrewDate_holidays(m.handle(self), m.num(a0), m.len, m.err);
+    kosherz_calendar_HebrewDate_special_days: (self, a0) => {
+      const r = x.kosherz_calendar_HebrewDate_special_days(m.handle(self), m.num(a0), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
@@ -512,17 +511,6 @@ function $bind(m) {
       const r = x.kosherz_times_zman_java_name(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
-    },
-    kosherz_times_zman_from_java_name: (a0) => {
-      let s0 = null;
-      try {
-        s0 = m.str(a0);
-        const r = x.kosherz_times_zman_from_java_name(s0[0], s0[1], m.len, m.err);
-        m.check();
-        return m.takeData(r, m.outLen());
-      } finally {
-        m.unstage(s0);
-      }
     },
     kosherz_times_zman_category: (a0) => {
       const r = x.kosherz_times_zman_category(m.num(a0), m.err);
@@ -705,7 +693,7 @@ const calendar$InvalidDateError = class InvalidDateError extends calendar$Calend
     super(1, message);
   }
 };
-const calendar$InvalidHolidayError = class InvalidHolidayError extends calendar$CalendarError {
+const calendar$InvalidSpecialDayError = class InvalidSpecialDayError extends calendar$CalendarError {
   static CODE = 2;
   constructor(message = 'A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.') {
     super(2, message);
@@ -713,7 +701,7 @@ const calendar$InvalidHolidayError = class InvalidHolidayError extends calendar$
 };
 const $codes$calendar$CalendarError = new Map([
   [1, calendar$InvalidDateError],
-  [2, calendar$InvalidHolidayError],
+  [2, calendar$InvalidSpecialDayError],
 ]);
 const $payloads$calendar$CalendarError = new Map();
 function $from$calendar$CalendarError(e) {
@@ -1685,7 +1673,7 @@ function $r$calendar$YearInfo(r) {
     months: $r_list_HebrewMonth(r),
   };
 }
-function $w$calendar$Holiday(w, v) {
+function $w$calendar$SpecialDay(w, v) {
   switch (v.tag) {
     case 'ErevPesach':
       w.writeI32(0);
@@ -1816,10 +1804,10 @@ function $w$calendar$Holiday(w, v) {
       w.writeI32(41);
       return;
     default:
-      throw new TypeError('unknown Holiday tag: ' + (v && v.tag));
+      throw new TypeError('unknown SpecialDay tag: ' + (v && v.tag));
   }
 }
-function $r$calendar$Holiday(r) {
+function $r$calendar$SpecialDay(r) {
   const tag = r.readI32();
   switch (tag) {
     case 0: return { tag: 'ErevPesach' };
@@ -1865,7 +1853,7 @@ function $r$calendar$Holiday(r) {
     case 40: return { tag: 'MacharHachodesh' };
     case 41: return { tag: 'ShabbosMevarchim' };
     default:
-      throw new $Error(-3, 'unknown Holiday tag: ' + tag);
+      throw new $Error(-3, 'unknown SpecialDay tag: ' + tag);
   }
 }
 function $w$calendar$limudim$Daf(w, v) {
@@ -2037,13 +2025,6 @@ function $w_list_HebrewMonth(w, v) {
 function $r_list_HebrewMonth(r) {
   return r.readList($R.I32);
 }
-/** `[Holiday]` */
-function $w_list_Holiday(w, v) {
-  w.writeList(v, $w$calendar$Holiday);
-}
-function $r_list_Holiday(r) {
-  return r.readList($r$calendar$Holiday);
-}
 /** `[MyZman]` */
 function $w_list_MyZman(w, v) {
   w.writeList(v, $W.I32);
@@ -2057,6 +2038,13 @@ function $w_list_MyZmanTime(w, v) {
 }
 function $r_list_MyZmanTime(r) {
   return r.readList($r$times$myzmanim$MyZmanTime);
+}
+/** `[SpecialDay]` */
+function $w_list_SpecialDay(w, v) {
+  w.writeList(v, $w$calendar$SpecialDay);
+}
+function $r_list_SpecialDay(r) {
+  return r.readList($r$calendar$SpecialDay);
 }
 /** `[Zman]` */
 function $w_list_Zman(w, v) {
@@ -2120,13 +2108,6 @@ function $w_opt_TehillimUnit(w, v) {
 }
 function $r_opt_TehillimUnit(r) {
   return r.readOpt($r$calendar$limudim$TehillimUnit);
-}
-/** `Zman?` */
-function $w_opt_Zman(w, v) {
-  w.writeOpt(v, $W.I32);
-}
-function $r_opt_Zman(r) {
-  return r.readOpt($R.I32);
 }
 /** `ZmanFailure?` */
 function $w_opt_ZmanFailure(w, v) {
@@ -2242,10 +2223,10 @@ const calendar$HebrewDate = class HebrewDate extends $Object {
       $unlend(this);
     }
   }
-  holidays(region) {
+  specialDays(region) {
     const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $decode($raw.kosherz_calendar_HebrewDate_holidays($self, region), $r_list_Holiday);
+      return $decode($raw.kosherz_calendar_HebrewDate_special_days($self, region), $r_list_SpecialDay);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2388,41 +2369,41 @@ const calendar$roshHashana = function roshHashana(year) {
   }
 };
 
-const calendar$holidayName = function holidayName(holiday) {
+const calendar$specialDayName = function specialDayName(specialDay) {
   try {
-    return $raw.kosherz_calendar_holiday_name($encode(holiday, $w$calendar$Holiday));
+    return $raw.kosherz_calendar_special_day_name($encode(specialDay, $w$calendar$SpecialDay));
   } catch ($e) {
     throw $from$calendar$CalendarError($e);
   }
 };
 
-const calendar$holidayHebrew = function holidayHebrew(holiday) {
+const calendar$specialDayHebrew = function specialDayHebrew(specialDay) {
   try {
-    return $raw.kosherz_calendar_holiday_hebrew($encode(holiday, $w$calendar$Holiday));
+    return $raw.kosherz_calendar_special_day_hebrew($encode(specialDay, $w$calendar$SpecialDay));
   } catch ($e) {
     throw $from$calendar$CalendarError($e);
   }
 };
 
-const calendar$holidayIsAssurBemelacha = function holidayIsAssurBemelacha(holiday) {
+const calendar$specialDayIsAssurBemelacha = function specialDayIsAssurBemelacha(specialDay) {
   try {
-    return $raw.kosherz_calendar_holiday_is_assur_bemelacha($encode(holiday, $w$calendar$Holiday));
+    return $raw.kosherz_calendar_special_day_is_assur_bemelacha($encode(specialDay, $w$calendar$SpecialDay));
   } catch ($e) {
     throw $from$calendar$CalendarError($e);
   }
 };
 
-const calendar$holidayIsModern = function holidayIsModern(holiday) {
+const calendar$specialDayIsModern = function specialDayIsModern(specialDay) {
   try {
-    return $raw.kosherz_calendar_holiday_is_modern($encode(holiday, $w$calendar$Holiday));
+    return $raw.kosherz_calendar_special_day_is_modern($encode(specialDay, $w$calendar$SpecialDay));
   } catch ($e) {
     throw $from$calendar$CalendarError($e);
   }
 };
 
-const calendar$holidayIsFastDay = function holidayIsFastDay(holiday) {
+const calendar$specialDayIsFastDay = function specialDayIsFastDay(specialDay) {
   try {
-    return $raw.kosherz_calendar_holiday_is_fast_day($encode(holiday, $w$calendar$Holiday));
+    return $raw.kosherz_calendar_special_day_is_fast_day($encode(specialDay, $w$calendar$SpecialDay));
   } catch ($e) {
     throw $from$calendar$CalendarError($e);
   }
@@ -2716,14 +2697,6 @@ const times$zmanJavaName = function zmanJavaName(zman) {
   }
 };
 
-const times$zmanFromJavaName = function zmanFromJavaName(javaName) {
-  try {
-    return $decode($raw.kosherz_times_zman_from_java_name(javaName), $r_opt_Zman);
-  } catch ($e) {
-    throw $fault($e);
-  }
-};
-
 const times$zmanCategory = function zmanCategory(zman) {
   try {
     return $raw.kosherz_times_zman_category(zman);
@@ -2900,7 +2873,7 @@ const times$myzmanim$defaultCandleLightingMinutes = function defaultCandleLighti
 export const calendar = Object.freeze({
   CalendarError: calendar$CalendarError,
   InvalidDateError: calendar$InvalidDateError,
-  InvalidHolidayError: calendar$InvalidHolidayError,
+  InvalidSpecialDayError: calendar$InvalidSpecialDayError,
   Region: calendar$Region,
   HebrewMonth: calendar$HebrewMonth,
   Weekday: calendar$Weekday,
@@ -2910,11 +2883,11 @@ export const calendar = Object.freeze({
   yearInfo: calendar$yearInfo,
   daysInMonth: calendar$daysInMonth,
   roshHashana: calendar$roshHashana,
-  holidayName: calendar$holidayName,
-  holidayHebrew: calendar$holidayHebrew,
-  holidayIsAssurBemelacha: calendar$holidayIsAssurBemelacha,
-  holidayIsModern: calendar$holidayIsModern,
-  holidayIsFastDay: calendar$holidayIsFastDay,
+  specialDayName: calendar$specialDayName,
+  specialDayHebrew: calendar$specialDayHebrew,
+  specialDayIsAssurBemelacha: calendar$specialDayIsAssurBemelacha,
+  specialDayIsModern: calendar$specialDayIsModern,
+  specialDayIsFastDay: calendar$specialDayIsFastDay,
   parshaName: calendar$parshaName,
   parshaHebrew: calendar$parshaHebrew,
   monthName: calendar$monthName,
@@ -2963,7 +2936,6 @@ export const times = Object.freeze({
   allZmanim: times$allZmanim,
   zmanName: times$zmanName,
   zmanJavaName: times$zmanJavaName,
-  zmanFromJavaName: times$zmanFromJavaName,
   zmanCategory: times$zmanCategory,
   zmanIsDeprecated: times$zmanIsDeprecated,
   zmanDescription: times$zmanDescription,

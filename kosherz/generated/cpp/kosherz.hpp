@@ -281,16 +281,18 @@ std::string contract_mismatch(const kosherz_contract_entry* (*contract)(size_t*)
 inline constexpr ContractEntry calendar_contract[] = {
     {0x0076e887e475ab9full, 0x96615bd3eb7f1761ull, "calendar.HebrewDate.molad"},
     {0x01344feb6b733690ull, 0x47b992630b03d56aull, "calendar.HebrewDate.weekday"},
+    {0x04722a067e750ac7ull, 0x10c6e1e0af9f20c4ull, "calendar.special_day_name"},
     {0x12decead9d8a44cfull, 0x4b1b3a695325cfcaull, "calendar.limudim.LimudimError"},
     {0x190ecd13c0fccffaull, 0x35e622a32a88ef57ull, "calendar.limudim.mishna_yomis"},
     {0x1c33df579fac36d8ull, 0x1175c871bc023b86ull, "calendar.HebrewDate.day_of_year"},
+    {0x1d2a2cfe983548a6ull, 0x513b06d6c24719e2ull, "calendar.special_day_is_fast_day"},
     {0x235fd1db8b7dd5f5ull, 0x399eab22141dffd3ull, "calendar.GregorianDate"},
     {0x2b066dc65c460024ull, 0xf4f23e6586bd1dd7ull, "calendar.HebrewDate"},
     {0x2c8e60589f58d792ull, 0xa0608634cb2f46cbull, "calendar.limudim.Mishna"},
     {0x2da09ea1403b727eull, 0x4d5e82347ae7a3fcull, "calendar.HebrewMonth"},
     {0x2e1645ba38a77559ull, 0x1c81765c98ab54f9ull, "calendar.HebrewDate.parsha"},
     {0x2e561d4c25bf877dull, 0x47ff51d038dbe0d8ull, "calendar.limudim.tehillim_display"},
-    {0x3a2980b734ba8883ull, 0x2d505394972243a9ull, "calendar.HebrewDate.holidays"},
+    {0x34b343651b1fb8feull, 0x12159035b300983aull, "calendar.special_day_is_modern"},
     {0x3a3316910057484eull, 0xd86a18c3b722f6c7ull, "calendar.limudim.tehillim_monthly"},
     {0x3c8950ed1f7f370cull, 0x19e0d2b3ff9d26feull, "calendar.HebrewDate.day"},
     {0x422860078e596223ull, 0x32c85d18778b0bb4ull, "calendar.HebrewDate.equals"},
@@ -303,28 +305,25 @@ inline constexpr ContractEntry calendar_contract[] = {
     {0x53798234777e19eaull, 0x6c389ed6ad08dbe3ull, "calendar.rosh_hashana"},
     {0x58fc9af210a33bddull, 0xc3e1903a4dc8359dull, "calendar.HebrewDate.is_aseres_yemei_teshuva"},
     {0x5c2a6a6f333ead35ull, 0x74c7180edff5c022ull, "calendar.HebrewDate.from_gregorian"},
-    {0x5d5d66098ee06c49ull, 0x8a4e9ca163a6a190ull, "calendar.Holiday"},
+    {0x6089a64539b542a8ull, 0x404904f4331718c5ull, "calendar.SpecialDay"},
     {0x65535c1ad3d9f893ull, 0x55884ddb65b50739ull, "calendar.HebrewDate.has_candle_lighting"},
     {0x6a0735856dec8d1aull, 0xdc1addb4a7ab46efull, "calendar.parsha_name"},
-    {0x6d120a34fc12b94eull, 0x2444827e369b819bull, "calendar.holiday_is_assur_bemelacha"},
     {0x734de195723c4becull, 0xc7f3965b813050f5ull, "calendar.HebrewDate.display"},
     {0x753c68bed189444bull, 0x8111a6d476ecf648ull, "calendar.Region"},
     {0x78416ddbbcc55dd6ull, 0x6c9e0901963a2dfcull, "calendar.limudim.tractate_hebrew"},
-    {0x7b66ec4056f4dcbcull, 0xe848ea2454d6e4c1ull, "calendar.holiday_is_fast_day"},
     {0x7ed52a27f9477122ull, 0x6e401597e28209a9ull, "calendar.limudim.MishnaPair"},
     {0x82b460a35e9ba56aull, 0x18c3086aa662d366ull, "calendar.limudim.amud_yomi_dirshu"},
     {0x854dedb50653c50full, 0x914508f7681ccd43ull, "calendar.HebrewDate.next_parsha"},
-    {0x8f180424826294a4ull, 0xa976cce390a71369ull, "calendar.holiday_is_modern"},
+    {0x9006c018e9f8aed8ull, 0x8b43089a0dda99f4ull, "calendar.special_day_is_assur_bemelacha"},
     {0x924fdf3d84514e8eull, 0xd6c2f5c20a8b129dull, "calendar.limudim.TehillimUnit"},
     {0x93ceba93a2b10131ull, 0xc7b188714edbf795ull, "calendar.HebrewDate.special_parsha"},
-    {0x94dc4cc8ea8c02c9ull, 0x51105a7bb4b55bddull, "calendar.holiday_name"},
     {0x98cc81d52e65776bull, 0x2bf1569214921669ull, "calendar.month_hebrew"},
     {0x9b48ba34fb52812dull, 0xff11e092dce92ed7ull, "calendar.limudim.Side"},
     {0x9e20ba757aee97c2ull, 0x9328a81ac256b477ull, "calendar.parsha_hebrew"},
+    {0xa06798705423bcc5ull, 0xba204574299d85b2ull, "calendar.HebrewDate.special_days"},
     {0xa1e3409cebf37881ull, 0xfeebfaab6c533e17ull, "calendar.limudim.Daf"},
     {0xa5864219850af272ull, 0xf8a4981ca376ff28ull, "calendar.HebrewDate.is_assur_bemelacha"},
     {0xaeb433ce589b7931ull, 0x364d4d0b6a770631ull, "calendar.limudim.Amud"},
-    {0xaf5dd6acc2e8ba71ull, 0xa2fdd5f43f90f755ull, "calendar.holiday_hebrew"},
     {0xbd8865ae2177f9ffull, 0x6bc5f7eea096d080ull, "calendar.year_info"},
     {0xc3fd51b677226babull, 0x684e92fa36717939ull, "calendar.month_name"},
     {0xc47f6755efcc97f2ull, 0xb882de90a2c3493full, "calendar.YearLength"},
@@ -332,10 +331,11 @@ inline constexpr ContractEntry calendar_contract[] = {
     {0xd099b5b97c1dddb6ull, 0x7321133365af2acbull, "calendar.YearInfo"},
     {0xd542917e9468e665ull, 0xc29b76894e14326cull, "calendar.HebrewDate.compare"},
     {0xe055421dad70d98dull, 0xc2712588daaabbafull, "calendar.limudim.pirkei_avos_display"},
+    {0xe48d4a72f047f917ull, 0x2c39a2ab4fa38524ull, "calendar.special_day_hebrew"},
     {0xe5bd2ded003a830aull, 0x21bf463baf36e8aeull, "calendar.limudim.daf_hashavua_bavli"},
     {0xe5f7bcecee7a3148ull, 0xf9b3a1fb63fa80adull, "calendar.HebrewDate.new"},
     {0xea80ab8c284067d9ull, 0x96b30eb7f85eaf21ull, "calendar.limudim.daf_yomi_bavli"},
-    {0xeb41af932363bd25ull, 0xc681430e19f4d7b1ull, "calendar.CalendarError"},
+    {0xeb41af932363bd25ull, 0xc2d1a611bc5da8c6ull, "calendar.CalendarError"},
     {0xeb6a6e150a6abbe0ull, 0xf5d8629c4bfb2f06ull, "calendar.limudim.Tractate"},
     {0xee029887d9af6ef8ull, 0x54411bdda9d3b13bull, "calendar.HebrewDate.month"},
     {0xefe1cb89cb8314f3ull, 0x03b0248b8cfa2de8ull, "calendar.days_in_month"},
@@ -359,7 +359,6 @@ inline constexpr ContractEntry times_contract[] = {
     {0x38596a351e356743ull, 0x685412d4d80250eaull, "times.Config"},
     {0x39389f0e68d3cc22ull, 0x4af5df9a96d3f535ull, "times.myzmanim.MyZmanim.proportional_hour_gra"},
     {0x3c92cd49c8b4515bull, 0x5962ffa89080c41bull, "times.shaah_zmanis"},
-    {0x4048d3ca4b000831ull, 0xdf4697e13848d687ull, "times.zman_from_java_name"},
     {0x44a0809dedbd4a4dull, 0x9169cc1ef07d2488ull, "times.ZmanimError"},
     {0x4d259836d7137c43ull, 0x0486761191984fd0ull, "times.Zman"},
     {0x57d7a9c5a715b9faull, 0x7110b3413cfd8e83ull, "times.Location"},
@@ -1609,7 +1608,7 @@ enum class MyZman : int32_t {
 
 struct GregorianDate;
 struct YearInfo;
-struct Holiday;
+struct SpecialDay;
 class HebrewDate;
 struct Daf;
 struct Amud;
@@ -1730,7 +1729,7 @@ public:
     HebrewDate add_days(int32_t days) const;
 
     /** The holidays, fasts and other marked days on this day. */
-    std::vector<Holiday> holidays(Region region) const;
+    std::vector<SpecialDay> special_days(Region region) const;
 
     /** Whether melacha is forbidden: Shabbos or Yom Tov. */
     bool is_assur_bemelacha(Region region) const;
@@ -2028,8 +2027,8 @@ struct YearInfo {
  * sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
  * show them.
  */
-struct Holiday {
-    /** Discriminant identifying the active variant of `Holiday`. */
+struct SpecialDay {
+    /** Discriminant identifying the active variant of `SpecialDay`. */
     enum class Tag : int32_t {
         ErevPesach = 0,
         Pesach = 1,
@@ -2445,8 +2444,8 @@ inline void write_GregorianDate(BufferWriter& w, const GregorianDate& v);
 inline GregorianDate read_GregorianDate(BufferReader& r);
 inline void write_YearInfo(BufferWriter& w, const YearInfo& v);
 inline YearInfo read_YearInfo(BufferReader& r);
-inline void write_Holiday(BufferWriter& w, const Holiday& v);
-inline Holiday read_Holiday(BufferReader& r);
+inline void write_SpecialDay(BufferWriter& w, const SpecialDay& v);
+inline SpecialDay read_SpecialDay(BufferReader& r);
 inline void write_Daf(BufferWriter& w, const Daf& v);
 inline Daf read_Daf(BufferReader& r);
 inline void write_Amud(BufferWriter& w, const Amud& v);
@@ -2477,8 +2476,8 @@ inline void write_opt_i32(BufferWriter& w, const std::optional<int32_t>& v);
 inline std::optional<int32_t> read_opt_i32(BufferReader& r);
 inline void write_opt_GregorianDate(BufferWriter& w, const std::optional<GregorianDate>& v);
 inline std::optional<GregorianDate> read_opt_GregorianDate(BufferReader& r);
-inline void write_list_Holiday(BufferWriter& w, const std::vector<Holiday>& v);
-inline std::vector<Holiday> read_list_Holiday(BufferReader& r);
+inline void write_list_SpecialDay(BufferWriter& w, const std::vector<SpecialDay>& v);
+inline std::vector<SpecialDay> read_list_SpecialDay(BufferReader& r);
 inline void write_opt_Parsha(BufferWriter& w, const std::optional<Parsha>& v);
 inline std::optional<Parsha> read_opt_Parsha(BufferReader& r);
 inline void write_opt_Daf(BufferWriter& w, const std::optional<Daf>& v);
@@ -2493,8 +2492,6 @@ inline void write_opt_PirkeiAvosUnit(BufferWriter& w, const std::optional<Pirkei
 inline std::optional<PirkeiAvosUnit> read_opt_PirkeiAvosUnit(BufferReader& r);
 inline void write_list_Zman(BufferWriter& w, const std::vector<Zman>& v);
 inline std::vector<Zman> read_list_Zman(BufferReader& r);
-inline void write_opt_Zman(BufferWriter& w, const std::optional<Zman>& v);
-inline std::optional<Zman> read_opt_Zman(BufferReader& r);
 inline void write_list_ZmanTime(BufferWriter& w, const std::vector<ZmanTime>& v);
 inline std::vector<ZmanTime> read_list_ZmanTime(BufferReader& r);
 inline void write_list_MyZman(BufferWriter& w, const std::vector<MyZman>& v);
@@ -2542,8 +2539,8 @@ inline YearInfo read_YearInfo(BufferReader& r) {
     };
 }
 
-/** Writes one `Holiday` to a value buffer. */
-inline void write_Holiday(BufferWriter& w, const Holiday& v) {
+/** Writes one `SpecialDay` to a value buffer. */
+inline void write_SpecialDay(BufferWriter& w, const SpecialDay& v) {
     switch (v.value.index()) {
         case 0: {
             w.write_i32(0);
@@ -2627,7 +2624,7 @@ inline void write_Holiday(BufferWriter& w, const Holiday& v) {
         }
         case 20: {
             w.write_i32(20);
-            const Holiday::Chanukah& p = std::get<20>(v.value);
+            const SpecialDay::Chanukah& p = std::get<20>(v.value);
             w.write_i32(p.day);
             break;
         }
@@ -2701,7 +2698,7 @@ inline void write_Holiday(BufferWriter& w, const Holiday& v) {
         }
         case 38: {
             w.write_i32(38);
-            const Holiday::CountOfTheOmer& p = std::get<38>(v.value);
+            const SpecialDay::CountOfTheOmer& p = std::get<38>(v.value);
             w.write_i32(p.day);
             break;
         }
@@ -2720,61 +2717,61 @@ inline void write_Holiday(BufferWriter& w, const Holiday& v) {
     }
 }
 
-/** Reads one `Holiday` from a value buffer. */
-inline Holiday read_Holiday(BufferReader& r) {
+/** Reads one `SpecialDay` from a value buffer. */
+inline SpecialDay read_SpecialDay(BufferReader& r) {
     int32_t tag = r.read_i32();
     switch (tag) {
-        case 0: return Holiday{Holiday::ErevPesach{}};
-        case 1: return Holiday{Holiday::Pesach{}};
-        case 2: return Holiday{Holiday::CholHamoedPesach{}};
-        case 3: return Holiday{Holiday::PesachSheni{}};
-        case 4: return Holiday{Holiday::ErevShavuos{}};
-        case 5: return Holiday{Holiday::Shavuos{}};
-        case 6: return Holiday{Holiday::SeventeenthOfTammuz{}};
-        case 7: return Holiday{Holiday::TishahBav{}};
-        case 8: return Holiday{Holiday::TuBav{}};
-        case 9: return Holiday{Holiday::ErevRoshHashana{}};
-        case 10: return Holiday{Holiday::RoshHashana{}};
-        case 11: return Holiday{Holiday::FastOfGedalyah{}};
-        case 12: return Holiday{Holiday::ErevYomKippur{}};
-        case 13: return Holiday{Holiday::YomKippur{}};
-        case 14: return Holiday{Holiday::ErevSuccos{}};
-        case 15: return Holiday{Holiday::Succos{}};
-        case 16: return Holiday{Holiday::CholHamoedSuccos{}};
-        case 17: return Holiday{Holiday::HoshanaRabbah{}};
-        case 18: return Holiday{Holiday::SheminiAtzeres{}};
-        case 19: return Holiday{Holiday::SimchasTorah{}};
+        case 0: return SpecialDay{SpecialDay::ErevPesach{}};
+        case 1: return SpecialDay{SpecialDay::Pesach{}};
+        case 2: return SpecialDay{SpecialDay::CholHamoedPesach{}};
+        case 3: return SpecialDay{SpecialDay::PesachSheni{}};
+        case 4: return SpecialDay{SpecialDay::ErevShavuos{}};
+        case 5: return SpecialDay{SpecialDay::Shavuos{}};
+        case 6: return SpecialDay{SpecialDay::SeventeenthOfTammuz{}};
+        case 7: return SpecialDay{SpecialDay::TishahBav{}};
+        case 8: return SpecialDay{SpecialDay::TuBav{}};
+        case 9: return SpecialDay{SpecialDay::ErevRoshHashana{}};
+        case 10: return SpecialDay{SpecialDay::RoshHashana{}};
+        case 11: return SpecialDay{SpecialDay::FastOfGedalyah{}};
+        case 12: return SpecialDay{SpecialDay::ErevYomKippur{}};
+        case 13: return SpecialDay{SpecialDay::YomKippur{}};
+        case 14: return SpecialDay{SpecialDay::ErevSuccos{}};
+        case 15: return SpecialDay{SpecialDay::Succos{}};
+        case 16: return SpecialDay{SpecialDay::CholHamoedSuccos{}};
+        case 17: return SpecialDay{SpecialDay::HoshanaRabbah{}};
+        case 18: return SpecialDay{SpecialDay::SheminiAtzeres{}};
+        case 19: return SpecialDay{SpecialDay::SimchasTorah{}};
         case 20:
-            return Holiday{Holiday::Chanukah{
+            return SpecialDay{SpecialDay::Chanukah{
                 r.read_i32(),
             }};
-        case 21: return Holiday{Holiday::TenthOfTeves{}};
-        case 22: return Holiday{Holiday::TuBshvat{}};
-        case 23: return Holiday{Holiday::FastOfEsther{}};
-        case 24: return Holiday{Holiday::Purim{}};
-        case 25: return Holiday{Holiday::ShushanPurim{}};
-        case 26: return Holiday{Holiday::PurimKatan{}};
-        case 27: return Holiday{Holiday::RoshChodesh{}};
-        case 28: return Holiday{Holiday::YomHaShoah{}};
-        case 29: return Holiday{Holiday::YomHazikaron{}};
-        case 30: return Holiday{Holiday::YomHaatzmaut{}};
-        case 31: return Holiday{Holiday::YomYerushalayim{}};
-        case 32: return Holiday{Holiday::LagBomer{}};
-        case 33: return Holiday{Holiday::ShushanPurimKatan{}};
-        case 34: return Holiday{Holiday::IsruChag{}};
-        case 35: return Holiday{Holiday::YomKippurKatan{}};
-        case 36: return Holiday{Holiday::Behab{}};
-        case 37: return Holiday{Holiday::FastOfTheFirstborn{}};
+        case 21: return SpecialDay{SpecialDay::TenthOfTeves{}};
+        case 22: return SpecialDay{SpecialDay::TuBshvat{}};
+        case 23: return SpecialDay{SpecialDay::FastOfEsther{}};
+        case 24: return SpecialDay{SpecialDay::Purim{}};
+        case 25: return SpecialDay{SpecialDay::ShushanPurim{}};
+        case 26: return SpecialDay{SpecialDay::PurimKatan{}};
+        case 27: return SpecialDay{SpecialDay::RoshChodesh{}};
+        case 28: return SpecialDay{SpecialDay::YomHaShoah{}};
+        case 29: return SpecialDay{SpecialDay::YomHazikaron{}};
+        case 30: return SpecialDay{SpecialDay::YomHaatzmaut{}};
+        case 31: return SpecialDay{SpecialDay::YomYerushalayim{}};
+        case 32: return SpecialDay{SpecialDay::LagBomer{}};
+        case 33: return SpecialDay{SpecialDay::ShushanPurimKatan{}};
+        case 34: return SpecialDay{SpecialDay::IsruChag{}};
+        case 35: return SpecialDay{SpecialDay::YomKippurKatan{}};
+        case 36: return SpecialDay{SpecialDay::Behab{}};
+        case 37: return SpecialDay{SpecialDay::FastOfTheFirstborn{}};
         case 38:
-            return Holiday{Holiday::CountOfTheOmer{
+            return SpecialDay{SpecialDay::CountOfTheOmer{
                 r.read_i32(),
             }};
-        case 39: return Holiday{Holiday::BirchasHachamah{}};
-        case 40: return Holiday{Holiday::MacharHachodesh{}};
-        case 41: return Holiday{Holiday::ShabbosMevarchim{}};
+        case 39: return SpecialDay{SpecialDay::BirchasHachamah{}};
+        case 40: return SpecialDay{SpecialDay::MacharHachodesh{}};
+        case 41: return SpecialDay{SpecialDay::ShabbosMevarchim{}};
         default: break;
     }
-    BufferReader::fail("unknown Holiday tag");
+    BufferReader::fail("unknown SpecialDay tag");
 }
 
 /** Writes one `Daf` to a value buffer. */
@@ -3062,18 +3059,18 @@ inline std::optional<GregorianDate> read_opt_GregorianDate(BufferReader& r) {
     return std::optional<GregorianDate>(detail::read_GregorianDate(r));
 }
 
-/** Writes one `[Holiday]` to a value buffer. */
-inline void write_list_Holiday(BufferWriter& w, const std::vector<Holiday>& v) {
+/** Writes one `[SpecialDay]` to a value buffer. */
+inline void write_list_SpecialDay(BufferWriter& w, const std::vector<SpecialDay>& v) {
     w.write_len(v.size());
-    for (const auto& item : v) detail::write_Holiday(w, item);
+    for (const auto& item : v) detail::write_SpecialDay(w, item);
 }
 
-/** Reads one `[Holiday]` from a value buffer. */
-inline std::vector<Holiday> read_list_Holiday(BufferReader& r) {
+/** Reads one `[SpecialDay]` from a value buffer. */
+inline std::vector<SpecialDay> read_list_SpecialDay(BufferReader& r) {
     size_t n = r.read_count();
-    std::vector<Holiday> v;
+    std::vector<SpecialDay> v;
     v.reserve(r.reserve_hint(n));
-    for (size_t i = 0; i < n; ++i) v.push_back(detail::read_Holiday(r));
+    for (size_t i = 0; i < n; ++i) v.push_back(detail::read_SpecialDay(r));
     return v;
 }
 
@@ -3164,18 +3161,6 @@ inline std::vector<Zman> read_list_Zman(BufferReader& r) {
     return v;
 }
 
-/** Writes one `Zman?` to a value buffer. */
-inline void write_opt_Zman(BufferWriter& w, const std::optional<Zman>& v) {
-    w.write_option_flag(v.has_value());
-    if (v.has_value()) w.write_i32(static_cast<int32_t>(*v));
-}
-
-/** Reads one `Zman?` from a value buffer. */
-inline std::optional<Zman> read_opt_Zman(BufferReader& r) {
-    if (!r.read_option_flag()) return std::nullopt;
-    return std::optional<Zman>(static_cast<Zman>(r.read_i32()));
-}
-
 /** Writes one `[ZmanTime]` to a value buffer. */
 inline void write_list_ZmanTime(BufferWriter& w, const std::vector<ZmanTime>& v) {
     w.write_len(v.size());
@@ -3246,10 +3231,10 @@ public:
  *
  * Code 2.
  */
-class InvalidHolidayError : public CalendarError {
+class InvalidSpecialDayError : public CalendarError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit InvalidHolidayError(const std::string& message) : CalendarError(2, message) {}
+    explicit InvalidSpecialDayError(const std::string& message) : CalendarError(2, message) {}
 };
 
 namespace detail {
@@ -3262,7 +3247,7 @@ inline std::exception_ptr make_calendar_error(int32_t code, const std::string& m
     (void)payload_len;
     switch (code) {
         case 1: return std::make_exception_ptr(InvalidDateError(message));
-        case 2: return std::make_exception_ptr(InvalidHolidayError(message));
+        case 2: return std::make_exception_ptr(InvalidSpecialDayError(message));
         default: return std::make_exception_ptr(CalendarError(code, message));
     }
 }
@@ -3662,12 +3647,12 @@ inline HebrewDate HebrewDate::add_days(int32_t days) const {
     return HebrewDate(adopt, result);
 }
 
-inline std::vector<Holiday> HebrewDate::holidays(Region region) const {
+inline std::vector<SpecialDay> HebrewDate::special_days(Region region) const {
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_calendar_HebrewDate_holidays(raw_, static_cast<kosherz_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
+    auto result = kosherz_calendar_HebrewDate_special_days(raw_, static_cast<kosherz_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
     detail::check(err);
-    return detail::take(result, out_len, &detail::read_list_Holiday);
+    return detail::take(result, out_len, &detail::read_list_SpecialDay);
 }
 
 inline bool HebrewDate::is_assur_bemelacha(Region region) const {
@@ -3924,43 +3909,43 @@ inline HebrewDate rosh_hashana(int32_t year) {
 }
 
 /**
- * The holiday's English name, for example "Chanukah".
+ * The day's English name, for example "Chanukah".
  *
  * # Errors
  *
- * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
  * outside 1 to 49.
  *
  * @throws CalendarError when the call fails with one of the domain's codes.
  */
-inline std::string holiday_name(const Holiday& holiday) {
+inline std::string special_day_name(const SpecialDay& special_day) {
     check_library();
-    detail::BufferWriter holiday_buf;
-    detail::write_Holiday(holiday_buf, holiday);
+    detail::BufferWriter special_day_buf;
+    detail::write_SpecialDay(special_day_buf, special_day);
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_calendar_holiday_name(holiday_buf.data(), holiday_buf.size(), &out_len, &err);
+    auto result = kosherz_calendar_special_day_name(special_day_buf.data(), special_day_buf.size(), &out_len, &err);
     detail::check_calendar(err);
     return detail::take_string(result, out_len);
 }
 
 /**
- * The holiday's Hebrew name.
+ * The day's Hebrew name.
  *
  * # Errors
  *
- * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
  * outside 1 to 49.
  *
  * @throws CalendarError when the call fails with one of the domain's codes.
  */
-inline std::string holiday_hebrew(const Holiday& holiday) {
+inline std::string special_day_hebrew(const SpecialDay& special_day) {
     check_library();
-    detail::BufferWriter holiday_buf;
-    detail::write_Holiday(holiday_buf, holiday);
+    detail::BufferWriter special_day_buf;
+    detail::write_SpecialDay(special_day_buf, special_day);
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_calendar_holiday_hebrew(holiday_buf.data(), holiday_buf.size(), &out_len, &err);
+    auto result = kosherz_calendar_special_day_hebrew(special_day_buf.data(), special_day_buf.size(), &out_len, &err);
     detail::check_calendar(err);
     return detail::take_string(result, out_len);
 }
@@ -3970,17 +3955,17 @@ inline std::string holiday_hebrew(const Holiday& holiday) {
  *
  * # Errors
  *
- * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
  * outside 1 to 49.
  *
  * @throws CalendarError when the call fails with one of the domain's codes.
  */
-inline bool holiday_is_assur_bemelacha(const Holiday& holiday) {
+inline bool special_day_is_assur_bemelacha(const SpecialDay& special_day) {
     check_library();
-    detail::BufferWriter holiday_buf;
-    detail::write_Holiday(holiday_buf, holiday);
+    detail::BufferWriter special_day_buf;
+    detail::write_SpecialDay(special_day_buf, special_day);
     kosherz_error err{};
-    auto result = kosherz_calendar_holiday_is_assur_bemelacha(holiday_buf.data(), holiday_buf.size(), &err);
+    auto result = kosherz_calendar_special_day_is_assur_bemelacha(special_day_buf.data(), special_day_buf.size(), &err);
     detail::check_calendar(err);
     return result;
 }
@@ -3990,17 +3975,17 @@ inline bool holiday_is_assur_bemelacha(const Holiday& holiday) {
  *
  * # Errors
  *
- * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
  * outside 1 to 49.
  *
  * @throws CalendarError when the call fails with one of the domain's codes.
  */
-inline bool holiday_is_modern(const Holiday& holiday) {
+inline bool special_day_is_modern(const SpecialDay& special_day) {
     check_library();
-    detail::BufferWriter holiday_buf;
-    detail::write_Holiday(holiday_buf, holiday);
+    detail::BufferWriter special_day_buf;
+    detail::write_SpecialDay(special_day_buf, special_day);
     kosherz_error err{};
-    auto result = kosherz_calendar_holiday_is_modern(holiday_buf.data(), holiday_buf.size(), &err);
+    auto result = kosherz_calendar_special_day_is_modern(special_day_buf.data(), special_day_buf.size(), &err);
     detail::check_calendar(err);
     return result;
 }
@@ -4010,17 +3995,17 @@ inline bool holiday_is_modern(const Holiday& holiday) {
  *
  * # Errors
  *
- * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
  * outside 1 to 49.
  *
  * @throws CalendarError when the call fails with one of the domain's codes.
  */
-inline bool holiday_is_fast_day(const Holiday& holiday) {
+inline bool special_day_is_fast_day(const SpecialDay& special_day) {
     check_library();
-    detail::BufferWriter holiday_buf;
-    detail::write_Holiday(holiday_buf, holiday);
+    detail::BufferWriter special_day_buf;
+    detail::write_SpecialDay(special_day_buf, special_day);
     kosherz_error err{};
-    auto result = kosherz_calendar_holiday_is_fast_day(holiday_buf.data(), holiday_buf.size(), &err);
+    auto result = kosherz_calendar_special_day_is_fast_day(special_day_buf.data(), special_day_buf.size(), &err);
     detail::check_calendar(err);
     return result;
 }
@@ -4271,16 +4256,6 @@ inline std::string zman_java_name(Zman zman) {
     auto result = kosherz_times_zman_java_name(static_cast<kosherz_times_Zman>(static_cast<int32_t>(zman)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
-}
-
-/** The zman named by its KosherJava method, for example "getSofZmanShmaGRA". */
-inline std::optional<Zman> zman_from_java_name(std::string_view java_name) {
-    check_library();
-    size_t out_len = 0;
-    kosherz_error err{};
-    auto result = kosherz_times_zman_from_java_name(detail::utf8(java_name), java_name.size(), &out_len, &err);
-    detail::check(err);
-    return detail::take(result, out_len, &detail::read_opt_Zman);
 }
 
 /** What kind of time the zman is. */

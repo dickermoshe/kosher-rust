@@ -656,16 +656,18 @@ let wvContract: Void = {
     wvCheckContract(kosherz_calendar_contract, [
         (0x0076e887e475ab9f, 0x96615bd3eb7f1761, "calendar.HebrewDate.molad"),
         (0x01344feb6b733690, 0x47b992630b03d56a, "calendar.HebrewDate.weekday"),
+        (0x04722a067e750ac7, 0x10c6e1e0af9f20c4, "calendar.special_day_name"),
         (0x12decead9d8a44cf, 0x4b1b3a695325cfca, "calendar.limudim.LimudimError"),
         (0x190ecd13c0fccffa, 0x35e622a32a88ef57, "calendar.limudim.mishna_yomis"),
         (0x1c33df579fac36d8, 0x1175c871bc023b86, "calendar.HebrewDate.day_of_year"),
+        (0x1d2a2cfe983548a6, 0x513b06d6c24719e2, "calendar.special_day_is_fast_day"),
         (0x235fd1db8b7dd5f5, 0x399eab22141dffd3, "calendar.GregorianDate"),
         (0x2b066dc65c460024, 0xf4f23e6586bd1dd7, "calendar.HebrewDate"),
         (0x2c8e60589f58d792, 0xa0608634cb2f46cb, "calendar.limudim.Mishna"),
         (0x2da09ea1403b727e, 0x4d5e82347ae7a3fc, "calendar.HebrewMonth"),
         (0x2e1645ba38a77559, 0x1c81765c98ab54f9, "calendar.HebrewDate.parsha"),
         (0x2e561d4c25bf877d, 0x47ff51d038dbe0d8, "calendar.limudim.tehillim_display"),
-        (0x3a2980b734ba8883, 0x2d505394972243a9, "calendar.HebrewDate.holidays"),
+        (0x34b343651b1fb8fe, 0x12159035b300983a, "calendar.special_day_is_modern"),
         (0x3a3316910057484e, 0xd86a18c3b722f6c7, "calendar.limudim.tehillim_monthly"),
         (0x3c8950ed1f7f370c, 0x19e0d2b3ff9d26fe, "calendar.HebrewDate.day"),
         (0x422860078e596223, 0x32c85d18778b0bb4, "calendar.HebrewDate.equals"),
@@ -678,28 +680,25 @@ let wvContract: Void = {
         (0x53798234777e19ea, 0x6c389ed6ad08dbe3, "calendar.rosh_hashana"),
         (0x58fc9af210a33bdd, 0xc3e1903a4dc8359d, "calendar.HebrewDate.is_aseres_yemei_teshuva"),
         (0x5c2a6a6f333ead35, 0x74c7180edff5c022, "calendar.HebrewDate.from_gregorian"),
-        (0x5d5d66098ee06c49, 0x8a4e9ca163a6a190, "calendar.Holiday"),
+        (0x6089a64539b542a8, 0x404904f4331718c5, "calendar.SpecialDay"),
         (0x65535c1ad3d9f893, 0x55884ddb65b50739, "calendar.HebrewDate.has_candle_lighting"),
         (0x6a0735856dec8d1a, 0xdc1addb4a7ab46ef, "calendar.parsha_name"),
-        (0x6d120a34fc12b94e, 0x2444827e369b819b, "calendar.holiday_is_assur_bemelacha"),
         (0x734de195723c4bec, 0xc7f3965b813050f5, "calendar.HebrewDate.display"),
         (0x753c68bed189444b, 0x8111a6d476ecf648, "calendar.Region"),
         (0x78416ddbbcc55dd6, 0x6c9e0901963a2dfc, "calendar.limudim.tractate_hebrew"),
-        (0x7b66ec4056f4dcbc, 0xe848ea2454d6e4c1, "calendar.holiday_is_fast_day"),
         (0x7ed52a27f9477122, 0x6e401597e28209a9, "calendar.limudim.MishnaPair"),
         (0x82b460a35e9ba56a, 0x18c3086aa662d366, "calendar.limudim.amud_yomi_dirshu"),
         (0x854dedb50653c50f, 0x914508f7681ccd43, "calendar.HebrewDate.next_parsha"),
-        (0x8f180424826294a4, 0xa976cce390a71369, "calendar.holiday_is_modern"),
+        (0x9006c018e9f8aed8, 0x8b43089a0dda99f4, "calendar.special_day_is_assur_bemelacha"),
         (0x924fdf3d84514e8e, 0xd6c2f5c20a8b129d, "calendar.limudim.TehillimUnit"),
         (0x93ceba93a2b10131, 0xc7b188714edbf795, "calendar.HebrewDate.special_parsha"),
-        (0x94dc4cc8ea8c02c9, 0x51105a7bb4b55bdd, "calendar.holiday_name"),
         (0x98cc81d52e65776b, 0x2bf1569214921669, "calendar.month_hebrew"),
         (0x9b48ba34fb52812d, 0xff11e092dce92ed7, "calendar.limudim.Side"),
         (0x9e20ba757aee97c2, 0x9328a81ac256b477, "calendar.parsha_hebrew"),
+        (0xa06798705423bcc5, 0xba204574299d85b2, "calendar.HebrewDate.special_days"),
         (0xa1e3409cebf37881, 0xfeebfaab6c533e17, "calendar.limudim.Daf"),
         (0xa5864219850af272, 0xf8a4981ca376ff28, "calendar.HebrewDate.is_assur_bemelacha"),
         (0xaeb433ce589b7931, 0x364d4d0b6a770631, "calendar.limudim.Amud"),
-        (0xaf5dd6acc2e8ba71, 0xa2fdd5f43f90f755, "calendar.holiday_hebrew"),
         (0xbd8865ae2177f9ff, 0x6bc5f7eea096d080, "calendar.year_info"),
         (0xc3fd51b677226bab, 0x684e92fa36717939, "calendar.month_name"),
         (0xc47f6755efcc97f2, 0xb882de90a2c3493f, "calendar.YearLength"),
@@ -707,10 +706,11 @@ let wvContract: Void = {
         (0xd099b5b97c1dddb6, 0x7321133365af2acb, "calendar.YearInfo"),
         (0xd542917e9468e665, 0xc29b76894e14326c, "calendar.HebrewDate.compare"),
         (0xe055421dad70d98d, 0xc2712588daaabbaf, "calendar.limudim.pirkei_avos_display"),
+        (0xe48d4a72f047f917, 0x2c39a2ab4fa38524, "calendar.special_day_hebrew"),
         (0xe5bd2ded003a830a, 0x21bf463baf36e8ae, "calendar.limudim.daf_hashavua_bavli"),
         (0xe5f7bcecee7a3148, 0xf9b3a1fb63fa80ad, "calendar.HebrewDate.new"),
         (0xea80ab8c284067d9, 0x96b30eb7f85eaf21, "calendar.limudim.daf_yomi_bavli"),
-        (0xeb41af932363bd25, 0xc681430e19f4d7b1, "calendar.CalendarError"),
+        (0xeb41af932363bd25, 0xc2d1a611bc5da8c6, "calendar.CalendarError"),
         (0xeb6a6e150a6abbe0, 0xf5d8629c4bfb2f06, "calendar.limudim.Tractate"),
         (0xee029887d9af6ef8, 0x54411bdda9d3b13b, "calendar.HebrewDate.month"),
         (0xefe1cb89cb8314f3, 0x03b0248b8cfa2de8, "calendar.days_in_month"),
@@ -732,7 +732,6 @@ let wvContract: Void = {
         (0x38596a351e356743, 0x685412d4d80250ea, "times.Config"),
         (0x39389f0e68d3cc22, 0x4af5df9a96d3f535, "times.myzmanim.MyZmanim.proportional_hour_gra"),
         (0x3c92cd49c8b4515b, 0x5962ffa89080c41b, "times.shaah_zmanis"),
-        (0x4048d3ca4b000831, 0xdf4697e13848d687, "times.zman_from_java_name"),
         (0x44a0809dedbd4a4d, 0x9169cc1ef07d2488, "times.ZmanimError"),
         (0x4d259836d7137c43, 0x0486761191984fd0, "times.Zman"),
         (0x57d7a9c5a715b9fa, 0x7110b3413cfd8e83, "times.Location"),
@@ -775,13 +774,13 @@ public enum CalendarError: Error, LocalizedError, Sendable {
     /// The date does not exist, or is outside Hebrew years 1 to 9999.
     case invalidDate(message: String)
     /// A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.
-    case invalidHoliday(message: String)
+    case invalidSpecialDay(message: String)
 
     /// The message the library reported, or the code's documented default.
     public var errorDescription: String? {
         switch self {
         case let .invalidDate(message): return message
-        case let .invalidHoliday(message): return message
+        case let .invalidSpecialDay(message): return message
         }
     }
 
@@ -789,7 +788,7 @@ public enum CalendarError: Error, LocalizedError, Sendable {
     public var errorCode: Int32 {
         switch self {
         case .invalidDate: return 1
-        case .invalidHoliday: return 2
+        case .invalidSpecialDay: return 2
         }
     }
 }
@@ -798,7 +797,7 @@ func wvMapCalendar(_ err: WvError) -> Error {
     let message = wvErrorMessage(err)
     switch err.code {
     case 1: return CalendarError.invalidDate(message: message.isEmpty ? "The date does not exist, or is outside Hebrew years 1 to 9999." : message)
-    case 2: return CalendarError.invalidHoliday(message: message.isEmpty ? "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49." : message)
+    case 2: return CalendarError.invalidSpecialDay(message: message.isEmpty ? "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49." : message)
     default: return wvRuntimeError(err)
     }
 }
@@ -1034,7 +1033,7 @@ extension Parsha: WvCEnum {}
 /// A holiday, fast, or other day the calendar marks. Some are not holidays in the halachic
 /// sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
 /// show them.
-public enum Holiday: Hashable, Sendable {
+public enum SpecialDay: Hashable, Sendable {
     /// Erev Pesach, 14 Nisan.
     case erevPesach
     /// Pesach.
@@ -1121,8 +1120,8 @@ public enum Holiday: Hashable, Sendable {
     case shabbosMevarchim
 }
 
-extension Holiday: WvCodable {
-    static func wvRead(_ r: inout WvReader) -> Holiday {
+extension SpecialDay: WvCodable {
+    static func wvRead(_ r: inout WvReader) -> SpecialDay {
         let tag = r.readI32()
         switch tag {
         case 0: return .erevPesach
@@ -1167,7 +1166,7 @@ extension Holiday: WvCodable {
         case 39: return .birchasHachamah
         case 40: return .macharHachodesh
         case 41: return .shabbosMevarchim
-        default: wvDecodeFailure("unknown Holiday tag \(tag)")
+        default: wvDecodeFailure("unknown SpecialDay tag \(tag)")
         }
     }
 
@@ -1454,12 +1453,12 @@ public final class HebrewDate: @unchecked Sendable {
     }
 
     /// The holidays, fasts and other marked days on this day.
-    public func holidays(region: Region) -> [Holiday] {
+    public func specialDays(region: Region) -> [SpecialDay] {
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_calendar_HebrewDate_holidays(ptr, kosherz_calendar_Region(rawValue: numericCast(region.rawValue)), &outLen, &err)
+        let rv = kosherz_calendar_HebrewDate_special_days(ptr, kosherz_calendar_Region(rawValue: numericCast(region.rawValue)), &outLen, &err)
         wvTrap(&err)
-        return wvTakeBuffer(rv, outLen, as: [Holiday].self)
+        return wvTakeBuffer(rv, outLen, as: [SpecialDay].self)
     }
 
     /// Whether melacha is forbidden: Shabbos or Yom Tov.
@@ -3090,39 +3089,39 @@ public enum Calendar {
         return HebrewDate(ptr: wvNonNull(rv))
     }
 
-    /// The holiday's English name, for example "Chanukah".
+    /// The day's English name, for example "Chanukah".
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     ///
     /// - Throws: ``CalendarError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
-    public static func holidayName(holiday: Holiday) throws -> String {
+    public static func specialDayName(specialDay: SpecialDay) throws -> String {
         wvLoad()
         var err = WvError()
         var outLen = 0
-        let rv: UnsafePointer<UInt8>? = wvWithEncoded(holiday) { holiday_ptr, holiday_len in
-            kosherz_calendar_holiday_name(holiday_ptr, holiday_len, &outLen, &err)
+        let rv: UnsafePointer<UInt8>? = wvWithEncoded(specialDay) { specialDay_ptr, specialDay_len in
+            kosherz_calendar_special_day_name(specialDay_ptr, specialDay_len, &outLen, &err)
         }
         try wvCheckCalendar(&err)
         return wvTakeString(rv, outLen)
     }
 
-    /// The holiday's Hebrew name.
+    /// The day's Hebrew name.
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     ///
     /// - Throws: ``CalendarError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
-    public static func holidayHebrew(holiday: Holiday) throws -> String {
+    public static func specialDayHebrew(specialDay: SpecialDay) throws -> String {
         wvLoad()
         var err = WvError()
         var outLen = 0
-        let rv: UnsafePointer<UInt8>? = wvWithEncoded(holiday) { holiday_ptr, holiday_len in
-            kosherz_calendar_holiday_hebrew(holiday_ptr, holiday_len, &outLen, &err)
+        let rv: UnsafePointer<UInt8>? = wvWithEncoded(specialDay) { specialDay_ptr, specialDay_len in
+            kosherz_calendar_special_day_hebrew(specialDay_ptr, specialDay_len, &outLen, &err)
         }
         try wvCheckCalendar(&err)
         return wvTakeString(rv, outLen)
@@ -3132,15 +3131,15 @@ public enum Calendar {
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     ///
     /// - Throws: ``CalendarError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
-    public static func holidayIsAssurBemelacha(holiday: Holiday) throws -> Bool {
+    public static func specialDayIsAssurBemelacha(specialDay: SpecialDay) throws -> Bool {
         wvLoad()
         var err = WvError()
-        let rv: Bool = wvWithEncoded(holiday) { holiday_ptr, holiday_len in
-            kosherz_calendar_holiday_is_assur_bemelacha(holiday_ptr, holiday_len, &err)
+        let rv: Bool = wvWithEncoded(specialDay) { specialDay_ptr, specialDay_len in
+            kosherz_calendar_special_day_is_assur_bemelacha(specialDay_ptr, specialDay_len, &err)
         }
         try wvCheckCalendar(&err)
         return rv
@@ -3150,15 +3149,15 @@ public enum Calendar {
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     ///
     /// - Throws: ``CalendarError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
-    public static func holidayIsModern(holiday: Holiday) throws -> Bool {
+    public static func specialDayIsModern(specialDay: SpecialDay) throws -> Bool {
         wvLoad()
         var err = WvError()
-        let rv: Bool = wvWithEncoded(holiday) { holiday_ptr, holiday_len in
-            kosherz_calendar_holiday_is_modern(holiday_ptr, holiday_len, &err)
+        let rv: Bool = wvWithEncoded(specialDay) { specialDay_ptr, specialDay_len in
+            kosherz_calendar_special_day_is_modern(specialDay_ptr, specialDay_len, &err)
         }
         try wvCheckCalendar(&err)
         return rv
@@ -3168,15 +3167,15 @@ public enum Calendar {
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     ///
     /// - Throws: ``CalendarError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
-    public static func holidayIsFastDay(holiday: Holiday) throws -> Bool {
+    public static func specialDayIsFastDay(specialDay: SpecialDay) throws -> Bool {
         wvLoad()
         var err = WvError()
-        let rv: Bool = wvWithEncoded(holiday) { holiday_ptr, holiday_len in
-            kosherz_calendar_holiday_is_fast_day(holiday_ptr, holiday_len, &err)
+        let rv: Bool = wvWithEncoded(specialDay) { specialDay_ptr, specialDay_len in
+            kosherz_calendar_special_day_is_fast_day(specialDay_ptr, specialDay_len, &err)
         }
         try wvCheckCalendar(&err)
         return rv
@@ -3423,18 +3422,6 @@ public enum Times {
         let rv = kosherz_times_zman_java_name(kosherz_times_Zman(rawValue: numericCast(zman.rawValue)), &outLen, &err)
         wvTrap(&err)
         return wvTakeString(rv, outLen)
-    }
-
-    /// The zman named by its KosherJava method, for example "getSofZmanShmaGRA".
-    public static func zmanFromJavaName(javaName: String) -> Zman? {
-        wvLoad()
-        var err = WvError()
-        var outLen = 0
-        let rv: UnsafePointer<UInt8>? = wvWithUTF8(javaName) { javaName_ptr, javaName_len in
-            kosherz_times_zman_from_java_name(javaName_ptr, javaName_len, &outLen, &err)
-        }
-        wvTrap(&err)
-        return wvTakeBuffer(rv, outLen, as: Zman?.self)
     }
 
     /// What kind of time the zman is.

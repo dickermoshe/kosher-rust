@@ -1,33 +1,5 @@
 # Changelog
 
-## Unreleased
-
-- **The time zone moves from `Location` to `Zmanim` and `MyZmanim`.** `Location::new(lat, lon)`
-  no longer takes a time zone. You pass the time zone to `Zmanim::new`, `Zmanim::with_config`
-  or `MyZmanim::new` instead. A location more than 150° from Greenwich still needs a time zone.
-  Without one each time now returns `ZmanimError::TimeZoneRequired`. Before this change
-  `Location::new` returned `LocationError::TimeZoneRequired`. That error no longer exists.
-- **`get_zoned`.** `Zmanim` and `MyZmanim` have a new `get_zoned` method. It gives a time in the
-  time zone of the *zmanim*. Use it to show the time to someone.
-- **Custom time zones.** `Zmanim::with_custom_timezone` and `MyZmanim::with_custom_timezone` take
-  any `TimeZoneLike`. A `TimeZoneLike` answers two questions. It gives the UTC offset at an
-  instant. It also gives the instant of a local date and time, resolved the way Java's
-  `ZonedDateTime.of` resolves it. `jiff::tz::TimeZone` implements it.
-- **Kiddush Levana checks the day the way KosherJava does.** A Kiddush Levana time counts for a
-  date when it falls between the local midnight that starts the date and the local midnight that
-  ends it. A time exactly at the midnight that ends the date now counts for that date, as it does
-  in KosherJava.
-- **No panics at the ends of the date range.** Near the first and last days a `Timestamp` holds,
-  times built by adding to or subtracting from another time panicked when the result fell
-  outside the range, even with the default `Config`; they now return `ZmanimError::Internal`,
-  as do candle-lighting and Ateret Torah offsets too large to add.
-- **Days a time zone skipped match KosherJava.** On a date whose midnight a zone skipped
-  entirely (Samoa and Tokelau on 30 December 2011, Kiritimati on 31 December 1994, Kwajalein
-  on 21 August 1993), the date-line adjustment used the offset from before the jump; it now
-  uses the one after, as KosherJava does.
-- **`PirkeiAvos` past Hebrew year 9999.** It panicked for every date from the summer of 9999
-  (Gregorian 6239) on; that summer now has its portions, and from 10000 on there are none.
-
 ## 0.3.0 (2026-10-22)
 
 0.3 rebuilds the public API around what users do. Apart from the fixes below, the calculations
@@ -47,6 +19,23 @@ are unchanged, and they are still checked against KosherJava and hebcal.
 - **MyZmanim** uses the Meeus fix too: 14 more times in the site data now have a value. The
   worst difference from the site is 13.6 seconds, a *misheyakir* on a day the sun only just
   reaches 11.5°.
+- **Kiddush Levana checks the day the way KosherJava does.** A Kiddush Levana time counts for a
+  date when it falls between the local midnight that starts the date and the local midnight that
+  ends it. A time exactly at the midnight that ends the date counts for that date, as it does in
+  KosherJava.
+- **Days a time zone skipped match KosherJava.** On a date whose midnight a zone skipped
+  entirely (Samoa and Tokelau on 30 December 2011, Kiritimati on 31 December 1994, Kwajalein
+  on 21 August 1993), the date-line adjustment used the offset from before the jump. It now
+  uses the one after, as KosherJava does.
+- **No panics at the ends of the date range.** Near the first and last days a `Timestamp` holds,
+  times built by adding to or subtracting from another time panicked when the result fell
+  outside the range, even with the default `Config`. They now return `ZmanimError::Internal`,
+  as do candle-lighting and Ateret Torah offsets too large to add.
+- **No molad before Hebrew year 1.** `HebrewDate::molad` panicked for some dates before Hebrew
+  year 1, and so did the four Kiddush Levana times. `molad` now returns `None` there, and the
+  Kiddush Levana times return `ZmanimError::NotApplicable`.
+- **`PirkeiAvos` past Hebrew year 9999.** It panicked for every date from the summer of 9999
+  (Gregorian 6239) on. That summer now has its portions, and from 10000 on there are none.
 
 ### Migrating from 0.2
 
@@ -55,7 +44,8 @@ are unchanged, and they are still checked against KosherJava and hebcal.
 | 0.2 | 0.3 |
 |---|---|
 | `use kosher_rust::calendar::prelude::*` | `use kosher_rust::{HebrewDate, Region}` |
-| `date.holidays(in_israel, use_modern)` on any date | `HebrewDate::from(date).holidays(Region::Israel)`; modern holidays are always included, filter with `Holiday::is_modern()` |
+| `Holiday` | `SpecialDay`, since it also covers fasts, Rosh Chodesh, the Omer and other marked days |
+| `date.holidays(in_israel, use_modern)` on any date | `HebrewDate::from(date).special_days(Region::Israel)`; modern holidays are always included, filter with `SpecialDay::is_modern()` |
 | `date.is_assur_bemelacha(in_israel)`, `has_candle_lighting(in_israel)` | same names on `HebrewDate`, taking a `Region` |
 | `date.todays_parsha(..)`, `upcoming_parsha(..)` | `HebrewDate::parsha(..)`, `next_parsha(..)` |
 | `date.hebrew_date()` (`HebrewCalendarDate`) | `HebrewDate::from(date)` |
@@ -64,10 +54,10 @@ are unchanged, and they are still checked against KosherJava and hebcal.
 | `calendar::month::NISAN` and the other ICU `Month` constants | `HebrewMonth::Nisan` |
 | `month.he(year)` (`HebrewMonthExt`) | `HebrewMonth::hebrew()` |
 | `Holiday::he()`, `Parsha::he()` | `hebrew()` |
-| `Holiday::is_modern_holiday()` | `Holiday::is_modern()` |
+| `Holiday::is_modern_holiday()` | `SpecialDay::is_modern()` |
 | `zmanim::molad::MoladCalendar::molad(tz)` | `HebrewDate::molad()` → `Molad`, the molad of the date's month |
 
-`Display` on `Holiday` and `Parsha` now prints the English name ("Pesach", "Bereshis"); use
+`Display` on `SpecialDay` and `Parsha` now prints the English name ("Pesach", "Bereshis"); use
 `hebrew()` for the Hebrew one.
 
 `HebrewYear::days()`, `is_cheshvan_long()` and `is_kislev_short()` no longer return `Option`.
@@ -77,14 +67,14 @@ are unchanged, and they are still checked against KosherJava and hebcal.
 | 0.2 | 0.3 |
 |---|---|
 | `zmanim::types::location::Location` | `kosher_rust::Location` |
-| `Location::new(lat, lon, elevation, tz)` | `Location::new(lat, lon, tz)?.with_elevation(elevation)?` |
-| `Location::with_horizon_elevations(lat, lon, elevation, east, west, tz)` | `Location::new(lat, lon, tz)?.with_elevation(elevation)?.with_horizons(east, west)?` |
+| `Location::new(lat, lon, elevation, tz)` | `Location::new(lat, lon)?.with_elevation(elevation)?`. The time zone goes to `Zmanim::new` or `MyZmanim::new` |
+| `Location::with_horizon_elevations(lat, lon, elevation, east, west, tz)` | `Location::new(lat, lon)?.with_elevation(elevation)?.with_horizons(east, west)?` |
 | `location.latitude` and the other public fields | `location.latitude()` and the other getters |
 | `location.sunrise_elevation()`, `sunset_elevation()` | removed |
-| `zmanim::types::config::{CalculatorConfig, AstronomicalCalculator}` | `zmanim::{CalculatorConfig, AstronomicalCalculator}` |
+| `zmanim::types::config::{CalculatorConfig, AstronomicalCalculator}` | `zmanim::{Config, AstronomicalCalculator}` |
 | `zmanim::types::error::ZmanimError` | `zmanim::ZmanimError` |
 | `ZmanimError::InvalidLatitude`, `InvalidLongitude`, `InvalidElevation` | `LocationError::*`, returned when the `Location` is built |
-| `ZmanimError::TimeZoneRequired` from `Location::new` | `LocationError::TimeZoneRequired`; `ZmanimError::TimeZoneRequired` is now only for the Kiddush Levana times |
+| `ZmanimError::TimeZoneRequired` from `Location::new` | `ZmanimError::TimeZoneRequired` from `get`. Without a time zone it is returned by the four Kiddush Levana times, by `get_zoned`, and by every time more than 150° from Greenwich |
 | `ZmanimError::InvalidForDate` | `ZmanimError::NotApplicable`, which the polar Ben Ish Chai times now also return on ordinary days |
 | `ZmanimError::CalculationError`, `TimeConversionError`, `InvalidHours` | `ZmanimError::Internal` |
 
@@ -95,11 +85,11 @@ Elevations must now be finite; an infinite observer elevation used to be accepte
 | 0.2 | 0.3 |
 |---|---|
 | `use kosher_rust::zmanim::prelude::*` | `use kosher_rust::{Location, Zman, Zmanim}` |
-| `ZmanimCalculator::new(location, date, config)` | `Zmanim::with_config(location, date, config)`, or `Zmanim::new(location, date)` for the defaults |
+| `ZmanimCalculator::new(location, date, config)` | `Zmanim::with_config(location, date, Some(tz), config)`, or `Zmanim::new(location, date, Some(tz))` for the defaults |
 | `calc.calculate(&presets::SOF_ZMAN_SHMA_GRA)` | `zmanim.get(Zman::SofZmanShmaGra)` |
 | `presets::ELEVATION_ADJUSTED_SUNRISE` and the other 166 statics | `Zman::Sunrise` and the other variants, named after the KosherJava getter without `get` |
 | `presets::ALL_ZMANIM` | `Zman::ALL` |
-| `preset.method_name`, `.name`, `.zman_type`, `.deprecated` | `zman.java_name()`, `.name()`, `.category()`, `.is_deprecated()`; `Zman::from_java_name(..)` goes the other way |
+| `preset.method_name`, `.name`, `.zman_type`, `.deprecated` | `zman.java_name()`, `.name()`, `.category()`, `.is_deprecated()` |
 | `preset.description(&calc)` | `zman.description(&config)` |
 | `ZmanType` | `Category` |
 | `CalculatorConfig` | `Config` |
@@ -132,7 +122,7 @@ Hebrew name.
 | 0.2 | 0.3 |
 |---|---|
 | `use kosher_rust::myzmanim::prelude::*` | `use kosher_rust::myzmanim::{MyZman, MyZmanim}` |
-| `MyZmanimCalendar::new(location, date)` | `MyZmanim::new(location, date)` |
+| `MyZmanimCalendar::new(location, date)` | `MyZmanim::new(location, date, Some(tz))` |
 | `.with_candle_lighting_minutes(m)` | `.candle_lighting(m)` |
 | `calendar.calculate(MyZman::X)`, `MyZman::X.calculate(&calendar)` | `times.get(MyZman::X)` |
 | `set_date`, `set_candle_lighting_minutes` | build a new `MyZmanim` |
@@ -141,8 +131,21 @@ Hebrew name.
 
 ### Also new in 0.3
 
+- **Time zones belong to the *zmanim*.** `Location` no longer holds a time zone. Pass it to
+  `Zmanim::new`, `Zmanim::with_config` or `MyZmanim::new`, or pass `None`. The README lists the
+  times that need one.
+- **`get_zoned`.** `Zmanim` and `MyZmanim` give a time in their time zone, ready to show to
+  someone.
+- **Custom time zones.** `Zmanim::with_custom_timezone` and `MyZmanim::with_custom_timezone` take
+  any `TimeZoneLike`. A `TimeZoneLike` gives the UTC offset at an instant and the instant of a
+  local date and time, resolved the way Java's `ZonedDateTime.of` resolves it.
+  `jiff::tz::TimeZone` implements it.
+- **Room to grow.** `Zman`, `MyZman`, `Category`, `SpecialDay` and `AstronomicalCalculator` are
+  `#[non_exhaustive]`, so later releases can add to them without breaking your code. A `match` on
+  one needs a `_` arm. The error types stay exhaustive.
+
 - The README is the crate's front page and its examples are tested; `examples/today.rs` prints
   today's date, holidays, learning and zmanim.
 - `no_std` builds are checked in CI for `thumbv7em-none-eabihf`, with and without `alloc`.
 - `cargo bench` (divan) replaces the 10 ms timing assertions that ran as tests.
-- Every public item is documented, including every `Holiday`, `Parsha`, `Tractate` and `Zman`.
+- Every public item is documented, including every `SpecialDay`, `Parsha`, `Tractate` and `Zman`.

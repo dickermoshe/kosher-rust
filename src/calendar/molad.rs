@@ -58,6 +58,10 @@ pub(crate) fn molad_of_month(date: &Date<Hebrew>) -> Option<Molad> {
 }
 
 pub(crate) fn months_molad(date: &Date<Hebrew>) -> Option<Timestamp> {
+    // The arithmetic below assumes a positive count of chalakim since the molad tohu.
+    if date.year().extended_year() < 1 {
+        return None;
+    }
     let chalakim_since_molad_tohu = chalakim_since_molad_tohu(date.year().extended_year(), date.month().to_input())?;
     let abs_date = JEWISH_EPOCH + (chalakim_since_molad_tohu / CHALAKIM_PER_DAY);
     let mut gregorian_date = abs_date_to_gregorian_date(abs_date)?;

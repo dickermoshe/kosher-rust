@@ -52,11 +52,11 @@ internal object JniBridge {
     @JvmStatic external fun calendar_year_info(year: Int): ByteArray
     @JvmStatic external fun calendar_days_in_month(year: Int, month: Int): ByteArray
     @JvmStatic external fun calendar_rosh_hashana(year: Int): Long
-    @JvmStatic external fun calendar_holiday_name(holiday: ByteArray): ByteArray
-    @JvmStatic external fun calendar_holiday_hebrew(holiday: ByteArray): ByteArray
-    @JvmStatic external fun calendar_holiday_is_assur_bemelacha(holiday: ByteArray): Boolean
-    @JvmStatic external fun calendar_holiday_is_modern(holiday: ByteArray): Boolean
-    @JvmStatic external fun calendar_holiday_is_fast_day(holiday: ByteArray): Boolean
+    @JvmStatic external fun calendar_special_day_name(specialDay: ByteArray): ByteArray
+    @JvmStatic external fun calendar_special_day_hebrew(specialDay: ByteArray): ByteArray
+    @JvmStatic external fun calendar_special_day_is_assur_bemelacha(specialDay: ByteArray): Boolean
+    @JvmStatic external fun calendar_special_day_is_modern(specialDay: ByteArray): Boolean
+    @JvmStatic external fun calendar_special_day_is_fast_day(specialDay: ByteArray): Boolean
     @JvmStatic external fun calendar_parsha_name(parsha: Int): ByteArray
     @JvmStatic external fun calendar_parsha_hebrew(parsha: Int): ByteArray
     @JvmStatic external fun calendar_month_name(month: Int): ByteArray
@@ -70,7 +70,7 @@ internal object JniBridge {
     @JvmStatic external fun calendar_HebrewDate_weekday(_self: Long): Int
     @JvmStatic external fun calendar_HebrewDate_to_gregorian(_self: Long): ByteArray
     @JvmStatic external fun calendar_HebrewDate_add_days(_self: Long, days: Int): Long
-    @JvmStatic external fun calendar_HebrewDate_holidays(_self: Long, region: Int): ByteArray
+    @JvmStatic external fun calendar_HebrewDate_special_days(_self: Long, region: Int): ByteArray
     @JvmStatic external fun calendar_HebrewDate_is_assur_bemelacha(_self: Long, region: Int): Boolean
     @JvmStatic external fun calendar_HebrewDate_has_candle_lighting(_self: Long, region: Int): Boolean
     @JvmStatic external fun calendar_HebrewDate_is_aseres_yemei_teshuva(_self: Long): Boolean
@@ -100,7 +100,6 @@ internal object JniBridge {
     @JvmStatic external fun times_all_zmanim(): ByteArray
     @JvmStatic external fun times_zman_name(zman: Int): ByteArray
     @JvmStatic external fun times_zman_java_name(zman: Int): ByteArray
-    @JvmStatic external fun times_zman_from_java_name(javaName: ByteArray): ByteArray
     @JvmStatic external fun times_zman_category(zman: Int): Int
     @JvmStatic external fun times_zman_is_deprecated(zman: Int): Boolean
     @JvmStatic external fun times_zman_description(zman: Int, config: ByteArray): ByteArray

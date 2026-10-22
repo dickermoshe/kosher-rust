@@ -39,8 +39,8 @@ mod calendar {
     }
 
     #[divan::bench]
-    fn holidays() -> usize {
-        black_box(pesach()).holidays(Region::Diaspora).count()
+    fn special_days() -> usize {
+        black_box(pesach()).special_days(Region::Diaspora).count()
     }
 
     #[divan::bench]

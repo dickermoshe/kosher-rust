@@ -10,7 +10,7 @@ use jni::{
 
 use crate::{init_bindings, java_vm};
 
-use kosher_rust::calendar::Holiday;
+use kosher_rust::calendar::SpecialDay;
 
 use crate::java_bindings::com::kosherjava::zmanim::hebrewcalendar::{
     JewishCalendar, JewishCalendarParshah, JewishDate,
@@ -214,60 +214,61 @@ pub(super) fn java_jewish_calendar_snapshot(
     })
 }
 
-pub(super) fn java_holiday_index_from_rust(holidays: &[Holiday]) -> i32 {
-    let Some(holiday) = holidays
+pub(super) fn java_holiday_index_from_rust(special_days: &[SpecialDay]) -> i32 {
+    let Some(special_day) = special_days
         .iter()
-        .find(|holiday| java_holiday_index_for(**holiday).is_some())
+        .find(|special_day| java_holiday_index_for(**special_day).is_some())
     else {
         return -1;
     };
-    java_holiday_index_for(*holiday).expect("holiday index was checked above")
+    java_holiday_index_for(*special_day).expect("the index was checked above")
 }
 
-pub(super) fn java_holiday_index_for(holiday: Holiday) -> Option<i32> {
-    match holiday {
-        Holiday::ErevPesach => Some(0),
-        Holiday::Pesach => Some(1),
-        Holiday::CholHamoedPesach => Some(2),
-        Holiday::PesachSheni => Some(3),
-        Holiday::ErevShavuos => Some(4),
-        Holiday::Shavuos => Some(5),
-        Holiday::SeventeenthOfTammuz => Some(6),
-        Holiday::TishahBav => Some(7),
-        Holiday::TuBav => Some(8),
-        Holiday::ErevRoshHashana => Some(9),
-        Holiday::RoshHashana => Some(10),
-        Holiday::FastOfGedalyah => Some(11),
-        Holiday::ErevYomKippur => Some(12),
-        Holiday::YomKippur => Some(13),
-        Holiday::ErevSuccos => Some(14),
-        Holiday::Succos => Some(15),
-        Holiday::CholHamoedSuccos => Some(16),
-        Holiday::HoshanaRabbah => Some(17),
-        Holiday::SheminiAtzeres => Some(18),
-        Holiday::SimchasTorah => Some(19),
-        Holiday::Chanukah(_) => Some(21),
-        Holiday::TenthOfTeves => Some(22),
-        Holiday::TuBshvat => Some(23),
-        Holiday::FastOfEsther => Some(24),
-        Holiday::Purim => Some(25),
-        Holiday::ShushanPurim => Some(26),
-        Holiday::PurimKatan => Some(27),
-        Holiday::RoshChodesh => None,
-        Holiday::YomHaShoah => Some(29),
-        Holiday::YomHazikaron => Some(30),
-        Holiday::YomHaatzmaut => Some(31),
-        Holiday::YomYerushalayim => Some(32),
-        Holiday::LagBomer => Some(33),
-        Holiday::ShushanPurimKatan => Some(34),
-        Holiday::IsruChag => Some(35),
-        Holiday::YomKippurKatan => None,
-        Holiday::Behab => None,
-        Holiday::BirchasHachamah
-        | Holiday::MacharHachodesh
-        | Holiday::ShabbosMevarchim
-        | Holiday::FastOfTheFirstborn
-        | Holiday::CountOfTheOmer(_) => None,
+pub(super) fn java_holiday_index_for(special_day: SpecialDay) -> Option<i32> {
+    match special_day {
+        SpecialDay::ErevPesach => Some(0),
+        SpecialDay::Pesach => Some(1),
+        SpecialDay::CholHamoedPesach => Some(2),
+        SpecialDay::PesachSheni => Some(3),
+        SpecialDay::ErevShavuos => Some(4),
+        SpecialDay::Shavuos => Some(5),
+        SpecialDay::SeventeenthOfTammuz => Some(6),
+        SpecialDay::TishahBav => Some(7),
+        SpecialDay::TuBav => Some(8),
+        SpecialDay::ErevRoshHashana => Some(9),
+        SpecialDay::RoshHashana => Some(10),
+        SpecialDay::FastOfGedalyah => Some(11),
+        SpecialDay::ErevYomKippur => Some(12),
+        SpecialDay::YomKippur => Some(13),
+        SpecialDay::ErevSuccos => Some(14),
+        SpecialDay::Succos => Some(15),
+        SpecialDay::CholHamoedSuccos => Some(16),
+        SpecialDay::HoshanaRabbah => Some(17),
+        SpecialDay::SheminiAtzeres => Some(18),
+        SpecialDay::SimchasTorah => Some(19),
+        SpecialDay::Chanukah(_) => Some(21),
+        SpecialDay::TenthOfTeves => Some(22),
+        SpecialDay::TuBshvat => Some(23),
+        SpecialDay::FastOfEsther => Some(24),
+        SpecialDay::Purim => Some(25),
+        SpecialDay::ShushanPurim => Some(26),
+        SpecialDay::PurimKatan => Some(27),
+        SpecialDay::RoshChodesh => None,
+        SpecialDay::YomHaShoah => Some(29),
+        SpecialDay::YomHazikaron => Some(30),
+        SpecialDay::YomHaatzmaut => Some(31),
+        SpecialDay::YomYerushalayim => Some(32),
+        SpecialDay::LagBomer => Some(33),
+        SpecialDay::ShushanPurimKatan => Some(34),
+        SpecialDay::IsruChag => Some(35),
+        SpecialDay::YomKippurKatan => None,
+        SpecialDay::Behab => None,
+        SpecialDay::BirchasHachamah
+        | SpecialDay::MacharHachodesh
+        | SpecialDay::ShabbosMevarchim
+        | SpecialDay::FastOfTheFirstborn
+        | SpecialDay::CountOfTheOmer(_) => None,
+        _ => None,
     }
 }
 

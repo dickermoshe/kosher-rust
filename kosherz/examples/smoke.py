@@ -34,7 +34,7 @@ for zman in [k.Zman.Alos72Minutes, k.Zman.Sunrise, k.Zman.SofZmanShmaGra, k.Zman
 print(len(k.all_zmanim()), "zmanim in the catalog")
 
 date = k.HebrewDate.from_gregorian(k.GregorianDate(2024, 4, 23))
-print(date.display(), [k.holiday_name(h) for h in date.holidays(k.Region.Diaspora)])
+print(date.display(), [k.special_day_name(d) for d in date.special_days(k.Region.Diaspora)])
 print("Daf Yomi:", k.daf_yomi_bavli(date).display)
 
 try:

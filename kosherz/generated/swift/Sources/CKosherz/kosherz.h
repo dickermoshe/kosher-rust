@@ -114,16 +114,18 @@ KOSHERZ_API const kosherz_contract_entry* kosherz_calendar_contract(size_t* out_
 #define KOSHERZ_CALENDAR_CONTRACT { \
     {0x0076e887e475ab9full, 0x96615bd3eb7f1761ull}, /* calendar.HebrewDate.molad */ \
     {0x01344feb6b733690ull, 0x47b992630b03d56aull}, /* calendar.HebrewDate.weekday */ \
+    {0x04722a067e750ac7ull, 0x10c6e1e0af9f20c4ull}, /* calendar.special_day_name */ \
     {0x12decead9d8a44cfull, 0x4b1b3a695325cfcaull}, /* calendar.limudim.LimudimError */ \
     {0x190ecd13c0fccffaull, 0x35e622a32a88ef57ull}, /* calendar.limudim.mishna_yomis */ \
     {0x1c33df579fac36d8ull, 0x1175c871bc023b86ull}, /* calendar.HebrewDate.day_of_year */ \
+    {0x1d2a2cfe983548a6ull, 0x513b06d6c24719e2ull}, /* calendar.special_day_is_fast_day */ \
     {0x235fd1db8b7dd5f5ull, 0x399eab22141dffd3ull}, /* calendar.GregorianDate */ \
     {0x2b066dc65c460024ull, 0xf4f23e6586bd1dd7ull}, /* calendar.HebrewDate */ \
     {0x2c8e60589f58d792ull, 0xa0608634cb2f46cbull}, /* calendar.limudim.Mishna */ \
     {0x2da09ea1403b727eull, 0x4d5e82347ae7a3fcull}, /* calendar.HebrewMonth */ \
     {0x2e1645ba38a77559ull, 0x1c81765c98ab54f9ull}, /* calendar.HebrewDate.parsha */ \
     {0x2e561d4c25bf877dull, 0x47ff51d038dbe0d8ull}, /* calendar.limudim.tehillim_display */ \
-    {0x3a2980b734ba8883ull, 0x2d505394972243a9ull}, /* calendar.HebrewDate.holidays */ \
+    {0x34b343651b1fb8feull, 0x12159035b300983aull}, /* calendar.special_day_is_modern */ \
     {0x3a3316910057484eull, 0xd86a18c3b722f6c7ull}, /* calendar.limudim.tehillim_monthly */ \
     {0x3c8950ed1f7f370cull, 0x19e0d2b3ff9d26feull}, /* calendar.HebrewDate.day */ \
     {0x422860078e596223ull, 0x32c85d18778b0bb4ull}, /* calendar.HebrewDate.equals */ \
@@ -136,28 +138,25 @@ KOSHERZ_API const kosherz_contract_entry* kosherz_calendar_contract(size_t* out_
     {0x53798234777e19eaull, 0x6c389ed6ad08dbe3ull}, /* calendar.rosh_hashana */ \
     {0x58fc9af210a33bddull, 0xc3e1903a4dc8359dull}, /* calendar.HebrewDate.is_aseres_yemei_teshuva */ \
     {0x5c2a6a6f333ead35ull, 0x74c7180edff5c022ull}, /* calendar.HebrewDate.from_gregorian */ \
-    {0x5d5d66098ee06c49ull, 0x8a4e9ca163a6a190ull}, /* calendar.Holiday */ \
+    {0x6089a64539b542a8ull, 0x404904f4331718c5ull}, /* calendar.SpecialDay */ \
     {0x65535c1ad3d9f893ull, 0x55884ddb65b50739ull}, /* calendar.HebrewDate.has_candle_lighting */ \
     {0x6a0735856dec8d1aull, 0xdc1addb4a7ab46efull}, /* calendar.parsha_name */ \
-    {0x6d120a34fc12b94eull, 0x2444827e369b819bull}, /* calendar.holiday_is_assur_bemelacha */ \
     {0x734de195723c4becull, 0xc7f3965b813050f5ull}, /* calendar.HebrewDate.display */ \
     {0x753c68bed189444bull, 0x8111a6d476ecf648ull}, /* calendar.Region */ \
     {0x78416ddbbcc55dd6ull, 0x6c9e0901963a2dfcull}, /* calendar.limudim.tractate_hebrew */ \
-    {0x7b66ec4056f4dcbcull, 0xe848ea2454d6e4c1ull}, /* calendar.holiday_is_fast_day */ \
     {0x7ed52a27f9477122ull, 0x6e401597e28209a9ull}, /* calendar.limudim.MishnaPair */ \
     {0x82b460a35e9ba56aull, 0x18c3086aa662d366ull}, /* calendar.limudim.amud_yomi_dirshu */ \
     {0x854dedb50653c50full, 0x914508f7681ccd43ull}, /* calendar.HebrewDate.next_parsha */ \
-    {0x8f180424826294a4ull, 0xa976cce390a71369ull}, /* calendar.holiday_is_modern */ \
+    {0x9006c018e9f8aed8ull, 0x8b43089a0dda99f4ull}, /* calendar.special_day_is_assur_bemelacha */ \
     {0x924fdf3d84514e8eull, 0xd6c2f5c20a8b129dull}, /* calendar.limudim.TehillimUnit */ \
     {0x93ceba93a2b10131ull, 0xc7b188714edbf795ull}, /* calendar.HebrewDate.special_parsha */ \
-    {0x94dc4cc8ea8c02c9ull, 0x51105a7bb4b55bddull}, /* calendar.holiday_name */ \
     {0x98cc81d52e65776bull, 0x2bf1569214921669ull}, /* calendar.month_hebrew */ \
     {0x9b48ba34fb52812dull, 0xff11e092dce92ed7ull}, /* calendar.limudim.Side */ \
     {0x9e20ba757aee97c2ull, 0x9328a81ac256b477ull}, /* calendar.parsha_hebrew */ \
+    {0xa06798705423bcc5ull, 0xba204574299d85b2ull}, /* calendar.HebrewDate.special_days */ \
     {0xa1e3409cebf37881ull, 0xfeebfaab6c533e17ull}, /* calendar.limudim.Daf */ \
     {0xa5864219850af272ull, 0xf8a4981ca376ff28ull}, /* calendar.HebrewDate.is_assur_bemelacha */ \
     {0xaeb433ce589b7931ull, 0x364d4d0b6a770631ull}, /* calendar.limudim.Amud */ \
-    {0xaf5dd6acc2e8ba71ull, 0xa2fdd5f43f90f755ull}, /* calendar.holiday_hebrew */ \
     {0xbd8865ae2177f9ffull, 0x6bc5f7eea096d080ull}, /* calendar.year_info */ \
     {0xc3fd51b677226babull, 0x684e92fa36717939ull}, /* calendar.month_name */ \
     {0xc47f6755efcc97f2ull, 0xb882de90a2c3493full}, /* calendar.YearLength */ \
@@ -165,10 +164,11 @@ KOSHERZ_API const kosherz_contract_entry* kosherz_calendar_contract(size_t* out_
     {0xd099b5b97c1dddb6ull, 0x7321133365af2acbull}, /* calendar.YearInfo */ \
     {0xd542917e9468e665ull, 0xc29b76894e14326cull}, /* calendar.HebrewDate.compare */ \
     {0xe055421dad70d98dull, 0xc2712588daaabbafull}, /* calendar.limudim.pirkei_avos_display */ \
+    {0xe48d4a72f047f917ull, 0x2c39a2ab4fa38524ull}, /* calendar.special_day_hebrew */ \
     {0xe5bd2ded003a830aull, 0x21bf463baf36e8aeull}, /* calendar.limudim.daf_hashavua_bavli */ \
     {0xe5f7bcecee7a3148ull, 0xf9b3a1fb63fa80adull}, /* calendar.HebrewDate.new */ \
     {0xea80ab8c284067d9ull, 0x96b30eb7f85eaf21ull}, /* calendar.limudim.daf_yomi_bavli */ \
-    {0xeb41af932363bd25ull, 0xc681430e19f4d7b1ull}, /* calendar.CalendarError */ \
+    {0xeb41af932363bd25ull, 0xc2d1a611bc5da8c6ull}, /* calendar.CalendarError */ \
     {0xeb6a6e150a6abbe0ull, 0xf5d8629c4bfb2f06ull}, /* calendar.limudim.Tractate */ \
     {0xee029887d9af6ef8ull, 0x54411bdda9d3b13bull}, /* calendar.HebrewDate.month */ \
     {0xefe1cb89cb8314f3ull, 0x03b0248b8cfa2de8ull}, /* calendar.days_in_month */ \
@@ -199,7 +199,7 @@ static inline uint64_t kosherz_calendar_contract_check(void) {
    checks each entry it was generated with against it once, before any
    other call (producer entries it doesn't know are fine). */
 KOSHERZ_API const kosherz_contract_entry* kosherz_times_contract(size_t* out_len);
-#define KOSHERZ_TIMES_CONTRACT_LEN 47
+#define KOSHERZ_TIMES_CONTRACT_LEN 46
 #define KOSHERZ_TIMES_CONTRACT { \
     {0x01ce427485afb43aull, 0x017ce9984014d3c1ull}, /* times.ZmanTime */ \
     {0x0643c19407762211ull, 0x11babf7c30a11935ull}, /* times.myzmanim.dip_degrees_per_root_meter */ \
@@ -215,7 +215,6 @@ KOSHERZ_API const kosherz_contract_entry* kosherz_times_contract(size_t* out_len
     {0x38596a351e356743ull, 0x685412d4d80250eaull}, /* times.Config */ \
     {0x39389f0e68d3cc22ull, 0x4af5df9a96d3f535ull}, /* times.myzmanim.MyZmanim.proportional_hour_gra */ \
     {0x3c92cd49c8b4515bull, 0x5962ffa89080c41bull}, /* times.shaah_zmanis */ \
-    {0x4048d3ca4b000831ull, 0xdf4697e13848d687ull}, /* times.zman_from_java_name */ \
     {0x44a0809dedbd4a4dull, 0x9169cc1ef07d2488ull}, /* times.ZmanimError */ \
     {0x4d259836d7137c43ull, 0x0486761191984fd0ull}, /* times.Zman */ \
     {0x57d7a9c5a715b9faull, 0x7110b3413cfd8e83ull}, /* times.Location */ \
@@ -496,96 +495,96 @@ typedef enum {
  */
 typedef enum {
     /** Erev Pesach, 14 Nisan. */
-    kosherz_calendar_Holiday_ErevPesach = 0,
+    kosherz_calendar_SpecialDay_ErevPesach = 0,
     /** Pesach. */
-    kosherz_calendar_Holiday_Pesach = 1,
+    kosherz_calendar_SpecialDay_Pesach = 1,
     /** Chol Hamoed Pesach. */
-    kosherz_calendar_Holiday_CholHamoedPesach = 2,
+    kosherz_calendar_SpecialDay_CholHamoedPesach = 2,
     /** Pesach Sheni, 14 Iyar. */
-    kosherz_calendar_Holiday_PesachSheni = 3,
+    kosherz_calendar_SpecialDay_PesachSheni = 3,
     /** Erev Shavuos, 5 Sivan. */
-    kosherz_calendar_Holiday_ErevShavuos = 4,
+    kosherz_calendar_SpecialDay_ErevShavuos = 4,
     /** Shavuos. */
-    kosherz_calendar_Holiday_Shavuos = 5,
+    kosherz_calendar_SpecialDay_Shavuos = 5,
     /** The fast of 17 Tammuz. */
-    kosherz_calendar_Holiday_SeventeenthOfTammuz = 6,
+    kosherz_calendar_SpecialDay_SeventeenthOfTammuz = 6,
     /** Tishah B'Av. */
-    kosherz_calendar_Holiday_TishahBav = 7,
+    kosherz_calendar_SpecialDay_TishahBav = 7,
     /** Tu B'Av, 15 Av. */
-    kosherz_calendar_Holiday_TuBav = 8,
+    kosherz_calendar_SpecialDay_TuBav = 8,
     /** Erev Rosh Hashana, 29 Elul. */
-    kosherz_calendar_Holiday_ErevRoshHashana = 9,
+    kosherz_calendar_SpecialDay_ErevRoshHashana = 9,
     /** Rosh Hashana. */
-    kosherz_calendar_Holiday_RoshHashana = 10,
+    kosherz_calendar_SpecialDay_RoshHashana = 10,
     /** The Fast of Gedalyah. */
-    kosherz_calendar_Holiday_FastOfGedalyah = 11,
+    kosherz_calendar_SpecialDay_FastOfGedalyah = 11,
     /** Erev Yom Kippur, 9 Tishrei. */
-    kosherz_calendar_Holiday_ErevYomKippur = 12,
+    kosherz_calendar_SpecialDay_ErevYomKippur = 12,
     /** Yom Kippur, 10 Tishrei. */
-    kosherz_calendar_Holiday_YomKippur = 13,
+    kosherz_calendar_SpecialDay_YomKippur = 13,
     /** Erev Succos, 14 Tishrei. */
-    kosherz_calendar_Holiday_ErevSuccos = 14,
+    kosherz_calendar_SpecialDay_ErevSuccos = 14,
     /** Succos. */
-    kosherz_calendar_Holiday_Succos = 15,
+    kosherz_calendar_SpecialDay_Succos = 15,
     /** Chol Hamoed Succos. */
-    kosherz_calendar_Holiday_CholHamoedSuccos = 16,
+    kosherz_calendar_SpecialDay_CholHamoedSuccos = 16,
     /** Hoshana Rabbah, 21 Tishrei. */
-    kosherz_calendar_Holiday_HoshanaRabbah = 17,
+    kosherz_calendar_SpecialDay_HoshanaRabbah = 17,
     /** Shemini Atzeres. */
-    kosherz_calendar_Holiday_SheminiAtzeres = 18,
+    kosherz_calendar_SpecialDay_SheminiAtzeres = 18,
     /** Simchas Torah. */
-    kosherz_calendar_Holiday_SimchasTorah = 19,
+    kosherz_calendar_SpecialDay_SimchasTorah = 19,
     /** Chanukah. */
-    kosherz_calendar_Holiday_Chanukah = 20,
+    kosherz_calendar_SpecialDay_Chanukah = 20,
     /** The fast of 10 Teves. */
-    kosherz_calendar_Holiday_TenthOfTeves = 21,
+    kosherz_calendar_SpecialDay_TenthOfTeves = 21,
     /** Tu B'Shvat, 15 Shevat. */
-    kosherz_calendar_Holiday_TuBshvat = 22,
+    kosherz_calendar_SpecialDay_TuBshvat = 22,
     /** The Fast of Esther. */
-    kosherz_calendar_Holiday_FastOfEsther = 23,
+    kosherz_calendar_SpecialDay_FastOfEsther = 23,
     /** Purim. */
-    kosherz_calendar_Holiday_Purim = 24,
+    kosherz_calendar_SpecialDay_Purim = 24,
     /** Shushan Purim. */
-    kosherz_calendar_Holiday_ShushanPurim = 25,
+    kosherz_calendar_SpecialDay_ShushanPurim = 25,
     /** Purim Katan, 14 Adar I. */
-    kosherz_calendar_Holiday_PurimKatan = 26,
+    kosherz_calendar_SpecialDay_PurimKatan = 26,
     /** Rosh Chodesh. */
-    kosherz_calendar_Holiday_RoshChodesh = 27,
+    kosherz_calendar_SpecialDay_RoshChodesh = 27,
     /** Yom HaShoah. */
-    kosherz_calendar_Holiday_YomHaShoah = 28,
+    kosherz_calendar_SpecialDay_YomHaShoah = 28,
     /** Yom Hazikaron. */
-    kosherz_calendar_Holiday_YomHazikaron = 29,
+    kosherz_calendar_SpecialDay_YomHazikaron = 29,
     /** Yom Ha'atzmaut. */
-    kosherz_calendar_Holiday_YomHaatzmaut = 30,
+    kosherz_calendar_SpecialDay_YomHaatzmaut = 30,
     /** Yom Yerushalayim. */
-    kosherz_calendar_Holiday_YomYerushalayim = 31,
+    kosherz_calendar_SpecialDay_YomYerushalayim = 31,
     /** Lag B'Omer, 18 Iyar. */
-    kosherz_calendar_Holiday_LagBomer = 32,
+    kosherz_calendar_SpecialDay_LagBomer = 32,
     /** Shushan Purim Katan, 15 Adar I. */
-    kosherz_calendar_Holiday_ShushanPurimKatan = 33,
+    kosherz_calendar_SpecialDay_ShushanPurimKatan = 33,
     /** Isru Chag, the day after a festival. */
-    kosherz_calendar_Holiday_IsruChag = 34,
+    kosherz_calendar_SpecialDay_IsruChag = 34,
     /** Yom Kippur Katan, the eve of Rosh Chodesh. */
-    kosherz_calendar_Holiday_YomKippurKatan = 35,
+    kosherz_calendar_SpecialDay_YomKippurKatan = 35,
     /** Behab, the Monday-Thursday-Monday fasts after Pesach and Succos. */
-    kosherz_calendar_Holiday_Behab = 36,
+    kosherz_calendar_SpecialDay_Behab = 36,
     /** The Fast of the Firstborn. */
-    kosherz_calendar_Holiday_FastOfTheFirstborn = 37,
+    kosherz_calendar_SpecialDay_FastOfTheFirstborn = 37,
     /** The Omer count. */
-    kosherz_calendar_Holiday_CountOfTheOmer = 38,
+    kosherz_calendar_SpecialDay_CountOfTheOmer = 38,
     /** Birchas Hachamah, every 28 years. */
-    kosherz_calendar_Holiday_BirchasHachamah = 39,
+    kosherz_calendar_SpecialDay_BirchasHachamah = 39,
     /** Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh. */
-    kosherz_calendar_Holiday_MacharHachodesh = 40,
+    kosherz_calendar_SpecialDay_MacharHachodesh = 40,
     /** Shabbos Mevarchim, the Shabbos when the coming month is announced. */
-    kosherz_calendar_Holiday_ShabbosMevarchim = 41
-} kosherz_calendar_Holiday_Tag;
+    kosherz_calendar_SpecialDay_ShabbosMevarchim = 41
+} kosherz_calendar_SpecialDay_Tag;
 /** Error codes reported by throwing functions in the `calendar` module tree. */
 typedef enum {
     /** The date does not exist, or is outside Hebrew years 1 to 9999. */
     kosherz_calendar_CalendarError_InvalidDate = 1,
     /** A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49. */
-    kosherz_calendar_CalendarError_InvalidHoliday = 2
+    kosherz_calendar_CalendarError_InvalidSpecialDay = 2
 } kosherz_calendar_CalendarError;
 /** A tractate of the Mishnah and Talmud, in the order of the Mishnah. */
 typedef enum {
@@ -1479,7 +1478,7 @@ KOSHERZ_API const uint8_t* kosherz_calendar_HebrewDate_to_gregorian(const kosher
  */
 KOSHERZ_API kosherz_calendar_HebrewDate* kosherz_calendar_HebrewDate_add_days(const kosherz_calendar_HebrewDate* self, int32_t days, kosherz_error* out_err);
 /** The holidays, fasts and other marked days on this day. */
-KOSHERZ_API const uint8_t* kosherz_calendar_HebrewDate_holidays(const kosherz_calendar_HebrewDate* self, kosherz_calendar_Region region, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_calendar_HebrewDate_special_days(const kosherz_calendar_HebrewDate* self, kosherz_calendar_Region region, size_t* out_len, kosherz_error* out_err);
 /** Whether melacha is forbidden: Shabbos or Yom Tov. */
 KOSHERZ_API bool kosherz_calendar_HebrewDate_is_assur_bemelacha(const kosherz_calendar_HebrewDate* self, kosherz_calendar_Region region, kosherz_error* out_err);
 /** Whether candles are lit tonight for Shabbos or Yom Tov. */
@@ -1527,50 +1526,50 @@ KOSHERZ_API const uint8_t* kosherz_calendar_days_in_month(int32_t year, kosherz_
  */
 KOSHERZ_API kosherz_calendar_HebrewDate* kosherz_calendar_rosh_hashana(int32_t year, kosherz_error* out_err);
 /**
- * The holiday's English name, for example "Chanukah".
+ * The day's English name, for example "Chanukah".
  *
  * # Errors
  *
- * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
  * outside 1 to 49.
  */
-KOSHERZ_API const uint8_t* kosherz_calendar_holiday_name(const uint8_t* holiday_ptr, size_t holiday_len, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_calendar_special_day_name(const uint8_t* special_day_ptr, size_t special_day_len, size_t* out_len, kosherz_error* out_err);
 /**
- * The holiday's Hebrew name.
+ * The day's Hebrew name.
  *
  * # Errors
  *
- * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
  * outside 1 to 49.
  */
-KOSHERZ_API const uint8_t* kosherz_calendar_holiday_hebrew(const uint8_t* holiday_ptr, size_t holiday_len, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_calendar_special_day_hebrew(const uint8_t* special_day_ptr, size_t special_day_len, size_t* out_len, kosherz_error* out_err);
 /**
  * Whether melacha is forbidden on the holiday.
  *
  * # Errors
  *
- * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
  * outside 1 to 49.
  */
-KOSHERZ_API bool kosherz_calendar_holiday_is_assur_bemelacha(const uint8_t* holiday_ptr, size_t holiday_len, kosherz_error* out_err);
+KOSHERZ_API bool kosherz_calendar_special_day_is_assur_bemelacha(const uint8_t* special_day_ptr, size_t special_day_len, kosherz_error* out_err);
 /**
  * Whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
  *
  * # Errors
  *
- * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
  * outside 1 to 49.
  */
-KOSHERZ_API bool kosherz_calendar_holiday_is_modern(const uint8_t* holiday_ptr, size_t holiday_len, kosherz_error* out_err);
+KOSHERZ_API bool kosherz_calendar_special_day_is_modern(const uint8_t* special_day_ptr, size_t special_day_len, kosherz_error* out_err);
 /**
  * Whether the holiday is a fast day.
  *
  * # Errors
  *
- * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
  * outside 1 to 49.
  */
-KOSHERZ_API bool kosherz_calendar_holiday_is_fast_day(const uint8_t* holiday_ptr, size_t holiday_len, kosherz_error* out_err);
+KOSHERZ_API bool kosherz_calendar_special_day_is_fast_day(const uint8_t* special_day_ptr, size_t special_day_len, kosherz_error* out_err);
 /** The portion's English name, for example "Lech Lecha". */
 KOSHERZ_API const uint8_t* kosherz_calendar_parsha_name(kosherz_calendar_Parsha parsha, size_t* out_len, kosherz_error* out_err);
 /** The portion's Hebrew name. */
@@ -1699,8 +1698,6 @@ KOSHERZ_API const uint8_t* kosherz_times_all_zmanim(size_t* out_len, kosherz_err
 KOSHERZ_API const uint8_t* kosherz_times_zman_name(kosherz_times_Zman zman, size_t* out_len, kosherz_error* out_err);
 /** The KosherJava method that calculates the zman, for example "getSofZmanShmaGRA". */
 KOSHERZ_API const uint8_t* kosherz_times_zman_java_name(kosherz_times_Zman zman, size_t* out_len, kosherz_error* out_err);
-/** The zman named by its KosherJava method, for example "getSofZmanShmaGRA". */
-KOSHERZ_API const uint8_t* kosherz_times_zman_from_java_name(const uint8_t* java_name_ptr, size_t java_name_len, size_t* out_len, kosherz_error* out_err);
 /** What kind of time the zman is. */
 KOSHERZ_API kosherz_times_Category kosherz_times_zman_category(kosherz_times_Zman zman, kosherz_error* out_err);
 /** Whether KosherJava deprecates the zman. */

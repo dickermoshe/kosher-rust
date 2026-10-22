@@ -6,8 +6,9 @@
 //! `// END GENERATED: <name>` markers. The test fails when a region is out of date; run
 //! `UPDATE_GENERATED=1 cargo test -p kosher-rust-bindings codegen` to rewrite them.
 //!
-//! The conversions are exhaustive matches both ways, so a variant added to kosher-rust without
-//! regenerating fails to compile rather than going missing.
+//! kosher-rust's enums are `#[non_exhaustive]`, so the conversion from kosher-rust is a `TryFrom`
+//! that fails for a variant the bindings don't have yet. This test fails until they are
+//! regenerated.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -121,25 +122,38 @@ fn render_enum(name: &str, indent: &str, doc: &[&str], variants: &[Variant]) -> 
     out
 }
 
-/// `From` both ways between the binding enum (`ours`, a path under `crate::api::kosher`) and
-/// kosher-rust's (`theirs`).
+/// `From` the binding enum (`ours`, a path under `crate::api`) to kosher-rust's (`theirs`), and
+/// `TryFrom` back, which fails for a variant the bindings don't have.
 fn render_conversions(ours: &str, theirs: &str, variants: &[Variant]) -> String {
     let mut out = String::new();
     let ours = format!("crate::api::{ours}");
-    for (from_path, to_path) in [(ours.as_str(), theirs), (theirs, ours.as_str())] {
-        writeln!(out, "#[allow(deprecated)]").unwrap();
-        writeln!(out, "#[rustfmt::skip]").unwrap();
-        writeln!(out, "impl From<{from_path}> for {to_path} {{").unwrap();
-        writeln!(out, "    fn from(value: {from_path}) -> Self {{").unwrap();
-        writeln!(out, "        use {from_path} as F;").unwrap();
-        writeln!(out, "        match value {{").unwrap();
-        for variant in variants {
-            writeln!(out, "            F::{0} => Self::{0},", variant.ident).unwrap();
-        }
-        writeln!(out, "        }}").unwrap();
-        writeln!(out, "    }}").unwrap();
-        writeln!(out, "}}").unwrap();
+    writeln!(out, "#[allow(deprecated)]").unwrap();
+    writeln!(out, "#[rustfmt::skip]").unwrap();
+    writeln!(out, "impl From<{ours}> for {theirs} {{").unwrap();
+    writeln!(out, "    fn from(value: {ours}) -> Self {{").unwrap();
+    writeln!(out, "        use {ours} as F;").unwrap();
+    writeln!(out, "        match value {{").unwrap();
+    for variant in variants {
+        writeln!(out, "            F::{0} => Self::{0},", variant.ident).unwrap();
     }
+    writeln!(out, "        }}").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
+    writeln!(out, "#[allow(deprecated)]").unwrap();
+    writeln!(out, "#[rustfmt::skip]").unwrap();
+    writeln!(out, "impl TryFrom<{theirs}> for {ours} {{").unwrap();
+    writeln!(out, "    type Error = ();").unwrap();
+    writeln!(out).unwrap();
+    writeln!(out, "    fn try_from(value: {theirs}) -> Result<Self, ()> {{").unwrap();
+    writeln!(out, "        use {theirs} as F;").unwrap();
+    writeln!(out, "        Ok(match value {{").unwrap();
+    for variant in variants {
+        writeln!(out, "            F::{0} => Self::{0},", variant.ident).unwrap();
+    }
+    writeln!(out, "            _ => return Err(()),").unwrap();
+    writeln!(out, "        }})").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
     out
 }
 

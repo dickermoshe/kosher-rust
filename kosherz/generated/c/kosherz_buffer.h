@@ -364,7 +364,7 @@ static inline void* kosherz_reader_get_object(kosherz_reader* r) {
 
 typedef struct kosherz_calendar_GregorianDate kosherz_calendar_GregorianDate;
 typedef struct kosherz_calendar_YearInfo kosherz_calendar_YearInfo;
-typedef struct kosherz_calendar_Holiday kosherz_calendar_Holiday;
+typedef struct kosherz_calendar_SpecialDay kosherz_calendar_SpecialDay;
 typedef struct kosherz_calendar_limudim_Daf kosherz_calendar_limudim_Daf;
 typedef struct kosherz_calendar_limudim_Amud kosherz_calendar_limudim_Amud;
 typedef struct kosherz_calendar_limudim_Mishna kosherz_calendar_limudim_Mishna;
@@ -376,7 +376,7 @@ typedef struct kosherz_times_Config kosherz_times_Config;
 typedef struct kosherz_times_ZmanTime kosherz_times_ZmanTime;
 typedef struct kosherz_times_myzmanim_MyZmanTime kosherz_times_myzmanim_MyZmanTime;
 typedef struct kosherz_list_calendar_HebrewMonth kosherz_list_calendar_HebrewMonth;
-typedef struct kosherz_list_calendar_Holiday kosherz_list_calendar_Holiday;
+typedef struct kosherz_list_calendar_SpecialDay kosherz_list_calendar_SpecialDay;
 typedef struct kosherz_list_times_Zman kosherz_list_times_Zman;
 typedef struct kosherz_list_times_ZmanTime kosherz_list_times_ZmanTime;
 typedef struct kosherz_list_times_myzmanim_MyZman kosherz_list_times_myzmanim_MyZman;
@@ -388,9 +388,9 @@ struct kosherz_list_calendar_HebrewMonth {
     size_t len;
 };
 
-/** `[Holiday]` */
-struct kosherz_list_calendar_Holiday {
-    kosherz_calendar_Holiday* items;
+/** `[SpecialDay]` */
+struct kosherz_list_calendar_SpecialDay {
+    kosherz_calendar_SpecialDay* items;
     size_t len;
 };
 
@@ -451,8 +451,8 @@ struct kosherz_calendar_YearInfo {
  * sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
  * show them.
  */
-struct kosherz_calendar_Holiday {
-    kosherz_calendar_Holiday_Tag tag;
+struct kosherz_calendar_SpecialDay {
+    kosherz_calendar_SpecialDay_Tag tag;
     union {
         /** Chanukah. */
         struct {
@@ -649,10 +649,10 @@ static inline void kosherz_calendar_YearInfo_write(kosherz_writer* w, const kosh
 static inline void kosherz_calendar_YearInfo_read(kosherz_reader* r, kosherz_calendar_YearInfo* out);
 static inline bool kosherz_calendar_YearInfo_decode(const uint8_t* ptr, size_t len, kosherz_calendar_YearInfo* out);
 static inline void kosherz_calendar_YearInfo_free(kosherz_calendar_YearInfo* v);
-static inline void kosherz_calendar_Holiday_write(kosherz_writer* w, const kosherz_calendar_Holiday* v);
-static inline void kosherz_calendar_Holiday_read(kosherz_reader* r, kosherz_calendar_Holiday* out);
-static inline bool kosherz_calendar_Holiday_decode(const uint8_t* ptr, size_t len, kosherz_calendar_Holiday* out);
-static inline void kosherz_calendar_Holiday_free(kosherz_calendar_Holiday* v);
+static inline void kosherz_calendar_SpecialDay_write(kosherz_writer* w, const kosherz_calendar_SpecialDay* v);
+static inline void kosherz_calendar_SpecialDay_read(kosherz_reader* r, kosherz_calendar_SpecialDay* out);
+static inline bool kosherz_calendar_SpecialDay_decode(const uint8_t* ptr, size_t len, kosherz_calendar_SpecialDay* out);
+static inline void kosherz_calendar_SpecialDay_free(kosherz_calendar_SpecialDay* v);
 static inline void kosherz_calendar_limudim_Daf_write(kosherz_writer* w, const kosherz_calendar_limudim_Daf* v);
 static inline void kosherz_calendar_limudim_Daf_read(kosherz_reader* r, kosherz_calendar_limudim_Daf* out);
 static inline bool kosherz_calendar_limudim_Daf_decode(const uint8_t* ptr, size_t len, kosherz_calendar_limudim_Daf* out);
@@ -713,10 +713,10 @@ static inline void kosherz_opt_calendar_GregorianDate_write(kosherz_writer* w, c
 static inline void kosherz_opt_calendar_GregorianDate_read(kosherz_reader* r, kosherz_calendar_GregorianDate** out);
 static inline bool kosherz_opt_calendar_GregorianDate_decode(const uint8_t* ptr, size_t len, kosherz_calendar_GregorianDate** out);
 static inline void kosherz_opt_calendar_GregorianDate_free(kosherz_calendar_GregorianDate** v);
-static inline void kosherz_list_calendar_Holiday_write(kosherz_writer* w, const kosherz_list_calendar_Holiday* v);
-static inline void kosherz_list_calendar_Holiday_read(kosherz_reader* r, kosherz_list_calendar_Holiday* out);
-static inline bool kosherz_list_calendar_Holiday_decode(const uint8_t* ptr, size_t len, kosherz_list_calendar_Holiday* out);
-static inline void kosherz_list_calendar_Holiday_free(kosherz_list_calendar_Holiday* v);
+static inline void kosherz_list_calendar_SpecialDay_write(kosherz_writer* w, const kosherz_list_calendar_SpecialDay* v);
+static inline void kosherz_list_calendar_SpecialDay_read(kosherz_reader* r, kosherz_list_calendar_SpecialDay* out);
+static inline bool kosherz_list_calendar_SpecialDay_decode(const uint8_t* ptr, size_t len, kosherz_list_calendar_SpecialDay* out);
+static inline void kosherz_list_calendar_SpecialDay_free(kosherz_list_calendar_SpecialDay* v);
 static inline void kosherz_opt_calendar_Parsha_write(kosherz_writer* w, const kosherz_calendar_Parsha* v);
 static inline void kosherz_opt_calendar_Parsha_read(kosherz_reader* r, kosherz_calendar_Parsha** out);
 static inline bool kosherz_opt_calendar_Parsha_decode(const uint8_t* ptr, size_t len, kosherz_calendar_Parsha** out);
@@ -745,10 +745,6 @@ static inline void kosherz_list_times_Zman_write(kosherz_writer* w, const kosher
 static inline void kosherz_list_times_Zman_read(kosherz_reader* r, kosherz_list_times_Zman* out);
 static inline bool kosherz_list_times_Zman_decode(const uint8_t* ptr, size_t len, kosherz_list_times_Zman* out);
 static inline void kosherz_list_times_Zman_free(kosherz_list_times_Zman* v);
-static inline void kosherz_opt_times_Zman_write(kosherz_writer* w, const kosherz_times_Zman* v);
-static inline void kosherz_opt_times_Zman_read(kosherz_reader* r, kosherz_times_Zman** out);
-static inline bool kosherz_opt_times_Zman_decode(const uint8_t* ptr, size_t len, kosherz_times_Zman** out);
-static inline void kosherz_opt_times_Zman_free(kosherz_times_Zman** v);
 static inline void kosherz_list_times_ZmanTime_write(kosherz_writer* w, const kosherz_list_times_ZmanTime* v);
 static inline void kosherz_list_times_ZmanTime_read(kosherz_reader* r, kosherz_list_times_ZmanTime* out);
 static inline bool kosherz_list_times_ZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_list_times_ZmanTime* out);
@@ -825,94 +821,94 @@ static inline void kosherz_calendar_YearInfo_free(kosherz_calendar_YearInfo* v) 
     memset(v, 0, sizeof *v);
 }
 
-static inline void kosherz_calendar_Holiday_write(kosherz_writer* w, const kosherz_calendar_Holiday* v) {
+static inline void kosherz_calendar_SpecialDay_write(kosherz_writer* w, const kosherz_calendar_SpecialDay* v) {
     kosherz_writer_put_i32(w, (int32_t)v->tag);
     switch (v->tag) {
-    case kosherz_calendar_Holiday_ErevPesach:
+    case kosherz_calendar_SpecialDay_ErevPesach:
         break;
-    case kosherz_calendar_Holiday_Pesach:
+    case kosherz_calendar_SpecialDay_Pesach:
         break;
-    case kosherz_calendar_Holiday_CholHamoedPesach:
+    case kosherz_calendar_SpecialDay_CholHamoedPesach:
         break;
-    case kosherz_calendar_Holiday_PesachSheni:
+    case kosherz_calendar_SpecialDay_PesachSheni:
         break;
-    case kosherz_calendar_Holiday_ErevShavuos:
+    case kosherz_calendar_SpecialDay_ErevShavuos:
         break;
-    case kosherz_calendar_Holiday_Shavuos:
+    case kosherz_calendar_SpecialDay_Shavuos:
         break;
-    case kosherz_calendar_Holiday_SeventeenthOfTammuz:
+    case kosherz_calendar_SpecialDay_SeventeenthOfTammuz:
         break;
-    case kosherz_calendar_Holiday_TishahBav:
+    case kosherz_calendar_SpecialDay_TishahBav:
         break;
-    case kosherz_calendar_Holiday_TuBav:
+    case kosherz_calendar_SpecialDay_TuBav:
         break;
-    case kosherz_calendar_Holiday_ErevRoshHashana:
+    case kosherz_calendar_SpecialDay_ErevRoshHashana:
         break;
-    case kosherz_calendar_Holiday_RoshHashana:
+    case kosherz_calendar_SpecialDay_RoshHashana:
         break;
-    case kosherz_calendar_Holiday_FastOfGedalyah:
+    case kosherz_calendar_SpecialDay_FastOfGedalyah:
         break;
-    case kosherz_calendar_Holiday_ErevYomKippur:
+    case kosherz_calendar_SpecialDay_ErevYomKippur:
         break;
-    case kosherz_calendar_Holiday_YomKippur:
+    case kosherz_calendar_SpecialDay_YomKippur:
         break;
-    case kosherz_calendar_Holiday_ErevSuccos:
+    case kosherz_calendar_SpecialDay_ErevSuccos:
         break;
-    case kosherz_calendar_Holiday_Succos:
+    case kosherz_calendar_SpecialDay_Succos:
         break;
-    case kosherz_calendar_Holiday_CholHamoedSuccos:
+    case kosherz_calendar_SpecialDay_CholHamoedSuccos:
         break;
-    case kosherz_calendar_Holiday_HoshanaRabbah:
+    case kosherz_calendar_SpecialDay_HoshanaRabbah:
         break;
-    case kosherz_calendar_Holiday_SheminiAtzeres:
+    case kosherz_calendar_SpecialDay_SheminiAtzeres:
         break;
-    case kosherz_calendar_Holiday_SimchasTorah:
+    case kosherz_calendar_SpecialDay_SimchasTorah:
         break;
-    case kosherz_calendar_Holiday_Chanukah:
+    case kosherz_calendar_SpecialDay_Chanukah:
         kosherz_writer_put_i32(w, v->as.Chanukah.day);
         break;
-    case kosherz_calendar_Holiday_TenthOfTeves:
+    case kosherz_calendar_SpecialDay_TenthOfTeves:
         break;
-    case kosherz_calendar_Holiday_TuBshvat:
+    case kosherz_calendar_SpecialDay_TuBshvat:
         break;
-    case kosherz_calendar_Holiday_FastOfEsther:
+    case kosherz_calendar_SpecialDay_FastOfEsther:
         break;
-    case kosherz_calendar_Holiday_Purim:
+    case kosherz_calendar_SpecialDay_Purim:
         break;
-    case kosherz_calendar_Holiday_ShushanPurim:
+    case kosherz_calendar_SpecialDay_ShushanPurim:
         break;
-    case kosherz_calendar_Holiday_PurimKatan:
+    case kosherz_calendar_SpecialDay_PurimKatan:
         break;
-    case kosherz_calendar_Holiday_RoshChodesh:
+    case kosherz_calendar_SpecialDay_RoshChodesh:
         break;
-    case kosherz_calendar_Holiday_YomHaShoah:
+    case kosherz_calendar_SpecialDay_YomHaShoah:
         break;
-    case kosherz_calendar_Holiday_YomHazikaron:
+    case kosherz_calendar_SpecialDay_YomHazikaron:
         break;
-    case kosherz_calendar_Holiday_YomHaatzmaut:
+    case kosherz_calendar_SpecialDay_YomHaatzmaut:
         break;
-    case kosherz_calendar_Holiday_YomYerushalayim:
+    case kosherz_calendar_SpecialDay_YomYerushalayim:
         break;
-    case kosherz_calendar_Holiday_LagBomer:
+    case kosherz_calendar_SpecialDay_LagBomer:
         break;
-    case kosherz_calendar_Holiday_ShushanPurimKatan:
+    case kosherz_calendar_SpecialDay_ShushanPurimKatan:
         break;
-    case kosherz_calendar_Holiday_IsruChag:
+    case kosherz_calendar_SpecialDay_IsruChag:
         break;
-    case kosherz_calendar_Holiday_YomKippurKatan:
+    case kosherz_calendar_SpecialDay_YomKippurKatan:
         break;
-    case kosherz_calendar_Holiday_Behab:
+    case kosherz_calendar_SpecialDay_Behab:
         break;
-    case kosherz_calendar_Holiday_FastOfTheFirstborn:
+    case kosherz_calendar_SpecialDay_FastOfTheFirstborn:
         break;
-    case kosherz_calendar_Holiday_CountOfTheOmer:
+    case kosherz_calendar_SpecialDay_CountOfTheOmer:
         kosherz_writer_put_i32(w, v->as.CountOfTheOmer.day);
         break;
-    case kosherz_calendar_Holiday_BirchasHachamah:
+    case kosherz_calendar_SpecialDay_BirchasHachamah:
         break;
-    case kosherz_calendar_Holiday_MacharHachodesh:
+    case kosherz_calendar_SpecialDay_MacharHachodesh:
         break;
-    case kosherz_calendar_Holiday_ShabbosMevarchim:
+    case kosherz_calendar_SpecialDay_ShabbosMevarchim:
         break;
     default:
         w->failed = true;
@@ -920,137 +916,137 @@ static inline void kosherz_calendar_Holiday_write(kosherz_writer* w, const koshe
     }
 }
 
-static inline void kosherz_calendar_Holiday_read(kosherz_reader* r, kosherz_calendar_Holiday* out) {
+static inline void kosherz_calendar_SpecialDay_read(kosherz_reader* r, kosherz_calendar_SpecialDay* out) {
     memset(out, 0, sizeof *out);
     int32_t tag = kosherz_reader_get_i32(r);
     switch (tag) {
-    case kosherz_calendar_Holiday_ErevPesach:
-        out->tag = kosherz_calendar_Holiday_ErevPesach;
+    case kosherz_calendar_SpecialDay_ErevPesach:
+        out->tag = kosherz_calendar_SpecialDay_ErevPesach;
         break;
-    case kosherz_calendar_Holiday_Pesach:
-        out->tag = kosherz_calendar_Holiday_Pesach;
+    case kosherz_calendar_SpecialDay_Pesach:
+        out->tag = kosherz_calendar_SpecialDay_Pesach;
         break;
-    case kosherz_calendar_Holiday_CholHamoedPesach:
-        out->tag = kosherz_calendar_Holiday_CholHamoedPesach;
+    case kosherz_calendar_SpecialDay_CholHamoedPesach:
+        out->tag = kosherz_calendar_SpecialDay_CholHamoedPesach;
         break;
-    case kosherz_calendar_Holiday_PesachSheni:
-        out->tag = kosherz_calendar_Holiday_PesachSheni;
+    case kosherz_calendar_SpecialDay_PesachSheni:
+        out->tag = kosherz_calendar_SpecialDay_PesachSheni;
         break;
-    case kosherz_calendar_Holiday_ErevShavuos:
-        out->tag = kosherz_calendar_Holiday_ErevShavuos;
+    case kosherz_calendar_SpecialDay_ErevShavuos:
+        out->tag = kosherz_calendar_SpecialDay_ErevShavuos;
         break;
-    case kosherz_calendar_Holiday_Shavuos:
-        out->tag = kosherz_calendar_Holiday_Shavuos;
+    case kosherz_calendar_SpecialDay_Shavuos:
+        out->tag = kosherz_calendar_SpecialDay_Shavuos;
         break;
-    case kosherz_calendar_Holiday_SeventeenthOfTammuz:
-        out->tag = kosherz_calendar_Holiday_SeventeenthOfTammuz;
+    case kosherz_calendar_SpecialDay_SeventeenthOfTammuz:
+        out->tag = kosherz_calendar_SpecialDay_SeventeenthOfTammuz;
         break;
-    case kosherz_calendar_Holiday_TishahBav:
-        out->tag = kosherz_calendar_Holiday_TishahBav;
+    case kosherz_calendar_SpecialDay_TishahBav:
+        out->tag = kosherz_calendar_SpecialDay_TishahBav;
         break;
-    case kosherz_calendar_Holiday_TuBav:
-        out->tag = kosherz_calendar_Holiday_TuBav;
+    case kosherz_calendar_SpecialDay_TuBav:
+        out->tag = kosherz_calendar_SpecialDay_TuBav;
         break;
-    case kosherz_calendar_Holiday_ErevRoshHashana:
-        out->tag = kosherz_calendar_Holiday_ErevRoshHashana;
+    case kosherz_calendar_SpecialDay_ErevRoshHashana:
+        out->tag = kosherz_calendar_SpecialDay_ErevRoshHashana;
         break;
-    case kosherz_calendar_Holiday_RoshHashana:
-        out->tag = kosherz_calendar_Holiday_RoshHashana;
+    case kosherz_calendar_SpecialDay_RoshHashana:
+        out->tag = kosherz_calendar_SpecialDay_RoshHashana;
         break;
-    case kosherz_calendar_Holiday_FastOfGedalyah:
-        out->tag = kosherz_calendar_Holiday_FastOfGedalyah;
+    case kosherz_calendar_SpecialDay_FastOfGedalyah:
+        out->tag = kosherz_calendar_SpecialDay_FastOfGedalyah;
         break;
-    case kosherz_calendar_Holiday_ErevYomKippur:
-        out->tag = kosherz_calendar_Holiday_ErevYomKippur;
+    case kosherz_calendar_SpecialDay_ErevYomKippur:
+        out->tag = kosherz_calendar_SpecialDay_ErevYomKippur;
         break;
-    case kosherz_calendar_Holiday_YomKippur:
-        out->tag = kosherz_calendar_Holiday_YomKippur;
+    case kosherz_calendar_SpecialDay_YomKippur:
+        out->tag = kosherz_calendar_SpecialDay_YomKippur;
         break;
-    case kosherz_calendar_Holiday_ErevSuccos:
-        out->tag = kosherz_calendar_Holiday_ErevSuccos;
+    case kosherz_calendar_SpecialDay_ErevSuccos:
+        out->tag = kosherz_calendar_SpecialDay_ErevSuccos;
         break;
-    case kosherz_calendar_Holiday_Succos:
-        out->tag = kosherz_calendar_Holiday_Succos;
+    case kosherz_calendar_SpecialDay_Succos:
+        out->tag = kosherz_calendar_SpecialDay_Succos;
         break;
-    case kosherz_calendar_Holiday_CholHamoedSuccos:
-        out->tag = kosherz_calendar_Holiday_CholHamoedSuccos;
+    case kosherz_calendar_SpecialDay_CholHamoedSuccos:
+        out->tag = kosherz_calendar_SpecialDay_CholHamoedSuccos;
         break;
-    case kosherz_calendar_Holiday_HoshanaRabbah:
-        out->tag = kosherz_calendar_Holiday_HoshanaRabbah;
+    case kosherz_calendar_SpecialDay_HoshanaRabbah:
+        out->tag = kosherz_calendar_SpecialDay_HoshanaRabbah;
         break;
-    case kosherz_calendar_Holiday_SheminiAtzeres:
-        out->tag = kosherz_calendar_Holiday_SheminiAtzeres;
+    case kosherz_calendar_SpecialDay_SheminiAtzeres:
+        out->tag = kosherz_calendar_SpecialDay_SheminiAtzeres;
         break;
-    case kosherz_calendar_Holiday_SimchasTorah:
-        out->tag = kosherz_calendar_Holiday_SimchasTorah;
+    case kosherz_calendar_SpecialDay_SimchasTorah:
+        out->tag = kosherz_calendar_SpecialDay_SimchasTorah;
         break;
-    case kosherz_calendar_Holiday_Chanukah:
-        out->tag = kosherz_calendar_Holiday_Chanukah;
+    case kosherz_calendar_SpecialDay_Chanukah:
+        out->tag = kosherz_calendar_SpecialDay_Chanukah;
         out->as.Chanukah.day = kosherz_reader_get_i32(r);
         break;
-    case kosherz_calendar_Holiday_TenthOfTeves:
-        out->tag = kosherz_calendar_Holiday_TenthOfTeves;
+    case kosherz_calendar_SpecialDay_TenthOfTeves:
+        out->tag = kosherz_calendar_SpecialDay_TenthOfTeves;
         break;
-    case kosherz_calendar_Holiday_TuBshvat:
-        out->tag = kosherz_calendar_Holiday_TuBshvat;
+    case kosherz_calendar_SpecialDay_TuBshvat:
+        out->tag = kosherz_calendar_SpecialDay_TuBshvat;
         break;
-    case kosherz_calendar_Holiday_FastOfEsther:
-        out->tag = kosherz_calendar_Holiday_FastOfEsther;
+    case kosherz_calendar_SpecialDay_FastOfEsther:
+        out->tag = kosherz_calendar_SpecialDay_FastOfEsther;
         break;
-    case kosherz_calendar_Holiday_Purim:
-        out->tag = kosherz_calendar_Holiday_Purim;
+    case kosherz_calendar_SpecialDay_Purim:
+        out->tag = kosherz_calendar_SpecialDay_Purim;
         break;
-    case kosherz_calendar_Holiday_ShushanPurim:
-        out->tag = kosherz_calendar_Holiday_ShushanPurim;
+    case kosherz_calendar_SpecialDay_ShushanPurim:
+        out->tag = kosherz_calendar_SpecialDay_ShushanPurim;
         break;
-    case kosherz_calendar_Holiday_PurimKatan:
-        out->tag = kosherz_calendar_Holiday_PurimKatan;
+    case kosherz_calendar_SpecialDay_PurimKatan:
+        out->tag = kosherz_calendar_SpecialDay_PurimKatan;
         break;
-    case kosherz_calendar_Holiday_RoshChodesh:
-        out->tag = kosherz_calendar_Holiday_RoshChodesh;
+    case kosherz_calendar_SpecialDay_RoshChodesh:
+        out->tag = kosherz_calendar_SpecialDay_RoshChodesh;
         break;
-    case kosherz_calendar_Holiday_YomHaShoah:
-        out->tag = kosherz_calendar_Holiday_YomHaShoah;
+    case kosherz_calendar_SpecialDay_YomHaShoah:
+        out->tag = kosherz_calendar_SpecialDay_YomHaShoah;
         break;
-    case kosherz_calendar_Holiday_YomHazikaron:
-        out->tag = kosherz_calendar_Holiday_YomHazikaron;
+    case kosherz_calendar_SpecialDay_YomHazikaron:
+        out->tag = kosherz_calendar_SpecialDay_YomHazikaron;
         break;
-    case kosherz_calendar_Holiday_YomHaatzmaut:
-        out->tag = kosherz_calendar_Holiday_YomHaatzmaut;
+    case kosherz_calendar_SpecialDay_YomHaatzmaut:
+        out->tag = kosherz_calendar_SpecialDay_YomHaatzmaut;
         break;
-    case kosherz_calendar_Holiday_YomYerushalayim:
-        out->tag = kosherz_calendar_Holiday_YomYerushalayim;
+    case kosherz_calendar_SpecialDay_YomYerushalayim:
+        out->tag = kosherz_calendar_SpecialDay_YomYerushalayim;
         break;
-    case kosherz_calendar_Holiday_LagBomer:
-        out->tag = kosherz_calendar_Holiday_LagBomer;
+    case kosherz_calendar_SpecialDay_LagBomer:
+        out->tag = kosherz_calendar_SpecialDay_LagBomer;
         break;
-    case kosherz_calendar_Holiday_ShushanPurimKatan:
-        out->tag = kosherz_calendar_Holiday_ShushanPurimKatan;
+    case kosherz_calendar_SpecialDay_ShushanPurimKatan:
+        out->tag = kosherz_calendar_SpecialDay_ShushanPurimKatan;
         break;
-    case kosherz_calendar_Holiday_IsruChag:
-        out->tag = kosherz_calendar_Holiday_IsruChag;
+    case kosherz_calendar_SpecialDay_IsruChag:
+        out->tag = kosherz_calendar_SpecialDay_IsruChag;
         break;
-    case kosherz_calendar_Holiday_YomKippurKatan:
-        out->tag = kosherz_calendar_Holiday_YomKippurKatan;
+    case kosherz_calendar_SpecialDay_YomKippurKatan:
+        out->tag = kosherz_calendar_SpecialDay_YomKippurKatan;
         break;
-    case kosherz_calendar_Holiday_Behab:
-        out->tag = kosherz_calendar_Holiday_Behab;
+    case kosherz_calendar_SpecialDay_Behab:
+        out->tag = kosherz_calendar_SpecialDay_Behab;
         break;
-    case kosherz_calendar_Holiday_FastOfTheFirstborn:
-        out->tag = kosherz_calendar_Holiday_FastOfTheFirstborn;
+    case kosherz_calendar_SpecialDay_FastOfTheFirstborn:
+        out->tag = kosherz_calendar_SpecialDay_FastOfTheFirstborn;
         break;
-    case kosherz_calendar_Holiday_CountOfTheOmer:
-        out->tag = kosherz_calendar_Holiday_CountOfTheOmer;
+    case kosherz_calendar_SpecialDay_CountOfTheOmer:
+        out->tag = kosherz_calendar_SpecialDay_CountOfTheOmer;
         out->as.CountOfTheOmer.day = kosherz_reader_get_i32(r);
         break;
-    case kosherz_calendar_Holiday_BirchasHachamah:
-        out->tag = kosherz_calendar_Holiday_BirchasHachamah;
+    case kosherz_calendar_SpecialDay_BirchasHachamah:
+        out->tag = kosherz_calendar_SpecialDay_BirchasHachamah;
         break;
-    case kosherz_calendar_Holiday_MacharHachodesh:
-        out->tag = kosherz_calendar_Holiday_MacharHachodesh;
+    case kosherz_calendar_SpecialDay_MacharHachodesh:
+        out->tag = kosherz_calendar_SpecialDay_MacharHachodesh;
         break;
-    case kosherz_calendar_Holiday_ShabbosMevarchim:
-        out->tag = kosherz_calendar_Holiday_ShabbosMevarchim;
+    case kosherz_calendar_SpecialDay_ShabbosMevarchim:
+        out->tag = kosherz_calendar_SpecialDay_ShabbosMevarchim;
         break;
     default:
         r->failed = true;
@@ -1058,17 +1054,17 @@ static inline void kosherz_calendar_Holiday_read(kosherz_reader* r, kosherz_cale
     }
 }
 
-static inline bool kosherz_calendar_Holiday_decode(const uint8_t* ptr, size_t len, kosherz_calendar_Holiday* out) {
+static inline bool kosherz_calendar_SpecialDay_decode(const uint8_t* ptr, size_t len, kosherz_calendar_SpecialDay* out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_calendar_Holiday_read(&r, out);
+    kosherz_calendar_SpecialDay_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_calendar_Holiday_free(out);
+        kosherz_calendar_SpecialDay_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_calendar_Holiday_free(kosherz_calendar_Holiday* v) {
+static inline void kosherz_calendar_SpecialDay_free(kosherz_calendar_SpecialDay* v) {
     memset(v, 0, sizeof *v);
 }
 
@@ -1607,37 +1603,37 @@ static inline void kosherz_opt_calendar_GregorianDate_free(kosherz_calendar_Greg
     *v = NULL;
 }
 
-static inline void kosherz_list_calendar_Holiday_write(kosherz_writer* w, const kosherz_list_calendar_Holiday* v) {
+static inline void kosherz_list_calendar_SpecialDay_write(kosherz_writer* w, const kosherz_list_calendar_SpecialDay* v) {
     kosherz_writer_put_len(w, v->len);
     for (size_t i = 0; i < v->len; i++) {
-        kosherz_calendar_Holiday_write(w, &v->items[i]);
+        kosherz_calendar_SpecialDay_write(w, &v->items[i]);
     }
 }
 
-static inline void kosherz_list_calendar_Holiday_read(kosherz_reader* r, kosherz_list_calendar_Holiday* out) {
+static inline void kosherz_list_calendar_SpecialDay_read(kosherz_reader* r, kosherz_list_calendar_SpecialDay* out) {
     memset(out, 0, sizeof *out);
     size_t n = kosherz_reader_get_u32(r);
-    out->items = (kosherz_calendar_Holiday*)kosherz_reader_alloc(r, n, sizeof(kosherz_calendar_Holiday), 4);
+    out->items = (kosherz_calendar_SpecialDay*)kosherz_reader_alloc(r, n, sizeof(kosherz_calendar_SpecialDay), 4);
     if (out->items == NULL) {
         return;
     }
     out->len = n;
     for (size_t i = 0; i < n; i++) {
-        kosherz_calendar_Holiday_read(r, &out->items[i]);
+        kosherz_calendar_SpecialDay_read(r, &out->items[i]);
     }
 }
 
-static inline bool kosherz_list_calendar_Holiday_decode(const uint8_t* ptr, size_t len, kosherz_list_calendar_Holiday* out) {
+static inline bool kosherz_list_calendar_SpecialDay_decode(const uint8_t* ptr, size_t len, kosherz_list_calendar_SpecialDay* out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_list_calendar_Holiday_read(&r, out);
+    kosherz_list_calendar_SpecialDay_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_list_calendar_Holiday_free(out);
+        kosherz_list_calendar_SpecialDay_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_list_calendar_Holiday_free(kosherz_list_calendar_Holiday* v) {
+static inline void kosherz_list_calendar_SpecialDay_free(kosherz_list_calendar_SpecialDay* v) {
     free(v->items);
     memset(v, 0, sizeof *v);
 }
@@ -1912,45 +1908,6 @@ static inline bool kosherz_list_times_Zman_decode(const uint8_t* ptr, size_t len
 static inline void kosherz_list_times_Zman_free(kosherz_list_times_Zman* v) {
     free(v->items);
     memset(v, 0, sizeof *v);
-}
-
-static inline void kosherz_opt_times_Zman_write(kosherz_writer* w, const kosherz_times_Zman* v) {
-    kosherz_writer_put_bool(w, v != NULL);
-    if (v != NULL) {
-        kosherz_writer_put_i32(w, (int32_t)(*v));
-    }
-}
-
-static inline void kosherz_opt_times_Zman_read(kosherz_reader* r, kosherz_times_Zman** out) {
-    *out = NULL;
-    if (!kosherz_reader_get_bool(r)) {
-        return;
-    }
-    kosherz_times_Zman* value = (kosherz_times_Zman*)calloc(1, sizeof(kosherz_times_Zman));
-    if (value == NULL) {
-        r->failed = true;
-        return;
-    }
-    (*value) = (kosherz_times_Zman)kosherz_reader_get_i32(r);
-    *out = value;
-}
-
-static inline bool kosherz_opt_times_Zman_decode(const uint8_t* ptr, size_t len, kosherz_times_Zman** out) {
-    kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_opt_times_Zman_read(&r, out);
-    if (!kosherz_reader_finish(&r)) {
-        kosherz_opt_times_Zman_free(out);
-        return false;
-    }
-    return true;
-}
-
-static inline void kosherz_opt_times_Zman_free(kosherz_times_Zman** v) {
-    if (*v == NULL) {
-        return;
-    }
-    free(*v);
-    *v = NULL;
 }
 
 static inline void kosherz_list_times_ZmanTime_write(kosherz_writer* w, const kosherz_list_times_ZmanTime* v) {

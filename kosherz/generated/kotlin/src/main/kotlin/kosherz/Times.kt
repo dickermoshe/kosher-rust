@@ -1083,9 +1083,6 @@ object Times {
     /** The KosherJava method that calculates the zman, for example "getSofZmanShmaGRA". */
     fun zmanJavaName(zman: Zman): String = decodeUtf8(JniBridge.times_zman_java_name(zman.value))
 
-    /** The zman named by its KosherJava method, for example "getSofZmanShmaGRA". */
-    fun zmanFromJavaName(javaName: String): Zman? = decodeBuffer(JniBridge.times_zman_from_java_name(encodeUtf8(javaName))) { _r -> unpackOptionalOfZman(_r) }
-
     /** What kind of time the zman is. */
     fun zmanCategory(zman: Zman): Category = Category.fromValue(JniBridge.times_zman_category(zman.value))
 

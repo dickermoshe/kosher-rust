@@ -43,7 +43,6 @@ test('zmanim', () => {
   assert.equal(all.length, times.allZmanim().length);
   assert.ok(all.some((row) => row.failure === times.ZmanFailure.NotApplicable));
   assert.equal(times.zmanJavaName(times.Zman.SofZmanShmaGra), 'getSofZmanShmaGRA');
-  assert.equal(times.zmanFromJavaName('getSofZmanShmaGRA'), times.Zman.SofZmanShmaGra);
   assert.equal(day.config().candle_lighting_minutes, 18);
   day.close();
 });
@@ -91,12 +90,12 @@ test('calendar', () => {
   const date = calendar.HebrewDate.fromGregorian({ year: 2024, month: 4, day: 23 });
   assert.equal(date.display(), '15 Nisan 5784');
   assert.equal(date.month(), calendar.HebrewMonth.Nisan);
-  assert.deepEqual(date.holidays(calendar.Region.Diaspora), [{ tag: 'Pesach' }]);
+  assert.deepEqual(date.specialDays(calendar.Region.Diaspora), [{ tag: 'Pesach' }]);
   assert.deepEqual(date.toGregorian(), { year: 2024, month: 4, day: 23 });
 
   const chanukah = calendar.HebrewDate.fromGregorian({ year: 2024, month: 12, day: 27 });
-  const holidays = chanukah.holidays(calendar.Region.Diaspora);
-  assert.ok(holidays.some((holiday) => holiday.tag === 'Chanukah' && holiday.day === 2), JSON.stringify(holidays));
+  const specialDays = chanukah.specialDays(calendar.Region.Diaspora);
+  assert.ok(specialDays.some((day) => day.tag === 'Chanukah' && day.day === 2), JSON.stringify(specialDays));
 
   const shabbos = calendar.HebrewDate.fromGregorian({ year: 2024, month: 10, day: 26 });
   assert.equal(shabbos.parsha(calendar.Region.Diaspora), calendar.Parsha.Bereshis);

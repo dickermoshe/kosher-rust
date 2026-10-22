@@ -367,16 +367,18 @@ static const kosherz_times_TimeZoneOffset_vtable Jni_times_TimeZoneOffset_vtable
 static const Jni_contract_entry Jni_contract_calendar[] = {
     {UINT64_C(0x0076e887e475ab9f), UINT64_C(0x96615bd3eb7f1761), "calendar.HebrewDate.molad"},
     {UINT64_C(0x01344feb6b733690), UINT64_C(0x47b992630b03d56a), "calendar.HebrewDate.weekday"},
+    {UINT64_C(0x04722a067e750ac7), UINT64_C(0x10c6e1e0af9f20c4), "calendar.special_day_name"},
     {UINT64_C(0x12decead9d8a44cf), UINT64_C(0x4b1b3a695325cfca), "calendar.limudim.LimudimError"},
     {UINT64_C(0x190ecd13c0fccffa), UINT64_C(0x35e622a32a88ef57), "calendar.limudim.mishna_yomis"},
     {UINT64_C(0x1c33df579fac36d8), UINT64_C(0x1175c871bc023b86), "calendar.HebrewDate.day_of_year"},
+    {UINT64_C(0x1d2a2cfe983548a6), UINT64_C(0x513b06d6c24719e2), "calendar.special_day_is_fast_day"},
     {UINT64_C(0x235fd1db8b7dd5f5), UINT64_C(0x399eab22141dffd3), "calendar.GregorianDate"},
     {UINT64_C(0x2b066dc65c460024), UINT64_C(0xf4f23e6586bd1dd7), "calendar.HebrewDate"},
     {UINT64_C(0x2c8e60589f58d792), UINT64_C(0xa0608634cb2f46cb), "calendar.limudim.Mishna"},
     {UINT64_C(0x2da09ea1403b727e), UINT64_C(0x4d5e82347ae7a3fc), "calendar.HebrewMonth"},
     {UINT64_C(0x2e1645ba38a77559), UINT64_C(0x1c81765c98ab54f9), "calendar.HebrewDate.parsha"},
     {UINT64_C(0x2e561d4c25bf877d), UINT64_C(0x47ff51d038dbe0d8), "calendar.limudim.tehillim_display"},
-    {UINT64_C(0x3a2980b734ba8883), UINT64_C(0x2d505394972243a9), "calendar.HebrewDate.holidays"},
+    {UINT64_C(0x34b343651b1fb8fe), UINT64_C(0x12159035b300983a), "calendar.special_day_is_modern"},
     {UINT64_C(0x3a3316910057484e), UINT64_C(0xd86a18c3b722f6c7), "calendar.limudim.tehillim_monthly"},
     {UINT64_C(0x3c8950ed1f7f370c), UINT64_C(0x19e0d2b3ff9d26fe), "calendar.HebrewDate.day"},
     {UINT64_C(0x422860078e596223), UINT64_C(0x32c85d18778b0bb4), "calendar.HebrewDate.equals"},
@@ -389,28 +391,25 @@ static const Jni_contract_entry Jni_contract_calendar[] = {
     {UINT64_C(0x53798234777e19ea), UINT64_C(0x6c389ed6ad08dbe3), "calendar.rosh_hashana"},
     {UINT64_C(0x58fc9af210a33bdd), UINT64_C(0xc3e1903a4dc8359d), "calendar.HebrewDate.is_aseres_yemei_teshuva"},
     {UINT64_C(0x5c2a6a6f333ead35), UINT64_C(0x74c7180edff5c022), "calendar.HebrewDate.from_gregorian"},
-    {UINT64_C(0x5d5d66098ee06c49), UINT64_C(0x8a4e9ca163a6a190), "calendar.Holiday"},
+    {UINT64_C(0x6089a64539b542a8), UINT64_C(0x404904f4331718c5), "calendar.SpecialDay"},
     {UINT64_C(0x65535c1ad3d9f893), UINT64_C(0x55884ddb65b50739), "calendar.HebrewDate.has_candle_lighting"},
     {UINT64_C(0x6a0735856dec8d1a), UINT64_C(0xdc1addb4a7ab46ef), "calendar.parsha_name"},
-    {UINT64_C(0x6d120a34fc12b94e), UINT64_C(0x2444827e369b819b), "calendar.holiday_is_assur_bemelacha"},
     {UINT64_C(0x734de195723c4bec), UINT64_C(0xc7f3965b813050f5), "calendar.HebrewDate.display"},
     {UINT64_C(0x753c68bed189444b), UINT64_C(0x8111a6d476ecf648), "calendar.Region"},
     {UINT64_C(0x78416ddbbcc55dd6), UINT64_C(0x6c9e0901963a2dfc), "calendar.limudim.tractate_hebrew"},
-    {UINT64_C(0x7b66ec4056f4dcbc), UINT64_C(0xe848ea2454d6e4c1), "calendar.holiday_is_fast_day"},
     {UINT64_C(0x7ed52a27f9477122), UINT64_C(0x6e401597e28209a9), "calendar.limudim.MishnaPair"},
     {UINT64_C(0x82b460a35e9ba56a), UINT64_C(0x18c3086aa662d366), "calendar.limudim.amud_yomi_dirshu"},
     {UINT64_C(0x854dedb50653c50f), UINT64_C(0x914508f7681ccd43), "calendar.HebrewDate.next_parsha"},
-    {UINT64_C(0x8f180424826294a4), UINT64_C(0xa976cce390a71369), "calendar.holiday_is_modern"},
+    {UINT64_C(0x9006c018e9f8aed8), UINT64_C(0x8b43089a0dda99f4), "calendar.special_day_is_assur_bemelacha"},
     {UINT64_C(0x924fdf3d84514e8e), UINT64_C(0xd6c2f5c20a8b129d), "calendar.limudim.TehillimUnit"},
     {UINT64_C(0x93ceba93a2b10131), UINT64_C(0xc7b188714edbf795), "calendar.HebrewDate.special_parsha"},
-    {UINT64_C(0x94dc4cc8ea8c02c9), UINT64_C(0x51105a7bb4b55bdd), "calendar.holiday_name"},
     {UINT64_C(0x98cc81d52e65776b), UINT64_C(0x2bf1569214921669), "calendar.month_hebrew"},
     {UINT64_C(0x9b48ba34fb52812d), UINT64_C(0xff11e092dce92ed7), "calendar.limudim.Side"},
     {UINT64_C(0x9e20ba757aee97c2), UINT64_C(0x9328a81ac256b477), "calendar.parsha_hebrew"},
+    {UINT64_C(0xa06798705423bcc5), UINT64_C(0xba204574299d85b2), "calendar.HebrewDate.special_days"},
     {UINT64_C(0xa1e3409cebf37881), UINT64_C(0xfeebfaab6c533e17), "calendar.limudim.Daf"},
     {UINT64_C(0xa5864219850af272), UINT64_C(0xf8a4981ca376ff28), "calendar.HebrewDate.is_assur_bemelacha"},
     {UINT64_C(0xaeb433ce589b7931), UINT64_C(0x364d4d0b6a770631), "calendar.limudim.Amud"},
-    {UINT64_C(0xaf5dd6acc2e8ba71), UINT64_C(0xa2fdd5f43f90f755), "calendar.holiday_hebrew"},
     {UINT64_C(0xbd8865ae2177f9ff), UINT64_C(0x6bc5f7eea096d080), "calendar.year_info"},
     {UINT64_C(0xc3fd51b677226bab), UINT64_C(0x684e92fa36717939), "calendar.month_name"},
     {UINT64_C(0xc47f6755efcc97f2), UINT64_C(0xb882de90a2c3493f), "calendar.YearLength"},
@@ -418,10 +417,11 @@ static const Jni_contract_entry Jni_contract_calendar[] = {
     {UINT64_C(0xd099b5b97c1dddb6), UINT64_C(0x7321133365af2acb), "calendar.YearInfo"},
     {UINT64_C(0xd542917e9468e665), UINT64_C(0xc29b76894e14326c), "calendar.HebrewDate.compare"},
     {UINT64_C(0xe055421dad70d98d), UINT64_C(0xc2712588daaabbaf), "calendar.limudim.pirkei_avos_display"},
+    {UINT64_C(0xe48d4a72f047f917), UINT64_C(0x2c39a2ab4fa38524), "calendar.special_day_hebrew"},
     {UINT64_C(0xe5bd2ded003a830a), UINT64_C(0x21bf463baf36e8ae), "calendar.limudim.daf_hashavua_bavli"},
     {UINT64_C(0xe5f7bcecee7a3148), UINT64_C(0xf9b3a1fb63fa80ad), "calendar.HebrewDate.new"},
     {UINT64_C(0xea80ab8c284067d9), UINT64_C(0x96b30eb7f85eaf21), "calendar.limudim.daf_yomi_bavli"},
-    {UINT64_C(0xeb41af932363bd25), UINT64_C(0xc681430e19f4d7b1), "calendar.CalendarError"},
+    {UINT64_C(0xeb41af932363bd25), UINT64_C(0xc2d1a611bc5da8c6), "calendar.CalendarError"},
     {UINT64_C(0xeb6a6e150a6abbe0), UINT64_C(0xf5d8629c4bfb2f06), "calendar.limudim.Tractate"},
     {UINT64_C(0xee029887d9af6ef8), UINT64_C(0x54411bdda9d3b13b), "calendar.HebrewDate.month"},
     {UINT64_C(0xefe1cb89cb8314f3), UINT64_C(0x03b0248b8cfa2de8), "calendar.days_in_month"},
@@ -444,7 +444,6 @@ static const Jni_contract_entry Jni_contract_times[] = {
     {UINT64_C(0x38596a351e356743), UINT64_C(0x685412d4d80250ea), "times.Config"},
     {UINT64_C(0x39389f0e68d3cc22), UINT64_C(0x4af5df9a96d3f535), "times.myzmanim.MyZmanim.proportional_hour_gra"},
     {UINT64_C(0x3c92cd49c8b4515b), UINT64_C(0x5962ffa89080c41b), "times.shaah_zmanis"},
-    {UINT64_C(0x4048d3ca4b000831), UINT64_C(0xdf4697e13848d687), "times.zman_from_java_name"},
     {UINT64_C(0x44a0809dedbd4a4d), UINT64_C(0x9169cc1ef07d2488), "times.ZmanimError"},
     {UINT64_C(0x4d259836d7137c43), UINT64_C(0x0486761191984fd0), "times.Zman"},
     {UINT64_C(0x57d7a9c5a715b9fa), UINT64_C(0x7110b3413cfd8e83), "times.Location"},
@@ -545,13 +544,13 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_calendar_1rosh_1hashana(JNIEnv* e
     return (jlong)(intptr_t)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1holiday_1name(JNIEnv* env, jclass cls, jbyteArray p_holiday) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1name(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    Jni_bytes p_holiday_b = Jni_borrow_bytes(env, p_holiday);
+    Jni_bytes p_special_day_b = Jni_borrow_bytes(env, p_special_day);
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_calendar_holiday_name(p_holiday_b.ptr, p_holiday_b.len, &out_len, &err);
-    Jni_release_bytes(env, &p_holiday_b);
+    const uint8_t* rv = kosherz_calendar_special_day_name(p_special_day_b.ptr, p_special_day_b.len, &out_len, &err);
+    Jni_release_bytes(env, &p_special_day_b);
     if (err.code != 0) {
         Jni_throw(env, &err, 1);
         return NULL;
@@ -559,13 +558,13 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1holiday_1name(JNIE
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1holiday_1hebrew(JNIEnv* env, jclass cls, jbyteArray p_holiday) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1hebrew(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    Jni_bytes p_holiday_b = Jni_borrow_bytes(env, p_holiday);
+    Jni_bytes p_special_day_b = Jni_borrow_bytes(env, p_special_day);
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_calendar_holiday_hebrew(p_holiday_b.ptr, p_holiday_b.len, &out_len, &err);
-    Jni_release_bytes(env, &p_holiday_b);
+    const uint8_t* rv = kosherz_calendar_special_day_hebrew(p_special_day_b.ptr, p_special_day_b.len, &out_len, &err);
+    Jni_release_bytes(env, &p_special_day_b);
     if (err.code != 0) {
         Jni_throw(env, &err, 1);
         return NULL;
@@ -573,12 +572,12 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1holiday_1hebrew(JN
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1holiday_1is_1assur_1bemelacha(JNIEnv* env, jclass cls, jbyteArray p_holiday) {
+JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1is_1assur_1bemelacha(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    Jni_bytes p_holiday_b = Jni_borrow_bytes(env, p_holiday);
-    bool rv = kosherz_calendar_holiday_is_assur_bemelacha(p_holiday_b.ptr, p_holiday_b.len, &err);
-    Jni_release_bytes(env, &p_holiday_b);
+    Jni_bytes p_special_day_b = Jni_borrow_bytes(env, p_special_day);
+    bool rv = kosherz_calendar_special_day_is_assur_bemelacha(p_special_day_b.ptr, p_special_day_b.len, &err);
+    Jni_release_bytes(env, &p_special_day_b);
     if (err.code != 0) {
         Jni_throw(env, &err, 1);
         return 0;
@@ -586,12 +585,12 @@ JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1holiday_1is_1assur_1
     return rv ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1holiday_1is_1modern(JNIEnv* env, jclass cls, jbyteArray p_holiday) {
+JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1is_1modern(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    Jni_bytes p_holiday_b = Jni_borrow_bytes(env, p_holiday);
-    bool rv = kosherz_calendar_holiday_is_modern(p_holiday_b.ptr, p_holiday_b.len, &err);
-    Jni_release_bytes(env, &p_holiday_b);
+    Jni_bytes p_special_day_b = Jni_borrow_bytes(env, p_special_day);
+    bool rv = kosherz_calendar_special_day_is_modern(p_special_day_b.ptr, p_special_day_b.len, &err);
+    Jni_release_bytes(env, &p_special_day_b);
     if (err.code != 0) {
         Jni_throw(env, &err, 1);
         return 0;
@@ -599,12 +598,12 @@ JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1holiday_1is_1modern(
     return rv ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1holiday_1is_1fast_1day(JNIEnv* env, jclass cls, jbyteArray p_holiday) {
+JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1is_1fast_1day(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    Jni_bytes p_holiday_b = Jni_borrow_bytes(env, p_holiday);
-    bool rv = kosherz_calendar_holiday_is_fast_day(p_holiday_b.ptr, p_holiday_b.len, &err);
-    Jni_release_bytes(env, &p_holiday_b);
+    Jni_bytes p_special_day_b = Jni_borrow_bytes(env, p_special_day);
+    bool rv = kosherz_calendar_special_day_is_fast_day(p_special_day_b.ptr, p_special_day_b.len, &err);
+    Jni_release_bytes(env, &p_special_day_b);
     if (err.code != 0) {
         Jni_throw(env, &err, 1);
         return 0;
@@ -762,11 +761,11 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1add_1days(J
     return (jlong)(intptr_t)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1holidays(JNIEnv* env, jclass cls, jlong self, jint p_region) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1special_1days(JNIEnv* env, jclass cls, jlong self, jint p_region) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_calendar_HebrewDate_holidays((const kosherz_calendar_HebrewDate*)(intptr_t)self, (kosherz_calendar_Region)p_region, &out_len, &err);
+    const uint8_t* rv = kosherz_calendar_HebrewDate_special_days((const kosherz_calendar_HebrewDate*)(intptr_t)self, (kosherz_calendar_Region)p_region, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1102,20 +1101,6 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1java_1name(JNIE
     (void)cls;
     size_t out_len = 0;
     const uint8_t* rv = kosherz_times_zman_java_name((kosherz_times_Zman)p_zman, &out_len, &err);
-    if (err.code != 0) {
-        Jni_throw(env, &err, 0);
-        return NULL;
-    }
-    return Jni_take_bytes(env, rv, out_len);
-}
-
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1from_1java_1name(JNIEnv* env, jclass cls, jbyteArray p_java_name) {
-    kosherz_error err = {0, NULL, NULL, 0};
-    (void)cls;
-    Jni_bytes p_java_name_b = Jni_borrow_bytes(env, p_java_name);
-    size_t out_len = 0;
-    const uint8_t* rv = kosherz_times_zman_from_java_name(p_java_name_b.ptr, p_java_name_b.len, &out_len, &err);
-    Jni_release_bytes(env, &p_java_name_b);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;

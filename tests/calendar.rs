@@ -6,14 +6,14 @@
 use icu_calendar::Date;
 use jiff::civil::{Weekday, date};
 use jiff::tz::TimeZone;
-use kosher_rust::calendar::{HebrewDate, HebrewMonth, HebrewYear, Holiday, Parsha, Region, YearLength};
+use kosher_rust::calendar::{HebrewDate, HebrewMonth, HebrewYear, Parsha, Region, SpecialDay, YearLength};
 
 fn hebrew(year: i32, month: HebrewMonth, day: u8) -> HebrewDate {
     HebrewDate::new(year, month, day).unwrap()
 }
 
-fn holidays(day: HebrewDate, region: Region) -> Vec<Holiday> {
-    day.holidays(region).collect()
+fn special_days(day: HebrewDate, region: Region) -> Vec<SpecialDay> {
+    day.special_days(region).collect()
 }
 
 #[test]
@@ -107,11 +107,11 @@ fn month_names() {
 #[test]
 fn yamim_noraim() {
     let rosh_hashana = hebrew(5784, HebrewMonth::Tishrei, 1);
-    assert!(holidays(rosh_hashana, Region::Diaspora).contains(&Holiday::RoshHashana));
+    assert!(special_days(rosh_hashana, Region::Diaspora).contains(&SpecialDay::RoshHashana));
     assert!(rosh_hashana.is_assur_bemelacha(Region::Diaspora));
 
     let yom_kippur = hebrew(5784, HebrewMonth::Tishrei, 10);
-    assert!(holidays(yom_kippur, Region::Diaspora).contains(&Holiday::YomKippur));
+    assert!(special_days(yom_kippur, Region::Diaspora).contains(&SpecialDay::YomKippur));
     assert!(yom_kippur.is_assur_bemelacha(Region::Israel));
 
     assert!(hebrew(5784, HebrewMonth::Tishrei, 5).is_aseres_yemei_teshuva());
@@ -122,47 +122,47 @@ fn yamim_noraim() {
 fn second_day_of_yom_tov_only_in_the_diaspora() {
     let day = hebrew(5784, HebrewMonth::Nisan, 16);
 
-    assert!(holidays(day, Region::Diaspora).contains(&Holiday::Pesach));
+    assert!(special_days(day, Region::Diaspora).contains(&SpecialDay::Pesach));
     assert!(day.is_assur_bemelacha(Region::Diaspora));
 
-    assert!(holidays(day, Region::Israel).contains(&Holiday::CholHamoedPesach));
+    assert!(special_days(day, Region::Israel).contains(&SpecialDay::CholHamoedPesach));
     assert!(!day.is_assur_bemelacha(Region::Israel));
 }
 
 #[test]
 fn chanukah_purim_and_fasts() {
     let chanukah = hebrew(5784, HebrewMonth::Kislev, 25);
-    assert!(holidays(chanukah, Region::Diaspora).contains(&Holiday::Chanukah(1)));
+    assert!(special_days(chanukah, Region::Diaspora).contains(&SpecialDay::Chanukah(1)));
     assert!(!chanukah.is_assur_bemelacha(Region::Diaspora));
 
-    assert!(holidays(hebrew(5784, HebrewMonth::Adar, 14), Region::Diaspora).contains(&Holiday::Purim));
-    assert!(holidays(hebrew(5784, HebrewMonth::AdarI, 14), Region::Diaspora).contains(&Holiday::PurimKatan));
+    assert!(special_days(hebrew(5784, HebrewMonth::Adar, 14), Region::Diaspora).contains(&SpecialDay::Purim));
+    assert!(special_days(hebrew(5784, HebrewMonth::AdarI, 14), Region::Diaspora).contains(&SpecialDay::PurimKatan));
 
     let teves = hebrew(5784, HebrewMonth::Teves, 10);
-    assert!(holidays(teves, Region::Diaspora).iter().any(|h| h.is_fast_day()));
+    assert!(special_days(teves, Region::Diaspora).iter().any(|h| h.is_fast_day()));
 }
 
 #[test]
 fn omer_count() {
-    let first = holidays(hebrew(5784, HebrewMonth::Nisan, 16), Region::Diaspora);
-    assert!(first.contains(&Holiday::CountOfTheOmer(1)));
+    let first = special_days(hebrew(5784, HebrewMonth::Nisan, 16), Region::Diaspora);
+    assert!(first.contains(&SpecialDay::CountOfTheOmer(1)));
 
-    let chanukah = holidays(hebrew(5784, HebrewMonth::Kislev, 25), Region::Diaspora);
-    assert!(!chanukah.iter().any(|h| matches!(h, Holiday::CountOfTheOmer(_))));
+    let chanukah = special_days(hebrew(5784, HebrewMonth::Kislev, 25), Region::Diaspora);
+    assert!(!chanukah.iter().any(|h| matches!(h, SpecialDay::CountOfTheOmer(_))));
 }
 
 #[test]
 fn rosh_chodesh() {
-    assert!(holidays(hebrew(5784, HebrewMonth::Cheshvan, 1), Region::Diaspora).contains(&Holiday::RoshChodesh));
-    assert!(holidays(hebrew(5784, HebrewMonth::Tishrei, 30), Region::Diaspora).contains(&Holiday::RoshChodesh));
+    assert!(special_days(hebrew(5784, HebrewMonth::Cheshvan, 1), Region::Diaspora).contains(&SpecialDay::RoshChodesh));
+    assert!(special_days(hebrew(5784, HebrewMonth::Tishrei, 30), Region::Diaspora).contains(&SpecialDay::RoshChodesh));
 }
 
 #[test]
 fn modern_holidays_are_yielded_and_flagged() {
-    let yom_yerushalayim = holidays(hebrew(5784, HebrewMonth::Iyar, 28), Region::Israel);
-    assert!(yom_yerushalayim.contains(&Holiday::YomYerushalayim));
-    assert!(Holiday::YomYerushalayim.is_modern());
-    assert!(!Holiday::Pesach.is_modern());
+    let yom_yerushalayim = special_days(hebrew(5784, HebrewMonth::Iyar, 28), Region::Israel);
+    assert!(yom_yerushalayim.contains(&SpecialDay::YomYerushalayim));
+    assert!(SpecialDay::YomYerushalayim.is_modern());
+    assert!(!SpecialDay::Pesach.is_modern());
 }
 
 #[test]
@@ -218,11 +218,11 @@ fn special_shabbosos() {
 
 #[test]
 fn names_in_english_and_hebrew() {
-    assert_eq!(Holiday::RoshHashana.to_string(), "Rosh Hashana");
-    assert_eq!(Holiday::RoshHashana.hebrew(), "ראש השנה");
-    assert_eq!(Holiday::YomKippurKatan.hebrew(), "יום כיפור קטן");
-    assert_eq!(Holiday::Behab.hebrew(), "בה'ב");
-    assert_eq!(Holiday::YomHaatzmaut.hebrew(), "יום העצמאות");
+    assert_eq!(SpecialDay::RoshHashana.to_string(), "Rosh Hashana");
+    assert_eq!(SpecialDay::RoshHashana.hebrew(), "ראש השנה");
+    assert_eq!(SpecialDay::YomKippurKatan.hebrew(), "יום כיפור קטן");
+    assert_eq!(SpecialDay::Behab.hebrew(), "בה'ב");
+    assert_eq!(SpecialDay::YomHaatzmaut.hebrew(), "יום העצמאות");
 
     assert_eq!(Parsha::Bereshis.to_string(), "Bereshis");
     assert_eq!(Parsha::Bereshis.hebrew(), "בראשית");
@@ -248,7 +248,8 @@ fn extreme_dates_do_not_panic() {
         (HebrewMonth::AdarI, 1),
         (HebrewMonth::Kislev, 25),
     ];
-    for year in [-20_000, 20_000] {
+    // ICU builds dates for years -9999 to 9999 only, so stay inside that range.
+    for year in [-9999, -1, 0, 1, 2, 3761, 9999] {
         let y = HebrewYear::new(year);
         let _ = (y.days(), y.length(), y.is_leap(), y.rosh_hashana());
         for &month in y.months() {
@@ -263,11 +264,25 @@ fn extreme_dates_do_not_panic() {
             exercise(HebrewDate::from(gregorian));
         }
     }
+    for gregorian in [
+        jiff::civil::Date::MIN,
+        date(-3760, 5, 12),
+        date(-4151, 8, 10),
+        jiff::civil::Date::MAX,
+    ] {
+        exercise(HebrewDate::from(gregorian));
+    }
+}
+
+#[test]
+fn no_molad_before_year_one() {
+    assert_eq!(HebrewDate::from(date(-3760, 5, 12)).molad(), None);
+    assert!(hebrew(3762, HebrewMonth::Tishrei, 1).molad().is_some());
 }
 
 fn exercise(day: HebrewDate) {
     for region in [Region::Israel, Region::Diaspora] {
-        let _ = day.holidays(region).count();
+        let _ = day.special_days(region).count();
         let _ = day.is_assur_bemelacha(region);
         let _ = day.has_candle_lighting(region);
         let _ = day.parsha(region);

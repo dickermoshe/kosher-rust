@@ -18,7 +18,7 @@ impl Message for CalendarError {
     fn message(self) -> &'static str {
         match self {
             Self::InvalidDate => "no such date, or outside Hebrew years 1 to 9999",
-            Self::InvalidHoliday => "the day of Chanukah or of the Omer is out of range",
+            Self::InvalidSpecialDay => "the day of Chanukah or of the Omer is out of range",
         }
     }
 }

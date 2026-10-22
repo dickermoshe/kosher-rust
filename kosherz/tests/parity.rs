@@ -353,7 +353,6 @@ fn zman_values_are_positions_and_round_trip() {
         let theirs = kosher_rust::Zman::from(zman);
         assert_eq!(theirs, kosher_rust::Zman::ALL[position]);
         assert_eq!(times::zman_java_name(zman), theirs.java_name());
-        assert_eq!(times::zman_from_java_name(theirs.java_name()), Some(zman));
         assert_eq!(times::zman_name(zman), theirs.name());
         assert_eq!(times::zman_is_deprecated(zman), theirs.is_deprecated());
         assert_eq!(
@@ -683,12 +682,16 @@ fn calendar_matches_kosher_rust() {
             (Region::Israel, kosher_rust::Region::Israel),
             (Region::Diaspora, kosher_rust::Region::Diaspora),
         ] {
-            let holidays: Vec<kosher_rust::calendar::Holiday> = ours
-                .holidays(region)
+            let special_days: Vec<kosher_rust::calendar::SpecialDay> = ours
+                .special_days(region)
                 .into_iter()
-                .map(|holiday| holiday.try_into().unwrap())
+                .map(|special_day| special_day.try_into().unwrap())
                 .collect();
-            assert_eq!(holidays, theirs.holidays(kosher_region).collect::<Vec<_>>(), "{date}");
+            assert_eq!(
+                special_days,
+                theirs.special_days(kosher_region).collect::<Vec<_>>(),
+                "{date}"
+            );
             assert_eq!(
                 ours.is_assur_bemelacha(region),
                 theirs.is_assur_bemelacha(kosher_region)
@@ -806,19 +809,25 @@ fn enums_round_trip() {
         assert_eq!((rosh_hashana.day(), rosh_hashana.year()), (1, year));
     }
     assert_eq!(calendar::days_in_month(5785, calendar::HebrewMonth::AdarI), None);
-    let chanukah = calendar::Holiday::Chanukah { day: 3 };
+    let chanukah = calendar::SpecialDay::Chanukah { day: 3 };
     assert_eq!(
-        kosher_rust::calendar::Holiday::try_from(chanukah),
-        Ok(kosher_rust::calendar::Holiday::Chanukah(3))
+        kosher_rust::calendar::SpecialDay::try_from(chanukah),
+        Ok(kosher_rust::calendar::SpecialDay::Chanukah(3))
     );
-    assert_eq!(calendar::holiday_is_fast_day(calendar::Holiday::YomKippur), Ok(true));
-    assert_eq!(calendar::holiday_is_modern(calendar::Holiday::YomHaatzmaut), Ok(true));
+    assert_eq!(
+        calendar::special_day_is_fast_day(calendar::SpecialDay::YomKippur),
+        Ok(true)
+    );
+    assert_eq!(
+        calendar::special_day_is_modern(calendar::SpecialDay::YomHaatzmaut),
+        Ok(true)
+    );
 }
 
 /// Out-of-range numbers from outside are rejected, not clamped.
 #[test]
 fn out_of_range_values_are_rejected() {
-    use calendar::{HebrewMonth, Holiday};
+    use calendar::{HebrewMonth, SpecialDay};
     use limudim::{PirkeiAvosUnit, TehillimUnit};
 
     let day = Zmanim::new(
@@ -838,20 +847,20 @@ fn out_of_range_values_are_rejected() {
     }
     assert!(day.sunrise_offset_by_degrees(16.1).is_ok());
 
-    for holiday in [
-        Holiday::Chanukah { day: 0 },
-        Holiday::Chanukah { day: 9 },
-        Holiday::CountOfTheOmer { day: 50 },
-        Holiday::CountOfTheOmer { day: -1 },
+    for special_day in [
+        SpecialDay::Chanukah { day: 0 },
+        SpecialDay::Chanukah { day: 9 },
+        SpecialDay::CountOfTheOmer { day: 50 },
+        SpecialDay::CountOfTheOmer { day: -1 },
     ] {
         assert_eq!(
-            calendar::holiday_name(holiday),
-            Err(CalendarError::InvalidHoliday),
-            "{holiday:?}"
+            calendar::special_day_name(special_day),
+            Err(CalendarError::InvalidSpecialDay),
+            "{special_day:?}"
         );
     }
     assert_eq!(
-        calendar::holiday_name(Holiday::Chanukah { day: 8 }).as_deref(),
+        calendar::special_day_name(SpecialDay::Chanukah { day: 8 }).as_deref(),
         Ok("Chanukah")
     );
 
@@ -905,4 +914,24 @@ fn out_of_range_values_are_rejected() {
         HebrewDate::from_gregorian(last.to_gregorian().unwrap()).unwrap().year(),
         9999
     );
+}
+
+#[test]
+fn every_variant_converts() {
+    // kosher-rust's enums are non-exhaustive, so a variant the bindings lack would be skipped or
+    // replaced. These fail first.
+    for zman in kosher_rust::Zman::ALL {
+        assert!(kosherz::api::times::Zman::try_from(zman).is_ok(), "{zman:?}");
+        assert!(
+            kosherz::api::times::Category::try_from(zman.category()).is_ok(),
+            "{:?}",
+            zman.category()
+        );
+    }
+    for zman in kosher_rust::myzmanim::MyZman::ALL {
+        assert!(
+            kosherz::api::times::myzmanim::MyZman::try_from(zman).is_ok(),
+            "{zman:?}"
+        );
+    }
 }

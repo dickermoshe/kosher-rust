@@ -29,8 +29,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let hebrew = HebrewDate::from(today);
     println!("{today}  {hebrew}");
 
-    for holiday in hebrew.holidays(region) {
-        println!("  {holiday} ({})", holiday.hebrew());
+    for special_day in hebrew.special_days(region) {
+        println!("  {special_day} ({})", special_day.hebrew());
     }
     if let Some(parsha) = hebrew.next_parsha(region) {
         println!("  This week's parsha: {parsha}");

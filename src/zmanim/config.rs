@@ -18,6 +18,7 @@ use jiff::SignedDuration;
 /// ```
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Default)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[non_exhaustive]
 pub enum AstronomicalCalculator {
     /// The US National Oceanic and Atmospheric Administration algorithm (KosherJava's
     /// `NOAACalculator`, its default). Uses the low-accuracy Meeus formulas, good to

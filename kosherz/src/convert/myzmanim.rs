@@ -50,13 +50,14 @@ pub(crate) fn checked_duration(inner: &Inner) -> Result<i64, ZmanimError> {
 pub(crate) fn all(inner: &Inner) -> Vec<MyZmanTime> {
     MyZman::ALL
         .into_iter()
-        .map(|zman| {
+        .filter_map(|zman| {
+            let ours = zman.try_into().ok()?;
             let result = checked(inner, |inner| inner.get(zman));
-            MyZmanTime {
-                zman: zman.into(),
+            Some(MyZmanTime {
+                zman: ours,
                 time: result.ok(),
                 failure: result.err().map(Into::into),
-            }
+            })
         })
         .collect()
 }
@@ -113,10 +114,12 @@ impl From<crate::api::times::myzmanim::MyZman> for kosher_rust::myzmanim::MyZman
 }
 #[allow(deprecated)]
 #[rustfmt::skip]
-impl From<kosher_rust::myzmanim::MyZman> for crate::api::times::myzmanim::MyZman {
-    fn from(value: kosher_rust::myzmanim::MyZman) -> Self {
+impl TryFrom<kosher_rust::myzmanim::MyZman> for crate::api::times::myzmanim::MyZman {
+    type Error = ();
+
+    fn try_from(value: kosher_rust::myzmanim::MyZman) -> Result<Self, ()> {
         use kosher_rust::myzmanim::MyZman as F;
-        match value {
+        Ok(match value {
             F::Dawn90Degrees => Self::Dawn90Degrees,
             F::Dawn72Fixed => Self::Dawn72Fixed,
             F::Dawn72Degrees => Self::Dawn72Degrees,
@@ -157,7 +160,8 @@ impl From<kosher_rust::myzmanim::MyZman> for crate::api::times::myzmanim::MyZman
             F::NightRTam72Fixed => Self::NightRTam72Fixed,
             F::NightRTam72Degrees => Self::NightRTam72Degrees,
             F::Midnight => Self::Midnight,
-        }
+            _ => return Err(()),
+        })
     }
 }
 // END GENERATED: MyZman

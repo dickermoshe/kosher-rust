@@ -8,7 +8,7 @@ use icu_calendar::{
 };
 use jiff::civil::{Date as JiffDate, Weekday};
 use jiff_icu::{ConvertFrom, ConvertTryInto};
-use kosher_rust::calendar::{HebrewDate, HebrewYear, Holiday, Region};
+use kosher_rust::calendar::{HebrewDate, HebrewYear, Region, SpecialDay};
 
 // ICU's codes for the Hebrew months, which this reference path drives directly.
 const TISHREI: Month = Month::new(1);
@@ -30,10 +30,10 @@ fn region(in_israel: bool) -> Region {
 
 /// The holidays on `date`, without the modern Israeli ones unless `use_modern_holidays`, as
 /// KosherJava's `setUseModernHolidays` does.
-fn holidays(date: &Date<Hebrew>, in_israel: bool, use_modern_holidays: bool) -> Vec<Holiday> {
+fn special_days(date: &Date<Hebrew>, in_israel: bool, use_modern_holidays: bool) -> Vec<SpecialDay> {
     HebrewDate::from(*date)
-        .holidays(region(in_israel))
-        .filter(|holiday| use_modern_holidays || !holiday.is_modern())
+        .special_days(region(in_israel))
+        .filter(|special_day| use_modern_holidays || !special_day.is_modern())
         .collect()
 }
 
@@ -142,66 +142,67 @@ pub(super) fn rust_jewish_calendar_snapshot(
     use_modern_holidays: bool,
 ) -> Option<JewishCalendarSnapshot> {
     let hebrew = rust_hebrew_date(date)?;
-    let rust_holidays = holidays(&hebrew, in_israel, use_modern_holidays);
+    let rust_special_days = special_days(&hebrew, in_israel, use_modern_holidays);
     let day = HebrewDate::from(hebrew);
     let region = region(in_israel);
-    let day_of_chanukah = rust_holidays.iter().find_map(|holiday| match holiday {
-        Holiday::Chanukah(day) => Some(*day),
+    let day_of_chanukah = rust_special_days.iter().find_map(|special_day| match special_day {
+        SpecialDay::Chanukah(day) => Some(*day),
         _ => None,
     });
-    let day_of_omer = rust_holidays.iter().find_map(|holiday| match holiday {
-        Holiday::CountOfTheOmer(day) => Some(*day),
+    let day_of_omer = rust_special_days.iter().find_map(|special_day| match special_day {
+        SpecialDay::CountOfTheOmer(day) => Some(*day),
         _ => None,
     });
 
     Some(JewishCalendarSnapshot {
-        is_yom_tov: rust_is_yom_tov(&rust_holidays),
+        is_yom_tov: rust_is_yom_tov(&rust_special_days),
         is_yom_tov_assur_bemelacha: rust_is_yom_tov_assur_bemelacha(
-            &rust_holidays,
+            &rust_special_days,
             Weekday::convert_from(hebrew.weekday()),
         ),
         is_erev_yom_tov: rust_is_erev_yom_tov(&hebrew, in_israel),
         is_erev_yom_tov_sheni: rust_is_erev_yom_tov_sheni(&hebrew, in_israel),
-        is_chol_hamoed: rust_holidays.contains(&Holiday::CholHamoedPesach)
-            || rust_holidays.contains(&Holiday::CholHamoedSuccos)
-            || rust_holidays.contains(&Holiday::HoshanaRabbah),
-        is_chol_hamoed_pesach: rust_holidays.contains(&Holiday::CholHamoedPesach),
-        is_chol_hamoed_succos: rust_holidays.contains(&Holiday::CholHamoedSuccos)
-            || rust_holidays.contains(&Holiday::HoshanaRabbah),
-        is_pesach: rust_holidays.contains(&Holiday::Pesach) || rust_holidays.contains(&Holiday::CholHamoedPesach),
-        is_shavuos: rust_holidays.contains(&Holiday::Shavuos),
-        is_succos: rust_holidays.contains(&Holiday::Succos)
-            || rust_holidays.contains(&Holiday::CholHamoedSuccos)
-            || rust_holidays.contains(&Holiday::HoshanaRabbah),
-        is_shmini_atzeres: rust_holidays.contains(&Holiday::SheminiAtzeres),
-        is_simchas_torah: rust_holidays.contains(&Holiday::SimchasTorah),
-        is_rosh_hashana: rust_holidays.contains(&Holiday::RoshHashana),
-        is_yom_kippur: rust_holidays.contains(&Holiday::YomKippur),
-        is_taanis: rust_holidays.iter().any(|holiday| holiday.is_fast_day()),
-        is_tisha_bav: rust_holidays.contains(&Holiday::TishahBav),
+        is_chol_hamoed: rust_special_days.contains(&SpecialDay::CholHamoedPesach)
+            || rust_special_days.contains(&SpecialDay::CholHamoedSuccos)
+            || rust_special_days.contains(&SpecialDay::HoshanaRabbah),
+        is_chol_hamoed_pesach: rust_special_days.contains(&SpecialDay::CholHamoedPesach),
+        is_chol_hamoed_succos: rust_special_days.contains(&SpecialDay::CholHamoedSuccos)
+            || rust_special_days.contains(&SpecialDay::HoshanaRabbah),
+        is_pesach: rust_special_days.contains(&SpecialDay::Pesach)
+            || rust_special_days.contains(&SpecialDay::CholHamoedPesach),
+        is_shavuos: rust_special_days.contains(&SpecialDay::Shavuos),
+        is_succos: rust_special_days.contains(&SpecialDay::Succos)
+            || rust_special_days.contains(&SpecialDay::CholHamoedSuccos)
+            || rust_special_days.contains(&SpecialDay::HoshanaRabbah),
+        is_shmini_atzeres: rust_special_days.contains(&SpecialDay::SheminiAtzeres),
+        is_simchas_torah: rust_special_days.contains(&SpecialDay::SimchasTorah),
+        is_rosh_hashana: rust_special_days.contains(&SpecialDay::RoshHashana),
+        is_yom_kippur: rust_special_days.contains(&SpecialDay::YomKippur),
+        is_taanis: rust_special_days.iter().any(|special_day| special_day.is_fast_day()),
+        is_tisha_bav: rust_special_days.contains(&SpecialDay::TishahBav),
         is_chanukah: day_of_chanukah.is_some(),
-        is_purim: rust_holidays.contains(&Holiday::Purim),
-        is_isru_chag: rust_holidays.contains(&Holiday::IsruChag),
+        is_purim: rust_special_days.contains(&SpecialDay::Purim),
+        is_isru_chag: rust_special_days.contains(&SpecialDay::IsruChag),
         is_erev_rosh_chodesh: rust_is_erev_rosh_chodesh(&hebrew),
         is_tomorrow_shabbos_or_yom_tov: rust_is_tomorrow_shabbos_or_yom_tov(&hebrew, in_israel),
-        is_birkas_hachamah: rust_holidays.contains(&Holiday::BirchasHachamah),
+        is_birkas_hachamah: rust_special_days.contains(&SpecialDay::BirchasHachamah),
         parshah: day.parsha(region).map(|parsha| parsha as i32),
         upcoming_parshah: day
             .next_parsha(region)
             .map(|parsha| i32::from(u8::from(parsha)))
             .expect("upcoming parsha"),
         special_shabbos: day.special_parsha(region).map(|parsha| parsha as i32),
-        yom_tov_index: java_holiday_index_from_rust(&rust_holidays),
+        yom_tov_index: java_holiday_index_from_rust(&rust_special_days),
         is_assur_bemelacha: day.is_assur_bemelacha(region),
         has_candle_lighting: day.has_candle_lighting(region),
         is_aseres_yemei_teshuva: day.is_aseres_yemei_teshuva(),
-        is_yom_kippur_katan: rust_holidays.contains(&Holiday::YomKippurKatan),
-        is_be_ha_b: rust_holidays.contains(&Holiday::Behab),
-        is_taanis_bechoros: rust_holidays.contains(&Holiday::FastOfTheFirstborn),
+        is_yom_kippur_katan: rust_special_days.contains(&SpecialDay::YomKippurKatan),
+        is_be_ha_b: rust_special_days.contains(&SpecialDay::Behab),
+        is_taanis_bechoros: rust_special_days.contains(&SpecialDay::FastOfTheFirstborn),
         day_of_chanukah: day_of_chanukah,
-        is_rosh_chodesh: rust_holidays.contains(&Holiday::RoshChodesh),
-        is_machar_chodesh: rust_holidays.contains(&Holiday::MacharHachodesh),
-        is_shabbos_mevorchim: rust_holidays.contains(&Holiday::ShabbosMevarchim),
+        is_rosh_chodesh: rust_special_days.contains(&SpecialDay::RoshChodesh),
+        is_machar_chodesh: rust_special_days.contains(&SpecialDay::MacharHachodesh),
+        is_shabbos_mevorchim: rust_special_days.contains(&SpecialDay::ShabbosMevarchim),
         day_of_omer: day_of_omer,
     })
 }
@@ -320,48 +321,48 @@ fn constrained_date_add_options() -> DateAddOptions {
     options
 }
 
-fn rust_is_yom_tov(holidays: &[Holiday]) -> bool {
-    holidays.iter().any(|holiday| {
+fn rust_is_yom_tov(special_days: &[SpecialDay]) -> bool {
+    special_days.iter().any(|special_day| {
         matches!(
-            holiday,
-            Holiday::Pesach
-                | Holiday::CholHamoedPesach
-                | Holiday::PesachSheni
-                | Holiday::Shavuos
-                | Holiday::TuBav
-                | Holiday::RoshHashana
-                | Holiday::YomKippur
-                | Holiday::Succos
-                | Holiday::CholHamoedSuccos
-                | Holiday::HoshanaRabbah
-                | Holiday::SheminiAtzeres
-                | Holiday::SimchasTorah
-                | Holiday::Chanukah(_)
-                | Holiday::TuBshvat
-                | Holiday::Purim
-                | Holiday::ShushanPurim
-                | Holiday::PurimKatan
-                | Holiday::YomHaShoah
-                | Holiday::YomHazikaron
-                | Holiday::YomHaatzmaut
-                | Holiday::YomYerushalayim
-                | Holiday::LagBomer
-                | Holiday::ShushanPurimKatan
+            special_day,
+            SpecialDay::Pesach
+                | SpecialDay::CholHamoedPesach
+                | SpecialDay::PesachSheni
+                | SpecialDay::Shavuos
+                | SpecialDay::TuBav
+                | SpecialDay::RoshHashana
+                | SpecialDay::YomKippur
+                | SpecialDay::Succos
+                | SpecialDay::CholHamoedSuccos
+                | SpecialDay::HoshanaRabbah
+                | SpecialDay::SheminiAtzeres
+                | SpecialDay::SimchasTorah
+                | SpecialDay::Chanukah(_)
+                | SpecialDay::TuBshvat
+                | SpecialDay::Purim
+                | SpecialDay::ShushanPurim
+                | SpecialDay::PurimKatan
+                | SpecialDay::YomHaShoah
+                | SpecialDay::YomHazikaron
+                | SpecialDay::YomHaatzmaut
+                | SpecialDay::YomYerushalayim
+                | SpecialDay::LagBomer
+                | SpecialDay::ShushanPurimKatan
         )
     })
 }
 
 fn rust_is_erev_yom_tov(date: &Date<Hebrew>, in_israel: bool) -> bool {
-    let today_holidays = holidays(date, in_israel, false);
-    if today_holidays.iter().any(|holiday| {
+    let today_special_days = special_days(date, in_israel, false);
+    if today_special_days.iter().any(|special_day| {
         matches!(
-            holiday,
-            Holiday::ErevPesach
-                | Holiday::ErevShavuos
-                | Holiday::ErevRoshHashana
-                | Holiday::ErevYomKippur
-                | Holiday::ErevSuccos
-                | Holiday::HoshanaRabbah
+            special_day,
+            SpecialDay::ErevPesach
+                | SpecialDay::ErevShavuos
+                | SpecialDay::ErevRoshHashana
+                | SpecialDay::ErevYomKippur
+                | SpecialDay::ErevSuccos
+                | SpecialDay::HoshanaRabbah
         )
     }) {
         return true;
@@ -370,33 +371,35 @@ fn rust_is_erev_yom_tov(date: &Date<Hebrew>, in_israel: bool) -> bool {
     let next_day = date
         .try_added_with_options(DateDuration::for_days(1), constrained_date_add_options())
         .expect("adding one day to valid Hebrew date should work");
-    let next_holidays = holidays(&next_day, in_israel, false);
-    today_holidays.contains(&Holiday::CholHamoedPesach) && next_holidays.contains(&Holiday::Pesach)
+    let next_special_days = special_days(&next_day, in_israel, false);
+    today_special_days.contains(&SpecialDay::CholHamoedPesach) && next_special_days.contains(&SpecialDay::Pesach)
 }
 
 fn rust_is_erev_yom_tov_sheni(date: &Date<Hebrew>, in_israel: bool) -> bool {
     let next_day = date
         .try_added_with_options(DateDuration::for_days(1), constrained_date_add_options())
         .expect("adding one day to valid Hebrew date should work");
-    let today_holidays = holidays(date, in_israel, false);
-    let next_holidays = holidays(&next_day, in_israel, false);
-    rust_is_yom_tov(&next_holidays)
-        && rust_is_yom_tov_assur_bemelacha(&next_holidays, Weekday::convert_from(next_day.weekday()))
-        && today_holidays.iter().any(|holiday| holiday.is_assur_bemelacha())
+    let today_special_days = special_days(date, in_israel, false);
+    let next_special_days = special_days(&next_day, in_israel, false);
+    rust_is_yom_tov(&next_special_days)
+        && rust_is_yom_tov_assur_bemelacha(&next_special_days, Weekday::convert_from(next_day.weekday()))
+        && today_special_days
+            .iter()
+            .any(|special_day| special_day.is_assur_bemelacha())
 }
 
-fn rust_is_yom_tov_assur_bemelacha(holidays: &[Holiday], _weekday: Weekday) -> bool {
-    holidays.iter().any(|holiday| holiday.is_assur_bemelacha())
+fn rust_is_yom_tov_assur_bemelacha(special_days: &[SpecialDay], _weekday: Weekday) -> bool {
+    special_days.iter().any(|special_day| special_day.is_assur_bemelacha())
 }
 
 fn rust_is_erev_rosh_chodesh(date: &Date<Hebrew>) -> bool {
-    if holidays(date, false, false).contains(&Holiday::RoshChodesh) {
+    if special_days(date, false, false).contains(&SpecialDay::RoshChodesh) {
         return false;
     }
     let next_day = date
         .try_added_with_options(DateDuration::for_days(1), constrained_date_add_options())
         .expect("adding one day to valid Hebrew date should work");
-    let is_next_rosh_chodesh = holidays(&next_day, false, false).contains(&Holiday::RoshChodesh);
+    let is_next_rosh_chodesh = special_days(&next_day, false, false).contains(&SpecialDay::RoshChodesh);
     is_next_rosh_chodesh && !(date.month().to_input() == ELUL && date.day_of_month().0 == 29)
 }
 

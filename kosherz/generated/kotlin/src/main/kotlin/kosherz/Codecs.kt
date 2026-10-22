@@ -8,10 +8,6 @@ internal fun packListOfHebrewMonth(_w: BufferWriter, _v: List<HebrewMonth>) = _w
 
 internal fun unpackListOfHebrewMonth(_r: BufferReader): List<HebrewMonth> = _r.readList { HebrewMonth.fromValue(_r.readI32()) }
 
-internal fun packListOfHoliday(_w: BufferWriter, _v: List<Holiday>) = _w.writeList(_v) { packHoliday(_w, it) }
-
-internal fun unpackListOfHoliday(_r: BufferReader): List<Holiday> = _r.readList { unpackHoliday(_r) }
-
 internal fun packListOfMyZman(_w: BufferWriter, _v: List<MyZman>) = _w.writeList(_v) { _w.writeI32(it.value) }
 
 internal fun unpackListOfMyZman(_r: BufferReader): List<MyZman> = _r.readList { MyZman.fromValue(_r.readI32()) }
@@ -19,6 +15,10 @@ internal fun unpackListOfMyZman(_r: BufferReader): List<MyZman> = _r.readList { 
 internal fun packListOfMyZmanTime(_w: BufferWriter, _v: List<MyZmanTime>) = _w.writeList(_v) { packMyZmanTime(_w, it) }
 
 internal fun unpackListOfMyZmanTime(_r: BufferReader): List<MyZmanTime> = _r.readList { unpackMyZmanTime(_r) }
+
+internal fun packListOfSpecialDay(_w: BufferWriter, _v: List<SpecialDay>) = _w.writeList(_v) { packSpecialDay(_w, it) }
+
+internal fun unpackListOfSpecialDay(_r: BufferReader): List<SpecialDay> = _r.readList { unpackSpecialDay(_r) }
 
 internal fun packListOfZman(_w: BufferWriter, _v: List<Zman>) = _w.writeList(_v) { _w.writeI32(it.value) }
 
@@ -63,10 +63,6 @@ internal fun unpackOptionalOfPirkeiAvosUnit(_r: BufferReader): PirkeiAvosUnit? =
 internal fun packOptionalOfTehillimUnit(_w: BufferWriter, _v: TehillimUnit?) = _w.writeOptional(_v) { packTehillimUnit(_w, it) }
 
 internal fun unpackOptionalOfTehillimUnit(_r: BufferReader): TehillimUnit? = _r.readOptional { unpackTehillimUnit(_r) }
-
-internal fun packOptionalOfZman(_w: BufferWriter, _v: Zman?) = _w.writeOptional(_v) { _w.writeI32(it.value) }
-
-internal fun unpackOptionalOfZman(_r: BufferReader): Zman? = _r.readOptional { Zman.fromValue(_r.readI32()) }
 
 internal fun packOptionalOfZmanFailure(_w: BufferWriter, _v: ZmanFailure?) = _w.writeOptional(_v) { _w.writeI32(it.value) }
 

@@ -40,7 +40,7 @@ export declare namespace calendar {
     constructor(message?: string);
   }
   /** A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49. */
-  export class InvalidHolidayError extends calendar.CalendarError {
+  export class InvalidSpecialDayError extends calendar.CalendarError {
     static readonly CODE: 2;
     constructor(message?: string);
   }
@@ -257,7 +257,7 @@ export declare namespace calendar {
    * sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
    * show them.
    */
-  export type Holiday =
+  export type SpecialDay =
     /** Erev Pesach, 14 Nisan. */
     | { tag: 'ErevPesach' }
     /** Pesach. */
@@ -415,7 +415,7 @@ export declare namespace calendar {
      */
     addDays(days: number): calendar.HebrewDate;
     /** The holidays, fasts and other marked days on this day. */
-    holidays(region: calendar.Region): calendar.Holiday[];
+    specialDays(region: calendar.Region): calendar.SpecialDay[];
     /** Whether melacha is forbidden: Shabbos or Yom Tov. */
     isAssurBemelacha(region: calendar.Region): boolean;
     /** Whether candles are lit tonight for Shabbos or Yom Tov. */
@@ -469,55 +469,55 @@ export declare namespace calendar {
    */
   export function roshHashana(year: number): calendar.HebrewDate;
   /**
-   * The holiday's English name, for example "Chanukah".
+   * The day's English name, for example "Chanukah".
    *
    * # Errors
    *
-   * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+   * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
    * outside 1 to 49.
    * @throws {calendar.CalendarError}
    */
-  export function holidayName(holiday: calendar.Holiday): string;
+  export function specialDayName(specialDay: calendar.SpecialDay): string;
   /**
-   * The holiday's Hebrew name.
+   * The day's Hebrew name.
    *
    * # Errors
    *
-   * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+   * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
    * outside 1 to 49.
    * @throws {calendar.CalendarError}
    */
-  export function holidayHebrew(holiday: calendar.Holiday): string;
+  export function specialDayHebrew(specialDay: calendar.SpecialDay): string;
   /**
    * Whether melacha is forbidden on the holiday.
    *
    * # Errors
    *
-   * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+   * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
    * outside 1 to 49.
    * @throws {calendar.CalendarError}
    */
-  export function holidayIsAssurBemelacha(holiday: calendar.Holiday): boolean;
+  export function specialDayIsAssurBemelacha(specialDay: calendar.SpecialDay): boolean;
   /**
    * Whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
    *
    * # Errors
    *
-   * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+   * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
    * outside 1 to 49.
    * @throws {calendar.CalendarError}
    */
-  export function holidayIsModern(holiday: calendar.Holiday): boolean;
+  export function specialDayIsModern(specialDay: calendar.SpecialDay): boolean;
   /**
    * Whether the holiday is a fast day.
    *
    * # Errors
    *
-   * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+   * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
    * outside 1 to 49.
    * @throws {calendar.CalendarError}
    */
-  export function holidayIsFastDay(holiday: calendar.Holiday): boolean;
+  export function specialDayIsFastDay(specialDay: calendar.SpecialDay): boolean;
   /** The portion's English name, for example "Lech Lecha". */
   export function parshaName(parsha: calendar.Parsha): string;
   /** The portion's Hebrew name. */
@@ -1558,8 +1558,6 @@ export declare namespace times {
   export function zmanName(zman: times.Zman): string;
   /** The KosherJava method that calculates the zman, for example "getSofZmanShmaGRA". */
   export function zmanJavaName(zman: times.Zman): string;
-  /** The zman named by its KosherJava method, for example "getSofZmanShmaGRA". */
-  export function zmanFromJavaName(javaName: string): times.Zman | null;
   /** What kind of time the zman is. */
   export function zmanCategory(zman: times.Zman): times.Category;
   /** Whether KosherJava deprecates the zman. */

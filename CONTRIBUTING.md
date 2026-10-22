@@ -79,7 +79,7 @@ they explain.
 - **Types and their main methods**: what it is, when to use it, and when it fails. Start
   `Option` docs with "Returns `None` when..."; give `Result` an `# Errors` section.
 - **Enum variants**: one line. Name the opinion for a `Zman`; give the transliteration and the
-  Hebrew for a `Holiday`, `Parsha` or `Tractate`.
+  Hebrew for a `SpecialDay`, `Parsha` or `Tractate`.
 - **Constants**: the value, its unit, and where it comes from.
 - **Never in `///`**: how something is computed internally, which private helper it calls, or the
   history of the port.

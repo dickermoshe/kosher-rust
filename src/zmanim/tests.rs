@@ -759,6 +759,8 @@ fn test_range_edges_report_errors_not_panics() {
     let dates = [
         Date::new(-9999, 1, 1).unwrap(),
         Date::new(-9999, 1, 2).unwrap(),
+        Date::new(-4151, 8, 10).unwrap(),
+        Date::new(-3760, 5, 12).unwrap(),
         Date::new(9999, 12, 29).unwrap(),
         Date::new(9999, 12, 30).unwrap(),
         Date::new(9999, 12, 31).unwrap(),
@@ -848,4 +850,12 @@ fn test_what_needs_a_time_zone() {
         }
         date = date.tomorrow().unwrap();
     }
+}
+
+#[test]
+fn java_names_round_trip() {
+    for zman in Zman::ALL {
+        assert_eq!(Zman::from_java_name(zman.java_name()), Some(zman));
+    }
+    assert_eq!(Zman::from_java_name("getZmanMolad"), None);
 }

@@ -41,14 +41,14 @@ public abstract class CalendarException : NativeException
     }
 
     /// <summary>A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.</summary>
-    public sealed class InvalidHoliday : CalendarException
+    public sealed class InvalidSpecialDay : CalendarException
     {
         /// <summary>The domain code, <c>2</c>.</summary>
         public const int ErrorCode = 2;
 
         /// <summary>Creates the error with <paramref name="message"/>, or the
         /// default message "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49." when it's null.</summary>
-        public InvalidHoliday(string? message = null) : base(ErrorCode, message ?? "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.")
+        public InvalidSpecialDay(string? message = null) : base(ErrorCode, message ?? "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.")
         {
         }
     }
@@ -61,8 +61,8 @@ public abstract class CalendarException : NativeException
         {
             case InvalidDate.ErrorCode:
                 return new InvalidDate(given);
-            case InvalidHoliday.ErrorCode:
-                return new InvalidHoliday(given);
+            case InvalidSpecialDay.ErrorCode:
+                return new InvalidSpecialDay(given);
             default:
                 return global::Kosherz.NativeException.FromError(code, message, payload);
         }
@@ -552,114 +552,114 @@ public enum Parsha
 /// sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
 /// show them.
 /// </summary>
-public abstract class Holiday
+public abstract class SpecialDay
 {
-    private Holiday()
+    private SpecialDay()
     {
     }
 
     /// <summary>Erev Pesach, 14 Nisan.</summary>
-    public sealed class ErevPesach : Holiday
+    public sealed class ErevPesach : SpecialDay
     {
     }
 
     /// <summary>Pesach.</summary>
-    public sealed class Pesach : Holiday
+    public sealed class Pesach : SpecialDay
     {
     }
 
     /// <summary>Chol Hamoed Pesach.</summary>
-    public sealed class CholHamoedPesach : Holiday
+    public sealed class CholHamoedPesach : SpecialDay
     {
     }
 
     /// <summary>Pesach Sheni, 14 Iyar.</summary>
-    public sealed class PesachSheni : Holiday
+    public sealed class PesachSheni : SpecialDay
     {
     }
 
     /// <summary>Erev Shavuos, 5 Sivan.</summary>
-    public sealed class ErevShavuos : Holiday
+    public sealed class ErevShavuos : SpecialDay
     {
     }
 
     /// <summary>Shavuos.</summary>
-    public sealed class Shavuos : Holiday
+    public sealed class Shavuos : SpecialDay
     {
     }
 
     /// <summary>The fast of 17 Tammuz.</summary>
-    public sealed class SeventeenthOfTammuz : Holiday
+    public sealed class SeventeenthOfTammuz : SpecialDay
     {
     }
 
     /// <summary>Tishah B'Av.</summary>
-    public sealed class TishahBav : Holiday
+    public sealed class TishahBav : SpecialDay
     {
     }
 
     /// <summary>Tu B'Av, 15 Av.</summary>
-    public sealed class TuBav : Holiday
+    public sealed class TuBav : SpecialDay
     {
     }
 
     /// <summary>Erev Rosh Hashana, 29 Elul.</summary>
-    public sealed class ErevRoshHashana : Holiday
+    public sealed class ErevRoshHashana : SpecialDay
     {
     }
 
     /// <summary>Rosh Hashana.</summary>
-    public sealed class RoshHashana : Holiday
+    public sealed class RoshHashana : SpecialDay
     {
     }
 
     /// <summary>The Fast of Gedalyah.</summary>
-    public sealed class FastOfGedalyah : Holiday
+    public sealed class FastOfGedalyah : SpecialDay
     {
     }
 
     /// <summary>Erev Yom Kippur, 9 Tishrei.</summary>
-    public sealed class ErevYomKippur : Holiday
+    public sealed class ErevYomKippur : SpecialDay
     {
     }
 
     /// <summary>Yom Kippur, 10 Tishrei.</summary>
-    public sealed class YomKippur : Holiday
+    public sealed class YomKippur : SpecialDay
     {
     }
 
     /// <summary>Erev Succos, 14 Tishrei.</summary>
-    public sealed class ErevSuccos : Holiday
+    public sealed class ErevSuccos : SpecialDay
     {
     }
 
     /// <summary>Succos.</summary>
-    public sealed class Succos : Holiday
+    public sealed class Succos : SpecialDay
     {
     }
 
     /// <summary>Chol Hamoed Succos.</summary>
-    public sealed class CholHamoedSuccos : Holiday
+    public sealed class CholHamoedSuccos : SpecialDay
     {
     }
 
     /// <summary>Hoshana Rabbah, 21 Tishrei.</summary>
-    public sealed class HoshanaRabbah : Holiday
+    public sealed class HoshanaRabbah : SpecialDay
     {
     }
 
     /// <summary>Shemini Atzeres.</summary>
-    public sealed class SheminiAtzeres : Holiday
+    public sealed class SheminiAtzeres : SpecialDay
     {
     }
 
     /// <summary>Simchas Torah.</summary>
-    public sealed class SimchasTorah : Holiday
+    public sealed class SimchasTorah : SpecialDay
     {
     }
 
     /// <summary>Chanukah.</summary>
-    public sealed class Chanukah : Holiday
+    public sealed class Chanukah : SpecialDay
     {
         /// <summary>The day of Chanukah, 1 to 8.</summary>
         public int Day { get; }
@@ -672,92 +672,92 @@ public abstract class Holiday
     }
 
     /// <summary>The fast of 10 Teves.</summary>
-    public sealed class TenthOfTeves : Holiday
+    public sealed class TenthOfTeves : SpecialDay
     {
     }
 
     /// <summary>Tu B'Shvat, 15 Shevat.</summary>
-    public sealed class TuBshvat : Holiday
+    public sealed class TuBshvat : SpecialDay
     {
     }
 
     /// <summary>The Fast of Esther.</summary>
-    public sealed class FastOfEsther : Holiday
+    public sealed class FastOfEsther : SpecialDay
     {
     }
 
     /// <summary>Purim.</summary>
-    public sealed class Purim : Holiday
+    public sealed class Purim : SpecialDay
     {
     }
 
     /// <summary>Shushan Purim.</summary>
-    public sealed class ShushanPurim : Holiday
+    public sealed class ShushanPurim : SpecialDay
     {
     }
 
     /// <summary>Purim Katan, 14 Adar I.</summary>
-    public sealed class PurimKatan : Holiday
+    public sealed class PurimKatan : SpecialDay
     {
     }
 
     /// <summary>Rosh Chodesh.</summary>
-    public sealed class RoshChodesh : Holiday
+    public sealed class RoshChodesh : SpecialDay
     {
     }
 
     /// <summary>Yom HaShoah.</summary>
-    public sealed class YomHaShoah : Holiday
+    public sealed class YomHaShoah : SpecialDay
     {
     }
 
     /// <summary>Yom Hazikaron.</summary>
-    public sealed class YomHazikaron : Holiday
+    public sealed class YomHazikaron : SpecialDay
     {
     }
 
     /// <summary>Yom Ha'atzmaut.</summary>
-    public sealed class YomHaatzmaut : Holiday
+    public sealed class YomHaatzmaut : SpecialDay
     {
     }
 
     /// <summary>Yom Yerushalayim.</summary>
-    public sealed class YomYerushalayim : Holiday
+    public sealed class YomYerushalayim : SpecialDay
     {
     }
 
     /// <summary>Lag B'Omer, 18 Iyar.</summary>
-    public sealed class LagBomer : Holiday
+    public sealed class LagBomer : SpecialDay
     {
     }
 
     /// <summary>Shushan Purim Katan, 15 Adar I.</summary>
-    public sealed class ShushanPurimKatan : Holiday
+    public sealed class ShushanPurimKatan : SpecialDay
     {
     }
 
     /// <summary>Isru Chag, the day after a festival.</summary>
-    public sealed class IsruChag : Holiday
+    public sealed class IsruChag : SpecialDay
     {
     }
 
     /// <summary>Yom Kippur Katan, the eve of Rosh Chodesh.</summary>
-    public sealed class YomKippurKatan : Holiday
+    public sealed class YomKippurKatan : SpecialDay
     {
     }
 
     /// <summary>Behab, the Monday-Thursday-Monday fasts after Pesach and Succos.</summary>
-    public sealed class Behab : Holiday
+    public sealed class Behab : SpecialDay
     {
     }
 
     /// <summary>The Fast of the Firstborn.</summary>
-    public sealed class FastOfTheFirstborn : Holiday
+    public sealed class FastOfTheFirstborn : SpecialDay
     {
     }
 
     /// <summary>The Omer count.</summary>
-    public sealed class CountOfTheOmer : Holiday
+    public sealed class CountOfTheOmer : SpecialDay
     {
         /// <summary>The day of the count, 1 to 49.</summary>
         public int Day { get; }
@@ -770,17 +770,17 @@ public abstract class Holiday
     }
 
     /// <summary>Birchas Hachamah, every 28 years.</summary>
-    public sealed class BirchasHachamah : Holiday
+    public sealed class BirchasHachamah : SpecialDay
     {
     }
 
     /// <summary>Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.</summary>
-    public sealed class MacharHachodesh : Holiday
+    public sealed class MacharHachodesh : SpecialDay
     {
     }
 
     /// <summary>Shabbos Mevarchim, the Shabbos when the coming month is announced.</summary>
-    public sealed class ShabbosMevarchim : Holiday
+    public sealed class ShabbosMevarchim : SpecialDay
     {
     }
 
@@ -917,11 +917,11 @@ public abstract class Holiday
                 writer.WriteI32(41);
                 break;
             default:
-                throw new InvalidOperationException("unknown Holiday variant");
+                throw new InvalidOperationException("unknown SpecialDay variant");
         }
     }
 
-    internal static Holiday ReadFrom(FfiBufferReader reader)
+    internal static SpecialDay ReadFrom(FfiBufferReader reader)
     {
         var tag = reader.ReadI32();
         switch (tag)
@@ -1097,7 +1097,7 @@ public abstract class Holiday
                 return new ShabbosMevarchim();
             }
             default:
-                throw FfiBufferReader.Malformed("unknown Holiday tag " + tag);
+                throw FfiBufferReader.Malformed("unknown SpecialDay tag " + tag);
         }
     }
 }
@@ -1336,13 +1336,13 @@ public sealed unsafe class HebrewDate : IDisposable, IEquatable<HebrewDate>
     }
 
     /// <summary>The holidays, fasts and other marked days on this day.</summary>
-    public Holiday[] Holidays(Region region)
+    public SpecialDay[] SpecialDays(Region region)
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_calendar_HebrewDate_holidays(Handle, (int)region, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_calendar_HebrewDate_special_days(Handle, (int)region, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
-        return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => FfiCodecs.ReadListOfHoliday(r));
+        return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => FfiCodecs.ReadListOfSpecialDay(r));
     }
 
     /// <summary>Whether melacha is forbidden: Shabbos or Yom Tov.</summary>
@@ -3337,46 +3337,46 @@ public static unsafe class Calendar
     }
 
     /// <summary>
-    /// The holiday's English name, for example "Chanukah".
+    /// The day's English name, for example "Chanukah".
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     /// </summary>
     /// <exception cref="CalendarException">The call reported a CalendarError code.</exception>
-    public static string HolidayName(Holiday holiday)
+    public static string SpecialDayName(SpecialDay specialDay)
     {
-        var holidayWriter = new FfiBufferWriter();
-        holiday.WriteTo(holidayWriter);
+        var specialDayWriter = new FfiBufferWriter();
+        specialDay.WriteTo(specialDayWriter);
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        fixed (byte* holidayPtr = holidayWriter.Written)
+        fixed (byte* specialDayPtr = specialDayWriter.Written)
         {
-            var ffiResult = NativeMethods.kosherz_calendar_holiday_name(holidayPtr, (nuint)holidayWriter.Length, &ffiOutLen, &ffiErr);
+            var ffiResult = NativeMethods.kosherz_calendar_special_day_name(specialDayPtr, (nuint)specialDayWriter.Length, &ffiOutLen, &ffiErr);
             if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.CalendarException.FromError);
             return Ffi.TakeString(ffiResult, ffiOutLen);
         }
     }
 
     /// <summary>
-    /// The holiday's Hebrew name.
+    /// The day's Hebrew name.
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     /// </summary>
     /// <exception cref="CalendarException">The call reported a CalendarError code.</exception>
-    public static string HolidayHebrew(Holiday holiday)
+    public static string SpecialDayHebrew(SpecialDay specialDay)
     {
-        var holidayWriter = new FfiBufferWriter();
-        holiday.WriteTo(holidayWriter);
+        var specialDayWriter = new FfiBufferWriter();
+        specialDay.WriteTo(specialDayWriter);
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        fixed (byte* holidayPtr = holidayWriter.Written)
+        fixed (byte* specialDayPtr = specialDayWriter.Written)
         {
-            var ffiResult = NativeMethods.kosherz_calendar_holiday_hebrew(holidayPtr, (nuint)holidayWriter.Length, &ffiOutLen, &ffiErr);
+            var ffiResult = NativeMethods.kosherz_calendar_special_day_hebrew(specialDayPtr, (nuint)specialDayWriter.Length, &ffiOutLen, &ffiErr);
             if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.CalendarException.FromError);
             return Ffi.TakeString(ffiResult, ffiOutLen);
         }
@@ -3387,18 +3387,18 @@ public static unsafe class Calendar
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     /// </summary>
     /// <exception cref="CalendarException">The call reported a CalendarError code.</exception>
-    public static bool HolidayIsAssurBemelacha(Holiday holiday)
+    public static bool SpecialDayIsAssurBemelacha(SpecialDay specialDay)
     {
-        var holidayWriter = new FfiBufferWriter();
-        holiday.WriteTo(holidayWriter);
+        var specialDayWriter = new FfiBufferWriter();
+        specialDay.WriteTo(specialDayWriter);
         var ffiErr = default(FfiError);
-        fixed (byte* holidayPtr = holidayWriter.Written)
+        fixed (byte* specialDayPtr = specialDayWriter.Written)
         {
-            var ffiResult = NativeMethods.kosherz_calendar_holiday_is_assur_bemelacha(holidayPtr, (nuint)holidayWriter.Length, &ffiErr);
+            var ffiResult = NativeMethods.kosherz_calendar_special_day_is_assur_bemelacha(specialDayPtr, (nuint)specialDayWriter.Length, &ffiErr);
             if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.CalendarException.FromError);
             return ffiResult != 0;
         }
@@ -3409,18 +3409,18 @@ public static unsafe class Calendar
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     /// </summary>
     /// <exception cref="CalendarException">The call reported a CalendarError code.</exception>
-    public static bool HolidayIsModern(Holiday holiday)
+    public static bool SpecialDayIsModern(SpecialDay specialDay)
     {
-        var holidayWriter = new FfiBufferWriter();
-        holiday.WriteTo(holidayWriter);
+        var specialDayWriter = new FfiBufferWriter();
+        specialDay.WriteTo(specialDayWriter);
         var ffiErr = default(FfiError);
-        fixed (byte* holidayPtr = holidayWriter.Written)
+        fixed (byte* specialDayPtr = specialDayWriter.Written)
         {
-            var ffiResult = NativeMethods.kosherz_calendar_holiday_is_modern(holidayPtr, (nuint)holidayWriter.Length, &ffiErr);
+            var ffiResult = NativeMethods.kosherz_calendar_special_day_is_modern(specialDayPtr, (nuint)specialDayWriter.Length, &ffiErr);
             if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.CalendarException.FromError);
             return ffiResult != 0;
         }
@@ -3431,18 +3431,18 @@ public static unsafe class Calendar
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     /// </summary>
     /// <exception cref="CalendarException">The call reported a CalendarError code.</exception>
-    public static bool HolidayIsFastDay(Holiday holiday)
+    public static bool SpecialDayIsFastDay(SpecialDay specialDay)
     {
-        var holidayWriter = new FfiBufferWriter();
-        holiday.WriteTo(holidayWriter);
+        var specialDayWriter = new FfiBufferWriter();
+        specialDay.WriteTo(specialDayWriter);
         var ffiErr = default(FfiError);
-        fixed (byte* holidayPtr = holidayWriter.Written)
+        fixed (byte* specialDayPtr = specialDayWriter.Written)
         {
-            var ffiResult = NativeMethods.kosherz_calendar_holiday_is_fast_day(holidayPtr, (nuint)holidayWriter.Length, &ffiErr);
+            var ffiResult = NativeMethods.kosherz_calendar_special_day_is_fast_day(specialDayPtr, (nuint)specialDayWriter.Length, &ffiErr);
             if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.CalendarException.FromError);
             return ffiResult != 0;
         }
@@ -3707,20 +3707,6 @@ public static unsafe class Times
         return Ffi.TakeString(ffiResult, ffiOutLen);
     }
 
-    /// <summary>The zman named by its KosherJava method, for example "getSofZmanShmaGRA".</summary>
-    public static Zman? ZmanFromJavaName(string javaName)
-    {
-        var javaNameBytes = Ffi.Utf8(javaName);
-        var ffiErr = default(FfiError);
-        nuint ffiOutLen = 0;
-        fixed (byte* javaNamePtr = javaNameBytes)
-        {
-            var ffiResult = NativeMethods.kosherz_times_zman_from_java_name(javaNamePtr, (nuint)javaNameBytes.Length, &ffiOutLen, &ffiErr);
-            if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
-            return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => FfiCodecs.ReadOptionalOfZman(r));
-        }
-    }
-
     /// <summary>What kind of time the zman is.</summary>
     public static Category ZmanCategory(Zman zman)
     {
@@ -3881,26 +3867,6 @@ internal static class FfiCodecs
         return list.ToArray();
     }
 
-    internal static void WriteListOfHoliday(FfiBufferWriter writer, Holiday[] value)
-    {
-        writer.WriteLen(value.Length);
-        foreach (var item in value)
-        {
-            item.WriteTo(writer);
-        }
-    }
-
-    internal static Holiday[] ReadListOfHoliday(FfiBufferReader reader)
-    {
-        var count = reader.ReadLen();
-        var list = new List<Holiday>(reader.Capacity(count));
-        for (var i = 0; i < count; i++)
-        {
-            list.Add(global::Kosherz.Holiday.ReadFrom(reader));
-        }
-        return list.ToArray();
-    }
-
     internal static void WriteListOfMyZman(FfiBufferWriter writer, MyZman[] value)
     {
         writer.WriteLen(value.Length);
@@ -3937,6 +3903,26 @@ internal static class FfiCodecs
         for (var i = 0; i < count; i++)
         {
             list.Add(global::Kosherz.MyZmanTime.ReadFrom(reader));
+        }
+        return list.ToArray();
+    }
+
+    internal static void WriteListOfSpecialDay(FfiBufferWriter writer, SpecialDay[] value)
+    {
+        writer.WriteLen(value.Length);
+        foreach (var item in value)
+        {
+            item.WriteTo(writer);
+        }
+    }
+
+    internal static SpecialDay[] ReadListOfSpecialDay(FfiBufferReader reader)
+    {
+        var count = reader.ReadLen();
+        var list = new List<SpecialDay>(reader.Capacity(count));
+        for (var i = 0; i < count; i++)
+        {
+            list.Add(global::Kosherz.SpecialDay.ReadFrom(reader));
         }
         return list.ToArray();
     }
@@ -4107,20 +4093,6 @@ internal static class FfiCodecs
         return reader.ReadBool() ? global::Kosherz.TehillimUnit.ReadFrom(reader) : null;
     }
 
-    internal static void WriteOptionalOfZman(FfiBufferWriter writer, Zman? value)
-    {
-        writer.WriteBool(value != null);
-        if (value is { } present)
-        {
-            writer.WriteI32((int)present);
-        }
-    }
-
-    internal static Zman? ReadOptionalOfZman(FfiBufferReader reader)
-    {
-        return reader.ReadBool() ? (global::Kosherz.Zman)reader.ReadI32() : null;
-    }
-
     internal static void WriteOptionalOfZmanFailure(FfiBufferWriter writer, ZmanFailure? value)
     {
         writer.WriteBool(value != null);
@@ -4144,16 +4116,18 @@ internal static unsafe partial class NativeMethods
         {
             (0x0076e887e475ab9fUL, 0x96615bd3eb7f1761UL, "calendar.HebrewDate.molad"),
             (0x01344feb6b733690UL, 0x47b992630b03d56aUL, "calendar.HebrewDate.weekday"),
+            (0x04722a067e750ac7UL, 0x10c6e1e0af9f20c4UL, "calendar.special_day_name"),
             (0x12decead9d8a44cfUL, 0x4b1b3a695325cfcaUL, "calendar.limudim.LimudimError"),
             (0x190ecd13c0fccffaUL, 0x35e622a32a88ef57UL, "calendar.limudim.mishna_yomis"),
             (0x1c33df579fac36d8UL, 0x1175c871bc023b86UL, "calendar.HebrewDate.day_of_year"),
+            (0x1d2a2cfe983548a6UL, 0x513b06d6c24719e2UL, "calendar.special_day_is_fast_day"),
             (0x235fd1db8b7dd5f5UL, 0x399eab22141dffd3UL, "calendar.GregorianDate"),
             (0x2b066dc65c460024UL, 0xf4f23e6586bd1dd7UL, "calendar.HebrewDate"),
             (0x2c8e60589f58d792UL, 0xa0608634cb2f46cbUL, "calendar.limudim.Mishna"),
             (0x2da09ea1403b727eUL, 0x4d5e82347ae7a3fcUL, "calendar.HebrewMonth"),
             (0x2e1645ba38a77559UL, 0x1c81765c98ab54f9UL, "calendar.HebrewDate.parsha"),
             (0x2e561d4c25bf877dUL, 0x47ff51d038dbe0d8UL, "calendar.limudim.tehillim_display"),
-            (0x3a2980b734ba8883UL, 0x2d505394972243a9UL, "calendar.HebrewDate.holidays"),
+            (0x34b343651b1fb8feUL, 0x12159035b300983aUL, "calendar.special_day_is_modern"),
             (0x3a3316910057484eUL, 0xd86a18c3b722f6c7UL, "calendar.limudim.tehillim_monthly"),
             (0x3c8950ed1f7f370cUL, 0x19e0d2b3ff9d26feUL, "calendar.HebrewDate.day"),
             (0x422860078e596223UL, 0x32c85d18778b0bb4UL, "calendar.HebrewDate.equals"),
@@ -4166,28 +4140,25 @@ internal static unsafe partial class NativeMethods
             (0x53798234777e19eaUL, 0x6c389ed6ad08dbe3UL, "calendar.rosh_hashana"),
             (0x58fc9af210a33bddUL, 0xc3e1903a4dc8359dUL, "calendar.HebrewDate.is_aseres_yemei_teshuva"),
             (0x5c2a6a6f333ead35UL, 0x74c7180edff5c022UL, "calendar.HebrewDate.from_gregorian"),
-            (0x5d5d66098ee06c49UL, 0x8a4e9ca163a6a190UL, "calendar.Holiday"),
+            (0x6089a64539b542a8UL, 0x404904f4331718c5UL, "calendar.SpecialDay"),
             (0x65535c1ad3d9f893UL, 0x55884ddb65b50739UL, "calendar.HebrewDate.has_candle_lighting"),
             (0x6a0735856dec8d1aUL, 0xdc1addb4a7ab46efUL, "calendar.parsha_name"),
-            (0x6d120a34fc12b94eUL, 0x2444827e369b819bUL, "calendar.holiday_is_assur_bemelacha"),
             (0x734de195723c4becUL, 0xc7f3965b813050f5UL, "calendar.HebrewDate.display"),
             (0x753c68bed189444bUL, 0x8111a6d476ecf648UL, "calendar.Region"),
             (0x78416ddbbcc55dd6UL, 0x6c9e0901963a2dfcUL, "calendar.limudim.tractate_hebrew"),
-            (0x7b66ec4056f4dcbcUL, 0xe848ea2454d6e4c1UL, "calendar.holiday_is_fast_day"),
             (0x7ed52a27f9477122UL, 0x6e401597e28209a9UL, "calendar.limudim.MishnaPair"),
             (0x82b460a35e9ba56aUL, 0x18c3086aa662d366UL, "calendar.limudim.amud_yomi_dirshu"),
             (0x854dedb50653c50fUL, 0x914508f7681ccd43UL, "calendar.HebrewDate.next_parsha"),
-            (0x8f180424826294a4UL, 0xa976cce390a71369UL, "calendar.holiday_is_modern"),
+            (0x9006c018e9f8aed8UL, 0x8b43089a0dda99f4UL, "calendar.special_day_is_assur_bemelacha"),
             (0x924fdf3d84514e8eUL, 0xd6c2f5c20a8b129dUL, "calendar.limudim.TehillimUnit"),
             (0x93ceba93a2b10131UL, 0xc7b188714edbf795UL, "calendar.HebrewDate.special_parsha"),
-            (0x94dc4cc8ea8c02c9UL, 0x51105a7bb4b55bddUL, "calendar.holiday_name"),
             (0x98cc81d52e65776bUL, 0x2bf1569214921669UL, "calendar.month_hebrew"),
             (0x9b48ba34fb52812dUL, 0xff11e092dce92ed7UL, "calendar.limudim.Side"),
             (0x9e20ba757aee97c2UL, 0x9328a81ac256b477UL, "calendar.parsha_hebrew"),
+            (0xa06798705423bcc5UL, 0xba204574299d85b2UL, "calendar.HebrewDate.special_days"),
             (0xa1e3409cebf37881UL, 0xfeebfaab6c533e17UL, "calendar.limudim.Daf"),
             (0xa5864219850af272UL, 0xf8a4981ca376ff28UL, "calendar.HebrewDate.is_assur_bemelacha"),
             (0xaeb433ce589b7931UL, 0x364d4d0b6a770631UL, "calendar.limudim.Amud"),
-            (0xaf5dd6acc2e8ba71UL, 0xa2fdd5f43f90f755UL, "calendar.holiday_hebrew"),
             (0xbd8865ae2177f9ffUL, 0x6bc5f7eea096d080UL, "calendar.year_info"),
             (0xc3fd51b677226babUL, 0x684e92fa36717939UL, "calendar.month_name"),
             (0xc47f6755efcc97f2UL, 0xb882de90a2c3493fUL, "calendar.YearLength"),
@@ -4195,10 +4166,11 @@ internal static unsafe partial class NativeMethods
             (0xd099b5b97c1dddb6UL, 0x7321133365af2acbUL, "calendar.YearInfo"),
             (0xd542917e9468e665UL, 0xc29b76894e14326cUL, "calendar.HebrewDate.compare"),
             (0xe055421dad70d98dUL, 0xc2712588daaabbafUL, "calendar.limudim.pirkei_avos_display"),
+            (0xe48d4a72f047f917UL, 0x2c39a2ab4fa38524UL, "calendar.special_day_hebrew"),
             (0xe5bd2ded003a830aUL, 0x21bf463baf36e8aeUL, "calendar.limudim.daf_hashavua_bavli"),
             (0xe5f7bcecee7a3148UL, 0xf9b3a1fb63fa80adUL, "calendar.HebrewDate.new"),
             (0xea80ab8c284067d9UL, 0x96b30eb7f85eaf21UL, "calendar.limudim.daf_yomi_bavli"),
-            (0xeb41af932363bd25UL, 0xc681430e19f4d7b1UL, "calendar.CalendarError"),
+            (0xeb41af932363bd25UL, 0xc2d1a611bc5da8c6UL, "calendar.CalendarError"),
             (0xeb6a6e150a6abbe0UL, 0xf5d8629c4bfb2f06UL, "calendar.limudim.Tractate"),
             (0xee029887d9af6ef8UL, 0x54411bdda9d3b13bUL, "calendar.HebrewDate.month"),
             (0xefe1cb89cb8314f3UL, 0x03b0248b8cfa2de8UL, "calendar.days_in_month"),
@@ -4221,7 +4193,6 @@ internal static unsafe partial class NativeMethods
             (0x38596a351e356743UL, 0x685412d4d80250eaUL, "times.Config"),
             (0x39389f0e68d3cc22UL, 0x4af5df9a96d3f535UL, "times.myzmanim.MyZmanim.proportional_hour_gra"),
             (0x3c92cd49c8b4515bUL, 0x5962ffa89080c41bUL, "times.shaah_zmanis"),
-            (0x4048d3ca4b000831UL, 0xdf4697e13848d687UL, "times.zman_from_java_name"),
             (0x44a0809dedbd4a4dUL, 0x9169cc1ef07d2488UL, "times.ZmanimError"),
             (0x4d259836d7137c43UL, 0x0486761191984fd0UL, "times.Zman"),
             (0x57d7a9c5a715b9faUL, 0x7110b3413cfd8e83UL, "times.Location"),
@@ -4309,9 +4280,9 @@ internal static unsafe partial class NativeMethods
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial IntPtr kosherz_calendar_HebrewDate_add_days(HebrewDate.NativeHandle self, int days, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_HebrewDate_holidays")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_HebrewDate_special_days")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_calendar_HebrewDate_holidays(HebrewDate.NativeHandle self, int region, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_calendar_HebrewDate_special_days(HebrewDate.NativeHandle self, int region, nuint* out_len, FfiError* out_err);
 
     [LibraryImport(LibName, EntryPoint = "kosherz_calendar_HebrewDate_is_assur_bemelacha")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -4365,25 +4336,25 @@ internal static unsafe partial class NativeMethods
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial IntPtr kosherz_calendar_rosh_hashana(int year, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_holiday_name")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_special_day_name")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_calendar_holiday_name(byte* holiday_ptr, nuint holiday_len, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_calendar_special_day_name(byte* special_day_ptr, nuint special_day_len, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_holiday_hebrew")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_special_day_hebrew")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_calendar_holiday_hebrew(byte* holiday_ptr, nuint holiday_len, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_calendar_special_day_hebrew(byte* special_day_ptr, nuint special_day_len, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_holiday_is_assur_bemelacha")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_special_day_is_assur_bemelacha")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte kosherz_calendar_holiday_is_assur_bemelacha(byte* holiday_ptr, nuint holiday_len, FfiError* out_err);
+    internal static partial byte kosherz_calendar_special_day_is_assur_bemelacha(byte* special_day_ptr, nuint special_day_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_holiday_is_modern")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_special_day_is_modern")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte kosherz_calendar_holiday_is_modern(byte* holiday_ptr, nuint holiday_len, FfiError* out_err);
+    internal static partial byte kosherz_calendar_special_day_is_modern(byte* special_day_ptr, nuint special_day_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_holiday_is_fast_day")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_calendar_special_day_is_fast_day")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte kosherz_calendar_holiday_is_fast_day(byte* holiday_ptr, nuint holiday_len, FfiError* out_err);
+    internal static partial byte kosherz_calendar_special_day_is_fast_day(byte* special_day_ptr, nuint special_day_len, FfiError* out_err);
 
     [LibraryImport(LibName, EntryPoint = "kosherz_calendar_parsha_name")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -4508,10 +4479,6 @@ internal static unsafe partial class NativeMethods
     [LibraryImport(LibName, EntryPoint = "kosherz_times_zman_java_name")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial byte* kosherz_times_zman_java_name(int zman, nuint* out_len, FfiError* out_err);
-
-    [LibraryImport(LibName, EntryPoint = "kosherz_times_zman_from_java_name")]
-    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_times_zman_from_java_name(byte* java_name_ptr, nuint java_name_len, nuint* out_len, FfiError* out_err);
 
     [LibraryImport(LibName, EntryPoint = "kosherz_times_zman_category")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]

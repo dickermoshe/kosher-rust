@@ -1082,7 +1082,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosherz_calendar_holiday_name(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_calendar_special_day_name(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   const uint8_t* a0 = NULL;
@@ -1092,7 +1092,7 @@ static napi_value nx_kosherz_calendar_holiday_name(napi_env env, napi_callback_i
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosherz_calendar_holiday_name(a0, a0_len, &out_len, &err);
+    const uint8_t* r = kosherz_calendar_special_day_name(a0, a0_len, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1105,7 +1105,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosherz_calendar_holiday_hebrew(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_calendar_special_day_hebrew(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   const uint8_t* a0 = NULL;
@@ -1115,7 +1115,7 @@ static napi_value nx_kosherz_calendar_holiday_hebrew(napi_env env, napi_callback
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosherz_calendar_holiday_hebrew(a0, a0_len, &out_len, &err);
+    const uint8_t* r = kosherz_calendar_special_day_hebrew(a0, a0_len, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1128,7 +1128,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosherz_calendar_holiday_is_assur_bemelacha(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_calendar_special_day_is_assur_bemelacha(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   const uint8_t* a0 = NULL;
@@ -1137,7 +1137,7 @@ static napi_value nx_kosherz_calendar_holiday_is_assur_bemelacha(napi_env env, n
   {
     js_error err = {0};
     js_sync_begin();
-    bool r = kosherz_calendar_holiday_is_assur_bemelacha(a0, a0_len, &err);
+    bool r = kosherz_calendar_special_day_is_assur_bemelacha(a0, a0_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1150,7 +1150,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosherz_calendar_holiday_is_modern(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_calendar_special_day_is_modern(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   const uint8_t* a0 = NULL;
@@ -1159,7 +1159,7 @@ static napi_value nx_kosherz_calendar_holiday_is_modern(napi_env env, napi_callb
   {
     js_error err = {0};
     js_sync_begin();
-    bool r = kosherz_calendar_holiday_is_modern(a0, a0_len, &err);
+    bool r = kosherz_calendar_special_day_is_modern(a0, a0_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1172,7 +1172,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosherz_calendar_holiday_is_fast_day(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_calendar_special_day_is_fast_day(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   const uint8_t* a0 = NULL;
@@ -1181,7 +1181,7 @@ static napi_value nx_kosherz_calendar_holiday_is_fast_day(napi_env env, napi_cal
   {
     js_error err = {0};
     js_sync_begin();
-    bool r = kosherz_calendar_holiday_is_fast_day(a0, a0_len, &err);
+    bool r = kosherz_calendar_special_day_is_fast_day(a0, a0_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1479,7 +1479,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosherz_calendar_HebrewDate_holidays(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_calendar_HebrewDate_special_days(napi_env env, napi_callback_info info) {
   JS_ARGS(2);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -1490,7 +1490,7 @@ static napi_value nx_kosherz_calendar_HebrewDate_holidays(napi_env env, napi_cal
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosherz_calendar_HebrewDate_holidays((const kosherz_calendar_HebrewDate*)self_h, (kosherz_calendar_Region)a0, &out_len, &err);
+    const uint8_t* r = kosherz_calendar_HebrewDate_special_days((const kosherz_calendar_HebrewDate*)self_h, (kosherz_calendar_Region)a0, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2130,29 +2130,6 @@ done:
   return ret;
 }
 
-static napi_value nx_kosherz_times_zman_from_java_name(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  js_str a0 = JS_STR_INIT;
-  if (!js_arg_str(env, argv[0], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosherz_times_zman_from_java_name(JS_STR_PTR(a0), a0.len, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  js_str_free(&a0);
-  return ret;
-}
-
 static napi_value nx_kosherz_times_zman_category(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
@@ -2784,11 +2761,11 @@ NAPI_MODULE_INIT() {
     {"kosherz_calendar_year_info", NULL, nx_kosherz_calendar_year_info, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_calendar_days_in_month", NULL, nx_kosherz_calendar_days_in_month, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_calendar_rosh_hashana", NULL, nx_kosherz_calendar_rosh_hashana, NULL, NULL, NULL, napi_default, NULL},
-    {"kosherz_calendar_holiday_name", NULL, nx_kosherz_calendar_holiday_name, NULL, NULL, NULL, napi_default, NULL},
-    {"kosherz_calendar_holiday_hebrew", NULL, nx_kosherz_calendar_holiday_hebrew, NULL, NULL, NULL, napi_default, NULL},
-    {"kosherz_calendar_holiday_is_assur_bemelacha", NULL, nx_kosherz_calendar_holiday_is_assur_bemelacha, NULL, NULL, NULL, napi_default, NULL},
-    {"kosherz_calendar_holiday_is_modern", NULL, nx_kosherz_calendar_holiday_is_modern, NULL, NULL, NULL, napi_default, NULL},
-    {"kosherz_calendar_holiday_is_fast_day", NULL, nx_kosherz_calendar_holiday_is_fast_day, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_special_day_name", NULL, nx_kosherz_calendar_special_day_name, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_special_day_hebrew", NULL, nx_kosherz_calendar_special_day_hebrew, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_special_day_is_assur_bemelacha", NULL, nx_kosherz_calendar_special_day_is_assur_bemelacha, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_special_day_is_modern", NULL, nx_kosherz_calendar_special_day_is_modern, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_special_day_is_fast_day", NULL, nx_kosherz_calendar_special_day_is_fast_day, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_calendar_parsha_name", NULL, nx_kosherz_calendar_parsha_name, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_calendar_parsha_hebrew", NULL, nx_kosherz_calendar_parsha_hebrew, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_calendar_month_name", NULL, nx_kosherz_calendar_month_name, NULL, NULL, NULL, napi_default, NULL},
@@ -2802,7 +2779,7 @@ NAPI_MODULE_INIT() {
     {"kosherz_calendar_HebrewDate_weekday", NULL, nx_kosherz_calendar_HebrewDate_weekday, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_calendar_HebrewDate_to_gregorian", NULL, nx_kosherz_calendar_HebrewDate_to_gregorian, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_calendar_HebrewDate_add_days", NULL, nx_kosherz_calendar_HebrewDate_add_days, NULL, NULL, NULL, napi_default, NULL},
-    {"kosherz_calendar_HebrewDate_holidays", NULL, nx_kosherz_calendar_HebrewDate_holidays, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_special_days", NULL, nx_kosherz_calendar_HebrewDate_special_days, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_calendar_HebrewDate_is_assur_bemelacha", NULL, nx_kosherz_calendar_HebrewDate_is_assur_bemelacha, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_calendar_HebrewDate_has_candle_lighting", NULL, nx_kosherz_calendar_HebrewDate_has_candle_lighting, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva", NULL, nx_kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva, NULL, NULL, NULL, napi_default, NULL},
@@ -2832,7 +2809,6 @@ NAPI_MODULE_INIT() {
     {"kosherz_times_all_zmanim", NULL, nx_kosherz_times_all_zmanim, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_times_zman_name", NULL, nx_kosherz_times_zman_name, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_times_zman_java_name", NULL, nx_kosherz_times_zman_java_name, NULL, NULL, NULL, napi_default, NULL},
-    {"kosherz_times_zman_from_java_name", NULL, nx_kosherz_times_zman_from_java_name, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_times_zman_category", NULL, nx_kosherz_times_zman_category, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_times_zman_is_deprecated", NULL, nx_kosherz_times_zman_is_deprecated, NULL, NULL, NULL, napi_default, NULL},
     {"kosherz_times_zman_description", NULL, nx_kosherz_times_zman_description, NULL, NULL, NULL, napi_default, NULL},

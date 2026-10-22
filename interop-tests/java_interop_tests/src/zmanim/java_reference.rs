@@ -189,6 +189,7 @@ fn new_java_calculator<'local>(
             jni_str!("com/kosherjava/zmanim/util/SPACalculator"),
             Some(apply_delta_t),
         ),
+        _ => panic!("no KosherJava calculator for {calculator:?}"),
     };
 
     let object = env.new_object(class, jni_sig!("()V"), &[])?;

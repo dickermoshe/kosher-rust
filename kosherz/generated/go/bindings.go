@@ -34,16 +34,18 @@ func init() {
 	wvCheckContract(table, n, []wvContractEntry{
 		{0x0076e887e475ab9f, 0x96615bd3eb7f1761, "calendar.HebrewDate.molad"},
 		{0x01344feb6b733690, 0x47b992630b03d56a, "calendar.HebrewDate.weekday"},
+		{0x04722a067e750ac7, 0x10c6e1e0af9f20c4, "calendar.special_day_name"},
 		{0x12decead9d8a44cf, 0x4b1b3a695325cfca, "calendar.limudim.LimudimError"},
 		{0x190ecd13c0fccffa, 0x35e622a32a88ef57, "calendar.limudim.mishna_yomis"},
 		{0x1c33df579fac36d8, 0x1175c871bc023b86, "calendar.HebrewDate.day_of_year"},
+		{0x1d2a2cfe983548a6, 0x513b06d6c24719e2, "calendar.special_day_is_fast_day"},
 		{0x235fd1db8b7dd5f5, 0x399eab22141dffd3, "calendar.GregorianDate"},
 		{0x2b066dc65c460024, 0xf4f23e6586bd1dd7, "calendar.HebrewDate"},
 		{0x2c8e60589f58d792, 0xa0608634cb2f46cb, "calendar.limudim.Mishna"},
 		{0x2da09ea1403b727e, 0x4d5e82347ae7a3fc, "calendar.HebrewMonth"},
 		{0x2e1645ba38a77559, 0x1c81765c98ab54f9, "calendar.HebrewDate.parsha"},
 		{0x2e561d4c25bf877d, 0x47ff51d038dbe0d8, "calendar.limudim.tehillim_display"},
-		{0x3a2980b734ba8883, 0x2d505394972243a9, "calendar.HebrewDate.holidays"},
+		{0x34b343651b1fb8fe, 0x12159035b300983a, "calendar.special_day_is_modern"},
 		{0x3a3316910057484e, 0xd86a18c3b722f6c7, "calendar.limudim.tehillim_monthly"},
 		{0x3c8950ed1f7f370c, 0x19e0d2b3ff9d26fe, "calendar.HebrewDate.day"},
 		{0x422860078e596223, 0x32c85d18778b0bb4, "calendar.HebrewDate.equals"},
@@ -56,28 +58,25 @@ func init() {
 		{0x53798234777e19ea, 0x6c389ed6ad08dbe3, "calendar.rosh_hashana"},
 		{0x58fc9af210a33bdd, 0xc3e1903a4dc8359d, "calendar.HebrewDate.is_aseres_yemei_teshuva"},
 		{0x5c2a6a6f333ead35, 0x74c7180edff5c022, "calendar.HebrewDate.from_gregorian"},
-		{0x5d5d66098ee06c49, 0x8a4e9ca163a6a190, "calendar.Holiday"},
+		{0x6089a64539b542a8, 0x404904f4331718c5, "calendar.SpecialDay"},
 		{0x65535c1ad3d9f893, 0x55884ddb65b50739, "calendar.HebrewDate.has_candle_lighting"},
 		{0x6a0735856dec8d1a, 0xdc1addb4a7ab46ef, "calendar.parsha_name"},
-		{0x6d120a34fc12b94e, 0x2444827e369b819b, "calendar.holiday_is_assur_bemelacha"},
 		{0x734de195723c4bec, 0xc7f3965b813050f5, "calendar.HebrewDate.display"},
 		{0x753c68bed189444b, 0x8111a6d476ecf648, "calendar.Region"},
 		{0x78416ddbbcc55dd6, 0x6c9e0901963a2dfc, "calendar.limudim.tractate_hebrew"},
-		{0x7b66ec4056f4dcbc, 0xe848ea2454d6e4c1, "calendar.holiday_is_fast_day"},
 		{0x7ed52a27f9477122, 0x6e401597e28209a9, "calendar.limudim.MishnaPair"},
 		{0x82b460a35e9ba56a, 0x18c3086aa662d366, "calendar.limudim.amud_yomi_dirshu"},
 		{0x854dedb50653c50f, 0x914508f7681ccd43, "calendar.HebrewDate.next_parsha"},
-		{0x8f180424826294a4, 0xa976cce390a71369, "calendar.holiday_is_modern"},
+		{0x9006c018e9f8aed8, 0x8b43089a0dda99f4, "calendar.special_day_is_assur_bemelacha"},
 		{0x924fdf3d84514e8e, 0xd6c2f5c20a8b129d, "calendar.limudim.TehillimUnit"},
 		{0x93ceba93a2b10131, 0xc7b188714edbf795, "calendar.HebrewDate.special_parsha"},
-		{0x94dc4cc8ea8c02c9, 0x51105a7bb4b55bdd, "calendar.holiday_name"},
 		{0x98cc81d52e65776b, 0x2bf1569214921669, "calendar.month_hebrew"},
 		{0x9b48ba34fb52812d, 0xff11e092dce92ed7, "calendar.limudim.Side"},
 		{0x9e20ba757aee97c2, 0x9328a81ac256b477, "calendar.parsha_hebrew"},
+		{0xa06798705423bcc5, 0xba204574299d85b2, "calendar.HebrewDate.special_days"},
 		{0xa1e3409cebf37881, 0xfeebfaab6c533e17, "calendar.limudim.Daf"},
 		{0xa5864219850af272, 0xf8a4981ca376ff28, "calendar.HebrewDate.is_assur_bemelacha"},
 		{0xaeb433ce589b7931, 0x364d4d0b6a770631, "calendar.limudim.Amud"},
-		{0xaf5dd6acc2e8ba71, 0xa2fdd5f43f90f755, "calendar.holiday_hebrew"},
 		{0xbd8865ae2177f9ff, 0x6bc5f7eea096d080, "calendar.year_info"},
 		{0xc3fd51b677226bab, 0x684e92fa36717939, "calendar.month_name"},
 		{0xc47f6755efcc97f2, 0xb882de90a2c3493f, "calendar.YearLength"},
@@ -85,10 +84,11 @@ func init() {
 		{0xd099b5b97c1dddb6, 0x7321133365af2acb, "calendar.YearInfo"},
 		{0xd542917e9468e665, 0xc29b76894e14326c, "calendar.HebrewDate.compare"},
 		{0xe055421dad70d98d, 0xc2712588daaabbaf, "calendar.limudim.pirkei_avos_display"},
+		{0xe48d4a72f047f917, 0x2c39a2ab4fa38524, "calendar.special_day_hebrew"},
 		{0xe5bd2ded003a830a, 0x21bf463baf36e8ae, "calendar.limudim.daf_hashavua_bavli"},
 		{0xe5f7bcecee7a3148, 0xf9b3a1fb63fa80ad, "calendar.HebrewDate.new"},
 		{0xea80ab8c284067d9, 0x96b30eb7f85eaf21, "calendar.limudim.daf_yomi_bavli"},
-		{0xeb41af932363bd25, 0xc681430e19f4d7b1, "calendar.CalendarError"},
+		{0xeb41af932363bd25, 0xc2d1a611bc5da8c6, "calendar.CalendarError"},
 		{0xeb6a6e150a6abbe0, 0xf5d8629c4bfb2f06, "calendar.limudim.Tractate"},
 		{0xee029887d9af6ef8, 0x54411bdda9d3b13b, "calendar.HebrewDate.month"},
 		{0xefe1cb89cb8314f3, 0x03b0248b8cfa2de8, "calendar.days_in_month"},
@@ -111,7 +111,6 @@ func init() {
 		{0x38596a351e356743, 0x685412d4d80250ea, "times.Config"},
 		{0x39389f0e68d3cc22, 0x4af5df9a96d3f535, "times.myzmanim.MyZmanim.proportional_hour_gra"},
 		{0x3c92cd49c8b4515b, 0x5962ffa89080c41b, "times.shaah_zmanis"},
-		{0x4048d3ca4b000831, 0xdf4697e13848d687, "times.zman_from_java_name"},
 		{0x44a0809dedbd4a4d, 0x9169cc1ef07d2488, "times.ZmanimError"},
 		{0x4d259836d7137c43, 0x0486761191984fd0, "times.Zman"},
 		{0x57d7a9c5a715b9fa, 0x7110b3413cfd8e83, "times.Location"},
@@ -148,7 +147,7 @@ func init() {
 }
 
 // CalendarError is an error the calendar module reports: *InvalidDateError, or
-// *InvalidHolidayError.
+// *InvalidSpecialDayError.
 //
 // Match one code with errors.As and its type, or any of them with a
 // CalendarError.
@@ -186,16 +185,16 @@ func (*InvalidDateError) wvPayload() []byte {
 	return nil
 }
 
-// InvalidHolidayError is the CalendarError code InvalidHoliday (2): A day of
-// Chanukah outside 1 to 8, or of the Omer outside 1 to 49.
-type InvalidHolidayError struct {
+// InvalidSpecialDayError is the CalendarError code InvalidSpecialDay (2): A
+// day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.
+type InvalidSpecialDayError struct {
 	// Message describes the failure; when it's empty, Error returns the
 	// code's default message, "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.".
 	Message string
 }
 
 // Error returns the error's message.
-func (e *InvalidHolidayError) Error() string {
+func (e *InvalidSpecialDayError) Error() string {
 	if e.Message == "" {
 		return "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49."
 	}
@@ -203,13 +202,13 @@ func (e *InvalidHolidayError) Error() string {
 }
 
 // Code returns 2.
-func (*InvalidHolidayError) Code() int32 {
+func (*InvalidSpecialDayError) Code() int32 {
 	return 2
 }
 
-func (*InvalidHolidayError) isCalendarError() {}
+func (*InvalidSpecialDayError) isCalendarError() {}
 
-func (*InvalidHolidayError) wvPayload() []byte {
+func (*InvalidSpecialDayError) wvPayload() []byte {
 	return nil
 }
 
@@ -218,7 +217,7 @@ func wvCalendarError(f wvFailure) error {
 	case 1:
 		return &InvalidDateError{Message: f.message}
 	case 2:
-		return &InvalidHolidayError{Message: f.message}
+		return &InvalidSpecialDayError{Message: f.message}
 	}
 	return f.err()
 }
@@ -468,417 +467,417 @@ func wvReadParsha(r *wvReader) Parsha {
 	return Parsha(r.readI32())
 }
 
-// Holiday is a holiday, fast, or other day the calendar marks. Some are not holidays in the halachic
+// SpecialDay is a holiday, fast, or other day the calendar marks. Some are not holidays in the halachic
 // sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
 // show them.
 //
-// Holiday is a sealed sum type: exactly one of its variant structs is the
+// SpecialDay is a sealed sum type: exactly one of its variant structs is the
 // value at a time.
-type Holiday interface {
-	isHoliday()
+type SpecialDay interface {
+	isSpecialDay()
 }
 
-// HolidayErevPesach: Erev Pesach, 14 Nisan.
-type HolidayErevPesach struct{}
+// SpecialDayErevPesach: Erev Pesach, 14 Nisan.
+type SpecialDayErevPesach struct{}
 
-func (HolidayErevPesach) isHoliday() {}
+func (SpecialDayErevPesach) isSpecialDay() {}
 
-// HolidayPesach: Pesach.
-type HolidayPesach struct{}
+// SpecialDayPesach: Pesach.
+type SpecialDayPesach struct{}
 
-func (HolidayPesach) isHoliday() {}
+func (SpecialDayPesach) isSpecialDay() {}
 
-// HolidayCholHamoedPesach: Chol Hamoed Pesach.
-type HolidayCholHamoedPesach struct{}
+// SpecialDayCholHamoedPesach: Chol Hamoed Pesach.
+type SpecialDayCholHamoedPesach struct{}
 
-func (HolidayCholHamoedPesach) isHoliday() {}
+func (SpecialDayCholHamoedPesach) isSpecialDay() {}
 
-// HolidayPesachSheni: Pesach Sheni, 14 Iyar.
-type HolidayPesachSheni struct{}
+// SpecialDayPesachSheni: Pesach Sheni, 14 Iyar.
+type SpecialDayPesachSheni struct{}
 
-func (HolidayPesachSheni) isHoliday() {}
+func (SpecialDayPesachSheni) isSpecialDay() {}
 
-// HolidayErevShavuos: Erev Shavuos, 5 Sivan.
-type HolidayErevShavuos struct{}
+// SpecialDayErevShavuos: Erev Shavuos, 5 Sivan.
+type SpecialDayErevShavuos struct{}
 
-func (HolidayErevShavuos) isHoliday() {}
+func (SpecialDayErevShavuos) isSpecialDay() {}
 
-// HolidayShavuos: Shavuos.
-type HolidayShavuos struct{}
+// SpecialDayShavuos: Shavuos.
+type SpecialDayShavuos struct{}
 
-func (HolidayShavuos) isHoliday() {}
+func (SpecialDayShavuos) isSpecialDay() {}
 
-// HolidaySeventeenthOfTammuz: The fast of 17 Tammuz.
-type HolidaySeventeenthOfTammuz struct{}
+// SpecialDaySeventeenthOfTammuz: The fast of 17 Tammuz.
+type SpecialDaySeventeenthOfTammuz struct{}
 
-func (HolidaySeventeenthOfTammuz) isHoliday() {}
+func (SpecialDaySeventeenthOfTammuz) isSpecialDay() {}
 
-// HolidayTishahBav: Tishah B'Av.
-type HolidayTishahBav struct{}
+// SpecialDayTishahBav: Tishah B'Av.
+type SpecialDayTishahBav struct{}
 
-func (HolidayTishahBav) isHoliday() {}
+func (SpecialDayTishahBav) isSpecialDay() {}
 
-// HolidayTuBav: Tu B'Av, 15 Av.
-type HolidayTuBav struct{}
+// SpecialDayTuBav: Tu B'Av, 15 Av.
+type SpecialDayTuBav struct{}
 
-func (HolidayTuBav) isHoliday() {}
+func (SpecialDayTuBav) isSpecialDay() {}
 
-// HolidayErevRoshHashana: Erev Rosh Hashana, 29 Elul.
-type HolidayErevRoshHashana struct{}
+// SpecialDayErevRoshHashana: Erev Rosh Hashana, 29 Elul.
+type SpecialDayErevRoshHashana struct{}
 
-func (HolidayErevRoshHashana) isHoliday() {}
+func (SpecialDayErevRoshHashana) isSpecialDay() {}
 
-// HolidayRoshHashana: Rosh Hashana.
-type HolidayRoshHashana struct{}
+// SpecialDayRoshHashana: Rosh Hashana.
+type SpecialDayRoshHashana struct{}
 
-func (HolidayRoshHashana) isHoliday() {}
+func (SpecialDayRoshHashana) isSpecialDay() {}
 
-// HolidayFastOfGedalyah: The Fast of Gedalyah.
-type HolidayFastOfGedalyah struct{}
+// SpecialDayFastOfGedalyah: The Fast of Gedalyah.
+type SpecialDayFastOfGedalyah struct{}
 
-func (HolidayFastOfGedalyah) isHoliday() {}
+func (SpecialDayFastOfGedalyah) isSpecialDay() {}
 
-// HolidayErevYomKippur: Erev Yom Kippur, 9 Tishrei.
-type HolidayErevYomKippur struct{}
+// SpecialDayErevYomKippur: Erev Yom Kippur, 9 Tishrei.
+type SpecialDayErevYomKippur struct{}
 
-func (HolidayErevYomKippur) isHoliday() {}
+func (SpecialDayErevYomKippur) isSpecialDay() {}
 
-// HolidayYomKippur: Yom Kippur, 10 Tishrei.
-type HolidayYomKippur struct{}
+// SpecialDayYomKippur: Yom Kippur, 10 Tishrei.
+type SpecialDayYomKippur struct{}
 
-func (HolidayYomKippur) isHoliday() {}
+func (SpecialDayYomKippur) isSpecialDay() {}
 
-// HolidayErevSuccos: Erev Succos, 14 Tishrei.
-type HolidayErevSuccos struct{}
+// SpecialDayErevSuccos: Erev Succos, 14 Tishrei.
+type SpecialDayErevSuccos struct{}
 
-func (HolidayErevSuccos) isHoliday() {}
+func (SpecialDayErevSuccos) isSpecialDay() {}
 
-// HolidaySuccos: Succos.
-type HolidaySuccos struct{}
+// SpecialDaySuccos: Succos.
+type SpecialDaySuccos struct{}
 
-func (HolidaySuccos) isHoliday() {}
+func (SpecialDaySuccos) isSpecialDay() {}
 
-// HolidayCholHamoedSuccos: Chol Hamoed Succos.
-type HolidayCholHamoedSuccos struct{}
+// SpecialDayCholHamoedSuccos: Chol Hamoed Succos.
+type SpecialDayCholHamoedSuccos struct{}
 
-func (HolidayCholHamoedSuccos) isHoliday() {}
+func (SpecialDayCholHamoedSuccos) isSpecialDay() {}
 
-// HolidayHoshanaRabbah: Hoshana Rabbah, 21 Tishrei.
-type HolidayHoshanaRabbah struct{}
+// SpecialDayHoshanaRabbah: Hoshana Rabbah, 21 Tishrei.
+type SpecialDayHoshanaRabbah struct{}
 
-func (HolidayHoshanaRabbah) isHoliday() {}
+func (SpecialDayHoshanaRabbah) isSpecialDay() {}
 
-// HolidaySheminiAtzeres: Shemini Atzeres.
-type HolidaySheminiAtzeres struct{}
+// SpecialDaySheminiAtzeres: Shemini Atzeres.
+type SpecialDaySheminiAtzeres struct{}
 
-func (HolidaySheminiAtzeres) isHoliday() {}
+func (SpecialDaySheminiAtzeres) isSpecialDay() {}
 
-// HolidaySimchasTorah: Simchas Torah.
-type HolidaySimchasTorah struct{}
+// SpecialDaySimchasTorah: Simchas Torah.
+type SpecialDaySimchasTorah struct{}
 
-func (HolidaySimchasTorah) isHoliday() {}
+func (SpecialDaySimchasTorah) isSpecialDay() {}
 
-// HolidayChanukah: Chanukah.
-type HolidayChanukah struct {
+// SpecialDayChanukah: Chanukah.
+type SpecialDayChanukah struct {
 	// Day is the day of Chanukah, 1 to 8.
 	Day int32
 }
 
-func (HolidayChanukah) isHoliday() {}
+func (SpecialDayChanukah) isSpecialDay() {}
 
-// HolidayTenthOfTeves: The fast of 10 Teves.
-type HolidayTenthOfTeves struct{}
+// SpecialDayTenthOfTeves: The fast of 10 Teves.
+type SpecialDayTenthOfTeves struct{}
 
-func (HolidayTenthOfTeves) isHoliday() {}
+func (SpecialDayTenthOfTeves) isSpecialDay() {}
 
-// HolidayTuBshvat: Tu B'Shvat, 15 Shevat.
-type HolidayTuBshvat struct{}
+// SpecialDayTuBshvat: Tu B'Shvat, 15 Shevat.
+type SpecialDayTuBshvat struct{}
 
-func (HolidayTuBshvat) isHoliday() {}
+func (SpecialDayTuBshvat) isSpecialDay() {}
 
-// HolidayFastOfEsther: The Fast of Esther.
-type HolidayFastOfEsther struct{}
+// SpecialDayFastOfEsther: The Fast of Esther.
+type SpecialDayFastOfEsther struct{}
 
-func (HolidayFastOfEsther) isHoliday() {}
+func (SpecialDayFastOfEsther) isSpecialDay() {}
 
-// HolidayPurim: Purim.
-type HolidayPurim struct{}
+// SpecialDayPurim: Purim.
+type SpecialDayPurim struct{}
 
-func (HolidayPurim) isHoliday() {}
+func (SpecialDayPurim) isSpecialDay() {}
 
-// HolidayShushanPurim: Shushan Purim.
-type HolidayShushanPurim struct{}
+// SpecialDayShushanPurim: Shushan Purim.
+type SpecialDayShushanPurim struct{}
 
-func (HolidayShushanPurim) isHoliday() {}
+func (SpecialDayShushanPurim) isSpecialDay() {}
 
-// HolidayPurimKatan: Purim Katan, 14 Adar I.
-type HolidayPurimKatan struct{}
+// SpecialDayPurimKatan: Purim Katan, 14 Adar I.
+type SpecialDayPurimKatan struct{}
 
-func (HolidayPurimKatan) isHoliday() {}
+func (SpecialDayPurimKatan) isSpecialDay() {}
 
-// HolidayRoshChodesh: Rosh Chodesh.
-type HolidayRoshChodesh struct{}
+// SpecialDayRoshChodesh: Rosh Chodesh.
+type SpecialDayRoshChodesh struct{}
 
-func (HolidayRoshChodesh) isHoliday() {}
+func (SpecialDayRoshChodesh) isSpecialDay() {}
 
-// HolidayYomHaShoah: Yom HaShoah.
-type HolidayYomHaShoah struct{}
+// SpecialDayYomHaShoah: Yom HaShoah.
+type SpecialDayYomHaShoah struct{}
 
-func (HolidayYomHaShoah) isHoliday() {}
+func (SpecialDayYomHaShoah) isSpecialDay() {}
 
-// HolidayYomHazikaron: Yom Hazikaron.
-type HolidayYomHazikaron struct{}
+// SpecialDayYomHazikaron: Yom Hazikaron.
+type SpecialDayYomHazikaron struct{}
 
-func (HolidayYomHazikaron) isHoliday() {}
+func (SpecialDayYomHazikaron) isSpecialDay() {}
 
-// HolidayYomHaatzmaut: Yom Ha'atzmaut.
-type HolidayYomHaatzmaut struct{}
+// SpecialDayYomHaatzmaut: Yom Ha'atzmaut.
+type SpecialDayYomHaatzmaut struct{}
 
-func (HolidayYomHaatzmaut) isHoliday() {}
+func (SpecialDayYomHaatzmaut) isSpecialDay() {}
 
-// HolidayYomYerushalayim: Yom Yerushalayim.
-type HolidayYomYerushalayim struct{}
+// SpecialDayYomYerushalayim: Yom Yerushalayim.
+type SpecialDayYomYerushalayim struct{}
 
-func (HolidayYomYerushalayim) isHoliday() {}
+func (SpecialDayYomYerushalayim) isSpecialDay() {}
 
-// HolidayLagBomer: Lag B'Omer, 18 Iyar.
-type HolidayLagBomer struct{}
+// SpecialDayLagBomer: Lag B'Omer, 18 Iyar.
+type SpecialDayLagBomer struct{}
 
-func (HolidayLagBomer) isHoliday() {}
+func (SpecialDayLagBomer) isSpecialDay() {}
 
-// HolidayShushanPurimKatan: Shushan Purim Katan, 15 Adar I.
-type HolidayShushanPurimKatan struct{}
+// SpecialDayShushanPurimKatan: Shushan Purim Katan, 15 Adar I.
+type SpecialDayShushanPurimKatan struct{}
 
-func (HolidayShushanPurimKatan) isHoliday() {}
+func (SpecialDayShushanPurimKatan) isSpecialDay() {}
 
-// HolidayIsruChag: Isru Chag, the day after a festival.
-type HolidayIsruChag struct{}
+// SpecialDayIsruChag: Isru Chag, the day after a festival.
+type SpecialDayIsruChag struct{}
 
-func (HolidayIsruChag) isHoliday() {}
+func (SpecialDayIsruChag) isSpecialDay() {}
 
-// HolidayYomKippurKatan: Yom Kippur Katan, the eve of Rosh Chodesh.
-type HolidayYomKippurKatan struct{}
+// SpecialDayYomKippurKatan: Yom Kippur Katan, the eve of Rosh Chodesh.
+type SpecialDayYomKippurKatan struct{}
 
-func (HolidayYomKippurKatan) isHoliday() {}
+func (SpecialDayYomKippurKatan) isSpecialDay() {}
 
-// HolidayBehab: Behab, the Monday-Thursday-Monday fasts after Pesach and Succos.
-type HolidayBehab struct{}
+// SpecialDayBehab: Behab, the Monday-Thursday-Monday fasts after Pesach and Succos.
+type SpecialDayBehab struct{}
 
-func (HolidayBehab) isHoliday() {}
+func (SpecialDayBehab) isSpecialDay() {}
 
-// HolidayFastOfTheFirstborn: The Fast of the Firstborn.
-type HolidayFastOfTheFirstborn struct{}
+// SpecialDayFastOfTheFirstborn: The Fast of the Firstborn.
+type SpecialDayFastOfTheFirstborn struct{}
 
-func (HolidayFastOfTheFirstborn) isHoliday() {}
+func (SpecialDayFastOfTheFirstborn) isSpecialDay() {}
 
-// HolidayCountOfTheOmer: The Omer count.
-type HolidayCountOfTheOmer struct {
+// SpecialDayCountOfTheOmer: The Omer count.
+type SpecialDayCountOfTheOmer struct {
 	// Day is the day of the count, 1 to 49.
 	Day int32
 }
 
-func (HolidayCountOfTheOmer) isHoliday() {}
+func (SpecialDayCountOfTheOmer) isSpecialDay() {}
 
-// HolidayBirchasHachamah: Birchas Hachamah, every 28 years.
-type HolidayBirchasHachamah struct{}
+// SpecialDayBirchasHachamah: Birchas Hachamah, every 28 years.
+type SpecialDayBirchasHachamah struct{}
 
-func (HolidayBirchasHachamah) isHoliday() {}
+func (SpecialDayBirchasHachamah) isSpecialDay() {}
 
-// HolidayMacharHachodesh: Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.
-type HolidayMacharHachodesh struct{}
+// SpecialDayMacharHachodesh: Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.
+type SpecialDayMacharHachodesh struct{}
 
-func (HolidayMacharHachodesh) isHoliday() {}
+func (SpecialDayMacharHachodesh) isSpecialDay() {}
 
-// HolidayShabbosMevarchim: Shabbos Mevarchim, the Shabbos when the coming month is announced.
-type HolidayShabbosMevarchim struct{}
+// SpecialDayShabbosMevarchim: Shabbos Mevarchim, the Shabbos when the coming month is announced.
+type SpecialDayShabbosMevarchim struct{}
 
-func (HolidayShabbosMevarchim) isHoliday() {}
+func (SpecialDayShabbosMevarchim) isSpecialDay() {}
 
-func wvWriteHoliday(w *wvWriter, v Holiday) {
+func wvWriteSpecialDay(w *wvWriter, v SpecialDay) {
 	switch x := v.(type) {
-	case HolidayErevPesach:
+	case SpecialDayErevPesach:
 		w.writeI32(0)
-	case HolidayPesach:
+	case SpecialDayPesach:
 		w.writeI32(1)
-	case HolidayCholHamoedPesach:
+	case SpecialDayCholHamoedPesach:
 		w.writeI32(2)
-	case HolidayPesachSheni:
+	case SpecialDayPesachSheni:
 		w.writeI32(3)
-	case HolidayErevShavuos:
+	case SpecialDayErevShavuos:
 		w.writeI32(4)
-	case HolidayShavuos:
+	case SpecialDayShavuos:
 		w.writeI32(5)
-	case HolidaySeventeenthOfTammuz:
+	case SpecialDaySeventeenthOfTammuz:
 		w.writeI32(6)
-	case HolidayTishahBav:
+	case SpecialDayTishahBav:
 		w.writeI32(7)
-	case HolidayTuBav:
+	case SpecialDayTuBav:
 		w.writeI32(8)
-	case HolidayErevRoshHashana:
+	case SpecialDayErevRoshHashana:
 		w.writeI32(9)
-	case HolidayRoshHashana:
+	case SpecialDayRoshHashana:
 		w.writeI32(10)
-	case HolidayFastOfGedalyah:
+	case SpecialDayFastOfGedalyah:
 		w.writeI32(11)
-	case HolidayErevYomKippur:
+	case SpecialDayErevYomKippur:
 		w.writeI32(12)
-	case HolidayYomKippur:
+	case SpecialDayYomKippur:
 		w.writeI32(13)
-	case HolidayErevSuccos:
+	case SpecialDayErevSuccos:
 		w.writeI32(14)
-	case HolidaySuccos:
+	case SpecialDaySuccos:
 		w.writeI32(15)
-	case HolidayCholHamoedSuccos:
+	case SpecialDayCholHamoedSuccos:
 		w.writeI32(16)
-	case HolidayHoshanaRabbah:
+	case SpecialDayHoshanaRabbah:
 		w.writeI32(17)
-	case HolidaySheminiAtzeres:
+	case SpecialDaySheminiAtzeres:
 		w.writeI32(18)
-	case HolidaySimchasTorah:
+	case SpecialDaySimchasTorah:
 		w.writeI32(19)
-	case HolidayChanukah:
+	case SpecialDayChanukah:
 		w.writeI32(20)
 		w.writeI32(x.Day)
-	case HolidayTenthOfTeves:
+	case SpecialDayTenthOfTeves:
 		w.writeI32(21)
-	case HolidayTuBshvat:
+	case SpecialDayTuBshvat:
 		w.writeI32(22)
-	case HolidayFastOfEsther:
+	case SpecialDayFastOfEsther:
 		w.writeI32(23)
-	case HolidayPurim:
+	case SpecialDayPurim:
 		w.writeI32(24)
-	case HolidayShushanPurim:
+	case SpecialDayShushanPurim:
 		w.writeI32(25)
-	case HolidayPurimKatan:
+	case SpecialDayPurimKatan:
 		w.writeI32(26)
-	case HolidayRoshChodesh:
+	case SpecialDayRoshChodesh:
 		w.writeI32(27)
-	case HolidayYomHaShoah:
+	case SpecialDayYomHaShoah:
 		w.writeI32(28)
-	case HolidayYomHazikaron:
+	case SpecialDayYomHazikaron:
 		w.writeI32(29)
-	case HolidayYomHaatzmaut:
+	case SpecialDayYomHaatzmaut:
 		w.writeI32(30)
-	case HolidayYomYerushalayim:
+	case SpecialDayYomYerushalayim:
 		w.writeI32(31)
-	case HolidayLagBomer:
+	case SpecialDayLagBomer:
 		w.writeI32(32)
-	case HolidayShushanPurimKatan:
+	case SpecialDayShushanPurimKatan:
 		w.writeI32(33)
-	case HolidayIsruChag:
+	case SpecialDayIsruChag:
 		w.writeI32(34)
-	case HolidayYomKippurKatan:
+	case SpecialDayYomKippurKatan:
 		w.writeI32(35)
-	case HolidayBehab:
+	case SpecialDayBehab:
 		w.writeI32(36)
-	case HolidayFastOfTheFirstborn:
+	case SpecialDayFastOfTheFirstborn:
 		w.writeI32(37)
-	case HolidayCountOfTheOmer:
+	case SpecialDayCountOfTheOmer:
 		w.writeI32(38)
 		w.writeI32(x.Day)
-	case HolidayBirchasHachamah:
+	case SpecialDayBirchasHachamah:
 		w.writeI32(39)
-	case HolidayMacharHachodesh:
+	case SpecialDayMacharHachodesh:
 		w.writeI32(40)
-	case HolidayShabbosMevarchim:
+	case SpecialDayShabbosMevarchim:
 		w.writeI32(41)
 	default:
-		panic("kosherz: Holiday value is not one of its variants")
+		panic("kosherz: SpecialDay value is not one of its variants")
 	}
 }
 
-func wvReadHoliday(r *wvReader) Holiday {
+func wvReadSpecialDay(r *wvReader) SpecialDay {
 	switch r.readI32() {
 	case 0:
-		return HolidayErevPesach{}
+		return SpecialDayErevPesach{}
 	case 1:
-		return HolidayPesach{}
+		return SpecialDayPesach{}
 	case 2:
-		return HolidayCholHamoedPesach{}
+		return SpecialDayCholHamoedPesach{}
 	case 3:
-		return HolidayPesachSheni{}
+		return SpecialDayPesachSheni{}
 	case 4:
-		return HolidayErevShavuos{}
+		return SpecialDayErevShavuos{}
 	case 5:
-		return HolidayShavuos{}
+		return SpecialDayShavuos{}
 	case 6:
-		return HolidaySeventeenthOfTammuz{}
+		return SpecialDaySeventeenthOfTammuz{}
 	case 7:
-		return HolidayTishahBav{}
+		return SpecialDayTishahBav{}
 	case 8:
-		return HolidayTuBav{}
+		return SpecialDayTuBav{}
 	case 9:
-		return HolidayErevRoshHashana{}
+		return SpecialDayErevRoshHashana{}
 	case 10:
-		return HolidayRoshHashana{}
+		return SpecialDayRoshHashana{}
 	case 11:
-		return HolidayFastOfGedalyah{}
+		return SpecialDayFastOfGedalyah{}
 	case 12:
-		return HolidayErevYomKippur{}
+		return SpecialDayErevYomKippur{}
 	case 13:
-		return HolidayYomKippur{}
+		return SpecialDayYomKippur{}
 	case 14:
-		return HolidayErevSuccos{}
+		return SpecialDayErevSuccos{}
 	case 15:
-		return HolidaySuccos{}
+		return SpecialDaySuccos{}
 	case 16:
-		return HolidayCholHamoedSuccos{}
+		return SpecialDayCholHamoedSuccos{}
 	case 17:
-		return HolidayHoshanaRabbah{}
+		return SpecialDayHoshanaRabbah{}
 	case 18:
-		return HolidaySheminiAtzeres{}
+		return SpecialDaySheminiAtzeres{}
 	case 19:
-		return HolidaySimchasTorah{}
+		return SpecialDaySimchasTorah{}
 	case 20:
-		var x HolidayChanukah
+		var x SpecialDayChanukah
 		x.Day = r.readI32()
 		return x
 	case 21:
-		return HolidayTenthOfTeves{}
+		return SpecialDayTenthOfTeves{}
 	case 22:
-		return HolidayTuBshvat{}
+		return SpecialDayTuBshvat{}
 	case 23:
-		return HolidayFastOfEsther{}
+		return SpecialDayFastOfEsther{}
 	case 24:
-		return HolidayPurim{}
+		return SpecialDayPurim{}
 	case 25:
-		return HolidayShushanPurim{}
+		return SpecialDayShushanPurim{}
 	case 26:
-		return HolidayPurimKatan{}
+		return SpecialDayPurimKatan{}
 	case 27:
-		return HolidayRoshChodesh{}
+		return SpecialDayRoshChodesh{}
 	case 28:
-		return HolidayYomHaShoah{}
+		return SpecialDayYomHaShoah{}
 	case 29:
-		return HolidayYomHazikaron{}
+		return SpecialDayYomHazikaron{}
 	case 30:
-		return HolidayYomHaatzmaut{}
+		return SpecialDayYomHaatzmaut{}
 	case 31:
-		return HolidayYomYerushalayim{}
+		return SpecialDayYomYerushalayim{}
 	case 32:
-		return HolidayLagBomer{}
+		return SpecialDayLagBomer{}
 	case 33:
-		return HolidayShushanPurimKatan{}
+		return SpecialDayShushanPurimKatan{}
 	case 34:
-		return HolidayIsruChag{}
+		return SpecialDayIsruChag{}
 	case 35:
-		return HolidayYomKippurKatan{}
+		return SpecialDayYomKippurKatan{}
 	case 36:
-		return HolidayBehab{}
+		return SpecialDayBehab{}
 	case 37:
-		return HolidayFastOfTheFirstborn{}
+		return SpecialDayFastOfTheFirstborn{}
 	case 38:
-		var x HolidayCountOfTheOmer
+		var x SpecialDayCountOfTheOmer
 		x.Day = r.readI32()
 		return x
 	case 39:
-		return HolidayBirchasHachamah{}
+		return SpecialDayBirchasHachamah{}
 	case 40:
-		return HolidayMacharHachodesh{}
+		return SpecialDayMacharHachodesh{}
 	case 41:
-		return HolidayShabbosMevarchim{}
+		return SpecialDayShabbosMevarchim{}
 	}
-	wvMalformed("Holiday tag out of range")
+	wvMalformed("SpecialDay tag out of range")
 	return nil
 }
 
@@ -1109,15 +1108,15 @@ func (s *HebrewDate) AddDays(days int32) (*HebrewDate, error) {
 	return wvAdoptHebrewDate(cRet), nil
 }
 
-// Holidays returns the holidays, fasts and other marked days on this day.
-func (s *HebrewDate) Holidays(region Region) []Holiday {
+// SpecialDays returns the holidays, fasts and other marked days on this day.
+func (s *HebrewDate) SpecialDays(region Region) []SpecialDay {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
 	var cErr C.kosherz_error
-	cRet := C.kosherz_calendar_HebrewDate_holidays(cSelf, C.kosherz_calendar_Region(region), &cRetLen, &cErr)
+	cRet := C.kosherz_calendar_HebrewDate_special_days(cSelf, C.kosherz_calendar_Region(region), &cRetLen, &cErr)
 	wvTrap(&cErr)
-	return wvDecode(cRet, cRetLen, wvReadListHoliday)
+	return wvDecode(cRet, cRetLen, wvReadListSpecialDay)
 }
 
 // IsAssurBemelacha reports whether melacha is forbidden: Shabbos or Yom Tov.
@@ -1268,82 +1267,82 @@ func RoshHashana(year int32) (*HebrewDate, error) {
 	return wvAdoptHebrewDate(cRet), nil
 }
 
-// HolidayName returns the holiday's English name, for example "Chanukah".
+// SpecialDayName returns the day's English name, for example "Chanukah".
 //
 // # Errors
 //
-// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
 // outside 1 to 49.
-func HolidayName(holiday Holiday) (string, error) {
-	cHolidayPtr, cHolidayLen := wvBytes(wvEncode(holiday, wvWriteHoliday))
+func SpecialDayName(specialDay SpecialDay) (string, error) {
+	cSpecialDayPtr, cSpecialDayLen := wvBytes(wvEncode(specialDay, wvWriteSpecialDay))
 	var cRetLen C.size_t
 	var cErr C.kosherz_error
-	cRet := C.kosherz_calendar_holiday_name(cHolidayPtr, cHolidayLen, &cRetLen, &cErr)
+	cRet := C.kosherz_calendar_special_day_name(cSpecialDayPtr, cSpecialDayLen, &cRetLen, &cErr)
 	if cErr.code != 0 {
 		return "", wvCalendarError(wvTakeError(&cErr))
 	}
 	return wvTakeString(cRet, cRetLen), nil
 }
 
-// HolidayHebrew returns the holiday's Hebrew name.
+// SpecialDayHebrew returns the day's Hebrew name.
 //
 // # Errors
 //
-// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
 // outside 1 to 49.
-func HolidayHebrew(holiday Holiday) (string, error) {
-	cHolidayPtr, cHolidayLen := wvBytes(wvEncode(holiday, wvWriteHoliday))
+func SpecialDayHebrew(specialDay SpecialDay) (string, error) {
+	cSpecialDayPtr, cSpecialDayLen := wvBytes(wvEncode(specialDay, wvWriteSpecialDay))
 	var cRetLen C.size_t
 	var cErr C.kosherz_error
-	cRet := C.kosherz_calendar_holiday_hebrew(cHolidayPtr, cHolidayLen, &cRetLen, &cErr)
+	cRet := C.kosherz_calendar_special_day_hebrew(cSpecialDayPtr, cSpecialDayLen, &cRetLen, &cErr)
 	if cErr.code != 0 {
 		return "", wvCalendarError(wvTakeError(&cErr))
 	}
 	return wvTakeString(cRet, cRetLen), nil
 }
 
-// HolidayIsAssurBemelacha reports whether melacha is forbidden on the holiday.
+// SpecialDayIsAssurBemelacha reports whether melacha is forbidden on the holiday.
 //
 // # Errors
 //
-// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
 // outside 1 to 49.
-func HolidayIsAssurBemelacha(holiday Holiday) (bool, error) {
-	cHolidayPtr, cHolidayLen := wvBytes(wvEncode(holiday, wvWriteHoliday))
+func SpecialDayIsAssurBemelacha(specialDay SpecialDay) (bool, error) {
+	cSpecialDayPtr, cSpecialDayLen := wvBytes(wvEncode(specialDay, wvWriteSpecialDay))
 	var cErr C.kosherz_error
-	cRet := C.kosherz_calendar_holiday_is_assur_bemelacha(cHolidayPtr, cHolidayLen, &cErr)
+	cRet := C.kosherz_calendar_special_day_is_assur_bemelacha(cSpecialDayPtr, cSpecialDayLen, &cErr)
 	if cErr.code != 0 {
 		return false, wvCalendarError(wvTakeError(&cErr))
 	}
 	return bool(cRet), nil
 }
 
-// HolidayIsModern reports whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
+// SpecialDayIsModern reports whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
 //
 // # Errors
 //
-// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
 // outside 1 to 49.
-func HolidayIsModern(holiday Holiday) (bool, error) {
-	cHolidayPtr, cHolidayLen := wvBytes(wvEncode(holiday, wvWriteHoliday))
+func SpecialDayIsModern(specialDay SpecialDay) (bool, error) {
+	cSpecialDayPtr, cSpecialDayLen := wvBytes(wvEncode(specialDay, wvWriteSpecialDay))
 	var cErr C.kosherz_error
-	cRet := C.kosherz_calendar_holiday_is_modern(cHolidayPtr, cHolidayLen, &cErr)
+	cRet := C.kosherz_calendar_special_day_is_modern(cSpecialDayPtr, cSpecialDayLen, &cErr)
 	if cErr.code != 0 {
 		return false, wvCalendarError(wvTakeError(&cErr))
 	}
 	return bool(cRet), nil
 }
 
-// HolidayIsFastDay reports whether the holiday is a fast day.
+// SpecialDayIsFastDay reports whether the holiday is a fast day.
 //
 // # Errors
 //
-// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
 // outside 1 to 49.
-func HolidayIsFastDay(holiday Holiday) (bool, error) {
-	cHolidayPtr, cHolidayLen := wvBytes(wvEncode(holiday, wvWriteHoliday))
+func SpecialDayIsFastDay(specialDay SpecialDay) (bool, error) {
+	cSpecialDayPtr, cSpecialDayLen := wvBytes(wvEncode(specialDay, wvWriteSpecialDay))
 	var cErr C.kosherz_error
-	cRet := C.kosherz_calendar_holiday_is_fast_day(cHolidayPtr, cHolidayLen, &cErr)
+	cRet := C.kosherz_calendar_special_day_is_fast_day(cSpecialDayPtr, cSpecialDayLen, &cErr)
 	if cErr.code != 0 {
 		return false, wvCalendarError(wvTakeError(&cErr))
 	}
@@ -3219,16 +3218,6 @@ func ZmanJavaName(zman Zman) string {
 	return wvTakeString(cRet, cRetLen)
 }
 
-// ZmanFromJavaName returns the zman named by its KosherJava method, for example "getSofZmanShmaGRA".
-func ZmanFromJavaName(javaName string) *Zman {
-	cJavaNamePtr, cJavaNameLen := wvStr(javaName)
-	var cRetLen C.size_t
-	var cErr C.kosherz_error
-	cRet := C.kosherz_times_zman_from_java_name(cJavaNamePtr, cJavaNameLen, &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvDecode(cRet, cRetLen, wvReadOptZman)
-}
-
 // ZmanCategory returns what kind of time the zman is.
 func ZmanCategory(zman Zman) Category {
 	var cErr C.kosherz_error
@@ -3620,14 +3609,6 @@ func wvReadListHebrewMonth(r *wvReader) []HebrewMonth {
 	return wvReadList(r, wvReadHebrewMonth)
 }
 
-func wvWriteListHoliday(w *wvWriter, v []Holiday) {
-	wvWriteList(w, v, wvWriteHoliday)
-}
-
-func wvReadListHoliday(r *wvReader) []Holiday {
-	return wvReadList(r, wvReadHoliday)
-}
-
 func wvWriteListMyZman(w *wvWriter, v []MyZman) {
 	wvWriteList(w, v, wvWriteMyZman)
 }
@@ -3642,6 +3623,14 @@ func wvWriteListMyZmanTime(w *wvWriter, v []MyZmanTime) {
 
 func wvReadListMyZmanTime(r *wvReader) []MyZmanTime {
 	return wvReadList(r, wvReadMyZmanTime)
+}
+
+func wvWriteListSpecialDay(w *wvWriter, v []SpecialDay) {
+	wvWriteList(w, v, wvWriteSpecialDay)
+}
+
+func wvReadListSpecialDay(r *wvReader) []SpecialDay {
+	return wvReadList(r, wvReadSpecialDay)
 }
 
 func wvWriteListZman(w *wvWriter, v []Zman) {
@@ -3730,14 +3719,6 @@ func wvWriteOptTehillimUnit(w *wvWriter, v TehillimUnit) {
 
 func wvReadOptTehillimUnit(r *wvReader) TehillimUnit {
 	return wvReadNilable(r, wvReadTehillimUnit)
-}
-
-func wvWriteOptZman(w *wvWriter, v *Zman) {
-	wvWriteOptional(w, v, wvWriteZman)
-}
-
-func wvReadOptZman(r *wvReader) *Zman {
-	return wvReadOptional(r, wvReadZman)
 }
 
 func wvWriteOptZmanFailure(w *wvWriter, v *ZmanFailure) {

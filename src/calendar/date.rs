@@ -7,11 +7,11 @@ use icu_calendar::{AsCalendar, Date, Gregorian, Iso, cal::Hebrew};
 use jiff::civil::{self, Weekday};
 use jiff_icu::{ConvertFrom, ConvertTryFrom};
 
-use super::holiday::{Holiday, HolidayIterator};
 use super::molad::{Molad, molad_of_month};
 use super::month::{ADAR, ADARI, AV, HebrewMonth, NISAN, SHEVAT, TISHREI};
 use super::parsha::Parsha;
 use super::parsha_tables::get_parsha_list;
+use super::special_day::{SpecialDay, SpecialDayIterator};
 use super::year::{HebrewYear, elapsed_days};
 
 /// Where the calendar is kept: Israel or the diaspora.
@@ -42,12 +42,12 @@ impl Region {
 ///
 /// ```
 /// use jiff::civil::date;
-/// use kosher_rust::calendar::{Holiday, HebrewDate, HebrewMonth, Region};
+/// use kosher_rust::calendar::{SpecialDay, HebrewDate, HebrewMonth, Region};
 ///
 /// let day = HebrewDate::from(date(2024, 4, 23));
 /// assert_eq!(day.to_string(), "15 Nisan 5784");
 /// assert_eq!(day.month(), HebrewMonth::Nisan);
-/// assert!(day.holidays(Region::Diaspora).any(|h| h == Holiday::Pesach));
+/// assert!(day.special_days(Region::Diaspora).any(|h| h == SpecialDay::Pesach));
 /// assert_eq!(day.to_gregorian(), Some(date(2024, 4, 23)));
 /// ```
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -116,24 +116,24 @@ impl HebrewDate {
     /// The holidays, fasts and other notable days that fall on this date, in calendar order.
     ///
     /// Includes the modern Israeli days (Yom HaShoah, Yom HaZikaron, Yom HaAtzmaut, Yom
-    /// Yerushalayim); filter them out with [`Holiday::is_modern`] if you don't want them.
+    /// Yerushalayim); filter them out with [`SpecialDay::is_modern`] if you don't want them.
     ///
     /// ```
     /// use jiff::civil::date;
-    /// use kosher_rust::calendar::{Holiday, HebrewDate, Region};
+    /// use kosher_rust::calendar::{SpecialDay, HebrewDate, Region};
     ///
     /// // 16 Nisan: the second day of Pesach in the diaspora, Chol Hamoed in Israel.
     /// let day = HebrewDate::from(date(2024, 4, 24));
-    /// assert!(day.holidays(Region::Diaspora).any(|h| h == Holiday::Pesach));
-    /// assert!(day.holidays(Region::Israel).any(|h| h == Holiday::CholHamoedPesach));
+    /// assert!(day.special_days(Region::Diaspora).any(|h| h == SpecialDay::Pesach));
+    /// assert!(day.special_days(Region::Israel).any(|h| h == SpecialDay::CholHamoedPesach));
     /// ```
-    pub fn holidays(self, region: Region) -> impl FusedIterator<Item = Holiday> {
-        HolidayIterator::new(self.0, region.in_israel())
+    pub fn special_days(self, region: Region) -> impl FusedIterator<Item = SpecialDay> {
+        SpecialDayIterator::new(self.0, region.in_israel())
     }
 
     /// Whether work is forbidden: Shabbos, or a day of Yom Tov.
     pub fn is_assur_bemelacha(self, region: Region) -> bool {
-        self.0.weekday() == IcuWeekday::Saturday || self.holidays(region).any(|h| h.is_assur_bemelacha())
+        self.0.weekday() == IcuWeekday::Saturday || self.special_days(region).any(|h| h.is_assur_bemelacha())
     }
 
     /// Whether candles are lit this evening, because tomorrow is Shabbos or Yom Tov.
@@ -259,7 +259,7 @@ impl HebrewDate {
 
     /// The molad of this date's month.
     ///
-    /// Returns `None` near the limits of the supported date range.
+    /// Returns `None` before Hebrew year 1 and near the limits of the supported date range.
     pub fn molad(self) -> Option<Molad> {
         molad_of_month(&self.0)
     }

@@ -141,16 +141,18 @@ const List<(String, List<(int, int, String)>)> _contracts = [
   ('kosherz_calendar_contract', [
     (0x0076e887e475ab9f, 0x96615bd3eb7f1761, 'calendar.HebrewDate.molad'),
     (0x01344feb6b733690, 0x47b992630b03d56a, 'calendar.HebrewDate.weekday'),
+    (0x04722a067e750ac7, 0x10c6e1e0af9f20c4, 'calendar.special_day_name'),
     (0x12decead9d8a44cf, 0x4b1b3a695325cfca, 'calendar.limudim.LimudimError'),
     (0x190ecd13c0fccffa, 0x35e622a32a88ef57, 'calendar.limudim.mishna_yomis'),
     (0x1c33df579fac36d8, 0x1175c871bc023b86, 'calendar.HebrewDate.day_of_year'),
+    (0x1d2a2cfe983548a6, 0x513b06d6c24719e2, 'calendar.special_day_is_fast_day'),
     (0x235fd1db8b7dd5f5, 0x399eab22141dffd3, 'calendar.GregorianDate'),
     (0x2b066dc65c460024, 0xf4f23e6586bd1dd7, 'calendar.HebrewDate'),
     (0x2c8e60589f58d792, 0xa0608634cb2f46cb, 'calendar.limudim.Mishna'),
     (0x2da09ea1403b727e, 0x4d5e82347ae7a3fc, 'calendar.HebrewMonth'),
     (0x2e1645ba38a77559, 0x1c81765c98ab54f9, 'calendar.HebrewDate.parsha'),
     (0x2e561d4c25bf877d, 0x47ff51d038dbe0d8, 'calendar.limudim.tehillim_display'),
-    (0x3a2980b734ba8883, 0x2d505394972243a9, 'calendar.HebrewDate.holidays'),
+    (0x34b343651b1fb8fe, 0x12159035b300983a, 'calendar.special_day_is_modern'),
     (0x3a3316910057484e, 0xd86a18c3b722f6c7, 'calendar.limudim.tehillim_monthly'),
     (0x3c8950ed1f7f370c, 0x19e0d2b3ff9d26fe, 'calendar.HebrewDate.day'),
     (0x422860078e596223, 0x32c85d18778b0bb4, 'calendar.HebrewDate.equals'),
@@ -163,28 +165,25 @@ const List<(String, List<(int, int, String)>)> _contracts = [
     (0x53798234777e19ea, 0x6c389ed6ad08dbe3, 'calendar.rosh_hashana'),
     (0x58fc9af210a33bdd, 0xc3e1903a4dc8359d, 'calendar.HebrewDate.is_aseres_yemei_teshuva'),
     (0x5c2a6a6f333ead35, 0x74c7180edff5c022, 'calendar.HebrewDate.from_gregorian'),
-    (0x5d5d66098ee06c49, 0x8a4e9ca163a6a190, 'calendar.Holiday'),
+    (0x6089a64539b542a8, 0x404904f4331718c5, 'calendar.SpecialDay'),
     (0x65535c1ad3d9f893, 0x55884ddb65b50739, 'calendar.HebrewDate.has_candle_lighting'),
     (0x6a0735856dec8d1a, 0xdc1addb4a7ab46ef, 'calendar.parsha_name'),
-    (0x6d120a34fc12b94e, 0x2444827e369b819b, 'calendar.holiday_is_assur_bemelacha'),
     (0x734de195723c4bec, 0xc7f3965b813050f5, 'calendar.HebrewDate.display'),
     (0x753c68bed189444b, 0x8111a6d476ecf648, 'calendar.Region'),
     (0x78416ddbbcc55dd6, 0x6c9e0901963a2dfc, 'calendar.limudim.tractate_hebrew'),
-    (0x7b66ec4056f4dcbc, 0xe848ea2454d6e4c1, 'calendar.holiday_is_fast_day'),
     (0x7ed52a27f9477122, 0x6e401597e28209a9, 'calendar.limudim.MishnaPair'),
     (0x82b460a35e9ba56a, 0x18c3086aa662d366, 'calendar.limudim.amud_yomi_dirshu'),
     (0x854dedb50653c50f, 0x914508f7681ccd43, 'calendar.HebrewDate.next_parsha'),
-    (0x8f180424826294a4, 0xa976cce390a71369, 'calendar.holiday_is_modern'),
+    (0x9006c018e9f8aed8, 0x8b43089a0dda99f4, 'calendar.special_day_is_assur_bemelacha'),
     (0x924fdf3d84514e8e, 0xd6c2f5c20a8b129d, 'calendar.limudim.TehillimUnit'),
     (0x93ceba93a2b10131, 0xc7b188714edbf795, 'calendar.HebrewDate.special_parsha'),
-    (0x94dc4cc8ea8c02c9, 0x51105a7bb4b55bdd, 'calendar.holiday_name'),
     (0x98cc81d52e65776b, 0x2bf1569214921669, 'calendar.month_hebrew'),
     (0x9b48ba34fb52812d, 0xff11e092dce92ed7, 'calendar.limudim.Side'),
     (0x9e20ba757aee97c2, 0x9328a81ac256b477, 'calendar.parsha_hebrew'),
+    (0xa06798705423bcc5, 0xba204574299d85b2, 'calendar.HebrewDate.special_days'),
     (0xa1e3409cebf37881, 0xfeebfaab6c533e17, 'calendar.limudim.Daf'),
     (0xa5864219850af272, 0xf8a4981ca376ff28, 'calendar.HebrewDate.is_assur_bemelacha'),
     (0xaeb433ce589b7931, 0x364d4d0b6a770631, 'calendar.limudim.Amud'),
-    (0xaf5dd6acc2e8ba71, 0xa2fdd5f43f90f755, 'calendar.holiday_hebrew'),
     (0xbd8865ae2177f9ff, 0x6bc5f7eea096d080, 'calendar.year_info'),
     (0xc3fd51b677226bab, 0x684e92fa36717939, 'calendar.month_name'),
     (0xc47f6755efcc97f2, 0xb882de90a2c3493f, 'calendar.YearLength'),
@@ -192,10 +191,11 @@ const List<(String, List<(int, int, String)>)> _contracts = [
     (0xd099b5b97c1dddb6, 0x7321133365af2acb, 'calendar.YearInfo'),
     (0xd542917e9468e665, 0xc29b76894e14326c, 'calendar.HebrewDate.compare'),
     (0xe055421dad70d98d, 0xc2712588daaabbaf, 'calendar.limudim.pirkei_avos_display'),
+    (0xe48d4a72f047f917, 0x2c39a2ab4fa38524, 'calendar.special_day_hebrew'),
     (0xe5bd2ded003a830a, 0x21bf463baf36e8ae, 'calendar.limudim.daf_hashavua_bavli'),
     (0xe5f7bcecee7a3148, 0xf9b3a1fb63fa80ad, 'calendar.HebrewDate.new'),
     (0xea80ab8c284067d9, 0x96b30eb7f85eaf21, 'calendar.limudim.daf_yomi_bavli'),
-    (0xeb41af932363bd25, 0xc681430e19f4d7b1, 'calendar.CalendarError'),
+    (0xeb41af932363bd25, 0xc2d1a611bc5da8c6, 'calendar.CalendarError'),
     (0xeb6a6e150a6abbe0, 0xf5d8629c4bfb2f06, 'calendar.limudim.Tractate'),
     (0xee029887d9af6ef8, 0x54411bdda9d3b13b, 'calendar.HebrewDate.month'),
     (0xefe1cb89cb8314f3, 0x03b0248b8cfa2de8, 'calendar.days_in_month'),
@@ -217,7 +217,6 @@ const List<(String, List<(int, int, String)>)> _contracts = [
     (0x38596a351e356743, 0x685412d4d80250ea, 'times.Config'),
     (0x39389f0e68d3cc22, 0x4af5df9a96d3f535, 'times.myzmanim.MyZmanim.proportional_hour_gra'),
     (0x3c92cd49c8b4515b, 0x5962ffa89080c41b, 'times.shaah_zmanis'),
-    (0x4048d3ca4b000831, 0xdf4697e13848d687, 'times.zman_from_java_name'),
     (0x44a0809dedbd4a4d, 0x9169cc1ef07d2488, 'times.ZmanimError'),
     (0x4d259836d7137c43, 0x0486761191984fd0, 'times.Zman'),
     (0x57d7a9c5a715b9fa, 0x7110b3413cfd8e83, 'times.Location'),
@@ -999,12 +998,6 @@ void _packListOfHebrewMonth(_BufferWriter w, List<HebrewMonth> v) =>
 List<HebrewMonth> _unpackListOfHebrewMonth(_BufferReader r) =>
     r.readList(() => HebrewMonth.fromValue(r.readI32()));
 
-void _packListOfHoliday(_BufferWriter w, List<Holiday> v) =>
-    w.writeList(v, (e) => _packHoliday(w, e));
-
-List<Holiday> _unpackListOfHoliday(_BufferReader r) =>
-    r.readList(() => _unpackHoliday(r));
-
 void _packListOfMyZman(_BufferWriter w, List<MyZman> v) =>
     w.writeList(v, (e) => w.writeI32(e.value));
 
@@ -1016,6 +1009,12 @@ void _packListOfMyZmanTime(_BufferWriter w, List<MyZmanTime> v) =>
 
 List<MyZmanTime> _unpackListOfMyZmanTime(_BufferReader r) =>
     r.readList(() => _unpackMyZmanTime(r));
+
+void _packListOfSpecialDay(_BufferWriter w, List<SpecialDay> v) =>
+    w.writeList(v, (e) => _packSpecialDay(w, e));
+
+List<SpecialDay> _unpackListOfSpecialDay(_BufferReader r) =>
+    r.readList(() => _unpackSpecialDay(r));
 
 void _packListOfZman(_BufferWriter w, List<Zman> v) =>
     w.writeList(v, (e) => w.writeI32(e.value));
@@ -1083,12 +1082,6 @@ void _packOptionalOfTehillimUnit(_BufferWriter w, TehillimUnit? v) =>
 TehillimUnit? _unpackOptionalOfTehillimUnit(_BufferReader r) =>
     r.readOptional(() => _unpackTehillimUnit(r));
 
-void _packOptionalOfZman(_BufferWriter w, Zman? v) =>
-    w.writeOptional(v, (e) => w.writeI32(e.value));
-
-Zman? _unpackOptionalOfZman(_BufferReader r) =>
-    r.readOptional(() => Zman.fromValue(r.readI32()));
-
 void _packOptionalOfZmanFailure(_BufferWriter w, ZmanFailure? v) =>
     w.writeOptional(v, (e) => w.writeI32(e.value));
 
@@ -1109,9 +1102,9 @@ final class InvalidDateException extends CalendarException {
 }
 
 /// A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.
-final class InvalidHolidayException extends CalendarException {
-  /// Creates an [InvalidHolidayException] (code 2).
-  InvalidHolidayException([String message = 'A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.']) : super(2, message);
+final class InvalidSpecialDayException extends CalendarException {
+  /// Creates an [InvalidSpecialDayException] (code 2).
+  InvalidSpecialDayException([String message = 'A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.']) : super(2, message);
 }
 
 NativeException _mapCalendarException(int code, String message, Uint8List payload) {
@@ -1119,7 +1112,7 @@ NativeException _mapCalendarException(int code, String message, Uint8List payloa
     case 1:
       return InvalidDateException(message);
     case 2:
-      return InvalidHolidayException(message);
+      return InvalidSpecialDayException(message);
     default:
       return _runtimeException(code, message, payload);
   }
@@ -1389,314 +1382,314 @@ enum Parsha {
 /// A holiday, fast, or other day the calendar marks. Some are not holidays in the halachic
 /// sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
 /// show them.
-sealed class Holiday {
-  const Holiday();
+sealed class SpecialDay {
+  const SpecialDay();
 }
 
 /// Erev Pesach, 14 Nisan.
-final class HolidayErevPesach extends Holiday {
-  /// Creates a [HolidayErevPesach].
-  const HolidayErevPesach();
+final class SpecialDayErevPesach extends SpecialDay {
+  /// Creates a [SpecialDayErevPesach].
+  const SpecialDayErevPesach();
 
   @override
-  bool operator ==(Object other) => other is HolidayErevPesach;
+  bool operator ==(Object other) => other is SpecialDayErevPesach;
 
   @override
-  int get hashCode => (HolidayErevPesach).hashCode;
+  int get hashCode => (SpecialDayErevPesach).hashCode;
 
   @override
-  String toString() => 'HolidayErevPesach()';
+  String toString() => 'SpecialDayErevPesach()';
 }
 
 /// Pesach.
-final class HolidayPesach extends Holiday {
-  /// Creates a [HolidayPesach].
-  const HolidayPesach();
+final class SpecialDayPesach extends SpecialDay {
+  /// Creates a [SpecialDayPesach].
+  const SpecialDayPesach();
 
   @override
-  bool operator ==(Object other) => other is HolidayPesach;
+  bool operator ==(Object other) => other is SpecialDayPesach;
 
   @override
-  int get hashCode => (HolidayPesach).hashCode;
+  int get hashCode => (SpecialDayPesach).hashCode;
 
   @override
-  String toString() => 'HolidayPesach()';
+  String toString() => 'SpecialDayPesach()';
 }
 
 /// Chol Hamoed Pesach.
-final class HolidayCholHamoedPesach extends Holiday {
-  /// Creates a [HolidayCholHamoedPesach].
-  const HolidayCholHamoedPesach();
+final class SpecialDayCholHamoedPesach extends SpecialDay {
+  /// Creates a [SpecialDayCholHamoedPesach].
+  const SpecialDayCholHamoedPesach();
 
   @override
-  bool operator ==(Object other) => other is HolidayCholHamoedPesach;
+  bool operator ==(Object other) => other is SpecialDayCholHamoedPesach;
 
   @override
-  int get hashCode => (HolidayCholHamoedPesach).hashCode;
+  int get hashCode => (SpecialDayCholHamoedPesach).hashCode;
 
   @override
-  String toString() => 'HolidayCholHamoedPesach()';
+  String toString() => 'SpecialDayCholHamoedPesach()';
 }
 
 /// Pesach Sheni, 14 Iyar.
-final class HolidayPesachSheni extends Holiday {
-  /// Creates a [HolidayPesachSheni].
-  const HolidayPesachSheni();
+final class SpecialDayPesachSheni extends SpecialDay {
+  /// Creates a [SpecialDayPesachSheni].
+  const SpecialDayPesachSheni();
 
   @override
-  bool operator ==(Object other) => other is HolidayPesachSheni;
+  bool operator ==(Object other) => other is SpecialDayPesachSheni;
 
   @override
-  int get hashCode => (HolidayPesachSheni).hashCode;
+  int get hashCode => (SpecialDayPesachSheni).hashCode;
 
   @override
-  String toString() => 'HolidayPesachSheni()';
+  String toString() => 'SpecialDayPesachSheni()';
 }
 
 /// Erev Shavuos, 5 Sivan.
-final class HolidayErevShavuos extends Holiday {
-  /// Creates a [HolidayErevShavuos].
-  const HolidayErevShavuos();
+final class SpecialDayErevShavuos extends SpecialDay {
+  /// Creates a [SpecialDayErevShavuos].
+  const SpecialDayErevShavuos();
 
   @override
-  bool operator ==(Object other) => other is HolidayErevShavuos;
+  bool operator ==(Object other) => other is SpecialDayErevShavuos;
 
   @override
-  int get hashCode => (HolidayErevShavuos).hashCode;
+  int get hashCode => (SpecialDayErevShavuos).hashCode;
 
   @override
-  String toString() => 'HolidayErevShavuos()';
+  String toString() => 'SpecialDayErevShavuos()';
 }
 
 /// Shavuos.
-final class HolidayShavuos extends Holiday {
-  /// Creates a [HolidayShavuos].
-  const HolidayShavuos();
+final class SpecialDayShavuos extends SpecialDay {
+  /// Creates a [SpecialDayShavuos].
+  const SpecialDayShavuos();
 
   @override
-  bool operator ==(Object other) => other is HolidayShavuos;
+  bool operator ==(Object other) => other is SpecialDayShavuos;
 
   @override
-  int get hashCode => (HolidayShavuos).hashCode;
+  int get hashCode => (SpecialDayShavuos).hashCode;
 
   @override
-  String toString() => 'HolidayShavuos()';
+  String toString() => 'SpecialDayShavuos()';
 }
 
 /// The fast of 17 Tammuz.
-final class HolidaySeventeenthOfTammuz extends Holiday {
-  /// Creates a [HolidaySeventeenthOfTammuz].
-  const HolidaySeventeenthOfTammuz();
+final class SpecialDaySeventeenthOfTammuz extends SpecialDay {
+  /// Creates a [SpecialDaySeventeenthOfTammuz].
+  const SpecialDaySeventeenthOfTammuz();
 
   @override
-  bool operator ==(Object other) => other is HolidaySeventeenthOfTammuz;
+  bool operator ==(Object other) => other is SpecialDaySeventeenthOfTammuz;
 
   @override
-  int get hashCode => (HolidaySeventeenthOfTammuz).hashCode;
+  int get hashCode => (SpecialDaySeventeenthOfTammuz).hashCode;
 
   @override
-  String toString() => 'HolidaySeventeenthOfTammuz()';
+  String toString() => 'SpecialDaySeventeenthOfTammuz()';
 }
 
 /// Tishah B'Av.
-final class HolidayTishahBav extends Holiday {
-  /// Creates a [HolidayTishahBav].
-  const HolidayTishahBav();
+final class SpecialDayTishahBav extends SpecialDay {
+  /// Creates a [SpecialDayTishahBav].
+  const SpecialDayTishahBav();
 
   @override
-  bool operator ==(Object other) => other is HolidayTishahBav;
+  bool operator ==(Object other) => other is SpecialDayTishahBav;
 
   @override
-  int get hashCode => (HolidayTishahBav).hashCode;
+  int get hashCode => (SpecialDayTishahBav).hashCode;
 
   @override
-  String toString() => 'HolidayTishahBav()';
+  String toString() => 'SpecialDayTishahBav()';
 }
 
 /// Tu B'Av, 15 Av.
-final class HolidayTuBav extends Holiday {
-  /// Creates a [HolidayTuBav].
-  const HolidayTuBav();
+final class SpecialDayTuBav extends SpecialDay {
+  /// Creates a [SpecialDayTuBav].
+  const SpecialDayTuBav();
 
   @override
-  bool operator ==(Object other) => other is HolidayTuBav;
+  bool operator ==(Object other) => other is SpecialDayTuBav;
 
   @override
-  int get hashCode => (HolidayTuBav).hashCode;
+  int get hashCode => (SpecialDayTuBav).hashCode;
 
   @override
-  String toString() => 'HolidayTuBav()';
+  String toString() => 'SpecialDayTuBav()';
 }
 
 /// Erev Rosh Hashana, 29 Elul.
-final class HolidayErevRoshHashana extends Holiday {
-  /// Creates a [HolidayErevRoshHashana].
-  const HolidayErevRoshHashana();
+final class SpecialDayErevRoshHashana extends SpecialDay {
+  /// Creates a [SpecialDayErevRoshHashana].
+  const SpecialDayErevRoshHashana();
 
   @override
-  bool operator ==(Object other) => other is HolidayErevRoshHashana;
+  bool operator ==(Object other) => other is SpecialDayErevRoshHashana;
 
   @override
-  int get hashCode => (HolidayErevRoshHashana).hashCode;
+  int get hashCode => (SpecialDayErevRoshHashana).hashCode;
 
   @override
-  String toString() => 'HolidayErevRoshHashana()';
+  String toString() => 'SpecialDayErevRoshHashana()';
 }
 
 /// Rosh Hashana.
-final class HolidayRoshHashana extends Holiday {
-  /// Creates a [HolidayRoshHashana].
-  const HolidayRoshHashana();
+final class SpecialDayRoshHashana extends SpecialDay {
+  /// Creates a [SpecialDayRoshHashana].
+  const SpecialDayRoshHashana();
 
   @override
-  bool operator ==(Object other) => other is HolidayRoshHashana;
+  bool operator ==(Object other) => other is SpecialDayRoshHashana;
 
   @override
-  int get hashCode => (HolidayRoshHashana).hashCode;
+  int get hashCode => (SpecialDayRoshHashana).hashCode;
 
   @override
-  String toString() => 'HolidayRoshHashana()';
+  String toString() => 'SpecialDayRoshHashana()';
 }
 
 /// The Fast of Gedalyah.
-final class HolidayFastOfGedalyah extends Holiday {
-  /// Creates a [HolidayFastOfGedalyah].
-  const HolidayFastOfGedalyah();
+final class SpecialDayFastOfGedalyah extends SpecialDay {
+  /// Creates a [SpecialDayFastOfGedalyah].
+  const SpecialDayFastOfGedalyah();
 
   @override
-  bool operator ==(Object other) => other is HolidayFastOfGedalyah;
+  bool operator ==(Object other) => other is SpecialDayFastOfGedalyah;
 
   @override
-  int get hashCode => (HolidayFastOfGedalyah).hashCode;
+  int get hashCode => (SpecialDayFastOfGedalyah).hashCode;
 
   @override
-  String toString() => 'HolidayFastOfGedalyah()';
+  String toString() => 'SpecialDayFastOfGedalyah()';
 }
 
 /// Erev Yom Kippur, 9 Tishrei.
-final class HolidayErevYomKippur extends Holiday {
-  /// Creates a [HolidayErevYomKippur].
-  const HolidayErevYomKippur();
+final class SpecialDayErevYomKippur extends SpecialDay {
+  /// Creates a [SpecialDayErevYomKippur].
+  const SpecialDayErevYomKippur();
 
   @override
-  bool operator ==(Object other) => other is HolidayErevYomKippur;
+  bool operator ==(Object other) => other is SpecialDayErevYomKippur;
 
   @override
-  int get hashCode => (HolidayErevYomKippur).hashCode;
+  int get hashCode => (SpecialDayErevYomKippur).hashCode;
 
   @override
-  String toString() => 'HolidayErevYomKippur()';
+  String toString() => 'SpecialDayErevYomKippur()';
 }
 
 /// Yom Kippur, 10 Tishrei.
-final class HolidayYomKippur extends Holiday {
-  /// Creates a [HolidayYomKippur].
-  const HolidayYomKippur();
+final class SpecialDayYomKippur extends SpecialDay {
+  /// Creates a [SpecialDayYomKippur].
+  const SpecialDayYomKippur();
 
   @override
-  bool operator ==(Object other) => other is HolidayYomKippur;
+  bool operator ==(Object other) => other is SpecialDayYomKippur;
 
   @override
-  int get hashCode => (HolidayYomKippur).hashCode;
+  int get hashCode => (SpecialDayYomKippur).hashCode;
 
   @override
-  String toString() => 'HolidayYomKippur()';
+  String toString() => 'SpecialDayYomKippur()';
 }
 
 /// Erev Succos, 14 Tishrei.
-final class HolidayErevSuccos extends Holiday {
-  /// Creates a [HolidayErevSuccos].
-  const HolidayErevSuccos();
+final class SpecialDayErevSuccos extends SpecialDay {
+  /// Creates a [SpecialDayErevSuccos].
+  const SpecialDayErevSuccos();
 
   @override
-  bool operator ==(Object other) => other is HolidayErevSuccos;
+  bool operator ==(Object other) => other is SpecialDayErevSuccos;
 
   @override
-  int get hashCode => (HolidayErevSuccos).hashCode;
+  int get hashCode => (SpecialDayErevSuccos).hashCode;
 
   @override
-  String toString() => 'HolidayErevSuccos()';
+  String toString() => 'SpecialDayErevSuccos()';
 }
 
 /// Succos.
-final class HolidaySuccos extends Holiday {
-  /// Creates a [HolidaySuccos].
-  const HolidaySuccos();
+final class SpecialDaySuccos extends SpecialDay {
+  /// Creates a [SpecialDaySuccos].
+  const SpecialDaySuccos();
 
   @override
-  bool operator ==(Object other) => other is HolidaySuccos;
+  bool operator ==(Object other) => other is SpecialDaySuccos;
 
   @override
-  int get hashCode => (HolidaySuccos).hashCode;
+  int get hashCode => (SpecialDaySuccos).hashCode;
 
   @override
-  String toString() => 'HolidaySuccos()';
+  String toString() => 'SpecialDaySuccos()';
 }
 
 /// Chol Hamoed Succos.
-final class HolidayCholHamoedSuccos extends Holiday {
-  /// Creates a [HolidayCholHamoedSuccos].
-  const HolidayCholHamoedSuccos();
+final class SpecialDayCholHamoedSuccos extends SpecialDay {
+  /// Creates a [SpecialDayCholHamoedSuccos].
+  const SpecialDayCholHamoedSuccos();
 
   @override
-  bool operator ==(Object other) => other is HolidayCholHamoedSuccos;
+  bool operator ==(Object other) => other is SpecialDayCholHamoedSuccos;
 
   @override
-  int get hashCode => (HolidayCholHamoedSuccos).hashCode;
+  int get hashCode => (SpecialDayCholHamoedSuccos).hashCode;
 
   @override
-  String toString() => 'HolidayCholHamoedSuccos()';
+  String toString() => 'SpecialDayCholHamoedSuccos()';
 }
 
 /// Hoshana Rabbah, 21 Tishrei.
-final class HolidayHoshanaRabbah extends Holiday {
-  /// Creates a [HolidayHoshanaRabbah].
-  const HolidayHoshanaRabbah();
+final class SpecialDayHoshanaRabbah extends SpecialDay {
+  /// Creates a [SpecialDayHoshanaRabbah].
+  const SpecialDayHoshanaRabbah();
 
   @override
-  bool operator ==(Object other) => other is HolidayHoshanaRabbah;
+  bool operator ==(Object other) => other is SpecialDayHoshanaRabbah;
 
   @override
-  int get hashCode => (HolidayHoshanaRabbah).hashCode;
+  int get hashCode => (SpecialDayHoshanaRabbah).hashCode;
 
   @override
-  String toString() => 'HolidayHoshanaRabbah()';
+  String toString() => 'SpecialDayHoshanaRabbah()';
 }
 
 /// Shemini Atzeres.
-final class HolidaySheminiAtzeres extends Holiday {
-  /// Creates a [HolidaySheminiAtzeres].
-  const HolidaySheminiAtzeres();
+final class SpecialDaySheminiAtzeres extends SpecialDay {
+  /// Creates a [SpecialDaySheminiAtzeres].
+  const SpecialDaySheminiAtzeres();
 
   @override
-  bool operator ==(Object other) => other is HolidaySheminiAtzeres;
+  bool operator ==(Object other) => other is SpecialDaySheminiAtzeres;
 
   @override
-  int get hashCode => (HolidaySheminiAtzeres).hashCode;
+  int get hashCode => (SpecialDaySheminiAtzeres).hashCode;
 
   @override
-  String toString() => 'HolidaySheminiAtzeres()';
+  String toString() => 'SpecialDaySheminiAtzeres()';
 }
 
 /// Simchas Torah.
-final class HolidaySimchasTorah extends Holiday {
-  /// Creates a [HolidaySimchasTorah].
-  const HolidaySimchasTorah();
+final class SpecialDaySimchasTorah extends SpecialDay {
+  /// Creates a [SpecialDaySimchasTorah].
+  const SpecialDaySimchasTorah();
 
   @override
-  bool operator ==(Object other) => other is HolidaySimchasTorah;
+  bool operator ==(Object other) => other is SpecialDaySimchasTorah;
 
   @override
-  int get hashCode => (HolidaySimchasTorah).hashCode;
+  int get hashCode => (SpecialDaySimchasTorah).hashCode;
 
   @override
-  String toString() => 'HolidaySimchasTorah()';
+  String toString() => 'SpecialDaySimchasTorah()';
 }
 
 /// Chanukah.
-final class HolidayChanukah extends Holiday {
-  /// Creates a [HolidayChanukah].
-  HolidayChanukah(this.day);
+final class SpecialDayChanukah extends SpecialDay {
+  /// Creates a [SpecialDayChanukah].
+  SpecialDayChanukah(this.day);
 
   /// The day of Chanukah, 1 to 8.
   final int day;
@@ -1704,275 +1697,275 @@ final class HolidayChanukah extends Holiday {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HolidayChanukah &&
+      other is SpecialDayChanukah &&
       day == other.day;
 
   @override
-  int get hashCode => Object.hashAll([HolidayChanukah, day]);
+  int get hashCode => Object.hashAll([SpecialDayChanukah, day]);
 
   @override
-  String toString() => 'HolidayChanukah(day: $day)';
+  String toString() => 'SpecialDayChanukah(day: $day)';
 }
 
 /// The fast of 10 Teves.
-final class HolidayTenthOfTeves extends Holiday {
-  /// Creates a [HolidayTenthOfTeves].
-  const HolidayTenthOfTeves();
+final class SpecialDayTenthOfTeves extends SpecialDay {
+  /// Creates a [SpecialDayTenthOfTeves].
+  const SpecialDayTenthOfTeves();
 
   @override
-  bool operator ==(Object other) => other is HolidayTenthOfTeves;
+  bool operator ==(Object other) => other is SpecialDayTenthOfTeves;
 
   @override
-  int get hashCode => (HolidayTenthOfTeves).hashCode;
+  int get hashCode => (SpecialDayTenthOfTeves).hashCode;
 
   @override
-  String toString() => 'HolidayTenthOfTeves()';
+  String toString() => 'SpecialDayTenthOfTeves()';
 }
 
 /// Tu B'Shvat, 15 Shevat.
-final class HolidayTuBshvat extends Holiday {
-  /// Creates a [HolidayTuBshvat].
-  const HolidayTuBshvat();
+final class SpecialDayTuBshvat extends SpecialDay {
+  /// Creates a [SpecialDayTuBshvat].
+  const SpecialDayTuBshvat();
 
   @override
-  bool operator ==(Object other) => other is HolidayTuBshvat;
+  bool operator ==(Object other) => other is SpecialDayTuBshvat;
 
   @override
-  int get hashCode => (HolidayTuBshvat).hashCode;
+  int get hashCode => (SpecialDayTuBshvat).hashCode;
 
   @override
-  String toString() => 'HolidayTuBshvat()';
+  String toString() => 'SpecialDayTuBshvat()';
 }
 
 /// The Fast of Esther.
-final class HolidayFastOfEsther extends Holiday {
-  /// Creates a [HolidayFastOfEsther].
-  const HolidayFastOfEsther();
+final class SpecialDayFastOfEsther extends SpecialDay {
+  /// Creates a [SpecialDayFastOfEsther].
+  const SpecialDayFastOfEsther();
 
   @override
-  bool operator ==(Object other) => other is HolidayFastOfEsther;
+  bool operator ==(Object other) => other is SpecialDayFastOfEsther;
 
   @override
-  int get hashCode => (HolidayFastOfEsther).hashCode;
+  int get hashCode => (SpecialDayFastOfEsther).hashCode;
 
   @override
-  String toString() => 'HolidayFastOfEsther()';
+  String toString() => 'SpecialDayFastOfEsther()';
 }
 
 /// Purim.
-final class HolidayPurim extends Holiday {
-  /// Creates a [HolidayPurim].
-  const HolidayPurim();
+final class SpecialDayPurim extends SpecialDay {
+  /// Creates a [SpecialDayPurim].
+  const SpecialDayPurim();
 
   @override
-  bool operator ==(Object other) => other is HolidayPurim;
+  bool operator ==(Object other) => other is SpecialDayPurim;
 
   @override
-  int get hashCode => (HolidayPurim).hashCode;
+  int get hashCode => (SpecialDayPurim).hashCode;
 
   @override
-  String toString() => 'HolidayPurim()';
+  String toString() => 'SpecialDayPurim()';
 }
 
 /// Shushan Purim.
-final class HolidayShushanPurim extends Holiday {
-  /// Creates a [HolidayShushanPurim].
-  const HolidayShushanPurim();
+final class SpecialDayShushanPurim extends SpecialDay {
+  /// Creates a [SpecialDayShushanPurim].
+  const SpecialDayShushanPurim();
 
   @override
-  bool operator ==(Object other) => other is HolidayShushanPurim;
+  bool operator ==(Object other) => other is SpecialDayShushanPurim;
 
   @override
-  int get hashCode => (HolidayShushanPurim).hashCode;
+  int get hashCode => (SpecialDayShushanPurim).hashCode;
 
   @override
-  String toString() => 'HolidayShushanPurim()';
+  String toString() => 'SpecialDayShushanPurim()';
 }
 
 /// Purim Katan, 14 Adar I.
-final class HolidayPurimKatan extends Holiday {
-  /// Creates a [HolidayPurimKatan].
-  const HolidayPurimKatan();
+final class SpecialDayPurimKatan extends SpecialDay {
+  /// Creates a [SpecialDayPurimKatan].
+  const SpecialDayPurimKatan();
 
   @override
-  bool operator ==(Object other) => other is HolidayPurimKatan;
+  bool operator ==(Object other) => other is SpecialDayPurimKatan;
 
   @override
-  int get hashCode => (HolidayPurimKatan).hashCode;
+  int get hashCode => (SpecialDayPurimKatan).hashCode;
 
   @override
-  String toString() => 'HolidayPurimKatan()';
+  String toString() => 'SpecialDayPurimKatan()';
 }
 
 /// Rosh Chodesh.
-final class HolidayRoshChodesh extends Holiday {
-  /// Creates a [HolidayRoshChodesh].
-  const HolidayRoshChodesh();
+final class SpecialDayRoshChodesh extends SpecialDay {
+  /// Creates a [SpecialDayRoshChodesh].
+  const SpecialDayRoshChodesh();
 
   @override
-  bool operator ==(Object other) => other is HolidayRoshChodesh;
+  bool operator ==(Object other) => other is SpecialDayRoshChodesh;
 
   @override
-  int get hashCode => (HolidayRoshChodesh).hashCode;
+  int get hashCode => (SpecialDayRoshChodesh).hashCode;
 
   @override
-  String toString() => 'HolidayRoshChodesh()';
+  String toString() => 'SpecialDayRoshChodesh()';
 }
 
 /// Yom HaShoah.
-final class HolidayYomHaShoah extends Holiday {
-  /// Creates a [HolidayYomHaShoah].
-  const HolidayYomHaShoah();
+final class SpecialDayYomHaShoah extends SpecialDay {
+  /// Creates a [SpecialDayYomHaShoah].
+  const SpecialDayYomHaShoah();
 
   @override
-  bool operator ==(Object other) => other is HolidayYomHaShoah;
+  bool operator ==(Object other) => other is SpecialDayYomHaShoah;
 
   @override
-  int get hashCode => (HolidayYomHaShoah).hashCode;
+  int get hashCode => (SpecialDayYomHaShoah).hashCode;
 
   @override
-  String toString() => 'HolidayYomHaShoah()';
+  String toString() => 'SpecialDayYomHaShoah()';
 }
 
 /// Yom Hazikaron.
-final class HolidayYomHazikaron extends Holiday {
-  /// Creates a [HolidayYomHazikaron].
-  const HolidayYomHazikaron();
+final class SpecialDayYomHazikaron extends SpecialDay {
+  /// Creates a [SpecialDayYomHazikaron].
+  const SpecialDayYomHazikaron();
 
   @override
-  bool operator ==(Object other) => other is HolidayYomHazikaron;
+  bool operator ==(Object other) => other is SpecialDayYomHazikaron;
 
   @override
-  int get hashCode => (HolidayYomHazikaron).hashCode;
+  int get hashCode => (SpecialDayYomHazikaron).hashCode;
 
   @override
-  String toString() => 'HolidayYomHazikaron()';
+  String toString() => 'SpecialDayYomHazikaron()';
 }
 
 /// Yom Ha'atzmaut.
-final class HolidayYomHaatzmaut extends Holiday {
-  /// Creates a [HolidayYomHaatzmaut].
-  const HolidayYomHaatzmaut();
+final class SpecialDayYomHaatzmaut extends SpecialDay {
+  /// Creates a [SpecialDayYomHaatzmaut].
+  const SpecialDayYomHaatzmaut();
 
   @override
-  bool operator ==(Object other) => other is HolidayYomHaatzmaut;
+  bool operator ==(Object other) => other is SpecialDayYomHaatzmaut;
 
   @override
-  int get hashCode => (HolidayYomHaatzmaut).hashCode;
+  int get hashCode => (SpecialDayYomHaatzmaut).hashCode;
 
   @override
-  String toString() => 'HolidayYomHaatzmaut()';
+  String toString() => 'SpecialDayYomHaatzmaut()';
 }
 
 /// Yom Yerushalayim.
-final class HolidayYomYerushalayim extends Holiday {
-  /// Creates a [HolidayYomYerushalayim].
-  const HolidayYomYerushalayim();
+final class SpecialDayYomYerushalayim extends SpecialDay {
+  /// Creates a [SpecialDayYomYerushalayim].
+  const SpecialDayYomYerushalayim();
 
   @override
-  bool operator ==(Object other) => other is HolidayYomYerushalayim;
+  bool operator ==(Object other) => other is SpecialDayYomYerushalayim;
 
   @override
-  int get hashCode => (HolidayYomYerushalayim).hashCode;
+  int get hashCode => (SpecialDayYomYerushalayim).hashCode;
 
   @override
-  String toString() => 'HolidayYomYerushalayim()';
+  String toString() => 'SpecialDayYomYerushalayim()';
 }
 
 /// Lag B'Omer, 18 Iyar.
-final class HolidayLagBomer extends Holiday {
-  /// Creates a [HolidayLagBomer].
-  const HolidayLagBomer();
+final class SpecialDayLagBomer extends SpecialDay {
+  /// Creates a [SpecialDayLagBomer].
+  const SpecialDayLagBomer();
 
   @override
-  bool operator ==(Object other) => other is HolidayLagBomer;
+  bool operator ==(Object other) => other is SpecialDayLagBomer;
 
   @override
-  int get hashCode => (HolidayLagBomer).hashCode;
+  int get hashCode => (SpecialDayLagBomer).hashCode;
 
   @override
-  String toString() => 'HolidayLagBomer()';
+  String toString() => 'SpecialDayLagBomer()';
 }
 
 /// Shushan Purim Katan, 15 Adar I.
-final class HolidayShushanPurimKatan extends Holiday {
-  /// Creates a [HolidayShushanPurimKatan].
-  const HolidayShushanPurimKatan();
+final class SpecialDayShushanPurimKatan extends SpecialDay {
+  /// Creates a [SpecialDayShushanPurimKatan].
+  const SpecialDayShushanPurimKatan();
 
   @override
-  bool operator ==(Object other) => other is HolidayShushanPurimKatan;
+  bool operator ==(Object other) => other is SpecialDayShushanPurimKatan;
 
   @override
-  int get hashCode => (HolidayShushanPurimKatan).hashCode;
+  int get hashCode => (SpecialDayShushanPurimKatan).hashCode;
 
   @override
-  String toString() => 'HolidayShushanPurimKatan()';
+  String toString() => 'SpecialDayShushanPurimKatan()';
 }
 
 /// Isru Chag, the day after a festival.
-final class HolidayIsruChag extends Holiday {
-  /// Creates a [HolidayIsruChag].
-  const HolidayIsruChag();
+final class SpecialDayIsruChag extends SpecialDay {
+  /// Creates a [SpecialDayIsruChag].
+  const SpecialDayIsruChag();
 
   @override
-  bool operator ==(Object other) => other is HolidayIsruChag;
+  bool operator ==(Object other) => other is SpecialDayIsruChag;
 
   @override
-  int get hashCode => (HolidayIsruChag).hashCode;
+  int get hashCode => (SpecialDayIsruChag).hashCode;
 
   @override
-  String toString() => 'HolidayIsruChag()';
+  String toString() => 'SpecialDayIsruChag()';
 }
 
 /// Yom Kippur Katan, the eve of Rosh Chodesh.
-final class HolidayYomKippurKatan extends Holiday {
-  /// Creates a [HolidayYomKippurKatan].
-  const HolidayYomKippurKatan();
+final class SpecialDayYomKippurKatan extends SpecialDay {
+  /// Creates a [SpecialDayYomKippurKatan].
+  const SpecialDayYomKippurKatan();
 
   @override
-  bool operator ==(Object other) => other is HolidayYomKippurKatan;
+  bool operator ==(Object other) => other is SpecialDayYomKippurKatan;
 
   @override
-  int get hashCode => (HolidayYomKippurKatan).hashCode;
+  int get hashCode => (SpecialDayYomKippurKatan).hashCode;
 
   @override
-  String toString() => 'HolidayYomKippurKatan()';
+  String toString() => 'SpecialDayYomKippurKatan()';
 }
 
 /// Behab, the Monday-Thursday-Monday fasts after Pesach and Succos.
-final class HolidayBehab extends Holiday {
-  /// Creates a [HolidayBehab].
-  const HolidayBehab();
+final class SpecialDayBehab extends SpecialDay {
+  /// Creates a [SpecialDayBehab].
+  const SpecialDayBehab();
 
   @override
-  bool operator ==(Object other) => other is HolidayBehab;
+  bool operator ==(Object other) => other is SpecialDayBehab;
 
   @override
-  int get hashCode => (HolidayBehab).hashCode;
+  int get hashCode => (SpecialDayBehab).hashCode;
 
   @override
-  String toString() => 'HolidayBehab()';
+  String toString() => 'SpecialDayBehab()';
 }
 
 /// The Fast of the Firstborn.
-final class HolidayFastOfTheFirstborn extends Holiday {
-  /// Creates a [HolidayFastOfTheFirstborn].
-  const HolidayFastOfTheFirstborn();
+final class SpecialDayFastOfTheFirstborn extends SpecialDay {
+  /// Creates a [SpecialDayFastOfTheFirstborn].
+  const SpecialDayFastOfTheFirstborn();
 
   @override
-  bool operator ==(Object other) => other is HolidayFastOfTheFirstborn;
+  bool operator ==(Object other) => other is SpecialDayFastOfTheFirstborn;
 
   @override
-  int get hashCode => (HolidayFastOfTheFirstborn).hashCode;
+  int get hashCode => (SpecialDayFastOfTheFirstborn).hashCode;
 
   @override
-  String toString() => 'HolidayFastOfTheFirstborn()';
+  String toString() => 'SpecialDayFastOfTheFirstborn()';
 }
 
 /// The Omer count.
-final class HolidayCountOfTheOmer extends Holiday {
-  /// Creates a [HolidayCountOfTheOmer].
-  HolidayCountOfTheOmer(this.day);
+final class SpecialDayCountOfTheOmer extends SpecialDay {
+  /// Creates a [SpecialDayCountOfTheOmer].
+  SpecialDayCountOfTheOmer(this.day);
 
   /// The day of the count, 1 to 49.
   final int day;
@@ -1980,241 +1973,241 @@ final class HolidayCountOfTheOmer extends Holiday {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HolidayCountOfTheOmer &&
+      other is SpecialDayCountOfTheOmer &&
       day == other.day;
 
   @override
-  int get hashCode => Object.hashAll([HolidayCountOfTheOmer, day]);
+  int get hashCode => Object.hashAll([SpecialDayCountOfTheOmer, day]);
 
   @override
-  String toString() => 'HolidayCountOfTheOmer(day: $day)';
+  String toString() => 'SpecialDayCountOfTheOmer(day: $day)';
 }
 
 /// Birchas Hachamah, every 28 years.
-final class HolidayBirchasHachamah extends Holiday {
-  /// Creates a [HolidayBirchasHachamah].
-  const HolidayBirchasHachamah();
+final class SpecialDayBirchasHachamah extends SpecialDay {
+  /// Creates a [SpecialDayBirchasHachamah].
+  const SpecialDayBirchasHachamah();
 
   @override
-  bool operator ==(Object other) => other is HolidayBirchasHachamah;
+  bool operator ==(Object other) => other is SpecialDayBirchasHachamah;
 
   @override
-  int get hashCode => (HolidayBirchasHachamah).hashCode;
+  int get hashCode => (SpecialDayBirchasHachamah).hashCode;
 
   @override
-  String toString() => 'HolidayBirchasHachamah()';
+  String toString() => 'SpecialDayBirchasHachamah()';
 }
 
 /// Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.
-final class HolidayMacharHachodesh extends Holiday {
-  /// Creates a [HolidayMacharHachodesh].
-  const HolidayMacharHachodesh();
+final class SpecialDayMacharHachodesh extends SpecialDay {
+  /// Creates a [SpecialDayMacharHachodesh].
+  const SpecialDayMacharHachodesh();
 
   @override
-  bool operator ==(Object other) => other is HolidayMacharHachodesh;
+  bool operator ==(Object other) => other is SpecialDayMacharHachodesh;
 
   @override
-  int get hashCode => (HolidayMacharHachodesh).hashCode;
+  int get hashCode => (SpecialDayMacharHachodesh).hashCode;
 
   @override
-  String toString() => 'HolidayMacharHachodesh()';
+  String toString() => 'SpecialDayMacharHachodesh()';
 }
 
 /// Shabbos Mevarchim, the Shabbos when the coming month is announced.
-final class HolidayShabbosMevarchim extends Holiday {
-  /// Creates a [HolidayShabbosMevarchim].
-  const HolidayShabbosMevarchim();
+final class SpecialDayShabbosMevarchim extends SpecialDay {
+  /// Creates a [SpecialDayShabbosMevarchim].
+  const SpecialDayShabbosMevarchim();
 
   @override
-  bool operator ==(Object other) => other is HolidayShabbosMevarchim;
+  bool operator ==(Object other) => other is SpecialDayShabbosMevarchim;
 
   @override
-  int get hashCode => (HolidayShabbosMevarchim).hashCode;
+  int get hashCode => (SpecialDayShabbosMevarchim).hashCode;
 
   @override
-  String toString() => 'HolidayShabbosMevarchim()';
+  String toString() => 'SpecialDayShabbosMevarchim()';
 }
 
-void _packHoliday(_BufferWriter w, Holiday v) {
+void _packSpecialDay(_BufferWriter w, SpecialDay v) {
   switch (v) {
-    case HolidayErevPesach():
+    case SpecialDayErevPesach():
       w.writeI32(0);
-    case HolidayPesach():
+    case SpecialDayPesach():
       w.writeI32(1);
-    case HolidayCholHamoedPesach():
+    case SpecialDayCholHamoedPesach():
       w.writeI32(2);
-    case HolidayPesachSheni():
+    case SpecialDayPesachSheni():
       w.writeI32(3);
-    case HolidayErevShavuos():
+    case SpecialDayErevShavuos():
       w.writeI32(4);
-    case HolidayShavuos():
+    case SpecialDayShavuos():
       w.writeI32(5);
-    case HolidaySeventeenthOfTammuz():
+    case SpecialDaySeventeenthOfTammuz():
       w.writeI32(6);
-    case HolidayTishahBav():
+    case SpecialDayTishahBav():
       w.writeI32(7);
-    case HolidayTuBav():
+    case SpecialDayTuBav():
       w.writeI32(8);
-    case HolidayErevRoshHashana():
+    case SpecialDayErevRoshHashana():
       w.writeI32(9);
-    case HolidayRoshHashana():
+    case SpecialDayRoshHashana():
       w.writeI32(10);
-    case HolidayFastOfGedalyah():
+    case SpecialDayFastOfGedalyah():
       w.writeI32(11);
-    case HolidayErevYomKippur():
+    case SpecialDayErevYomKippur():
       w.writeI32(12);
-    case HolidayYomKippur():
+    case SpecialDayYomKippur():
       w.writeI32(13);
-    case HolidayErevSuccos():
+    case SpecialDayErevSuccos():
       w.writeI32(14);
-    case HolidaySuccos():
+    case SpecialDaySuccos():
       w.writeI32(15);
-    case HolidayCholHamoedSuccos():
+    case SpecialDayCholHamoedSuccos():
       w.writeI32(16);
-    case HolidayHoshanaRabbah():
+    case SpecialDayHoshanaRabbah():
       w.writeI32(17);
-    case HolidaySheminiAtzeres():
+    case SpecialDaySheminiAtzeres():
       w.writeI32(18);
-    case HolidaySimchasTorah():
+    case SpecialDaySimchasTorah():
       w.writeI32(19);
-    case HolidayChanukah():
+    case SpecialDayChanukah():
       w.writeI32(20);
       w.writeI32(v.day);
-    case HolidayTenthOfTeves():
+    case SpecialDayTenthOfTeves():
       w.writeI32(21);
-    case HolidayTuBshvat():
+    case SpecialDayTuBshvat():
       w.writeI32(22);
-    case HolidayFastOfEsther():
+    case SpecialDayFastOfEsther():
       w.writeI32(23);
-    case HolidayPurim():
+    case SpecialDayPurim():
       w.writeI32(24);
-    case HolidayShushanPurim():
+    case SpecialDayShushanPurim():
       w.writeI32(25);
-    case HolidayPurimKatan():
+    case SpecialDayPurimKatan():
       w.writeI32(26);
-    case HolidayRoshChodesh():
+    case SpecialDayRoshChodesh():
       w.writeI32(27);
-    case HolidayYomHaShoah():
+    case SpecialDayYomHaShoah():
       w.writeI32(28);
-    case HolidayYomHazikaron():
+    case SpecialDayYomHazikaron():
       w.writeI32(29);
-    case HolidayYomHaatzmaut():
+    case SpecialDayYomHaatzmaut():
       w.writeI32(30);
-    case HolidayYomYerushalayim():
+    case SpecialDayYomYerushalayim():
       w.writeI32(31);
-    case HolidayLagBomer():
+    case SpecialDayLagBomer():
       w.writeI32(32);
-    case HolidayShushanPurimKatan():
+    case SpecialDayShushanPurimKatan():
       w.writeI32(33);
-    case HolidayIsruChag():
+    case SpecialDayIsruChag():
       w.writeI32(34);
-    case HolidayYomKippurKatan():
+    case SpecialDayYomKippurKatan():
       w.writeI32(35);
-    case HolidayBehab():
+    case SpecialDayBehab():
       w.writeI32(36);
-    case HolidayFastOfTheFirstborn():
+    case SpecialDayFastOfTheFirstborn():
       w.writeI32(37);
-    case HolidayCountOfTheOmer():
+    case SpecialDayCountOfTheOmer():
       w.writeI32(38);
       w.writeI32(v.day);
-    case HolidayBirchasHachamah():
+    case SpecialDayBirchasHachamah():
       w.writeI32(39);
-    case HolidayMacharHachodesh():
+    case SpecialDayMacharHachodesh():
       w.writeI32(40);
-    case HolidayShabbosMevarchim():
+    case SpecialDayShabbosMevarchim():
       w.writeI32(41);
   }
 }
 
-Holiday _unpackHoliday(_BufferReader r) {
+SpecialDay _unpackSpecialDay(_BufferReader r) {
   final tag = r.readI32();
   switch (tag) {
     case 0:
-      return const HolidayErevPesach();
+      return const SpecialDayErevPesach();
     case 1:
-      return const HolidayPesach();
+      return const SpecialDayPesach();
     case 2:
-      return const HolidayCholHamoedPesach();
+      return const SpecialDayCholHamoedPesach();
     case 3:
-      return const HolidayPesachSheni();
+      return const SpecialDayPesachSheni();
     case 4:
-      return const HolidayErevShavuos();
+      return const SpecialDayErevShavuos();
     case 5:
-      return const HolidayShavuos();
+      return const SpecialDayShavuos();
     case 6:
-      return const HolidaySeventeenthOfTammuz();
+      return const SpecialDaySeventeenthOfTammuz();
     case 7:
-      return const HolidayTishahBav();
+      return const SpecialDayTishahBav();
     case 8:
-      return const HolidayTuBav();
+      return const SpecialDayTuBav();
     case 9:
-      return const HolidayErevRoshHashana();
+      return const SpecialDayErevRoshHashana();
     case 10:
-      return const HolidayRoshHashana();
+      return const SpecialDayRoshHashana();
     case 11:
-      return const HolidayFastOfGedalyah();
+      return const SpecialDayFastOfGedalyah();
     case 12:
-      return const HolidayErevYomKippur();
+      return const SpecialDayErevYomKippur();
     case 13:
-      return const HolidayYomKippur();
+      return const SpecialDayYomKippur();
     case 14:
-      return const HolidayErevSuccos();
+      return const SpecialDayErevSuccos();
     case 15:
-      return const HolidaySuccos();
+      return const SpecialDaySuccos();
     case 16:
-      return const HolidayCholHamoedSuccos();
+      return const SpecialDayCholHamoedSuccos();
     case 17:
-      return const HolidayHoshanaRabbah();
+      return const SpecialDayHoshanaRabbah();
     case 18:
-      return const HolidaySheminiAtzeres();
+      return const SpecialDaySheminiAtzeres();
     case 19:
-      return const HolidaySimchasTorah();
+      return const SpecialDaySimchasTorah();
     case 20:
-      return HolidayChanukah(r.readI32());
+      return SpecialDayChanukah(r.readI32());
     case 21:
-      return const HolidayTenthOfTeves();
+      return const SpecialDayTenthOfTeves();
     case 22:
-      return const HolidayTuBshvat();
+      return const SpecialDayTuBshvat();
     case 23:
-      return const HolidayFastOfEsther();
+      return const SpecialDayFastOfEsther();
     case 24:
-      return const HolidayPurim();
+      return const SpecialDayPurim();
     case 25:
-      return const HolidayShushanPurim();
+      return const SpecialDayShushanPurim();
     case 26:
-      return const HolidayPurimKatan();
+      return const SpecialDayPurimKatan();
     case 27:
-      return const HolidayRoshChodesh();
+      return const SpecialDayRoshChodesh();
     case 28:
-      return const HolidayYomHaShoah();
+      return const SpecialDayYomHaShoah();
     case 29:
-      return const HolidayYomHazikaron();
+      return const SpecialDayYomHazikaron();
     case 30:
-      return const HolidayYomHaatzmaut();
+      return const SpecialDayYomHaatzmaut();
     case 31:
-      return const HolidayYomYerushalayim();
+      return const SpecialDayYomYerushalayim();
     case 32:
-      return const HolidayLagBomer();
+      return const SpecialDayLagBomer();
     case 33:
-      return const HolidayShushanPurimKatan();
+      return const SpecialDayShushanPurimKatan();
     case 34:
-      return const HolidayIsruChag();
+      return const SpecialDayIsruChag();
     case 35:
-      return const HolidayYomKippurKatan();
+      return const SpecialDayYomKippurKatan();
     case 36:
-      return const HolidayBehab();
+      return const SpecialDayBehab();
     case 37:
-      return const HolidayFastOfTheFirstborn();
+      return const SpecialDayFastOfTheFirstborn();
     case 38:
-      return HolidayCountOfTheOmer(r.readI32());
+      return SpecialDayCountOfTheOmer(r.readI32());
     case 39:
-      return const HolidayBirchasHachamah();
+      return const SpecialDayBirchasHachamah();
     case 40:
-      return const HolidayMacharHachodesh();
+      return const SpecialDayMacharHachodesh();
     case 41:
-      return const HolidayShabbosMevarchim();
+      return const SpecialDayShabbosMevarchim();
     default:
-      _bufferError('unknown Holiday tag $tag');
+      _bufferError('unknown SpecialDay tag $tag');
   }
 }
 
@@ -2362,9 +2355,9 @@ final _kosherzCalendarHebrewDateAddDays = _lib.lookupFunction<
     Pointer<Void> Function(Pointer<Void>, Int32, Pointer<_Error>),
     Pointer<Void> Function(Pointer<Void>, int, Pointer<_Error>)>('kosherz_calendar_HebrewDate_add_days');
 
-final _kosherzCalendarHebrewDateHolidays = _lib.lookupFunction<
+final _kosherzCalendarHebrewDateSpecialDays = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_holidays');
+    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_special_days');
 
 final _kosherzCalendarHebrewDateIsAssurBemelacha = _lib.lookupFunction<
     Bool Function(Pointer<Void>, Int32, Pointer<_Error>),
@@ -2558,12 +2551,12 @@ final class HebrewDate extends _NativeObject {
   }
 
   /// The holidays, fasts and other marked days on this day.
-  List<Holiday> holidays(Region region) {
+  List<SpecialDay> specialDays(Region region) {
     final _self = _enter();
     try {
-      final _result = _kosherzCalendarHebrewDateHolidays(_self, region.value, _outLen, _err);
+      final _result = _kosherzCalendarHebrewDateSpecialDays(_self, region.value, _outLen, _err);
       _check(_err);
-      return _decode(_takeBytes(_result, _outLen.value), _unpackListOfHoliday);
+      return _decode(_takeBytes(_result, _outLen.value), _unpackListOfSpecialDay);
     } finally {
       _leave();
     }
@@ -2745,23 +2738,23 @@ HebrewDate roshHashana(int year) {
   return HebrewDate._(_result);
 }
 
-final _kosherzCalendarHolidayName = _lib.lookupFunction<
+final _kosherzCalendarSpecialDayName = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Uint8>, Size, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_holiday_name');
+    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_special_day_name');
 
-/// The holiday's English name, for example "Chanukah".
+/// The day's English name, for example "Chanukah".
 ///
 /// # Errors
 ///
-/// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+/// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
 /// outside 1 to 49.
 ///
 /// Throws [CalendarException] on domain errors.
-String holidayName(Holiday holiday) {
+String specialDayName(SpecialDay specialDay) {
   final _arena = Arena();
   try {
-    final _holidayBytes = _encode(holiday, _packHoliday);
-    final _result = _kosherzCalendarHolidayName(_stage(_arena, _holidayBytes), _holidayBytes.length, _outLen, _err);
+    final _specialDayBytes = _encode(specialDay, _packSpecialDay);
+    final _result = _kosherzCalendarSpecialDayName(_stage(_arena, _specialDayBytes), _specialDayBytes.length, _outLen, _err);
     _check(_err, _mapCalendarException);
     return _takeString(_result, _outLen.value);
   } finally {
@@ -2769,23 +2762,23 @@ String holidayName(Holiday holiday) {
   }
 }
 
-final _kosherzCalendarHolidayHebrew = _lib.lookupFunction<
+final _kosherzCalendarSpecialDayHebrew = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Uint8>, Size, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_holiday_hebrew');
+    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_special_day_hebrew');
 
-/// The holiday's Hebrew name.
+/// The day's Hebrew name.
 ///
 /// # Errors
 ///
-/// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+/// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
 /// outside 1 to 49.
 ///
 /// Throws [CalendarException] on domain errors.
-String holidayHebrew(Holiday holiday) {
+String specialDayHebrew(SpecialDay specialDay) {
   final _arena = Arena();
   try {
-    final _holidayBytes = _encode(holiday, _packHoliday);
-    final _result = _kosherzCalendarHolidayHebrew(_stage(_arena, _holidayBytes), _holidayBytes.length, _outLen, _err);
+    final _specialDayBytes = _encode(specialDay, _packSpecialDay);
+    final _result = _kosherzCalendarSpecialDayHebrew(_stage(_arena, _specialDayBytes), _specialDayBytes.length, _outLen, _err);
     _check(_err, _mapCalendarException);
     return _takeString(_result, _outLen.value);
   } finally {
@@ -2793,23 +2786,23 @@ String holidayHebrew(Holiday holiday) {
   }
 }
 
-final _kosherzCalendarHolidayIsAssurBemelacha = _lib.lookupFunction<
+final _kosherzCalendarSpecialDayIsAssurBemelacha = _lib.lookupFunction<
     Bool Function(Pointer<Uint8>, Size, Pointer<_Error>),
-    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_holiday_is_assur_bemelacha');
+    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_special_day_is_assur_bemelacha');
 
 /// Whether melacha is forbidden on the holiday.
 ///
 /// # Errors
 ///
-/// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+/// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
 /// outside 1 to 49.
 ///
 /// Throws [CalendarException] on domain errors.
-bool holidayIsAssurBemelacha(Holiday holiday) {
+bool specialDayIsAssurBemelacha(SpecialDay specialDay) {
   final _arena = Arena();
   try {
-    final _holidayBytes = _encode(holiday, _packHoliday);
-    final _result = _kosherzCalendarHolidayIsAssurBemelacha(_stage(_arena, _holidayBytes), _holidayBytes.length, _err);
+    final _specialDayBytes = _encode(specialDay, _packSpecialDay);
+    final _result = _kosherzCalendarSpecialDayIsAssurBemelacha(_stage(_arena, _specialDayBytes), _specialDayBytes.length, _err);
     _check(_err, _mapCalendarException);
     return _result;
   } finally {
@@ -2817,23 +2810,23 @@ bool holidayIsAssurBemelacha(Holiday holiday) {
   }
 }
 
-final _kosherzCalendarHolidayIsModern = _lib.lookupFunction<
+final _kosherzCalendarSpecialDayIsModern = _lib.lookupFunction<
     Bool Function(Pointer<Uint8>, Size, Pointer<_Error>),
-    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_holiday_is_modern');
+    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_special_day_is_modern');
 
 /// Whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
 ///
 /// # Errors
 ///
-/// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+/// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
 /// outside 1 to 49.
 ///
 /// Throws [CalendarException] on domain errors.
-bool holidayIsModern(Holiday holiday) {
+bool specialDayIsModern(SpecialDay specialDay) {
   final _arena = Arena();
   try {
-    final _holidayBytes = _encode(holiday, _packHoliday);
-    final _result = _kosherzCalendarHolidayIsModern(_stage(_arena, _holidayBytes), _holidayBytes.length, _err);
+    final _specialDayBytes = _encode(specialDay, _packSpecialDay);
+    final _result = _kosherzCalendarSpecialDayIsModern(_stage(_arena, _specialDayBytes), _specialDayBytes.length, _err);
     _check(_err, _mapCalendarException);
     return _result;
   } finally {
@@ -2841,23 +2834,23 @@ bool holidayIsModern(Holiday holiday) {
   }
 }
 
-final _kosherzCalendarHolidayIsFastDay = _lib.lookupFunction<
+final _kosherzCalendarSpecialDayIsFastDay = _lib.lookupFunction<
     Bool Function(Pointer<Uint8>, Size, Pointer<_Error>),
-    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_holiday_is_fast_day');
+    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_special_day_is_fast_day');
 
 /// Whether the holiday is a fast day.
 ///
 /// # Errors
 ///
-/// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+/// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
 /// outside 1 to 49.
 ///
 /// Throws [CalendarException] on domain errors.
-bool holidayIsFastDay(Holiday holiday) {
+bool specialDayIsFastDay(SpecialDay specialDay) {
   final _arena = Arena();
   try {
-    final _holidayBytes = _encode(holiday, _packHoliday);
-    final _result = _kosherzCalendarHolidayIsFastDay(_stage(_arena, _holidayBytes), _holidayBytes.length, _err);
+    final _specialDayBytes = _encode(specialDay, _packSpecialDay);
+    final _result = _kosherzCalendarSpecialDayIsFastDay(_stage(_arena, _specialDayBytes), _specialDayBytes.length, _err);
     _check(_err, _mapCalendarException);
     return _result;
   } finally {
@@ -4752,23 +4745,6 @@ String zmanJavaName(Zman zman) {
   final _result = _kosherzTimesZmanJavaName(zman.value, _outLen, _err);
   _check(_err);
   return _takeString(_result, _outLen.value);
-}
-
-final _kosherzTimesZmanFromJavaName = _lib.lookupFunction<
-    Pointer<Uint8> Function(Pointer<Uint8>, Size, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_times_zman_from_java_name');
-
-/// The zman named by its KosherJava method, for example "getSofZmanShmaGRA".
-Zman? zmanFromJavaName(String javaName) {
-  final _arena = Arena();
-  try {
-    final _javaNameBytes = utf8.encode(javaName);
-    final _result = _kosherzTimesZmanFromJavaName(_stage(_arena, _javaNameBytes), _javaNameBytes.length, _outLen, _err);
-    _check(_err);
-    return _decode(_takeBytes(_result, _outLen.value), _unpackOptionalOfZman);
-  } finally {
-    _arena.releaseAll();
-  }
 }
 
 final _kosherzTimesZmanCategory = _lib.lookupFunction<

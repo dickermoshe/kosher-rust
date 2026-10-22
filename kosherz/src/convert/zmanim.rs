@@ -61,13 +61,14 @@ pub(crate) fn offset_by_degrees(
 pub(crate) fn all(inner: &Inner) -> Vec<ZmanTime> {
     k::Zman::ALL
         .into_iter()
-        .map(|zman| {
+        .filter_map(|zman| {
+            let ours = zman.try_into().ok()?;
             let result = checked(inner, |inner| inner.get(zman));
-            ZmanTime {
-                zman: zman.into(),
+            Some(ZmanTime {
+                zman: ours,
                 time: result.ok(),
                 failure: result.err().map(Into::into),
-            }
+            })
         })
         .collect()
 }
@@ -97,6 +98,8 @@ impl From<k::Config> for Config {
             AstronomicalCalculator::Noaa => (Calculator::Noaa, true),
             AstronomicalCalculator::Meeus { apply_delta_t } => (Calculator::Meeus, apply_delta_t),
             AstronomicalCalculator::Spa { apply_delta_t } => (Calculator::Spa, apply_delta_t),
+            // Only these three come from the bindings; the default config uses NOAA.
+            _ => (Calculator::Noaa, true),
         };
         Self {
             candle_lighting_minutes: minutes(config.candle_lighting_offset),
@@ -118,6 +121,7 @@ fn minutes(duration: SignedDuration) -> i32 {
 mirror!(
     Category,
     k::Category,
+    non_exhaustive,
     [
         Twilight,
         Alos,
@@ -320,10 +324,12 @@ impl From<crate::api::times::Zman> for kosher_rust::Zman {
 }
 #[allow(deprecated)]
 #[rustfmt::skip]
-impl From<kosher_rust::Zman> for crate::api::times::Zman {
-    fn from(value: kosher_rust::Zman) -> Self {
+impl TryFrom<kosher_rust::Zman> for crate::api::times::Zman {
+    type Error = ();
+
+    fn try_from(value: kosher_rust::Zman) -> Result<Self, ()> {
         use kosher_rust::Zman as F;
-        match value {
+        Ok(match value {
             F::BeginCivilTwilight => Self::BeginCivilTwilight,
             F::EndCivilTwilight => Self::EndCivilTwilight,
             F::BeginNauticalTwilight => Self::BeginNauticalTwilight,
@@ -491,7 +497,8 @@ impl From<kosher_rust::Zman> for crate::api::times::Zman {
             F::TchilasZmanKidushLevana7Days => Self::TchilasZmanKidushLevana7Days,
             F::SolarMidnight => Self::SolarMidnight,
             F::ChatzosHalayla => Self::ChatzosHalayla,
-        }
+            _ => return Err(()),
+        })
     }
 }
 // END GENERATED: Zman

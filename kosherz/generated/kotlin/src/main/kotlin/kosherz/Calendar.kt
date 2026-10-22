@@ -9,13 +9,13 @@ sealed class CalendarException(code: Int, message: String) : FfiException(code, 
     /** The date does not exist, or is outside Hebrew years 1 to 9999. */
     class InvalidDate(message: String = "The date does not exist, or is outside Hebrew years 1 to 9999.") : CalendarException(1, message)
     /** A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49. */
-    class InvalidHoliday(message: String = "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.") : CalendarException(2, message)
+    class InvalidSpecialDay(message: String = "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.") : CalendarException(2, message)
 
     internal companion object {
         /** The exception for a raw code and its serialized payload. */
         fun fromCode(code: Int, message: String, payload: ByteArray?): FfiException = when (code) {
             1 -> InvalidDate(message)
-            2 -> InvalidHoliday(message)
+            2 -> InvalidSpecialDay(message)
             else -> FfiException(code, message)
         }
     }
@@ -269,196 +269,196 @@ enum class Parsha(val value: Int) {
  * sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
  * show them.
  */
-sealed class Holiday {
+sealed class SpecialDay {
     /** Erev Pesach, 14 Nisan. */
-    object ErevPesach : Holiday()
+    object ErevPesach : SpecialDay()
     /** Pesach. */
-    object Pesach : Holiday()
+    object Pesach : SpecialDay()
     /** Chol Hamoed Pesach. */
-    object CholHamoedPesach : Holiday()
+    object CholHamoedPesach : SpecialDay()
     /** Pesach Sheni, 14 Iyar. */
-    object PesachSheni : Holiday()
+    object PesachSheni : SpecialDay()
     /** Erev Shavuos, 5 Sivan. */
-    object ErevShavuos : Holiday()
+    object ErevShavuos : SpecialDay()
     /** Shavuos. */
-    object Shavuos : Holiday()
+    object Shavuos : SpecialDay()
     /** The fast of 17 Tammuz. */
-    object SeventeenthOfTammuz : Holiday()
+    object SeventeenthOfTammuz : SpecialDay()
     /** Tishah B'Av. */
-    object TishahBav : Holiday()
+    object TishahBav : SpecialDay()
     /** Tu B'Av, 15 Av. */
-    object TuBav : Holiday()
+    object TuBav : SpecialDay()
     /** Erev Rosh Hashana, 29 Elul. */
-    object ErevRoshHashana : Holiday()
+    object ErevRoshHashana : SpecialDay()
     /** Rosh Hashana. */
-    object RoshHashana : Holiday()
+    object RoshHashana : SpecialDay()
     /** The Fast of Gedalyah. */
-    object FastOfGedalyah : Holiday()
+    object FastOfGedalyah : SpecialDay()
     /** Erev Yom Kippur, 9 Tishrei. */
-    object ErevYomKippur : Holiday()
+    object ErevYomKippur : SpecialDay()
     /** Yom Kippur, 10 Tishrei. */
-    object YomKippur : Holiday()
+    object YomKippur : SpecialDay()
     /** Erev Succos, 14 Tishrei. */
-    object ErevSuccos : Holiday()
+    object ErevSuccos : SpecialDay()
     /** Succos. */
-    object Succos : Holiday()
+    object Succos : SpecialDay()
     /** Chol Hamoed Succos. */
-    object CholHamoedSuccos : Holiday()
+    object CholHamoedSuccos : SpecialDay()
     /** Hoshana Rabbah, 21 Tishrei. */
-    object HoshanaRabbah : Holiday()
+    object HoshanaRabbah : SpecialDay()
     /** Shemini Atzeres. */
-    object SheminiAtzeres : Holiday()
+    object SheminiAtzeres : SpecialDay()
     /** Simchas Torah. */
-    object SimchasTorah : Holiday()
+    object SimchasTorah : SpecialDay()
     /** Chanukah. */
     data class Chanukah(
         /** The day of Chanukah, 1 to 8. */
         val day: Int,
-    ) : Holiday()
+    ) : SpecialDay()
     /** The fast of 10 Teves. */
-    object TenthOfTeves : Holiday()
+    object TenthOfTeves : SpecialDay()
     /** Tu B'Shvat, 15 Shevat. */
-    object TuBshvat : Holiday()
+    object TuBshvat : SpecialDay()
     /** The Fast of Esther. */
-    object FastOfEsther : Holiday()
+    object FastOfEsther : SpecialDay()
     /** Purim. */
-    object Purim : Holiday()
+    object Purim : SpecialDay()
     /** Shushan Purim. */
-    object ShushanPurim : Holiday()
+    object ShushanPurim : SpecialDay()
     /** Purim Katan, 14 Adar I. */
-    object PurimKatan : Holiday()
+    object PurimKatan : SpecialDay()
     /** Rosh Chodesh. */
-    object RoshChodesh : Holiday()
+    object RoshChodesh : SpecialDay()
     /** Yom HaShoah. */
-    object YomHaShoah : Holiday()
+    object YomHaShoah : SpecialDay()
     /** Yom Hazikaron. */
-    object YomHazikaron : Holiday()
+    object YomHazikaron : SpecialDay()
     /** Yom Ha'atzmaut. */
-    object YomHaatzmaut : Holiday()
+    object YomHaatzmaut : SpecialDay()
     /** Yom Yerushalayim. */
-    object YomYerushalayim : Holiday()
+    object YomYerushalayim : SpecialDay()
     /** Lag B'Omer, 18 Iyar. */
-    object LagBomer : Holiday()
+    object LagBomer : SpecialDay()
     /** Shushan Purim Katan, 15 Adar I. */
-    object ShushanPurimKatan : Holiday()
+    object ShushanPurimKatan : SpecialDay()
     /** Isru Chag, the day after a festival. */
-    object IsruChag : Holiday()
+    object IsruChag : SpecialDay()
     /** Yom Kippur Katan, the eve of Rosh Chodesh. */
-    object YomKippurKatan : Holiday()
+    object YomKippurKatan : SpecialDay()
     /** Behab, the Monday-Thursday-Monday fasts after Pesach and Succos. */
-    object Behab : Holiday()
+    object Behab : SpecialDay()
     /** The Fast of the Firstborn. */
-    object FastOfTheFirstborn : Holiday()
+    object FastOfTheFirstborn : SpecialDay()
     /** The Omer count. */
     data class CountOfTheOmer(
         /** The day of the count, 1 to 49. */
         val day: Int,
-    ) : Holiday()
+    ) : SpecialDay()
     /** Birchas Hachamah, every 28 years. */
-    object BirchasHachamah : Holiday()
+    object BirchasHachamah : SpecialDay()
     /** Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh. */
-    object MacharHachodesh : Holiday()
+    object MacharHachodesh : SpecialDay()
     /** Shabbos Mevarchim, the Shabbos when the coming month is announced. */
-    object ShabbosMevarchim : Holiday()
+    object ShabbosMevarchim : SpecialDay()
 }
 
-internal fun packHoliday(_w: BufferWriter, _v: Holiday) {
+internal fun packSpecialDay(_w: BufferWriter, _v: SpecialDay) {
     when (_v) {
-        is Holiday.ErevPesach -> _w.writeI32(0)
-        is Holiday.Pesach -> _w.writeI32(1)
-        is Holiday.CholHamoedPesach -> _w.writeI32(2)
-        is Holiday.PesachSheni -> _w.writeI32(3)
-        is Holiday.ErevShavuos -> _w.writeI32(4)
-        is Holiday.Shavuos -> _w.writeI32(5)
-        is Holiday.SeventeenthOfTammuz -> _w.writeI32(6)
-        is Holiday.TishahBav -> _w.writeI32(7)
-        is Holiday.TuBav -> _w.writeI32(8)
-        is Holiday.ErevRoshHashana -> _w.writeI32(9)
-        is Holiday.RoshHashana -> _w.writeI32(10)
-        is Holiday.FastOfGedalyah -> _w.writeI32(11)
-        is Holiday.ErevYomKippur -> _w.writeI32(12)
-        is Holiday.YomKippur -> _w.writeI32(13)
-        is Holiday.ErevSuccos -> _w.writeI32(14)
-        is Holiday.Succos -> _w.writeI32(15)
-        is Holiday.CholHamoedSuccos -> _w.writeI32(16)
-        is Holiday.HoshanaRabbah -> _w.writeI32(17)
-        is Holiday.SheminiAtzeres -> _w.writeI32(18)
-        is Holiday.SimchasTorah -> _w.writeI32(19)
-        is Holiday.Chanukah -> {
+        is SpecialDay.ErevPesach -> _w.writeI32(0)
+        is SpecialDay.Pesach -> _w.writeI32(1)
+        is SpecialDay.CholHamoedPesach -> _w.writeI32(2)
+        is SpecialDay.PesachSheni -> _w.writeI32(3)
+        is SpecialDay.ErevShavuos -> _w.writeI32(4)
+        is SpecialDay.Shavuos -> _w.writeI32(5)
+        is SpecialDay.SeventeenthOfTammuz -> _w.writeI32(6)
+        is SpecialDay.TishahBav -> _w.writeI32(7)
+        is SpecialDay.TuBav -> _w.writeI32(8)
+        is SpecialDay.ErevRoshHashana -> _w.writeI32(9)
+        is SpecialDay.RoshHashana -> _w.writeI32(10)
+        is SpecialDay.FastOfGedalyah -> _w.writeI32(11)
+        is SpecialDay.ErevYomKippur -> _w.writeI32(12)
+        is SpecialDay.YomKippur -> _w.writeI32(13)
+        is SpecialDay.ErevSuccos -> _w.writeI32(14)
+        is SpecialDay.Succos -> _w.writeI32(15)
+        is SpecialDay.CholHamoedSuccos -> _w.writeI32(16)
+        is SpecialDay.HoshanaRabbah -> _w.writeI32(17)
+        is SpecialDay.SheminiAtzeres -> _w.writeI32(18)
+        is SpecialDay.SimchasTorah -> _w.writeI32(19)
+        is SpecialDay.Chanukah -> {
             _w.writeI32(20)
             _w.writeI32(_v.day)
         }
-        is Holiday.TenthOfTeves -> _w.writeI32(21)
-        is Holiday.TuBshvat -> _w.writeI32(22)
-        is Holiday.FastOfEsther -> _w.writeI32(23)
-        is Holiday.Purim -> _w.writeI32(24)
-        is Holiday.ShushanPurim -> _w.writeI32(25)
-        is Holiday.PurimKatan -> _w.writeI32(26)
-        is Holiday.RoshChodesh -> _w.writeI32(27)
-        is Holiday.YomHaShoah -> _w.writeI32(28)
-        is Holiday.YomHazikaron -> _w.writeI32(29)
-        is Holiday.YomHaatzmaut -> _w.writeI32(30)
-        is Holiday.YomYerushalayim -> _w.writeI32(31)
-        is Holiday.LagBomer -> _w.writeI32(32)
-        is Holiday.ShushanPurimKatan -> _w.writeI32(33)
-        is Holiday.IsruChag -> _w.writeI32(34)
-        is Holiday.YomKippurKatan -> _w.writeI32(35)
-        is Holiday.Behab -> _w.writeI32(36)
-        is Holiday.FastOfTheFirstborn -> _w.writeI32(37)
-        is Holiday.CountOfTheOmer -> {
+        is SpecialDay.TenthOfTeves -> _w.writeI32(21)
+        is SpecialDay.TuBshvat -> _w.writeI32(22)
+        is SpecialDay.FastOfEsther -> _w.writeI32(23)
+        is SpecialDay.Purim -> _w.writeI32(24)
+        is SpecialDay.ShushanPurim -> _w.writeI32(25)
+        is SpecialDay.PurimKatan -> _w.writeI32(26)
+        is SpecialDay.RoshChodesh -> _w.writeI32(27)
+        is SpecialDay.YomHaShoah -> _w.writeI32(28)
+        is SpecialDay.YomHazikaron -> _w.writeI32(29)
+        is SpecialDay.YomHaatzmaut -> _w.writeI32(30)
+        is SpecialDay.YomYerushalayim -> _w.writeI32(31)
+        is SpecialDay.LagBomer -> _w.writeI32(32)
+        is SpecialDay.ShushanPurimKatan -> _w.writeI32(33)
+        is SpecialDay.IsruChag -> _w.writeI32(34)
+        is SpecialDay.YomKippurKatan -> _w.writeI32(35)
+        is SpecialDay.Behab -> _w.writeI32(36)
+        is SpecialDay.FastOfTheFirstborn -> _w.writeI32(37)
+        is SpecialDay.CountOfTheOmer -> {
             _w.writeI32(38)
             _w.writeI32(_v.day)
         }
-        is Holiday.BirchasHachamah -> _w.writeI32(39)
-        is Holiday.MacharHachodesh -> _w.writeI32(40)
-        is Holiday.ShabbosMevarchim -> _w.writeI32(41)
+        is SpecialDay.BirchasHachamah -> _w.writeI32(39)
+        is SpecialDay.MacharHachodesh -> _w.writeI32(40)
+        is SpecialDay.ShabbosMevarchim -> _w.writeI32(41)
     }
 }
 
-internal fun unpackHoliday(_r: BufferReader): Holiday = when (val _tag = _r.readI32()) {
-    0 -> Holiday.ErevPesach
-    1 -> Holiday.Pesach
-    2 -> Holiday.CholHamoedPesach
-    3 -> Holiday.PesachSheni
-    4 -> Holiday.ErevShavuos
-    5 -> Holiday.Shavuos
-    6 -> Holiday.SeventeenthOfTammuz
-    7 -> Holiday.TishahBav
-    8 -> Holiday.TuBav
-    9 -> Holiday.ErevRoshHashana
-    10 -> Holiday.RoshHashana
-    11 -> Holiday.FastOfGedalyah
-    12 -> Holiday.ErevYomKippur
-    13 -> Holiday.YomKippur
-    14 -> Holiday.ErevSuccos
-    15 -> Holiday.Succos
-    16 -> Holiday.CholHamoedSuccos
-    17 -> Holiday.HoshanaRabbah
-    18 -> Holiday.SheminiAtzeres
-    19 -> Holiday.SimchasTorah
-    20 -> Holiday.Chanukah(_r.readI32())
-    21 -> Holiday.TenthOfTeves
-    22 -> Holiday.TuBshvat
-    23 -> Holiday.FastOfEsther
-    24 -> Holiday.Purim
-    25 -> Holiday.ShushanPurim
-    26 -> Holiday.PurimKatan
-    27 -> Holiday.RoshChodesh
-    28 -> Holiday.YomHaShoah
-    29 -> Holiday.YomHazikaron
-    30 -> Holiday.YomHaatzmaut
-    31 -> Holiday.YomYerushalayim
-    32 -> Holiday.LagBomer
-    33 -> Holiday.ShushanPurimKatan
-    34 -> Holiday.IsruChag
-    35 -> Holiday.YomKippurKatan
-    36 -> Holiday.Behab
-    37 -> Holiday.FastOfTheFirstborn
-    38 -> Holiday.CountOfTheOmer(_r.readI32())
-    39 -> Holiday.BirchasHachamah
-    40 -> Holiday.MacharHachodesh
-    41 -> Holiday.ShabbosMevarchim
-    else -> throw NativeBugException(-3, "malformed value buffer: unknown Holiday tag $_tag")
+internal fun unpackSpecialDay(_r: BufferReader): SpecialDay = when (val _tag = _r.readI32()) {
+    0 -> SpecialDay.ErevPesach
+    1 -> SpecialDay.Pesach
+    2 -> SpecialDay.CholHamoedPesach
+    3 -> SpecialDay.PesachSheni
+    4 -> SpecialDay.ErevShavuos
+    5 -> SpecialDay.Shavuos
+    6 -> SpecialDay.SeventeenthOfTammuz
+    7 -> SpecialDay.TishahBav
+    8 -> SpecialDay.TuBav
+    9 -> SpecialDay.ErevRoshHashana
+    10 -> SpecialDay.RoshHashana
+    11 -> SpecialDay.FastOfGedalyah
+    12 -> SpecialDay.ErevYomKippur
+    13 -> SpecialDay.YomKippur
+    14 -> SpecialDay.ErevSuccos
+    15 -> SpecialDay.Succos
+    16 -> SpecialDay.CholHamoedSuccos
+    17 -> SpecialDay.HoshanaRabbah
+    18 -> SpecialDay.SheminiAtzeres
+    19 -> SpecialDay.SimchasTorah
+    20 -> SpecialDay.Chanukah(_r.readI32())
+    21 -> SpecialDay.TenthOfTeves
+    22 -> SpecialDay.TuBshvat
+    23 -> SpecialDay.FastOfEsther
+    24 -> SpecialDay.Purim
+    25 -> SpecialDay.ShushanPurim
+    26 -> SpecialDay.PurimKatan
+    27 -> SpecialDay.RoshChodesh
+    28 -> SpecialDay.YomHaShoah
+    29 -> SpecialDay.YomHazikaron
+    30 -> SpecialDay.YomHaatzmaut
+    31 -> SpecialDay.YomYerushalayim
+    32 -> SpecialDay.LagBomer
+    33 -> SpecialDay.ShushanPurimKatan
+    34 -> SpecialDay.IsruChag
+    35 -> SpecialDay.YomKippurKatan
+    36 -> SpecialDay.Behab
+    37 -> SpecialDay.FastOfTheFirstborn
+    38 -> SpecialDay.CountOfTheOmer(_r.readI32())
+    39 -> SpecialDay.BirchasHachamah
+    40 -> SpecialDay.MacharHachodesh
+    41 -> SpecialDay.ShabbosMevarchim
+    else -> throw NativeBugException(-3, "malformed value buffer: unknown SpecialDay tag $_tag")
 }
 
 /** A day on the Gregorian calendar. */
@@ -573,8 +573,8 @@ class HebrewDate private constructor(address: Long) : AutoCloseable {
     }
 
     /** The holidays, fasts and other marked days on this day. */
-    fun holidays(region: Region): List<Holiday> = handle.borrow { _self ->
-        decodeBuffer(JniBridge.calendar_HebrewDate_holidays(_self, region.value)) { _r -> unpackListOfHoliday(_r) }
+    fun specialDays(region: Region): List<SpecialDay> = handle.borrow { _self ->
+        decodeBuffer(JniBridge.calendar_HebrewDate_special_days(_self, region.value)) { _r -> unpackListOfSpecialDay(_r) }
     }
 
     /** Whether melacha is forbidden: Shabbos or Yom Tov. */
@@ -1031,54 +1031,54 @@ object Calendar {
     fun roshHashana(year: Int): HebrewDate = HebrewDate.fromHandle(JniBridge.calendar_rosh_hashana(year))
 
     /**
-     * The holiday's English name, for example "Chanukah".
+     * The day's English name, for example "Chanukah".
      *
      * # Errors
      *
-     * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+     * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
      * outside 1 to 49.
      */
-    fun holidayName(holiday: Holiday): String = decodeUtf8(JniBridge.calendar_holiday_name(encodeBuffer { _w -> packHoliday(_w, holiday) }))
+    fun specialDayName(specialDay: SpecialDay): String = decodeUtf8(JniBridge.calendar_special_day_name(encodeBuffer { _w -> packSpecialDay(_w, specialDay) }))
 
     /**
-     * The holiday's Hebrew name.
+     * The day's Hebrew name.
      *
      * # Errors
      *
-     * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+     * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
      * outside 1 to 49.
      */
-    fun holidayHebrew(holiday: Holiday): String = decodeUtf8(JniBridge.calendar_holiday_hebrew(encodeBuffer { _w -> packHoliday(_w, holiday) }))
+    fun specialDayHebrew(specialDay: SpecialDay): String = decodeUtf8(JniBridge.calendar_special_day_hebrew(encodeBuffer { _w -> packSpecialDay(_w, specialDay) }))
 
     /**
      * Whether melacha is forbidden on the holiday.
      *
      * # Errors
      *
-     * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+     * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
      * outside 1 to 49.
      */
-    fun holidayIsAssurBemelacha(holiday: Holiday): Boolean = JniBridge.calendar_holiday_is_assur_bemelacha(encodeBuffer { _w -> packHoliday(_w, holiday) })
+    fun specialDayIsAssurBemelacha(specialDay: SpecialDay): Boolean = JniBridge.calendar_special_day_is_assur_bemelacha(encodeBuffer { _w -> packSpecialDay(_w, specialDay) })
 
     /**
      * Whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
      *
      * # Errors
      *
-     * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+     * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
      * outside 1 to 49.
      */
-    fun holidayIsModern(holiday: Holiday): Boolean = JniBridge.calendar_holiday_is_modern(encodeBuffer { _w -> packHoliday(_w, holiday) })
+    fun specialDayIsModern(specialDay: SpecialDay): Boolean = JniBridge.calendar_special_day_is_modern(encodeBuffer { _w -> packSpecialDay(_w, specialDay) })
 
     /**
      * Whether the holiday is a fast day.
      *
      * # Errors
      *
-     * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+     * `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
      * outside 1 to 49.
      */
-    fun holidayIsFastDay(holiday: Holiday): Boolean = JniBridge.calendar_holiday_is_fast_day(encodeBuffer { _w -> packHoliday(_w, holiday) })
+    fun specialDayIsFastDay(specialDay: SpecialDay): Boolean = JniBridge.calendar_special_day_is_fast_day(encodeBuffer { _w -> packSpecialDay(_w, specialDay) })
 
     /** The portion's English name, for example "Lech Lecha". */
     fun parshaName(parsha: Parsha): String = decodeUtf8(JniBridge.calendar_parsha_name(parsha.value))

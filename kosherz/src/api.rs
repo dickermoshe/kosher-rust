@@ -19,7 +19,7 @@ pub mod calendar {
         /// The date does not exist, or is outside Hebrew years 1 to 9999.
         InvalidDate = 1,
         /// A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.
-        InvalidHoliday = 2,
+        InvalidSpecialDay = 2,
     }
 
     impl std::fmt::Display for CalendarError {
@@ -271,7 +271,7 @@ pub mod calendar {
     /// show them.
     #[weaveffi::enumeration]
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-    pub enum Holiday {
+    pub enum SpecialDay {
         /// Erev Pesach, 14 Nisan.
         ErevPesach,
         /// Pesach.
@@ -452,8 +452,11 @@ pub mod calendar {
         }
 
         /// The holidays, fasts and other marked days on this day.
-        pub fn holidays(&self, region: Region) -> Vec<Holiday> {
-            self.inner.holidays(region.into()).map(Into::into).collect()
+        pub fn special_days(&self, region: Region) -> Vec<SpecialDay> {
+            self.inner
+                .special_days(region.into())
+                .filter_map(|special_day| special_day.try_into().ok())
+                .collect()
         }
 
         /// Whether melacha is forbidden: Shabbos or Yom Tov.
@@ -534,59 +537,59 @@ pub mod calendar {
         convert::calendar::rosh_hashana(year).map(|inner| HebrewDate { inner })
     }
 
-    /// The holiday's English name, for example "Chanukah".
+    /// The day's English name, for example "Chanukah".
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     #[weaveffi::export]
-    pub fn holiday_name(holiday: Holiday) -> Result<String, CalendarError> {
-        kosher_rust::calendar::Holiday::try_from(holiday).map(|holiday| holiday.to_string())
+    pub fn special_day_name(special_day: SpecialDay) -> Result<String, CalendarError> {
+        kosher_rust::calendar::SpecialDay::try_from(special_day).map(|special_day| special_day.to_string())
     }
 
-    /// The holiday's Hebrew name.
+    /// The day's Hebrew name.
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     #[weaveffi::export]
-    pub fn holiday_hebrew(holiday: Holiday) -> Result<String, CalendarError> {
-        kosher_rust::calendar::Holiday::try_from(holiday).map(|holiday| holiday.hebrew().into())
+    pub fn special_day_hebrew(special_day: SpecialDay) -> Result<String, CalendarError> {
+        kosher_rust::calendar::SpecialDay::try_from(special_day).map(|special_day| special_day.hebrew().into())
     }
 
     /// Whether melacha is forbidden on the holiday.
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     #[weaveffi::export]
-    pub fn holiday_is_assur_bemelacha(holiday: Holiday) -> Result<bool, CalendarError> {
-        kosher_rust::calendar::Holiday::try_from(holiday).map(|holiday| holiday.is_assur_bemelacha())
+    pub fn special_day_is_assur_bemelacha(special_day: SpecialDay) -> Result<bool, CalendarError> {
+        kosher_rust::calendar::SpecialDay::try_from(special_day).map(|special_day| special_day.is_assur_bemelacha())
     }
 
     /// Whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     #[weaveffi::export]
-    pub fn holiday_is_modern(holiday: Holiday) -> Result<bool, CalendarError> {
-        kosher_rust::calendar::Holiday::try_from(holiday).map(|holiday| holiday.is_modern())
+    pub fn special_day_is_modern(special_day: SpecialDay) -> Result<bool, CalendarError> {
+        kosher_rust::calendar::SpecialDay::try_from(special_day).map(|special_day| special_day.is_modern())
     }
 
     /// Whether the holiday is a fast day.
     ///
     /// # Errors
     ///
-    /// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    /// `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     /// outside 1 to 49.
     #[weaveffi::export]
-    pub fn holiday_is_fast_day(holiday: Holiday) -> Result<bool, CalendarError> {
-        kosher_rust::calendar::Holiday::try_from(holiday).map(|holiday| holiday.is_fast_day())
+    pub fn special_day_is_fast_day(special_day: SpecialDay) -> Result<bool, CalendarError> {
+        kosher_rust::calendar::SpecialDay::try_from(special_day).map(|special_day| special_day.is_fast_day())
     }
 
     /// The portion's English name, for example "Lech Lecha".
@@ -1698,7 +1701,10 @@ pub mod times {
     /// Every zman, grouped by `Category`.
     #[weaveffi::export]
     pub fn all_zmanim() -> Vec<Zman> {
-        kosher_rust::Zman::ALL.into_iter().map(Into::into).collect()
+        kosher_rust::Zman::ALL
+            .into_iter()
+            .filter_map(|zman| zman.try_into().ok())
+            .collect()
     }
 
     /// The zman's display name, for example "Sof Zman Shma (GR'A)".
@@ -1713,16 +1719,14 @@ pub mod times {
         kosher_rust::Zman::from(zman).java_name().into()
     }
 
-    /// The zman named by its KosherJava method, for example "getSofZmanShmaGRA".
-    #[weaveffi::export]
-    pub fn zman_from_java_name(java_name: &str) -> Option<Zman> {
-        kosher_rust::Zman::from_java_name(java_name).map(Into::into)
-    }
-
     /// What kind of time the zman is.
     #[weaveffi::export]
     pub fn zman_category(zman: Zman) -> Category {
-        kosher_rust::Zman::from(zman).category().into()
+        // Every zman the bindings have is in a category they have; `every_variant_converts` checks it.
+        kosher_rust::Zman::from(zman)
+            .category()
+            .try_into()
+            .unwrap_or(Category::Twilight)
     }
 
     /// Whether KosherJava deprecates the zman.
@@ -1948,7 +1952,10 @@ pub mod times {
         /// Every row, in the website's order.
         #[weaveffi::export]
         pub fn all_my_zmanim() -> Vec<MyZman> {
-            kosher_rust::myzmanim::MyZman::ALL.into_iter().map(Into::into).collect()
+            kosher_rust::myzmanim::MyZman::ALL
+                .into_iter()
+                .filter_map(|zman| zman.try_into().ok())
+                .collect()
         }
 
         /// The sun's depression for "90 minutes as degrees": 19.75 degrees.

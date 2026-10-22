@@ -37,7 +37,7 @@ Conventions:
   - `Zmanim` and `MyZmanim` cannot be created for a location more than 150° from Greenwich.
     Creating them fails with `TimeZoneRequired`.
 - **Errors** are typed, with one error type per module. `CalendarError` has `InvalidDate` and
-  `InvalidHoliday`. `LimudimError` has `InvalidUnit`. `ZmanimError` has `InvalidLatitude`,
+  `InvalidSpecialDay`. `LimudimError` has `InvalidUnit`. `ZmanimError` has `InvalidLatitude`,
   `AllNight`, `TimeZoneCallbackFailed` and the rest.
 
 ## Generate
@@ -80,7 +80,7 @@ const day = new times.Zmanim(
 new Date(Number(day.get(times.Zman.SofZmanShmaGra)));
 
 const date = calendar.HebrewDate.fromGregorian({ year: 2024, month: 4, day: 23 });
-date.holidays(calendar.Region.Diaspora); // [{ tag: 'Pesach' }]
+date.specialDays(calendar.Region.Diaspora); // [{ tag: 'Pesach' }]
 limudim.dafYomiBavli(date).display;     // 'Bava Metzia 55'
 ```
 

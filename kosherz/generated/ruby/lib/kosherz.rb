@@ -15,16 +15,18 @@ module Kosherz
     kosherz_calendar_contract: [
       [0x0076e887e475ab9f, 0x96615bd3eb7f1761, 'calendar.HebrewDate.molad'],
       [0x01344feb6b733690, 0x47b992630b03d56a, 'calendar.HebrewDate.weekday'],
+      [0x04722a067e750ac7, 0x10c6e1e0af9f20c4, 'calendar.special_day_name'],
       [0x12decead9d8a44cf, 0x4b1b3a695325cfca, 'calendar.limudim.LimudimError'],
       [0x190ecd13c0fccffa, 0x35e622a32a88ef57, 'calendar.limudim.mishna_yomis'],
       [0x1c33df579fac36d8, 0x1175c871bc023b86, 'calendar.HebrewDate.day_of_year'],
+      [0x1d2a2cfe983548a6, 0x513b06d6c24719e2, 'calendar.special_day_is_fast_day'],
       [0x235fd1db8b7dd5f5, 0x399eab22141dffd3, 'calendar.GregorianDate'],
       [0x2b066dc65c460024, 0xf4f23e6586bd1dd7, 'calendar.HebrewDate'],
       [0x2c8e60589f58d792, 0xa0608634cb2f46cb, 'calendar.limudim.Mishna'],
       [0x2da09ea1403b727e, 0x4d5e82347ae7a3fc, 'calendar.HebrewMonth'],
       [0x2e1645ba38a77559, 0x1c81765c98ab54f9, 'calendar.HebrewDate.parsha'],
       [0x2e561d4c25bf877d, 0x47ff51d038dbe0d8, 'calendar.limudim.tehillim_display'],
-      [0x3a2980b734ba8883, 0x2d505394972243a9, 'calendar.HebrewDate.holidays'],
+      [0x34b343651b1fb8fe, 0x12159035b300983a, 'calendar.special_day_is_modern'],
       [0x3a3316910057484e, 0xd86a18c3b722f6c7, 'calendar.limudim.tehillim_monthly'],
       [0x3c8950ed1f7f370c, 0x19e0d2b3ff9d26fe, 'calendar.HebrewDate.day'],
       [0x422860078e596223, 0x32c85d18778b0bb4, 'calendar.HebrewDate.equals'],
@@ -37,28 +39,25 @@ module Kosherz
       [0x53798234777e19ea, 0x6c389ed6ad08dbe3, 'calendar.rosh_hashana'],
       [0x58fc9af210a33bdd, 0xc3e1903a4dc8359d, 'calendar.HebrewDate.is_aseres_yemei_teshuva'],
       [0x5c2a6a6f333ead35, 0x74c7180edff5c022, 'calendar.HebrewDate.from_gregorian'],
-      [0x5d5d66098ee06c49, 0x8a4e9ca163a6a190, 'calendar.Holiday'],
+      [0x6089a64539b542a8, 0x404904f4331718c5, 'calendar.SpecialDay'],
       [0x65535c1ad3d9f893, 0x55884ddb65b50739, 'calendar.HebrewDate.has_candle_lighting'],
       [0x6a0735856dec8d1a, 0xdc1addb4a7ab46ef, 'calendar.parsha_name'],
-      [0x6d120a34fc12b94e, 0x2444827e369b819b, 'calendar.holiday_is_assur_bemelacha'],
       [0x734de195723c4bec, 0xc7f3965b813050f5, 'calendar.HebrewDate.display'],
       [0x753c68bed189444b, 0x8111a6d476ecf648, 'calendar.Region'],
       [0x78416ddbbcc55dd6, 0x6c9e0901963a2dfc, 'calendar.limudim.tractate_hebrew'],
-      [0x7b66ec4056f4dcbc, 0xe848ea2454d6e4c1, 'calendar.holiday_is_fast_day'],
       [0x7ed52a27f9477122, 0x6e401597e28209a9, 'calendar.limudim.MishnaPair'],
       [0x82b460a35e9ba56a, 0x18c3086aa662d366, 'calendar.limudim.amud_yomi_dirshu'],
       [0x854dedb50653c50f, 0x914508f7681ccd43, 'calendar.HebrewDate.next_parsha'],
-      [0x8f180424826294a4, 0xa976cce390a71369, 'calendar.holiday_is_modern'],
+      [0x9006c018e9f8aed8, 0x8b43089a0dda99f4, 'calendar.special_day_is_assur_bemelacha'],
       [0x924fdf3d84514e8e, 0xd6c2f5c20a8b129d, 'calendar.limudim.TehillimUnit'],
       [0x93ceba93a2b10131, 0xc7b188714edbf795, 'calendar.HebrewDate.special_parsha'],
-      [0x94dc4cc8ea8c02c9, 0x51105a7bb4b55bdd, 'calendar.holiday_name'],
       [0x98cc81d52e65776b, 0x2bf1569214921669, 'calendar.month_hebrew'],
       [0x9b48ba34fb52812d, 0xff11e092dce92ed7, 'calendar.limudim.Side'],
       [0x9e20ba757aee97c2, 0x9328a81ac256b477, 'calendar.parsha_hebrew'],
+      [0xa06798705423bcc5, 0xba204574299d85b2, 'calendar.HebrewDate.special_days'],
       [0xa1e3409cebf37881, 0xfeebfaab6c533e17, 'calendar.limudim.Daf'],
       [0xa5864219850af272, 0xf8a4981ca376ff28, 'calendar.HebrewDate.is_assur_bemelacha'],
       [0xaeb433ce589b7931, 0x364d4d0b6a770631, 'calendar.limudim.Amud'],
-      [0xaf5dd6acc2e8ba71, 0xa2fdd5f43f90f755, 'calendar.holiday_hebrew'],
       [0xbd8865ae2177f9ff, 0x6bc5f7eea096d080, 'calendar.year_info'],
       [0xc3fd51b677226bab, 0x684e92fa36717939, 'calendar.month_name'],
       [0xc47f6755efcc97f2, 0xb882de90a2c3493f, 'calendar.YearLength'],
@@ -66,10 +65,11 @@ module Kosherz
       [0xd099b5b97c1dddb6, 0x7321133365af2acb, 'calendar.YearInfo'],
       [0xd542917e9468e665, 0xc29b76894e14326c, 'calendar.HebrewDate.compare'],
       [0xe055421dad70d98d, 0xc2712588daaabbaf, 'calendar.limudim.pirkei_avos_display'],
+      [0xe48d4a72f047f917, 0x2c39a2ab4fa38524, 'calendar.special_day_hebrew'],
       [0xe5bd2ded003a830a, 0x21bf463baf36e8ae, 'calendar.limudim.daf_hashavua_bavli'],
       [0xe5f7bcecee7a3148, 0xf9b3a1fb63fa80ad, 'calendar.HebrewDate.new'],
       [0xea80ab8c284067d9, 0x96b30eb7f85eaf21, 'calendar.limudim.daf_yomi_bavli'],
-      [0xeb41af932363bd25, 0xc681430e19f4d7b1, 'calendar.CalendarError'],
+      [0xeb41af932363bd25, 0xc2d1a611bc5da8c6, 'calendar.CalendarError'],
       [0xeb6a6e150a6abbe0, 0xf5d8629c4bfb2f06, 'calendar.limudim.Tractate'],
       [0xee029887d9af6ef8, 0x54411bdda9d3b13b, 'calendar.HebrewDate.month'],
       [0xefe1cb89cb8314f3, 0x03b0248b8cfa2de8, 'calendar.days_in_month'],
@@ -91,7 +91,6 @@ module Kosherz
       [0x38596a351e356743, 0x685412d4d80250ea, 'times.Config'],
       [0x39389f0e68d3cc22, 0x4af5df9a96d3f535, 'times.myzmanim.MyZmanim.proportional_hour_gra'],
       [0x3c92cd49c8b4515b, 0x5962ffa89080c41b, 'times.shaah_zmanis'],
-      [0x4048d3ca4b000831, 0xdf4697e13848d687, 'times.zman_from_java_name'],
       [0x44a0809dedbd4a4d, 0x9169cc1ef07d2488, 'times.ZmanimError'],
       [0x4d259836d7137c43, 0x0486761191984fd0, 'times.Zman'],
       [0x57d7a9c5a715b9fa, 0x7110b3413cfd8e83, 'times.Location'],
@@ -141,7 +140,7 @@ module Kosherz
     end
 
     # A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.
-    class InvalidHoliday < CalendarError
+    class InvalidSpecialDay < CalendarError
       CODE = 2
 
       def initialize(message = nil)
@@ -161,7 +160,7 @@ module Kosherz
       when 1
         CalendarError::InvalidDate.new(message)
       when 2
-        CalendarError::InvalidHoliday.new(message)
+        CalendarError::InvalidSpecialDay.new(message)
       else
         return _wv_error(code, message.to_s)
       end
@@ -390,14 +389,14 @@ module Kosherz
   # A holiday, fast, or other day the calendar marks. Some are not holidays in the halachic
   # sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
   # show them.
-  class Holiday
+  class SpecialDay
     # The active variant's integer tag.
     def tag
       self.class::TAG
     end
 
     # Erev Pesach, 14 Nisan.
-    class ErevPesach < Holiday
+    class ErevPesach < SpecialDay
       TAG = 0
 
       # Structural equality over every field.
@@ -407,7 +406,7 @@ module Kosherz
     end
 
     # Pesach.
-    class Pesach < Holiday
+    class Pesach < SpecialDay
       TAG = 1
 
       # Structural equality over every field.
@@ -417,7 +416,7 @@ module Kosherz
     end
 
     # Chol Hamoed Pesach.
-    class CholHamoedPesach < Holiday
+    class CholHamoedPesach < SpecialDay
       TAG = 2
 
       # Structural equality over every field.
@@ -427,7 +426,7 @@ module Kosherz
     end
 
     # Pesach Sheni, 14 Iyar.
-    class PesachSheni < Holiday
+    class PesachSheni < SpecialDay
       TAG = 3
 
       # Structural equality over every field.
@@ -437,7 +436,7 @@ module Kosherz
     end
 
     # Erev Shavuos, 5 Sivan.
-    class ErevShavuos < Holiday
+    class ErevShavuos < SpecialDay
       TAG = 4
 
       # Structural equality over every field.
@@ -447,7 +446,7 @@ module Kosherz
     end
 
     # Shavuos.
-    class Shavuos < Holiday
+    class Shavuos < SpecialDay
       TAG = 5
 
       # Structural equality over every field.
@@ -457,7 +456,7 @@ module Kosherz
     end
 
     # The fast of 17 Tammuz.
-    class SeventeenthOfTammuz < Holiday
+    class SeventeenthOfTammuz < SpecialDay
       TAG = 6
 
       # Structural equality over every field.
@@ -467,7 +466,7 @@ module Kosherz
     end
 
     # Tishah B'Av.
-    class TishahBav < Holiday
+    class TishahBav < SpecialDay
       TAG = 7
 
       # Structural equality over every field.
@@ -477,7 +476,7 @@ module Kosherz
     end
 
     # Tu B'Av, 15 Av.
-    class TuBav < Holiday
+    class TuBav < SpecialDay
       TAG = 8
 
       # Structural equality over every field.
@@ -487,7 +486,7 @@ module Kosherz
     end
 
     # Erev Rosh Hashana, 29 Elul.
-    class ErevRoshHashana < Holiday
+    class ErevRoshHashana < SpecialDay
       TAG = 9
 
       # Structural equality over every field.
@@ -497,7 +496,7 @@ module Kosherz
     end
 
     # Rosh Hashana.
-    class RoshHashana < Holiday
+    class RoshHashana < SpecialDay
       TAG = 10
 
       # Structural equality over every field.
@@ -507,7 +506,7 @@ module Kosherz
     end
 
     # The Fast of Gedalyah.
-    class FastOfGedalyah < Holiday
+    class FastOfGedalyah < SpecialDay
       TAG = 11
 
       # Structural equality over every field.
@@ -517,7 +516,7 @@ module Kosherz
     end
 
     # Erev Yom Kippur, 9 Tishrei.
-    class ErevYomKippur < Holiday
+    class ErevYomKippur < SpecialDay
       TAG = 12
 
       # Structural equality over every field.
@@ -527,7 +526,7 @@ module Kosherz
     end
 
     # Yom Kippur, 10 Tishrei.
-    class YomKippur < Holiday
+    class YomKippur < SpecialDay
       TAG = 13
 
       # Structural equality over every field.
@@ -537,7 +536,7 @@ module Kosherz
     end
 
     # Erev Succos, 14 Tishrei.
-    class ErevSuccos < Holiday
+    class ErevSuccos < SpecialDay
       TAG = 14
 
       # Structural equality over every field.
@@ -547,7 +546,7 @@ module Kosherz
     end
 
     # Succos.
-    class Succos < Holiday
+    class Succos < SpecialDay
       TAG = 15
 
       # Structural equality over every field.
@@ -557,7 +556,7 @@ module Kosherz
     end
 
     # Chol Hamoed Succos.
-    class CholHamoedSuccos < Holiday
+    class CholHamoedSuccos < SpecialDay
       TAG = 16
 
       # Structural equality over every field.
@@ -567,7 +566,7 @@ module Kosherz
     end
 
     # Hoshana Rabbah, 21 Tishrei.
-    class HoshanaRabbah < Holiday
+    class HoshanaRabbah < SpecialDay
       TAG = 17
 
       # Structural equality over every field.
@@ -577,7 +576,7 @@ module Kosherz
     end
 
     # Shemini Atzeres.
-    class SheminiAtzeres < Holiday
+    class SheminiAtzeres < SpecialDay
       TAG = 18
 
       # Structural equality over every field.
@@ -587,7 +586,7 @@ module Kosherz
     end
 
     # Simchas Torah.
-    class SimchasTorah < Holiday
+    class SimchasTorah < SpecialDay
       TAG = 19
 
       # Structural equality over every field.
@@ -597,7 +596,7 @@ module Kosherz
     end
 
     # Chanukah.
-    class Chanukah < Holiday
+    class Chanukah < SpecialDay
       TAG = 20
 
       # The day of Chanukah, 1 to 8.
@@ -615,7 +614,7 @@ module Kosherz
     end
 
     # The fast of 10 Teves.
-    class TenthOfTeves < Holiday
+    class TenthOfTeves < SpecialDay
       TAG = 21
 
       # Structural equality over every field.
@@ -625,7 +624,7 @@ module Kosherz
     end
 
     # Tu B'Shvat, 15 Shevat.
-    class TuBshvat < Holiday
+    class TuBshvat < SpecialDay
       TAG = 22
 
       # Structural equality over every field.
@@ -635,7 +634,7 @@ module Kosherz
     end
 
     # The Fast of Esther.
-    class FastOfEsther < Holiday
+    class FastOfEsther < SpecialDay
       TAG = 23
 
       # Structural equality over every field.
@@ -645,7 +644,7 @@ module Kosherz
     end
 
     # Purim.
-    class Purim < Holiday
+    class Purim < SpecialDay
       TAG = 24
 
       # Structural equality over every field.
@@ -655,7 +654,7 @@ module Kosherz
     end
 
     # Shushan Purim.
-    class ShushanPurim < Holiday
+    class ShushanPurim < SpecialDay
       TAG = 25
 
       # Structural equality over every field.
@@ -665,7 +664,7 @@ module Kosherz
     end
 
     # Purim Katan, 14 Adar I.
-    class PurimKatan < Holiday
+    class PurimKatan < SpecialDay
       TAG = 26
 
       # Structural equality over every field.
@@ -675,7 +674,7 @@ module Kosherz
     end
 
     # Rosh Chodesh.
-    class RoshChodesh < Holiday
+    class RoshChodesh < SpecialDay
       TAG = 27
 
       # Structural equality over every field.
@@ -685,7 +684,7 @@ module Kosherz
     end
 
     # Yom HaShoah.
-    class YomHaShoah < Holiday
+    class YomHaShoah < SpecialDay
       TAG = 28
 
       # Structural equality over every field.
@@ -695,7 +694,7 @@ module Kosherz
     end
 
     # Yom Hazikaron.
-    class YomHazikaron < Holiday
+    class YomHazikaron < SpecialDay
       TAG = 29
 
       # Structural equality over every field.
@@ -705,7 +704,7 @@ module Kosherz
     end
 
     # Yom Ha'atzmaut.
-    class YomHaatzmaut < Holiday
+    class YomHaatzmaut < SpecialDay
       TAG = 30
 
       # Structural equality over every field.
@@ -715,7 +714,7 @@ module Kosherz
     end
 
     # Yom Yerushalayim.
-    class YomYerushalayim < Holiday
+    class YomYerushalayim < SpecialDay
       TAG = 31
 
       # Structural equality over every field.
@@ -725,7 +724,7 @@ module Kosherz
     end
 
     # Lag B'Omer, 18 Iyar.
-    class LagBomer < Holiday
+    class LagBomer < SpecialDay
       TAG = 32
 
       # Structural equality over every field.
@@ -735,7 +734,7 @@ module Kosherz
     end
 
     # Shushan Purim Katan, 15 Adar I.
-    class ShushanPurimKatan < Holiday
+    class ShushanPurimKatan < SpecialDay
       TAG = 33
 
       # Structural equality over every field.
@@ -745,7 +744,7 @@ module Kosherz
     end
 
     # Isru Chag, the day after a festival.
-    class IsruChag < Holiday
+    class IsruChag < SpecialDay
       TAG = 34
 
       # Structural equality over every field.
@@ -755,7 +754,7 @@ module Kosherz
     end
 
     # Yom Kippur Katan, the eve of Rosh Chodesh.
-    class YomKippurKatan < Holiday
+    class YomKippurKatan < SpecialDay
       TAG = 35
 
       # Structural equality over every field.
@@ -765,7 +764,7 @@ module Kosherz
     end
 
     # Behab, the Monday-Thursday-Monday fasts after Pesach and Succos.
-    class Behab < Holiday
+    class Behab < SpecialDay
       TAG = 36
 
       # Structural equality over every field.
@@ -775,7 +774,7 @@ module Kosherz
     end
 
     # The Fast of the Firstborn.
-    class FastOfTheFirstborn < Holiday
+    class FastOfTheFirstborn < SpecialDay
       TAG = 37
 
       # Structural equality over every field.
@@ -785,7 +784,7 @@ module Kosherz
     end
 
     # The Omer count.
-    class CountOfTheOmer < Holiday
+    class CountOfTheOmer < SpecialDay
       TAG = 38
 
       # The day of the count, 1 to 49.
@@ -803,7 +802,7 @@ module Kosherz
     end
 
     # Birchas Hachamah, every 28 years.
-    class BirchasHachamah < Holiday
+    class BirchasHachamah < SpecialDay
       TAG = 39
 
       # Structural equality over every field.
@@ -813,7 +812,7 @@ module Kosherz
     end
 
     # Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.
-    class MacharHachodesh < Holiday
+    class MacharHachodesh < SpecialDay
       TAG = 40
 
       # Structural equality over every field.
@@ -823,7 +822,7 @@ module Kosherz
     end
 
     # Shabbos Mevarchim, the Shabbos when the coming month is announced.
-    class ShabbosMevarchim < Holiday
+    class ShabbosMevarchim < SpecialDay
       TAG = 41
 
       # Structural equality over every field.
@@ -946,191 +945,191 @@ module Kosherz
   end
 
   # @api private
-  # Packs a Holiday into the value-buffer wire format.
-  def self._wv_write_holiday(w, v)
+  # Packs a SpecialDay into the value-buffer wire format.
+  def self._wv_write_special_day(w, v)
     case v
-    when Holiday::ErevPesach
+    when SpecialDay::ErevPesach
       w.write_i32(0)
-    when Holiday::Pesach
+    when SpecialDay::Pesach
       w.write_i32(1)
-    when Holiday::CholHamoedPesach
+    when SpecialDay::CholHamoedPesach
       w.write_i32(2)
-    when Holiday::PesachSheni
+    when SpecialDay::PesachSheni
       w.write_i32(3)
-    when Holiday::ErevShavuos
+    when SpecialDay::ErevShavuos
       w.write_i32(4)
-    when Holiday::Shavuos
+    when SpecialDay::Shavuos
       w.write_i32(5)
-    when Holiday::SeventeenthOfTammuz
+    when SpecialDay::SeventeenthOfTammuz
       w.write_i32(6)
-    when Holiday::TishahBav
+    when SpecialDay::TishahBav
       w.write_i32(7)
-    when Holiday::TuBav
+    when SpecialDay::TuBav
       w.write_i32(8)
-    when Holiday::ErevRoshHashana
+    when SpecialDay::ErevRoshHashana
       w.write_i32(9)
-    when Holiday::RoshHashana
+    when SpecialDay::RoshHashana
       w.write_i32(10)
-    when Holiday::FastOfGedalyah
+    when SpecialDay::FastOfGedalyah
       w.write_i32(11)
-    when Holiday::ErevYomKippur
+    when SpecialDay::ErevYomKippur
       w.write_i32(12)
-    when Holiday::YomKippur
+    when SpecialDay::YomKippur
       w.write_i32(13)
-    when Holiday::ErevSuccos
+    when SpecialDay::ErevSuccos
       w.write_i32(14)
-    when Holiday::Succos
+    when SpecialDay::Succos
       w.write_i32(15)
-    when Holiday::CholHamoedSuccos
+    when SpecialDay::CholHamoedSuccos
       w.write_i32(16)
-    when Holiday::HoshanaRabbah
+    when SpecialDay::HoshanaRabbah
       w.write_i32(17)
-    when Holiday::SheminiAtzeres
+    when SpecialDay::SheminiAtzeres
       w.write_i32(18)
-    when Holiday::SimchasTorah
+    when SpecialDay::SimchasTorah
       w.write_i32(19)
-    when Holiday::Chanukah
+    when SpecialDay::Chanukah
       w.write_i32(20)
       w.write_i32(v.day)
-    when Holiday::TenthOfTeves
+    when SpecialDay::TenthOfTeves
       w.write_i32(21)
-    when Holiday::TuBshvat
+    when SpecialDay::TuBshvat
       w.write_i32(22)
-    when Holiday::FastOfEsther
+    when SpecialDay::FastOfEsther
       w.write_i32(23)
-    when Holiday::Purim
+    when SpecialDay::Purim
       w.write_i32(24)
-    when Holiday::ShushanPurim
+    when SpecialDay::ShushanPurim
       w.write_i32(25)
-    when Holiday::PurimKatan
+    when SpecialDay::PurimKatan
       w.write_i32(26)
-    when Holiday::RoshChodesh
+    when SpecialDay::RoshChodesh
       w.write_i32(27)
-    when Holiday::YomHaShoah
+    when SpecialDay::YomHaShoah
       w.write_i32(28)
-    when Holiday::YomHazikaron
+    when SpecialDay::YomHazikaron
       w.write_i32(29)
-    when Holiday::YomHaatzmaut
+    when SpecialDay::YomHaatzmaut
       w.write_i32(30)
-    when Holiday::YomYerushalayim
+    when SpecialDay::YomYerushalayim
       w.write_i32(31)
-    when Holiday::LagBomer
+    when SpecialDay::LagBomer
       w.write_i32(32)
-    when Holiday::ShushanPurimKatan
+    when SpecialDay::ShushanPurimKatan
       w.write_i32(33)
-    when Holiday::IsruChag
+    when SpecialDay::IsruChag
       w.write_i32(34)
-    when Holiday::YomKippurKatan
+    when SpecialDay::YomKippurKatan
       w.write_i32(35)
-    when Holiday::Behab
+    when SpecialDay::Behab
       w.write_i32(36)
-    when Holiday::FastOfTheFirstborn
+    when SpecialDay::FastOfTheFirstborn
       w.write_i32(37)
-    when Holiday::CountOfTheOmer
+    when SpecialDay::CountOfTheOmer
       w.write_i32(38)
       w.write_i32(v.day)
-    when Holiday::BirchasHachamah
+    when SpecialDay::BirchasHachamah
       w.write_i32(39)
-    when Holiday::MacharHachodesh
+    when SpecialDay::MacharHachodesh
       w.write_i32(40)
-    when Holiday::ShabbosMevarchim
+    when SpecialDay::ShabbosMevarchim
       w.write_i32(41)
     else
-      raise TypeError, "expected a Holiday, got #{v.class}"
+      raise TypeError, "expected a SpecialDay, got #{v.class}"
     end
   end
 
   # @api private
-  # Unpacks a Holiday from the value-buffer wire format.
-  def self._wv_read_holiday(r)
+  # Unpacks a SpecialDay from the value-buffer wire format.
+  def self._wv_read_special_day(r)
     tag = r.read_i32
     case tag
     when 0
-      Holiday::ErevPesach.new
+      SpecialDay::ErevPesach.new
     when 1
-      Holiday::Pesach.new
+      SpecialDay::Pesach.new
     when 2
-      Holiday::CholHamoedPesach.new
+      SpecialDay::CholHamoedPesach.new
     when 3
-      Holiday::PesachSheni.new
+      SpecialDay::PesachSheni.new
     when 4
-      Holiday::ErevShavuos.new
+      SpecialDay::ErevShavuos.new
     when 5
-      Holiday::Shavuos.new
+      SpecialDay::Shavuos.new
     when 6
-      Holiday::SeventeenthOfTammuz.new
+      SpecialDay::SeventeenthOfTammuz.new
     when 7
-      Holiday::TishahBav.new
+      SpecialDay::TishahBav.new
     when 8
-      Holiday::TuBav.new
+      SpecialDay::TuBav.new
     when 9
-      Holiday::ErevRoshHashana.new
+      SpecialDay::ErevRoshHashana.new
     when 10
-      Holiday::RoshHashana.new
+      SpecialDay::RoshHashana.new
     when 11
-      Holiday::FastOfGedalyah.new
+      SpecialDay::FastOfGedalyah.new
     when 12
-      Holiday::ErevYomKippur.new
+      SpecialDay::ErevYomKippur.new
     when 13
-      Holiday::YomKippur.new
+      SpecialDay::YomKippur.new
     when 14
-      Holiday::ErevSuccos.new
+      SpecialDay::ErevSuccos.new
     when 15
-      Holiday::Succos.new
+      SpecialDay::Succos.new
     when 16
-      Holiday::CholHamoedSuccos.new
+      SpecialDay::CholHamoedSuccos.new
     when 17
-      Holiday::HoshanaRabbah.new
+      SpecialDay::HoshanaRabbah.new
     when 18
-      Holiday::SheminiAtzeres.new
+      SpecialDay::SheminiAtzeres.new
     when 19
-      Holiday::SimchasTorah.new
+      SpecialDay::SimchasTorah.new
     when 20
-      Holiday::Chanukah.new(day: r.read_i32)
+      SpecialDay::Chanukah.new(day: r.read_i32)
     when 21
-      Holiday::TenthOfTeves.new
+      SpecialDay::TenthOfTeves.new
     when 22
-      Holiday::TuBshvat.new
+      SpecialDay::TuBshvat.new
     when 23
-      Holiday::FastOfEsther.new
+      SpecialDay::FastOfEsther.new
     when 24
-      Holiday::Purim.new
+      SpecialDay::Purim.new
     when 25
-      Holiday::ShushanPurim.new
+      SpecialDay::ShushanPurim.new
     when 26
-      Holiday::PurimKatan.new
+      SpecialDay::PurimKatan.new
     when 27
-      Holiday::RoshChodesh.new
+      SpecialDay::RoshChodesh.new
     when 28
-      Holiday::YomHaShoah.new
+      SpecialDay::YomHaShoah.new
     when 29
-      Holiday::YomHazikaron.new
+      SpecialDay::YomHazikaron.new
     when 30
-      Holiday::YomHaatzmaut.new
+      SpecialDay::YomHaatzmaut.new
     when 31
-      Holiday::YomYerushalayim.new
+      SpecialDay::YomYerushalayim.new
     when 32
-      Holiday::LagBomer.new
+      SpecialDay::LagBomer.new
     when 33
-      Holiday::ShushanPurimKatan.new
+      SpecialDay::ShushanPurimKatan.new
     when 34
-      Holiday::IsruChag.new
+      SpecialDay::IsruChag.new
     when 35
-      Holiday::YomKippurKatan.new
+      SpecialDay::YomKippurKatan.new
     when 36
-      Holiday::Behab.new
+      SpecialDay::Behab.new
     when 37
-      Holiday::FastOfTheFirstborn.new
+      SpecialDay::FastOfTheFirstborn.new
     when 38
-      Holiday::CountOfTheOmer.new(day: r.read_i32)
+      SpecialDay::CountOfTheOmer.new(day: r.read_i32)
     when 39
-      Holiday::BirchasHachamah.new
+      SpecialDay::BirchasHachamah.new
     when 40
-      Holiday::MacharHachodesh.new
+      SpecialDay::MacharHachodesh.new
     when 41
-      Holiday::ShabbosMevarchim.new
+      SpecialDay::ShabbosMevarchim.new
     else
-      raise _wv_malformed("unknown Holiday tag #{tag}")
+      raise _wv_malformed("unknown SpecialDay tag #{tag}")
     end
   end
 
@@ -1145,7 +1144,7 @@ module Kosherz
   attach_function :kosherz_calendar_HebrewDate_weekday, [:pointer, :pointer], :int32, blocking: true
   attach_function :kosherz_calendar_HebrewDate_to_gregorian, [:pointer, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_calendar_HebrewDate_add_days, [:pointer, :int32, :pointer], :pointer, blocking: true
-  attach_function :kosherz_calendar_HebrewDate_holidays, [:pointer, :int32, :pointer, :pointer], :pointer, blocking: true
+  attach_function :kosherz_calendar_HebrewDate_special_days, [:pointer, :int32, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_calendar_HebrewDate_is_assur_bemelacha, [:pointer, :int32, :pointer], :bool, blocking: true
   attach_function :kosherz_calendar_HebrewDate_has_candle_lighting, [:pointer, :int32, :pointer], :bool, blocking: true
   attach_function :kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva, [:pointer, :pointer], :bool, blocking: true
@@ -1159,11 +1158,11 @@ module Kosherz
   attach_function :kosherz_calendar_year_info, [:int32, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_calendar_days_in_month, [:int32, :int32, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_calendar_rosh_hashana, [:int32, :pointer], :pointer, blocking: true
-  attach_function :kosherz_calendar_holiday_name, [:pointer, :size_t, :pointer, :pointer], :pointer, blocking: true
-  attach_function :kosherz_calendar_holiday_hebrew, [:pointer, :size_t, :pointer, :pointer], :pointer, blocking: true
-  attach_function :kosherz_calendar_holiday_is_assur_bemelacha, [:pointer, :size_t, :pointer], :bool, blocking: true
-  attach_function :kosherz_calendar_holiday_is_modern, [:pointer, :size_t, :pointer], :bool, blocking: true
-  attach_function :kosherz_calendar_holiday_is_fast_day, [:pointer, :size_t, :pointer], :bool, blocking: true
+  attach_function :kosherz_calendar_special_day_name, [:pointer, :size_t, :pointer, :pointer], :pointer, blocking: true
+  attach_function :kosherz_calendar_special_day_hebrew, [:pointer, :size_t, :pointer, :pointer], :pointer, blocking: true
+  attach_function :kosherz_calendar_special_day_is_assur_bemelacha, [:pointer, :size_t, :pointer], :bool, blocking: true
+  attach_function :kosherz_calendar_special_day_is_modern, [:pointer, :size_t, :pointer], :bool, blocking: true
+  attach_function :kosherz_calendar_special_day_is_fast_day, [:pointer, :size_t, :pointer], :bool, blocking: true
   attach_function :kosherz_calendar_parsha_name, [:int32, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_calendar_parsha_hebrew, [:int32, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_calendar_month_name, [:int32, :pointer, :pointer], :pointer, blocking: true
@@ -1298,14 +1297,14 @@ module Kosherz
     end
 
     # The holidays, fasts and other marked days on this day.
-    # @return [Array<Holiday>]
-    def holidays(region)
+    # @return [Array<SpecialDay>]
+    def special_days(region)
       Kosherz._wv_pin(self) do |_wv_self|
         err = ErrorStruct.new
         out_len = FFI::MemoryPointer.new(:size_t)
-        result = Kosherz.kosherz_calendar_HebrewDate_holidays(_wv_self, region, out_len, err)
+        result = Kosherz.kosherz_calendar_HebrewDate_special_days(_wv_self, region, out_len, err)
         Kosherz._wv_check!(err)
-        Kosherz._wv_decode(result, out_len.read(:size_t)) { |r| Kosherz._wv_read_list_holiday(r) }
+        Kosherz._wv_decode(result, out_len.read(:size_t)) { |r| Kosherz._wv_read_list_special_day(r) }
       end
     end
 
@@ -1465,34 +1464,34 @@ module Kosherz
     HebrewDate._from_ptr(_wv_nonnull(result))
   end
 
-  # The holiday's English name, for example "Chanukah".
+  # The day's English name, for example "Chanukah".
   #
   # # Errors
   #
-  # `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+  # `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
   # outside 1 to 49.
   # @return [String]
-  def self.holiday_name(holiday)
-    holiday_s = _wv_encode { |w| _wv_write_holiday(w, holiday) }
+  def self.special_day_name(special_day)
+    special_day_s = _wv_encode { |w| _wv_write_special_day(w, special_day) }
     err = ErrorStruct.new
     out_len = FFI::MemoryPointer.new(:size_t)
-    result = kosherz_calendar_holiday_name(holiday_s, holiday_s.bytesize, out_len, err)
+    result = kosherz_calendar_special_day_name(special_day_s, special_day_s.bytesize, out_len, err)
     _wv_check_calendar_error!(err)
     _wv_take_string(result, out_len.read(:size_t))
   end
 
-  # The holiday's Hebrew name.
+  # The day's Hebrew name.
   #
   # # Errors
   #
-  # `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+  # `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
   # outside 1 to 49.
   # @return [String]
-  def self.holiday_hebrew(holiday)
-    holiday_s = _wv_encode { |w| _wv_write_holiday(w, holiday) }
+  def self.special_day_hebrew(special_day)
+    special_day_s = _wv_encode { |w| _wv_write_special_day(w, special_day) }
     err = ErrorStruct.new
     out_len = FFI::MemoryPointer.new(:size_t)
-    result = kosherz_calendar_holiday_hebrew(holiday_s, holiday_s.bytesize, out_len, err)
+    result = kosherz_calendar_special_day_hebrew(special_day_s, special_day_s.bytesize, out_len, err)
     _wv_check_calendar_error!(err)
     _wv_take_string(result, out_len.read(:size_t))
   end
@@ -1501,13 +1500,13 @@ module Kosherz
   #
   # # Errors
   #
-  # `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+  # `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
   # outside 1 to 49.
   # @return [Boolean]
-  def self.holiday_is_assur_bemelacha(holiday)
-    holiday_s = _wv_encode { |w| _wv_write_holiday(w, holiday) }
+  def self.special_day_is_assur_bemelacha(special_day)
+    special_day_s = _wv_encode { |w| _wv_write_special_day(w, special_day) }
     err = ErrorStruct.new
-    result = kosherz_calendar_holiday_is_assur_bemelacha(holiday_s, holiday_s.bytesize, err)
+    result = kosherz_calendar_special_day_is_assur_bemelacha(special_day_s, special_day_s.bytesize, err)
     _wv_check_calendar_error!(err)
     result
   end
@@ -1516,13 +1515,13 @@ module Kosherz
   #
   # # Errors
   #
-  # `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+  # `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
   # outside 1 to 49.
   # @return [Boolean]
-  def self.holiday_is_modern(holiday)
-    holiday_s = _wv_encode { |w| _wv_write_holiday(w, holiday) }
+  def self.special_day_is_modern(special_day)
+    special_day_s = _wv_encode { |w| _wv_write_special_day(w, special_day) }
     err = ErrorStruct.new
-    result = kosherz_calendar_holiday_is_modern(holiday_s, holiday_s.bytesize, err)
+    result = kosherz_calendar_special_day_is_modern(special_day_s, special_day_s.bytesize, err)
     _wv_check_calendar_error!(err)
     result
   end
@@ -1531,13 +1530,13 @@ module Kosherz
   #
   # # Errors
   #
-  # `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+  # `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
   # outside 1 to 49.
   # @return [Boolean]
-  def self.holiday_is_fast_day(holiday)
-    holiday_s = _wv_encode { |w| _wv_write_holiday(w, holiday) }
+  def self.special_day_is_fast_day(special_day)
+    special_day_s = _wv_encode { |w| _wv_write_special_day(w, special_day) }
     err = ErrorStruct.new
-    result = kosherz_calendar_holiday_is_fast_day(holiday_s, holiday_s.bytesize, err)
+    result = kosherz_calendar_special_day_is_fast_day(special_day_s, special_day_s.bytesize, err)
     _wv_check_calendar_error!(err)
     result
   end
@@ -3098,7 +3097,6 @@ module Kosherz
   attach_function :kosherz_times_all_zmanim, [:pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_times_zman_name, [:int32, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_times_zman_java_name, [:int32, :pointer, :pointer], :pointer, blocking: true
-  attach_function :kosherz_times_zman_from_java_name, [:pointer, :size_t, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_times_zman_category, [:int32, :pointer], :int32, blocking: true
   attach_function :kosherz_times_zman_is_deprecated, [:int32, :pointer], :bool, blocking: true
   attach_function :kosherz_times_zman_description, [:int32, :pointer, :size_t, :pointer, :pointer], :pointer, blocking: true
@@ -3404,17 +3402,6 @@ module Kosherz
     result = kosherz_times_zman_java_name(zman, out_len, err)
     _wv_check!(err)
     _wv_take_string(result, out_len.read(:size_t))
-  end
-
-  # The zman named by its KosherJava method, for example "getSofZmanShmaGRA".
-  # @return [Integer, nil]
-  def self.zman_from_java_name(java_name)
-    java_name_s = _wv_str(java_name)
-    err = ErrorStruct.new
-    out_len = FFI::MemoryPointer.new(:size_t)
-    result = kosherz_times_zman_from_java_name(java_name_s, java_name_s.bytesize, out_len, err)
-    _wv_check!(err)
-    _wv_decode(result, out_len.read(:size_t)) { |r| _wv_read_opt_zman(r) }
   end
 
   # What kind of time the zman is.
@@ -3838,16 +3825,16 @@ module Kosherz
   end
 
   # @api private
-  # Packs `[Holiday]` into the value-buffer wire format.
-  def self._wv_write_list_holiday(w, v)
+  # Packs `[SpecialDay]` into the value-buffer wire format.
+  def self._wv_write_list_special_day(w, v)
     w.write_len(v.length)
-    v.each { |e| _wv_write_holiday(w, e) }
+    v.each { |e| _wv_write_special_day(w, e) }
   end
 
   # @api private
-  # Unpacks `[Holiday]` from the value-buffer wire format.
-  def self._wv_read_list_holiday(r)
-    Array.new(r.read_len) { _wv_read_holiday(r) }
+  # Unpacks `[SpecialDay]` from the value-buffer wire format.
+  def self._wv_read_list_special_day(r)
+    Array.new(r.read_len) { _wv_read_special_day(r) }
   end
 
   # @api private
@@ -3993,23 +3980,6 @@ module Kosherz
   # Unpacks `[Zman]` from the value-buffer wire format.
   def self._wv_read_list_zman(r)
     Array.new(r.read_len) { r.read_i32 }
-  end
-
-  # @api private
-  # Packs `Zman?` into the value-buffer wire format.
-  def self._wv_write_opt_zman(w, v)
-    if v.nil?
-      w.write_flag(false)
-    else
-      w.write_flag(true)
-      w.write_i32(v)
-    end
-  end
-
-  # @api private
-  # Unpacks `Zman?` from the value-buffer wire format.
-  def self._wv_read_opt_zman(r)
-    r.read_flag ? r.read_i32 : nil
   end
 
   # @api private

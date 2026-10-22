@@ -34,6 +34,7 @@ const NANOS_PER_SECOND: i128 = 1_000_000_000;
 /// sun never reaches the angle that time, or a time it is built from, needs.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[non_exhaustive]
 pub enum MyZman {
     /// "Dawn, 90 minutes as degrees before sunrise": the sun [`DAWN_90_DEGREES`] below the horizon.
     Dawn90Degrees,

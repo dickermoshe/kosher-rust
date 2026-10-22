@@ -5,10 +5,10 @@
 //!
 //! ```
 //! use jiff::civil::date;
-//! use kosher_rust::calendar::{HebrewDate, Holiday, Parsha, Region};
+//! use kosher_rust::calendar::{HebrewDate, SpecialDay, Parsha, Region};
 //!
 //! let yom_kippur = HebrewDate::from(date(2023, 9, 25));
-//! assert!(yom_kippur.holidays(Region::Diaspora).any(|h| h == Holiday::YomKippur));
+//! assert!(yom_kippur.special_days(Region::Diaspora).any(|h| h == SpecialDay::YomKippur));
 //! assert!(yom_kippur.is_assur_bemelacha(Region::Diaspora));
 //!
 //! let shabbos = HebrewDate::from(date(2024, 5, 4));
@@ -17,16 +17,16 @@
 //!
 //! - [`HebrewDate`]: a day, and everything the calendar says about it.
 //! - [`HebrewYear`] and [`HebrewMonth`]: leap years, year and month lengths.
-//! - [`Holiday`]: what [`HebrewDate::holidays`] yields.
+//! - [`SpecialDay`]: what [`HebrewDate::special_days`] yields.
 //! - [`Parsha`]: what [`HebrewDate::parsha`] returns.
 //! - [`Molad`]: what [`HebrewDate::molad`] returns.
 
 mod date;
-mod holiday;
 pub(crate) mod molad;
 pub(crate) mod month;
 mod parsha;
 mod parsha_tables;
+mod special_day;
 mod year;
 
 #[cfg(test)]
@@ -34,8 +34,8 @@ mod year;
 mod tests;
 
 pub use date::{HebrewDate, Region};
-pub use holiday::Holiday;
 pub use molad::Molad;
 pub use month::HebrewMonth;
 pub use parsha::Parsha;
+pub use special_day::SpecialDay;
 pub use year::{HebrewYear, YearLength};

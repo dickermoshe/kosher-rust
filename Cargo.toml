@@ -16,8 +16,10 @@ exclude = [
     "/interop-tests/",
     "/kosherz/",
     "/third-party/",
-    # About 1 MB of conformance data; the tests that read it stay in the repository.
-    "/tests/fixtures/",
+    # About 1 MB of conformance data; the tests that read it stay in the repository. The small
+    # SPA reference table ships, because a unit test includes it.
+    "/tests/fixtures/myzmanim-site.bin",
+    "/tests/fixtures/zman_catalog.snap",
     "/tests/myzmanim_site.rs",
     "/.vscode/",
     "/rust-toolchain.toml",

@@ -5,7 +5,7 @@ use kosher_rust::calendar::{self as k, HebrewYear};
 
 use super::valid_number;
 use crate::api::calendar::{
-    CalendarError, GregorianDate, HebrewMonth, Holiday, Parsha, Region, Weekday, YearInfo, YearLength,
+    CalendarError, GregorianDate, HebrewMonth, Parsha, Region, SpecialDay, Weekday, YearInfo, YearLength,
 };
 
 /// The Hebrew years the bindings take and give: the years a date can be built from.
@@ -153,6 +153,29 @@ macro_rules! mirror {
             }
         }
     };
+    // For a `#[non_exhaustive]` kosher-rust enum: `TryFrom` back, failing for a new variant.
+    ($ours:ty, $theirs:ty, non_exhaustive, [$($variant:ident),* $(,)?]) => {
+        impl From<$ours> for $theirs {
+            fn from(value: $ours) -> Self {
+                type O = $ours;
+                match value {
+                    $(O::$variant => Self::$variant,)*
+                }
+            }
+        }
+
+        impl TryFrom<$theirs> for $ours {
+            type Error = ();
+
+            fn try_from(value: $theirs) -> Result<Self, ()> {
+                type T = $theirs;
+                Ok(match value {
+                    $(T::$variant => Self::$variant,)*
+                    _ => return Err(()),
+                })
+            }
+        }
+    };
 }
 pub(crate) use mirror;
 
@@ -233,33 +256,37 @@ mirror!(
     ]
 );
 
-/// The conversions both ways for [`Holiday`], whose numbered variants become named fields, each
+/// The conversions both ways for [`SpecialDay`], whose numbered variants become named fields, each
 /// with the range its day must be in.
-macro_rules! holidays {
+macro_rules! special_days {
     ([$($variant:ident),* $(,)?], [$($numbered:ident: $days:expr),* $(,)?]) => {
-        impl TryFrom<Holiday> for k::Holiday {
+        impl TryFrom<SpecialDay> for k::SpecialDay {
             type Error = CalendarError;
 
-            fn try_from(holiday: Holiday) -> Result<Self, CalendarError> {
-                Ok(match holiday {
-                    $(Holiday::$variant => Self::$variant,)*
-                    $(Holiday::$numbered { day } => Self::$numbered(valid_number(day, $days).ok_or(CalendarError::InvalidHoliday)?),)*
+            fn try_from(special_day: SpecialDay) -> Result<Self, CalendarError> {
+                Ok(match special_day {
+                    $(SpecialDay::$variant => Self::$variant,)*
+                    $(SpecialDay::$numbered { day } => Self::$numbered(valid_number(day, $days).ok_or(CalendarError::InvalidSpecialDay)?),)*
                 })
             }
         }
 
-        impl From<k::Holiday> for Holiday {
-            fn from(holiday: k::Holiday) -> Self {
-                match holiday {
-                    $(k::Holiday::$variant => Self::$variant,)*
-                    $(k::Holiday::$numbered(day) => Self::$numbered { day: i32::from(day) },)*
-                }
+        /// Fails for a holiday kosher-rust added that the bindings don't have yet.
+        impl TryFrom<k::SpecialDay> for SpecialDay {
+            type Error = ();
+
+            fn try_from(special_day: k::SpecialDay) -> Result<Self, ()> {
+                Ok(match special_day {
+                    $(k::SpecialDay::$variant => Self::$variant,)*
+                    $(k::SpecialDay::$numbered(day) => Self::$numbered { day: i32::from(day) },)*
+                    _ => return Err(()),
+                })
             }
         }
     };
 }
 
-holidays!(
+special_days!(
     [
         ErevPesach,
         Pesach,

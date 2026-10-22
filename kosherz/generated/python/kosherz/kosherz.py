@@ -122,16 +122,18 @@ _CONTRACTS: Dict[str, List[Tuple[int, int, str]]] = {
     "kosherz_calendar_contract": [
         (0x0076e887e475ab9f, 0x96615bd3eb7f1761, "calendar.HebrewDate.molad"),
         (0x01344feb6b733690, 0x47b992630b03d56a, "calendar.HebrewDate.weekday"),
+        (0x04722a067e750ac7, 0x10c6e1e0af9f20c4, "calendar.special_day_name"),
         (0x12decead9d8a44cf, 0x4b1b3a695325cfca, "calendar.limudim.LimudimError"),
         (0x190ecd13c0fccffa, 0x35e622a32a88ef57, "calendar.limudim.mishna_yomis"),
         (0x1c33df579fac36d8, 0x1175c871bc023b86, "calendar.HebrewDate.day_of_year"),
+        (0x1d2a2cfe983548a6, 0x513b06d6c24719e2, "calendar.special_day_is_fast_day"),
         (0x235fd1db8b7dd5f5, 0x399eab22141dffd3, "calendar.GregorianDate"),
         (0x2b066dc65c460024, 0xf4f23e6586bd1dd7, "calendar.HebrewDate"),
         (0x2c8e60589f58d792, 0xa0608634cb2f46cb, "calendar.limudim.Mishna"),
         (0x2da09ea1403b727e, 0x4d5e82347ae7a3fc, "calendar.HebrewMonth"),
         (0x2e1645ba38a77559, 0x1c81765c98ab54f9, "calendar.HebrewDate.parsha"),
         (0x2e561d4c25bf877d, 0x47ff51d038dbe0d8, "calendar.limudim.tehillim_display"),
-        (0x3a2980b734ba8883, 0x2d505394972243a9, "calendar.HebrewDate.holidays"),
+        (0x34b343651b1fb8fe, 0x12159035b300983a, "calendar.special_day_is_modern"),
         (0x3a3316910057484e, 0xd86a18c3b722f6c7, "calendar.limudim.tehillim_monthly"),
         (0x3c8950ed1f7f370c, 0x19e0d2b3ff9d26fe, "calendar.HebrewDate.day"),
         (0x422860078e596223, 0x32c85d18778b0bb4, "calendar.HebrewDate.equals"),
@@ -144,28 +146,25 @@ _CONTRACTS: Dict[str, List[Tuple[int, int, str]]] = {
         (0x53798234777e19ea, 0x6c389ed6ad08dbe3, "calendar.rosh_hashana"),
         (0x58fc9af210a33bdd, 0xc3e1903a4dc8359d, "calendar.HebrewDate.is_aseres_yemei_teshuva"),
         (0x5c2a6a6f333ead35, 0x74c7180edff5c022, "calendar.HebrewDate.from_gregorian"),
-        (0x5d5d66098ee06c49, 0x8a4e9ca163a6a190, "calendar.Holiday"),
+        (0x6089a64539b542a8, 0x404904f4331718c5, "calendar.SpecialDay"),
         (0x65535c1ad3d9f893, 0x55884ddb65b50739, "calendar.HebrewDate.has_candle_lighting"),
         (0x6a0735856dec8d1a, 0xdc1addb4a7ab46ef, "calendar.parsha_name"),
-        (0x6d120a34fc12b94e, 0x2444827e369b819b, "calendar.holiday_is_assur_bemelacha"),
         (0x734de195723c4bec, 0xc7f3965b813050f5, "calendar.HebrewDate.display"),
         (0x753c68bed189444b, 0x8111a6d476ecf648, "calendar.Region"),
         (0x78416ddbbcc55dd6, 0x6c9e0901963a2dfc, "calendar.limudim.tractate_hebrew"),
-        (0x7b66ec4056f4dcbc, 0xe848ea2454d6e4c1, "calendar.holiday_is_fast_day"),
         (0x7ed52a27f9477122, 0x6e401597e28209a9, "calendar.limudim.MishnaPair"),
         (0x82b460a35e9ba56a, 0x18c3086aa662d366, "calendar.limudim.amud_yomi_dirshu"),
         (0x854dedb50653c50f, 0x914508f7681ccd43, "calendar.HebrewDate.next_parsha"),
-        (0x8f180424826294a4, 0xa976cce390a71369, "calendar.holiday_is_modern"),
+        (0x9006c018e9f8aed8, 0x8b43089a0dda99f4, "calendar.special_day_is_assur_bemelacha"),
         (0x924fdf3d84514e8e, 0xd6c2f5c20a8b129d, "calendar.limudim.TehillimUnit"),
         (0x93ceba93a2b10131, 0xc7b188714edbf795, "calendar.HebrewDate.special_parsha"),
-        (0x94dc4cc8ea8c02c9, 0x51105a7bb4b55bdd, "calendar.holiday_name"),
         (0x98cc81d52e65776b, 0x2bf1569214921669, "calendar.month_hebrew"),
         (0x9b48ba34fb52812d, 0xff11e092dce92ed7, "calendar.limudim.Side"),
         (0x9e20ba757aee97c2, 0x9328a81ac256b477, "calendar.parsha_hebrew"),
+        (0xa06798705423bcc5, 0xba204574299d85b2, "calendar.HebrewDate.special_days"),
         (0xa1e3409cebf37881, 0xfeebfaab6c533e17, "calendar.limudim.Daf"),
         (0xa5864219850af272, 0xf8a4981ca376ff28, "calendar.HebrewDate.is_assur_bemelacha"),
         (0xaeb433ce589b7931, 0x364d4d0b6a770631, "calendar.limudim.Amud"),
-        (0xaf5dd6acc2e8ba71, 0xa2fdd5f43f90f755, "calendar.holiday_hebrew"),
         (0xbd8865ae2177f9ff, 0x6bc5f7eea096d080, "calendar.year_info"),
         (0xc3fd51b677226bab, 0x684e92fa36717939, "calendar.month_name"),
         (0xc47f6755efcc97f2, 0xb882de90a2c3493f, "calendar.YearLength"),
@@ -173,10 +172,11 @@ _CONTRACTS: Dict[str, List[Tuple[int, int, str]]] = {
         (0xd099b5b97c1dddb6, 0x7321133365af2acb, "calendar.YearInfo"),
         (0xd542917e9468e665, 0xc29b76894e14326c, "calendar.HebrewDate.compare"),
         (0xe055421dad70d98d, 0xc2712588daaabbaf, "calendar.limudim.pirkei_avos_display"),
+        (0xe48d4a72f047f917, 0x2c39a2ab4fa38524, "calendar.special_day_hebrew"),
         (0xe5bd2ded003a830a, 0x21bf463baf36e8ae, "calendar.limudim.daf_hashavua_bavli"),
         (0xe5f7bcecee7a3148, 0xf9b3a1fb63fa80ad, "calendar.HebrewDate.new"),
         (0xea80ab8c284067d9, 0x96b30eb7f85eaf21, "calendar.limudim.daf_yomi_bavli"),
-        (0xeb41af932363bd25, 0xc681430e19f4d7b1, "calendar.CalendarError"),
+        (0xeb41af932363bd25, 0xc2d1a611bc5da8c6, "calendar.CalendarError"),
         (0xeb6a6e150a6abbe0, 0xf5d8629c4bfb2f06, "calendar.limudim.Tractate"),
         (0xee029887d9af6ef8, 0x54411bdda9d3b13b, "calendar.HebrewDate.month"),
         (0xefe1cb89cb8314f3, 0x03b0248b8cfa2de8, "calendar.days_in_month"),
@@ -198,7 +198,6 @@ _CONTRACTS: Dict[str, List[Tuple[int, int, str]]] = {
         (0x38596a351e356743, 0x685412d4d80250ea, "times.Config"),
         (0x39389f0e68d3cc22, 0x4af5df9a96d3f535, "times.myzmanim.MyZmanim.proportional_hour_gra"),
         (0x3c92cd49c8b4515b, 0x5962ffa89080c41b, "times.shaah_zmanis"),
-        (0x4048d3ca4b000831, 0xdf4697e13848d687, "times.zman_from_java_name"),
         (0x44a0809dedbd4a4d, 0x9169cc1ef07d2488, "times.ZmanimError"),
         (0x4d259836d7137c43, 0x0486761191984fd0, "times.Zman"),
         (0x57d7a9c5a715b9fa, 0x7110b3413cfd8e83, "times.Location"),
@@ -792,7 +791,7 @@ class CalendarError(Error):
     """Base exception for the `calendar` module's error domain."""
 
     InvalidDate: Type[InvalidDate]
-    InvalidHoliday: Type[InvalidHoliday]
+    InvalidSpecialDay: Type[InvalidSpecialDay]
 
 
 class InvalidDate(CalendarError):
@@ -804,7 +803,7 @@ class InvalidDate(CalendarError):
         super().__init__(1, message)
 
 
-class InvalidHoliday(CalendarError):
+class InvalidSpecialDay(CalendarError):
     """A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49."""
 
     CODE = 2
@@ -814,7 +813,7 @@ class InvalidHoliday(CalendarError):
 
 
 CalendarError.InvalidDate = InvalidDate
-CalendarError.InvalidHoliday = InvalidHoliday
+CalendarError.InvalidSpecialDay = InvalidSpecialDay
 
 
 def _calendar_error_from(code: int, message: str, payload: bytes = b"") -> Error:
@@ -824,7 +823,7 @@ def _calendar_error_from(code: int, message: str, payload: bytes = b"") -> Error
     if code == 1:
         return InvalidDate(message)
     if code == 2:
-        return InvalidHoliday(message)
+        return InvalidSpecialDay(message)
     return Error(code, message)
 
 
@@ -1045,7 +1044,7 @@ class Parsha(IntEnum):
     Nachamu = 69
 
 
-class Holiday:
+class SpecialDay:
     """A holiday, fast, or other day the calendar marks. Some are not holidays in the halachic
     sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
     show them.
@@ -1137,623 +1136,623 @@ class Holiday:
         # Shabbos Mevarchim, the Shabbos when the coming month is announced.
         ShabbosMevarchim = 41
 
-    ErevPesach: Type[HolidayErevPesach]
-    Pesach: Type[HolidayPesach]
-    CholHamoedPesach: Type[HolidayCholHamoedPesach]
-    PesachSheni: Type[HolidayPesachSheni]
-    ErevShavuos: Type[HolidayErevShavuos]
-    Shavuos: Type[HolidayShavuos]
-    SeventeenthOfTammuz: Type[HolidaySeventeenthOfTammuz]
-    TishahBav: Type[HolidayTishahBav]
-    TuBav: Type[HolidayTuBav]
-    ErevRoshHashana: Type[HolidayErevRoshHashana]
-    RoshHashana: Type[HolidayRoshHashana]
-    FastOfGedalyah: Type[HolidayFastOfGedalyah]
-    ErevYomKippur: Type[HolidayErevYomKippur]
-    YomKippur: Type[HolidayYomKippur]
-    ErevSuccos: Type[HolidayErevSuccos]
-    Succos: Type[HolidaySuccos]
-    CholHamoedSuccos: Type[HolidayCholHamoedSuccos]
-    HoshanaRabbah: Type[HolidayHoshanaRabbah]
-    SheminiAtzeres: Type[HolidaySheminiAtzeres]
-    SimchasTorah: Type[HolidaySimchasTorah]
-    Chanukah: Type[HolidayChanukah]
-    TenthOfTeves: Type[HolidayTenthOfTeves]
-    TuBshvat: Type[HolidayTuBshvat]
-    FastOfEsther: Type[HolidayFastOfEsther]
-    Purim: Type[HolidayPurim]
-    ShushanPurim: Type[HolidayShushanPurim]
-    PurimKatan: Type[HolidayPurimKatan]
-    RoshChodesh: Type[HolidayRoshChodesh]
-    YomHaShoah: Type[HolidayYomHaShoah]
-    YomHazikaron: Type[HolidayYomHazikaron]
-    YomHaatzmaut: Type[HolidayYomHaatzmaut]
-    YomYerushalayim: Type[HolidayYomYerushalayim]
-    LagBomer: Type[HolidayLagBomer]
-    ShushanPurimKatan: Type[HolidayShushanPurimKatan]
-    IsruChag: Type[HolidayIsruChag]
-    YomKippurKatan: Type[HolidayYomKippurKatan]
-    Behab: Type[HolidayBehab]
-    FastOfTheFirstborn: Type[HolidayFastOfTheFirstborn]
-    CountOfTheOmer: Type[HolidayCountOfTheOmer]
-    BirchasHachamah: Type[HolidayBirchasHachamah]
-    MacharHachodesh: Type[HolidayMacharHachodesh]
-    ShabbosMevarchim: Type[HolidayShabbosMevarchim]
-    TAG: Holiday.Tag
+    ErevPesach: Type[SpecialDayErevPesach]
+    Pesach: Type[SpecialDayPesach]
+    CholHamoedPesach: Type[SpecialDayCholHamoedPesach]
+    PesachSheni: Type[SpecialDayPesachSheni]
+    ErevShavuos: Type[SpecialDayErevShavuos]
+    Shavuos: Type[SpecialDayShavuos]
+    SeventeenthOfTammuz: Type[SpecialDaySeventeenthOfTammuz]
+    TishahBav: Type[SpecialDayTishahBav]
+    TuBav: Type[SpecialDayTuBav]
+    ErevRoshHashana: Type[SpecialDayErevRoshHashana]
+    RoshHashana: Type[SpecialDayRoshHashana]
+    FastOfGedalyah: Type[SpecialDayFastOfGedalyah]
+    ErevYomKippur: Type[SpecialDayErevYomKippur]
+    YomKippur: Type[SpecialDayYomKippur]
+    ErevSuccos: Type[SpecialDayErevSuccos]
+    Succos: Type[SpecialDaySuccos]
+    CholHamoedSuccos: Type[SpecialDayCholHamoedSuccos]
+    HoshanaRabbah: Type[SpecialDayHoshanaRabbah]
+    SheminiAtzeres: Type[SpecialDaySheminiAtzeres]
+    SimchasTorah: Type[SpecialDaySimchasTorah]
+    Chanukah: Type[SpecialDayChanukah]
+    TenthOfTeves: Type[SpecialDayTenthOfTeves]
+    TuBshvat: Type[SpecialDayTuBshvat]
+    FastOfEsther: Type[SpecialDayFastOfEsther]
+    Purim: Type[SpecialDayPurim]
+    ShushanPurim: Type[SpecialDayShushanPurim]
+    PurimKatan: Type[SpecialDayPurimKatan]
+    RoshChodesh: Type[SpecialDayRoshChodesh]
+    YomHaShoah: Type[SpecialDayYomHaShoah]
+    YomHazikaron: Type[SpecialDayYomHazikaron]
+    YomHaatzmaut: Type[SpecialDayYomHaatzmaut]
+    YomYerushalayim: Type[SpecialDayYomYerushalayim]
+    LagBomer: Type[SpecialDayLagBomer]
+    ShushanPurimKatan: Type[SpecialDayShushanPurimKatan]
+    IsruChag: Type[SpecialDayIsruChag]
+    YomKippurKatan: Type[SpecialDayYomKippurKatan]
+    Behab: Type[SpecialDayBehab]
+    FastOfTheFirstborn: Type[SpecialDayFastOfTheFirstborn]
+    CountOfTheOmer: Type[SpecialDayCountOfTheOmer]
+    BirchasHachamah: Type[SpecialDayBirchasHachamah]
+    MacharHachodesh: Type[SpecialDayMacharHachodesh]
+    ShabbosMevarchim: Type[SpecialDayShabbosMevarchim]
+    TAG: SpecialDay.Tag
 
     @property
-    def tag(self) -> Holiday.Tag:
+    def tag(self) -> SpecialDay.Tag:
         """The discriminant of this value's active variant."""
         return type(self).TAG
 
 
 @dataclass
-class HolidayErevPesach(Holiday):
+class SpecialDayErevPesach(SpecialDay):
     """Erev Pesach, 14 Nisan."""
 
-    TAG = Holiday.Tag.ErevPesach
+    TAG = SpecialDay.Tag.ErevPesach
 
 
 @dataclass
-class HolidayPesach(Holiday):
+class SpecialDayPesach(SpecialDay):
     """Pesach."""
 
-    TAG = Holiday.Tag.Pesach
+    TAG = SpecialDay.Tag.Pesach
 
 
 @dataclass
-class HolidayCholHamoedPesach(Holiday):
+class SpecialDayCholHamoedPesach(SpecialDay):
     """Chol Hamoed Pesach."""
 
-    TAG = Holiday.Tag.CholHamoedPesach
+    TAG = SpecialDay.Tag.CholHamoedPesach
 
 
 @dataclass
-class HolidayPesachSheni(Holiday):
+class SpecialDayPesachSheni(SpecialDay):
     """Pesach Sheni, 14 Iyar."""
 
-    TAG = Holiday.Tag.PesachSheni
+    TAG = SpecialDay.Tag.PesachSheni
 
 
 @dataclass
-class HolidayErevShavuos(Holiday):
+class SpecialDayErevShavuos(SpecialDay):
     """Erev Shavuos, 5 Sivan."""
 
-    TAG = Holiday.Tag.ErevShavuos
+    TAG = SpecialDay.Tag.ErevShavuos
 
 
 @dataclass
-class HolidayShavuos(Holiday):
+class SpecialDayShavuos(SpecialDay):
     """Shavuos."""
 
-    TAG = Holiday.Tag.Shavuos
+    TAG = SpecialDay.Tag.Shavuos
 
 
 @dataclass
-class HolidaySeventeenthOfTammuz(Holiday):
+class SpecialDaySeventeenthOfTammuz(SpecialDay):
     """The fast of 17 Tammuz."""
 
-    TAG = Holiday.Tag.SeventeenthOfTammuz
+    TAG = SpecialDay.Tag.SeventeenthOfTammuz
 
 
 @dataclass
-class HolidayTishahBav(Holiday):
+class SpecialDayTishahBav(SpecialDay):
     """Tishah B'Av."""
 
-    TAG = Holiday.Tag.TishahBav
+    TAG = SpecialDay.Tag.TishahBav
 
 
 @dataclass
-class HolidayTuBav(Holiday):
+class SpecialDayTuBav(SpecialDay):
     """Tu B'Av, 15 Av."""
 
-    TAG = Holiday.Tag.TuBav
+    TAG = SpecialDay.Tag.TuBav
 
 
 @dataclass
-class HolidayErevRoshHashana(Holiday):
+class SpecialDayErevRoshHashana(SpecialDay):
     """Erev Rosh Hashana, 29 Elul."""
 
-    TAG = Holiday.Tag.ErevRoshHashana
+    TAG = SpecialDay.Tag.ErevRoshHashana
 
 
 @dataclass
-class HolidayRoshHashana(Holiday):
+class SpecialDayRoshHashana(SpecialDay):
     """Rosh Hashana."""
 
-    TAG = Holiday.Tag.RoshHashana
+    TAG = SpecialDay.Tag.RoshHashana
 
 
 @dataclass
-class HolidayFastOfGedalyah(Holiday):
+class SpecialDayFastOfGedalyah(SpecialDay):
     """The Fast of Gedalyah."""
 
-    TAG = Holiday.Tag.FastOfGedalyah
+    TAG = SpecialDay.Tag.FastOfGedalyah
 
 
 @dataclass
-class HolidayErevYomKippur(Holiday):
+class SpecialDayErevYomKippur(SpecialDay):
     """Erev Yom Kippur, 9 Tishrei."""
 
-    TAG = Holiday.Tag.ErevYomKippur
+    TAG = SpecialDay.Tag.ErevYomKippur
 
 
 @dataclass
-class HolidayYomKippur(Holiday):
+class SpecialDayYomKippur(SpecialDay):
     """Yom Kippur, 10 Tishrei."""
 
-    TAG = Holiday.Tag.YomKippur
+    TAG = SpecialDay.Tag.YomKippur
 
 
 @dataclass
-class HolidayErevSuccos(Holiday):
+class SpecialDayErevSuccos(SpecialDay):
     """Erev Succos, 14 Tishrei."""
 
-    TAG = Holiday.Tag.ErevSuccos
+    TAG = SpecialDay.Tag.ErevSuccos
 
 
 @dataclass
-class HolidaySuccos(Holiday):
+class SpecialDaySuccos(SpecialDay):
     """Succos."""
 
-    TAG = Holiday.Tag.Succos
+    TAG = SpecialDay.Tag.Succos
 
 
 @dataclass
-class HolidayCholHamoedSuccos(Holiday):
+class SpecialDayCholHamoedSuccos(SpecialDay):
     """Chol Hamoed Succos."""
 
-    TAG = Holiday.Tag.CholHamoedSuccos
+    TAG = SpecialDay.Tag.CholHamoedSuccos
 
 
 @dataclass
-class HolidayHoshanaRabbah(Holiday):
+class SpecialDayHoshanaRabbah(SpecialDay):
     """Hoshana Rabbah, 21 Tishrei."""
 
-    TAG = Holiday.Tag.HoshanaRabbah
+    TAG = SpecialDay.Tag.HoshanaRabbah
 
 
 @dataclass
-class HolidaySheminiAtzeres(Holiday):
+class SpecialDaySheminiAtzeres(SpecialDay):
     """Shemini Atzeres."""
 
-    TAG = Holiday.Tag.SheminiAtzeres
+    TAG = SpecialDay.Tag.SheminiAtzeres
 
 
 @dataclass
-class HolidaySimchasTorah(Holiday):
+class SpecialDaySimchasTorah(SpecialDay):
     """Simchas Torah."""
 
-    TAG = Holiday.Tag.SimchasTorah
+    TAG = SpecialDay.Tag.SimchasTorah
 
 
 @dataclass
-class HolidayChanukah(Holiday):
+class SpecialDayChanukah(SpecialDay):
     """Chanukah."""
 
-    TAG = Holiday.Tag.Chanukah
+    TAG = SpecialDay.Tag.Chanukah
 
     # The day of Chanukah, 1 to 8.
     day: int
 
 
 @dataclass
-class HolidayTenthOfTeves(Holiday):
+class SpecialDayTenthOfTeves(SpecialDay):
     """The fast of 10 Teves."""
 
-    TAG = Holiday.Tag.TenthOfTeves
+    TAG = SpecialDay.Tag.TenthOfTeves
 
 
 @dataclass
-class HolidayTuBshvat(Holiday):
+class SpecialDayTuBshvat(SpecialDay):
     """Tu B'Shvat, 15 Shevat."""
 
-    TAG = Holiday.Tag.TuBshvat
+    TAG = SpecialDay.Tag.TuBshvat
 
 
 @dataclass
-class HolidayFastOfEsther(Holiday):
+class SpecialDayFastOfEsther(SpecialDay):
     """The Fast of Esther."""
 
-    TAG = Holiday.Tag.FastOfEsther
+    TAG = SpecialDay.Tag.FastOfEsther
 
 
 @dataclass
-class HolidayPurim(Holiday):
+class SpecialDayPurim(SpecialDay):
     """Purim."""
 
-    TAG = Holiday.Tag.Purim
+    TAG = SpecialDay.Tag.Purim
 
 
 @dataclass
-class HolidayShushanPurim(Holiday):
+class SpecialDayShushanPurim(SpecialDay):
     """Shushan Purim."""
 
-    TAG = Holiday.Tag.ShushanPurim
+    TAG = SpecialDay.Tag.ShushanPurim
 
 
 @dataclass
-class HolidayPurimKatan(Holiday):
+class SpecialDayPurimKatan(SpecialDay):
     """Purim Katan, 14 Adar I."""
 
-    TAG = Holiday.Tag.PurimKatan
+    TAG = SpecialDay.Tag.PurimKatan
 
 
 @dataclass
-class HolidayRoshChodesh(Holiday):
+class SpecialDayRoshChodesh(SpecialDay):
     """Rosh Chodesh."""
 
-    TAG = Holiday.Tag.RoshChodesh
+    TAG = SpecialDay.Tag.RoshChodesh
 
 
 @dataclass
-class HolidayYomHaShoah(Holiday):
+class SpecialDayYomHaShoah(SpecialDay):
     """Yom HaShoah."""
 
-    TAG = Holiday.Tag.YomHaShoah
+    TAG = SpecialDay.Tag.YomHaShoah
 
 
 @dataclass
-class HolidayYomHazikaron(Holiday):
+class SpecialDayYomHazikaron(SpecialDay):
     """Yom Hazikaron."""
 
-    TAG = Holiday.Tag.YomHazikaron
+    TAG = SpecialDay.Tag.YomHazikaron
 
 
 @dataclass
-class HolidayYomHaatzmaut(Holiday):
+class SpecialDayYomHaatzmaut(SpecialDay):
     """Yom Ha'atzmaut."""
 
-    TAG = Holiday.Tag.YomHaatzmaut
+    TAG = SpecialDay.Tag.YomHaatzmaut
 
 
 @dataclass
-class HolidayYomYerushalayim(Holiday):
+class SpecialDayYomYerushalayim(SpecialDay):
     """Yom Yerushalayim."""
 
-    TAG = Holiday.Tag.YomYerushalayim
+    TAG = SpecialDay.Tag.YomYerushalayim
 
 
 @dataclass
-class HolidayLagBomer(Holiday):
+class SpecialDayLagBomer(SpecialDay):
     """Lag B'Omer, 18 Iyar."""
 
-    TAG = Holiday.Tag.LagBomer
+    TAG = SpecialDay.Tag.LagBomer
 
 
 @dataclass
-class HolidayShushanPurimKatan(Holiday):
+class SpecialDayShushanPurimKatan(SpecialDay):
     """Shushan Purim Katan, 15 Adar I."""
 
-    TAG = Holiday.Tag.ShushanPurimKatan
+    TAG = SpecialDay.Tag.ShushanPurimKatan
 
 
 @dataclass
-class HolidayIsruChag(Holiday):
+class SpecialDayIsruChag(SpecialDay):
     """Isru Chag, the day after a festival."""
 
-    TAG = Holiday.Tag.IsruChag
+    TAG = SpecialDay.Tag.IsruChag
 
 
 @dataclass
-class HolidayYomKippurKatan(Holiday):
+class SpecialDayYomKippurKatan(SpecialDay):
     """Yom Kippur Katan, the eve of Rosh Chodesh."""
 
-    TAG = Holiday.Tag.YomKippurKatan
+    TAG = SpecialDay.Tag.YomKippurKatan
 
 
 @dataclass
-class HolidayBehab(Holiday):
+class SpecialDayBehab(SpecialDay):
     """Behab, the Monday-Thursday-Monday fasts after Pesach and Succos."""
 
-    TAG = Holiday.Tag.Behab
+    TAG = SpecialDay.Tag.Behab
 
 
 @dataclass
-class HolidayFastOfTheFirstborn(Holiday):
+class SpecialDayFastOfTheFirstborn(SpecialDay):
     """The Fast of the Firstborn."""
 
-    TAG = Holiday.Tag.FastOfTheFirstborn
+    TAG = SpecialDay.Tag.FastOfTheFirstborn
 
 
 @dataclass
-class HolidayCountOfTheOmer(Holiday):
+class SpecialDayCountOfTheOmer(SpecialDay):
     """The Omer count."""
 
-    TAG = Holiday.Tag.CountOfTheOmer
+    TAG = SpecialDay.Tag.CountOfTheOmer
 
     # The day of the count, 1 to 49.
     day: int
 
 
 @dataclass
-class HolidayBirchasHachamah(Holiday):
+class SpecialDayBirchasHachamah(SpecialDay):
     """Birchas Hachamah, every 28 years."""
 
-    TAG = Holiday.Tag.BirchasHachamah
+    TAG = SpecialDay.Tag.BirchasHachamah
 
 
 @dataclass
-class HolidayMacharHachodesh(Holiday):
+class SpecialDayMacharHachodesh(SpecialDay):
     """Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh."""
 
-    TAG = Holiday.Tag.MacharHachodesh
+    TAG = SpecialDay.Tag.MacharHachodesh
 
 
 @dataclass
-class HolidayShabbosMevarchim(Holiday):
+class SpecialDayShabbosMevarchim(SpecialDay):
     """Shabbos Mevarchim, the Shabbos when the coming month is announced."""
 
-    TAG = Holiday.Tag.ShabbosMevarchim
+    TAG = SpecialDay.Tag.ShabbosMevarchim
 
 
-Holiday.ErevPesach = HolidayErevPesach
-Holiday.Pesach = HolidayPesach
-Holiday.CholHamoedPesach = HolidayCholHamoedPesach
-Holiday.PesachSheni = HolidayPesachSheni
-Holiday.ErevShavuos = HolidayErevShavuos
-Holiday.Shavuos = HolidayShavuos
-Holiday.SeventeenthOfTammuz = HolidaySeventeenthOfTammuz
-Holiday.TishahBav = HolidayTishahBav
-Holiday.TuBav = HolidayTuBav
-Holiday.ErevRoshHashana = HolidayErevRoshHashana
-Holiday.RoshHashana = HolidayRoshHashana
-Holiday.FastOfGedalyah = HolidayFastOfGedalyah
-Holiday.ErevYomKippur = HolidayErevYomKippur
-Holiday.YomKippur = HolidayYomKippur
-Holiday.ErevSuccos = HolidayErevSuccos
-Holiday.Succos = HolidaySuccos
-Holiday.CholHamoedSuccos = HolidayCholHamoedSuccos
-Holiday.HoshanaRabbah = HolidayHoshanaRabbah
-Holiday.SheminiAtzeres = HolidaySheminiAtzeres
-Holiday.SimchasTorah = HolidaySimchasTorah
-Holiday.Chanukah = HolidayChanukah
-Holiday.TenthOfTeves = HolidayTenthOfTeves
-Holiday.TuBshvat = HolidayTuBshvat
-Holiday.FastOfEsther = HolidayFastOfEsther
-Holiday.Purim = HolidayPurim
-Holiday.ShushanPurim = HolidayShushanPurim
-Holiday.PurimKatan = HolidayPurimKatan
-Holiday.RoshChodesh = HolidayRoshChodesh
-Holiday.YomHaShoah = HolidayYomHaShoah
-Holiday.YomHazikaron = HolidayYomHazikaron
-Holiday.YomHaatzmaut = HolidayYomHaatzmaut
-Holiday.YomYerushalayim = HolidayYomYerushalayim
-Holiday.LagBomer = HolidayLagBomer
-Holiday.ShushanPurimKatan = HolidayShushanPurimKatan
-Holiday.IsruChag = HolidayIsruChag
-Holiday.YomKippurKatan = HolidayYomKippurKatan
-Holiday.Behab = HolidayBehab
-Holiday.FastOfTheFirstborn = HolidayFastOfTheFirstborn
-Holiday.CountOfTheOmer = HolidayCountOfTheOmer
-Holiday.BirchasHachamah = HolidayBirchasHachamah
-Holiday.MacharHachodesh = HolidayMacharHachodesh
-Holiday.ShabbosMevarchim = HolidayShabbosMevarchim
+SpecialDay.ErevPesach = SpecialDayErevPesach
+SpecialDay.Pesach = SpecialDayPesach
+SpecialDay.CholHamoedPesach = SpecialDayCholHamoedPesach
+SpecialDay.PesachSheni = SpecialDayPesachSheni
+SpecialDay.ErevShavuos = SpecialDayErevShavuos
+SpecialDay.Shavuos = SpecialDayShavuos
+SpecialDay.SeventeenthOfTammuz = SpecialDaySeventeenthOfTammuz
+SpecialDay.TishahBav = SpecialDayTishahBav
+SpecialDay.TuBav = SpecialDayTuBav
+SpecialDay.ErevRoshHashana = SpecialDayErevRoshHashana
+SpecialDay.RoshHashana = SpecialDayRoshHashana
+SpecialDay.FastOfGedalyah = SpecialDayFastOfGedalyah
+SpecialDay.ErevYomKippur = SpecialDayErevYomKippur
+SpecialDay.YomKippur = SpecialDayYomKippur
+SpecialDay.ErevSuccos = SpecialDayErevSuccos
+SpecialDay.Succos = SpecialDaySuccos
+SpecialDay.CholHamoedSuccos = SpecialDayCholHamoedSuccos
+SpecialDay.HoshanaRabbah = SpecialDayHoshanaRabbah
+SpecialDay.SheminiAtzeres = SpecialDaySheminiAtzeres
+SpecialDay.SimchasTorah = SpecialDaySimchasTorah
+SpecialDay.Chanukah = SpecialDayChanukah
+SpecialDay.TenthOfTeves = SpecialDayTenthOfTeves
+SpecialDay.TuBshvat = SpecialDayTuBshvat
+SpecialDay.FastOfEsther = SpecialDayFastOfEsther
+SpecialDay.Purim = SpecialDayPurim
+SpecialDay.ShushanPurim = SpecialDayShushanPurim
+SpecialDay.PurimKatan = SpecialDayPurimKatan
+SpecialDay.RoshChodesh = SpecialDayRoshChodesh
+SpecialDay.YomHaShoah = SpecialDayYomHaShoah
+SpecialDay.YomHazikaron = SpecialDayYomHazikaron
+SpecialDay.YomHaatzmaut = SpecialDayYomHaatzmaut
+SpecialDay.YomYerushalayim = SpecialDayYomYerushalayim
+SpecialDay.LagBomer = SpecialDayLagBomer
+SpecialDay.ShushanPurimKatan = SpecialDayShushanPurimKatan
+SpecialDay.IsruChag = SpecialDayIsruChag
+SpecialDay.YomKippurKatan = SpecialDayYomKippurKatan
+SpecialDay.Behab = SpecialDayBehab
+SpecialDay.FastOfTheFirstborn = SpecialDayFastOfTheFirstborn
+SpecialDay.CountOfTheOmer = SpecialDayCountOfTheOmer
+SpecialDay.BirchasHachamah = SpecialDayBirchasHachamah
+SpecialDay.MacharHachodesh = SpecialDayMacharHachodesh
+SpecialDay.ShabbosMevarchim = SpecialDayShabbosMevarchim
 
 
-def _write_Holiday(_w: _Writer, value: Holiday) -> None:
-    if isinstance(value, HolidayErevPesach):
+def _write_SpecialDay(_w: _Writer, value: SpecialDay) -> None:
+    if isinstance(value, SpecialDayErevPesach):
         _w.write_i32(0)
         return
-    if isinstance(value, HolidayPesach):
+    if isinstance(value, SpecialDayPesach):
         _w.write_i32(1)
         return
-    if isinstance(value, HolidayCholHamoedPesach):
+    if isinstance(value, SpecialDayCholHamoedPesach):
         _w.write_i32(2)
         return
-    if isinstance(value, HolidayPesachSheni):
+    if isinstance(value, SpecialDayPesachSheni):
         _w.write_i32(3)
         return
-    if isinstance(value, HolidayErevShavuos):
+    if isinstance(value, SpecialDayErevShavuos):
         _w.write_i32(4)
         return
-    if isinstance(value, HolidayShavuos):
+    if isinstance(value, SpecialDayShavuos):
         _w.write_i32(5)
         return
-    if isinstance(value, HolidaySeventeenthOfTammuz):
+    if isinstance(value, SpecialDaySeventeenthOfTammuz):
         _w.write_i32(6)
         return
-    if isinstance(value, HolidayTishahBav):
+    if isinstance(value, SpecialDayTishahBav):
         _w.write_i32(7)
         return
-    if isinstance(value, HolidayTuBav):
+    if isinstance(value, SpecialDayTuBav):
         _w.write_i32(8)
         return
-    if isinstance(value, HolidayErevRoshHashana):
+    if isinstance(value, SpecialDayErevRoshHashana):
         _w.write_i32(9)
         return
-    if isinstance(value, HolidayRoshHashana):
+    if isinstance(value, SpecialDayRoshHashana):
         _w.write_i32(10)
         return
-    if isinstance(value, HolidayFastOfGedalyah):
+    if isinstance(value, SpecialDayFastOfGedalyah):
         _w.write_i32(11)
         return
-    if isinstance(value, HolidayErevYomKippur):
+    if isinstance(value, SpecialDayErevYomKippur):
         _w.write_i32(12)
         return
-    if isinstance(value, HolidayYomKippur):
+    if isinstance(value, SpecialDayYomKippur):
         _w.write_i32(13)
         return
-    if isinstance(value, HolidayErevSuccos):
+    if isinstance(value, SpecialDayErevSuccos):
         _w.write_i32(14)
         return
-    if isinstance(value, HolidaySuccos):
+    if isinstance(value, SpecialDaySuccos):
         _w.write_i32(15)
         return
-    if isinstance(value, HolidayCholHamoedSuccos):
+    if isinstance(value, SpecialDayCholHamoedSuccos):
         _w.write_i32(16)
         return
-    if isinstance(value, HolidayHoshanaRabbah):
+    if isinstance(value, SpecialDayHoshanaRabbah):
         _w.write_i32(17)
         return
-    if isinstance(value, HolidaySheminiAtzeres):
+    if isinstance(value, SpecialDaySheminiAtzeres):
         _w.write_i32(18)
         return
-    if isinstance(value, HolidaySimchasTorah):
+    if isinstance(value, SpecialDaySimchasTorah):
         _w.write_i32(19)
         return
-    if isinstance(value, HolidayChanukah):
+    if isinstance(value, SpecialDayChanukah):
         _w.write_i32(20)
         _w.write_i32(value.day)
         return
-    if isinstance(value, HolidayTenthOfTeves):
+    if isinstance(value, SpecialDayTenthOfTeves):
         _w.write_i32(21)
         return
-    if isinstance(value, HolidayTuBshvat):
+    if isinstance(value, SpecialDayTuBshvat):
         _w.write_i32(22)
         return
-    if isinstance(value, HolidayFastOfEsther):
+    if isinstance(value, SpecialDayFastOfEsther):
         _w.write_i32(23)
         return
-    if isinstance(value, HolidayPurim):
+    if isinstance(value, SpecialDayPurim):
         _w.write_i32(24)
         return
-    if isinstance(value, HolidayShushanPurim):
+    if isinstance(value, SpecialDayShushanPurim):
         _w.write_i32(25)
         return
-    if isinstance(value, HolidayPurimKatan):
+    if isinstance(value, SpecialDayPurimKatan):
         _w.write_i32(26)
         return
-    if isinstance(value, HolidayRoshChodesh):
+    if isinstance(value, SpecialDayRoshChodesh):
         _w.write_i32(27)
         return
-    if isinstance(value, HolidayYomHaShoah):
+    if isinstance(value, SpecialDayYomHaShoah):
         _w.write_i32(28)
         return
-    if isinstance(value, HolidayYomHazikaron):
+    if isinstance(value, SpecialDayYomHazikaron):
         _w.write_i32(29)
         return
-    if isinstance(value, HolidayYomHaatzmaut):
+    if isinstance(value, SpecialDayYomHaatzmaut):
         _w.write_i32(30)
         return
-    if isinstance(value, HolidayYomYerushalayim):
+    if isinstance(value, SpecialDayYomYerushalayim):
         _w.write_i32(31)
         return
-    if isinstance(value, HolidayLagBomer):
+    if isinstance(value, SpecialDayLagBomer):
         _w.write_i32(32)
         return
-    if isinstance(value, HolidayShushanPurimKatan):
+    if isinstance(value, SpecialDayShushanPurimKatan):
         _w.write_i32(33)
         return
-    if isinstance(value, HolidayIsruChag):
+    if isinstance(value, SpecialDayIsruChag):
         _w.write_i32(34)
         return
-    if isinstance(value, HolidayYomKippurKatan):
+    if isinstance(value, SpecialDayYomKippurKatan):
         _w.write_i32(35)
         return
-    if isinstance(value, HolidayBehab):
+    if isinstance(value, SpecialDayBehab):
         _w.write_i32(36)
         return
-    if isinstance(value, HolidayFastOfTheFirstborn):
+    if isinstance(value, SpecialDayFastOfTheFirstborn):
         _w.write_i32(37)
         return
-    if isinstance(value, HolidayCountOfTheOmer):
+    if isinstance(value, SpecialDayCountOfTheOmer):
         _w.write_i32(38)
         _w.write_i32(value.day)
         return
-    if isinstance(value, HolidayBirchasHachamah):
+    if isinstance(value, SpecialDayBirchasHachamah):
         _w.write_i32(39)
         return
-    if isinstance(value, HolidayMacharHachodesh):
+    if isinstance(value, SpecialDayMacharHachodesh):
         _w.write_i32(40)
         return
-    if isinstance(value, HolidayShabbosMevarchim):
+    if isinstance(value, SpecialDayShabbosMevarchim):
         _w.write_i32(41)
         return
-    raise TypeError(f"expected a Holiday variant, got {type(value).__name__}")
+    raise TypeError(f"expected a SpecialDay variant, got {type(value).__name__}")
 
 
-def _read_Holiday(_r: _Reader) -> Holiday:
+def _read_SpecialDay(_r: _Reader) -> SpecialDay:
     tag = _r.read_i32()
     if tag == 0:
-        return HolidayErevPesach()
+        return SpecialDayErevPesach()
     if tag == 1:
-        return HolidayPesach()
+        return SpecialDayPesach()
     if tag == 2:
-        return HolidayCholHamoedPesach()
+        return SpecialDayCholHamoedPesach()
     if tag == 3:
-        return HolidayPesachSheni()
+        return SpecialDayPesachSheni()
     if tag == 4:
-        return HolidayErevShavuos()
+        return SpecialDayErevShavuos()
     if tag == 5:
-        return HolidayShavuos()
+        return SpecialDayShavuos()
     if tag == 6:
-        return HolidaySeventeenthOfTammuz()
+        return SpecialDaySeventeenthOfTammuz()
     if tag == 7:
-        return HolidayTishahBav()
+        return SpecialDayTishahBav()
     if tag == 8:
-        return HolidayTuBav()
+        return SpecialDayTuBav()
     if tag == 9:
-        return HolidayErevRoshHashana()
+        return SpecialDayErevRoshHashana()
     if tag == 10:
-        return HolidayRoshHashana()
+        return SpecialDayRoshHashana()
     if tag == 11:
-        return HolidayFastOfGedalyah()
+        return SpecialDayFastOfGedalyah()
     if tag == 12:
-        return HolidayErevYomKippur()
+        return SpecialDayErevYomKippur()
     if tag == 13:
-        return HolidayYomKippur()
+        return SpecialDayYomKippur()
     if tag == 14:
-        return HolidayErevSuccos()
+        return SpecialDayErevSuccos()
     if tag == 15:
-        return HolidaySuccos()
+        return SpecialDaySuccos()
     if tag == 16:
-        return HolidayCholHamoedSuccos()
+        return SpecialDayCholHamoedSuccos()
     if tag == 17:
-        return HolidayHoshanaRabbah()
+        return SpecialDayHoshanaRabbah()
     if tag == 18:
-        return HolidaySheminiAtzeres()
+        return SpecialDaySheminiAtzeres()
     if tag == 19:
-        return HolidaySimchasTorah()
+        return SpecialDaySimchasTorah()
     if tag == 20:
-        return HolidayChanukah(
+        return SpecialDayChanukah(
             day=_r.read_i32(),
         )
     if tag == 21:
-        return HolidayTenthOfTeves()
+        return SpecialDayTenthOfTeves()
     if tag == 22:
-        return HolidayTuBshvat()
+        return SpecialDayTuBshvat()
     if tag == 23:
-        return HolidayFastOfEsther()
+        return SpecialDayFastOfEsther()
     if tag == 24:
-        return HolidayPurim()
+        return SpecialDayPurim()
     if tag == 25:
-        return HolidayShushanPurim()
+        return SpecialDayShushanPurim()
     if tag == 26:
-        return HolidayPurimKatan()
+        return SpecialDayPurimKatan()
     if tag == 27:
-        return HolidayRoshChodesh()
+        return SpecialDayRoshChodesh()
     if tag == 28:
-        return HolidayYomHaShoah()
+        return SpecialDayYomHaShoah()
     if tag == 29:
-        return HolidayYomHazikaron()
+        return SpecialDayYomHazikaron()
     if tag == 30:
-        return HolidayYomHaatzmaut()
+        return SpecialDayYomHaatzmaut()
     if tag == 31:
-        return HolidayYomYerushalayim()
+        return SpecialDayYomYerushalayim()
     if tag == 32:
-        return HolidayLagBomer()
+        return SpecialDayLagBomer()
     if tag == 33:
-        return HolidayShushanPurimKatan()
+        return SpecialDayShushanPurimKatan()
     if tag == 34:
-        return HolidayIsruChag()
+        return SpecialDayIsruChag()
     if tag == 35:
-        return HolidayYomKippurKatan()
+        return SpecialDayYomKippurKatan()
     if tag == 36:
-        return HolidayBehab()
+        return SpecialDayBehab()
     if tag == 37:
-        return HolidayFastOfTheFirstborn()
+        return SpecialDayFastOfTheFirstborn()
     if tag == 38:
-        return HolidayCountOfTheOmer(
+        return SpecialDayCountOfTheOmer(
             day=_r.read_i32(),
         )
     if tag == 39:
-        return HolidayBirchasHachamah()
+        return SpecialDayBirchasHachamah()
     if tag == 40:
-        return HolidayMacharHachodesh()
+        return SpecialDayMacharHachodesh()
     if tag == 41:
-        return HolidayShabbosMevarchim()
-    raise _malformed(f"unknown Holiday tag {tag}")
+        return SpecialDayShabbosMevarchim()
+    raise _malformed(f"unknown SpecialDay tag {tag}")
 
 
 @dataclass
@@ -1833,7 +1832,7 @@ _c_calendar_HebrewDate_day_of_year = _bind("kosherz_calendar_HebrewDate_day_of_y
 _c_calendar_HebrewDate_weekday = _bind("kosherz_calendar_HebrewDate_weekday", ctypes.c_int32, ctypes.c_void_p, ctypes.POINTER(_ErrorStruct))
 _c_calendar_HebrewDate_to_gregorian = _bind("kosherz_calendar_HebrewDate_to_gregorian", ctypes.c_void_p, ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(_ErrorStruct))
 _c_calendar_HebrewDate_add_days = _bind("kosherz_calendar_HebrewDate_add_days", ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int32, ctypes.POINTER(_ErrorStruct))
-_c_calendar_HebrewDate_holidays = _bind("kosherz_calendar_HebrewDate_holidays", ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int32, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(_ErrorStruct))
+_c_calendar_HebrewDate_special_days = _bind("kosherz_calendar_HebrewDate_special_days", ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int32, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(_ErrorStruct))
 _c_calendar_HebrewDate_is_assur_bemelacha = _bind("kosherz_calendar_HebrewDate_is_assur_bemelacha", ctypes.c_bool, ctypes.c_void_p, ctypes.c_int32, ctypes.POINTER(_ErrorStruct))
 _c_calendar_HebrewDate_has_candle_lighting = _bind("kosherz_calendar_HebrewDate_has_candle_lighting", ctypes.c_bool, ctypes.c_void_p, ctypes.c_int32, ctypes.POINTER(_ErrorStruct))
 _c_calendar_HebrewDate_is_aseres_yemei_teshuva = _bind("kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva", ctypes.c_bool, ctypes.c_void_p, ctypes.POINTER(_ErrorStruct))
@@ -1993,18 +1992,18 @@ class HebrewDate(_Object):
             raise _calendar_error_from(*_read_error(_err))
         return HebrewDate._adopt(_required(_ret))
 
-    def holidays(self, region: Region) -> List[Holiday]:
+    def special_days(self, region: Region) -> List[SpecialDay]:
         """The holidays, fasts and other marked days on this day."""
         _err = _ErrorStruct()
         _out_len = ctypes.c_size_t()
         _self_p = self._acquire()
         try:
-            _ret = _c_calendar_HebrewDate_holidays(_self_p, region, ctypes.byref(_out_len), ctypes.byref(_err))
+            _ret = _c_calendar_HebrewDate_special_days(_self_p, region, ctypes.byref(_out_len), ctypes.byref(_err))
         finally:
             self._release()
         if _err.code:
             raise _trap_from(*_read_error(_err))
-        return _decode(_take_bytes(_ret, _out_len.value), _read_list_Holiday)
+        return _decode(_take_bytes(_ret, _out_len.value), _read_list_SpecialDay)
 
     def is_assur_bemelacha(self, region: Region) -> bool:
         """Whether melacha is forbidden: Shabbos or Yom Tov."""
@@ -2200,15 +2199,15 @@ def rosh_hashana(year: int) -> HebrewDate:
     return HebrewDate._adopt(_required(_ret))
 
 
-_c_calendar_holiday_name = _bind("kosherz_calendar_holiday_name", ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(_ErrorStruct))
+_c_calendar_special_day_name = _bind("kosherz_calendar_special_day_name", ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(_ErrorStruct))
 
 
-def holiday_name(holiday: Holiday) -> str:
-    """The holiday's English name, for example "Chanukah".
+def special_day_name(special_day: SpecialDay) -> str:
+    """The day's English name, for example "Chanukah".
 
     # Errors
 
-    `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     outside 1 to 49.
 
     Raises
@@ -2216,26 +2215,26 @@ def holiday_name(holiday: Holiday) -> str:
     CalendarError
         If the call reports one of the domain's error codes.
     """
-    _holiday_w = _Writer()
-    _write_Holiday(_holiday_w, holiday)
+    _special_day_w = _Writer()
+    _write_SpecialDay(_special_day_w, special_day)
     _err = _ErrorStruct()
     _out_len = ctypes.c_size_t()
-    _holiday_b = _holiday_w.finish()
-    _ret = _c_calendar_holiday_name(_holiday_b, len(_holiday_b), ctypes.byref(_out_len), ctypes.byref(_err))
+    _special_day_b = _special_day_w.finish()
+    _ret = _c_calendar_special_day_name(_special_day_b, len(_special_day_b), ctypes.byref(_out_len), ctypes.byref(_err))
     if _err.code:
         raise _calendar_error_from(*_read_error(_err))
     return _take_str(_ret, _out_len.value)
 
 
-_c_calendar_holiday_hebrew = _bind("kosherz_calendar_holiday_hebrew", ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(_ErrorStruct))
+_c_calendar_special_day_hebrew = _bind("kosherz_calendar_special_day_hebrew", ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(_ErrorStruct))
 
 
-def holiday_hebrew(holiday: Holiday) -> str:
-    """The holiday's Hebrew name.
+def special_day_hebrew(special_day: SpecialDay) -> str:
+    """The day's Hebrew name.
 
     # Errors
 
-    `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     outside 1 to 49.
 
     Raises
@@ -2243,26 +2242,26 @@ def holiday_hebrew(holiday: Holiday) -> str:
     CalendarError
         If the call reports one of the domain's error codes.
     """
-    _holiday_w = _Writer()
-    _write_Holiday(_holiday_w, holiday)
+    _special_day_w = _Writer()
+    _write_SpecialDay(_special_day_w, special_day)
     _err = _ErrorStruct()
     _out_len = ctypes.c_size_t()
-    _holiday_b = _holiday_w.finish()
-    _ret = _c_calendar_holiday_hebrew(_holiday_b, len(_holiday_b), ctypes.byref(_out_len), ctypes.byref(_err))
+    _special_day_b = _special_day_w.finish()
+    _ret = _c_calendar_special_day_hebrew(_special_day_b, len(_special_day_b), ctypes.byref(_out_len), ctypes.byref(_err))
     if _err.code:
         raise _calendar_error_from(*_read_error(_err))
     return _take_str(_ret, _out_len.value)
 
 
-_c_calendar_holiday_is_assur_bemelacha = _bind("kosherz_calendar_holiday_is_assur_bemelacha", ctypes.c_bool, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(_ErrorStruct))
+_c_calendar_special_day_is_assur_bemelacha = _bind("kosherz_calendar_special_day_is_assur_bemelacha", ctypes.c_bool, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(_ErrorStruct))
 
 
-def holiday_is_assur_bemelacha(holiday: Holiday) -> bool:
+def special_day_is_assur_bemelacha(special_day: SpecialDay) -> bool:
     """Whether melacha is forbidden on the holiday.
 
     # Errors
 
-    `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     outside 1 to 49.
 
     Raises
@@ -2270,25 +2269,25 @@ def holiday_is_assur_bemelacha(holiday: Holiday) -> bool:
     CalendarError
         If the call reports one of the domain's error codes.
     """
-    _holiday_w = _Writer()
-    _write_Holiday(_holiday_w, holiday)
+    _special_day_w = _Writer()
+    _write_SpecialDay(_special_day_w, special_day)
     _err = _ErrorStruct()
-    _holiday_b = _holiday_w.finish()
-    _ret: bool = _c_calendar_holiday_is_assur_bemelacha(_holiday_b, len(_holiday_b), ctypes.byref(_err))
+    _special_day_b = _special_day_w.finish()
+    _ret: bool = _c_calendar_special_day_is_assur_bemelacha(_special_day_b, len(_special_day_b), ctypes.byref(_err))
     if _err.code:
         raise _calendar_error_from(*_read_error(_err))
     return _ret
 
 
-_c_calendar_holiday_is_modern = _bind("kosherz_calendar_holiday_is_modern", ctypes.c_bool, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(_ErrorStruct))
+_c_calendar_special_day_is_modern = _bind("kosherz_calendar_special_day_is_modern", ctypes.c_bool, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(_ErrorStruct))
 
 
-def holiday_is_modern(holiday: Holiday) -> bool:
+def special_day_is_modern(special_day: SpecialDay) -> bool:
     """Whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
 
     # Errors
 
-    `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     outside 1 to 49.
 
     Raises
@@ -2296,25 +2295,25 @@ def holiday_is_modern(holiday: Holiday) -> bool:
     CalendarError
         If the call reports one of the domain's error codes.
     """
-    _holiday_w = _Writer()
-    _write_Holiday(_holiday_w, holiday)
+    _special_day_w = _Writer()
+    _write_SpecialDay(_special_day_w, special_day)
     _err = _ErrorStruct()
-    _holiday_b = _holiday_w.finish()
-    _ret: bool = _c_calendar_holiday_is_modern(_holiday_b, len(_holiday_b), ctypes.byref(_err))
+    _special_day_b = _special_day_w.finish()
+    _ret: bool = _c_calendar_special_day_is_modern(_special_day_b, len(_special_day_b), ctypes.byref(_err))
     if _err.code:
         raise _calendar_error_from(*_read_error(_err))
     return _ret
 
 
-_c_calendar_holiday_is_fast_day = _bind("kosherz_calendar_holiday_is_fast_day", ctypes.c_bool, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(_ErrorStruct))
+_c_calendar_special_day_is_fast_day = _bind("kosherz_calendar_special_day_is_fast_day", ctypes.c_bool, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(_ErrorStruct))
 
 
-def holiday_is_fast_day(holiday: Holiday) -> bool:
+def special_day_is_fast_day(special_day: SpecialDay) -> bool:
     """Whether the holiday is a fast day.
 
     # Errors
 
-    `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+    `CalendarError::InvalidSpecialDay` for a day of Chanukah outside 1 to 8, or of the Omer
     outside 1 to 49.
 
     Raises
@@ -2322,11 +2321,11 @@ def holiday_is_fast_day(holiday: Holiday) -> bool:
     CalendarError
         If the call reports one of the domain's error codes.
     """
-    _holiday_w = _Writer()
-    _write_Holiday(_holiday_w, holiday)
+    _special_day_w = _Writer()
+    _write_SpecialDay(_special_day_w, special_day)
     _err = _ErrorStruct()
-    _holiday_b = _holiday_w.finish()
-    _ret: bool = _c_calendar_holiday_is_fast_day(_holiday_b, len(_holiday_b), ctypes.byref(_err))
+    _special_day_b = _special_day_w.finish()
+    _ret: bool = _c_calendar_special_day_is_fast_day(_special_day_b, len(_special_day_b), ctypes.byref(_err))
     if _err.code:
         raise _calendar_error_from(*_read_error(_err))
     return _ret
@@ -4139,20 +4138,6 @@ def zman_java_name(zman: Zman) -> str:
     return _take_str(_ret, _out_len.value)
 
 
-_c_times_zman_from_java_name = _bind("kosherz_times_zman_from_java_name", ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(_ErrorStruct))
-
-
-def zman_from_java_name(java_name: str) -> Optional[Zman]:
-    """The zman named by its KosherJava method, for example "getSofZmanShmaGRA"."""
-    _java_name_b = java_name.encode("utf-8")
-    _err = _ErrorStruct()
-    _out_len = ctypes.c_size_t()
-    _ret = _c_times_zman_from_java_name(_java_name_b, len(_java_name_b), ctypes.byref(_out_len), ctypes.byref(_err))
-    if _err.code:
-        raise _trap_from(*_read_error(_err))
-    return _decode(_take_bytes(_ret, _out_len.value), _read_opt_Zman)
-
-
 _c_times_zman_category = _bind("kosherz_times_zman_category", ctypes.c_int32, ctypes.c_int32, ctypes.POINTER(_ErrorStruct))
 
 
@@ -4626,14 +4611,14 @@ def _read_opt_GregorianDate(_r: _Reader) -> Optional[GregorianDate]:
     return _read_GregorianDate(_r) if _r.read_flag() else None
 
 
-def _write_list_Holiday(_w: _Writer, value: List[Holiday]) -> None:
+def _write_list_SpecialDay(_w: _Writer, value: List[SpecialDay]) -> None:
     _w.write_count(len(value))
     for item in value:
-        _write_Holiday(_w, item)
+        _write_SpecialDay(_w, item)
 
 
-def _read_list_Holiday(_r: _Reader) -> List[Holiday]:
-    return [_read_Holiday(_r) for _ in range(_r.read_count())]
+def _read_list_SpecialDay(_r: _Reader) -> List[SpecialDay]:
+    return [_read_SpecialDay(_r) for _ in range(_r.read_count())]
 
 
 def _write_opt_Parsha(_w: _Writer, value: Optional[Parsha]) -> None:
@@ -4706,16 +4691,6 @@ def _read_list_Zman(_r: _Reader) -> List[Zman]:
     return [_r.read_enum(Zman) for _ in range(_r.read_count())]
 
 
-def _write_opt_Zman(_w: _Writer, value: Optional[Zman]) -> None:
-    _w.write_flag(value is not None)
-    if value is not None:
-        _w.write_i32(value)
-
-
-def _read_opt_Zman(_r: _Reader) -> Optional[Zman]:
-    return _r.read_enum(Zman) if _r.read_flag() else None
-
-
 def _write_list_ZmanTime(_w: _Writer, value: List[ZmanTime]) -> None:
     _w.write_count(len(value))
     for item in value:
@@ -4751,66 +4726,66 @@ __all__ = [
     "InternalError",
     "CalendarError",
     "InvalidDate",
-    "InvalidHoliday",
+    "InvalidSpecialDay",
     "Region",
     "HebrewMonth",
     "Weekday",
     "YearLength",
     "Parsha",
-    "Holiday",
-    "HolidayErevPesach",
-    "HolidayPesach",
-    "HolidayCholHamoedPesach",
-    "HolidayPesachSheni",
-    "HolidayErevShavuos",
-    "HolidayShavuos",
-    "HolidaySeventeenthOfTammuz",
-    "HolidayTishahBav",
-    "HolidayTuBav",
-    "HolidayErevRoshHashana",
-    "HolidayRoshHashana",
-    "HolidayFastOfGedalyah",
-    "HolidayErevYomKippur",
-    "HolidayYomKippur",
-    "HolidayErevSuccos",
-    "HolidaySuccos",
-    "HolidayCholHamoedSuccos",
-    "HolidayHoshanaRabbah",
-    "HolidaySheminiAtzeres",
-    "HolidaySimchasTorah",
-    "HolidayChanukah",
-    "HolidayTenthOfTeves",
-    "HolidayTuBshvat",
-    "HolidayFastOfEsther",
-    "HolidayPurim",
-    "HolidayShushanPurim",
-    "HolidayPurimKatan",
-    "HolidayRoshChodesh",
-    "HolidayYomHaShoah",
-    "HolidayYomHazikaron",
-    "HolidayYomHaatzmaut",
-    "HolidayYomYerushalayim",
-    "HolidayLagBomer",
-    "HolidayShushanPurimKatan",
-    "HolidayIsruChag",
-    "HolidayYomKippurKatan",
-    "HolidayBehab",
-    "HolidayFastOfTheFirstborn",
-    "HolidayCountOfTheOmer",
-    "HolidayBirchasHachamah",
-    "HolidayMacharHachodesh",
-    "HolidayShabbosMevarchim",
+    "SpecialDay",
+    "SpecialDayErevPesach",
+    "SpecialDayPesach",
+    "SpecialDayCholHamoedPesach",
+    "SpecialDayPesachSheni",
+    "SpecialDayErevShavuos",
+    "SpecialDayShavuos",
+    "SpecialDaySeventeenthOfTammuz",
+    "SpecialDayTishahBav",
+    "SpecialDayTuBav",
+    "SpecialDayErevRoshHashana",
+    "SpecialDayRoshHashana",
+    "SpecialDayFastOfGedalyah",
+    "SpecialDayErevYomKippur",
+    "SpecialDayYomKippur",
+    "SpecialDayErevSuccos",
+    "SpecialDaySuccos",
+    "SpecialDayCholHamoedSuccos",
+    "SpecialDayHoshanaRabbah",
+    "SpecialDaySheminiAtzeres",
+    "SpecialDaySimchasTorah",
+    "SpecialDayChanukah",
+    "SpecialDayTenthOfTeves",
+    "SpecialDayTuBshvat",
+    "SpecialDayFastOfEsther",
+    "SpecialDayPurim",
+    "SpecialDayShushanPurim",
+    "SpecialDayPurimKatan",
+    "SpecialDayRoshChodesh",
+    "SpecialDayYomHaShoah",
+    "SpecialDayYomHazikaron",
+    "SpecialDayYomHaatzmaut",
+    "SpecialDayYomYerushalayim",
+    "SpecialDayLagBomer",
+    "SpecialDayShushanPurimKatan",
+    "SpecialDayIsruChag",
+    "SpecialDayYomKippurKatan",
+    "SpecialDayBehab",
+    "SpecialDayFastOfTheFirstborn",
+    "SpecialDayCountOfTheOmer",
+    "SpecialDayBirchasHachamah",
+    "SpecialDayMacharHachodesh",
+    "SpecialDayShabbosMevarchim",
     "GregorianDate",
     "YearInfo",
     "HebrewDate",
     "year_info",
     "days_in_month",
     "rosh_hashana",
-    "holiday_name",
-    "holiday_hebrew",
-    "holiday_is_assur_bemelacha",
-    "holiday_is_modern",
-    "holiday_is_fast_day",
+    "special_day_name",
+    "special_day_hebrew",
+    "special_day_is_assur_bemelacha",
+    "special_day_is_modern",
+    "special_day_is_fast_day",
     "parsha_name",
     "parsha_hebrew",
     "month_name",
@@ -4868,7 +4843,6 @@ __all__ = [
     "all_zmanim",
     "zman_name",
     "zman_java_name",
-    "zman_from_java_name",
     "zman_category",
     "zman_is_deprecated",
     "zman_description",

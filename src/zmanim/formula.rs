@@ -12,7 +12,7 @@ use jiff::{SignedDuration as Duration, Timestamp, ToSpan, tz::TimeZone};
 
 use crate::{
     TimeZoneLike,
-    calendar::{HebrewDate, Holiday, Region, molad::months_molad},
+    calendar::{HebrewDate, Region, SpecialDay, molad::months_molad},
     zmanim::{Zmanim, ZmanimError, minus, plus},
 };
 
@@ -127,6 +127,15 @@ fn is_on_date(time: Timestamp, date: jiff::civil::Date, timezone: &impl TimeZone
     };
     let tomorrow = date.tomorrow().map_err(|_| ZmanimError::Internal)?;
     Ok(time >= midnight(date)? && time <= midnight(tomorrow)?)
+}
+
+/// The molad of `date`'s month. There is none before Hebrew year 1, so the Kiddush Levana times
+/// don't apply there.
+fn molad_of(date: &icu_calendar::Date<icu_calendar::cal::Hebrew>) -> Result<Timestamp, ZmanimError> {
+    if date.year().extended_year() < 1 {
+        return Err(ZmanimError::NotApplicable);
+    }
+    months_molad(date).ok_or(ZmanimError::Internal)
 }
 
 impl Formula {
@@ -351,8 +360,8 @@ impl Formula {
             }
             Formula::SofZmanBiurChametz(event1, event2, synchronous) => {
                 if !HebrewDate::from(calculator.date)
-                    .holidays(Region::Diaspora)
-                    .any(|h| h == Holiday::ErevPesach)
+                    .special_days(Region::Diaspora)
+                    .any(|h| h == SpecialDay::ErevPesach)
                 {
                     return Err(ZmanimError::NotApplicable);
                 }
@@ -369,8 +378,8 @@ impl Formula {
             }
             Formula::SofZmanAchilasChametz(event1, event2, synchronous) => {
                 if !HebrewDate::from(calculator.date)
-                    .holidays(Region::Diaspora)
-                    .any(|h| h == Holiday::ErevPesach)
+                    .special_days(Region::Diaspora)
+                    .any(|h| h == SpecialDay::ErevPesach)
                 {
                     return Err(ZmanimError::NotApplicable);
                 }
@@ -399,10 +408,7 @@ impl Formula {
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 17 {
                     return Err(ZmanimError::NotApplicable);
                 }
-                let molad = plus(
-                    months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
-                    Duration::from_hours(24 * 15),
-                )?;
+                let molad = plus(molad_of(&hebrew)?, Duration::from_hours(24 * 15))?;
                 if is_on_date(molad, calculator.date, tz)? {
                     return Ok(molad);
                 }
@@ -416,7 +422,7 @@ impl Formula {
                     return Err(ZmanimError::NotApplicable);
                 }
                 let molad = plus(
-                    months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
+                    molad_of(&hebrew)?,
                     Duration::from_hours(24 * 14 + 18)
                         + Duration::from_mins(22)
                         + Duration::from_secs(1)
@@ -434,10 +440,7 @@ impl Formula {
                 if hebrew.day_of_month().0 > 5 && hebrew.day_of_month().0 < 30 {
                     return Err(ZmanimError::NotApplicable);
                 }
-                let molad = plus(
-                    months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
-                    Duration::from_hours(72),
-                )?;
+                let molad = plus(molad_of(&hebrew)?, Duration::from_hours(72))?;
 
                 if is_on_date(molad, calculator.date, tz)? {
                     return Ok(molad);
@@ -450,10 +453,7 @@ impl Formula {
                     let new = hebrew
                         .try_added_with_options(DateDuration::for_months(1), add_option)
                         .map_err(|_| ZmanimError::Internal)?;
-                    let molad = plus(
-                        months_molad(&new).ok_or(ZmanimError::Internal)?,
-                        Duration::from_hours(72),
-                    )?;
+                    let molad = plus(molad_of(&new)?, Duration::from_hours(72))?;
                     if is_on_date(molad, calculator.date, tz)? {
                         return Ok(molad);
                     }
@@ -467,10 +467,7 @@ impl Formula {
                 if hebrew.day_of_month().0 < 4 || hebrew.day_of_month().0 > 9 {
                     return Err(ZmanimError::NotApplicable);
                 }
-                let molad = plus(
-                    months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
-                    Duration::from_hours(168),
-                )?;
+                let molad = plus(molad_of(&hebrew)?, Duration::from_hours(168))?;
                 if is_on_date(molad, calculator.date, tz)? {
                     return Ok(molad);
                 }

@@ -11,6 +11,7 @@ use super::Config;
 /// Use it to group or filter [`Zman::ALL`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[non_exhaustive]
 pub enum Category {
     /// Start and end of astronomical, civil and nautical twilight.
     Twilight,
@@ -86,6 +87,7 @@ macro_rules! zman_catalog {
         /// assert_eq!(Zman::SofZmanShmaGra.java_name(), "getSofZmanShmaGRA");
         /// ```
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+        #[non_exhaustive]
         pub enum Zman {
             $(
                 $(#[doc = $doc])*
@@ -163,9 +165,9 @@ use super::Zman;
 use jiff::SignedDuration;
 
 impl Zman {
-    /// The zman KosherJava calculates with the method `name`, for example
-    /// `Zman::from_java_name("getSofZmanShmaGRA")`.
-    pub fn from_java_name(name: &str) -> Option<Zman> {
+    /// The zman KosherJava calculates with the method `name`, for example "getSofZmanShmaGRA".
+    #[cfg(test)]
+    pub(crate) fn from_java_name(name: &str) -> Option<Zman> {
         Zman::ALL.into_iter().find(|zman| zman.java_name() == name)
     }
 

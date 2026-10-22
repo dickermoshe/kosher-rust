@@ -26,8 +26,8 @@ use kosher_rust::{HebrewDate, Region};
 let day = HebrewDate::from(date(2024, 4, 23));
 assert_eq!(day.to_string(), "15 Nisan 5784");
 
-for holiday in day.holidays(Region::Diaspora) {
-    println!("{holiday} ({})", holiday.hebrew());   // Pesach (פסח)
+for special_day in day.special_days(Region::Diaspora) {
+    println!("{special_day} ({})", special_day.hebrew());   // Pesach (פסח)
 }
 assert!(day.is_assur_bemelacha(Region::Diaspora));
 assert!(day.year().is_leap());
@@ -141,10 +141,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 | `YomiCalculator.getDafYomiBavli(cal)` | `DafYomiBavli.on(date)` |
 | `YerushalmiYomiCalculator.getDafYomiYerushalmi(cal)` | `DafYomiYerushalmi.on(date)` |
 
-Every zman getter is a `Zman` variant with the same name minus `get`. Look one up by its
-KosherJava name with `Zman::from_java_name("getSofZmanShmaGRA")`.
+Every zman getter is a `Zman` variant with the same name minus `get`, except the four listed
+below.  
 
-Not ported yet: `HebrewDateFormatter`, `ZmanimFormatter`, `TefilaRules` and the *tekufos*.
+Not ported yet:
+
+- `HebrewDateFormatter`, `ZmanimFormatter`, `TefilaRules` and the *tekufos*.
+- Four zmanim, which are `getZmanMolad`, `getPolarPlagHaminchaBenIshChai`,
+  `getPolarStartOfDayTeshuvosVehanhagos` and `getPolarPlagHaminchaTeshuvosVehanhagos`.
+
 Open an issue if you need one.
 
 ## Features
