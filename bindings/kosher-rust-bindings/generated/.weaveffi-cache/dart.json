@@ -1,7 +1,7 @@
 {
   "files": [
     "dart/README.md",
-    "dart/lib/kosher_rust_bindings.dart",
+    "dart/lib/kosherz.dart",
     "dart/pubspec.yaml"
   ]
 }

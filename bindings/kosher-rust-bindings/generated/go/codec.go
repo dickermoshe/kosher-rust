@@ -2,10 +2,10 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-package kosher_rust_bindings
+package kosherz
 
 /*
-#include "kosher_rust_bindings.h"
+#include "kosherz.h"
 */
 import "C"
 
@@ -177,7 +177,7 @@ func (w *wvWriter) writeF64(v float64) {
 
 func (w *wvWriter) writeLen(n int) {
 	if n < 0 || uint64(n) > math.MaxUint32 {
-		panic("kosher_rust_bindings: value-buffer length exceeds u32 range")
+		panic("kosherz: value-buffer length exceeds u32 range")
 	}
 	w.writeU32(uint32(n))
 }
@@ -201,7 +201,7 @@ type wvReader struct {
 }
 
 func wvMalformed(context string) {
-	panic("kosher_rust_bindings: malformed value buffer: " + context)
+	panic("kosherz: malformed value buffer: " + context)
 }
 
 func (r *wvReader) take(n int, context string) []byte {

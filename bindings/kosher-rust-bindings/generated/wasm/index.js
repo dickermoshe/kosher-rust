@@ -26,12 +26,12 @@ import {
   $impl,
   $ret,
   $verify,
-  KosherRustBindingsError as $Error,
+  KosherzError as $Error,
 } from './runtime.js';
-export { KosherRustBindingsError, CancelledError } from './runtime.js';
+export { KosherzError, CancelledError } from './runtime.js';
 import { $loadWasm, $unloaded } from './linear.js';
 
-let $raw = $unloaded('kosher-rust-bindings');
+let $raw = $unloaded('kosherz');
 // Handles are linear-memory addresses; object tokens are u64s.
 const $token = Number;
 let $loading = null;
@@ -40,131 +40,135 @@ let $loading = null;
 // module, as [id, hash, path]: the library's contract tables must hold
 // each one (see $verify).
 const $contract = [
-  ['kosher', [
-    [0x01718c61982b1186n, 0xf4f23e6586bd1dd7n, 'kosher.calendar.HebrewDate'],
-    [0x02e9ea1e074d9616n, 0xf9b3a1fb63fa80adn, 'kosher.calendar.HebrewDate.new'],
-    [0x03882ac679d96689n, 0xcddd8b18c602be76n, 'kosher.myzmanim.MyZman'],
-    [0x04f3f14d3ef83cebn, 0x0577fa34d1dea8c3n, 'kosher.zmanim.default_config'],
-    [0x0724ad3f4488a4d6n, 0x54411bdda9d3b13bn, 'kosher.calendar.HebrewDate.month'],
-    [0x094083ae8fe1abb7n, 0xc3e1903a4dc8359dn, 'kosher.calendar.HebrewDate.is_aseres_yemei_teshuva'],
-    [0x0b156d1de3432ebbn, 0xdf4697e13848d687n, 'kosher.zmanim.zman_from_java_name'],
-    [0x0c01dba1f7f4f711n, 0x2bf1569214921669n, 'kosher.calendar.month_hebrew'],
-    [0x0fbb1be0dca80b07n, 0x174890db5e5166c8n, 'kosher.zmanim.TimeZoneOffset'],
-    [0x1079a40f22149b4fn, 0xffb3d691737a4f38n, 'kosher.zmanim.Category'],
-    [0x138f4214c0e77bcfn, 0xc3cb9f9d3b5b28ban, 'kosher.myzmanim.MyZmanim.date'],
-    [0x153826166a12ca36n, 0x6e401597e28209a9n, 'kosher.limudim.MishnaPair'],
-    [0x2243ea36986d7b66n, 0x35e622a32a88ef57n, 'kosher.limudim.mishna_yomis'],
-    [0x2313acabb3163fabn, 0xcc6eb9ea8c42ca79n, 'kosher.myzmanim.MyZmanim.new'],
-    [0x24cdc086cf36be51n, 0x399eab22141dffd3n, 'kosher.GregorianDate'],
-    [0x2668512b1aa64aabn, 0x3278f3a62bb6e469n, 'kosher.myzmanim.dawn_72_degrees'],
-    [0x2ad783776a9172c8n, 0x4a23e822039987a7n, 'kosher.zmanim.zman_description'],
-    [0x30806b553ee3151bn, 0x6d8fbc67948278bcn, 'kosher.calendar.holiday_name'],
-    [0x34e5c6abbe2615d9n, 0x32c85d18778b0bb4n, 'kosher.calendar.HebrewDate.equals'],
-    [0x36dd321b76c0ed69n, 0x684e92fa36717939n, 'kosher.calendar.month_name'],
-    [0x37448571e33eb4c8n, 0xc5f954c475f4dc9dn, 'kosher.zmanim.zman_java_name'],
-    [0x385ec0e5c6b6cbe1n, 0xf70eea6f6621717fn, 'kosher.validate_location'],
-    [0x394b7220ed1cfcfcn, 0xdec9155329278f29n, 'kosher.myzmanim.my_zman_name'],
-    [0x3961ee1e26dcc2c2n, 0x19e0d2b3ff9d26fen, 'kosher.calendar.HebrewDate.day'],
-    [0x3ab97e588077d102n, 0x6c9e0901963a2dfcn, 'kosher.limudim.tractate_hebrew'],
-    [0x3c39234035bb9609n, 0xe44d7e786ec0b8a3n, 'kosher.zmanim.ZmanFailure'],
-    [0x3d59747696651911n, 0xbea68784cf687a1an, 'kosher.zmanim.Zmanim.get'],
-    [0x423ec30f385c7ebdn, 0x2d505394972243a9n, 'kosher.calendar.HebrewDate.holidays'],
-    [0x45c5a852c65a0ffdn, 0x1b7e37005bd2f8e9n, 'kosher.limudim.Daf'],
-    [0x4e4b62abcb8a2d5en, 0x975c3a96549104d2n, 'kosher.myzmanim.MyZmanim.all'],
-    [0x4e661ecc2b8ca32cn, 0xda6045b56b1c2c6en, 'kosher.calendar.holiday_is_assur_bemelacha'],
-    [0x5172659a7426e2c3n, 0xc3cb9f9d3b5b28ban, 'kosher.zmanim.Zmanim.date'],
-    [0x523623f570203876n, 0x57c83a0f8bc36c6cn, 'kosher.limudim.Mishna'],
-    [0x526a26b03028a9dan, 0xd86a18c3b722f6c7n, 'kosher.limudim.tehillim_monthly'],
-    [0x5354814de360e8f7n, 0x74c7180edff5c022n, 'kosher.calendar.HebrewDate.from_gregorian'],
-    [0x5592c98a3cb09e5dn, 0xe1e8d4dad467e3e7n, 'kosher.limudim.Amud'],
-    [0x55993c04bd9835den, 0x21bf463baf36e8aen, 'kosher.limudim.daf_hashavua_bavli'],
-    [0x5991196a080a26dcn, 0x63856359341062een, 'kosher.myzmanim.MyZmanim.location'],
-    [0x5997bfd0eb719c13n, 0xfa44bbb1fab132e5n, 'kosher.sea_level_location'],
-    [0x5a9c64882b7b2804n, 0x9328a81ac256b477n, 'kosher.calendar.parsha_hebrew'],
-    [0x5aee55dd28f11b30n, 0x63856359341062een, 'kosher.zmanim.Zmanim.location'],
-    [0x5cdab24b47a3224dn, 0x96b30eb7f85eaf21n, 'kosher.limudim.daf_yomi_bavli'],
-    [0x6096beabd62d7955n, 0x93dc654d560a63b8n, 'kosher.myzmanim.MyZmanim.get'],
-    [0x61310307963101d6n, 0x93ef9500cb5f1cfcn, 'kosher.zmanim.Zmanim.sunrise_offset_by_degrees'],
-    [0x62d21d4da295991fn, 0x549f4e736961b812n, 'kosher.zmanim.calculator_name'],
-    [0x66735e59c1eb8811n, 0xf35981f09fb986dfn, 'kosher.calendar.HebrewDate.year'],
-    [0x698e779f5d09291fn, 0x71127b971df5975an, 'kosher.limudim.PirkeiAvosUnit'],
-    [0x6b2789499d0e4dacn, 0xdc1addb4a7ab46efn, 'kosher.calendar.parsha_name'],
-    [0x7050bfa115351067n, 0x11babf7c30a11935n, 'kosher.myzmanim.dip_degrees_per_root_meter'],
-    [0x70610003fc81f35an, 0x4d70455ac9baa1e4n, 'kosher.limudim.tractate_name'],
-    [0x70907076b3302b62n, 0x669e3d4d3e9d42ccn, 'kosher.zmanim.Zmanim.all'],
-    [0x740a5191148d4e6dn, 0x0486761191984fd0n, 'kosher.zmanim.Zman'],
-    [0x77e7388817ca6657n, 0xe3c7eb49f063a0cen, 'kosher.myzmanim.MyZmanim'],
-    [0x7902c024b0b550a2n, 0xd6c2f5c20a8b129dn, 'kosher.limudim.TehillimUnit'],
-    [0x81b92bcb06f03438n, 0x6c389ed6ad08dbe3n, 'kosher.calendar.rosh_hashana'],
-    [0x8377f31b2f2926d1n, 0x5962ffa89080c41bn, 'kosher.zmanim.shaah_zmanis'],
-    [0x853f786f228ae745n, 0x6614e227c469c232n, 'kosher.zmanim.Zmanim.config'],
-    [0x86cd6b9d8b9124adn, 0xe37c3b01bade2393n, 'kosher.calendar.year_info'],
-    [0x87fd7cca8a5ad41bn, 0x52972cadc08c13efn, 'kosher.zmanim.all_zmanim'],
-    [0x88ce069eb9d759f1n, 0x2b82d4d65ec59dd7n, 'kosher.myzmanim.default_candle_lighting_minutes'],
-    [0x8cfae276c3f8b0c7n, 0x99d014ada9906437n, 'kosher.zmanim.Zmanim.new'],
-    [0x8dc9c19aaf9ab29dn, 0x03b0248b8cfa2de8n, 'kosher.calendar.days_in_month'],
-    [0x8f259528012c269fn, 0x0ddfa27385759174n, 'kosher.calendar.HebrewDate.add_days'],
-    [0x91c1ac3d327bcf7fn, 0xc7b188714edbf795n, 'kosher.calendar.HebrewDate.special_parsha'],
-    [0x94c44cc0a0a11679n, 0x8111a6d476ecf648n, 'kosher.calendar.Region'],
-    [0x955ac51b92c6da8en, 0x47b992630b03d56an, 'kosher.calendar.HebrewDate.weekday'],
-    [0x963e4b9032d6c193n, 0x2d4c4ce495502494n, 'kosher.zmanim.Zmanim'],
-    [0x9895af63ce3c6bd7n, 0x8a4e9ca163a6a190n, 'kosher.calendar.Holiday'],
-    [0x9928700767cf87cfn, 0x735499ab0a625d6dn, 'kosher.myzmanim.dawn_90_degrees'],
-    [0x992997612da78180n, 0x551064f95ab5110dn, 'kosher.myzmanim.MyZmanTime'],
-    [0x994cdaef2a1c855cn, 0x434883db6c285c4en, 'kosher.limudim.pirkei_avos'],
-    [0x99dcae3af7180a0dn, 0x914508f7681ccd43n, 'kosher.calendar.HebrewDate.next_parsha'],
-    [0x9f7c1ea6de2fe0acn, 0x7321133365af2acbn, 'kosher.calendar.YearInfo'],
-    [0xa08e9220643b8a14n, 0x4af5df9a96d3f535n, 'kosher.myzmanim.MyZmanim.proportional_hour_gra'],
-    [0xa39eb51297bc91f3n, 0xf13823120f5b4c46n, 'kosher.zmanim.Calculator'],
-    [0xa8a5a90069657051n, 0xff11e092dce92ed7n, 'kosher.limudim.Side'],
-    [0xad25d6c40cc7cf82n, 0x5736a479b626cd7dn, 'kosher.calendar.HebrewDate.to_gregorian'],
-    [0xadb380140cc3eeb1n, 0x4160e49b2189685bn, 'kosher.limudim.tehillim_display'],
-    [0xaec8ec9290788fd6n, 0x18c3086aa662d366n, 'kosher.limudim.amud_yomi_dirshu'],
-    [0xb24e9bddf1807e70n, 0xa82a63cd8b5c9bc8n, 'kosher.myzmanim.all_my_zmanim'],
-    [0xb579b9ecc406baf5n, 0x459375a830f8b5a0n, 'kosher.zmanim.zman_name'],
-    [0xb76c47656229eb96n, 0x689307845875e63en, 'kosher.zmanim.zman_is_deprecated'],
-    [0xb981b278e60920ean, 0x96aec4b485c90c92n, 'kosher.calendar.Parsha'],
-    [0xba3b126941948d6en, 0x4b1d4aaf11dfd132n, 'kosher.zmanim.zman_category'],
-    [0xc0ff05667de674f9n, 0x685412d4d80250ean, 'kosher.zmanim.Config'],
-    [0xc1053bbb382f0a8an, 0x1175c871bc023b86n, 'kosher.calendar.HebrewDate.day_of_year'],
-    [0xc3bd6e3e1dc59ed1n, 0x55884ddb65b50739n, 'kosher.calendar.HebrewDate.has_candle_lighting'],
-    [0xc8cc7c3ab9a25c72n, 0x497f2852a5cdb1f0n, 'kosher.calendar.holiday_is_fast_day'],
-    [0xcffb36e0ca0b9371n, 0x19a2809df98650c2n, 'kosher.limudim.pirkei_avos_display'],
-    [0xd071f45bb69ffd10n, 0x7110b3413cfd8e83n, 'kosher.Location'],
-    [0xd17988807ad73a17n, 0xf2a52228396d8635n, 'kosher.myzmanim.sea_level_refraction_arcminutes'],
-    [0xd3e595d5c721f7a9n, 0x62e66834b1549bbbn, 'kosher.KosherError'],
-    [0xd6e2bb7649059df2n, 0x4ba24826d4ea04e8n, 'kosher.calendar.holiday_is_modern'],
-    [0xd7bdd85ada6f743dn, 0x258faa23773bfcaen, 'kosher.myzmanim.MyZmanim.candle_lighting_minutes'],
-    [0xdac1e65044d04433n, 0x1c81765c98ab54f9n, 'kosher.calendar.HebrewDate.parsha'],
-    [0xe5a8bf04942592acn, 0xf8a4981ca376ff28n, 'kosher.calendar.HebrewDate.is_assur_bemelacha'],
-    [0xe6441fe0bbbb6a29n, 0x263b2a60d4b349b3n, 'kosher.calendar.Weekday'],
-    [0xe8f7e393f719034cn, 0x017ce9984014d3c1n, 'kosher.zmanim.ZmanTime'],
-    [0xe9f5fcea0d967345n, 0x4c30c7a90dcabaa5n, 'kosher.zmanim.Zmanim.sunset_offset_by_degrees'],
-    [0xea13f549891c3477n, 0xc29b76894e14326cn, 'kosher.calendar.HebrewDate.compare'],
-    [0xf1378230702a0fecn, 0xb882de90a2c3493fn, 'kosher.calendar.YearLength'],
-    [0xf25c4b987aa7c2c6n, 0x839d21df44603348n, 'kosher.limudim.daf_yomi_yerushalmi'],
-    [0xf329781ab14b80d4n, 0x4d5e82347ae7a3fcn, 'kosher.calendar.HebrewMonth'],
-    [0xf4b7693f39c89b41n, 0x96615bd3eb7f1761n, 'kosher.calendar.HebrewDate.molad'],
-    [0xf5fec5bfb35600dbn, 0x4fdfe92954d63564n, 'kosher.calendar.holiday_hebrew'],
-    [0xf7a6a502dfd1a4e4n, 0xf5d8629c4bfb2f06n, 'kosher.limudim.Tractate'],
-    [0xfda0c61f32016586n, 0xc7f3965b813050f5n, 'kosher.calendar.HebrewDate.display'],
+  ['calendar', [
+    [0x0076e887e475ab9fn, 0x96615bd3eb7f1761n, 'calendar.HebrewDate.molad'],
+    [0x01344feb6b733690n, 0x47b992630b03d56an, 'calendar.HebrewDate.weekday'],
+    [0x12decead9d8a44cfn, 0x4b1b3a695325cfcan, 'calendar.limudim.LimudimError'],
+    [0x190ecd13c0fccffan, 0x35e622a32a88ef57n, 'calendar.limudim.mishna_yomis'],
+    [0x1c33df579fac36d8n, 0x1175c871bc023b86n, 'calendar.HebrewDate.day_of_year'],
+    [0x235fd1db8b7dd5f5n, 0x399eab22141dffd3n, 'calendar.GregorianDate'],
+    [0x2b066dc65c460024n, 0xf4f23e6586bd1dd7n, 'calendar.HebrewDate'],
+    [0x2c8e60589f58d792n, 0x57c83a0f8bc36c6cn, 'calendar.limudim.Mishna'],
+    [0x2da09ea1403b727en, 0x4d5e82347ae7a3fcn, 'calendar.HebrewMonth'],
+    [0x2e1645ba38a77559n, 0x1c81765c98ab54f9n, 'calendar.HebrewDate.parsha'],
+    [0x2e561d4c25bf877dn, 0x47ff51d038dbe0d8n, 'calendar.limudim.tehillim_display'],
+    [0x3a2980b734ba8883n, 0x2d505394972243a9n, 'calendar.HebrewDate.holidays'],
+    [0x3a3316910057484en, 0xd86a18c3b722f6c7n, 'calendar.limudim.tehillim_monthly'],
+    [0x3c8950ed1f7f370cn, 0x19e0d2b3ff9d26fen, 'calendar.HebrewDate.day'],
+    [0x422860078e596223n, 0x32c85d18778b0bb4n, 'calendar.HebrewDate.equals'],
+    [0x4288f1610e27c8a4n, 0x96aec4b485c90c92n, 'calendar.Parsha'],
+    [0x43844d8599f0b2aen, 0x4d70455ac9baa1e4n, 'calendar.limudim.tractate_name'],
+    [0x44447c5a4c5c2038n, 0x5736a479b626cd7dn, 'calendar.HebrewDate.to_gregorian'],
+    [0x4594cc91482239dan, 0x839d21df44603348n, 'calendar.limudim.daf_yomi_yerushalmi'],
+    [0x47b5dba468556c10n, 0x434883db6c285c4en, 'calendar.limudim.pirkei_avos'],
+    [0x4f321ae0eef0ee45n, 0x0ddfa27385759174n, 'calendar.HebrewDate.add_days'],
+    [0x53798234777e19ean, 0x6c389ed6ad08dbe3n, 'calendar.rosh_hashana'],
+    [0x58fc9af210a33bddn, 0xc3e1903a4dc8359dn, 'calendar.HebrewDate.is_aseres_yemei_teshuva'],
+    [0x5c2a6a6f333ead35n, 0x74c7180edff5c022n, 'calendar.HebrewDate.from_gregorian'],
+    [0x5d5d66098ee06c49n, 0x8a4e9ca163a6a190n, 'calendar.Holiday'],
+    [0x65535c1ad3d9f893n, 0x55884ddb65b50739n, 'calendar.HebrewDate.has_candle_lighting'],
+    [0x6a0735856dec8d1an, 0xdc1addb4a7ab46efn, 'calendar.parsha_name'],
+    [0x6d120a34fc12b94en, 0x2444827e369b819bn, 'calendar.holiday_is_assur_bemelacha'],
+    [0x734de195723c4becn, 0xc7f3965b813050f5n, 'calendar.HebrewDate.display'],
+    [0x753c68bed189444bn, 0x8111a6d476ecf648n, 'calendar.Region'],
+    [0x78416ddbbcc55dd6n, 0x6c9e0901963a2dfcn, 'calendar.limudim.tractate_hebrew'],
+    [0x7b66ec4056f4dcbcn, 0xe848ea2454d6e4c1n, 'calendar.holiday_is_fast_day'],
+    [0x7ed52a27f9477122n, 0x6e401597e28209a9n, 'calendar.limudim.MishnaPair'],
+    [0x82b460a35e9ba56an, 0x18c3086aa662d366n, 'calendar.limudim.amud_yomi_dirshu'],
+    [0x854dedb50653c50fn, 0x914508f7681ccd43n, 'calendar.HebrewDate.next_parsha'],
+    [0x8f180424826294a4n, 0xa976cce390a71369n, 'calendar.holiday_is_modern'],
+    [0x924fdf3d84514e8en, 0xd6c2f5c20a8b129dn, 'calendar.limudim.TehillimUnit'],
+    [0x93ceba93a2b10131n, 0xc7b188714edbf795n, 'calendar.HebrewDate.special_parsha'],
+    [0x94dc4cc8ea8c02c9n, 0x51105a7bb4b55bddn, 'calendar.holiday_name'],
+    [0x98cc81d52e65776bn, 0x2bf1569214921669n, 'calendar.month_hebrew'],
+    [0x9b48ba34fb52812dn, 0xff11e092dce92ed7n, 'calendar.limudim.Side'],
+    [0x9e20ba757aee97c2n, 0x9328a81ac256b477n, 'calendar.parsha_hebrew'],
+    [0xa1e3409cebf37881n, 0x1b7e37005bd2f8e9n, 'calendar.limudim.Daf'],
+    [0xa5864219850af272n, 0xf8a4981ca376ff28n, 'calendar.HebrewDate.is_assur_bemelacha'],
+    [0xaeb433ce589b7931n, 0xe1e8d4dad467e3e7n, 'calendar.limudim.Amud'],
+    [0xaf5dd6acc2e8ba71n, 0xa2fdd5f43f90f755n, 'calendar.holiday_hebrew'],
+    [0xbd8865ae2177f9ffn, 0x6bc5f7eea096d080n, 'calendar.year_info'],
+    [0xc3fd51b677226babn, 0x684e92fa36717939n, 'calendar.month_name'],
+    [0xc47f6755efcc97f2n, 0xb882de90a2c3493fn, 'calendar.YearLength'],
+    [0xc984acddaecd3a8bn, 0x71127b971df5975an, 'calendar.limudim.PirkeiAvosUnit'],
+    [0xd099b5b97c1dddb6n, 0x7321133365af2acbn, 'calendar.YearInfo'],
+    [0xd542917e9468e665n, 0xc29b76894e14326cn, 'calendar.HebrewDate.compare'],
+    [0xe055421dad70d98dn, 0xc2712588daaabbafn, 'calendar.limudim.pirkei_avos_display'],
+    [0xe5bd2ded003a830an, 0x21bf463baf36e8aen, 'calendar.limudim.daf_hashavua_bavli'],
+    [0xe5f7bcecee7a3148n, 0xf9b3a1fb63fa80adn, 'calendar.HebrewDate.new'],
+    [0xea80ab8c284067d9n, 0x96b30eb7f85eaf21n, 'calendar.limudim.daf_yomi_bavli'],
+    [0xeb41af932363bd25n, 0xc681430e19f4d7b1n, 'calendar.CalendarError'],
+    [0xeb6a6e150a6abbe0n, 0xf5d8629c4bfb2f06n, 'calendar.limudim.Tractate'],
+    [0xee029887d9af6ef8n, 0x54411bdda9d3b13bn, 'calendar.HebrewDate.month'],
+    [0xefe1cb89cb8314f3n, 0x03b0248b8cfa2de8n, 'calendar.days_in_month'],
+    [0xf56c124b8ec1c493n, 0xf35981f09fb986dfn, 'calendar.HebrewDate.year'],
+    [0xfb59656a30b3c76fn, 0x263b2a60d4b349b3n, 'calendar.Weekday'],
+  ]],
+  ['zmanim', [
+    [0x022d265126fcbd47n, 0xf70eea6f6621717fn, 'zmanim.validate_location'],
+    [0x02e0caa49b3a204bn, 0x5962ffa89080c41bn, 'zmanim.shaah_zmanis'],
+    [0x04493862e57a4cdfn, 0x258faa23773bfcaen, 'zmanim.myzmanim.MyZmanim.candle_lighting_minutes'],
+    [0x0709c5af4b818c01n, 0xf2a52228396d8635n, 'zmanim.myzmanim.sea_level_refraction_arcminutes'],
+    [0x10234c837e5331b1n, 0xcc6eb9ea8c42ca79n, 'zmanim.myzmanim.MyZmanim.new'],
+    [0x1d3f31835b116405n, 0x3278f3a62bb6e469n, 'zmanim.myzmanim.dawn_72_degrees'],
+    [0x1fd629eb299bc703n, 0xcddd8b18c602be76n, 'zmanim.myzmanim.MyZman'],
+    [0x2550c75ec58dae49n, 0xc3cb9f9d3b5b28ban, 'zmanim.Zmanim.date'],
+    [0x2791137b8945b8ddn, 0x9169cc1ef07d2488n, 'zmanim.ZmanimError'],
+    [0x27ff9dab340588fcn, 0x4b1d4aaf11dfd132n, 'zmanim.zman_category'],
+    [0x29795294927af42dn, 0xffb3d691737a4f38n, 'zmanim.Category'],
+    [0x30cabeb665248a1dn, 0xfa44bbb1fab132e5n, 'zmanim.sea_level_location'],
+    [0x334bc497c2e1b7f6n, 0xa82a63cd8b5c9bc8n, 'zmanim.myzmanim.all_my_zmanim'],
+    [0x406a9d72e9cc44d8n, 0x689307845875e63en, 'zmanim.zman_is_deprecated'],
+    [0x4118dd5a26e15851n, 0x549f4e736961b812n, 'zmanim.calculator_name'],
+    [0x484846a2e9ee0a81n, 0xdf4697e13848d687n, 'zmanim.zman_from_java_name'],
+    [0x484f114766abb5e2n, 0xc5f954c475f4dc9dn, 'zmanim.zman_java_name'],
+    [0x5f3ebb1c37c66ab9n, 0xc3cb9f9d3b5b28ban, 'zmanim.myzmanim.MyZmanim.date'],
+    [0x631f48e27eef2376n, 0x63856359341062een, 'zmanim.Zmanim.location'],
+    [0x65058d455e954e8en, 0x4a23e822039987a7n, 'zmanim.zman_description'],
+    [0x66df597381790f0bn, 0x4c30c7a90dcabaa5n, 'zmanim.Zmanim.sunset_offset_by_degrees'],
+    [0x6c14e7ba35220983n, 0x7d00a18dba45f065n, 'zmanim.ZmanFailure'],
+    [0x7b6a0d0953f70457n, 0x6614e227c469c232n, 'zmanim.Zmanim.config'],
+    [0x7bda2eefee3cd432n, 0x4af5df9a96d3f535n, 'zmanim.myzmanim.MyZmanim.proportional_hour_gra'],
+    [0x84cfd0af1981e364n, 0x93ef9500cb5f1cfcn, 'zmanim.Zmanim.sunrise_offset_by_degrees'],
+    [0x852e1ce68e6270fan, 0xdec9155329278f29n, 'zmanim.myzmanim.my_zman_name'],
+    [0x972d8aa47e75b0ean, 0x017ce9984014d3c1n, 'zmanim.ZmanTime'],
+    [0x988396c1a4000b66n, 0x63856359341062een, 'zmanim.myzmanim.MyZmanim.location'],
+    [0x9e23e59cc6d2b627n, 0xbea68784cf687a1an, 'zmanim.Zmanim.get'],
+    [0xa7022817cb0f3781n, 0x11babf7c30a11935n, 'zmanim.myzmanim.dip_degrees_per_root_meter'],
+    [0xa7e497ece825babfn, 0x459375a830f8b5a0n, 'zmanim.zman_name'],
+    [0xb0323d9cd1424d34n, 0x669e3d4d3e9d42ccn, 'zmanim.Zmanim.all'],
+    [0xb668f699c44a8b25n, 0x0577fa34d1dea8c3n, 'zmanim.default_config'],
+    [0xbc0120c65a9a7e69n, 0xe3c7eb49f063a0cen, 'zmanim.myzmanim.MyZmanim'],
+    [0xc3ccda83538bf477n, 0x93dc654d560a63b8n, 'zmanim.myzmanim.MyZmanim.get'],
+    [0xc80294024eefae95n, 0x52972cadc08c13efn, 'zmanim.all_zmanim'],
+    [0xcdc06faffaf38ffan, 0x551064f95ab5110dn, 'zmanim.myzmanim.MyZmanTime'],
+    [0xcfe843f87495c18an, 0x7110b3413cfd8e83n, 'zmanim.Location'],
+    [0xd12031217533824bn, 0x2b82d4d65ec59dd7n, 'zmanim.myzmanim.default_candle_lighting_minutes'],
+    [0xd5db12835dfb5524n, 0x975c3a96549104d2n, 'zmanim.myzmanim.MyZmanim.all'],
+    [0xd904b56e2a7d27f9n, 0x2d4c4ce495502494n, 'zmanim.Zmanim'],
+    [0xd90e158541be4971n, 0xf13823120f5b4c46n, 'zmanim.Calculator'],
+    [0xe178a9bb3808bfb3n, 0x685412d4d80250ean, 'zmanim.Config'],
+    [0xea9baabba2ea9789n, 0x174890db5e5166c8n, 'zmanim.TimeZoneOffset'],
+    [0xed07579cf3c52ba1n, 0x99d014ada9906437n, 'zmanim.Zmanim.new'],
+    [0xf9ebba0666552393n, 0x0486761191984fd0n, 'zmanim.Zman'],
+    [0xfa3f9e72b3e59929n, 0x735499ab0a625d6dn, 'zmanim.myzmanim.dawn_90_degrees'],
   ]],
 ];
 
 /**
- * Load the WebAssembly module (by default `kosher_rust_bindings.wasm` next to this file, or
- * the file named by `KOSHER_RUST_BINDINGS_LIBRARY` on Node.js) and check that it matches
+ * Load the WebAssembly module (by default `kosherz.wasm` next to this file, or
+ * the file named by `KOSHERZ_LIBRARY` on Node.js) and check that it matches
  * these bindings. Every other export throws until the returned promise
  * resolves.
  */
 export function init(source) {
-  $loading ??= $loadWasm(source, 'kosher_rust_bindings', 'KOSHER_RUST_BINDINGS_LIBRARY', new URL('./kosher_rust_bindings.wasm', import.meta.url))
+  $loading ??= $loadWasm(source, 'kosherz', 'KOSHERZ_LIBRARY', new URL('./kosherz.wasm', import.meta.url))
     .then((m) => {
       $raw = $bind(m);
       try {
-        $verify($raw, 'kosher-rust-bindings', 'kosher_rust_bindings', 4, $contract);
+        $verify($raw, 'kosherz', 'kosherz', 4, $contract);
       } catch (e) {
-        $raw = $unloaded('kosher-rust-bindings');
+        $raw = $unloaded('kosherz');
         throw e;
       }
     })
@@ -175,7 +179,7 @@ export function init(source) {
   return $loading;
 }
 
-function $vt_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset(m) {
+function $vt_kosherz_zmanim_TimeZoneOffset(m) {
   return [
     [['i32', 'i64', 'i32'], ['i32'], 'iiji', (ctx, p0, err) => {
       try {
@@ -192,296 +196,364 @@ function $vt_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset(m) {
 function $bind(m) {
   const x = m.x;
   return {
-    kosher_rust_bindings_abi_version: () => x.kosher_rust_bindings_abi_version() >>> 0,
-    kosher_rust_bindings_debug_live: (kind) => m.live(x.kosher_rust_bindings_debug_live(m.num(kind)), kind),
-    kosher_rust_bindings_cancel_token_create: () => x.kosher_rust_bindings_cancel_token_create(),
-    kosher_rust_bindings_cancel_token_cancel: (t) => x.kosher_rust_bindings_cancel_token_cancel(m.handle(t)),
-    kosher_rust_bindings_cancel_token_destroy: (t) => x.kosher_rust_bindings_cancel_token_destroy(m.handle(t)),
-    kosher_rust_bindings_kosher_contract: () => m.contract(x.kosher_rust_bindings_kosher_contract),
-    kosher_rust_bindings_kosher_sea_level_location: (a0, a1) => {
-      const r = x.kosher_rust_bindings_kosher_sea_level_location(m.num(a0), m.num(a1), m.len, m.err);
+    kosherz_abi_version: () => x.kosherz_abi_version() >>> 0,
+    kosherz_debug_live: (kind) => m.live(x.kosherz_debug_live(m.num(kind)), kind),
+    kosherz_cancel_token_create: () => x.kosherz_cancel_token_create(),
+    kosherz_cancel_token_cancel: (t) => x.kosherz_cancel_token_cancel(m.handle(t)),
+    kosherz_cancel_token_destroy: (t) => x.kosherz_cancel_token_destroy(m.handle(t)),
+    kosherz_calendar_contract: () => m.contract(x.kosherz_calendar_contract),
+    kosherz_zmanim_contract: () => m.contract(x.kosherz_zmanim_contract),
+    kosherz_calendar_HebrewDate_clone: (h) => x.kosherz_calendar_HebrewDate_clone(m.handle(h)),
+    kosherz_calendar_HebrewDate_destroy: (h) => x.kosherz_calendar_HebrewDate_destroy(m.handle(h)),
+    kosherz_calendar_year_info: (a0) => {
+      const r = x.kosherz_calendar_year_info(m.num(a0), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_validate_location: (a0, a1) => {
-      let s0 = null;
-      try {
-        s0 = m.data(a0);
-        x.kosher_rust_bindings_kosher_validate_location(s0[0], s0[1], m.bool(a1), m.err);
-        m.check();
-      } finally {
-        m.unstage(s0);
-      }
-    },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_clone: (h) => x.kosher_rust_bindings_kosher_calendar_HebrewDate_clone(m.handle(h)),
-    kosher_rust_bindings_kosher_calendar_HebrewDate_destroy: (h) => x.kosher_rust_bindings_kosher_calendar_HebrewDate_destroy(m.handle(h)),
-    kosher_rust_bindings_kosher_calendar_year_info: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_year_info(m.num(a0), m.len, m.err);
+    kosherz_calendar_days_in_month: (a0, a1) => {
+      const r = x.kosherz_calendar_days_in_month(m.num(a0), m.num(a1), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_days_in_month: (a0, a1) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_days_in_month(m.num(a0), m.num(a1), m.len, m.err);
-      m.check();
-      return m.takeData(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_calendar_rosh_hashana: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_rosh_hashana(m.num(a0), m.err);
+    kosherz_calendar_rosh_hashana: (a0) => {
+      const r = x.kosherz_calendar_rosh_hashana(m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_calendar_holiday_name: (a0) => {
+    kosherz_calendar_holiday_name: (a0) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        const r = x.kosher_rust_bindings_kosher_calendar_holiday_name(s0[0], s0[1], m.len, m.err);
+        const r = x.kosherz_calendar_holiday_name(s0[0], s0[1], m.len, m.err);
         m.check();
         return m.takeStr(r, m.outLen());
       } finally {
         m.unstage(s0);
       }
     },
-    kosher_rust_bindings_kosher_calendar_holiday_hebrew: (a0) => {
+    kosherz_calendar_holiday_hebrew: (a0) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        const r = x.kosher_rust_bindings_kosher_calendar_holiday_hebrew(s0[0], s0[1], m.len, m.err);
+        const r = x.kosherz_calendar_holiday_hebrew(s0[0], s0[1], m.len, m.err);
         m.check();
         return m.takeStr(r, m.outLen());
       } finally {
         m.unstage(s0);
       }
     },
-    kosher_rust_bindings_kosher_calendar_holiday_is_assur_bemelacha: (a0) => {
+    kosherz_calendar_holiday_is_assur_bemelacha: (a0) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        const r = x.kosher_rust_bindings_kosher_calendar_holiday_is_assur_bemelacha(s0[0], s0[1], m.err);
+        const r = x.kosherz_calendar_holiday_is_assur_bemelacha(s0[0], s0[1], m.err);
         m.check();
         return r !== 0;
       } finally {
         m.unstage(s0);
       }
     },
-    kosher_rust_bindings_kosher_calendar_holiday_is_modern: (a0) => {
+    kosherz_calendar_holiday_is_modern: (a0) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        const r = x.kosher_rust_bindings_kosher_calendar_holiday_is_modern(s0[0], s0[1], m.err);
+        const r = x.kosherz_calendar_holiday_is_modern(s0[0], s0[1], m.err);
         m.check();
         return r !== 0;
       } finally {
         m.unstage(s0);
       }
     },
-    kosher_rust_bindings_kosher_calendar_holiday_is_fast_day: (a0) => {
+    kosherz_calendar_holiday_is_fast_day: (a0) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        const r = x.kosher_rust_bindings_kosher_calendar_holiday_is_fast_day(s0[0], s0[1], m.err);
+        const r = x.kosherz_calendar_holiday_is_fast_day(s0[0], s0[1], m.err);
         m.check();
         return r !== 0;
       } finally {
         m.unstage(s0);
       }
     },
-    kosher_rust_bindings_kosher_calendar_parsha_name: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_parsha_name(m.num(a0), m.len, m.err);
+    kosherz_calendar_parsha_name: (a0) => {
+      const r = x.kosherz_calendar_parsha_name(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_parsha_hebrew: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_parsha_hebrew(m.num(a0), m.len, m.err);
+    kosherz_calendar_parsha_hebrew: (a0) => {
+      const r = x.kosherz_calendar_parsha_hebrew(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_month_name: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_month_name(m.num(a0), m.len, m.err);
+    kosherz_calendar_month_name: (a0) => {
+      const r = x.kosherz_calendar_month_name(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_month_hebrew: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_month_hebrew(m.num(a0), m.len, m.err);
+    kosherz_calendar_month_hebrew: (a0) => {
+      const r = x.kosherz_calendar_month_hebrew(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_new: (a0, a1, a2) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_new(m.num(a0), m.num(a1), m.num(a2), m.err);
+    kosherz_calendar_HebrewDate_new: (a0, a1, a2) => {
+      const r = x.kosherz_calendar_HebrewDate_new(m.num(a0), m.num(a1), m.num(a2), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_from_gregorian: (a0) => {
+    kosherz_calendar_HebrewDate_from_gregorian: (a0) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_from_gregorian(s0[0], s0[1], m.err);
+        const r = x.kosherz_calendar_HebrewDate_from_gregorian(s0[0], s0[1], m.err);
         m.check();
         return r;
       } finally {
         m.unstage(s0);
       }
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_year: (self) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_year(m.handle(self), m.err);
+    kosherz_calendar_HebrewDate_year: (self) => {
+      const r = x.kosherz_calendar_HebrewDate_year(m.handle(self), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_month: (self) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_month(m.handle(self), m.err);
+    kosherz_calendar_HebrewDate_month: (self) => {
+      const r = x.kosherz_calendar_HebrewDate_month(m.handle(self), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_day: (self) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_day(m.handle(self), m.err);
+    kosherz_calendar_HebrewDate_day: (self) => {
+      const r = x.kosherz_calendar_HebrewDate_day(m.handle(self), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_day_of_year: (self) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_day_of_year(m.handle(self), m.err);
+    kosherz_calendar_HebrewDate_day_of_year: (self) => {
+      const r = x.kosherz_calendar_HebrewDate_day_of_year(m.handle(self), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_weekday: (self) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_weekday(m.handle(self), m.err);
+    kosherz_calendar_HebrewDate_weekday: (self) => {
+      const r = x.kosherz_calendar_HebrewDate_weekday(m.handle(self), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_to_gregorian: (self) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_to_gregorian(m.handle(self), m.len, m.err);
+    kosherz_calendar_HebrewDate_to_gregorian: (self) => {
+      const r = x.kosherz_calendar_HebrewDate_to_gregorian(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_add_days: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_add_days(m.handle(self), m.num(a0), m.err);
+    kosherz_calendar_HebrewDate_add_days: (self, a0) => {
+      const r = x.kosherz_calendar_HebrewDate_add_days(m.handle(self), m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_holidays: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_holidays(m.handle(self), m.num(a0), m.len, m.err);
+    kosherz_calendar_HebrewDate_holidays: (self, a0) => {
+      const r = x.kosherz_calendar_HebrewDate_holidays(m.handle(self), m.num(a0), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_is_assur_bemelacha: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_is_assur_bemelacha(m.handle(self), m.num(a0), m.err);
+    kosherz_calendar_HebrewDate_is_assur_bemelacha: (self, a0) => {
+      const r = x.kosherz_calendar_HebrewDate_is_assur_bemelacha(m.handle(self), m.num(a0), m.err);
       m.check();
       return r !== 0;
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_has_candle_lighting: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_has_candle_lighting(m.handle(self), m.num(a0), m.err);
+    kosherz_calendar_HebrewDate_has_candle_lighting: (self, a0) => {
+      const r = x.kosherz_calendar_HebrewDate_has_candle_lighting(m.handle(self), m.num(a0), m.err);
       m.check();
       return r !== 0;
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_is_aseres_yemei_teshuva: (self) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_is_aseres_yemei_teshuva(m.handle(self), m.err);
+    kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva: (self) => {
+      const r = x.kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva(m.handle(self), m.err);
       m.check();
       return r !== 0;
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_parsha: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_parsha(m.handle(self), m.num(a0), m.len, m.err);
+    kosherz_calendar_HebrewDate_parsha: (self, a0) => {
+      const r = x.kosherz_calendar_HebrewDate_parsha(m.handle(self), m.num(a0), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_special_parsha: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_special_parsha(m.handle(self), m.num(a0), m.len, m.err);
+    kosherz_calendar_HebrewDate_special_parsha: (self, a0) => {
+      const r = x.kosherz_calendar_HebrewDate_special_parsha(m.handle(self), m.num(a0), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_next_parsha: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_next_parsha(m.handle(self), m.num(a0), m.len, m.err);
+    kosherz_calendar_HebrewDate_next_parsha: (self, a0) => {
+      const r = x.kosherz_calendar_HebrewDate_next_parsha(m.handle(self), m.num(a0), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_molad: (self) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_molad(m.handle(self), m.len, m.err);
+    kosherz_calendar_HebrewDate_molad: (self) => {
+      const r = x.kosherz_calendar_HebrewDate_molad(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_display: (self) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_display(m.handle(self), m.len, m.err);
+    kosherz_calendar_HebrewDate_display: (self) => {
+      const r = x.kosherz_calendar_HebrewDate_display(m.handle(self), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_equals: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_equals(m.handle(self), m.handle(a0), m.err);
+    kosherz_calendar_HebrewDate_equals: (self, a0) => {
+      const r = x.kosherz_calendar_HebrewDate_equals(m.handle(self), m.handle(a0), m.err);
       m.check();
       return r !== 0;
     },
-    kosher_rust_bindings_kosher_calendar_HebrewDate_compare: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_calendar_HebrewDate_compare(m.handle(self), m.handle(a0), m.err);
+    kosherz_calendar_HebrewDate_compare: (self, a0) => {
+      const r = x.kosherz_calendar_HebrewDate_compare(m.handle(self), m.handle(a0), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_zmanim_Zmanim_clone: (h) => x.kosher_rust_bindings_kosher_zmanim_Zmanim_clone(m.handle(h)),
-    kosher_rust_bindings_kosher_zmanim_Zmanim_destroy: (h) => x.kosher_rust_bindings_kosher_zmanim_Zmanim_destroy(m.handle(h)),
-    kosher_rust_bindings_kosher_zmanim_default_config: () => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_default_config(m.len, m.err);
-      m.check();
-      return m.takeData(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_zmanim_all_zmanim: () => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_all_zmanim(m.len, m.err);
-      m.check();
-      return m.takeData(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_zmanim_zman_name: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_zman_name(m.num(a0), m.len, m.err);
+    kosherz_calendar_limudim_tractate_name: (a0) => {
+      const r = x.kosherz_calendar_limudim_tractate_name(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_zmanim_zman_java_name: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_zman_java_name(m.num(a0), m.len, m.err);
+    kosherz_calendar_limudim_tractate_hebrew: (a0) => {
+      const r = x.kosherz_calendar_limudim_tractate_hebrew(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_zmanim_zman_from_java_name: (a0) => {
+    kosherz_calendar_limudim_tehillim_display: (a0) => {
+      let s0 = null;
+      try {
+        s0 = m.data(a0);
+        const r = x.kosherz_calendar_limudim_tehillim_display(s0[0], s0[1], m.len, m.err);
+        m.check();
+        return m.takeStr(r, m.outLen());
+      } finally {
+        m.unstage(s0);
+      }
+    },
+    kosherz_calendar_limudim_pirkei_avos_display: (a0) => {
+      let s0 = null;
+      try {
+        s0 = m.data(a0);
+        const r = x.kosherz_calendar_limudim_pirkei_avos_display(s0[0], s0[1], m.len, m.err);
+        m.check();
+        return m.takeStr(r, m.outLen());
+      } finally {
+        m.unstage(s0);
+      }
+    },
+    kosherz_calendar_limudim_daf_yomi_bavli: (a0) => {
+      const r = x.kosherz_calendar_limudim_daf_yomi_bavli(m.handle(a0), m.len, m.err);
+      m.check();
+      return m.takeData(r, m.outLen());
+    },
+    kosherz_calendar_limudim_daf_hashavua_bavli: (a0) => {
+      const r = x.kosherz_calendar_limudim_daf_hashavua_bavli(m.handle(a0), m.len, m.err);
+      m.check();
+      return m.takeData(r, m.outLen());
+    },
+    kosherz_calendar_limudim_daf_yomi_yerushalmi: (a0) => {
+      const r = x.kosherz_calendar_limudim_daf_yomi_yerushalmi(m.handle(a0), m.len, m.err);
+      m.check();
+      return m.takeData(r, m.outLen());
+    },
+    kosherz_calendar_limudim_amud_yomi_dirshu: (a0) => {
+      const r = x.kosherz_calendar_limudim_amud_yomi_dirshu(m.handle(a0), m.len, m.err);
+      m.check();
+      return m.takeData(r, m.outLen());
+    },
+    kosherz_calendar_limudim_mishna_yomis: (a0) => {
+      const r = x.kosherz_calendar_limudim_mishna_yomis(m.handle(a0), m.len, m.err);
+      m.check();
+      return m.takeData(r, m.outLen());
+    },
+    kosherz_calendar_limudim_tehillim_monthly: (a0) => {
+      const r = x.kosherz_calendar_limudim_tehillim_monthly(m.handle(a0), m.len, m.err);
+      m.check();
+      return m.takeData(r, m.outLen());
+    },
+    kosherz_calendar_limudim_pirkei_avos: (a0, a1) => {
+      const r = x.kosherz_calendar_limudim_pirkei_avos(m.handle(a0), m.num(a1), m.len, m.err);
+      m.check();
+      return m.takeData(r, m.outLen());
+    },
+    kosherz_zmanim_Zmanim_clone: (h) => x.kosherz_zmanim_Zmanim_clone(m.handle(h)),
+    kosherz_zmanim_Zmanim_destroy: (h) => x.kosherz_zmanim_Zmanim_destroy(m.handle(h)),
+    kosherz_zmanim_sea_level_location: (a0, a1) => {
+      const r = x.kosherz_zmanim_sea_level_location(m.num(a0), m.num(a1), m.len, m.err);
+      m.check();
+      return m.takeData(r, m.outLen());
+    },
+    kosherz_zmanim_validate_location: (a0, a1) => {
+      let s0 = null;
+      try {
+        s0 = m.data(a0);
+        x.kosherz_zmanim_validate_location(s0[0], s0[1], m.bool(a1), m.err);
+        m.check();
+      } finally {
+        m.unstage(s0);
+      }
+    },
+    kosherz_zmanim_default_config: () => {
+      const r = x.kosherz_zmanim_default_config(m.len, m.err);
+      m.check();
+      return m.takeData(r, m.outLen());
+    },
+    kosherz_zmanim_all_zmanim: () => {
+      const r = x.kosherz_zmanim_all_zmanim(m.len, m.err);
+      m.check();
+      return m.takeData(r, m.outLen());
+    },
+    kosherz_zmanim_zman_name: (a0) => {
+      const r = x.kosherz_zmanim_zman_name(m.num(a0), m.len, m.err);
+      m.check();
+      return m.takeStr(r, m.outLen());
+    },
+    kosherz_zmanim_zman_java_name: (a0) => {
+      const r = x.kosherz_zmanim_zman_java_name(m.num(a0), m.len, m.err);
+      m.check();
+      return m.takeStr(r, m.outLen());
+    },
+    kosherz_zmanim_zman_from_java_name: (a0) => {
       let s0 = null;
       try {
         s0 = m.str(a0);
-        const r = x.kosher_rust_bindings_kosher_zmanim_zman_from_java_name(s0[0], s0[1], m.len, m.err);
+        const r = x.kosherz_zmanim_zman_from_java_name(s0[0], s0[1], m.len, m.err);
         m.check();
         return m.takeData(r, m.outLen());
       } finally {
         m.unstage(s0);
       }
     },
-    kosher_rust_bindings_kosher_zmanim_zman_category: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_zman_category(m.num(a0), m.err);
+    kosherz_zmanim_zman_category: (a0) => {
+      const r = x.kosherz_zmanim_zman_category(m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_zmanim_zman_is_deprecated: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_zman_is_deprecated(m.num(a0), m.err);
+    kosherz_zmanim_zman_is_deprecated: (a0) => {
+      const r = x.kosherz_zmanim_zman_is_deprecated(m.num(a0), m.err);
       m.check();
       return r !== 0;
     },
-    kosher_rust_bindings_kosher_zmanim_zman_description: (a0, a1) => {
+    kosherz_zmanim_zman_description: (a0, a1) => {
       let s1 = null;
       try {
         s1 = m.data(a1);
-        const r = x.kosher_rust_bindings_kosher_zmanim_zman_description(m.num(a0), s1[0], s1[1], m.len, m.err);
+        const r = x.kosherz_zmanim_zman_description(m.num(a0), s1[0], s1[1], m.len, m.err);
         m.check();
         return m.takeStr(r, m.outLen());
       } finally {
         m.unstage(s1);
       }
     },
-    kosher_rust_bindings_kosher_zmanim_calculator_name: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_calculator_name(m.num(a0), m.len, m.err);
+    kosherz_zmanim_calculator_name: (a0) => {
+      const r = x.kosherz_zmanim_calculator_name(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_zmanim_shaah_zmanis: (a0, a1) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_shaah_zmanis(m.i64(a0), m.i64(a1), m.err);
+    kosherz_zmanim_shaah_zmanis: (a0, a1) => {
+      const r = x.kosherz_zmanim_shaah_zmanis(m.i64(a0), m.i64(a1), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_zmanim_Zmanim_new: (a0, a1, a2, a3) => {
+    kosherz_zmanim_Zmanim_new: (a0, a1, a2, a3) => {
       let s0 = null, s1 = null, s2 = null;
       try {
         s0 = m.data(a0);
         s1 = m.data(a1);
         s2 = m.data(a2);
-        const r = x.kosher_rust_bindings_kosher_zmanim_Zmanim_new(s0[0], s0[1], s1[0], s1[1], s2[0], s2[1], m.register(a3), m.vtableOpt(a3, 'kosher_rust_bindings_kosher_zmanim_TimeZoneOffset', () => $vt_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset(m)), m.err);
+        const r = x.kosherz_zmanim_Zmanim_new(s0[0], s0[1], s1[0], s1[1], s2[0], s2[1], m.register(a3), m.vtableOpt(a3, 'kosherz_zmanim_TimeZoneOffset', () => $vt_kosherz_zmanim_TimeZoneOffset(m)), m.err);
         m.check();
         return r;
       } finally {
@@ -490,151 +562,84 @@ function $bind(m) {
         m.unstage(s2);
       }
     },
-    kosher_rust_bindings_kosher_zmanim_Zmanim_get: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_Zmanim_get(m.handle(self), m.num(a0), m.err);
+    kosherz_zmanim_Zmanim_get: (self, a0) => {
+      const r = x.kosherz_zmanim_Zmanim_get(m.handle(self), m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_zmanim_Zmanim_all: (self) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_Zmanim_all(m.handle(self), m.len, m.err);
+    kosherz_zmanim_Zmanim_all: (self) => {
+      const r = x.kosherz_zmanim_Zmanim_all(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_zmanim_Zmanim_sunrise_offset_by_degrees: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_Zmanim_sunrise_offset_by_degrees(m.handle(self), m.num(a0), m.err);
+    kosherz_zmanim_Zmanim_sunrise_offset_by_degrees: (self, a0) => {
+      const r = x.kosherz_zmanim_Zmanim_sunrise_offset_by_degrees(m.handle(self), m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_zmanim_Zmanim_sunset_offset_by_degrees: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_Zmanim_sunset_offset_by_degrees(m.handle(self), m.num(a0), m.err);
+    kosherz_zmanim_Zmanim_sunset_offset_by_degrees: (self, a0) => {
+      const r = x.kosherz_zmanim_Zmanim_sunset_offset_by_degrees(m.handle(self), m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_zmanim_Zmanim_location: (self) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_Zmanim_location(m.handle(self), m.len, m.err);
+    kosherz_zmanim_Zmanim_location: (self) => {
+      const r = x.kosherz_zmanim_Zmanim_location(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_zmanim_Zmanim_date: (self) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_Zmanim_date(m.handle(self), m.len, m.err);
+    kosherz_zmanim_Zmanim_date: (self) => {
+      const r = x.kosherz_zmanim_Zmanim_date(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_zmanim_Zmanim_config: (self) => {
-      const r = x.kosher_rust_bindings_kosher_zmanim_Zmanim_config(m.handle(self), m.len, m.err);
+    kosherz_zmanim_Zmanim_config: (self) => {
+      const r = x.kosherz_zmanim_Zmanim_config(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_limudim_tractate_name: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_limudim_tractate_name(m.num(a0), m.len, m.err);
+    kosherz_zmanim_myzmanim_MyZmanim_clone: (h) => x.kosherz_zmanim_myzmanim_MyZmanim_clone(m.handle(h)),
+    kosherz_zmanim_myzmanim_MyZmanim_destroy: (h) => x.kosherz_zmanim_myzmanim_MyZmanim_destroy(m.handle(h)),
+    kosherz_zmanim_myzmanim_my_zman_name: (a0) => {
+      const r = x.kosherz_zmanim_myzmanim_my_zman_name(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_limudim_tractate_hebrew: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_limudim_tractate_hebrew(m.num(a0), m.len, m.err);
-      m.check();
-      return m.takeStr(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_limudim_tehillim_display: (a0) => {
-      let s0 = null;
-      try {
-        s0 = m.data(a0);
-        const r = x.kosher_rust_bindings_kosher_limudim_tehillim_display(s0[0], s0[1], m.len, m.err);
-        m.check();
-        return m.takeStr(r, m.outLen());
-      } finally {
-        m.unstage(s0);
-      }
-    },
-    kosher_rust_bindings_kosher_limudim_pirkei_avos_display: (a0) => {
-      let s0 = null;
-      try {
-        s0 = m.data(a0);
-        const r = x.kosher_rust_bindings_kosher_limudim_pirkei_avos_display(s0[0], s0[1], m.len, m.err);
-        m.check();
-        return m.takeStr(r, m.outLen());
-      } finally {
-        m.unstage(s0);
-      }
-    },
-    kosher_rust_bindings_kosher_limudim_daf_yomi_bavli: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_limudim_daf_yomi_bavli(m.handle(a0), m.len, m.err);
+    kosherz_zmanim_myzmanim_all_my_zmanim: () => {
+      const r = x.kosherz_zmanim_myzmanim_all_my_zmanim(m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_limudim_daf_hashavua_bavli: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_limudim_daf_hashavua_bavli(m.handle(a0), m.len, m.err);
-      m.check();
-      return m.takeData(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_limudim_daf_yomi_yerushalmi: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_limudim_daf_yomi_yerushalmi(m.handle(a0), m.len, m.err);
-      m.check();
-      return m.takeData(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_limudim_amud_yomi_dirshu: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_limudim_amud_yomi_dirshu(m.handle(a0), m.len, m.err);
-      m.check();
-      return m.takeData(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_limudim_mishna_yomis: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_limudim_mishna_yomis(m.handle(a0), m.len, m.err);
-      m.check();
-      return m.takeData(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_limudim_tehillim_monthly: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_limudim_tehillim_monthly(m.handle(a0), m.len, m.err);
-      m.check();
-      return m.takeData(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_limudim_pirkei_avos: (a0, a1) => {
-      const r = x.kosher_rust_bindings_kosher_limudim_pirkei_avos(m.handle(a0), m.num(a1), m.len, m.err);
-      m.check();
-      return m.takeData(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim_clone: (h) => x.kosher_rust_bindings_kosher_myzmanim_MyZmanim_clone(m.handle(h)),
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim_destroy: (h) => x.kosher_rust_bindings_kosher_myzmanim_MyZmanim_destroy(m.handle(h)),
-    kosher_rust_bindings_kosher_myzmanim_my_zman_name: (a0) => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_my_zman_name(m.num(a0), m.len, m.err);
-      m.check();
-      return m.takeStr(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_myzmanim_all_my_zmanim: () => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_all_my_zmanim(m.len, m.err);
-      m.check();
-      return m.takeData(r, m.outLen());
-    },
-    kosher_rust_bindings_kosher_myzmanim_dawn_90_degrees: () => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_dawn_90_degrees(m.err);
+    kosherz_zmanim_myzmanim_dawn_90_degrees: () => {
+      const r = x.kosherz_zmanim_myzmanim_dawn_90_degrees(m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_myzmanim_dawn_72_degrees: () => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_dawn_72_degrees(m.err);
+    kosherz_zmanim_myzmanim_dawn_72_degrees: () => {
+      const r = x.kosherz_zmanim_myzmanim_dawn_72_degrees(m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_myzmanim_sea_level_refraction_arcminutes: () => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_sea_level_refraction_arcminutes(m.err);
+    kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes: () => {
+      const r = x.kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_myzmanim_dip_degrees_per_root_meter: () => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_dip_degrees_per_root_meter(m.err);
+    kosherz_zmanim_myzmanim_dip_degrees_per_root_meter: () => {
+      const r = x.kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_myzmanim_default_candle_lighting_minutes: () => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_default_candle_lighting_minutes(m.err);
+    kosherz_zmanim_myzmanim_default_candle_lighting_minutes: () => {
+      const r = x.kosherz_zmanim_myzmanim_default_candle_lighting_minutes(m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim_new: (a0, a1, a2, a3) => {
+    kosherz_zmanim_myzmanim_MyZmanim_new: (a0, a1, a2, a3) => {
       let s0 = null, s1 = null;
       try {
         s0 = m.data(a0);
         s1 = m.data(a1);
-        const r = x.kosher_rust_bindings_kosher_myzmanim_MyZmanim_new(s0[0], s0[1], s1[0], s1[1], m.num(a2), m.register(a3), m.vtableOpt(a3, 'kosher_rust_bindings_kosher_zmanim_TimeZoneOffset', () => $vt_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset(m)), m.err);
+        const r = x.kosherz_zmanim_myzmanim_MyZmanim_new(s0[0], s0[1], s1[0], s1[1], m.num(a2), m.register(a3), m.vtableOpt(a3, 'kosherz_zmanim_TimeZoneOffset', () => $vt_kosherz_zmanim_TimeZoneOffset(m)), m.err);
         m.check();
         return r;
       } finally {
@@ -642,33 +647,33 @@ function $bind(m) {
         m.unstage(s1);
       }
     },
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim_get: (self, a0) => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_MyZmanim_get(m.handle(self), m.num(a0), m.err);
+    kosherz_zmanim_myzmanim_MyZmanim_get: (self, a0) => {
+      const r = x.kosherz_zmanim_myzmanim_MyZmanim_get(m.handle(self), m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim_all: (self) => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_MyZmanim_all(m.handle(self), m.len, m.err);
+    kosherz_zmanim_myzmanim_MyZmanim_all: (self) => {
+      const r = x.kosherz_zmanim_myzmanim_MyZmanim_all(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim_proportional_hour_gra: (self) => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_MyZmanim_proportional_hour_gra(m.handle(self), m.err);
+    kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra: (self) => {
+      const r = x.kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra(m.handle(self), m.err);
       m.check();
       return r;
     },
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim_location: (self) => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_MyZmanim_location(m.handle(self), m.len, m.err);
+    kosherz_zmanim_myzmanim_MyZmanim_location: (self) => {
+      const r = x.kosherz_zmanim_myzmanim_MyZmanim_location(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim_date: (self) => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_MyZmanim_date(m.handle(self), m.len, m.err);
+    kosherz_zmanim_myzmanim_MyZmanim_date: (self) => {
+      const r = x.kosherz_zmanim_myzmanim_MyZmanim_date(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim_candle_lighting_minutes: (self) => {
-      const r = x.kosher_rust_bindings_kosher_myzmanim_MyZmanim_candle_lighting_minutes(m.handle(self), m.err);
+    kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes: (self) => {
+      const r = x.kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes(m.handle(self), m.err);
       m.check();
       return r;
     },
@@ -682,102 +687,39 @@ function $bind(m) {
  * every kind is `0n`.
  */
 export function __debugLive(kind) {
-  return $raw.kosher_rust_bindings_debug_live(kind);
+  return $raw.kosherz_debug_live(kind);
 }
 
-const kosher$KosherError = class KosherError extends $Error {};
-const kosher$InvalidLatitudeError = class InvalidLatitudeError extends kosher$KosherError {
+const calendar$CalendarError = class CalendarError extends $Error {};
+const calendar$InvalidDateError = class InvalidDateError extends calendar$CalendarError {
   static CODE = 1;
-  constructor(message = 'The latitude is not between -90 and 90 degrees.') {
+  constructor(message = 'The date does not exist, or is outside Hebrew years 1 to 9999.') {
     super(1, message);
   }
 };
-const kosher$InvalidLongitudeError = class InvalidLongitudeError extends kosher$KosherError {
+const calendar$InvalidHolidayError = class InvalidHolidayError extends calendar$CalendarError {
   static CODE = 2;
-  constructor(message = 'The longitude is not between -180 and 180 degrees.') {
+  constructor(message = 'A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.') {
     super(2, message);
   }
 };
-const kosher$InvalidElevationError = class InvalidElevationError extends kosher$KosherError {
-  static CODE = 3;
-  constructor(message = 'An elevation is negative or not a finite number.') {
-    super(3, message);
-  }
-};
-const kosher$InvalidDateError = class InvalidDateError extends kosher$KosherError {
-  static CODE = 4;
-  constructor(message = 'The date does not exist, or is outside the supported range.') {
-    super(4, message);
-  }
-};
-const kosher$TimeZoneRequiredError = class TimeZoneRequiredError extends kosher$KosherError {
-  static CODE = 5;
-  constructor(message = 'The time needs a time zone and none was given: the Kiddush Levana times, and any time') {
-    super(5, message);
-  }
-};
-const kosher$TimeZoneCallbackFailedError = class TimeZoneCallbackFailedError extends kosher$KosherError {
-  static CODE = 6;
-  constructor(message = 'The time zone callback failed, or gave an offset of a day or more.') {
-    super(6, message);
-  }
-};
-const kosher$InvalidMinutesError = class InvalidMinutesError extends kosher$KosherError {
-  static CODE = 7;
-  constructor(message = 'A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number') {
-    super(7, message);
-  }
-};
-const kosher$AllDayError = class AllDayError extends kosher$KosherError {
-  static CODE = 10;
-  constructor(message = 'The sun stays above the angle the time needs all day, as in the far north in summer.') {
-    super(10, message);
-  }
-};
-const kosher$AllNightError = class AllNightError extends kosher$KosherError {
-  static CODE = 11;
-  constructor(message = 'The sun stays below the angle the time needs all day, as in the far north in winter.') {
-    super(11, message);
-  }
-};
-const kosher$NotApplicableError = class NotApplicableError extends kosher$KosherError {
-  static CODE = 12;
-  constructor(message = 'The time only exists on certain dates, and this is not one.') {
-    super(12, message);
-  }
-};
-const kosher$InternalError = class InternalError extends kosher$KosherError {
-  static CODE = 13;
-  constructor(message = 'A calculation failed in a way that should not happen; please report the location and') {
-    super(13, message);
-  }
-};
-const $codes$kosher$KosherError = new Map([
-  [1, kosher$InvalidLatitudeError],
-  [2, kosher$InvalidLongitudeError],
-  [3, kosher$InvalidElevationError],
-  [4, kosher$InvalidDateError],
-  [5, kosher$TimeZoneRequiredError],
-  [6, kosher$TimeZoneCallbackFailedError],
-  [7, kosher$InvalidMinutesError],
-  [10, kosher$AllDayError],
-  [11, kosher$AllNightError],
-  [12, kosher$NotApplicableError],
-  [13, kosher$InternalError],
+const $codes$calendar$CalendarError = new Map([
+  [1, calendar$InvalidDateError],
+  [2, calendar$InvalidHolidayError],
 ]);
-const $payloads$kosher$KosherError = new Map();
-function $from$kosher$KosherError(e) {
-  return $domain(e, $codes$kosher$KosherError, $payloads$kosher$KosherError);
+const $payloads$calendar$CalendarError = new Map();
+function $from$calendar$CalendarError(e) {
+  return $domain(e, $codes$calendar$CalendarError, $payloads$calendar$CalendarError);
 }
 
-const kosher$calendar$Region = Object.freeze({
+const calendar$Region = Object.freeze({
   Israel: 0,
   Diaspora: 1,
   0: 'Israel',
   1: 'Diaspora',
 });
 
-const kosher$calendar$HebrewMonth = Object.freeze({
+const calendar$HebrewMonth = Object.freeze({
   Tishrei: 1,
   Cheshvan: 2,
   Kislev: 3,
@@ -806,7 +748,7 @@ const kosher$calendar$HebrewMonth = Object.freeze({
   13: 'Elul',
 });
 
-const kosher$calendar$Weekday = Object.freeze({
+const calendar$Weekday = Object.freeze({
   Sunday: 1,
   Monday: 2,
   Tuesday: 3,
@@ -823,7 +765,7 @@ const kosher$calendar$Weekday = Object.freeze({
   7: 'Shabbos',
 });
 
-const kosher$calendar$YearLength = Object.freeze({
+const calendar$YearLength = Object.freeze({
   Chaserim: 0,
   Kesidran: 1,
   Shelaimim: 2,
@@ -832,7 +774,7 @@ const kosher$calendar$YearLength = Object.freeze({
   2: 'Shelaimim',
 });
 
-const kosher$calendar$Parsha = Object.freeze({
+const calendar$Parsha = Object.freeze({
   Bereshis: 0,
   Noach: 1,
   LechLecha: 2,
@@ -975,7 +917,250 @@ const kosher$calendar$Parsha = Object.freeze({
   69: 'Nachamu',
 });
 
-const kosher$zmanim$Zman = Object.freeze({
+const calendar$limudim$LimudimError = class LimudimError extends $Error {};
+const calendar$limudim$InvalidUnitError = class InvalidUnitError extends calendar$limudim$LimudimError {
+  static CODE = 1;
+  constructor(message = 'A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1') {
+    super(1, message);
+  }
+};
+const $codes$calendar$limudim$LimudimError = new Map([
+  [1, calendar$limudim$InvalidUnitError],
+]);
+const $payloads$calendar$limudim$LimudimError = new Map();
+function $from$calendar$limudim$LimudimError(e) {
+  return $domain(e, $codes$calendar$limudim$LimudimError, $payloads$calendar$limudim$LimudimError);
+}
+
+const calendar$limudim$Tractate = Object.freeze({
+  Berachos: 0,
+  Peah: 1,
+  Demai: 2,
+  Kilayim: 3,
+  Sheviis: 4,
+  Terumos: 5,
+  Maasros: 6,
+  MaaserSheni: 7,
+  Chalah: 8,
+  Orlah: 9,
+  Bikurim: 10,
+  Shabbos: 11,
+  Eruvin: 12,
+  Pesachim: 13,
+  Shekalim: 14,
+  Yoma: 15,
+  Sukkah: 16,
+  Beitzah: 17,
+  RoshHashanah: 18,
+  Taanis: 19,
+  Megillah: 20,
+  MoedKatan: 21,
+  Chagigah: 22,
+  Yevamos: 23,
+  Kesubos: 24,
+  Nedarim: 25,
+  Nazir: 26,
+  Sotah: 27,
+  Gitin: 28,
+  Kiddushin: 29,
+  BavaKamma: 30,
+  BavaMetzia: 31,
+  BavaBasra: 32,
+  Sanhedrin: 33,
+  Makkos: 34,
+  Shevuos: 35,
+  Eduyos: 36,
+  AvodahZarah: 37,
+  Avos: 38,
+  Horiyos: 39,
+  Zevachim: 40,
+  Menachos: 41,
+  Chullin: 42,
+  Bechoros: 43,
+  Arachin: 44,
+  Temurah: 45,
+  Kerisos: 46,
+  Meilah: 47,
+  Tamid: 48,
+  Midos: 49,
+  Kinnim: 50,
+  Keilim: 51,
+  Ohalos: 52,
+  Negaim: 53,
+  Parah: 54,
+  Taharos: 55,
+  Mikvaos: 56,
+  Niddah: 57,
+  Machshirin: 58,
+  Zavim: 59,
+  TevulYom: 60,
+  Yadayim: 61,
+  Uktzin: 62,
+  0: 'Berachos',
+  1: 'Peah',
+  2: 'Demai',
+  3: 'Kilayim',
+  4: 'Sheviis',
+  5: 'Terumos',
+  6: 'Maasros',
+  7: 'MaaserSheni',
+  8: 'Chalah',
+  9: 'Orlah',
+  10: 'Bikurim',
+  11: 'Shabbos',
+  12: 'Eruvin',
+  13: 'Pesachim',
+  14: 'Shekalim',
+  15: 'Yoma',
+  16: 'Sukkah',
+  17: 'Beitzah',
+  18: 'RoshHashanah',
+  19: 'Taanis',
+  20: 'Megillah',
+  21: 'MoedKatan',
+  22: 'Chagigah',
+  23: 'Yevamos',
+  24: 'Kesubos',
+  25: 'Nedarim',
+  26: 'Nazir',
+  27: 'Sotah',
+  28: 'Gitin',
+  29: 'Kiddushin',
+  30: 'BavaKamma',
+  31: 'BavaMetzia',
+  32: 'BavaBasra',
+  33: 'Sanhedrin',
+  34: 'Makkos',
+  35: 'Shevuos',
+  36: 'Eduyos',
+  37: 'AvodahZarah',
+  38: 'Avos',
+  39: 'Horiyos',
+  40: 'Zevachim',
+  41: 'Menachos',
+  42: 'Chullin',
+  43: 'Bechoros',
+  44: 'Arachin',
+  45: 'Temurah',
+  46: 'Kerisos',
+  47: 'Meilah',
+  48: 'Tamid',
+  49: 'Midos',
+  50: 'Kinnim',
+  51: 'Keilim',
+  52: 'Ohalos',
+  53: 'Negaim',
+  54: 'Parah',
+  55: 'Taharos',
+  56: 'Mikvaos',
+  57: 'Niddah',
+  58: 'Machshirin',
+  59: 'Zavim',
+  60: 'TevulYom',
+  61: 'Yadayim',
+  62: 'Uktzin',
+});
+
+const calendar$limudim$Side = Object.freeze({
+  Aleph: 0,
+  Bet: 1,
+  0: 'Aleph',
+  1: 'Bet',
+});
+
+const zmanim$ZmanimError = class ZmanimError extends $Error {};
+const zmanim$InvalidLatitudeError = class InvalidLatitudeError extends zmanim$ZmanimError {
+  static CODE = 1;
+  constructor(message = 'The latitude is not between -90 and 90 degrees.') {
+    super(1, message);
+  }
+};
+const zmanim$InvalidLongitudeError = class InvalidLongitudeError extends zmanim$ZmanimError {
+  static CODE = 2;
+  constructor(message = 'The longitude is not between -180 and 180 degrees.') {
+    super(2, message);
+  }
+};
+const zmanim$InvalidElevationError = class InvalidElevationError extends zmanim$ZmanimError {
+  static CODE = 3;
+  constructor(message = 'An elevation is negative or not a finite number.') {
+    super(3, message);
+  }
+};
+const zmanim$InvalidGregorianDateError = class InvalidGregorianDateError extends zmanim$ZmanimError {
+  static CODE = 4;
+  constructor(message = 'The Gregorian date does not exist, or is outside the supported range.') {
+    super(4, message);
+  }
+};
+const zmanim$TimeZoneRequiredError = class TimeZoneRequiredError extends zmanim$ZmanimError {
+  static CODE = 5;
+  constructor(message = 'The time needs a time zone and none was given: the Kiddush Levana times, and any time') {
+    super(5, message);
+  }
+};
+const zmanim$TimeZoneCallbackFailedError = class TimeZoneCallbackFailedError extends zmanim$ZmanimError {
+  static CODE = 6;
+  constructor(message = 'The time zone callback failed, or gave an offset of a day or more.') {
+    super(6, message);
+  }
+};
+const zmanim$InvalidMinutesError = class InvalidMinutesError extends zmanim$ZmanimError {
+  static CODE = 7;
+  constructor(message = 'A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number') {
+    super(7, message);
+  }
+};
+const zmanim$InvalidDegreesError = class InvalidDegreesError extends zmanim$ZmanimError {
+  static CODE = 8;
+  constructor(message = 'An angle in degrees is not a finite number.') {
+    super(8, message);
+  }
+};
+const zmanim$AllDayError = class AllDayError extends zmanim$ZmanimError {
+  static CODE = 10;
+  constructor(message = 'The sun stays above the angle the time needs all day, as in the far north in summer.') {
+    super(10, message);
+  }
+};
+const zmanim$AllNightError = class AllNightError extends zmanim$ZmanimError {
+  static CODE = 11;
+  constructor(message = 'The sun stays below the angle the time needs all day, as in the far north in winter.') {
+    super(11, message);
+  }
+};
+const zmanim$NotApplicableError = class NotApplicableError extends zmanim$ZmanimError {
+  static CODE = 12;
+  constructor(message = 'The time only exists on certain dates, and this is not one.') {
+    super(12, message);
+  }
+};
+const zmanim$UnexpectedError = class UnexpectedError extends zmanim$ZmanimError {
+  static CODE = 13;
+  constructor(message = 'A calculation failed in a way that should not happen; please report the location and') {
+    super(13, message);
+  }
+};
+const $codes$zmanim$ZmanimError = new Map([
+  [1, zmanim$InvalidLatitudeError],
+  [2, zmanim$InvalidLongitudeError],
+  [3, zmanim$InvalidElevationError],
+  [4, zmanim$InvalidGregorianDateError],
+  [5, zmanim$TimeZoneRequiredError],
+  [6, zmanim$TimeZoneCallbackFailedError],
+  [7, zmanim$InvalidMinutesError],
+  [8, zmanim$InvalidDegreesError],
+  [10, zmanim$AllDayError],
+  [11, zmanim$AllNightError],
+  [12, zmanim$NotApplicableError],
+  [13, zmanim$UnexpectedError],
+]);
+const $payloads$zmanim$ZmanimError = new Map();
+function $from$zmanim$ZmanimError(e) {
+  return $domain(e, $codes$zmanim$ZmanimError, $payloads$zmanim$ZmanimError);
+}
+
+const zmanim$Zman = Object.freeze({
   BeginCivilTwilight: 0,
   EndCivilTwilight: 1,
   BeginNauticalTwilight: 2,
@@ -1312,7 +1497,7 @@ const kosher$zmanim$Zman = Object.freeze({
   166: 'ChatzosHalayla',
 });
 
-const kosher$zmanim$Category = Object.freeze({
+const zmanim$Category = Object.freeze({
   Twilight: 0,
   Alos: 1,
   Misheyakir: 2,
@@ -1353,7 +1538,7 @@ const kosher$zmanim$Category = Object.freeze({
   18: 'ChatzosHalayla',
 });
 
-const kosher$zmanim$Calculator = Object.freeze({
+const zmanim$Calculator = Object.freeze({
   Noaa: 0,
   Meeus: 1,
   Spa: 2,
@@ -1362,158 +1547,22 @@ const kosher$zmanim$Calculator = Object.freeze({
   2: 'Spa',
 });
 
-const kosher$zmanim$ZmanFailure = Object.freeze({
+const zmanim$ZmanFailure = Object.freeze({
   AllDay: 0,
   AllNight: 1,
   NotApplicable: 2,
   TimeZoneRequired: 3,
   TimeZoneCallbackFailed: 4,
-  Internal: 5,
+  Unexpected: 5,
   0: 'AllDay',
   1: 'AllNight',
   2: 'NotApplicable',
   3: 'TimeZoneRequired',
   4: 'TimeZoneCallbackFailed',
-  5: 'Internal',
+  5: 'Unexpected',
 });
 
-const kosher$limudim$Tractate = Object.freeze({
-  Berachos: 0,
-  Peah: 1,
-  Demai: 2,
-  Kilayim: 3,
-  Sheviis: 4,
-  Terumos: 5,
-  Maasros: 6,
-  MaaserSheni: 7,
-  Chalah: 8,
-  Orlah: 9,
-  Bikurim: 10,
-  Shabbos: 11,
-  Eruvin: 12,
-  Pesachim: 13,
-  Shekalim: 14,
-  Yoma: 15,
-  Sukkah: 16,
-  Beitzah: 17,
-  RoshHashanah: 18,
-  Taanis: 19,
-  Megillah: 20,
-  MoedKatan: 21,
-  Chagigah: 22,
-  Yevamos: 23,
-  Kesubos: 24,
-  Nedarim: 25,
-  Nazir: 26,
-  Sotah: 27,
-  Gitin: 28,
-  Kiddushin: 29,
-  BavaKamma: 30,
-  BavaMetzia: 31,
-  BavaBasra: 32,
-  Sanhedrin: 33,
-  Makkos: 34,
-  Shevuos: 35,
-  Eduyos: 36,
-  AvodahZarah: 37,
-  Avos: 38,
-  Horiyos: 39,
-  Zevachim: 40,
-  Menachos: 41,
-  Chullin: 42,
-  Bechoros: 43,
-  Arachin: 44,
-  Temurah: 45,
-  Kerisos: 46,
-  Meilah: 47,
-  Tamid: 48,
-  Midos: 49,
-  Kinnim: 50,
-  Keilim: 51,
-  Ohalos: 52,
-  Negaim: 53,
-  Parah: 54,
-  Taharos: 55,
-  Mikvaos: 56,
-  Niddah: 57,
-  Machshirin: 58,
-  Zavim: 59,
-  TevulYom: 60,
-  Yadayim: 61,
-  Uktzin: 62,
-  0: 'Berachos',
-  1: 'Peah',
-  2: 'Demai',
-  3: 'Kilayim',
-  4: 'Sheviis',
-  5: 'Terumos',
-  6: 'Maasros',
-  7: 'MaaserSheni',
-  8: 'Chalah',
-  9: 'Orlah',
-  10: 'Bikurim',
-  11: 'Shabbos',
-  12: 'Eruvin',
-  13: 'Pesachim',
-  14: 'Shekalim',
-  15: 'Yoma',
-  16: 'Sukkah',
-  17: 'Beitzah',
-  18: 'RoshHashanah',
-  19: 'Taanis',
-  20: 'Megillah',
-  21: 'MoedKatan',
-  22: 'Chagigah',
-  23: 'Yevamos',
-  24: 'Kesubos',
-  25: 'Nedarim',
-  26: 'Nazir',
-  27: 'Sotah',
-  28: 'Gitin',
-  29: 'Kiddushin',
-  30: 'BavaKamma',
-  31: 'BavaMetzia',
-  32: 'BavaBasra',
-  33: 'Sanhedrin',
-  34: 'Makkos',
-  35: 'Shevuos',
-  36: 'Eduyos',
-  37: 'AvodahZarah',
-  38: 'Avos',
-  39: 'Horiyos',
-  40: 'Zevachim',
-  41: 'Menachos',
-  42: 'Chullin',
-  43: 'Bechoros',
-  44: 'Arachin',
-  45: 'Temurah',
-  46: 'Kerisos',
-  47: 'Meilah',
-  48: 'Tamid',
-  49: 'Midos',
-  50: 'Kinnim',
-  51: 'Keilim',
-  52: 'Ohalos',
-  53: 'Negaim',
-  54: 'Parah',
-  55: 'Taharos',
-  56: 'Mikvaos',
-  57: 'Niddah',
-  58: 'Machshirin',
-  59: 'Zavim',
-  60: 'TevulYom',
-  61: 'Yadayim',
-  62: 'Uktzin',
-});
-
-const kosher$limudim$Side = Object.freeze({
-  Aleph: 0,
-  Bet: 1,
-  0: 'Aleph',
-  1: 'Bet',
-});
-
-const kosher$myzmanim$MyZman = Object.freeze({
+const zmanim$myzmanim$MyZman = Object.freeze({
   Dawn90Degrees: 0,
   Dawn72Fixed: 1,
   Dawn72Degrees: 2,
@@ -1596,35 +1645,19 @@ const kosher$myzmanim$MyZman = Object.freeze({
   39: 'Midnight',
 });
 
-function $w$kosher$GregorianDate(w, v) {
+function $w$calendar$GregorianDate(w, v) {
   w.writeI32(v.year);
   w.writeI32(v.month);
   w.writeI32(v.day);
 }
-function $r$kosher$GregorianDate(r) {
+function $r$calendar$GregorianDate(r) {
   return {
     year: r.readI32(),
     month: r.readI32(),
     day: r.readI32(),
   };
 }
-function $w$kosher$Location(w, v) {
-  w.writeF64(v.latitude);
-  w.writeF64(v.longitude);
-  w.writeF64(v.elevation);
-  w.writeF64(v.eastern_horizon_elevation);
-  w.writeF64(v.western_horizon_elevation);
-}
-function $r$kosher$Location(r) {
-  return {
-    latitude: r.readF64(),
-    longitude: r.readF64(),
-    elevation: r.readF64(),
-    eastern_horizon_elevation: r.readF64(),
-    western_horizon_elevation: r.readF64(),
-  };
-}
-function $w$kosher$calendar$YearInfo(w, v) {
+function $w$calendar$YearInfo(w, v) {
   w.writeI32(v.year);
   w.writeBool(v.is_leap);
   w.writeI32(v.days);
@@ -1633,7 +1666,7 @@ function $w$kosher$calendar$YearInfo(w, v) {
   w.writeBool(v.is_kislev_short);
   $w_list_HebrewMonth(w, v.months);
 }
-function $r$kosher$calendar$YearInfo(r) {
+function $r$calendar$YearInfo(r) {
   return {
     year: r.readI32(),
     is_leap: r.readBool(),
@@ -1644,7 +1677,7 @@ function $r$kosher$calendar$YearInfo(r) {
     months: $r_list_HebrewMonth(r),
   };
 }
-function $w$kosher$calendar$Holiday(w, v) {
+function $w$calendar$Holiday(w, v) {
   switch (v.tag) {
     case 'ErevPesach':
       w.writeI32(0);
@@ -1778,7 +1811,7 @@ function $w$kosher$calendar$Holiday(w, v) {
       throw new TypeError('unknown Holiday tag: ' + (v && v.tag));
   }
 }
-function $r$kosher$calendar$Holiday(r) {
+function $r$calendar$Holiday(r) {
   const tag = r.readI32();
   switch (tag) {
     case 0: return { tag: 'ErevPesach' };
@@ -1827,57 +1860,25 @@ function $r$kosher$calendar$Holiday(r) {
       throw new $Error(-3, 'unknown Holiday tag: ' + tag);
   }
 }
-function $w$kosher$zmanim$Config(w, v) {
-  w.writeI32(v.candle_lighting_minutes);
-  w.writeBool(v.use_astronomical_chatzos_for_other_zmanim);
-  w.writeBool(v.use_elevation);
-  w.writeI32(v.ateret_torah_sunset_minutes);
-  w.writeBool(v.use_astronomical_chatzos);
-  w.writeI32(v.calculator);
-  w.writeBool(v.apply_delta_t);
-}
-function $r$kosher$zmanim$Config(r) {
-  return {
-    candle_lighting_minutes: r.readI32(),
-    use_astronomical_chatzos_for_other_zmanim: r.readBool(),
-    use_elevation: r.readBool(),
-    ateret_torah_sunset_minutes: r.readI32(),
-    use_astronomical_chatzos: r.readBool(),
-    calculator: r.readI32(),
-    apply_delta_t: r.readBool(),
-  };
-}
-function $w$kosher$zmanim$ZmanTime(w, v) {
-  w.writeI32(v.zman);
-  $w_opt_i64(w, v.time);
-  $w_opt_ZmanFailure(w, v.failure);
-}
-function $r$kosher$zmanim$ZmanTime(r) {
-  return {
-    zman: r.readI32(),
-    time: $r_opt_i64(r),
-    failure: $r_opt_ZmanFailure(r),
-  };
-}
-function $w$kosher$limudim$Daf(w, v) {
+function $w$calendar$limudim$Daf(w, v) {
   w.writeI32(v.tractate);
   w.writeI32(v.daf);
   w.writeString(v.display);
 }
-function $r$kosher$limudim$Daf(r) {
+function $r$calendar$limudim$Daf(r) {
   return {
     tractate: r.readI32(),
     daf: r.readI32(),
     display: r.readString(),
   };
 }
-function $w$kosher$limudim$Amud(w, v) {
+function $w$calendar$limudim$Amud(w, v) {
   w.writeI32(v.tractate);
   w.writeI32(v.daf);
   w.writeI32(v.side);
   w.writeString(v.display);
 }
-function $r$kosher$limudim$Amud(r) {
+function $r$calendar$limudim$Amud(r) {
   return {
     tractate: r.readI32(),
     daf: r.readI32(),
@@ -1885,13 +1886,13 @@ function $r$kosher$limudim$Amud(r) {
     display: r.readString(),
   };
 }
-function $w$kosher$limudim$Mishna(w, v) {
+function $w$calendar$limudim$Mishna(w, v) {
   w.writeI32(v.tractate);
   w.writeI32(v.chapter);
   w.writeI32(v.mishna);
   w.writeString(v.display);
 }
-function $r$kosher$limudim$Mishna(r) {
+function $r$calendar$limudim$Mishna(r) {
   return {
     tractate: r.readI32(),
     chapter: r.readI32(),
@@ -1899,19 +1900,19 @@ function $r$kosher$limudim$Mishna(r) {
     display: r.readString(),
   };
 }
-function $w$kosher$limudim$MishnaPair(w, v) {
-  $w$kosher$limudim$Mishna(w, v.first);
-  $w$kosher$limudim$Mishna(w, v.second);
+function $w$calendar$limudim$MishnaPair(w, v) {
+  $w$calendar$limudim$Mishna(w, v.first);
+  $w$calendar$limudim$Mishna(w, v.second);
   w.writeString(v.display);
 }
-function $r$kosher$limudim$MishnaPair(r) {
+function $r$calendar$limudim$MishnaPair(r) {
   return {
-    first: $r$kosher$limudim$Mishna(r),
-    second: $r$kosher$limudim$Mishna(r),
+    first: $r$calendar$limudim$Mishna(r),
+    second: $r$calendar$limudim$Mishna(r),
     display: r.readString(),
   };
 }
-function $w$kosher$limudim$TehillimUnit(w, v) {
+function $w$calendar$limudim$TehillimUnit(w, v) {
   switch (v.tag) {
     case 'Psalms':
       w.writeI32(0);
@@ -1928,7 +1929,7 @@ function $w$kosher$limudim$TehillimUnit(w, v) {
       throw new TypeError('unknown TehillimUnit tag: ' + (v && v.tag));
   }
 }
-function $r$kosher$limudim$TehillimUnit(r) {
+function $r$calendar$limudim$TehillimUnit(r) {
   const tag = r.readI32();
   switch (tag) {
     case 0: return { tag: 'Psalms', start: r.readI32(), end: r.readI32() };
@@ -1937,7 +1938,7 @@ function $r$kosher$limudim$TehillimUnit(r) {
       throw new $Error(-3, 'unknown TehillimUnit tag: ' + tag);
   }
 }
-function $w$kosher$limudim$PirkeiAvosUnit(w, v) {
+function $w$calendar$limudim$PirkeiAvosUnit(w, v) {
   switch (v.tag) {
     case 'Single':
       w.writeI32(0);
@@ -1952,7 +1953,7 @@ function $w$kosher$limudim$PirkeiAvosUnit(w, v) {
       throw new TypeError('unknown PirkeiAvosUnit tag: ' + (v && v.tag));
   }
 }
-function $r$kosher$limudim$PirkeiAvosUnit(r) {
+function $r$calendar$limudim$PirkeiAvosUnit(r) {
   const tag = r.readI32();
   switch (tag) {
     case 0: return { tag: 'Single', chapter: r.readI32() };
@@ -1961,12 +1962,60 @@ function $r$kosher$limudim$PirkeiAvosUnit(r) {
       throw new $Error(-3, 'unknown PirkeiAvosUnit tag: ' + tag);
   }
 }
-function $w$kosher$myzmanim$MyZmanTime(w, v) {
+function $w$zmanim$Location(w, v) {
+  w.writeF64(v.latitude);
+  w.writeF64(v.longitude);
+  w.writeF64(v.elevation);
+  w.writeF64(v.eastern_horizon_elevation);
+  w.writeF64(v.western_horizon_elevation);
+}
+function $r$zmanim$Location(r) {
+  return {
+    latitude: r.readF64(),
+    longitude: r.readF64(),
+    elevation: r.readF64(),
+    eastern_horizon_elevation: r.readF64(),
+    western_horizon_elevation: r.readF64(),
+  };
+}
+function $w$zmanim$Config(w, v) {
+  w.writeI32(v.candle_lighting_minutes);
+  w.writeBool(v.use_astronomical_chatzos_for_other_zmanim);
+  w.writeBool(v.use_elevation);
+  w.writeI32(v.ateret_torah_sunset_minutes);
+  w.writeBool(v.use_astronomical_chatzos);
+  w.writeI32(v.calculator);
+  w.writeBool(v.apply_delta_t);
+}
+function $r$zmanim$Config(r) {
+  return {
+    candle_lighting_minutes: r.readI32(),
+    use_astronomical_chatzos_for_other_zmanim: r.readBool(),
+    use_elevation: r.readBool(),
+    ateret_torah_sunset_minutes: r.readI32(),
+    use_astronomical_chatzos: r.readBool(),
+    calculator: r.readI32(),
+    apply_delta_t: r.readBool(),
+  };
+}
+function $w$zmanim$ZmanTime(w, v) {
   w.writeI32(v.zman);
   $w_opt_i64(w, v.time);
   $w_opt_ZmanFailure(w, v.failure);
 }
-function $r$kosher$myzmanim$MyZmanTime(r) {
+function $r$zmanim$ZmanTime(r) {
+  return {
+    zman: r.readI32(),
+    time: $r_opt_i64(r),
+    failure: $r_opt_ZmanFailure(r),
+  };
+}
+function $w$zmanim$myzmanim$MyZmanTime(w, v) {
+  w.writeI32(v.zman);
+  $w_opt_i64(w, v.time);
+  $w_opt_ZmanFailure(w, v.failure);
+}
+function $r$zmanim$myzmanim$MyZmanTime(r) {
   return {
     zman: r.readI32(),
     time: $r_opt_i64(r),
@@ -1982,10 +2031,10 @@ function $r_list_HebrewMonth(r) {
 }
 /** `[Holiday]` */
 function $w_list_Holiday(w, v) {
-  w.writeList(v, $w$kosher$calendar$Holiday);
+  w.writeList(v, $w$calendar$Holiday);
 }
 function $r_list_Holiday(r) {
-  return r.readList($r$kosher$calendar$Holiday);
+  return r.readList($r$calendar$Holiday);
 }
 /** `[MyZman]` */
 function $w_list_MyZman(w, v) {
@@ -1996,10 +2045,10 @@ function $r_list_MyZman(r) {
 }
 /** `[MyZmanTime]` */
 function $w_list_MyZmanTime(w, v) {
-  w.writeList(v, $w$kosher$myzmanim$MyZmanTime);
+  w.writeList(v, $w$zmanim$myzmanim$MyZmanTime);
 }
 function $r_list_MyZmanTime(r) {
-  return r.readList($r$kosher$myzmanim$MyZmanTime);
+  return r.readList($r$zmanim$myzmanim$MyZmanTime);
 }
 /** `[Zman]` */
 function $w_list_Zman(w, v) {
@@ -2010,38 +2059,38 @@ function $r_list_Zman(r) {
 }
 /** `[ZmanTime]` */
 function $w_list_ZmanTime(w, v) {
-  w.writeList(v, $w$kosher$zmanim$ZmanTime);
+  w.writeList(v, $w$zmanim$ZmanTime);
 }
 function $r_list_ZmanTime(r) {
-  return r.readList($r$kosher$zmanim$ZmanTime);
+  return r.readList($r$zmanim$ZmanTime);
 }
 /** `Amud?` */
 function $w_opt_Amud(w, v) {
-  w.writeOpt(v, $w$kosher$limudim$Amud);
+  w.writeOpt(v, $w$calendar$limudim$Amud);
 }
 function $r_opt_Amud(r) {
-  return r.readOpt($r$kosher$limudim$Amud);
+  return r.readOpt($r$calendar$limudim$Amud);
 }
 /** `Daf?` */
 function $w_opt_Daf(w, v) {
-  w.writeOpt(v, $w$kosher$limudim$Daf);
+  w.writeOpt(v, $w$calendar$limudim$Daf);
 }
 function $r_opt_Daf(r) {
-  return r.readOpt($r$kosher$limudim$Daf);
+  return r.readOpt($r$calendar$limudim$Daf);
 }
 /** `GregorianDate?` */
 function $w_opt_GregorianDate(w, v) {
-  w.writeOpt(v, $w$kosher$GregorianDate);
+  w.writeOpt(v, $w$calendar$GregorianDate);
 }
 function $r_opt_GregorianDate(r) {
-  return r.readOpt($r$kosher$GregorianDate);
+  return r.readOpt($r$calendar$GregorianDate);
 }
 /** `MishnaPair?` */
 function $w_opt_MishnaPair(w, v) {
-  w.writeOpt(v, $w$kosher$limudim$MishnaPair);
+  w.writeOpt(v, $w$calendar$limudim$MishnaPair);
 }
 function $r_opt_MishnaPair(r) {
-  return r.readOpt($r$kosher$limudim$MishnaPair);
+  return r.readOpt($r$calendar$limudim$MishnaPair);
 }
 /** `Parsha?` */
 function $w_opt_Parsha(w, v) {
@@ -2052,17 +2101,17 @@ function $r_opt_Parsha(r) {
 }
 /** `PirkeiAvosUnit?` */
 function $w_opt_PirkeiAvosUnit(w, v) {
-  w.writeOpt(v, $w$kosher$limudim$PirkeiAvosUnit);
+  w.writeOpt(v, $w$calendar$limudim$PirkeiAvosUnit);
 }
 function $r_opt_PirkeiAvosUnit(r) {
-  return r.readOpt($r$kosher$limudim$PirkeiAvosUnit);
+  return r.readOpt($r$calendar$limudim$PirkeiAvosUnit);
 }
 /** `TehillimUnit?` */
 function $w_opt_TehillimUnit(w, v) {
-  w.writeOpt(v, $w$kosher$limudim$TehillimUnit);
+  w.writeOpt(v, $w$calendar$limudim$TehillimUnit);
 }
 function $r_opt_TehillimUnit(r) {
-  return r.readOpt($r$kosher$limudim$TehillimUnit);
+  return r.readOpt($r$calendar$limudim$TehillimUnit);
 }
 /** `Zman?` */
 function $w_opt_Zman(w, v) {
@@ -2093,48 +2142,32 @@ function $r_opt_i64(r) {
   return r.readOpt($R.I64);
 }
 
-const kosher$seaLevelLocation = function seaLevelLocation(latitude, longitude) {
-  try {
-    return $decode($raw.kosher_rust_bindings_kosher_sea_level_location(latitude, longitude), $r$kosher$Location);
-  } catch ($e) {
-    throw $fault($e);
-  }
-};
-
-const kosher$validateLocation = function validateLocation(location, hasTimeZone) {
-  try {
-    $raw.kosher_rust_bindings_kosher_validate_location($encode(location, $w$kosher$Location), hasTimeZone);
-  } catch ($e) {
-    throw $from$kosher$KosherError($e);
-  }
-};
-
-const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
+const calendar$HebrewDate = class HebrewDate extends $Object {
   constructor(year, month, day) {
     super();
     try {
-      $own(this, $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_new(year, month, day));
+      $own(this, $raw.kosherz_calendar_HebrewDate_new(year, month, day));
     } catch ($e) {
-      throw $from$kosher$KosherError($e);
+      throw $from$calendar$CalendarError($e);
     }
   }
   static $destroy(h) {
-    $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_destroy(h);
+    $raw.kosherz_calendar_HebrewDate_destroy(h);
   }
   static $clone(h) {
-    return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_clone(h);
+    return $raw.kosherz_calendar_HebrewDate_clone(h);
   }
   static fromGregorian(date) {
     try {
-      return $adopt(kosher$calendar$HebrewDate, $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_from_gregorian($encode(date, $w$kosher$GregorianDate)));
+      return $adopt(calendar$HebrewDate, $raw.kosherz_calendar_HebrewDate_from_gregorian($encode(date, $w$calendar$GregorianDate)));
     } catch ($e) {
-      throw $from$kosher$KosherError($e);
+      throw $from$calendar$CalendarError($e);
     }
   }
   year() {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_year($self);
+      return $raw.kosherz_calendar_HebrewDate_year($self);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2142,9 +2175,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   month() {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_month($self);
+      return $raw.kosherz_calendar_HebrewDate_month($self);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2152,9 +2185,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   day() {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_day($self);
+      return $raw.kosherz_calendar_HebrewDate_day($self);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2162,9 +2195,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   dayOfYear() {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_day_of_year($self);
+      return $raw.kosherz_calendar_HebrewDate_day_of_year($self);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2172,9 +2205,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   weekday() {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_weekday($self);
+      return $raw.kosherz_calendar_HebrewDate_weekday($self);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2182,9 +2215,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   toGregorian() {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_calendar_HebrewDate_to_gregorian($self), $r_opt_GregorianDate);
+      return $decode($raw.kosherz_calendar_HebrewDate_to_gregorian($self), $r_opt_GregorianDate);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2192,19 +2225,19 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   addDays(days) {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $adopt(kosher$calendar$HebrewDate, $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_add_days($self, days));
+      return $adopt(calendar$HebrewDate, $raw.kosherz_calendar_HebrewDate_add_days($self, days));
     } catch ($e) {
-      throw $from$kosher$KosherError($e);
+      throw $from$calendar$CalendarError($e);
     } finally {
       $unlend(this);
     }
   }
   holidays(region) {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_calendar_HebrewDate_holidays($self, region), $r_list_Holiday);
+      return $decode($raw.kosherz_calendar_HebrewDate_holidays($self, region), $r_list_Holiday);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2212,9 +2245,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   isAssurBemelacha(region) {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_is_assur_bemelacha($self, region);
+      return $raw.kosherz_calendar_HebrewDate_is_assur_bemelacha($self, region);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2222,9 +2255,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   hasCandleLighting(region) {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_has_candle_lighting($self, region);
+      return $raw.kosherz_calendar_HebrewDate_has_candle_lighting($self, region);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2232,9 +2265,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   isAseresYemeiTeshuva() {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_is_aseres_yemei_teshuva($self);
+      return $raw.kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva($self);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2242,9 +2275,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   parsha(region) {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_calendar_HebrewDate_parsha($self, region), $r_opt_Parsha);
+      return $decode($raw.kosherz_calendar_HebrewDate_parsha($self, region), $r_opt_Parsha);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2252,9 +2285,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   specialParsha(region) {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_calendar_HebrewDate_special_parsha($self, region), $r_opt_Parsha);
+      return $decode($raw.kosherz_calendar_HebrewDate_special_parsha($self, region), $r_opt_Parsha);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2262,9 +2295,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   nextParsha(region) {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_calendar_HebrewDate_next_parsha($self, region), $r_opt_Parsha);
+      return $decode($raw.kosherz_calendar_HebrewDate_next_parsha($self, region), $r_opt_Parsha);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2272,9 +2305,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   molad() {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_calendar_HebrewDate_molad($self), $r_opt_i64);
+      return $decode($raw.kosherz_calendar_HebrewDate_molad($self), $r_opt_i64);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2282,9 +2315,9 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   display() {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_display($self);
+      return $raw.kosherz_calendar_HebrewDate_display($self);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2292,11 +2325,11 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   equals(other) {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      const $o1 = $lend(other, kosher$calendar$HebrewDate);
+      const $o1 = $lend(other, calendar$HebrewDate);
       try {
-        return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_equals($self, $o1);
+        return $raw.kosherz_calendar_HebrewDate_equals($self, $o1);
       } catch ($e) {
         throw $fault($e);
       } finally {
@@ -2307,11 +2340,11 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
     }
   }
   compare(other) {
-    const $self = $lend(this, kosher$calendar$HebrewDate);
+    const $self = $lend(this, calendar$HebrewDate);
     try {
-      const $o1 = $lend(other, kosher$calendar$HebrewDate);
+      const $o1 = $lend(other, calendar$HebrewDate);
       try {
-        return $raw.kosher_rust_bindings_kosher_calendar_HebrewDate_compare($self, $o1);
+        return $raw.kosherz_calendar_HebrewDate_compare($self, $o1);
       } catch ($e) {
         throw $fault($e);
       } finally {
@@ -2323,103 +2356,212 @@ const kosher$calendar$HebrewDate = class HebrewDate extends $Object {
   }
 };
 
-const kosher$calendar$yearInfo = function yearInfo(year) {
+const calendar$yearInfo = function yearInfo(year) {
   try {
-    return $decode($raw.kosher_rust_bindings_kosher_calendar_year_info(year), $r$kosher$calendar$YearInfo);
+    return $decode($raw.kosherz_calendar_year_info(year), $r$calendar$YearInfo);
+  } catch ($e) {
+    throw $from$calendar$CalendarError($e);
+  }
+};
+
+const calendar$daysInMonth = function daysInMonth(year, month) {
+  try {
+    return $decode($raw.kosherz_calendar_days_in_month(year, month), $r_opt_i32);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$calendar$daysInMonth = function daysInMonth(year, month) {
+const calendar$roshHashana = function roshHashana(year) {
   try {
-    return $decode($raw.kosher_rust_bindings_kosher_calendar_days_in_month(year, month), $r_opt_i32);
+    return $adopt(calendar$HebrewDate, $raw.kosherz_calendar_rosh_hashana(year));
+  } catch ($e) {
+    throw $from$calendar$CalendarError($e);
+  }
+};
+
+const calendar$holidayName = function holidayName(holiday) {
+  try {
+    return $raw.kosherz_calendar_holiday_name($encode(holiday, $w$calendar$Holiday));
+  } catch ($e) {
+    throw $from$calendar$CalendarError($e);
+  }
+};
+
+const calendar$holidayHebrew = function holidayHebrew(holiday) {
+  try {
+    return $raw.kosherz_calendar_holiday_hebrew($encode(holiday, $w$calendar$Holiday));
+  } catch ($e) {
+    throw $from$calendar$CalendarError($e);
+  }
+};
+
+const calendar$holidayIsAssurBemelacha = function holidayIsAssurBemelacha(holiday) {
+  try {
+    return $raw.kosherz_calendar_holiday_is_assur_bemelacha($encode(holiday, $w$calendar$Holiday));
+  } catch ($e) {
+    throw $from$calendar$CalendarError($e);
+  }
+};
+
+const calendar$holidayIsModern = function holidayIsModern(holiday) {
+  try {
+    return $raw.kosherz_calendar_holiday_is_modern($encode(holiday, $w$calendar$Holiday));
+  } catch ($e) {
+    throw $from$calendar$CalendarError($e);
+  }
+};
+
+const calendar$holidayIsFastDay = function holidayIsFastDay(holiday) {
+  try {
+    return $raw.kosherz_calendar_holiday_is_fast_day($encode(holiday, $w$calendar$Holiday));
+  } catch ($e) {
+    throw $from$calendar$CalendarError($e);
+  }
+};
+
+const calendar$parshaName = function parshaName(parsha) {
+  try {
+    return $raw.kosherz_calendar_parsha_name(parsha);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$calendar$roshHashana = function roshHashana(year) {
+const calendar$parshaHebrew = function parshaHebrew(parsha) {
   try {
-    return $adopt(kosher$calendar$HebrewDate, $raw.kosher_rust_bindings_kosher_calendar_rosh_hashana(year));
-  } catch ($e) {
-    throw $from$kosher$KosherError($e);
-  }
-};
-
-const kosher$calendar$holidayName = function holidayName(holiday) {
-  try {
-    return $raw.kosher_rust_bindings_kosher_calendar_holiday_name($encode(holiday, $w$kosher$calendar$Holiday));
+    return $raw.kosherz_calendar_parsha_hebrew(parsha);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$calendar$holidayHebrew = function holidayHebrew(holiday) {
+const calendar$monthName = function monthName(month) {
   try {
-    return $raw.kosher_rust_bindings_kosher_calendar_holiday_hebrew($encode(holiday, $w$kosher$calendar$Holiday));
+    return $raw.kosherz_calendar_month_name(month);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$calendar$holidayIsAssurBemelacha = function holidayIsAssurBemelacha(holiday) {
+const calendar$monthHebrew = function monthHebrew(month) {
   try {
-    return $raw.kosher_rust_bindings_kosher_calendar_holiday_is_assur_bemelacha($encode(holiday, $w$kosher$calendar$Holiday));
+    return $raw.kosherz_calendar_month_hebrew(month);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$calendar$holidayIsModern = function holidayIsModern(holiday) {
+const calendar$limudim$tractateName = function tractateName(tractate) {
   try {
-    return $raw.kosher_rust_bindings_kosher_calendar_holiday_is_modern($encode(holiday, $w$kosher$calendar$Holiday));
+    return $raw.kosherz_calendar_limudim_tractate_name(tractate);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$calendar$holidayIsFastDay = function holidayIsFastDay(holiday) {
+const calendar$limudim$tractateHebrew = function tractateHebrew(tractate) {
   try {
-    return $raw.kosher_rust_bindings_kosher_calendar_holiday_is_fast_day($encode(holiday, $w$kosher$calendar$Holiday));
+    return $raw.kosherz_calendar_limudim_tractate_hebrew(tractate);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$calendar$parshaName = function parshaName(parsha) {
+const calendar$limudim$tehillimDisplay = function tehillimDisplay(unit) {
   try {
-    return $raw.kosher_rust_bindings_kosher_calendar_parsha_name(parsha);
+    return $raw.kosherz_calendar_limudim_tehillim_display($encode(unit, $w$calendar$limudim$TehillimUnit));
   } catch ($e) {
-    throw $fault($e);
+    throw $from$calendar$limudim$LimudimError($e);
   }
 };
 
-const kosher$calendar$parshaHebrew = function parshaHebrew(parsha) {
+const calendar$limudim$pirkeiAvosDisplay = function pirkeiAvosDisplay(unit) {
   try {
-    return $raw.kosher_rust_bindings_kosher_calendar_parsha_hebrew(parsha);
+    return $raw.kosherz_calendar_limudim_pirkei_avos_display($encode(unit, $w$calendar$limudim$PirkeiAvosUnit));
   } catch ($e) {
-    throw $fault($e);
+    throw $from$calendar$limudim$LimudimError($e);
   }
 };
 
-const kosher$calendar$monthName = function monthName(month) {
+const calendar$limudim$dafYomiBavli = function dafYomiBavli(date) {
+  const $o0 = $lend(date, calendar$HebrewDate);
   try {
-    return $raw.kosher_rust_bindings_kosher_calendar_month_name(month);
+    return $decode($raw.kosherz_calendar_limudim_daf_yomi_bavli($o0), $r_opt_Daf);
   } catch ($e) {
     throw $fault($e);
+  } finally {
+    $unlend(date);
   }
 };
 
-const kosher$calendar$monthHebrew = function monthHebrew(month) {
+const calendar$limudim$dafHashavuaBavli = function dafHashavuaBavli(date) {
+  const $o0 = $lend(date, calendar$HebrewDate);
   try {
-    return $raw.kosher_rust_bindings_kosher_calendar_month_hebrew(month);
+    return $decode($raw.kosherz_calendar_limudim_daf_hashavua_bavli($o0), $r_opt_Daf);
   } catch ($e) {
     throw $fault($e);
+  } finally {
+    $unlend(date);
   }
 };
 
-function $adapt$kosher$zmanim$TimeZoneOffset(impl) {
+const calendar$limudim$dafYomiYerushalmi = function dafYomiYerushalmi(date) {
+  const $o0 = $lend(date, calendar$HebrewDate);
+  try {
+    return $decode($raw.kosherz_calendar_limudim_daf_yomi_yerushalmi($o0), $r_opt_Daf);
+  } catch ($e) {
+    throw $fault($e);
+  } finally {
+    $unlend(date);
+  }
+};
+
+const calendar$limudim$amudYomiDirshu = function amudYomiDirshu(date) {
+  const $o0 = $lend(date, calendar$HebrewDate);
+  try {
+    return $decode($raw.kosherz_calendar_limudim_amud_yomi_dirshu($o0), $r_opt_Amud);
+  } catch ($e) {
+    throw $fault($e);
+  } finally {
+    $unlend(date);
+  }
+};
+
+const calendar$limudim$mishnaYomis = function mishnaYomis(date) {
+  const $o0 = $lend(date, calendar$HebrewDate);
+  try {
+    return $decode($raw.kosherz_calendar_limudim_mishna_yomis($o0), $r_opt_MishnaPair);
+  } catch ($e) {
+    throw $fault($e);
+  } finally {
+    $unlend(date);
+  }
+};
+
+const calendar$limudim$tehillimMonthly = function tehillimMonthly(date) {
+  const $o0 = $lend(date, calendar$HebrewDate);
+  try {
+    return $decode($raw.kosherz_calendar_limudim_tehillim_monthly($o0), $r_opt_TehillimUnit);
+  } catch ($e) {
+    throw $fault($e);
+  } finally {
+    $unlend(date);
+  }
+};
+
+const calendar$limudim$pirkeiAvos = function pirkeiAvos(date, region) {
+  const $o0 = $lend(date, calendar$HebrewDate);
+  try {
+    return $decode($raw.kosherz_calendar_limudim_pirkei_avos($o0, region), $r_opt_PirkeiAvosUnit);
+  } catch ($e) {
+    throw $fault($e);
+  } finally {
+    $unlend(date);
+  }
+};
+
+function $adapt$zmanim$TimeZoneOffset(impl) {
   $impl(impl, 'TimeZoneOffset');
   return {
     offset_seconds($a0) {
@@ -2428,35 +2570,35 @@ function $adapt$kosher$zmanim$TimeZoneOffset(impl) {
   };
 }
 
-const kosher$zmanim$Zmanim = class Zmanim extends $Object {
+const zmanim$Zmanim = class Zmanim extends $Object {
   constructor(location, date, config, timeZone) {
     super();
     try {
-      $own(this, $raw.kosher_rust_bindings_kosher_zmanim_Zmanim_new($encode(location, $w$kosher$Location), $encode(date, $w$kosher$GregorianDate), $encode(config, $w$kosher$zmanim$Config), timeZone == null ? null : $adapt$kosher$zmanim$TimeZoneOffset(timeZone)));
+      $own(this, $raw.kosherz_zmanim_Zmanim_new($encode(location, $w$zmanim$Location), $encode(date, $w$calendar$GregorianDate), $encode(config, $w$zmanim$Config), timeZone == null ? null : $adapt$zmanim$TimeZoneOffset(timeZone)));
     } catch ($e) {
-      throw $from$kosher$KosherError($e);
+      throw $from$zmanim$ZmanimError($e);
     }
   }
   static $destroy(h) {
-    $raw.kosher_rust_bindings_kosher_zmanim_Zmanim_destroy(h);
+    $raw.kosherz_zmanim_Zmanim_destroy(h);
   }
   static $clone(h) {
-    return $raw.kosher_rust_bindings_kosher_zmanim_Zmanim_clone(h);
+    return $raw.kosherz_zmanim_Zmanim_clone(h);
   }
   get(zman) {
-    const $self = $lend(this, kosher$zmanim$Zmanim);
+    const $self = $lend(this, zmanim$Zmanim);
     try {
-      return $raw.kosher_rust_bindings_kosher_zmanim_Zmanim_get($self, zman);
+      return $raw.kosherz_zmanim_Zmanim_get($self, zman);
     } catch ($e) {
-      throw $from$kosher$KosherError($e);
+      throw $from$zmanim$ZmanimError($e);
     } finally {
       $unlend(this);
     }
   }
   all() {
-    const $self = $lend(this, kosher$zmanim$Zmanim);
+    const $self = $lend(this, zmanim$Zmanim);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_zmanim_Zmanim_all($self), $r_list_ZmanTime);
+      return $decode($raw.kosherz_zmanim_Zmanim_all($self), $r_list_ZmanTime);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2464,29 +2606,29 @@ const kosher$zmanim$Zmanim = class Zmanim extends $Object {
     }
   }
   sunriseOffsetByDegrees(degrees) {
-    const $self = $lend(this, kosher$zmanim$Zmanim);
+    const $self = $lend(this, zmanim$Zmanim);
     try {
-      return $raw.kosher_rust_bindings_kosher_zmanim_Zmanim_sunrise_offset_by_degrees($self, degrees);
+      return $raw.kosherz_zmanim_Zmanim_sunrise_offset_by_degrees($self, degrees);
     } catch ($e) {
-      throw $from$kosher$KosherError($e);
+      throw $from$zmanim$ZmanimError($e);
     } finally {
       $unlend(this);
     }
   }
   sunsetOffsetByDegrees(degrees) {
-    const $self = $lend(this, kosher$zmanim$Zmanim);
+    const $self = $lend(this, zmanim$Zmanim);
     try {
-      return $raw.kosher_rust_bindings_kosher_zmanim_Zmanim_sunset_offset_by_degrees($self, degrees);
+      return $raw.kosherz_zmanim_Zmanim_sunset_offset_by_degrees($self, degrees);
     } catch ($e) {
-      throw $from$kosher$KosherError($e);
+      throw $from$zmanim$ZmanimError($e);
     } finally {
       $unlend(this);
     }
   }
   location() {
-    const $self = $lend(this, kosher$zmanim$Zmanim);
+    const $self = $lend(this, zmanim$Zmanim);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_zmanim_Zmanim_location($self), $r$kosher$Location);
+      return $decode($raw.kosherz_zmanim_Zmanim_location($self), $r$zmanim$Location);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2494,9 +2636,9 @@ const kosher$zmanim$Zmanim = class Zmanim extends $Object {
     }
   }
   date() {
-    const $self = $lend(this, kosher$zmanim$Zmanim);
+    const $self = $lend(this, zmanim$Zmanim);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_zmanim_Zmanim_date($self), $r$kosher$GregorianDate);
+      return $decode($raw.kosherz_zmanim_Zmanim_date($self), $r$calendar$GregorianDate);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2504,9 +2646,9 @@ const kosher$zmanim$Zmanim = class Zmanim extends $Object {
     }
   }
   config() {
-    const $self = $lend(this, kosher$zmanim$Zmanim);
+    const $self = $lend(this, zmanim$Zmanim);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_zmanim_Zmanim_config($self), $r$kosher$zmanim$Config);
+      return $decode($raw.kosherz_zmanim_Zmanim_config($self), $r$zmanim$Config);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2515,224 +2657,131 @@ const kosher$zmanim$Zmanim = class Zmanim extends $Object {
   }
 };
 
-const kosher$zmanim$defaultConfig = function defaultConfig() {
+const zmanim$seaLevelLocation = function seaLevelLocation(latitude, longitude) {
   try {
-    return $decode($raw.kosher_rust_bindings_kosher_zmanim_default_config(), $r$kosher$zmanim$Config);
+    return $decode($raw.kosherz_zmanim_sea_level_location(latitude, longitude), $r$zmanim$Location);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$zmanim$allZmanim = function allZmanim() {
+const zmanim$validateLocation = function validateLocation(location, hasTimeZone) {
   try {
-    return $decode($raw.kosher_rust_bindings_kosher_zmanim_all_zmanim(), $r_list_Zman);
+    $raw.kosherz_zmanim_validate_location($encode(location, $w$zmanim$Location), hasTimeZone);
+  } catch ($e) {
+    throw $from$zmanim$ZmanimError($e);
+  }
+};
+
+const zmanim$defaultConfig = function defaultConfig() {
+  try {
+    return $decode($raw.kosherz_zmanim_default_config(), $r$zmanim$Config);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$zmanim$zmanName = function zmanName(zman) {
+const zmanim$allZmanim = function allZmanim() {
   try {
-    return $raw.kosher_rust_bindings_kosher_zmanim_zman_name(zman);
+    return $decode($raw.kosherz_zmanim_all_zmanim(), $r_list_Zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$zmanim$zmanJavaName = function zmanJavaName(zman) {
+const zmanim$zmanName = function zmanName(zman) {
   try {
-    return $raw.kosher_rust_bindings_kosher_zmanim_zman_java_name(zman);
+    return $raw.kosherz_zmanim_zman_name(zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$zmanim$zmanFromJavaName = function zmanFromJavaName(javaName) {
+const zmanim$zmanJavaName = function zmanJavaName(zman) {
   try {
-    return $decode($raw.kosher_rust_bindings_kosher_zmanim_zman_from_java_name(javaName), $r_opt_Zman);
+    return $raw.kosherz_zmanim_zman_java_name(zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$zmanim$zmanCategory = function zmanCategory(zman) {
+const zmanim$zmanFromJavaName = function zmanFromJavaName(javaName) {
   try {
-    return $raw.kosher_rust_bindings_kosher_zmanim_zman_category(zman);
+    return $decode($raw.kosherz_zmanim_zman_from_java_name(javaName), $r_opt_Zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$zmanim$zmanIsDeprecated = function zmanIsDeprecated(zman) {
+const zmanim$zmanCategory = function zmanCategory(zman) {
   try {
-    return $raw.kosher_rust_bindings_kosher_zmanim_zman_is_deprecated(zman);
+    return $raw.kosherz_zmanim_zman_category(zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$zmanim$zmanDescription = function zmanDescription(zman, config) {
+const zmanim$zmanIsDeprecated = function zmanIsDeprecated(zman) {
   try {
-    return $raw.kosher_rust_bindings_kosher_zmanim_zman_description(zman, $encode(config, $w$kosher$zmanim$Config));
+    return $raw.kosherz_zmanim_zman_is_deprecated(zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$zmanim$calculatorName = function calculatorName(calculator) {
+const zmanim$zmanDescription = function zmanDescription(zman, config) {
   try {
-    return $raw.kosher_rust_bindings_kosher_zmanim_calculator_name(calculator);
+    return $raw.kosherz_zmanim_zman_description(zman, $encode(config, $w$zmanim$Config));
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$zmanim$shaahZmanis = function shaahZmanis(start, end) {
+const zmanim$calculatorName = function calculatorName(calculator) {
   try {
-    return $raw.kosher_rust_bindings_kosher_zmanim_shaah_zmanis(start, end);
+    return $raw.kosherz_zmanim_calculator_name(calculator);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$limudim$tractateName = function tractateName(tractate) {
+const zmanim$shaahZmanis = function shaahZmanis(start, end) {
   try {
-    return $raw.kosher_rust_bindings_kosher_limudim_tractate_name(tractate);
+    return $raw.kosherz_zmanim_shaah_zmanis(start, end);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$limudim$tractateHebrew = function tractateHebrew(tractate) {
-  try {
-    return $raw.kosher_rust_bindings_kosher_limudim_tractate_hebrew(tractate);
-  } catch ($e) {
-    throw $fault($e);
-  }
-};
-
-const kosher$limudim$tehillimDisplay = function tehillimDisplay(unit) {
-  try {
-    return $raw.kosher_rust_bindings_kosher_limudim_tehillim_display($encode(unit, $w$kosher$limudim$TehillimUnit));
-  } catch ($e) {
-    throw $fault($e);
-  }
-};
-
-const kosher$limudim$pirkeiAvosDisplay = function pirkeiAvosDisplay(unit) {
-  try {
-    return $raw.kosher_rust_bindings_kosher_limudim_pirkei_avos_display($encode(unit, $w$kosher$limudim$PirkeiAvosUnit));
-  } catch ($e) {
-    throw $fault($e);
-  }
-};
-
-const kosher$limudim$dafYomiBavli = function dafYomiBavli(date) {
-  const $o0 = $lend(date, kosher$calendar$HebrewDate);
-  try {
-    return $decode($raw.kosher_rust_bindings_kosher_limudim_daf_yomi_bavli($o0), $r_opt_Daf);
-  } catch ($e) {
-    throw $fault($e);
-  } finally {
-    $unlend(date);
-  }
-};
-
-const kosher$limudim$dafHashavuaBavli = function dafHashavuaBavli(date) {
-  const $o0 = $lend(date, kosher$calendar$HebrewDate);
-  try {
-    return $decode($raw.kosher_rust_bindings_kosher_limudim_daf_hashavua_bavli($o0), $r_opt_Daf);
-  } catch ($e) {
-    throw $fault($e);
-  } finally {
-    $unlend(date);
-  }
-};
-
-const kosher$limudim$dafYomiYerushalmi = function dafYomiYerushalmi(date) {
-  const $o0 = $lend(date, kosher$calendar$HebrewDate);
-  try {
-    return $decode($raw.kosher_rust_bindings_kosher_limudim_daf_yomi_yerushalmi($o0), $r_opt_Daf);
-  } catch ($e) {
-    throw $fault($e);
-  } finally {
-    $unlend(date);
-  }
-};
-
-const kosher$limudim$amudYomiDirshu = function amudYomiDirshu(date) {
-  const $o0 = $lend(date, kosher$calendar$HebrewDate);
-  try {
-    return $decode($raw.kosher_rust_bindings_kosher_limudim_amud_yomi_dirshu($o0), $r_opt_Amud);
-  } catch ($e) {
-    throw $fault($e);
-  } finally {
-    $unlend(date);
-  }
-};
-
-const kosher$limudim$mishnaYomis = function mishnaYomis(date) {
-  const $o0 = $lend(date, kosher$calendar$HebrewDate);
-  try {
-    return $decode($raw.kosher_rust_bindings_kosher_limudim_mishna_yomis($o0), $r_opt_MishnaPair);
-  } catch ($e) {
-    throw $fault($e);
-  } finally {
-    $unlend(date);
-  }
-};
-
-const kosher$limudim$tehillimMonthly = function tehillimMonthly(date) {
-  const $o0 = $lend(date, kosher$calendar$HebrewDate);
-  try {
-    return $decode($raw.kosher_rust_bindings_kosher_limudim_tehillim_monthly($o0), $r_opt_TehillimUnit);
-  } catch ($e) {
-    throw $fault($e);
-  } finally {
-    $unlend(date);
-  }
-};
-
-const kosher$limudim$pirkeiAvos = function pirkeiAvos(date, region) {
-  const $o0 = $lend(date, kosher$calendar$HebrewDate);
-  try {
-    return $decode($raw.kosher_rust_bindings_kosher_limudim_pirkei_avos($o0, region), $r_opt_PirkeiAvosUnit);
-  } catch ($e) {
-    throw $fault($e);
-  } finally {
-    $unlend(date);
-  }
-};
-
-const kosher$myzmanim$MyZmanim = class MyZmanim extends $Object {
+const zmanim$myzmanim$MyZmanim = class MyZmanim extends $Object {
   constructor(location, date, candleLightingMinutes, timeZone) {
     super();
     try {
-      $own(this, $raw.kosher_rust_bindings_kosher_myzmanim_MyZmanim_new($encode(location, $w$kosher$Location), $encode(date, $w$kosher$GregorianDate), candleLightingMinutes, timeZone == null ? null : $adapt$kosher$zmanim$TimeZoneOffset(timeZone)));
+      $own(this, $raw.kosherz_zmanim_myzmanim_MyZmanim_new($encode(location, $w$zmanim$Location), $encode(date, $w$calendar$GregorianDate), candleLightingMinutes, timeZone == null ? null : $adapt$zmanim$TimeZoneOffset(timeZone)));
     } catch ($e) {
-      throw $from$kosher$KosherError($e);
+      throw $from$zmanim$ZmanimError($e);
     }
   }
   static $destroy(h) {
-    $raw.kosher_rust_bindings_kosher_myzmanim_MyZmanim_destroy(h);
+    $raw.kosherz_zmanim_myzmanim_MyZmanim_destroy(h);
   }
   static $clone(h) {
-    return $raw.kosher_rust_bindings_kosher_myzmanim_MyZmanim_clone(h);
+    return $raw.kosherz_zmanim_myzmanim_MyZmanim_clone(h);
   }
   get(zman) {
-    const $self = $lend(this, kosher$myzmanim$MyZmanim);
+    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
     try {
-      return $raw.kosher_rust_bindings_kosher_myzmanim_MyZmanim_get($self, zman);
+      return $raw.kosherz_zmanim_myzmanim_MyZmanim_get($self, zman);
     } catch ($e) {
-      throw $from$kosher$KosherError($e);
+      throw $from$zmanim$ZmanimError($e);
     } finally {
       $unlend(this);
     }
   }
   all() {
-    const $self = $lend(this, kosher$myzmanim$MyZmanim);
+    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_myzmanim_MyZmanim_all($self), $r_list_MyZmanTime);
+      return $decode($raw.kosherz_zmanim_myzmanim_MyZmanim_all($self), $r_list_MyZmanTime);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2740,19 +2789,19 @@ const kosher$myzmanim$MyZmanim = class MyZmanim extends $Object {
     }
   }
   proportionalHourGra() {
-    const $self = $lend(this, kosher$myzmanim$MyZmanim);
+    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
     try {
-      return $raw.kosher_rust_bindings_kosher_myzmanim_MyZmanim_proportional_hour_gra($self);
+      return $raw.kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra($self);
     } catch ($e) {
-      throw $from$kosher$KosherError($e);
+      throw $from$zmanim$ZmanimError($e);
     } finally {
       $unlend(this);
     }
   }
   location() {
-    const $self = $lend(this, kosher$myzmanim$MyZmanim);
+    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_myzmanim_MyZmanim_location($self), $r$kosher$Location);
+      return $decode($raw.kosherz_zmanim_myzmanim_MyZmanim_location($self), $r$zmanim$Location);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2760,9 +2809,9 @@ const kosher$myzmanim$MyZmanim = class MyZmanim extends $Object {
     }
   }
   date() {
-    const $self = $lend(this, kosher$myzmanim$MyZmanim);
+    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
     try {
-      return $decode($raw.kosher_rust_bindings_kosher_myzmanim_MyZmanim_date($self), $r$kosher$GregorianDate);
+      return $decode($raw.kosherz_zmanim_myzmanim_MyZmanim_date($self), $r$calendar$GregorianDate);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2770,9 +2819,9 @@ const kosher$myzmanim$MyZmanim = class MyZmanim extends $Object {
     }
   }
   candleLightingMinutes() {
-    const $self = $lend(this, kosher$myzmanim$MyZmanim);
+    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
     try {
-      return $raw.kosher_rust_bindings_kosher_myzmanim_MyZmanim_candle_lighting_minutes($self);
+      return $raw.kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes($self);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2781,139 +2830,144 @@ const kosher$myzmanim$MyZmanim = class MyZmanim extends $Object {
   }
 };
 
-const kosher$myzmanim$myZmanName = function myZmanName(zman) {
+const zmanim$myzmanim$myZmanName = function myZmanName(zman) {
   try {
-    return $raw.kosher_rust_bindings_kosher_myzmanim_my_zman_name(zman);
+    return $raw.kosherz_zmanim_myzmanim_my_zman_name(zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$myzmanim$allMyZmanim = function allMyZmanim() {
+const zmanim$myzmanim$allMyZmanim = function allMyZmanim() {
   try {
-    return $decode($raw.kosher_rust_bindings_kosher_myzmanim_all_my_zmanim(), $r_list_MyZman);
+    return $decode($raw.kosherz_zmanim_myzmanim_all_my_zmanim(), $r_list_MyZman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$myzmanim$dawn90Degrees = function dawn90Degrees() {
+const zmanim$myzmanim$dawn90Degrees = function dawn90Degrees() {
   try {
-    return $raw.kosher_rust_bindings_kosher_myzmanim_dawn_90_degrees();
+    return $raw.kosherz_zmanim_myzmanim_dawn_90_degrees();
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$myzmanim$dawn72Degrees = function dawn72Degrees() {
+const zmanim$myzmanim$dawn72Degrees = function dawn72Degrees() {
   try {
-    return $raw.kosher_rust_bindings_kosher_myzmanim_dawn_72_degrees();
+    return $raw.kosherz_zmanim_myzmanim_dawn_72_degrees();
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$myzmanim$seaLevelRefractionArcminutes = function seaLevelRefractionArcminutes() {
+const zmanim$myzmanim$seaLevelRefractionArcminutes = function seaLevelRefractionArcminutes() {
   try {
-    return $raw.kosher_rust_bindings_kosher_myzmanim_sea_level_refraction_arcminutes();
+    return $raw.kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes();
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$myzmanim$dipDegreesPerRootMeter = function dipDegreesPerRootMeter() {
+const zmanim$myzmanim$dipDegreesPerRootMeter = function dipDegreesPerRootMeter() {
   try {
-    return $raw.kosher_rust_bindings_kosher_myzmanim_dip_degrees_per_root_meter();
+    return $raw.kosherz_zmanim_myzmanim_dip_degrees_per_root_meter();
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const kosher$myzmanim$defaultCandleLightingMinutes = function defaultCandleLightingMinutes() {
+const zmanim$myzmanim$defaultCandleLightingMinutes = function defaultCandleLightingMinutes() {
   try {
-    return $raw.kosher_rust_bindings_kosher_myzmanim_default_candle_lighting_minutes();
+    return $raw.kosherz_zmanim_myzmanim_default_candle_lighting_minutes();
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-export const kosher = Object.freeze({
-  KosherError: kosher$KosherError,
-  InvalidLatitudeError: kosher$InvalidLatitudeError,
-  InvalidLongitudeError: kosher$InvalidLongitudeError,
-  InvalidElevationError: kosher$InvalidElevationError,
-  InvalidDateError: kosher$InvalidDateError,
-  TimeZoneRequiredError: kosher$TimeZoneRequiredError,
-  TimeZoneCallbackFailedError: kosher$TimeZoneCallbackFailedError,
-  InvalidMinutesError: kosher$InvalidMinutesError,
-  AllDayError: kosher$AllDayError,
-  AllNightError: kosher$AllNightError,
-  NotApplicableError: kosher$NotApplicableError,
-  InternalError: kosher$InternalError,
-  seaLevelLocation: kosher$seaLevelLocation,
-  validateLocation: kosher$validateLocation,
-  calendar: Object.freeze({
-    Region: kosher$calendar$Region,
-    HebrewMonth: kosher$calendar$HebrewMonth,
-    Weekday: kosher$calendar$Weekday,
-    YearLength: kosher$calendar$YearLength,
-    Parsha: kosher$calendar$Parsha,
-    HebrewDate: kosher$calendar$HebrewDate,
-    yearInfo: kosher$calendar$yearInfo,
-    daysInMonth: kosher$calendar$daysInMonth,
-    roshHashana: kosher$calendar$roshHashana,
-    holidayName: kosher$calendar$holidayName,
-    holidayHebrew: kosher$calendar$holidayHebrew,
-    holidayIsAssurBemelacha: kosher$calendar$holidayIsAssurBemelacha,
-    holidayIsModern: kosher$calendar$holidayIsModern,
-    holidayIsFastDay: kosher$calendar$holidayIsFastDay,
-    parshaName: kosher$calendar$parshaName,
-    parshaHebrew: kosher$calendar$parshaHebrew,
-    monthName: kosher$calendar$monthName,
-    monthHebrew: kosher$calendar$monthHebrew,
-  }),
-  zmanim: Object.freeze({
-    Zman: kosher$zmanim$Zman,
-    Category: kosher$zmanim$Category,
-    Calculator: kosher$zmanim$Calculator,
-    ZmanFailure: kosher$zmanim$ZmanFailure,
-    Zmanim: kosher$zmanim$Zmanim,
-    defaultConfig: kosher$zmanim$defaultConfig,
-    allZmanim: kosher$zmanim$allZmanim,
-    zmanName: kosher$zmanim$zmanName,
-    zmanJavaName: kosher$zmanim$zmanJavaName,
-    zmanFromJavaName: kosher$zmanim$zmanFromJavaName,
-    zmanCategory: kosher$zmanim$zmanCategory,
-    zmanIsDeprecated: kosher$zmanim$zmanIsDeprecated,
-    zmanDescription: kosher$zmanim$zmanDescription,
-    calculatorName: kosher$zmanim$calculatorName,
-    shaahZmanis: kosher$zmanim$shaahZmanis,
-  }),
+export const calendar = Object.freeze({
+  CalendarError: calendar$CalendarError,
+  InvalidDateError: calendar$InvalidDateError,
+  InvalidHolidayError: calendar$InvalidHolidayError,
+  Region: calendar$Region,
+  HebrewMonth: calendar$HebrewMonth,
+  Weekday: calendar$Weekday,
+  YearLength: calendar$YearLength,
+  Parsha: calendar$Parsha,
+  HebrewDate: calendar$HebrewDate,
+  yearInfo: calendar$yearInfo,
+  daysInMonth: calendar$daysInMonth,
+  roshHashana: calendar$roshHashana,
+  holidayName: calendar$holidayName,
+  holidayHebrew: calendar$holidayHebrew,
+  holidayIsAssurBemelacha: calendar$holidayIsAssurBemelacha,
+  holidayIsModern: calendar$holidayIsModern,
+  holidayIsFastDay: calendar$holidayIsFastDay,
+  parshaName: calendar$parshaName,
+  parshaHebrew: calendar$parshaHebrew,
+  monthName: calendar$monthName,
+  monthHebrew: calendar$monthHebrew,
   limudim: Object.freeze({
-    Tractate: kosher$limudim$Tractate,
-    Side: kosher$limudim$Side,
-    tractateName: kosher$limudim$tractateName,
-    tractateHebrew: kosher$limudim$tractateHebrew,
-    tehillimDisplay: kosher$limudim$tehillimDisplay,
-    pirkeiAvosDisplay: kosher$limudim$pirkeiAvosDisplay,
-    dafYomiBavli: kosher$limudim$dafYomiBavli,
-    dafHashavuaBavli: kosher$limudim$dafHashavuaBavli,
-    dafYomiYerushalmi: kosher$limudim$dafYomiYerushalmi,
-    amudYomiDirshu: kosher$limudim$amudYomiDirshu,
-    mishnaYomis: kosher$limudim$mishnaYomis,
-    tehillimMonthly: kosher$limudim$tehillimMonthly,
-    pirkeiAvos: kosher$limudim$pirkeiAvos,
+    LimudimError: calendar$limudim$LimudimError,
+    InvalidUnitError: calendar$limudim$InvalidUnitError,
+    Tractate: calendar$limudim$Tractate,
+    Side: calendar$limudim$Side,
+    tractateName: calendar$limudim$tractateName,
+    tractateHebrew: calendar$limudim$tractateHebrew,
+    tehillimDisplay: calendar$limudim$tehillimDisplay,
+    pirkeiAvosDisplay: calendar$limudim$pirkeiAvosDisplay,
+    dafYomiBavli: calendar$limudim$dafYomiBavli,
+    dafHashavuaBavli: calendar$limudim$dafHashavuaBavli,
+    dafYomiYerushalmi: calendar$limudim$dafYomiYerushalmi,
+    amudYomiDirshu: calendar$limudim$amudYomiDirshu,
+    mishnaYomis: calendar$limudim$mishnaYomis,
+    tehillimMonthly: calendar$limudim$tehillimMonthly,
+    pirkeiAvos: calendar$limudim$pirkeiAvos,
   }),
+});
+
+export const zmanim = Object.freeze({
+  ZmanimError: zmanim$ZmanimError,
+  InvalidLatitudeError: zmanim$InvalidLatitudeError,
+  InvalidLongitudeError: zmanim$InvalidLongitudeError,
+  InvalidElevationError: zmanim$InvalidElevationError,
+  InvalidGregorianDateError: zmanim$InvalidGregorianDateError,
+  TimeZoneRequiredError: zmanim$TimeZoneRequiredError,
+  TimeZoneCallbackFailedError: zmanim$TimeZoneCallbackFailedError,
+  InvalidMinutesError: zmanim$InvalidMinutesError,
+  InvalidDegreesError: zmanim$InvalidDegreesError,
+  AllDayError: zmanim$AllDayError,
+  AllNightError: zmanim$AllNightError,
+  NotApplicableError: zmanim$NotApplicableError,
+  UnexpectedError: zmanim$UnexpectedError,
+  Zman: zmanim$Zman,
+  Category: zmanim$Category,
+  Calculator: zmanim$Calculator,
+  ZmanFailure: zmanim$ZmanFailure,
+  Zmanim: zmanim$Zmanim,
+  seaLevelLocation: zmanim$seaLevelLocation,
+  validateLocation: zmanim$validateLocation,
+  defaultConfig: zmanim$defaultConfig,
+  allZmanim: zmanim$allZmanim,
+  zmanName: zmanim$zmanName,
+  zmanJavaName: zmanim$zmanJavaName,
+  zmanFromJavaName: zmanim$zmanFromJavaName,
+  zmanCategory: zmanim$zmanCategory,
+  zmanIsDeprecated: zmanim$zmanIsDeprecated,
+  zmanDescription: zmanim$zmanDescription,
+  calculatorName: zmanim$calculatorName,
+  shaahZmanis: zmanim$shaahZmanis,
   myzmanim: Object.freeze({
-    MyZman: kosher$myzmanim$MyZman,
-    MyZmanim: kosher$myzmanim$MyZmanim,
-    myZmanName: kosher$myzmanim$myZmanName,
-    allMyZmanim: kosher$myzmanim$allMyZmanim,
-    dawn90Degrees: kosher$myzmanim$dawn90Degrees,
-    dawn72Degrees: kosher$myzmanim$dawn72Degrees,
-    seaLevelRefractionArcminutes: kosher$myzmanim$seaLevelRefractionArcminutes,
-    dipDegreesPerRootMeter: kosher$myzmanim$dipDegreesPerRootMeter,
-    defaultCandleLightingMinutes: kosher$myzmanim$defaultCandleLightingMinutes,
+    MyZman: zmanim$myzmanim$MyZman,
+    MyZmanim: zmanim$myzmanim$MyZmanim,
+    myZmanName: zmanim$myzmanim$myZmanName,
+    allMyZmanim: zmanim$myzmanim$allMyZmanim,
+    dawn90Degrees: zmanim$myzmanim$dawn90Degrees,
+    dawn72Degrees: zmanim$myzmanim$dawn72Degrees,
+    seaLevelRefractionArcminutes: zmanim$myzmanim$seaLevelRefractionArcminutes,
+    dipDegreesPerRootMeter: zmanim$myzmanim$dipDegreesPerRootMeter,
+    defaultCandleLightingMinutes: zmanim$myzmanim$defaultCandleLightingMinutes,
   }),
 });
 

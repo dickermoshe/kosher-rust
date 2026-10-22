@@ -11,13 +11,16 @@ use std::sync::{
 };
 
 use jiff::{civil, tz::TimeZone};
-use kosher_rust_bindings::api::kosher::{
-    GregorianDate, KosherError, Location,
-    calendar::{self, HebrewDate, Region},
-    limudim,
-    myzmanim::{self, MyZmanim},
-    sea_level_location, validate_location,
-    zmanim::{self, Calculator, TimeZoneOffset, ZmanFailure, Zmanim},
+use kosherz::api::{
+    calendar::{
+        self, CalendarError, GregorianDate, HebrewDate, Region,
+        limudim::{self, LimudimError},
+    },
+    zmanim::{
+        self, Calculator, Location, TimeZoneOffset, ZmanFailure, Zmanim, ZmanimError,
+        myzmanim::{self, MyZmanim},
+        sea_level_location, validate_location,
+    },
 };
 
 /// A jiff time zone, seen only through the callback.
@@ -173,7 +176,7 @@ fn expected(result: Result<jiff::Timestamp, kosher_rust::zmanim::ZmanimError>) -
                 E::AllNight => ZmanFailure::AllNight,
                 E::NotApplicable => ZmanFailure::NotApplicable,
                 E::TimeZoneRequired => ZmanFailure::TimeZoneRequired,
-                E::Internal => ZmanFailure::Internal,
+                E::Internal => ZmanFailure::Unexpected,
             }),
         ),
     }
@@ -317,6 +320,20 @@ fn config_round_trips() {
         zmanim::calculator_name(Calculator::Meeus),
         "Jean Meeus Higher-Accuracy (VSOP87) Algorithm"
     );
+
+    // NOAA ignores delta-T, and `config` still gives back what was passed in.
+    let noaa = zmanim::Config {
+        calculator: Calculator::Noaa,
+        apply_delta_t: false,
+        ..custom
+    };
+    let date = GregorianDate {
+        year: 2024,
+        month: 4,
+        day: 23,
+    };
+    let day = Zmanim::new(sea_level_location(40.09, -74.22), date, noaa, None).unwrap();
+    assert_eq!(day.config(), noaa);
 }
 
 #[test]
@@ -332,41 +349,41 @@ fn errors() {
 
     let utc = || Some(Arc::new(Jiff(TimeZone::UTC)) as Arc<dyn TimeZoneOffset>);
     let bad = |location: Location| Zmanim::new(location, date, config, utc()).err();
-    assert_eq!(bad(sea_level_location(91.0, 0.0)), Some(KosherError::InvalidLatitude));
-    assert_eq!(bad(sea_level_location(0.0, 181.0)), Some(KosherError::InvalidLongitude));
+    assert_eq!(bad(sea_level_location(91.0, 0.0)), Some(ZmanimError::InvalidLatitude));
+    assert_eq!(bad(sea_level_location(0.0, 181.0)), Some(ZmanimError::InvalidLongitude));
     assert_eq!(
         bad(Location {
             elevation: -1.0,
             ..lakewood
         }),
-        Some(KosherError::InvalidElevation)
+        Some(ZmanimError::InvalidElevation)
     );
     assert_eq!(
         Zmanim::new(sea_level_location(0.0, 179.0), date, config, None).err(),
-        Some(KosherError::TimeZoneRequired)
+        Some(ZmanimError::TimeZoneRequired)
     );
     assert_eq!(validate_location(sea_level_location(0.0, 179.0), true), Ok(()));
     assert_eq!(
         Zmanim::new(lakewood, GregorianDate { day: 31, ..date }, config, None).err(),
-        Some(KosherError::InvalidDate)
+        Some(ZmanimError::InvalidGregorianDate)
     );
 
     let no_zone = Zmanim::new(lakewood, date, config, None).unwrap();
-    assert_eq!(no_zone.get(levana), Err(KosherError::TimeZoneRequired));
+    assert_eq!(no_zone.get(levana), Err(ZmanimError::TimeZoneRequired));
     assert!(no_zone.get(zmanim::Zman::Sunrise).is_ok());
 
     let broken = Arc::new(Broken::default());
     let failing = Zmanim::new(lakewood, date, config, Some(broken.clone())).unwrap();
-    assert_eq!(failing.get(levana), Err(KosherError::TimeZoneCallbackFailed));
+    assert_eq!(failing.get(levana), Err(ZmanimError::TimeZoneCallbackFailed));
     assert!(broken.0.load(Ordering::Relaxed) > 0);
     // Every time asks the time zone for the date-line check, so every time reports the failure.
     assert_eq!(
         failing.get(zmanim::Zman::Sunrise),
-        Err(KosherError::TimeZoneCallbackFailed)
+        Err(ZmanimError::TimeZoneCallbackFailed)
     );
 
     let too_far = Zmanim::new(lakewood, date, config, Some(Arc::new(TooFar))).unwrap();
-    assert_eq!(too_far.get(levana), Err(KosherError::TimeZoneCallbackFailed));
+    assert_eq!(too_far.get(levana), Err(ZmanimError::TimeZoneCallbackFailed));
     let failures: Vec<_> = too_far.all().into_iter().filter_map(|row| row.failure).collect();
     // Only times that turn out not to apply without looking at the sun skip the callback.
     assert!(
@@ -409,7 +426,7 @@ fn inputs_at_their_limits() {
         .get(zmanim::Zman::Sunrise)
     };
     for seconds in [i32::MIN, i32::MAX, -86_400, 86_400] {
-        assert_eq!(offset(seconds), Err(KosherError::TimeZoneCallbackFailed), "{seconds}");
+        assert_eq!(offset(seconds), Err(ZmanimError::TimeZoneCallbackFailed), "{seconds}");
     }
     for seconds in [-86_399, 0, 86_399] {
         assert!(offset(seconds).is_ok(), "{seconds}");
@@ -429,16 +446,16 @@ fn inputs_at_their_limits() {
         Zmanim::new(lakewood, date, config, None).map(|_| ())
     };
     assert_eq!(with_minutes(-1440, 1440), Ok(()));
-    assert_eq!(with_minutes(1441, 40), Err(KosherError::InvalidMinutes));
-    assert_eq!(with_minutes(18, -1441), Err(KosherError::InvalidMinutes));
-    assert_eq!(with_minutes(i32::MAX, i32::MIN), Err(KosherError::InvalidMinutes));
+    assert_eq!(with_minutes(1441, 40), Err(ZmanimError::InvalidMinutes));
+    assert_eq!(with_minutes(18, -1441), Err(ZmanimError::InvalidMinutes));
+    assert_eq!(with_minutes(i32::MAX, i32::MIN), Err(ZmanimError::InvalidMinutes));
 
     let candle_lighting = |minutes: f64| MyZmanim::new(lakewood, date, minutes, None).map(|_| ());
     for minutes in [0.0, 40.5, -1440.0, 1440.0] {
         assert_eq!(candle_lighting(minutes), Ok(()), "{minutes}");
     }
     for minutes in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 1440.5, -1e15] {
-        assert_eq!(candle_lighting(minutes), Err(KosherError::InvalidMinutes), "{minutes}");
+        assert_eq!(candle_lighting(minutes), Err(ZmanimError::InvalidMinutes), "{minutes}");
     }
 }
 
@@ -518,7 +535,7 @@ fn concurrent_calls_report_only_their_own_callback_failures() {
         .unwrap(),
     );
     let levana = zmanim::Zman::TchilasZmanKidushLevana3Days;
-    assert_eq!(shared.get(levana), Err(KosherError::TimeZoneCallbackFailed));
+    assert_eq!(shared.get(levana), Err(ZmanimError::TimeZoneCallbackFailed));
     let sunrise = shared.get(zmanim::Zman::Sunrise).unwrap();
 
     let other = Arc::clone(&shared);
@@ -528,7 +545,7 @@ fn concurrent_calls_report_only_their_own_callback_failures() {
             .count()
     });
     let wrong_levanas = (0..20_000)
-        .filter(|_| shared.get(levana) != Err(KosherError::TimeZoneCallbackFailed))
+        .filter(|_| shared.get(levana) != Err(ZmanimError::TimeZoneCallbackFailed))
         .count();
     assert_eq!((wrong_levanas, wrong_sunrises.join().unwrap()), (0, 0));
 }
@@ -570,8 +587,11 @@ fn calendar_matches_kosher_rust() {
             (Region::Israel, kosher_rust::Region::Israel),
             (Region::Diaspora, kosher_rust::Region::Diaspora),
         ] {
-            let holidays: Vec<kosher_rust::calendar::Holiday> =
-                ours.holidays(region).into_iter().map(Into::into).collect();
+            let holidays: Vec<kosher_rust::calendar::Holiday> = ours
+                .holidays(region)
+                .into_iter()
+                .map(|holiday| holiday.try_into().unwrap())
+                .collect();
             assert_eq!(holidays, theirs.holidays(kosher_region).collect::<Vec<_>>(), "{date}");
             assert_eq!(
                 ours.is_assur_bemelacha(region),
@@ -591,7 +611,7 @@ fn calendar_matches_kosher_rust() {
                 theirs.next_parsha(kosher_region)
             );
             assert_eq!(
-                limudim::pirkei_avos(&ours, region).map(limudim::pirkei_avos_display),
+                limudim::pirkei_avos(&ours, region).map(|unit| limudim::pirkei_avos_display(unit).unwrap()),
                 kosher_rust::limudim::Schedule::on(&kosher_rust::limudim::PirkeiAvos(kosher_region), date)
                     .map(|unit| unit.to_string())
             );
@@ -641,11 +661,14 @@ fn limudim_match_kosher_rust() {
             k::MishnaYomis.on(date).map(|m| m.to_string())
         );
         assert_eq!(
-            limudim::tehillim_monthly(&ours).map(limudim::tehillim_display),
+            limudim::tehillim_monthly(&ours).map(|unit| limudim::tehillim_display(unit).unwrap()),
             k::TehillimMonthly.on(date).map(|t| t.to_string())
         );
         if let Some(unit) = limudim::tehillim_monthly(&ours) {
-            assert_eq!(k::TehillimUnit::from(unit), k::TehillimMonthly.on(date).unwrap());
+            assert_eq!(
+                k::TehillimUnit::try_from(unit),
+                Ok(k::TehillimMonthly.on(date).unwrap())
+            );
         }
         if let Some(daf) = limudim::daf_yomi_bavli(&ours) {
             let theirs = k::DafYomiBavli.on(date).unwrap();
@@ -668,7 +691,7 @@ fn enums_round_trip() {
         assert_eq!(calendar::parsha_hebrew(ours), theirs.hebrew());
     }
     for year in [5784, 5785] {
-        let info = calendar::year_info(year);
+        let info = calendar::year_info(year).unwrap();
         let theirs = kosher_rust::calendar::HebrewYear::new(year);
         assert_eq!(info.is_leap, theirs.is_leap());
         assert_eq!(info.days, i32::from(theirs.days()));
@@ -689,9 +712,101 @@ fn enums_round_trip() {
     assert_eq!(calendar::days_in_month(5785, calendar::HebrewMonth::AdarI), None);
     let chanukah = calendar::Holiday::Chanukah { day: 3 };
     assert_eq!(
-        kosher_rust::calendar::Holiday::from(chanukah),
-        kosher_rust::calendar::Holiday::Chanukah(3)
+        kosher_rust::calendar::Holiday::try_from(chanukah),
+        Ok(kosher_rust::calendar::Holiday::Chanukah(3))
     );
-    assert!(calendar::holiday_is_fast_day(calendar::Holiday::YomKippur));
-    assert!(calendar::holiday_is_modern(calendar::Holiday::YomHaatzmaut));
+    assert_eq!(calendar::holiday_is_fast_day(calendar::Holiday::YomKippur), Ok(true));
+    assert_eq!(calendar::holiday_is_modern(calendar::Holiday::YomHaatzmaut), Ok(true));
+}
+
+/// Out-of-range numbers from outside are rejected, not clamped.
+#[test]
+fn out_of_range_values_are_rejected() {
+    use calendar::{HebrewMonth, Holiday};
+    use limudim::{PirkeiAvosUnit, TehillimUnit};
+
+    let day = Zmanim::new(
+        sea_level_location(40.09, -74.22),
+        GregorianDate {
+            year: 2024,
+            month: 4,
+            day: 23,
+        },
+        zmanim::default_config(),
+        None,
+    )
+    .unwrap();
+    for degrees in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+        assert_eq!(day.sunrise_offset_by_degrees(degrees), Err(ZmanimError::InvalidDegrees));
+        assert_eq!(day.sunset_offset_by_degrees(degrees), Err(ZmanimError::InvalidDegrees));
+    }
+    assert!(day.sunrise_offset_by_degrees(16.1).is_ok());
+
+    for holiday in [
+        Holiday::Chanukah { day: 0 },
+        Holiday::Chanukah { day: 9 },
+        Holiday::CountOfTheOmer { day: 50 },
+        Holiday::CountOfTheOmer { day: -1 },
+    ] {
+        assert_eq!(
+            calendar::holiday_name(holiday),
+            Err(CalendarError::InvalidHoliday),
+            "{holiday:?}"
+        );
+    }
+    assert_eq!(
+        calendar::holiday_name(Holiday::Chanukah { day: 8 }).as_deref(),
+        Ok("Chanukah")
+    );
+
+    for unit in [
+        TehillimUnit::Psalms { start: 0, end: 9 },
+        TehillimUnit::Psalms { start: 1, end: 151 },
+        TehillimUnit::PsalmVerses {
+            psalm: 119,
+            start_verse: 1,
+            end_verse: 177,
+        },
+    ] {
+        assert_eq!(
+            limudim::tehillim_display(unit),
+            Err(LimudimError::InvalidUnit),
+            "{unit:?}"
+        );
+    }
+    assert_eq!(
+        limudim::tehillim_display(TehillimUnit::Psalms { start: 140, end: 150 }).as_deref(),
+        Ok("Tehillim 140-150")
+    );
+    for unit in [
+        PirkeiAvosUnit::Single { chapter: 0 },
+        PirkeiAvosUnit::Combined { first: 6, second: 7 },
+    ] {
+        assert_eq!(
+            limudim::pirkei_avos_display(unit),
+            Err(LimudimError::InvalidUnit),
+            "{unit:?}"
+        );
+    }
+
+    for year in [i32::MIN, -1, 0, 10_000, i32::MAX] {
+        assert_eq!(calendar::year_info(year), Err(CalendarError::InvalidDate), "{year}");
+        assert_eq!(calendar::days_in_month(year, HebrewMonth::Nisan), None, "{year}");
+        assert!(calendar::rosh_hashana(year).is_err(), "{year}");
+        assert!(HebrewDate::new(year, HebrewMonth::Nisan, 1).is_err(), "{year}");
+    }
+    for (year, month, day) in [(-3761, 1, 1), (6239, 12, 31), (9999, 12, 31)] {
+        assert!(
+            HebrewDate::from_gregorian(GregorianDate { year, month, day }).is_err(),
+            "{year}-{month}-{day}"
+        );
+    }
+    let last = HebrewDate::new(9999, HebrewMonth::Elul, 29).unwrap();
+    assert!(last.add_days(1).is_err());
+    let first = HebrewDate::new(1, HebrewMonth::Tishrei, 1).unwrap();
+    assert!(first.add_days(-1).is_err());
+    assert_eq!(
+        HebrewDate::from_gregorian(last.to_gregorian().unwrap()).unwrap().year(),
+        9999
+    );
 }

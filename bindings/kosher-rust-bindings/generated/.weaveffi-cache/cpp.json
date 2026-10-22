@@ -2,7 +2,7 @@
   "files": [
     "cpp/CMakeLists.txt",
     "cpp/README.md",
-    "cpp/kosher_rust_bindings.h",
-    "cpp/kosher_rust_bindings.hpp"
+    "cpp/kosherz.h",
+    "cpp/kosherz.hpp"
   ]
 }

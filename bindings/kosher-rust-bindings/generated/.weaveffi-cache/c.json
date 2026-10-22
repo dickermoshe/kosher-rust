@@ -1,6 +1,6 @@
 {
   "files": [
-    "c/kosher_rust_bindings.h",
-    "c/kosher_rust_bindings_buffer.h"
+    "c/kosherz.h",
+    "c/kosherz_buffer.h"
   ]
 }

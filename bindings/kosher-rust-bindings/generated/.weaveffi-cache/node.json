@@ -4,8 +4,8 @@
     "node/binding.gyp",
     "node/index.d.ts",
     "node/index.js",
-    "node/kosher_rust_bindings.h",
-    "node/kosher_rust_bindings_node.c",
+    "node/kosherz.h",
+    "node/kosherz_node.c",
     "node/package.json",
     "node/runtime.js"
   ]

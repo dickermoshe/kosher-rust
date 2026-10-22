@@ -6,9 +6,9 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <AssemblyName>KosherRustBindings</AssemblyName>
-    <RootNamespace>KosherRustBindings</RootNamespace>
-    <PackageId>KosherRustBindings</PackageId>
+    <AssemblyName>Kosherz</AssemblyName>
+    <RootNamespace>Kosherz</RootNamespace>
+    <PackageId>Kosherz</PackageId>
     <Version>0.0.0</Version>
     <Description>C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI.</Description>
     <PackageLicenseExpression>LGPL-2.1-or-later</PackageLicenseExpression>
@@ -21,4 +21,4 @@
 
 </Project>
 
-<!-- END KosherRustBindings.csproj -->
+<!-- END Kosherz.csproj -->

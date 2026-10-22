@@ -10,16 +10,16 @@
  * (-1 generic, -2 producer panic, -3 marshalling failure, -4 a callback
  * implementation failed, -5 cancelled).
  */
-export declare class KosherRustBindingsError extends Error {
+export declare class KosherzError extends Error {
   readonly code: number;
   constructor(code: number, message?: string);
 }
 /** The error a cancelled async call rejects with (code -5). */
-export declare class CancelledError extends KosherRustBindingsError {
+export declare class CancelledError extends KosherzError {
   constructor(message?: string);
 }
 /** The root error class, under a name no namespace member can shadow. */
-declare const $Error: typeof KosherRustBindingsError;
+declare const $Error: typeof KosherzError;
 /**
  * Load the WebAssembly module and check that it matches these bindings.
  * Every other export throws until the returned promise resolves.
@@ -35,80 +35,320 @@ export declare function init(
  */
 export declare function __debugLive(kind: number): bigint;
 
-/**
- * Jewish calendar, halachic times (*zmanim*) and daily learning schedules.
- *
- * Instants are milliseconds since the Unix epoch and durations are milliseconds.
- */
-export declare namespace kosher {
-  /** The errors of the `kosher` error domain. */
-  export class KosherError extends $Error {
+/** The Hebrew calendar: dates, holidays, the weekly *parsha*, years and the molad. */
+export declare namespace calendar {
+  /** The errors of the `calendar` error domain. */
+  export class CalendarError extends $Error {
     constructor(code: number, message?: string);
   }
-  /** The latitude is not between -90 and 90 degrees. */
-  export class InvalidLatitudeError extends kosher.KosherError {
+  /** The date does not exist, or is outside Hebrew years 1 to 9999. */
+  export class InvalidDateError extends calendar.CalendarError {
     static readonly CODE: 1;
     constructor(message?: string);
   }
-  /** The longitude is not between -180 and 180 degrees. */
-  export class InvalidLongitudeError extends kosher.KosherError {
+  /** A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49. */
+  export class InvalidHolidayError extends calendar.CalendarError {
     static readonly CODE: 2;
     constructor(message?: string);
   }
-  /** An elevation is negative or not a finite number. */
-  export class InvalidElevationError extends kosher.KosherError {
-    static readonly CODE: 3;
-    constructor(message?: string);
-  }
-  /** The date does not exist, or is outside the supported range. */
-  export class InvalidDateError extends kosher.KosherError {
-    static readonly CODE: 4;
-    constructor(message?: string);
+  /** Where the calendar is kept. Outside Israel, Yom Tov has a second day. */
+  export enum Region {
+    /** Eretz Yisrael: one day of Yom Tov. */
+    Israel = 0,
+    /** Everywhere else: two days of Yom Tov. */
+    Diaspora = 1,
   }
   /**
-   * The time needs a time zone and none was given: the Kiddush Levana times, and any time
-   * more than 150 degrees from Greenwich.
+   * A month of the Hebrew calendar, numbered from Tishrei. A leap year has two Adars:
+   * `AdarI` is the added month, and `Adar` is Adar II in a leap year.
    */
-  export class TimeZoneRequiredError extends kosher.KosherError {
-    static readonly CODE: 5;
-    constructor(message?: string);
+  export enum HebrewMonth {
+    /** Tishrei. */
+    Tishrei = 1,
+    /** Cheshvan. */
+    Cheshvan = 2,
+    /** Kislev. */
+    Kislev = 3,
+    /** Teves. */
+    Teves = 4,
+    /** Shevat. */
+    Shevat = 5,
+    /** Adar I, only in a leap year. */
+    AdarI = 6,
+    /** Adar, or Adar II in a leap year. */
+    Adar = 7,
+    /** Nisan. */
+    Nisan = 8,
+    /** Iyar. */
+    Iyar = 9,
+    /** Sivan. */
+    Sivan = 10,
+    /** Tammuz. */
+    Tammuz = 11,
+    /** Av. */
+    Av = 12,
+    /** Elul. */
+    Elul = 13,
   }
-  /** The time zone callback failed, or gave an offset of a day or more. */
-  export class TimeZoneCallbackFailedError extends kosher.KosherError {
-    static readonly CODE: 6;
-    constructor(message?: string);
+  /** A day of the week, numbered from Sunday as the Hebrew calendar counts. */
+  export enum Weekday {
+    /** Sunday. */
+    Sunday = 1,
+    /** Monday. */
+    Monday = 2,
+    /** Tuesday. */
+    Tuesday = 3,
+    /** Wednesday. */
+    Wednesday = 4,
+    /** Thursday. */
+    Thursday = 5,
+    /** Friday. */
+    Friday = 6,
+    /** Shabbos. */
+    Shabbos = 7,
+  }
+  /** Whether Cheshvan and Kislev are long or short in a year. */
+  export enum YearLength {
+    /** Deficient: Cheshvan and Kislev both have 29 days (353 or 383 days). */
+    Chaserim = 0,
+    /** Regular: Cheshvan has 29 days and Kislev 30 (354 or 384 days). */
+    Kesidran = 1,
+    /** Complete: Cheshvan and Kislev both have 30 days (355 or 385 days). */
+    Shelaimim = 2,
+  }
+  /** A weekly Torah portion, a double portion, or one of the special Shabbosos. */
+  export enum Parsha {
+    /** Bereshis. */
+    Bereshis = 0,
+    /** Noach. */
+    Noach = 1,
+    /** Lech Lecha. */
+    LechLecha = 2,
+    /** Vayera. */
+    Vayera = 3,
+    /** Chayei Sara. */
+    ChayeiSara = 4,
+    /** Toldos. */
+    Toldos = 5,
+    /** Vayetzei. */
+    Vayetzei = 6,
+    /** Vayishlach. */
+    Vayishlach = 7,
+    /** Vayeshev. */
+    Vayeshev = 8,
+    /** Miketz. */
+    Miketz = 9,
+    /** Vayigash. */
+    Vayigash = 10,
+    /** Vayechi. */
+    Vayechi = 11,
+    /** Shemos. */
+    Shemos = 12,
+    /** Vaera. */
+    Vaera = 13,
+    /** Bo. */
+    Bo = 14,
+    /** Beshalach. */
+    Beshalach = 15,
+    /** Yisro. */
+    Yisro = 16,
+    /** Mishpatim. */
+    Mishpatim = 17,
+    /** Terumah. */
+    Terumah = 18,
+    /** Tetzaveh. */
+    Tetzaveh = 19,
+    /** Ki Sisa. */
+    KiSisa = 20,
+    /** Vayakhel. */
+    Vayakhel = 21,
+    /** Pekudei. */
+    Pekudei = 22,
+    /** Vayikra. */
+    Vayikra = 23,
+    /** Tzav. */
+    Tzav = 24,
+    /** Shmini. */
+    Shmini = 25,
+    /** Tazria. */
+    Tazria = 26,
+    /** Metzora. */
+    Metzora = 27,
+    /** Achrei Mos. */
+    AchreiMos = 28,
+    /** Kedoshim. */
+    Kedoshim = 29,
+    /** Emor. */
+    Emor = 30,
+    /** Behar. */
+    Behar = 31,
+    /** Bechukosai. */
+    Bechukosai = 32,
+    /** Bamidbar. */
+    Bamidbar = 33,
+    /** Nasso. */
+    Nasso = 34,
+    /** Behaaloscha. */
+    Behaaloscha = 35,
+    /** Shlach. */
+    Shlach = 36,
+    /** Korach. */
+    Korach = 37,
+    /** Chukas. */
+    Chukas = 38,
+    /** Balak. */
+    Balak = 39,
+    /** Pinchas. */
+    Pinchas = 40,
+    /** Matos. */
+    Matos = 41,
+    /** Masei. */
+    Masei = 42,
+    /** Devarim. */
+    Devarim = 43,
+    /** Vaeschanan. */
+    Vaeschanan = 44,
+    /** Eikev. */
+    Eikev = 45,
+    /** Re'eh. */
+    Reeh = 46,
+    /** Shoftim. */
+    Shoftim = 47,
+    /** Ki Seitzei. */
+    KiSeitzei = 48,
+    /** Ki Savo. */
+    KiSavo = 49,
+    /** Nitzavim. */
+    Nitzavim = 50,
+    /** Vayeilech. */
+    Vayeilech = 51,
+    /** Ha'Azinu. */
+    HaAzinu = 52,
+    /** Vezos Habracha. */
+    VezosHabracha = 53,
+    /** Vayakhel-Pekudei. */
+    VayakhelPekudei = 54,
+    /** Tazria-Metzora. */
+    TazriaMetzora = 55,
+    /** Achrei Mos-Kedoshim. */
+    AchreiMosKedoshim = 56,
+    /** Behar-Bechukosai. */
+    BeharBechukosai = 57,
+    /** Chukas-Balak. */
+    ChukasBalak = 58,
+    /** Matos-Masei. */
+    MatosMasei = 59,
+    /** Nitzavim-Vayeilech. */
+    NitzavimVayeilech = 60,
+    /** Shabbos Shekalim. */
+    Shekalim = 61,
+    /** Shabbos Zachor. */
+    Zachor = 62,
+    /** Shabbos Parah. */
+    Parah = 63,
+    /** Shabbos Hachodesh. */
+    Hachodesh = 64,
+    /** Shabbos Shuva. */
+    Shuva = 65,
+    /** Shabbos Shira. */
+    Shira = 66,
+    /** Shabbos Hagadol. */
+    Hagadol = 67,
+    /** Shabbos Chazon. */
+    Chazon = 68,
+    /** Shabbos Nachamu. */
+    Nachamu = 69,
   }
   /**
-   * A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
-   * within a day (1440 minutes) either way.
+   * A holiday, fast, or other day the calendar marks. Some are not holidays in the halachic
+   * sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
+   * show them.
    */
-  export class InvalidMinutesError extends kosher.KosherError {
-    static readonly CODE: 7;
-    constructor(message?: string);
-  }
-  /** The sun stays above the angle the time needs all day, as in the far north in summer. */
-  export class AllDayError extends kosher.KosherError {
-    static readonly CODE: 10;
-    constructor(message?: string);
-  }
-  /** The sun stays below the angle the time needs all day, as in the far north in winter. */
-  export class AllNightError extends kosher.KosherError {
-    static readonly CODE: 11;
-    constructor(message?: string);
-  }
-  /** The time only exists on certain dates, and this is not one. */
-  export class NotApplicableError extends kosher.KosherError {
-    static readonly CODE: 12;
-    constructor(message?: string);
-  }
-  /**
-   * A calculation failed in a way that should not happen; please report the location and
-   * date.
-   */
-  export class InternalError extends kosher.KosherError {
-    static readonly CODE: 13;
-    constructor(message?: string);
-  }
+  export type Holiday =
+    /** Erev Pesach, 14 Nisan. */
+    | { tag: 'ErevPesach' }
+    /** Pesach. */
+    | { tag: 'Pesach' }
+    /** Chol Hamoed Pesach. */
+    | { tag: 'CholHamoedPesach' }
+    /** Pesach Sheni, 14 Iyar. */
+    | { tag: 'PesachSheni' }
+    /** Erev Shavuos, 5 Sivan. */
+    | { tag: 'ErevShavuos' }
+    /** Shavuos. */
+    | { tag: 'Shavuos' }
+    /** The fast of 17 Tammuz. */
+    | { tag: 'SeventeenthOfTammuz' }
+    /** Tishah B'Av. */
+    | { tag: 'TishahBav' }
+    /** Tu B'Av, 15 Av. */
+    | { tag: 'TuBav' }
+    /** Erev Rosh Hashana, 29 Elul. */
+    | { tag: 'ErevRoshHashana' }
+    /** Rosh Hashana. */
+    | { tag: 'RoshHashana' }
+    /** The Fast of Gedalyah. */
+    | { tag: 'FastOfGedalyah' }
+    /** Erev Yom Kippur, 9 Tishrei. */
+    | { tag: 'ErevYomKippur' }
+    /** Yom Kippur, 10 Tishrei. */
+    | { tag: 'YomKippur' }
+    /** Erev Succos, 14 Tishrei. */
+    | { tag: 'ErevSuccos' }
+    /** Succos. */
+    | { tag: 'Succos' }
+    /** Chol Hamoed Succos. */
+    | { tag: 'CholHamoedSuccos' }
+    /** Hoshana Rabbah, 21 Tishrei. */
+    | { tag: 'HoshanaRabbah' }
+    /** Shemini Atzeres. */
+    | { tag: 'SheminiAtzeres' }
+    /** Simchas Torah. */
+    | { tag: 'SimchasTorah' }
+    /** Chanukah. */
+    | { tag: 'Chanukah'; day: number }
+    /** The fast of 10 Teves. */
+    | { tag: 'TenthOfTeves' }
+    /** Tu B'Shvat, 15 Shevat. */
+    | { tag: 'TuBshvat' }
+    /** The Fast of Esther. */
+    | { tag: 'FastOfEsther' }
+    /** Purim. */
+    | { tag: 'Purim' }
+    /** Shushan Purim. */
+    | { tag: 'ShushanPurim' }
+    /** Purim Katan, 14 Adar I. */
+    | { tag: 'PurimKatan' }
+    /** Rosh Chodesh. */
+    | { tag: 'RoshChodesh' }
+    /** Yom HaShoah. */
+    | { tag: 'YomHaShoah' }
+    /** Yom Hazikaron. */
+    | { tag: 'YomHazikaron' }
+    /** Yom Ha'atzmaut. */
+    | { tag: 'YomHaatzmaut' }
+    /** Yom Yerushalayim. */
+    | { tag: 'YomYerushalayim' }
+    /** Lag B'Omer, 18 Iyar. */
+    | { tag: 'LagBomer' }
+    /** Shushan Purim Katan, 15 Adar I. */
+    | { tag: 'ShushanPurimKatan' }
+    /** Isru Chag, the day after a festival. */
+    | { tag: 'IsruChag' }
+    /** Yom Kippur Katan, the eve of Rosh Chodesh. */
+    | { tag: 'YomKippurKatan' }
+    /** Behab, the Monday-Thursday-Monday fasts after Pesach and Succos. */
+    | { tag: 'Behab' }
+    /** The Fast of the Firstborn. */
+    | { tag: 'FastOfTheFirstborn' }
+    /** The Omer count. */
+    | { tag: 'CountOfTheOmer'; day: number }
+    /** Birchas Hachamah, every 28 years. */
+    | { tag: 'BirchasHachamah' }
+    /** Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh. */
+    | { tag: 'MacharHachodesh' }
+    /** Shabbos Mevarchim, the Shabbos when the coming month is announced. */
+    | { tag: 'ShabbosMevarchim' };
   /** A day on the Gregorian calendar. */
   export interface GregorianDate {
     /** The year, for example 2024. */
@@ -118,1112 +358,181 @@ export declare namespace kosher {
     /** The day of the month, from 1. */
     day: number;
   }
-  /**
-   * A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
-   * leave them 0 for sea level.
-   *
-   * The time zone is not part of the location: pass a
-   * `TimeZoneOffset` to `Zmanim` and
-   * `MyZmanim`.
-   */
-  export interface Location {
-    /** Latitude in degrees, north positive. */
-    latitude: number;
-    /** Longitude in degrees, east positive. */
-    longitude: number;
-    /** The observer's height. Elevation makes sunrise earlier and sunset later. */
-    elevation: number;
-    /** The height of the eastern horizon, over which the sun rises. */
-    eastern_horizon_elevation: number;
-    /** The height of the western horizon, behind which the sun sets. */
-    western_horizon_elevation: number;
+  /** Facts about a Hebrew year. */
+  export interface YearInfo {
+    /** The year, for example 5785. */
+    year: number;
+    /** Whether it has 13 months. */
+    is_leap: boolean;
+    /** The number of days, 353 to 385. */
+    days: number;
+    /** Whether Cheshvan and Kislev are long or short. */
+    length: calendar.YearLength;
+    /** Whether Cheshvan has 30 days. */
+    is_cheshvan_long: boolean;
+    /** Whether Kislev has 29 days. */
+    is_kislev_short: boolean;
+    /** The months in order, from Tishrei. */
+    months: calendar.HebrewMonth[];
   }
-  /** A location at sea level, with flat horizons. */
-  export function seaLevelLocation(latitude: number, longitude: number): kosher.Location;
   /**
-   * Checks a location the way `Zmanim` will.
-   *
-   * # Errors
-   *
-   * `KosherError::InvalidLatitude`, `KosherError::InvalidLongitude` or
-   * `KosherError::InvalidElevation`; `KosherError::TimeZoneRequired` beyond 150 degrees
-   * from Greenwich when `has_time_zone` is false.
-   * @throws {kosher.KosherError}
+   * A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
+   * begins at nightfall. Years 1 to 9999.
    */
-  export function validateLocation(location: kosher.Location, hasTimeZone: boolean): void;
-  /** The Hebrew calendar: dates, holidays, the weekly *parsha*, years and the molad. */
-  export namespace calendar {
-    /** Where the calendar is kept. Outside Israel, Yom Tov has a second day. */
-    export enum Region {
-      /** Eretz Yisrael: one day of Yom Tov. */
-      Israel = 0,
-      /** Everywhere else: two days of Yom Tov. */
-      Diaspora = 1,
-    }
+  export class HebrewDate {
     /**
-     * A month of the Hebrew calendar, numbered from Tishrei. A leap year has two Adars:
-     * `AdarI` is the added month, and `Adar` is Adar II in a leap year.
-     */
-    export enum HebrewMonth {
-      /** Tishrei. */
-      Tishrei = 1,
-      /** Cheshvan. */
-      Cheshvan = 2,
-      /** Kislev. */
-      Kislev = 3,
-      /** Teves. */
-      Teves = 4,
-      /** Shevat. */
-      Shevat = 5,
-      /** Adar I, only in a leap year. */
-      AdarI = 6,
-      /** Adar, or Adar II in a leap year. */
-      Adar = 7,
-      /** Nisan. */
-      Nisan = 8,
-      /** Iyar. */
-      Iyar = 9,
-      /** Sivan. */
-      Sivan = 10,
-      /** Tammuz. */
-      Tammuz = 11,
-      /** Av. */
-      Av = 12,
-      /** Elul. */
-      Elul = 13,
-    }
-    /** A day of the week, numbered from Sunday as the Hebrew calendar counts. */
-    export enum Weekday {
-      /** Sunday. */
-      Sunday = 1,
-      /** Monday. */
-      Monday = 2,
-      /** Tuesday. */
-      Tuesday = 3,
-      /** Wednesday. */
-      Wednesday = 4,
-      /** Thursday. */
-      Thursday = 5,
-      /** Friday. */
-      Friday = 6,
-      /** Shabbos. */
-      Shabbos = 7,
-    }
-    /** Whether Cheshvan and Kislev are long or short in a year. */
-    export enum YearLength {
-      /** Deficient: Cheshvan and Kislev both have 29 days (353 or 383 days). */
-      Chaserim = 0,
-      /** Regular: Cheshvan has 29 days and Kislev 30 (354 or 384 days). */
-      Kesidran = 1,
-      /** Complete: Cheshvan and Kislev both have 30 days (355 or 385 days). */
-      Shelaimim = 2,
-    }
-    /** A weekly Torah portion, a double portion, or one of the special Shabbosos. */
-    export enum Parsha {
-      /** Bereshis. */
-      Bereshis = 0,
-      /** Noach. */
-      Noach = 1,
-      /** Lech Lecha. */
-      LechLecha = 2,
-      /** Vayera. */
-      Vayera = 3,
-      /** Chayei Sara. */
-      ChayeiSara = 4,
-      /** Toldos. */
-      Toldos = 5,
-      /** Vayetzei. */
-      Vayetzei = 6,
-      /** Vayishlach. */
-      Vayishlach = 7,
-      /** Vayeshev. */
-      Vayeshev = 8,
-      /** Miketz. */
-      Miketz = 9,
-      /** Vayigash. */
-      Vayigash = 10,
-      /** Vayechi. */
-      Vayechi = 11,
-      /** Shemos. */
-      Shemos = 12,
-      /** Vaera. */
-      Vaera = 13,
-      /** Bo. */
-      Bo = 14,
-      /** Beshalach. */
-      Beshalach = 15,
-      /** Yisro. */
-      Yisro = 16,
-      /** Mishpatim. */
-      Mishpatim = 17,
-      /** Terumah. */
-      Terumah = 18,
-      /** Tetzaveh. */
-      Tetzaveh = 19,
-      /** Ki Sisa. */
-      KiSisa = 20,
-      /** Vayakhel. */
-      Vayakhel = 21,
-      /** Pekudei. */
-      Pekudei = 22,
-      /** Vayikra. */
-      Vayikra = 23,
-      /** Tzav. */
-      Tzav = 24,
-      /** Shmini. */
-      Shmini = 25,
-      /** Tazria. */
-      Tazria = 26,
-      /** Metzora. */
-      Metzora = 27,
-      /** Achrei Mos. */
-      AchreiMos = 28,
-      /** Kedoshim. */
-      Kedoshim = 29,
-      /** Emor. */
-      Emor = 30,
-      /** Behar. */
-      Behar = 31,
-      /** Bechukosai. */
-      Bechukosai = 32,
-      /** Bamidbar. */
-      Bamidbar = 33,
-      /** Nasso. */
-      Nasso = 34,
-      /** Behaaloscha. */
-      Behaaloscha = 35,
-      /** Shlach. */
-      Shlach = 36,
-      /** Korach. */
-      Korach = 37,
-      /** Chukas. */
-      Chukas = 38,
-      /** Balak. */
-      Balak = 39,
-      /** Pinchas. */
-      Pinchas = 40,
-      /** Matos. */
-      Matos = 41,
-      /** Masei. */
-      Masei = 42,
-      /** Devarim. */
-      Devarim = 43,
-      /** Vaeschanan. */
-      Vaeschanan = 44,
-      /** Eikev. */
-      Eikev = 45,
-      /** Re'eh. */
-      Reeh = 46,
-      /** Shoftim. */
-      Shoftim = 47,
-      /** Ki Seitzei. */
-      KiSeitzei = 48,
-      /** Ki Savo. */
-      KiSavo = 49,
-      /** Nitzavim. */
-      Nitzavim = 50,
-      /** Vayeilech. */
-      Vayeilech = 51,
-      /** Ha'Azinu. */
-      HaAzinu = 52,
-      /** Vezos Habracha. */
-      VezosHabracha = 53,
-      /** Vayakhel-Pekudei. */
-      VayakhelPekudei = 54,
-      /** Tazria-Metzora. */
-      TazriaMetzora = 55,
-      /** Achrei Mos-Kedoshim. */
-      AchreiMosKedoshim = 56,
-      /** Behar-Bechukosai. */
-      BeharBechukosai = 57,
-      /** Chukas-Balak. */
-      ChukasBalak = 58,
-      /** Matos-Masei. */
-      MatosMasei = 59,
-      /** Nitzavim-Vayeilech. */
-      NitzavimVayeilech = 60,
-      /** Shabbos Shekalim. */
-      Shekalim = 61,
-      /** Shabbos Zachor. */
-      Zachor = 62,
-      /** Shabbos Parah. */
-      Parah = 63,
-      /** Shabbos Hachodesh. */
-      Hachodesh = 64,
-      /** Shabbos Shuva. */
-      Shuva = 65,
-      /** Shabbos Shira. */
-      Shira = 66,
-      /** Shabbos Hagadol. */
-      Hagadol = 67,
-      /** Shabbos Chazon. */
-      Chazon = 68,
-      /** Shabbos Nachamu. */
-      Nachamu = 69,
-    }
-    /**
-     * A holiday, fast, or other day the calendar marks. Some are not holidays in the halachic
-     * sense (Rosh Chodesh, Shabbos Mevarchim, the Omer count) but are listed because calendars
-     * show them.
-     */
-    export type Holiday =
-      /** Erev Pesach, 14 Nisan. */
-      | { tag: 'ErevPesach' }
-      /** Pesach. */
-      | { tag: 'Pesach' }
-      /** Chol Hamoed Pesach. */
-      | { tag: 'CholHamoedPesach' }
-      /** Pesach Sheni, 14 Iyar. */
-      | { tag: 'PesachSheni' }
-      /** Erev Shavuos, 5 Sivan. */
-      | { tag: 'ErevShavuos' }
-      /** Shavuos. */
-      | { tag: 'Shavuos' }
-      /** The fast of 17 Tammuz. */
-      | { tag: 'SeventeenthOfTammuz' }
-      /** Tishah B'Av. */
-      | { tag: 'TishahBav' }
-      /** Tu B'Av, 15 Av. */
-      | { tag: 'TuBav' }
-      /** Erev Rosh Hashana, 29 Elul. */
-      | { tag: 'ErevRoshHashana' }
-      /** Rosh Hashana. */
-      | { tag: 'RoshHashana' }
-      /** The Fast of Gedalyah. */
-      | { tag: 'FastOfGedalyah' }
-      /** Erev Yom Kippur, 9 Tishrei. */
-      | { tag: 'ErevYomKippur' }
-      /** Yom Kippur, 10 Tishrei. */
-      | { tag: 'YomKippur' }
-      /** Erev Succos, 14 Tishrei. */
-      | { tag: 'ErevSuccos' }
-      /** Succos. */
-      | { tag: 'Succos' }
-      /** Chol Hamoed Succos. */
-      | { tag: 'CholHamoedSuccos' }
-      /** Hoshana Rabbah, 21 Tishrei. */
-      | { tag: 'HoshanaRabbah' }
-      /** Shemini Atzeres. */
-      | { tag: 'SheminiAtzeres' }
-      /** Simchas Torah. */
-      | { tag: 'SimchasTorah' }
-      /** Chanukah. */
-      | { tag: 'Chanukah'; day: number }
-      /** The fast of 10 Teves. */
-      | { tag: 'TenthOfTeves' }
-      /** Tu B'Shvat, 15 Shevat. */
-      | { tag: 'TuBshvat' }
-      /** The Fast of Esther. */
-      | { tag: 'FastOfEsther' }
-      /** Purim. */
-      | { tag: 'Purim' }
-      /** Shushan Purim. */
-      | { tag: 'ShushanPurim' }
-      /** Purim Katan, 14 Adar I. */
-      | { tag: 'PurimKatan' }
-      /** Rosh Chodesh. */
-      | { tag: 'RoshChodesh' }
-      /** Yom HaShoah. */
-      | { tag: 'YomHaShoah' }
-      /** Yom Hazikaron. */
-      | { tag: 'YomHazikaron' }
-      /** Yom Ha'atzmaut. */
-      | { tag: 'YomHaatzmaut' }
-      /** Yom Yerushalayim. */
-      | { tag: 'YomYerushalayim' }
-      /** Lag B'Omer, 18 Iyar. */
-      | { tag: 'LagBomer' }
-      /** Shushan Purim Katan, 15 Adar I. */
-      | { tag: 'ShushanPurimKatan' }
-      /** Isru Chag, the day after a festival. */
-      | { tag: 'IsruChag' }
-      /** Yom Kippur Katan, the eve of Rosh Chodesh. */
-      | { tag: 'YomKippurKatan' }
-      /** Behab, the Monday-Thursday-Monday fasts after Pesach and Succos. */
-      | { tag: 'Behab' }
-      /** The Fast of the Firstborn. */
-      | { tag: 'FastOfTheFirstborn' }
-      /** The Omer count. */
-      | { tag: 'CountOfTheOmer'; day: number }
-      /** Birchas Hachamah, every 28 years. */
-      | { tag: 'BirchasHachamah' }
-      /** Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh. */
-      | { tag: 'MacharHachodesh' }
-      /** Shabbos Mevarchim, the Shabbos when the coming month is announced. */
-      | { tag: 'ShabbosMevarchim' };
-    /** Facts about a Hebrew year. */
-    export interface YearInfo {
-      /** The year, for example 5785. */
-      year: number;
-      /** Whether it has 13 months. */
-      is_leap: boolean;
-      /** The number of days, 353 to 385. */
-      days: number;
-      /** Whether Cheshvan and Kislev are long or short. */
-      length: kosher.calendar.YearLength;
-      /** Whether Cheshvan has 30 days. */
-      is_cheshvan_long: boolean;
-      /** Whether Kislev has 29 days. */
-      is_kislev_short: boolean;
-      /** The months in order, from Tishrei. */
-      months: kosher.calendar.HebrewMonth[];
-    }
-    /**
-     * A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
-     * begins at nightfall.
-     */
-    export class HebrewDate {
-      /**
-       * The date `day` `month` `year`, for example 15 Nisan 5785.
-       *
-       * # Errors
-       *
-       * `KosherError::InvalidDate` when there is no such day: day 0, day 30 of a 29-day
-       * month, Adar I in a common year, or a year outside the supported range.
-       * @throws {kosher.KosherError}
-       */
-      constructor(year: number, month: kosher.calendar.HebrewMonth, day: number);
-      /**
-       * The Hebrew date of a Gregorian date.
-       *
-       * # Errors
-       *
-       * `KosherError::InvalidDate` when `date` does not exist.
-       * @throws {kosher.KosherError}
-       */
-      static fromGregorian(date: kosher.GregorianDate): kosher.calendar.HebrewDate;
-      /** The year, for example 5785. */
-      year(): number;
-      /** The month. */
-      month(): kosher.calendar.HebrewMonth;
-      /** The day of the month, from 1. */
-      day(): number;
-      /** The day of the year, from 1 on 1 Tishrei. */
-      dayOfYear(): number;
-      /** The day of the week. */
-      weekday(): kosher.calendar.Weekday;
-      /** The Gregorian date, if it is in the Gregorian calendar's supported range. */
-      toGregorian(): kosher.GregorianDate | null;
-      /**
-       * The date `days` later, or earlier when negative.
-       *
-       * # Errors
-       *
-       * `KosherError::InvalidDate` past the supported range.
-       * @throws {kosher.KosherError}
-       */
-      addDays(days: number): kosher.calendar.HebrewDate;
-      /** The holidays, fasts and other marked days on this day. */
-      holidays(region: kosher.calendar.Region): kosher.calendar.Holiday[];
-      /** Whether melacha is forbidden: Shabbos or Yom Tov. */
-      isAssurBemelacha(region: kosher.calendar.Region): boolean;
-      /** Whether candles are lit tonight for Shabbos or Yom Tov. */
-      hasCandleLighting(region: kosher.calendar.Region): boolean;
-      /** Whether this is one of the ten days from Rosh Hashana to Yom Kippur. */
-      isAseresYemeiTeshuva(): boolean;
-      /** The weekly portion read on this day, when it is a Shabbos with one. */
-      parsha(region: kosher.calendar.Region): kosher.calendar.Parsha | null;
-      /** The special Shabbos this is, such as Shabbos Zachor, if any. */
-      specialParsha(region: kosher.calendar.Region): kosher.calendar.Parsha | null;
-      /** The weekly portion of the coming Shabbos. */
-      nextParsha(region: kosher.calendar.Region): kosher.calendar.Parsha | null;
-      /** The molad of this month, in Unix milliseconds. */
-      molad(): bigint | null;
-      /** The date as text, for example "15 Nisan 5784". */
-      display(): string;
-      /** Whether `other` is the same day. */
-      equals(other: kosher.calendar.HebrewDate): boolean;
-      /** -1, 0 or 1 as this date is before, the same as, or after `other`. */
-      compare(other: kosher.calendar.HebrewDate): number;
-      /**
-       * Release this wrapper's reference to the native object. Safe to call
-       * more than once; a wrapper that is never closed is released when it is
-       * garbage collected. Using the wrapper after `close()` throws.
-       */
-      close(): void;
-      /** Alias of `close()` for `using` declarations. */
-      [Symbol.dispose](): void;
-    }
-    /** Facts about the Hebrew year `year`. */
-    export function yearInfo(year: number): kosher.calendar.YearInfo;
-    /** The number of days in `month` of `year`, or none when the year has no such month. */
-    export function daysInMonth(year: number, month: kosher.calendar.HebrewMonth): number | null;
-    /**
-     * 1 Tishrei of `year`.
+     * The date `day` `month` `year`, for example 15 Nisan 5785.
      *
      * # Errors
      *
-     * `KosherError::InvalidDate` for a year outside the supported range.
-     * @throws {kosher.KosherError}
+     * `CalendarError::InvalidDate` when there is no such day: day 0, day 30 of a 29-day
+     * month, Adar I in a common year, or a year outside the supported range.
+     * @throws {calendar.CalendarError}
      */
-    export function roshHashana(year: number): kosher.calendar.HebrewDate;
-    /** The holiday's English name, for example "Chanukah". */
-    export function holidayName(holiday: kosher.calendar.Holiday): string;
-    /** The holiday's Hebrew name. */
-    export function holidayHebrew(holiday: kosher.calendar.Holiday): string;
-    /** Whether melacha is forbidden on the holiday. */
-    export function holidayIsAssurBemelacha(holiday: kosher.calendar.Holiday): boolean;
-    /** Whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut. */
-    export function holidayIsModern(holiday: kosher.calendar.Holiday): boolean;
-    /** Whether the holiday is a fast day. */
-    export function holidayIsFastDay(holiday: kosher.calendar.Holiday): boolean;
-    /** The portion's English name, for example "Lech Lecha". */
-    export function parshaName(parsha: kosher.calendar.Parsha): string;
-    /** The portion's Hebrew name. */
-    export function parshaHebrew(parsha: kosher.calendar.Parsha): string;
-    /** The month's English name, for example "Nisan". */
-    export function monthName(month: kosher.calendar.HebrewMonth): string;
-    /** The month's Hebrew name. */
-    export function monthHebrew(month: kosher.calendar.HebrewMonth): string;
-  }
-  /** Halachic times (*zmanim*) for a place and a day. */
-  export namespace zmanim {
+    constructor(year: number, month: calendar.HebrewMonth, day: number);
     /**
-     * A halachic time this library can calculate, named after the KosherJava getter that
-     * calculates it, without `get`. Its value is its position in `all_zmanim`.
-     */
-    export enum Zman {
-      /** Begin Civil Twilight (KosherJava `getBeginCivilTwilight`). */
-      BeginCivilTwilight = 0,
-      /** End Civil Twilight (KosherJava `getEndCivilTwilight`). */
-      EndCivilTwilight = 1,
-      /** Begin Nautical Twilight (KosherJava `getBeginNauticalTwilight`). */
-      BeginNauticalTwilight = 2,
-      /** End Nautical Twilight (KosherJava `getEndNauticalTwilight`). */
-      EndNauticalTwilight = 3,
-      /** Begin Astronomical Twilight (KosherJava `getBeginAstronomicalTwilight`). */
-      BeginAstronomicalTwilight = 4,
-      /** End Astronomical Twilight (KosherJava `getEndAstronomicalTwilight`). */
-      EndAstronomicalTwilight = 5,
-      /** Alos (60 Minutes) (KosherJava `getAlos60Minutes`). */
-      Alos60Minutes = 6,
-      /** Alos (72 Minutes) (KosherJava `getAlos72Minutes`). */
-      Alos72Minutes = 7,
-      /** Alos (72 Minutes in Shaos Zmanios) (KosherJava `getAlos72Zmanis`). */
-      Alos72Zmanis = 8,
-      /** Alos (90 Minutes) (KosherJava `getAlos90Minutes`). */
-      Alos90Minutes = 9,
-      /** Alos (90 Minutes in Shaos Zmanios) (KosherJava `getAlos90Zmanis`). */
-      Alos90Zmanis = 10,
-      /** Alos (96 Minutes) (KosherJava `getAlos96Minutes`). */
-      Alos96Minutes = 11,
-      /** Alos (96 Minutes in Shaos Zmanios) (KosherJava `getAlos96Zmanis`). */
-      Alos96Zmanis = 12,
-      /**
-       * Alos (120 Minutes) (KosherJava `getAlos120Minutes`).
-       *
-       * Deprecated in KosherJava.
-       */
-      Alos120Minutes = 13,
-      /**
-       * Alos (120 Minutes in Shaos Zmanios) (KosherJava `getAlos120Zmanis`).
-       *
-       * Deprecated in KosherJava.
-       */
-      Alos120Zmanis = 14,
-      /** Alos (16.1 Degrees) (KosherJava `getAlos16Point1Degrees`). */
-      Alos16Point1Degrees = 15,
-      /** Alos (18 Degrees) (KosherJava `getAlos18Degrees`). */
-      Alos18Degrees = 16,
-      /** Alos (19 Degrees) (KosherJava `getAlos19Degrees`). */
-      Alos19Degrees = 17,
-      /** Alos (19.8 Degrees) (KosherJava `getAlos19Point8Degrees`). */
-      Alos19Point8Degrees = 18,
-      /**
-       * Alos (26 Degrees) (KosherJava `getAlos26Degrees`).
-       *
-       * Deprecated in KosherJava.
-       */
-      Alos26Degrees = 19,
-      /** Alos (Baal Hatanya) (KosherJava `getAlosBaalHatanya`). */
-      AlosBaalHatanya = 20,
-      /** Misheyakir (10.2 Degrees) (KosherJava `getMisheyakir10Point2Degrees`). */
-      Misheyakir10Point2Degrees = 21,
-      /** Misheyakir (11 Degrees) (KosherJava `getMisheyakir11Degrees`). */
-      Misheyakir11Degrees = 22,
-      /** Misheyakir (11.5 Degrees) (KosherJava `getMisheyakir11Point5Degrees`). */
-      Misheyakir11Point5Degrees = 23,
-      /**
-       * Misheyakir (12.85 Degrees) (KosherJava `getMisheyakir12Point85Degrees`).
-       *
-       * Deprecated in KosherJava.
-       */
-      Misheyakir12Point85Degrees = 24,
-      /** Misheyakir (7.65 Degrees) (KosherJava `getMisheyakir7Point65Degrees`). */
-      Misheyakir7Point65Degrees = 25,
-      /** Misheyakir (9.5 Degrees) (KosherJava `getMisheyakir9Point5Degrees`). */
-      Misheyakir9Point5Degrees = 26,
-      /** Polar Sunrise Ben Ish Chai (KosherJava `getPolarSunriseBenIshChai`). */
-      PolarSunriseBenIshChai = 27,
-      /** Sunrise (KosherJava `getSunrise`). */
-      Sunrise = 28,
-      /** Sea Level Sunrise (KosherJava `getSeaLevelSunrise`). */
-      SeaLevelSunrise = 29,
-      /** Sof Zman Shma (GR'A) (KosherJava `getSofZmanShmaGRA`). */
-      SofZmanShmaGra = 30,
-      /** Sof Zman Shma (MGA, 19.8 Degrees) (KosherJava `getSofZmanShmaMGA19Point8Degrees`). */
-      SofZmanShmaMga19Point8Degrees = 31,
-      /** Sof Zman Shma (MGA, 16.1 Degrees) (KosherJava `getSofZmanShmaMGA16Point1Degrees`). */
-      SofZmanShmaMga16Point1Degrees = 32,
-      /** Sof Zman Shma (MGA, 18 Degrees) (KosherJava `getSofZmanShmaMGA18Degrees`). */
-      SofZmanShmaMga18Degrees = 33,
-      /** Sof Zman Shma (MGA, 72 Minutes) (KosherJava `getSofZmanShmaMGA72Minutes`). */
-      SofZmanShmaMga72Minutes = 34,
-      /** Sof Zman Shma (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanShmaMGA72MinutesZmanis`). */
-      SofZmanShmaMga72MinutesZmanis = 35,
-      /** Sof Zman Shma (MGA, 90 Minutes) (KosherJava `getSofZmanShmaMGA90Minutes`). */
-      SofZmanShmaMga90Minutes = 36,
-      /** Sof Zman Shma (MGA, 90 Minutes in Shaos Zmanios) (KosherJava `getSofZmanShmaMGA90MinutesZmanis`). */
-      SofZmanShmaMga90MinutesZmanis = 37,
-      /** Sof Zman Shma (MGA, 96 Minutes) (KosherJava `getSofZmanShmaMGA96Minutes`). */
-      SofZmanShmaMga96Minutes = 38,
-      /** Sof Zman Shma (MGA, 96 Minutes in Shaos Zmanios) (KosherJava `getSofZmanShmaMGA96MinutesZmanis`). */
-      SofZmanShmaMga96MinutesZmanis = 39,
-      /** Sof Zman Shma (3 Hours Before Chatzos) (KosherJava `getSofZmanShma3HoursBeforeChatzos`). */
-      SofZmanShma3HoursBeforeChatzos = 40,
-      /** Sof Zman Shma (MGA, 120 Minutes) (KosherJava `getSofZmanShmaMGA120Minutes`). */
-      SofZmanShmaMga120Minutes = 41,
-      /** Sof Zman Shma (Alos 16.1 to Sunset) (KosherJava `getSofZmanShmaAlos16Point1ToSunset`). */
-      SofZmanShmaAlos16Point1ToSunset = 42,
-      /** Sof Zman Shma (Alos 16.1 to Tzais Geonim 7.083 Degrees) (KosherJava `getSofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees`). */
-      SofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees = 43,
-      /** Sof Zman Shma (Ateret Torah) (KosherJava `getSofZmanShmaAteretTorah`). */
-      SofZmanShmaAteretTorah = 44,
-      /** Sof Zman Shma (Baal Hatanya) (KosherJava `getSofZmanShmaBaalHatanya`). */
-      SofZmanShmaBaalHatanya = 45,
-      /** Sof Zman Shma (GR'A, Sunrise to Fixed Local Chatzos) (KosherJava `getSofZmanShmaGRASunriseToFixedLocalChatzos`). */
-      SofZmanShmaGraSunriseToFixedLocalChatzos = 46,
-      /** Sof Zman Shma (MGA, 18 Degrees to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA18DegreesToFixedLocalChatzos`). */
-      SofZmanShmaMga18DegreesToFixedLocalChatzos = 47,
-      /** Sof Zman Shma (MGA, 16.1 Degrees to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA16Point1DegreesToFixedLocalChatzos`). */
-      SofZmanShmaMga16Point1DegreesToFixedLocalChatzos = 48,
-      /** Sof Zman Shma (MGA, 90 Minutes to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA90MinutesToFixedLocalChatzos`). */
-      SofZmanShmaMga90MinutesToFixedLocalChatzos = 49,
-      /** Sof Zman Shma (MGA, 72 Minutes to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA72MinutesToFixedLocalChatzos`). */
-      SofZmanShmaMga72MinutesToFixedLocalChatzos = 50,
-      /** Sof Zman Tfila (GR'A) (KosherJava `getSofZmanTfilaGRA`). */
-      SofZmanTfilaGra = 51,
-      /** Sof Zman Tfila (MGA, 72 Minutes) (KosherJava `getSofZmanTfilaMGA72Minutes`). */
-      SofZmanTfilaMga72Minutes = 52,
-      /** Sof Zman Tfila (MGA, 19.8 Degrees) (KosherJava `getSofZmanTfilaMGA19Point8Degrees`). */
-      SofZmanTfilaMga19Point8Degrees = 53,
-      /** Sof Zman Tfila (MGA, 16.1 Degrees) (KosherJava `getSofZmanTfilaMGA16Point1Degrees`). */
-      SofZmanTfilaMga16Point1Degrees = 54,
-      /** Sof Zman Tfila (MGA, 18 Degrees) (KosherJava `getSofZmanTfilaMGA18Degrees`). */
-      SofZmanTfilaMga18Degrees = 55,
-      /** Sof Zman Tfila (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanTfilaMGA72MinutesZmanis`). */
-      SofZmanTfilaMga72MinutesZmanis = 56,
-      /** Sof Zman Tfila (MGA, 90 Minutes) (KosherJava `getSofZmanTfilaMGA90Minutes`). */
-      SofZmanTfilaMga90Minutes = 57,
-      /** Sof Zman Tfila (MGA, 90 Minutes in Shaos Zmanios) (KosherJava `getSofZmanTfilaMGA90MinutesZmanis`). */
-      SofZmanTfilaMga90MinutesZmanis = 58,
-      /** Sof Zman Tfila (MGA, 96 Minutes) (KosherJava `getSofZmanTfilaMGA96Minutes`). */
-      SofZmanTfilaMga96Minutes = 59,
-      /** Sof Zman Tfila (MGA, 96 Minutes in Shaos Zmanios) (KosherJava `getSofZmanTfilaMGA96MinutesZmanis`). */
-      SofZmanTfilaMga96MinutesZmanis = 60,
-      /** Sof Zman Tfila (2 Hours Before Chatzos) (KosherJava `getSofZmanTfila2HoursBeforeChatzos`). */
-      SofZmanTfila2HoursBeforeChatzos = 61,
-      /** Sof Zman Tfila (MGA, 120 Minutes) (KosherJava `getSofZmanTfilaMGA120Minutes`). */
-      SofZmanTfilaMga120Minutes = 62,
-      /** Sof Zman Tfila (Ateret Torah) (KosherJava `getSofZmanTfilaAteretTorah`). */
-      SofZmanTfilaAteretTorah = 63,
-      /** Sof Zman Tfila (Baal Hatanya) (KosherJava `getSofZmanTfilaBaalHatanya`). */
-      SofZmanTfilaBaalHatanya = 64,
-      /** Sof Zman Tfila (GR'A, Sunrise to Fixed Local Chatzos) (KosherJava `getSofZmanTfilaGRASunriseToFixedLocalChatzos`). */
-      SofZmanTfilaGraSunriseToFixedLocalChatzos = 65,
-      /** Sof Zman Achilas Chametz (GR'A) (KosherJava `getSofZmanAchilasChametzGRA`). */
-      SofZmanAchilasChametzGra = 66,
-      /** Sof Zman Achilas Chametz (MGA, 72 Minutes) (KosherJava `getSofZmanAchilasChametzMGA72Minutes`). */
-      SofZmanAchilasChametzMga72Minutes = 67,
-      /** Sof Zman Achilas Chametz (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanAchilasChametzMGA72MinutesZmanis`). */
-      SofZmanAchilasChametzMga72MinutesZmanis = 68,
-      /** Sof Zman Achilas Chametz (MGA, 16.1 Degrees) (KosherJava `getSofZmanAchilasChametzMGA16Point1Degrees`). */
-      SofZmanAchilasChametzMga16Point1Degrees = 69,
-      /** Sof Zman Achilas Chametz (Baal Hatanya) (KosherJava `getSofZmanAchilasChametzBaalHatanya`). */
-      SofZmanAchilasChametzBaalHatanya = 70,
-      /** Sof Zman Biur Chametz (GR'A) (KosherJava `getSofZmanBiurChametzGRA`). */
-      SofZmanBiurChametzGra = 71,
-      /** Sof Zman Biur Chametz (MGA, 72 Minutes) (KosherJava `getSofZmanBiurChametzMGA72Minutes`). */
-      SofZmanBiurChametzMga72Minutes = 72,
-      /** Sof Zman Biur Chametz (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanBiurChametzMGA72MinutesZmanis`). */
-      SofZmanBiurChametzMga72MinutesZmanis = 73,
-      /** Sof Zman Biur Chametz (MGA, 16.1 Degrees) (KosherJava `getSofZmanBiurChametzMGA16Point1Degrees`). */
-      SofZmanBiurChametzMga16Point1Degrees = 74,
-      /** Sof Zman Biur Chametz (Baal Hatanya) (KosherJava `getSofZmanBiurChametzBaalHatanya`). */
-      SofZmanBiurChametzBaalHatanya = 75,
-      /** Solar Transit (KosherJava `getSunTransit`). */
-      SunTransit = 76,
-      /** Chatzos Hayom (KosherJava `getChatzosHayom`). */
-      ChatzosHayom = 77,
-      /** Chatzos Hayom (Midpoint of Sunrise and Sunset) (KosherJava `getChatzosHayomAsHalfDay`). */
-      ChatzosHayomAsHalfDay = 78,
-      /** Chatzos Hayom (Fixed Local Chatzos) (KosherJava `getFixedLocalChatzosHayom`). */
-      FixedLocalChatzosHayom = 79,
-      /** Mincha Gedola (GR'A) (KosherJava `getMinchaGedolaGRA`). */
-      MinchaGedolaGra = 80,
-      /** Mincha Gedola (16.1 Degrees) (KosherJava `getMinchaGedola16Point1Degrees`). */
-      MinchaGedola16Point1Degrees = 81,
-      /** Mincha Gedola (30 Minutes) (KosherJava `getMinchaGedola30Minutes`). */
-      MinchaGedola30Minutes = 82,
-      /** Mincha Gedola (72 Minutes) (KosherJava `getMinchaGedola72Minutes`). */
-      MinchaGedola72Minutes = 83,
-      /** Mincha Gedola (Ahavat Shalom) (KosherJava `getMinchaGedolaAhavatShalom`). */
-      MinchaGedolaAhavatShalom = 84,
-      /** Mincha Gedola (GR'A, Greater Than 30) (KosherJava `getMinchaGedolaGRAGreaterThan30`). */
-      MinchaGedolaGraGreaterThan30 = 85,
-      /** Mincha Gedola (Ateret Torah) (KosherJava `getMinchaGedolaAteretTorah`). */
-      MinchaGedolaAteretTorah = 86,
-      /** Mincha Gedola (Baal Hatanya) (KosherJava `getMinchaGedolaBaalHatanya`). */
-      MinchaGedolaBaalHatanya = 87,
-      /** Mincha Gedola (GR'A, Fixed Local Chatzos, 30 Minutes) (KosherJava `getMinchaGedolaGRAFixedLocalChatzos30Minutes`). */
-      MinchaGedolaGraFixedLocalChatzos30Minutes = 88,
-      /** Plag Hamincha (GR'A) (KosherJava `getPlagHaminchaGRA`). */
-      PlagHaminchaGra = 89,
-      /** Plag Hamincha (Ahavat Shalom) (KosherJava `getPlagAhavatShalom`). */
-      PlagAhavatShalom = 90,
-      /** Plag Hamincha (Alos 16.1 to Tzais Geonim 7.083 Degrees) (KosherJava `getPlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees`). */
-      PlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees = 91,
-      /**
-       * Plag Hamincha (Alos 16.1 to Sunset) (KosherJava `getPlagAlosToSunset`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagAlosToSunset = 92,
-      /** Plag Hamincha (60 Minutes) (KosherJava `getPlagHamincha60Minutes`). */
-      PlagHamincha60Minutes = 93,
-      /**
-       * Plag Hamincha (72 Minutes) (KosherJava `getPlagHamincha72Minutes`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha72Minutes = 94,
-      /**
-       * Plag Hamincha (72 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha72MinutesZmanis`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha72MinutesZmanis = 95,
-      /**
-       * Plag Hamincha (90 Minutes) (KosherJava `getPlagHamincha90Minutes`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha90Minutes = 96,
-      /**
-       * Plag Hamincha (90 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha90MinutesZmanis`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha90MinutesZmanis = 97,
-      /**
-       * Plag Hamincha (96 Minutes) (KosherJava `getPlagHamincha96Minutes`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha96Minutes = 98,
-      /**
-       * Plag Hamincha (96 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha96MinutesZmanis`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha96MinutesZmanis = 99,
-      /**
-       * Plag Hamincha (120 Minutes) (KosherJava `getPlagHamincha120Minutes`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha120Minutes = 100,
-      /**
-       * Plag Hamincha (120 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha120MinutesZmanis`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha120MinutesZmanis = 101,
-      /**
-       * Plag Hamincha (16.1 Degrees) (KosherJava `getPlagHamincha16Point1Degrees`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha16Point1Degrees = 102,
-      /**
-       * Plag Hamincha (18 Degrees) (KosherJava `getPlagHamincha18Degrees`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha18Degrees = 103,
-      /**
-       * Plag Hamincha (19.8 Degrees) (KosherJava `getPlagHamincha19Point8Degrees`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha19Point8Degrees = 104,
-      /**
-       * Plag Hamincha (26 Degrees) (KosherJava `getPlagHamincha26Degrees`).
-       *
-       * Deprecated in KosherJava.
-       */
-      PlagHamincha26Degrees = 105,
-      /** Plag Hamincha (Ateret Torah) (KosherJava `getPlagHaminchaAteretTorah`). */
-      PlagHaminchaAteretTorah = 106,
-      /** Plag Hamincha (Baal Hatanya) (KosherJava `getPlagHaminchaBaalHatanya`). */
-      PlagHaminchaBaalHatanya = 107,
-      /** Plag Hamincha (GR'A, Fixed Local Chatzos to Sunset) (KosherJava `getPlagHaminchaGRAFixedLocalChatzosToSunset`). */
-      PlagHaminchaGraFixedLocalChatzosToSunset = 108,
-      /** Samuch Le Mincha Ketana (GR'A) (KosherJava `getSamuchLeMinchaKetanaGRA`). */
-      SamuchLeMinchaKetanaGra = 109,
-      /** Samuch Le Mincha Ketana (16.1 Degrees) (KosherJava `getSamuchLeMinchaKetana16Point1Degrees`). */
-      SamuchLeMinchaKetana16Point1Degrees = 110,
-      /** Samuch Le Mincha Ketana (72 Minutes) (KosherJava `getSamuchLeMinchaKetana72Minutes`). */
-      SamuchLeMinchaKetana72Minutes = 111,
-      /** Mincha Ketana (GR'A) (KosherJava `getMinchaKetanaGRA`). */
-      MinchaKetanaGra = 112,
-      /** Mincha Ketana (16.1 Degrees) (KosherJava `getMinchaKetana16Point1Degrees`). */
-      MinchaKetana16Point1Degrees = 113,
-      /** Mincha Ketana (72 Minutes) (KosherJava `getMinchaKetana72Minutes`). */
-      MinchaKetana72Minutes = 114,
-      /** Mincha Ketana (Ahavat Shalom) (KosherJava `getMinchaKetanaAhavatShalom`). */
-      MinchaKetanaAhavatShalom = 115,
-      /** Mincha Ketana (Ateret Torah) (KosherJava `getMinchaKetanaAteretTorah`). */
-      MinchaKetanaAteretTorah = 116,
-      /** Mincha Ketana (Baal Hatanya) (KosherJava `getMinchaKetanaBaalHatanya`). */
-      MinchaKetanaBaalHatanya = 117,
-      /** Mincha Ketana (GR'A, Fixed Local Chatzos to Sunset) (KosherJava `getMinchaKetanaGRAFixedLocalChatzosToSunset`). */
-      MinchaKetanaGraFixedLocalChatzosToSunset = 118,
-      /** Bain Hashmashos (Rabbeinu Tam, 13.24 Degrees) (KosherJava `getBainHashmashosRT13Point24Degrees`). */
-      BainHashmashosRt13Point24Degrees = 119,
-      /** Bain Hashmashos (Rabbeinu Tam, 58.5 Minutes) (KosherJava `getBainHashmashosRT58Point5Minutes`). */
-      BainHashmashosRt58Point5Minutes = 120,
-      /** Bain Hashmashos (Rabbeinu Tam, 13.5 Minutes Before 7.083 Degrees) (KosherJava `getBainHashmashosRT13Point5MinutesBefore7Point083Degrees`). */
-      BainHashmashosRt13Point5MinutesBefore7Point083Degrees = 121,
-      /** Bain Hashmashos (Rabbeinu Tam, 2 Stars) (KosherJava `getBainHashmashosRT2Stars`). */
-      BainHashmashosRt2Stars = 122,
-      /** Bain Hashmashos (Yereim, 18 Minutes) (KosherJava `getBainHashmashosYereim18Minutes`). */
-      BainHashmashosYereim18Minutes = 123,
-      /** Bain Hashmashos (Yereim, 16.875 Minutes) (KosherJava `getBainHashmashosYereim16Point875Minutes`). */
-      BainHashmashosYereim16Point875Minutes = 124,
-      /** Bain Hashmashos (Yereim, 13.5 Minutes) (KosherJava `getBainHashmashosYereim13Point5Minutes`). */
-      BainHashmashosYereim13Point5Minutes = 125,
-      /** Bain Hashmashos (Yereim, 2.1 Degrees) (KosherJava `getBainHashmashosYereim2Point1Degrees`). */
-      BainHashmashosYereim2Point1Degrees = 126,
-      /** Bain Hashmashos (Yereim, 2.8 Degrees) (KosherJava `getBainHashmashosYereim2Point8Degrees`). */
-      BainHashmashosYereim2Point8Degrees = 127,
-      /** Bain Hashmashos (Yereim, 3.05 Degrees) (KosherJava `getBainHashmashosYereim3Point05Degrees`). */
-      BainHashmashosYereim3Point05Degrees = 128,
-      /** Candle Lighting (KosherJava `getCandleLighting`). */
-      CandleLighting = 129,
-      /** Polar Sunset Ben Ish Chai (KosherJava `getPolarSunsetBenIshChai`). */
-      PolarSunsetBenIshChai = 130,
-      /** Sunset (KosherJava `getSunset`). */
-      Sunset = 131,
-      /** Sea Level Sunset (KosherJava `getSeaLevelSunset`). */
-      SeaLevelSunset = 132,
-      /** Tzais (Geonim, 8.5 Degrees) (KosherJava `getTzaisGeonim8Point5Degrees`). */
-      TzaisGeonim8Point5Degrees = 133,
-      /** Tzais (50 Minutes) (KosherJava `getTzais50Minutes`). */
-      Tzais50Minutes = 134,
-      /** Tzais (60 Minutes) (KosherJava `getTzais60Minutes`). */
-      Tzais60Minutes = 135,
-      /** Tzais (72 Minutes) (KosherJava `getTzais72Minutes`). */
-      Tzais72Minutes = 136,
-      /** Tzais (72 Minutes in Shaos Zmanios) (KosherJava `getTzais72Zmanis`). */
-      Tzais72Zmanis = 137,
-      /** Tzais (90 Minutes) (KosherJava `getTzais90Minutes`). */
-      Tzais90Minutes = 138,
-      /** Tzais (90 Minutes in Shaos Zmanios) (KosherJava `getTzais90Zmanis`). */
-      Tzais90Zmanis = 139,
-      /** Tzais (96 Minutes) (KosherJava `getTzais96Minutes`). */
-      Tzais96Minutes = 140,
-      /** Tzais (96 Minutes in Shaos Zmanios) (KosherJava `getTzais96Zmanis`). */
-      Tzais96Zmanis = 141,
-      /**
-       * Tzais (120 Minutes) (KosherJava `getTzais120Minutes`).
-       *
-       * Deprecated in KosherJava.
-       */
-      Tzais120Minutes = 142,
-      /**
-       * Tzais (120 Minutes in Shaos Zmanios) (KosherJava `getTzais120Zmanis`).
-       *
-       * Deprecated in KosherJava.
-       */
-      Tzais120Zmanis = 143,
-      /** Tzais (16.1 Degrees) (KosherJava `getTzais16Point1Degrees`). */
-      Tzais16Point1Degrees = 144,
-      /** Tzais (18 Degrees) (KosherJava `getTzais18Degrees`). */
-      Tzais18Degrees = 145,
-      /** Tzais (19.8 Degrees) (KosherJava `getTzais19Point8Degrees`). */
-      Tzais19Point8Degrees = 146,
-      /**
-       * Tzais (26 Degrees) (KosherJava `getTzais26Degrees`).
-       *
-       * Deprecated in KosherJava.
-       */
-      Tzais26Degrees = 147,
-      /** Tzais (Ateret Torah) (KosherJava `getTzaisAteretTorah`). */
-      TzaisAteretTorah = 148,
-      /** Tzais (Baal Hatanya) (KosherJava `getTzaisBaalHatanya`). */
-      TzaisBaalHatanya = 149,
-      /**
-       * Tzais (Geonim, 3.7 Degrees) (KosherJava `getTzaisGeonim3Point7Degrees`).
-       *
-       * Deprecated in KosherJava.
-       */
-      TzaisGeonim3Point7Degrees = 150,
-      /**
-       * Tzais (Geonim, 3.8 Degrees) (KosherJava `getTzaisGeonim3Point8Degrees`).
-       *
-       * Deprecated in KosherJava.
-       */
-      TzaisGeonim3Point8Degrees = 151,
-      /** Tzais (Geonim, 5.95 Degrees) (KosherJava `getTzaisGeonim5Point95Degrees`). */
-      TzaisGeonim5Point95Degrees = 152,
-      /**
-       * Tzais (Geonim, 4.66 Degrees) (KosherJava `getTzaisGeonim4Point66Degrees`).
-       *
-       * Deprecated in KosherJava.
-       */
-      TzaisGeonim4Point66Degrees = 153,
-      /**
-       * Tzais (Geonim, 4.42 Degrees) (KosherJava `getTzaisGeonim4Point42Degrees`).
-       *
-       * Deprecated in KosherJava.
-       */
-      TzaisGeonim4Point42Degrees = 154,
-      /** Tzais (Geonim, 4.8 Degrees) (KosherJava `getTzaisGeonim4Point8Degrees`). */
-      TzaisGeonim4Point8Degrees = 155,
-      /** Tzais (Geonim, 6.45 Degrees) (KosherJava `getTzaisGeonim6Point45Degrees`). */
-      TzaisGeonim6Point45Degrees = 156,
-      /** Tzais (Geonim, 7.083 Degrees) (KosherJava `getTzaisGeonim7Point083Degrees`). */
-      TzaisGeonim7Point083Degrees = 157,
-      /** Tzais (Geonim, 7.67 Degrees) (KosherJava `getTzaisGeonim7Point67Degrees`). */
-      TzaisGeonim7Point67Degrees = 158,
-      /** Tzais (Geonim, 9.3 Degrees) (KosherJava `getTzaisGeonim9Point3Degrees`). */
-      TzaisGeonim9Point3Degrees = 159,
-      /** Tzais (Geonim, 9.75 Degrees) (KosherJava `getTzaisGeonim9Point75Degrees`). */
-      TzaisGeonim9Point75Degrees = 160,
-      /** Sof Zman Kidush Levana (15 Days) (KosherJava `getSofZmanKidushLevana15Days`). */
-      SofZmanKidushLevana15Days = 161,
-      /** Sof Zman Kidush Levana (Between Moldos) (KosherJava `getSofZmanKidushLevanaBetweenMoldos`). */
-      SofZmanKidushLevanaBetweenMoldos = 162,
-      /** Tchilas Zman Kidush Levana (3 Days) (KosherJava `getTchilasZmanKidushLevana3Days`). */
-      TchilasZmanKidushLevana3Days = 163,
-      /** Tchilas Zman Kidush Levana (7 Days) (KosherJava `getTchilasZmanKidushLevana7Days`). */
-      TchilasZmanKidushLevana7Days = 164,
-      /** Solar Midnight (KosherJava `getSolarMidnight`). */
-      SolarMidnight = 165,
-      /** Chatzos Halayla (KosherJava `getChatzosHalayla`). */
-      ChatzosHalayla = 166,
-    }
-    /** What kind of time a `Zman` is. */
-    export enum Category {
-      /** Start and end of astronomical, civil and nautical twilight. */
-      Twilight = 0,
-      /** Dawn (*alos*). */
-      Alos = 1,
-      /** Earliest time for tallis and tefillin (*misheyakir*). */
-      Misheyakir = 2,
-      /** Sunrise (*netz*). */
-      Netz = 3,
-      /** Latest time for the morning Shema. */
-      SofZmanShma = 4,
-      /** Latest time for the morning prayer. */
-      SofZmanTefila = 5,
-      /** Latest time to eat chametz on Erev Pesach. */
-      SofZmanAchilasChametz = 6,
-      /** Latest time to burn chametz on Erev Pesach. */
-      SofZmanBiurChametz = 7,
-      /** Midday (*chatzos hayom*). */
-      ChatzosHayom = 8,
-      /** Earliest Mincha (*mincha gedola*). */
-      MinchaGedola = 9,
-      /** *Plag hamincha*. */
-      PlagHamincha = 10,
-      /** Shortly before *mincha ketana*. */
-      SamuchLeMinchaKetana = 11,
-      /** Preferred Mincha time (*mincha ketana*). */
-      MinchaKetana = 12,
-      /** Twilight between sunset and nightfall (*bein hashmashos*). */
-      BeinHashmashos = 13,
-      /** Candle lighting before Shabbos or Yom Tov. */
-      CandleLighting = 14,
-      /** Sunset (*shkiya*). */
-      Shkiya = 15,
-      /** Nightfall (*tzais*). */
-      Tzais = 16,
-      /** The window for Kiddush Levana. */
-      KidushLevana = 17,
-      /** Midnight (*chatzos halayla*). */
-      ChatzosHalayla = 18,
-    }
-    /** The solar position algorithm. */
-    export enum Calculator {
-      /** The NOAA algorithm, KosherJava's default. Good to about a minute. */
-      Noaa = 0,
-      /** Jean Meeus's higher-accuracy VSOP87 algorithm. */
-      Meeus = 1,
-      /** The NREL Solar Position Algorithm, solved on the topocentric zenith. */
-      Spa = 2,
-    }
-    /** Why a time in `ZmanTime` could not be calculated. */
-    export enum ZmanFailure {
-      /** The sun stays above the angle the time needs all day. */
-      AllDay = 0,
-      /** The sun stays below the angle the time needs all day. */
-      AllNight = 1,
-      /** The time does not apply on this date. */
-      NotApplicable = 2,
-      /** The time needs a time zone and none was given. */
-      TimeZoneRequired = 3,
-      /** The time zone callback failed. */
-      TimeZoneCallbackFailed = 4,
-      /** An internal calculation error. */
-      Internal = 5,
-    }
-    /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
-    export interface Config {
-      /**
-       * How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
-       * way. Default 18.
-       */
-      candle_lighting_minutes: number;
-      /** Whether proportional zmanim divide the day at astronomical *chatzos*. Default false. */
-      use_astronomical_chatzos_for_other_zmanim: boolean;
-      /**
-       * Whether elevation adjusts every zman built on sunrise and sunset, not only sunrise
-       * and sunset themselves. Default false.
-       */
-      use_elevation: boolean;
-      /**
-       * How long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
-       * Default 40.
-       */
-      ateret_torah_sunset_minutes: number;
-      /**
-       * Whether *chatzos* is the sun's transit rather than the midpoint of sunrise and
-       * sunset. Default true.
-       */
-      use_astronomical_chatzos: boolean;
-      /** The solar position algorithm. Default NOAA. */
-      calculator: kosher.zmanim.Calculator;
-      /** For Meeus and SPA: whether to apply the delta-T (TT - UT) correction. Default true. */
-      apply_delta_t: boolean;
-    }
-    /** One zman's time, or why it has none. */
-    export interface ZmanTime {
-      /** The zman. */
-      zman: kosher.zmanim.Zman;
-      /** The time in Unix milliseconds, when it could be calculated. */
-      time: bigint | null;
-      /** Why it could not, when it could not. */
-      failure: kosher.zmanim.ZmanFailure | null;
-    }
-    /**
-     * The time zone, supplied by the caller: the offset from UTC at an instant.
+     * The Hebrew date of a Gregorian date.
      *
-     * Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
-     * one. It is called synchronously, once for each sunrise, sunset or other event a time is
-     * built from.
+     * # Errors
+     *
+     * `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
+     * to 9999.
+     * @throws {calendar.CalendarError}
      */
-    export interface TimeZoneOffset {
-      /**
-       * The offset from UTC, in seconds east, in effect at `unix_seconds`.
-       *
-       * # Errors
-       *
-       * Fail when the offset is unknown; the calculation then reports
-       * `KosherError::TimeZoneCallbackFailed`.
-       */
-      offsetSeconds(unixSeconds: bigint): number;
-    }
-    /** The *zmanim* for one place on one day. */
-    export class Zmanim {
-      /**
-       * The *zmanim* at `location` on `date`, calculated with `config`, in `time_zone`.
-       *
-       * # Errors
-       *
-       * `KosherError::InvalidDate` for a date that does not exist;
-       * `KosherError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
-       * than a day; the errors of `validate_location`.
-       * @throws {kosher.KosherError}
-       */
-      constructor(location: kosher.Location, date: kosher.GregorianDate, config: kosher.zmanim.Config, timeZone: kosher.zmanim.TimeZoneOffset | null);
-      /**
-       * The time of `zman`, in Unix milliseconds.
-       *
-       * # Errors
-       *
-       * `KosherError::AllDay` or `KosherError::AllNight` where the sun never reaches
-       * the angle the time needs; `KosherError::NotApplicable` for a time that only exists
-       * on some days; `KosherError::TimeZoneRequired` for the Kiddush Levana times without
-       * a time zone; `KosherError::TimeZoneCallbackFailed` when the callback failed.
-       * @throws {kosher.KosherError}
-       */
-      get(zman: kosher.zmanim.Zman): bigint;
-      /** Every zman, with its time or why it has none. */
-      all(): kosher.zmanim.ZmanTime[];
-      /**
-       * When the sun is `degrees` below the geometric horizon before sunrise, in Unix
-       * milliseconds.
-       *
-       * # Errors
-       *
-       * The same as `get`.
-       * @throws {kosher.KosherError}
-       */
-      sunriseOffsetByDegrees(degrees: number): bigint;
-      /**
-       * When the sun is `degrees` below the geometric horizon after sunset, in Unix
-       * milliseconds.
-       *
-       * # Errors
-       *
-       * The same as `get`.
-       * @throws {kosher.KosherError}
-       */
-      sunsetOffsetByDegrees(degrees: number): bigint;
-      /** The location. */
-      location(): kosher.Location;
-      /** The date. */
-      date(): kosher.GregorianDate;
-      /** The configuration. */
-      config(): kosher.zmanim.Config;
-      /**
-       * Release this wrapper's reference to the native object. Safe to call
-       * more than once; a wrapper that is never closed is released when it is
-       * garbage collected. Using the wrapper after `close()` throws.
-       */
-      close(): void;
-      /** Alias of `close()` for `using` declarations. */
-      [Symbol.dispose](): void;
-    }
-    /** KosherJava's default configuration. */
-    export function defaultConfig(): kosher.zmanim.Config;
-    /** Every zman, grouped by `Category`. */
-    export function allZmanim(): kosher.zmanim.Zman[];
-    /** The zman's display name, for example "Sof Zman Shma (GR'A)". */
-    export function zmanName(zman: kosher.zmanim.Zman): string;
-    /** The KosherJava method that calculates the zman, for example "getSofZmanShmaGRA". */
-    export function zmanJavaName(zman: kosher.zmanim.Zman): string;
-    /** The zman named by its KosherJava method, for example "getSofZmanShmaGRA". */
-    export function zmanFromJavaName(javaName: string): kosher.zmanim.Zman | null;
-    /** What kind of time the zman is. */
-    export function zmanCategory(zman: kosher.zmanim.Zman): kosher.zmanim.Category;
-    /** Whether KosherJava deprecates the zman. */
-    export function zmanIsDeprecated(zman: kosher.zmanim.Zman): boolean;
+    static fromGregorian(date: calendar.GregorianDate): calendar.HebrewDate;
+    /** The year, for example 5785. */
+    year(): number;
+    /** The month. */
+    month(): calendar.HebrewMonth;
+    /** The day of the month, from 1. */
+    day(): number;
+    /** The day of the year, from 1 on 1 Tishrei. */
+    dayOfYear(): number;
+    /** The day of the week. */
+    weekday(): calendar.Weekday;
+    /** The Gregorian date, if it is in the Gregorian calendar's supported range. */
+    toGregorian(): calendar.GregorianDate | null;
     /**
-     * A paragraph or two explaining the zman to users, with the offsets from `config` filled
-     * in. May contain Markdown links.
+     * The date `days` later, or earlier when negative.
+     *
+     * # Errors
+     *
+     * `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
+     * @throws {calendar.CalendarError}
      */
-    export function zmanDescription(zman: kosher.zmanim.Zman, config: kosher.zmanim.Config): string;
-    /** The algorithm's descriptive name, as KosherJava's `getCalculatorName` gives it. */
-    export function calculatorName(calculator: kosher.zmanim.Calculator): string;
+    addDays(days: number): calendar.HebrewDate;
+    /** The holidays, fasts and other marked days on this day. */
+    holidays(region: calendar.Region): calendar.Holiday[];
+    /** Whether melacha is forbidden: Shabbos or Yom Tov. */
+    isAssurBemelacha(region: calendar.Region): boolean;
+    /** Whether candles are lit tonight for Shabbos or Yom Tov. */
+    hasCandleLighting(region: calendar.Region): boolean;
+    /** Whether this is one of the ten days from Rosh Hashana to Yom Kippur. */
+    isAseresYemeiTeshuva(): boolean;
+    /** The weekly portion read on this day, when it is a Shabbos with one. */
+    parsha(region: calendar.Region): calendar.Parsha | null;
+    /** The special Shabbos this is, such as Shabbos Zachor, if any. */
+    specialParsha(region: calendar.Region): calendar.Parsha | null;
+    /** The weekly portion of the coming Shabbos. */
+    nextParsha(region: calendar.Region): calendar.Parsha | null;
+    /** The molad of this month, in Unix milliseconds. */
+    molad(): bigint | null;
+    /** The date as text, for example "15 Nisan 5784". */
+    display(): string;
+    /** Whether `other` is the same day. */
+    equals(other: calendar.HebrewDate): boolean;
+    /** -1, 0 or 1 as this date is before, the same as, or after `other`. */
+    compare(other: calendar.HebrewDate): number;
     /**
-     * A *shaah zmanis*: a twelfth of the day from `start` to `end` (Unix milliseconds), in
-     * milliseconds.
+     * Release this wrapper's reference to the native object. Safe to call
+     * more than once; a wrapper that is never closed is released when it is
+     * garbage collected. Using the wrapper after `close()` throws.
      */
-    export function shaahZmanis(start: bigint, end: bigint): bigint;
+    close(): void;
+    /** Alias of `close()` for `using` declarations. */
+    [Symbol.dispose](): void;
   }
+  /**
+   * Facts about the Hebrew year `year`.
+   *
+   * # Errors
+   *
+   * `CalendarError::InvalidDate` for a year outside 1 to 9999.
+   * @throws {calendar.CalendarError}
+   */
+  export function yearInfo(year: number): calendar.YearInfo;
+  /**
+   * The number of days in `month` of `year`, or none when the year has no such month or is
+   * outside 1 to 9999.
+   */
+  export function daysInMonth(year: number, month: calendar.HebrewMonth): number | null;
+  /**
+   * 1 Tishrei of `year`.
+   *
+   * # Errors
+   *
+   * `CalendarError::InvalidDate` for a year outside 1 to 9999.
+   * @throws {calendar.CalendarError}
+   */
+  export function roshHashana(year: number): calendar.HebrewDate;
+  /**
+   * The holiday's English name, for example "Chanukah".
+   *
+   * # Errors
+   *
+   * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+   * outside 1 to 49.
+   * @throws {calendar.CalendarError}
+   */
+  export function holidayName(holiday: calendar.Holiday): string;
+  /**
+   * The holiday's Hebrew name.
+   *
+   * # Errors
+   *
+   * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+   * outside 1 to 49.
+   * @throws {calendar.CalendarError}
+   */
+  export function holidayHebrew(holiday: calendar.Holiday): string;
+  /**
+   * Whether melacha is forbidden on the holiday.
+   *
+   * # Errors
+   *
+   * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+   * outside 1 to 49.
+   * @throws {calendar.CalendarError}
+   */
+  export function holidayIsAssurBemelacha(holiday: calendar.Holiday): boolean;
+  /**
+   * Whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
+   *
+   * # Errors
+   *
+   * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+   * outside 1 to 49.
+   * @throws {calendar.CalendarError}
+   */
+  export function holidayIsModern(holiday: calendar.Holiday): boolean;
+  /**
+   * Whether the holiday is a fast day.
+   *
+   * # Errors
+   *
+   * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+   * outside 1 to 49.
+   * @throws {calendar.CalendarError}
+   */
+  export function holidayIsFastDay(holiday: calendar.Holiday): boolean;
+  /** The portion's English name, for example "Lech Lecha". */
+  export function parshaName(parsha: calendar.Parsha): string;
+  /** The portion's Hebrew name. */
+  export function parshaHebrew(parsha: calendar.Parsha): string;
+  /** The month's English name, for example "Nisan". */
+  export function monthName(month: calendar.HebrewMonth): string;
+  /** The month's Hebrew name. */
+  export function monthHebrew(month: calendar.HebrewMonth): string;
   /**
    * Daily learning schedules: Daf Yomi, Mishna Yomis, Tehillim and the others.
    *
@@ -1231,6 +540,18 @@ export declare namespace kosher {
    * program began, on Shabbos for a weekly program, outside the Pirkei Avos season).
    */
   export namespace limudim {
+    /** The errors of the `calendar.limudim` error domain. */
+    export class LimudimError extends $Error {
+      constructor(code: number, message?: string);
+    }
+    /**
+     * A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
+     * to 6.
+     */
+    export class InvalidUnitError extends calendar.limudim.LimudimError {
+      static readonly CODE: 1;
+      constructor(message?: string);
+    }
     /** A tractate of the Mishnah and Talmud, in the order of the Mishnah. */
     export enum Tractate {
       /** Berachos. */
@@ -1382,7 +703,7 @@ export declare namespace kosher {
     /** A page (*daf*) of the Talmud: both sides of one leaf. */
     export interface Daf {
       /** The tractate. */
-      tractate: kosher.limudim.Tractate;
+      tractate: calendar.limudim.Tractate;
       /** The page number. The Bavli starts at 2, the Yerushalmi at 1. */
       daf: number;
       /** As text, for example "Bava Metzia 55". */
@@ -1391,18 +712,18 @@ export declare namespace kosher {
     /** One side of a page (*amud*). */
     export interface Amud {
       /** The tractate. */
-      tractate: kosher.limudim.Tractate;
+      tractate: calendar.limudim.Tractate;
       /** The page number. */
       daf: number;
       /** Which side of the page. */
-      side: kosher.limudim.Side;
+      side: calendar.limudim.Side;
       /** As text, for example "Bava Metzia 55b". */
       display: string;
     }
     /** One *mishnah*. */
     export interface Mishna {
       /** The tractate. */
-      tractate: kosher.limudim.Tractate;
+      tractate: calendar.limudim.Tractate;
       /** The chapter (*perek*), from 1. */
       chapter: number;
       /** The *mishnah* within the chapter, from 1. */
@@ -1413,35 +734,806 @@ export declare namespace kosher {
     /** The two *mishnayos* of a day of Mishna Yomis. */
     export interface MishnaPair {
       /** The first *mishnah*. */
-      first: kosher.limudim.Mishna;
+      first: calendar.limudim.Mishna;
       /** The second, the next *mishnah* in order. */
-      second: kosher.limudim.Mishna;
+      second: calendar.limudim.Mishna;
       /** As text, for example "Nazir 5:5-6". */
       display: string;
     }
     /** The tractate's English name, for example "Bava Metzia". */
-    export function tractateName(tractate: kosher.limudim.Tractate): string;
+    export function tractateName(tractate: calendar.limudim.Tractate): string;
     /** The tractate's Hebrew name. */
-    export function tractateHebrew(tractate: kosher.limudim.Tractate): string;
-    /** The portion as text, for example "Tehillim 1-9". */
-    export function tehillimDisplay(unit: kosher.limudim.TehillimUnit): string;
-    /** The portion as text, for example "Pirkei Avos 5-6". */
-    export function pirkeiAvosDisplay(unit: kosher.limudim.PirkeiAvosUnit): string;
+    export function tractateHebrew(tractate: calendar.limudim.Tractate): string;
+    /**
+     * The portion as text, for example "Tehillim 1-9".
+     *
+     * # Errors
+     *
+     * `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+     * @throws {calendar.limudim.LimudimError}
+     */
+    export function tehillimDisplay(unit: calendar.limudim.TehillimUnit): string;
+    /**
+     * The portion as text, for example "Pirkei Avos 5-6".
+     *
+     * # Errors
+     *
+     * `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+     * @throws {calendar.limudim.LimudimError}
+     */
+    export function pirkeiAvosDisplay(unit: calendar.limudim.PirkeiAvosUnit): string;
     /** Daf Yomi: a page of the Babylonian Talmud a day, from 11 September 1923. */
-    export function dafYomiBavli(date: kosher.calendar.HebrewDate): kosher.limudim.Daf | null;
+    export function dafYomiBavli(date: calendar.HebrewDate): calendar.limudim.Daf | null;
     /** Daf Hashavua: a page of the Babylonian Talmud a week. */
-    export function dafHashavuaBavli(date: kosher.calendar.HebrewDate): kosher.limudim.Daf | null;
+    export function dafHashavuaBavli(date: calendar.HebrewDate): calendar.limudim.Daf | null;
     /** Daf Yomi Yerushalmi: a page of the Jerusalem Talmud a day. */
-    export function dafYomiYerushalmi(date: kosher.calendar.HebrewDate): kosher.limudim.Daf | null;
+    export function dafYomiYerushalmi(date: calendar.HebrewDate): calendar.limudim.Daf | null;
     /** Dirshu's Amud Yomi: one side of a page of the Babylonian Talmud a day. */
-    export function amudYomiDirshu(date: kosher.calendar.HebrewDate): kosher.limudim.Amud | null;
+    export function amudYomiDirshu(date: calendar.HebrewDate): calendar.limudim.Amud | null;
     /** Mishna Yomis: two *mishnayos* a day, from 20 May 1947. */
-    export function mishnaYomis(date: kosher.calendar.HebrewDate): kosher.limudim.MishnaPair | null;
+    export function mishnaYomis(date: calendar.HebrewDate): calendar.limudim.MishnaPair | null;
     /** Tehillim divided over the days of the Hebrew month. */
-    export function tehillimMonthly(date: kosher.calendar.HebrewDate): kosher.limudim.TehillimUnit | null;
+    export function tehillimMonthly(date: calendar.HebrewDate): calendar.limudim.TehillimUnit | null;
     /** Pirkei Avos: a chapter each Shabbos afternoon from Pesach to Rosh Hashana. */
-    export function pirkeiAvos(date: kosher.calendar.HebrewDate, region: kosher.calendar.Region): kosher.limudim.PirkeiAvosUnit | null;
+    export function pirkeiAvos(date: calendar.HebrewDate, region: calendar.Region): calendar.limudim.PirkeiAvosUnit | null;
   }
+}
+
+/** Halachic times (*zmanim*) for a place and a day. */
+export declare namespace zmanim {
+  /** The errors of the `zmanim` error domain. */
+  export class ZmanimError extends $Error {
+    constructor(code: number, message?: string);
+  }
+  /** The latitude is not between -90 and 90 degrees. */
+  export class InvalidLatitudeError extends zmanim.ZmanimError {
+    static readonly CODE: 1;
+    constructor(message?: string);
+  }
+  /** The longitude is not between -180 and 180 degrees. */
+  export class InvalidLongitudeError extends zmanim.ZmanimError {
+    static readonly CODE: 2;
+    constructor(message?: string);
+  }
+  /** An elevation is negative or not a finite number. */
+  export class InvalidElevationError extends zmanim.ZmanimError {
+    static readonly CODE: 3;
+    constructor(message?: string);
+  }
+  /** The Gregorian date does not exist, or is outside the supported range. */
+  export class InvalidGregorianDateError extends zmanim.ZmanimError {
+    static readonly CODE: 4;
+    constructor(message?: string);
+  }
+  /**
+   * The time needs a time zone and none was given: the Kiddush Levana times, and any time
+   * more than 150 degrees from Greenwich.
+   */
+  export class TimeZoneRequiredError extends zmanim.ZmanimError {
+    static readonly CODE: 5;
+    constructor(message?: string);
+  }
+  /** The time zone callback failed, or gave an offset of a day or more. */
+  export class TimeZoneCallbackFailedError extends zmanim.ZmanimError {
+    static readonly CODE: 6;
+    constructor(message?: string);
+  }
+  /**
+   * A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
+   * within a day (1440 minutes) either way.
+   */
+  export class InvalidMinutesError extends zmanim.ZmanimError {
+    static readonly CODE: 7;
+    constructor(message?: string);
+  }
+  /** An angle in degrees is not a finite number. */
+  export class InvalidDegreesError extends zmanim.ZmanimError {
+    static readonly CODE: 8;
+    constructor(message?: string);
+  }
+  /** The sun stays above the angle the time needs all day, as in the far north in summer. */
+  export class AllDayError extends zmanim.ZmanimError {
+    static readonly CODE: 10;
+    constructor(message?: string);
+  }
+  /** The sun stays below the angle the time needs all day, as in the far north in winter. */
+  export class AllNightError extends zmanim.ZmanimError {
+    static readonly CODE: 11;
+    constructor(message?: string);
+  }
+  /** The time only exists on certain dates, and this is not one. */
+  export class NotApplicableError extends zmanim.ZmanimError {
+    static readonly CODE: 12;
+    constructor(message?: string);
+  }
+  /**
+   * A calculation failed in a way that should not happen; please report the location and
+   * date.
+   */
+  export class UnexpectedError extends zmanim.ZmanimError {
+    static readonly CODE: 13;
+    constructor(message?: string);
+  }
+  /**
+   * A halachic time this library can calculate, named after the KosherJava getter that
+   * calculates it, without `get`. Its value is its position in `all_zmanim`.
+   */
+  export enum Zman {
+    /** Begin Civil Twilight (KosherJava `getBeginCivilTwilight`). */
+    BeginCivilTwilight = 0,
+    /** End Civil Twilight (KosherJava `getEndCivilTwilight`). */
+    EndCivilTwilight = 1,
+    /** Begin Nautical Twilight (KosherJava `getBeginNauticalTwilight`). */
+    BeginNauticalTwilight = 2,
+    /** End Nautical Twilight (KosherJava `getEndNauticalTwilight`). */
+    EndNauticalTwilight = 3,
+    /** Begin Astronomical Twilight (KosherJava `getBeginAstronomicalTwilight`). */
+    BeginAstronomicalTwilight = 4,
+    /** End Astronomical Twilight (KosherJava `getEndAstronomicalTwilight`). */
+    EndAstronomicalTwilight = 5,
+    /** Alos (60 Minutes) (KosherJava `getAlos60Minutes`). */
+    Alos60Minutes = 6,
+    /** Alos (72 Minutes) (KosherJava `getAlos72Minutes`). */
+    Alos72Minutes = 7,
+    /** Alos (72 Minutes in Shaos Zmanios) (KosherJava `getAlos72Zmanis`). */
+    Alos72Zmanis = 8,
+    /** Alos (90 Minutes) (KosherJava `getAlos90Minutes`). */
+    Alos90Minutes = 9,
+    /** Alos (90 Minutes in Shaos Zmanios) (KosherJava `getAlos90Zmanis`). */
+    Alos90Zmanis = 10,
+    /** Alos (96 Minutes) (KosherJava `getAlos96Minutes`). */
+    Alos96Minutes = 11,
+    /** Alos (96 Minutes in Shaos Zmanios) (KosherJava `getAlos96Zmanis`). */
+    Alos96Zmanis = 12,
+    /**
+     * Alos (120 Minutes) (KosherJava `getAlos120Minutes`).
+     *
+     * Deprecated in KosherJava.
+     */
+    Alos120Minutes = 13,
+    /**
+     * Alos (120 Minutes in Shaos Zmanios) (KosherJava `getAlos120Zmanis`).
+     *
+     * Deprecated in KosherJava.
+     */
+    Alos120Zmanis = 14,
+    /** Alos (16.1 Degrees) (KosherJava `getAlos16Point1Degrees`). */
+    Alos16Point1Degrees = 15,
+    /** Alos (18 Degrees) (KosherJava `getAlos18Degrees`). */
+    Alos18Degrees = 16,
+    /** Alos (19 Degrees) (KosherJava `getAlos19Degrees`). */
+    Alos19Degrees = 17,
+    /** Alos (19.8 Degrees) (KosherJava `getAlos19Point8Degrees`). */
+    Alos19Point8Degrees = 18,
+    /**
+     * Alos (26 Degrees) (KosherJava `getAlos26Degrees`).
+     *
+     * Deprecated in KosherJava.
+     */
+    Alos26Degrees = 19,
+    /** Alos (Baal Hatanya) (KosherJava `getAlosBaalHatanya`). */
+    AlosBaalHatanya = 20,
+    /** Misheyakir (10.2 Degrees) (KosherJava `getMisheyakir10Point2Degrees`). */
+    Misheyakir10Point2Degrees = 21,
+    /** Misheyakir (11 Degrees) (KosherJava `getMisheyakir11Degrees`). */
+    Misheyakir11Degrees = 22,
+    /** Misheyakir (11.5 Degrees) (KosherJava `getMisheyakir11Point5Degrees`). */
+    Misheyakir11Point5Degrees = 23,
+    /**
+     * Misheyakir (12.85 Degrees) (KosherJava `getMisheyakir12Point85Degrees`).
+     *
+     * Deprecated in KosherJava.
+     */
+    Misheyakir12Point85Degrees = 24,
+    /** Misheyakir (7.65 Degrees) (KosherJava `getMisheyakir7Point65Degrees`). */
+    Misheyakir7Point65Degrees = 25,
+    /** Misheyakir (9.5 Degrees) (KosherJava `getMisheyakir9Point5Degrees`). */
+    Misheyakir9Point5Degrees = 26,
+    /** Polar Sunrise Ben Ish Chai (KosherJava `getPolarSunriseBenIshChai`). */
+    PolarSunriseBenIshChai = 27,
+    /** Sunrise (KosherJava `getSunrise`). */
+    Sunrise = 28,
+    /** Sea Level Sunrise (KosherJava `getSeaLevelSunrise`). */
+    SeaLevelSunrise = 29,
+    /** Sof Zman Shma (GR'A) (KosherJava `getSofZmanShmaGRA`). */
+    SofZmanShmaGra = 30,
+    /** Sof Zman Shma (MGA, 19.8 Degrees) (KosherJava `getSofZmanShmaMGA19Point8Degrees`). */
+    SofZmanShmaMga19Point8Degrees = 31,
+    /** Sof Zman Shma (MGA, 16.1 Degrees) (KosherJava `getSofZmanShmaMGA16Point1Degrees`). */
+    SofZmanShmaMga16Point1Degrees = 32,
+    /** Sof Zman Shma (MGA, 18 Degrees) (KosherJava `getSofZmanShmaMGA18Degrees`). */
+    SofZmanShmaMga18Degrees = 33,
+    /** Sof Zman Shma (MGA, 72 Minutes) (KosherJava `getSofZmanShmaMGA72Minutes`). */
+    SofZmanShmaMga72Minutes = 34,
+    /** Sof Zman Shma (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanShmaMGA72MinutesZmanis`). */
+    SofZmanShmaMga72MinutesZmanis = 35,
+    /** Sof Zman Shma (MGA, 90 Minutes) (KosherJava `getSofZmanShmaMGA90Minutes`). */
+    SofZmanShmaMga90Minutes = 36,
+    /** Sof Zman Shma (MGA, 90 Minutes in Shaos Zmanios) (KosherJava `getSofZmanShmaMGA90MinutesZmanis`). */
+    SofZmanShmaMga90MinutesZmanis = 37,
+    /** Sof Zman Shma (MGA, 96 Minutes) (KosherJava `getSofZmanShmaMGA96Minutes`). */
+    SofZmanShmaMga96Minutes = 38,
+    /** Sof Zman Shma (MGA, 96 Minutes in Shaos Zmanios) (KosherJava `getSofZmanShmaMGA96MinutesZmanis`). */
+    SofZmanShmaMga96MinutesZmanis = 39,
+    /** Sof Zman Shma (3 Hours Before Chatzos) (KosherJava `getSofZmanShma3HoursBeforeChatzos`). */
+    SofZmanShma3HoursBeforeChatzos = 40,
+    /** Sof Zman Shma (MGA, 120 Minutes) (KosherJava `getSofZmanShmaMGA120Minutes`). */
+    SofZmanShmaMga120Minutes = 41,
+    /** Sof Zman Shma (Alos 16.1 to Sunset) (KosherJava `getSofZmanShmaAlos16Point1ToSunset`). */
+    SofZmanShmaAlos16Point1ToSunset = 42,
+    /** Sof Zman Shma (Alos 16.1 to Tzais Geonim 7.083 Degrees) (KosherJava `getSofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees`). */
+    SofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees = 43,
+    /** Sof Zman Shma (Ateret Torah) (KosherJava `getSofZmanShmaAteretTorah`). */
+    SofZmanShmaAteretTorah = 44,
+    /** Sof Zman Shma (Baal Hatanya) (KosherJava `getSofZmanShmaBaalHatanya`). */
+    SofZmanShmaBaalHatanya = 45,
+    /** Sof Zman Shma (GR'A, Sunrise to Fixed Local Chatzos) (KosherJava `getSofZmanShmaGRASunriseToFixedLocalChatzos`). */
+    SofZmanShmaGraSunriseToFixedLocalChatzos = 46,
+    /** Sof Zman Shma (MGA, 18 Degrees to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA18DegreesToFixedLocalChatzos`). */
+    SofZmanShmaMga18DegreesToFixedLocalChatzos = 47,
+    /** Sof Zman Shma (MGA, 16.1 Degrees to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA16Point1DegreesToFixedLocalChatzos`). */
+    SofZmanShmaMga16Point1DegreesToFixedLocalChatzos = 48,
+    /** Sof Zman Shma (MGA, 90 Minutes to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA90MinutesToFixedLocalChatzos`). */
+    SofZmanShmaMga90MinutesToFixedLocalChatzos = 49,
+    /** Sof Zman Shma (MGA, 72 Minutes to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA72MinutesToFixedLocalChatzos`). */
+    SofZmanShmaMga72MinutesToFixedLocalChatzos = 50,
+    /** Sof Zman Tfila (GR'A) (KosherJava `getSofZmanTfilaGRA`). */
+    SofZmanTfilaGra = 51,
+    /** Sof Zman Tfila (MGA, 72 Minutes) (KosherJava `getSofZmanTfilaMGA72Minutes`). */
+    SofZmanTfilaMga72Minutes = 52,
+    /** Sof Zman Tfila (MGA, 19.8 Degrees) (KosherJava `getSofZmanTfilaMGA19Point8Degrees`). */
+    SofZmanTfilaMga19Point8Degrees = 53,
+    /** Sof Zman Tfila (MGA, 16.1 Degrees) (KosherJava `getSofZmanTfilaMGA16Point1Degrees`). */
+    SofZmanTfilaMga16Point1Degrees = 54,
+    /** Sof Zman Tfila (MGA, 18 Degrees) (KosherJava `getSofZmanTfilaMGA18Degrees`). */
+    SofZmanTfilaMga18Degrees = 55,
+    /** Sof Zman Tfila (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanTfilaMGA72MinutesZmanis`). */
+    SofZmanTfilaMga72MinutesZmanis = 56,
+    /** Sof Zman Tfila (MGA, 90 Minutes) (KosherJava `getSofZmanTfilaMGA90Minutes`). */
+    SofZmanTfilaMga90Minutes = 57,
+    /** Sof Zman Tfila (MGA, 90 Minutes in Shaos Zmanios) (KosherJava `getSofZmanTfilaMGA90MinutesZmanis`). */
+    SofZmanTfilaMga90MinutesZmanis = 58,
+    /** Sof Zman Tfila (MGA, 96 Minutes) (KosherJava `getSofZmanTfilaMGA96Minutes`). */
+    SofZmanTfilaMga96Minutes = 59,
+    /** Sof Zman Tfila (MGA, 96 Minutes in Shaos Zmanios) (KosherJava `getSofZmanTfilaMGA96MinutesZmanis`). */
+    SofZmanTfilaMga96MinutesZmanis = 60,
+    /** Sof Zman Tfila (2 Hours Before Chatzos) (KosherJava `getSofZmanTfila2HoursBeforeChatzos`). */
+    SofZmanTfila2HoursBeforeChatzos = 61,
+    /** Sof Zman Tfila (MGA, 120 Minutes) (KosherJava `getSofZmanTfilaMGA120Minutes`). */
+    SofZmanTfilaMga120Minutes = 62,
+    /** Sof Zman Tfila (Ateret Torah) (KosherJava `getSofZmanTfilaAteretTorah`). */
+    SofZmanTfilaAteretTorah = 63,
+    /** Sof Zman Tfila (Baal Hatanya) (KosherJava `getSofZmanTfilaBaalHatanya`). */
+    SofZmanTfilaBaalHatanya = 64,
+    /** Sof Zman Tfila (GR'A, Sunrise to Fixed Local Chatzos) (KosherJava `getSofZmanTfilaGRASunriseToFixedLocalChatzos`). */
+    SofZmanTfilaGraSunriseToFixedLocalChatzos = 65,
+    /** Sof Zman Achilas Chametz (GR'A) (KosherJava `getSofZmanAchilasChametzGRA`). */
+    SofZmanAchilasChametzGra = 66,
+    /** Sof Zman Achilas Chametz (MGA, 72 Minutes) (KosherJava `getSofZmanAchilasChametzMGA72Minutes`). */
+    SofZmanAchilasChametzMga72Minutes = 67,
+    /** Sof Zman Achilas Chametz (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanAchilasChametzMGA72MinutesZmanis`). */
+    SofZmanAchilasChametzMga72MinutesZmanis = 68,
+    /** Sof Zman Achilas Chametz (MGA, 16.1 Degrees) (KosherJava `getSofZmanAchilasChametzMGA16Point1Degrees`). */
+    SofZmanAchilasChametzMga16Point1Degrees = 69,
+    /** Sof Zman Achilas Chametz (Baal Hatanya) (KosherJava `getSofZmanAchilasChametzBaalHatanya`). */
+    SofZmanAchilasChametzBaalHatanya = 70,
+    /** Sof Zman Biur Chametz (GR'A) (KosherJava `getSofZmanBiurChametzGRA`). */
+    SofZmanBiurChametzGra = 71,
+    /** Sof Zman Biur Chametz (MGA, 72 Minutes) (KosherJava `getSofZmanBiurChametzMGA72Minutes`). */
+    SofZmanBiurChametzMga72Minutes = 72,
+    /** Sof Zman Biur Chametz (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanBiurChametzMGA72MinutesZmanis`). */
+    SofZmanBiurChametzMga72MinutesZmanis = 73,
+    /** Sof Zman Biur Chametz (MGA, 16.1 Degrees) (KosherJava `getSofZmanBiurChametzMGA16Point1Degrees`). */
+    SofZmanBiurChametzMga16Point1Degrees = 74,
+    /** Sof Zman Biur Chametz (Baal Hatanya) (KosherJava `getSofZmanBiurChametzBaalHatanya`). */
+    SofZmanBiurChametzBaalHatanya = 75,
+    /** Solar Transit (KosherJava `getSunTransit`). */
+    SunTransit = 76,
+    /** Chatzos Hayom (KosherJava `getChatzosHayom`). */
+    ChatzosHayom = 77,
+    /** Chatzos Hayom (Midpoint of Sunrise and Sunset) (KosherJava `getChatzosHayomAsHalfDay`). */
+    ChatzosHayomAsHalfDay = 78,
+    /** Chatzos Hayom (Fixed Local Chatzos) (KosherJava `getFixedLocalChatzosHayom`). */
+    FixedLocalChatzosHayom = 79,
+    /** Mincha Gedola (GR'A) (KosherJava `getMinchaGedolaGRA`). */
+    MinchaGedolaGra = 80,
+    /** Mincha Gedola (16.1 Degrees) (KosherJava `getMinchaGedola16Point1Degrees`). */
+    MinchaGedola16Point1Degrees = 81,
+    /** Mincha Gedola (30 Minutes) (KosherJava `getMinchaGedola30Minutes`). */
+    MinchaGedola30Minutes = 82,
+    /** Mincha Gedola (72 Minutes) (KosherJava `getMinchaGedola72Minutes`). */
+    MinchaGedola72Minutes = 83,
+    /** Mincha Gedola (Ahavat Shalom) (KosherJava `getMinchaGedolaAhavatShalom`). */
+    MinchaGedolaAhavatShalom = 84,
+    /** Mincha Gedola (GR'A, Greater Than 30) (KosherJava `getMinchaGedolaGRAGreaterThan30`). */
+    MinchaGedolaGraGreaterThan30 = 85,
+    /** Mincha Gedola (Ateret Torah) (KosherJava `getMinchaGedolaAteretTorah`). */
+    MinchaGedolaAteretTorah = 86,
+    /** Mincha Gedola (Baal Hatanya) (KosherJava `getMinchaGedolaBaalHatanya`). */
+    MinchaGedolaBaalHatanya = 87,
+    /** Mincha Gedola (GR'A, Fixed Local Chatzos, 30 Minutes) (KosherJava `getMinchaGedolaGRAFixedLocalChatzos30Minutes`). */
+    MinchaGedolaGraFixedLocalChatzos30Minutes = 88,
+    /** Plag Hamincha (GR'A) (KosherJava `getPlagHaminchaGRA`). */
+    PlagHaminchaGra = 89,
+    /** Plag Hamincha (Ahavat Shalom) (KosherJava `getPlagAhavatShalom`). */
+    PlagAhavatShalom = 90,
+    /** Plag Hamincha (Alos 16.1 to Tzais Geonim 7.083 Degrees) (KosherJava `getPlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees`). */
+    PlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees = 91,
+    /**
+     * Plag Hamincha (Alos 16.1 to Sunset) (KosherJava `getPlagAlosToSunset`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagAlosToSunset = 92,
+    /** Plag Hamincha (60 Minutes) (KosherJava `getPlagHamincha60Minutes`). */
+    PlagHamincha60Minutes = 93,
+    /**
+     * Plag Hamincha (72 Minutes) (KosherJava `getPlagHamincha72Minutes`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha72Minutes = 94,
+    /**
+     * Plag Hamincha (72 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha72MinutesZmanis`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha72MinutesZmanis = 95,
+    /**
+     * Plag Hamincha (90 Minutes) (KosherJava `getPlagHamincha90Minutes`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha90Minutes = 96,
+    /**
+     * Plag Hamincha (90 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha90MinutesZmanis`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha90MinutesZmanis = 97,
+    /**
+     * Plag Hamincha (96 Minutes) (KosherJava `getPlagHamincha96Minutes`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha96Minutes = 98,
+    /**
+     * Plag Hamincha (96 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha96MinutesZmanis`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha96MinutesZmanis = 99,
+    /**
+     * Plag Hamincha (120 Minutes) (KosherJava `getPlagHamincha120Minutes`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha120Minutes = 100,
+    /**
+     * Plag Hamincha (120 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha120MinutesZmanis`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha120MinutesZmanis = 101,
+    /**
+     * Plag Hamincha (16.1 Degrees) (KosherJava `getPlagHamincha16Point1Degrees`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha16Point1Degrees = 102,
+    /**
+     * Plag Hamincha (18 Degrees) (KosherJava `getPlagHamincha18Degrees`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha18Degrees = 103,
+    /**
+     * Plag Hamincha (19.8 Degrees) (KosherJava `getPlagHamincha19Point8Degrees`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha19Point8Degrees = 104,
+    /**
+     * Plag Hamincha (26 Degrees) (KosherJava `getPlagHamincha26Degrees`).
+     *
+     * Deprecated in KosherJava.
+     */
+    PlagHamincha26Degrees = 105,
+    /** Plag Hamincha (Ateret Torah) (KosherJava `getPlagHaminchaAteretTorah`). */
+    PlagHaminchaAteretTorah = 106,
+    /** Plag Hamincha (Baal Hatanya) (KosherJava `getPlagHaminchaBaalHatanya`). */
+    PlagHaminchaBaalHatanya = 107,
+    /** Plag Hamincha (GR'A, Fixed Local Chatzos to Sunset) (KosherJava `getPlagHaminchaGRAFixedLocalChatzosToSunset`). */
+    PlagHaminchaGraFixedLocalChatzosToSunset = 108,
+    /** Samuch Le Mincha Ketana (GR'A) (KosherJava `getSamuchLeMinchaKetanaGRA`). */
+    SamuchLeMinchaKetanaGra = 109,
+    /** Samuch Le Mincha Ketana (16.1 Degrees) (KosherJava `getSamuchLeMinchaKetana16Point1Degrees`). */
+    SamuchLeMinchaKetana16Point1Degrees = 110,
+    /** Samuch Le Mincha Ketana (72 Minutes) (KosherJava `getSamuchLeMinchaKetana72Minutes`). */
+    SamuchLeMinchaKetana72Minutes = 111,
+    /** Mincha Ketana (GR'A) (KosherJava `getMinchaKetanaGRA`). */
+    MinchaKetanaGra = 112,
+    /** Mincha Ketana (16.1 Degrees) (KosherJava `getMinchaKetana16Point1Degrees`). */
+    MinchaKetana16Point1Degrees = 113,
+    /** Mincha Ketana (72 Minutes) (KosherJava `getMinchaKetana72Minutes`). */
+    MinchaKetana72Minutes = 114,
+    /** Mincha Ketana (Ahavat Shalom) (KosherJava `getMinchaKetanaAhavatShalom`). */
+    MinchaKetanaAhavatShalom = 115,
+    /** Mincha Ketana (Ateret Torah) (KosherJava `getMinchaKetanaAteretTorah`). */
+    MinchaKetanaAteretTorah = 116,
+    /** Mincha Ketana (Baal Hatanya) (KosherJava `getMinchaKetanaBaalHatanya`). */
+    MinchaKetanaBaalHatanya = 117,
+    /** Mincha Ketana (GR'A, Fixed Local Chatzos to Sunset) (KosherJava `getMinchaKetanaGRAFixedLocalChatzosToSunset`). */
+    MinchaKetanaGraFixedLocalChatzosToSunset = 118,
+    /** Bain Hashmashos (Rabbeinu Tam, 13.24 Degrees) (KosherJava `getBainHashmashosRT13Point24Degrees`). */
+    BainHashmashosRt13Point24Degrees = 119,
+    /** Bain Hashmashos (Rabbeinu Tam, 58.5 Minutes) (KosherJava `getBainHashmashosRT58Point5Minutes`). */
+    BainHashmashosRt58Point5Minutes = 120,
+    /** Bain Hashmashos (Rabbeinu Tam, 13.5 Minutes Before 7.083 Degrees) (KosherJava `getBainHashmashosRT13Point5MinutesBefore7Point083Degrees`). */
+    BainHashmashosRt13Point5MinutesBefore7Point083Degrees = 121,
+    /** Bain Hashmashos (Rabbeinu Tam, 2 Stars) (KosherJava `getBainHashmashosRT2Stars`). */
+    BainHashmashosRt2Stars = 122,
+    /** Bain Hashmashos (Yereim, 18 Minutes) (KosherJava `getBainHashmashosYereim18Minutes`). */
+    BainHashmashosYereim18Minutes = 123,
+    /** Bain Hashmashos (Yereim, 16.875 Minutes) (KosherJava `getBainHashmashosYereim16Point875Minutes`). */
+    BainHashmashosYereim16Point875Minutes = 124,
+    /** Bain Hashmashos (Yereim, 13.5 Minutes) (KosherJava `getBainHashmashosYereim13Point5Minutes`). */
+    BainHashmashosYereim13Point5Minutes = 125,
+    /** Bain Hashmashos (Yereim, 2.1 Degrees) (KosherJava `getBainHashmashosYereim2Point1Degrees`). */
+    BainHashmashosYereim2Point1Degrees = 126,
+    /** Bain Hashmashos (Yereim, 2.8 Degrees) (KosherJava `getBainHashmashosYereim2Point8Degrees`). */
+    BainHashmashosYereim2Point8Degrees = 127,
+    /** Bain Hashmashos (Yereim, 3.05 Degrees) (KosherJava `getBainHashmashosYereim3Point05Degrees`). */
+    BainHashmashosYereim3Point05Degrees = 128,
+    /** Candle Lighting (KosherJava `getCandleLighting`). */
+    CandleLighting = 129,
+    /** Polar Sunset Ben Ish Chai (KosherJava `getPolarSunsetBenIshChai`). */
+    PolarSunsetBenIshChai = 130,
+    /** Sunset (KosherJava `getSunset`). */
+    Sunset = 131,
+    /** Sea Level Sunset (KosherJava `getSeaLevelSunset`). */
+    SeaLevelSunset = 132,
+    /** Tzais (Geonim, 8.5 Degrees) (KosherJava `getTzaisGeonim8Point5Degrees`). */
+    TzaisGeonim8Point5Degrees = 133,
+    /** Tzais (50 Minutes) (KosherJava `getTzais50Minutes`). */
+    Tzais50Minutes = 134,
+    /** Tzais (60 Minutes) (KosherJava `getTzais60Minutes`). */
+    Tzais60Minutes = 135,
+    /** Tzais (72 Minutes) (KosherJava `getTzais72Minutes`). */
+    Tzais72Minutes = 136,
+    /** Tzais (72 Minutes in Shaos Zmanios) (KosherJava `getTzais72Zmanis`). */
+    Tzais72Zmanis = 137,
+    /** Tzais (90 Minutes) (KosherJava `getTzais90Minutes`). */
+    Tzais90Minutes = 138,
+    /** Tzais (90 Minutes in Shaos Zmanios) (KosherJava `getTzais90Zmanis`). */
+    Tzais90Zmanis = 139,
+    /** Tzais (96 Minutes) (KosherJava `getTzais96Minutes`). */
+    Tzais96Minutes = 140,
+    /** Tzais (96 Minutes in Shaos Zmanios) (KosherJava `getTzais96Zmanis`). */
+    Tzais96Zmanis = 141,
+    /**
+     * Tzais (120 Minutes) (KosherJava `getTzais120Minutes`).
+     *
+     * Deprecated in KosherJava.
+     */
+    Tzais120Minutes = 142,
+    /**
+     * Tzais (120 Minutes in Shaos Zmanios) (KosherJava `getTzais120Zmanis`).
+     *
+     * Deprecated in KosherJava.
+     */
+    Tzais120Zmanis = 143,
+    /** Tzais (16.1 Degrees) (KosherJava `getTzais16Point1Degrees`). */
+    Tzais16Point1Degrees = 144,
+    /** Tzais (18 Degrees) (KosherJava `getTzais18Degrees`). */
+    Tzais18Degrees = 145,
+    /** Tzais (19.8 Degrees) (KosherJava `getTzais19Point8Degrees`). */
+    Tzais19Point8Degrees = 146,
+    /**
+     * Tzais (26 Degrees) (KosherJava `getTzais26Degrees`).
+     *
+     * Deprecated in KosherJava.
+     */
+    Tzais26Degrees = 147,
+    /** Tzais (Ateret Torah) (KosherJava `getTzaisAteretTorah`). */
+    TzaisAteretTorah = 148,
+    /** Tzais (Baal Hatanya) (KosherJava `getTzaisBaalHatanya`). */
+    TzaisBaalHatanya = 149,
+    /**
+     * Tzais (Geonim, 3.7 Degrees) (KosherJava `getTzaisGeonim3Point7Degrees`).
+     *
+     * Deprecated in KosherJava.
+     */
+    TzaisGeonim3Point7Degrees = 150,
+    /**
+     * Tzais (Geonim, 3.8 Degrees) (KosherJava `getTzaisGeonim3Point8Degrees`).
+     *
+     * Deprecated in KosherJava.
+     */
+    TzaisGeonim3Point8Degrees = 151,
+    /** Tzais (Geonim, 5.95 Degrees) (KosherJava `getTzaisGeonim5Point95Degrees`). */
+    TzaisGeonim5Point95Degrees = 152,
+    /**
+     * Tzais (Geonim, 4.66 Degrees) (KosherJava `getTzaisGeonim4Point66Degrees`).
+     *
+     * Deprecated in KosherJava.
+     */
+    TzaisGeonim4Point66Degrees = 153,
+    /**
+     * Tzais (Geonim, 4.42 Degrees) (KosherJava `getTzaisGeonim4Point42Degrees`).
+     *
+     * Deprecated in KosherJava.
+     */
+    TzaisGeonim4Point42Degrees = 154,
+    /** Tzais (Geonim, 4.8 Degrees) (KosherJava `getTzaisGeonim4Point8Degrees`). */
+    TzaisGeonim4Point8Degrees = 155,
+    /** Tzais (Geonim, 6.45 Degrees) (KosherJava `getTzaisGeonim6Point45Degrees`). */
+    TzaisGeonim6Point45Degrees = 156,
+    /** Tzais (Geonim, 7.083 Degrees) (KosherJava `getTzaisGeonim7Point083Degrees`). */
+    TzaisGeonim7Point083Degrees = 157,
+    /** Tzais (Geonim, 7.67 Degrees) (KosherJava `getTzaisGeonim7Point67Degrees`). */
+    TzaisGeonim7Point67Degrees = 158,
+    /** Tzais (Geonim, 9.3 Degrees) (KosherJava `getTzaisGeonim9Point3Degrees`). */
+    TzaisGeonim9Point3Degrees = 159,
+    /** Tzais (Geonim, 9.75 Degrees) (KosherJava `getTzaisGeonim9Point75Degrees`). */
+    TzaisGeonim9Point75Degrees = 160,
+    /** Sof Zman Kidush Levana (15 Days) (KosherJava `getSofZmanKidushLevana15Days`). */
+    SofZmanKidushLevana15Days = 161,
+    /** Sof Zman Kidush Levana (Between Moldos) (KosherJava `getSofZmanKidushLevanaBetweenMoldos`). */
+    SofZmanKidushLevanaBetweenMoldos = 162,
+    /** Tchilas Zman Kidush Levana (3 Days) (KosherJava `getTchilasZmanKidushLevana3Days`). */
+    TchilasZmanKidushLevana3Days = 163,
+    /** Tchilas Zman Kidush Levana (7 Days) (KosherJava `getTchilasZmanKidushLevana7Days`). */
+    TchilasZmanKidushLevana7Days = 164,
+    /** Solar Midnight (KosherJava `getSolarMidnight`). */
+    SolarMidnight = 165,
+    /** Chatzos Halayla (KosherJava `getChatzosHalayla`). */
+    ChatzosHalayla = 166,
+  }
+  /** What kind of time a `Zman` is. */
+  export enum Category {
+    /** Start and end of astronomical, civil and nautical twilight. */
+    Twilight = 0,
+    /** Dawn (*alos*). */
+    Alos = 1,
+    /** Earliest time for tallis and tefillin (*misheyakir*). */
+    Misheyakir = 2,
+    /** Sunrise (*netz*). */
+    Netz = 3,
+    /** Latest time for the morning Shema. */
+    SofZmanShma = 4,
+    /** Latest time for the morning prayer. */
+    SofZmanTefila = 5,
+    /** Latest time to eat chametz on Erev Pesach. */
+    SofZmanAchilasChametz = 6,
+    /** Latest time to burn chametz on Erev Pesach. */
+    SofZmanBiurChametz = 7,
+    /** Midday (*chatzos hayom*). */
+    ChatzosHayom = 8,
+    /** Earliest Mincha (*mincha gedola*). */
+    MinchaGedola = 9,
+    /** *Plag hamincha*. */
+    PlagHamincha = 10,
+    /** Shortly before *mincha ketana*. */
+    SamuchLeMinchaKetana = 11,
+    /** Preferred Mincha time (*mincha ketana*). */
+    MinchaKetana = 12,
+    /** Twilight between sunset and nightfall (*bein hashmashos*). */
+    BeinHashmashos = 13,
+    /** Candle lighting before Shabbos or Yom Tov. */
+    CandleLighting = 14,
+    /** Sunset (*shkiya*). */
+    Shkiya = 15,
+    /** Nightfall (*tzais*). */
+    Tzais = 16,
+    /** The window for Kiddush Levana. */
+    KidushLevana = 17,
+    /** Midnight (*chatzos halayla*). */
+    ChatzosHalayla = 18,
+  }
+  /** The solar position algorithm. */
+  export enum Calculator {
+    /** The NOAA algorithm, KosherJava's default. Good to about a minute. */
+    Noaa = 0,
+    /** Jean Meeus's higher-accuracy VSOP87 algorithm. */
+    Meeus = 1,
+    /** The NREL Solar Position Algorithm, solved on the topocentric zenith. */
+    Spa = 2,
+  }
+  /** Why a time in `ZmanTime` could not be calculated. */
+  export enum ZmanFailure {
+    /** The sun stays above the angle the time needs all day. */
+    AllDay = 0,
+    /** The sun stays below the angle the time needs all day. */
+    AllNight = 1,
+    /** The time does not apply on this date. */
+    NotApplicable = 2,
+    /** The time needs a time zone and none was given. */
+    TimeZoneRequired = 3,
+    /** The time zone callback failed. */
+    TimeZoneCallbackFailed = 4,
+    /** An internal calculation error. */
+    Unexpected = 5,
+  }
+  /**
+   * A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
+   * leave them 0 for sea level.
+   *
+   * The time zone is not part of the location: pass a
+   * `TimeZoneOffset` to `Zmanim` and
+   * `MyZmanim`.
+   */
+  export interface Location {
+    /** Latitude in degrees, north positive. */
+    latitude: number;
+    /** Longitude in degrees, east positive. */
+    longitude: number;
+    /** The observer's height. Elevation makes sunrise earlier and sunset later. */
+    elevation: number;
+    /** The height of the eastern horizon, over which the sun rises. */
+    eastern_horizon_elevation: number;
+    /** The height of the western horizon, behind which the sun sets. */
+    western_horizon_elevation: number;
+  }
+  /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
+  export interface Config {
+    /**
+     * How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
+     * way. Default 18.
+     */
+    candle_lighting_minutes: number;
+    /** Whether proportional zmanim divide the day at astronomical *chatzos*. Default false. */
+    use_astronomical_chatzos_for_other_zmanim: boolean;
+    /**
+     * Whether elevation adjusts every zman built on sunrise and sunset, not only sunrise
+     * and sunset themselves. Default false.
+     */
+    use_elevation: boolean;
+    /**
+     * How long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
+     * Default 40.
+     */
+    ateret_torah_sunset_minutes: number;
+    /**
+     * Whether *chatzos* is the sun's transit rather than the midpoint of sunrise and
+     * sunset. Default true.
+     */
+    use_astronomical_chatzos: boolean;
+    /** The solar position algorithm. Default NOAA. */
+    calculator: zmanim.Calculator;
+    /** For Meeus and SPA: whether to apply the delta-T (TT - UT) correction. Default true. */
+    apply_delta_t: boolean;
+  }
+  /** One zman's time, or why it has none. */
+  export interface ZmanTime {
+    /** The zman. */
+    zman: zmanim.Zman;
+    /** The time in Unix milliseconds, when it could be calculated. */
+    time: bigint | null;
+    /** Why it could not, when it could not. */
+    failure: zmanim.ZmanFailure | null;
+  }
+  /**
+   * The time zone, supplied by the caller: the offset from UTC at an instant.
+   *
+   * Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
+   * one. It is called synchronously, once for each sunrise, sunset or other event a time is
+   * built from.
+   */
+  export interface TimeZoneOffset {
+    /**
+     * The offset from UTC, in seconds east, in effect at `unix_seconds`.
+     *
+     * # Errors
+     *
+     * Fail when the offset is unknown; the calculation then reports
+     * `ZmanimError::TimeZoneCallbackFailed`.
+     */
+    offsetSeconds(unixSeconds: bigint): number;
+  }
+  /** The *zmanim* for one place on one day. */
+  export class Zmanim {
+    /**
+     * The *zmanim* at `location` on `date`, calculated with `config`, in `time_zone`.
+     *
+     * # Errors
+     *
+     * `ZmanimError::InvalidGregorianDate` for a date that does not exist;
+     * `ZmanimError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
+     * than a day; the errors of `validate_location`.
+     * @throws {zmanim.ZmanimError}
+     */
+    constructor(location: zmanim.Location, date: calendar.GregorianDate, config: zmanim.Config, timeZone: zmanim.TimeZoneOffset | null);
+    /**
+     * The time of `zman`, in Unix milliseconds.
+     *
+     * # Errors
+     *
+     * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
+     * the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
+     * on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
+     * a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+     * @throws {zmanim.ZmanimError}
+     */
+    get(zman: zmanim.Zman): bigint;
+    /** Every zman, with its time or why it has none. */
+    all(): zmanim.ZmanTime[];
+    /**
+     * When the sun is `degrees` below the geometric horizon before sunrise, in Unix
+     * milliseconds.
+     *
+     * # Errors
+     *
+     * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
+     * same as `get`.
+     * @throws {zmanim.ZmanimError}
+     */
+    sunriseOffsetByDegrees(degrees: number): bigint;
+    /**
+     * When the sun is `degrees` below the geometric horizon after sunset, in Unix
+     * milliseconds.
+     *
+     * # Errors
+     *
+     * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
+     * same as `get`.
+     * @throws {zmanim.ZmanimError}
+     */
+    sunsetOffsetByDegrees(degrees: number): bigint;
+    /** The location. */
+    location(): zmanim.Location;
+    /** The date. */
+    date(): calendar.GregorianDate;
+    /** The configuration, as given to `new`. */
+    config(): zmanim.Config;
+    /**
+     * Release this wrapper's reference to the native object. Safe to call
+     * more than once; a wrapper that is never closed is released when it is
+     * garbage collected. Using the wrapper after `close()` throws.
+     */
+    close(): void;
+    /** Alias of `close()` for `using` declarations. */
+    [Symbol.dispose](): void;
+  }
+  /** A location at sea level, with flat horizons. */
+  export function seaLevelLocation(latitude: number, longitude: number): zmanim.Location;
+  /**
+   * Checks a location the way `Zmanim` will.
+   *
+   * # Errors
+   *
+   * `ZmanimError::InvalidLatitude`, `ZmanimError::InvalidLongitude` or
+   * `ZmanimError::InvalidElevation`; `ZmanimError::TimeZoneRequired` beyond 150 degrees
+   * from Greenwich when `has_time_zone` is false.
+   * @throws {zmanim.ZmanimError}
+   */
+  export function validateLocation(location: zmanim.Location, hasTimeZone: boolean): void;
+  /** KosherJava's default configuration. */
+  export function defaultConfig(): zmanim.Config;
+  /** Every zman, grouped by `Category`. */
+  export function allZmanim(): zmanim.Zman[];
+  /** The zman's display name, for example "Sof Zman Shma (GR'A)". */
+  export function zmanName(zman: zmanim.Zman): string;
+  /** The KosherJava method that calculates the zman, for example "getSofZmanShmaGRA". */
+  export function zmanJavaName(zman: zmanim.Zman): string;
+  /** The zman named by its KosherJava method, for example "getSofZmanShmaGRA". */
+  export function zmanFromJavaName(javaName: string): zmanim.Zman | null;
+  /** What kind of time the zman is. */
+  export function zmanCategory(zman: zmanim.Zman): zmanim.Category;
+  /** Whether KosherJava deprecates the zman. */
+  export function zmanIsDeprecated(zman: zmanim.Zman): boolean;
+  /**
+   * A paragraph or two explaining the zman to users, with the offsets from `config` filled
+   * in. May contain Markdown links.
+   */
+  export function zmanDescription(zman: zmanim.Zman, config: zmanim.Config): string;
+  /** The algorithm's descriptive name, as KosherJava's `getCalculatorName` gives it. */
+  export function calculatorName(calculator: zmanim.Calculator): string;
+  /**
+   * A *shaah zmanis*: a twelfth of the day from `start` to `end` (Unix milliseconds), in
+   * milliseconds.
+   */
+  export function shaahZmanis(start: bigint, end: bigint): bigint;
   /** The *zmanim* of the MyZmanim website, reproduced to the second. */
   export namespace myzmanim {
     /** One row of the MyZmanim website's "All zmanim" table, in the table's order. */
@@ -1530,11 +1622,11 @@ export declare namespace kosher {
     /** One MyZmanim time, or why it has none. */
     export interface MyZmanTime {
       /** The row. */
-      zman: kosher.myzmanim.MyZman;
+      zman: zmanim.myzmanim.MyZman;
       /** The time in Unix milliseconds, when it could be calculated. */
       time: bigint | null;
       /** Why it could not, when it could not. */
-      failure: kosher.zmanim.ZmanFailure | null;
+      failure: zmanim.ZmanFailure | null;
     }
     /**
      * MyZmanim's *zmanim* for one place on one day. The location's elevation and horizons
@@ -1547,37 +1639,37 @@ export declare namespace kosher {
        *
        * # Errors
        *
-       * `KosherError::InvalidDate` for a date that does not exist;
-       * `KosherError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
+       * `ZmanimError::InvalidGregorianDate` for a date that does not exist;
+       * `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
        * of at most 1440 either way; the errors of `validate_location`.
-       * @throws {kosher.KosherError}
+       * @throws {zmanim.ZmanimError}
        */
-      constructor(location: kosher.Location, date: kosher.GregorianDate, candleLightingMinutes: number, timeZone: kosher.zmanim.TimeZoneOffset | null);
+      constructor(location: zmanim.Location, date: calendar.GregorianDate, candleLightingMinutes: number, timeZone: zmanim.TimeZoneOffset | null);
       /**
        * The time of `zman`, in Unix milliseconds.
        *
        * # Errors
        *
-       * `KosherError::AllDay` or `KosherError::AllNight` where the website shows no
-       * time; `KosherError::TimeZoneCallbackFailed` when the callback failed.
-       * @throws {kosher.KosherError}
+       * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
+       * time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+       * @throws {zmanim.ZmanimError}
        */
-      get(zman: kosher.myzmanim.MyZman): bigint;
+      get(zman: zmanim.myzmanim.MyZman): bigint;
       /** Every row, with its time or why it has none. */
-      all(): kosher.myzmanim.MyZmanTime[];
+      all(): zmanim.myzmanim.MyZmanTime[];
       /**
        * A twelfth of the day from sea-level sunrise to sea-level sunset, in milliseconds.
        *
        * # Errors
        *
        * The same as `get`.
-       * @throws {kosher.KosherError}
+       * @throws {zmanim.ZmanimError}
        */
       proportionalHourGra(): bigint;
       /** The location. */
-      location(): kosher.Location;
+      location(): zmanim.Location;
       /** The date. */
-      date(): kosher.GregorianDate;
+      date(): calendar.GregorianDate;
       /** The minutes before sunset of candle lighting. */
       candleLightingMinutes(): number;
       /**
@@ -1590,9 +1682,9 @@ export declare namespace kosher {
       [Symbol.dispose](): void;
     }
     /** The row's name as the website shows it. */
-    export function myZmanName(zman: kosher.myzmanim.MyZman): string;
+    export function myZmanName(zman: zmanim.myzmanim.MyZman): string;
     /** Every row, in the website's order. */
-    export function allMyZmanim(): kosher.myzmanim.MyZman[];
+    export function allMyZmanim(): zmanim.myzmanim.MyZman[];
     /** The sun's depression for "90 minutes as degrees": 19.75 degrees. */
     export function dawn90Degrees(): number;
     /** The sun's depression for "72 minutes as 16.1 degrees". */

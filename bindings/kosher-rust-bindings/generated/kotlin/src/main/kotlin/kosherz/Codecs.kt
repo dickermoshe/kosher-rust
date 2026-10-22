@@ -2,7 +2,7 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-package kosher_rust_bindings
+package kosherz
 
 internal fun packListOfHebrewMonth(_w: BufferWriter, _v: List<HebrewMonth>) = _w.writeList(_v) { _w.writeI32(it.value) }
 

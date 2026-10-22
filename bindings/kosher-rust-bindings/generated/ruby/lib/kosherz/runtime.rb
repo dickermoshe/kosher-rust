@@ -7,25 +7,25 @@
 require 'ffi'
 require 'monitor'
 
-# The fixed runtime every generated KosherRustBindings binding builds on: the native
+# The fixed runtime every generated Kosherz binding builds on: the native
 # library loader, the load-time ABI and contract checks, the error classes,
 # the value-buffer reader and writer, cancel tokens, the handle table behind
 # callback interfaces and async completions, and the object wrapper base.
-module KosherRustBindings
+module Kosherz
   extend FFI::Library
 
-  # An explicit path in KOSHER_RUST_BINDINGS_LIBRARY wins. Otherwise a library bundled
+  # An explicit path in KOSHERZ_LIBRARY wins. Otherwise a library bundled
   # under lib/native/ (a platform gem) is preferred over the system search
   # path.
-  _wv_override = ENV['KOSHER_RUST_BINDINGS_LIBRARY']
+  _wv_override = ENV['KOSHERZ_LIBRARY']
   if _wv_override && !_wv_override.empty?
     ffi_lib _wv_override
   else
     _wv_name =
       case FFI::Platform::OS
-      when /darwin/ then 'libkosher_rust_bindings.dylib'
-      when /mswin|mingw|windows/ then 'kosher_rust_bindings.dll'
-      else 'libkosher_rust_bindings.so'
+      when /darwin/ then 'libkosherz.dylib'
+      when /mswin|mingw|windows/ then 'kosherz.dll'
+      else 'libkosherz.so'
       end
     _wv_bundled = File.expand_path(File.join('..', 'native', _wv_name), __dir__)
     ffi_lib(File.exist?(_wv_bundled) ? _wv_bundled : _wv_name)
@@ -36,18 +36,18 @@ module KosherRustBindings
   # misreading an error struct or a value buffer later.
   ABI_VERSION = 4
   begin
-    attach_function :kosher_rust_bindings_abi_version, [], :uint32
+    attach_function :kosherz_abi_version, [], :uint32
   rescue FFI::NotFoundError
-    raise LoadError, "the loaded kosher_rust_bindings library does not export kosher_rust_bindings_abi_version " \
+    raise LoadError, "the loaded kosherz library does not export kosherz_abi_version " \
                      "(these bindings expect ABI revision #{ABI_VERSION})"
   end
-  _wv_abi = kosher_rust_bindings_abi_version
+  _wv_abi = kosherz_abi_version
   unless _wv_abi == ABI_VERSION
-    raise LoadError, "kosher_rust_bindings ABI mismatch: these bindings expect revision #{ABI_VERSION} " \
+    raise LoadError, "kosherz ABI mismatch: these bindings expect revision #{ABI_VERSION} " \
                      "but the loaded library reports revision #{_wv_abi}"
   end
 
-  # The `kosher_rust_bindings_error` out-parameter every call reports through.
+  # The `kosherz_error` out-parameter every call reports through.
   class ErrorStruct < FFI::Struct
     layout :code, :int32,
            :message, :pointer,
@@ -95,16 +95,16 @@ module KosherRustBindings
     end
   end
 
-  attach_function :kosher_rust_bindings_error_set, [:pointer, :int32, :string], :void
-  attach_function :kosher_rust_bindings_error_set_payload, [:pointer, :pointer, :size_t], :void
-  attach_function :kosher_rust_bindings_error_clear, [:pointer], :void
-  attach_function :kosher_rust_bindings_error_free, [:pointer], :void
-  attach_function :kosher_rust_bindings_alloc, [:size_t], :pointer
-  attach_function :kosher_rust_bindings_free_bytes, [:pointer, :size_t], :void
-  attach_function :kosher_rust_bindings_cancel_token_create, [], :pointer
-  attach_function :kosher_rust_bindings_cancel_token_cancel, [:pointer], :void
-  attach_function :kosher_rust_bindings_cancel_token_is_cancelled, [:pointer], :bool
-  attach_function :kosher_rust_bindings_cancel_token_destroy, [:pointer], :void
+  attach_function :kosherz_error_set, [:pointer, :int32, :string], :void
+  attach_function :kosherz_error_set_payload, [:pointer, :pointer, :size_t], :void
+  attach_function :kosherz_error_clear, [:pointer], :void
+  attach_function :kosherz_error_free, [:pointer], :void
+  attach_function :kosherz_alloc, [:size_t], :pointer
+  attach_function :kosherz_free_bytes, [:pointer, :size_t], :void
+  attach_function :kosherz_cancel_token_create, [], :pointer
+  attach_function :kosherz_cancel_token_cancel, [:pointer], :void
+  attach_function :kosherz_cancel_token_is_cancelled, [:pointer], :bool
+  attach_function :kosherz_cancel_token_destroy, [:pointer], :void
 
   # @api private
   # One entry of a module's contract table.
@@ -115,7 +115,7 @@ module KosherRustBindings
 
   # @api private
   # Checks, for every top-level module, that the library's contract table
-  # (`kosher_rust_bindings_{module}_contract`) holds each declaration these bindings
+  # (`kosherz_{module}_contract`) holds each declaration these bindings
   # were generated with, as `[id, hash, path]`, with an equal signature
   # hash. Declarations the library adds are fine.
   def self._wv_check_contract!(tables)
@@ -123,7 +123,7 @@ module KosherRustBindings
       begin
         attach_function symbol, [:pointer], :pointer unless respond_to?(symbol)
       rescue FFI::NotFoundError
-        raise LoadError, "the loaded kosher_rust_bindings library does not export #{symbol}"
+        raise LoadError, "the loaded kosherz library does not export #{symbol}"
       end
       out_len = FFI::MemoryPointer.new(:size_t)
       table = public_send(symbol, out_len)
@@ -134,10 +134,10 @@ module KosherRustBindings
       end.to_h
       expected.each do |id, hash, path|
         found = actual[id]
-        raise LoadError, "kosher_rust_bindings: #{path} is missing from the library" if found.nil?
+        raise LoadError, "kosherz: #{path} is missing from the library" if found.nil?
         next if found == hash
 
-        raise LoadError, "kosher_rust_bindings: #{path} changed since these bindings were generated"
+        raise LoadError, "kosherz: #{path} changed since these bindings were generated"
       end
     end
   end
@@ -177,18 +177,18 @@ module KosherRustBindings
     message = msg_ptr.null? ? '' : msg_ptr.read_string.force_encoding(Encoding::UTF_8)
     payload_ptr = err[:payload_ptr]
     payload = payload_ptr.null? ? nil : payload_ptr.read_string(err[:payload_len])
-    kosher_rust_bindings_error_clear(err.to_ptr)
+    kosherz_error_clear(err.to_ptr)
     [code, message, payload]
   end
 
   # @api private
   # Like _wv_take_error for the heap-boxed error an async completion
-  # receives; the box is released with kosher_rust_bindings_error_free.
+  # receives; the box is released with kosherz_error_free.
   def self._wv_take_boxed_error(err_ptr)
     return nil if err_ptr.null?
 
     taken = _wv_take_error(ErrorStruct.new(err_ptr))
-    kosher_rust_bindings_error_free(err_ptr)
+    kosherz_error_free(err_ptr)
     taken
   end
 
@@ -278,7 +278,7 @@ module KosherRustBindings
     return ''.b if ptr.null?
 
     data = len.zero? ? ''.b : ptr.read_string(len)
-    kosher_rust_bindings_free_bytes(ptr, len)
+    kosherz_free_bytes(ptr, len)
     data
   end
 
@@ -297,23 +297,23 @@ module KosherRustBindings
     # Owns the consumer's reference to the native token.
     class Ptr < FFI::AutoPointer
       def self.release(ptr)
-        KosherRustBindings.kosher_rust_bindings_cancel_token_destroy(ptr)
+        Kosherz.kosherz_cancel_token_destroy(ptr)
       end
     end
 
     def initialize
-      @ptr = Ptr.new(KosherRustBindings.kosher_rust_bindings_cancel_token_create)
+      @ptr = Ptr.new(Kosherz.kosherz_cancel_token_create)
     end
 
     # Requests cancellation. Idempotent.
     def cancel
-      KosherRustBindings.kosher_rust_bindings_cancel_token_cancel(@ptr) unless @ptr.nil?
+      Kosherz.kosherz_cancel_token_cancel(@ptr) unless @ptr.nil?
       nil
     end
 
     # Whether #cancel has been called.
     def cancelled?
-      !@ptr.nil? && KosherRustBindings.kosher_rust_bindings_cancel_token_is_cancelled(@ptr)
+      !@ptr.nil? && Kosherz.kosherz_cancel_token_is_cancelled(@ptr)
     end
 
     # Releases the native token now rather than at GC time. Calls already
@@ -425,11 +425,11 @@ module KosherRustBindings
     end
 
     def write_string(value)
-      write_bytes(KosherRustBindings._wv_str(value))
+      write_bytes(Kosherz._wv_str(value))
     end
 
     def write_bytes(value)
-      bytes = KosherRustBindings._wv_bytes(value)
+      bytes = Kosherz._wv_bytes(value)
       write_u32(bytes.bytesize)
       @buf << bytes
     end
@@ -437,7 +437,7 @@ module KosherRustBindings
     private
 
     def int(value, kind)
-      KosherRustBindings._wv_int(value, kind)
+      Kosherz._wv_int(value, kind)
     end
   end
 
@@ -451,7 +451,7 @@ module KosherRustBindings
     end
 
     def take(count, what)
-      raise KosherRustBindings._wv_malformed("truncated #{what}") if @pos + count > @data.bytesize
+      raise Kosherz._wv_malformed("truncated #{what}") if @pos + count > @data.bytesize
 
       bytes = @data.byteslice(@pos, count)
       @pos += count
@@ -460,14 +460,14 @@ module KosherRustBindings
 
     def read_bool
       byte = take(1, 'bool').unpack1('C')
-      raise KosherRustBindings._wv_malformed('bool byte out of range') if byte > 1
+      raise Kosherz._wv_malformed('bool byte out of range') if byte > 1
 
       byte == 1
     end
 
     def read_flag
       byte = take(1, 'option flag').unpack1('C')
-      raise KosherRustBindings._wv_malformed('option flag out of range') if byte > 1
+      raise Kosherz._wv_malformed('option flag out of range') if byte > 1
 
       byte == 1
     end
@@ -521,7 +521,7 @@ module KosherRustBindings
 
     def read_string
       text = read_bytes.force_encoding(Encoding::UTF_8)
-      raise KosherRustBindings._wv_malformed('string is not valid UTF-8') unless text.valid_encoding?
+      raise Kosherz._wv_malformed('string is not valid UTF-8') unless text.valid_encoding?
 
       text
     end
@@ -534,7 +534,7 @@ module KosherRustBindings
     # into a new `cls` wrapper.
     def read_object(cls)
       addr = read_u64
-      raise KosherRustBindings._wv_malformed('null object token') if addr.zero?
+      raise Kosherz._wv_malformed('null object token') if addr.zero?
 
       cls._from_ptr(FFI::Pointer.new(addr))
     end
@@ -542,7 +542,7 @@ module KosherRustBindings
     def expect_end!
       return if @pos == @data.bytesize
 
-      raise KosherRustBindings._wv_malformed('trailing bytes after value')
+      raise Kosherz._wv_malformed('trailing bytes after value')
     end
   end
 
@@ -666,7 +666,7 @@ module KosherRustBindings
   # Reports a callback implementation's exception through `out_err` as
   # FOREIGN_ERROR_CODE. The library copies the message.
   def self._wv_cb_fail(out_err, exception)
-    kosher_rust_bindings_error_set(out_err, FOREIGN_ERROR_CODE, _wv_cb_message(exception))
+    kosherz_error_set(out_err, FOREIGN_ERROR_CODE, _wv_cb_message(exception))
     nil
   end
 
@@ -679,8 +679,8 @@ module KosherRustBindings
     code, payload = yield
     return _wv_cb_fail(out_err, exception) if code.nil?
 
-    kosher_rust_bindings_error_set(out_err, code, _wv_cb_message(exception))
-    kosher_rust_bindings_error_set_payload(out_err, payload, payload.bytesize) unless payload.empty?
+    kosherz_error_set(out_err, code, _wv_cb_message(exception))
+    kosherz_error_set_payload(out_err, payload, payload.bytesize) unless payload.empty?
     nil
   rescue Exception => e # rubocop:disable Lint/RescueException
     _wv_cb_fail(out_err, e)
@@ -696,14 +696,14 @@ module KosherRustBindings
 
   # @api private
   # Hands a callback method's string, bytes, or buffer return to the
-  # library: a run allocated with kosher_rust_bindings_alloc, written to the out slots.
+  # library: a run allocated with kosherz_alloc, written to the out slots.
   # The library adopts and frees it.
   def self._wv_cb_return_bytes(out_ptr, out_len, data)
     len = data.bytesize
     run = FFI::Pointer::NULL
     unless len.zero?
-      run = kosher_rust_bindings_alloc(len)
-      raise NoMemoryError, 'kosher_rust_bindings_alloc failed' if run.null?
+      run = kosherz_alloc(len)
+      raise NoMemoryError, 'kosherz_alloc failed' if run.null?
 
       run.put_bytes(0, data)
     end
@@ -883,14 +883,14 @@ module KosherRustBindings
   # 3 cancel tokens, 4 byte runs; -1 reports whether the library counts at
   # all). Only libraries built with the `leak-check` feature count.
   def self._wv_debug_live(kind)
-    unless respond_to?(:kosher_rust_bindings_debug_live)
+    unless respond_to?(:kosherz_debug_live)
       begin
-        attach_function :kosher_rust_bindings_debug_live, [:int32], :uint64
+        attach_function :kosherz_debug_live, [:int32], :uint64
       rescue FFI::NotFoundError
-        raise Error.new(GENERIC_ERROR_CODE, 'kosher_rust_bindings does not export kosher_rust_bindings_debug_live')
+        raise Error.new(GENERIC_ERROR_CODE, 'kosherz does not export kosherz_debug_live')
       end
     end
-    kosher_rust_bindings_debug_live(kind)
+    kosherz_debug_live(kind)
   end
 end
 

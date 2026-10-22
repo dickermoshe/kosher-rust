@@ -6,25 +6,25 @@
 import Foundation
 import PackageDescription
 
-// The C module `CKosherRustBindings` comes from one of two places. Next to this
-// manifest, a prebuilt `CKosherRustBindings.xcframework` (from `weaveffi package`) wins.
-// Otherwise `Sources/CKosherRustBindings` declares the generated header as a system
-// library that links `kosher_rust_bindings` from the linker search path, e.g.
+// The C module `CKosherz` comes from one of two places. Next to this
+// manifest, a prebuilt `CKosherz.xcframework` (from `weaveffi package`) wins.
+// Otherwise `Sources/CKosherz` declares the generated header as a system
+// library that links `kosherz` from the linker search path, e.g.
 // `swift build -Xlinker -L/path/to/lib`.
-let xcframework = "CKosherRustBindings.xcframework"
+let xcframework = "CKosherz.xcframework"
 let cModule: Target = FileManager.default.fileExists(atPath: "\(Context.packageDirectory)/\(xcframework)")
-    ? .binaryTarget(name: "CKosherRustBindings", path: xcframework)
-    : .systemLibrary(name: "CKosherRustBindings")
+    ? .binaryTarget(name: "CKosherz", path: xcframework)
+    : .systemLibrary(name: "CKosherz")
 
 let package = Package(
-    name: "KosherRustBindings",
+    name: "Kosherz",
     platforms: [.macOS("11.0"), .iOS("13.0")],
     products: [
-        .library(name: "KosherRustBindings", targets: ["KosherRustBindings"]),
+        .library(name: "Kosherz", targets: ["Kosherz"]),
     ],
     targets: [
         cModule,
-        .target(name: "KosherRustBindings", dependencies: ["CKosherRustBindings"]),
+        .target(name: "Kosherz", dependencies: ["CKosherz"]),
     ]
 )
 

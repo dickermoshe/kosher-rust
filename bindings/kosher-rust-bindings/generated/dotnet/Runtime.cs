@@ -14,7 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace KosherRustBindings;
+namespace Kosherz;
 
 /// <summary>The root of every error a throwing call reports. Each typed domain
 /// exception derives from it, and a runtime failure of a throwing call (an
@@ -94,7 +94,7 @@ public sealed class NativeBugException : InvalidOperationException
 /// exception a call throws.</summary>
 internal delegate Exception FfiErrorMap(int code, string message, byte[]? payload);
 
-/// <summary>The native <c>kosher_rust_bindings_error</c> slot.</summary>
+/// <summary>The native <c>kosherz_error</c> slot.</summary>
 [StructLayout(LayoutKind.Sequential)]
 internal unsafe struct FfiError
 {
@@ -104,7 +104,7 @@ internal unsafe struct FfiError
     public nuint PayloadLen;
 }
 
-/// <summary>The native <c>kosher_rust_bindings_contract_entry</c>: one declaration's
+/// <summary>The native <c>kosherz_contract_entry</c>: one declaration's
 /// fingerprint in a module's contract table.</summary>
 [StructLayout(LayoutKind.Sequential)]
 internal struct FfiContractEntry
@@ -253,7 +253,7 @@ internal static unsafe class Ffi
 
     /// <summary>Hands <paramref name="bytes"/> to the producer through a
     /// callback method's out slots, as a run allocated with
-    /// <c>kosher_rust_bindings_alloc</c> that the producer adopts.</summary>
+    /// <c>kosherz_alloc</c> that the producer adopts.</summary>
     internal static void Return(ReadOnlySpan<byte> bytes, byte** outPtr, nuint* outLen)
     {
         var run = NativeMethods.Alloc((nuint)bytes.Length);
@@ -316,11 +316,11 @@ internal static unsafe class Ffi
 internal static unsafe partial class NativeMethods
 {
     /// <summary>The native library's base name.</summary>
-    internal const string LibName = "kosher_rust_bindings";
+    internal const string LibName = "kosherz";
 
     /// <summary>The environment variable naming an explicit library
     /// path.</summary>
-    internal const string LibraryEnvVar = "KOSHER_RUST_BINDINGS_LIBRARY";
+    internal const string LibraryEnvVar = "KOSHERZ_LIBRARY";
 
     /// <summary>The C ABI revision these bindings were generated
     /// against.</summary>
@@ -347,7 +347,7 @@ internal static unsafe partial class NativeMethods
         catch (EntryPointNotFoundException e)
         {
             throw new InvalidOperationException(
-                $"the loaded {LibName} library doesn't export kosher_rust_bindings_abi_version; these bindings expect ABI revision {AbiVersion}", e);
+                $"the loaded {LibName} library doesn't export kosherz_abi_version; these bindings expect ABI revision {AbiVersion}", e);
         }
         if (found != AbiVersion)
         {
@@ -410,43 +410,43 @@ internal static unsafe partial class NativeMethods
         }
     }
 
-    [LibraryImport(LibName, EntryPoint = "kosher_rust_bindings_abi_version")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_abi_version")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial uint AbiVersionOf();
 
-    [LibraryImport(LibName, EntryPoint = "kosher_rust_bindings_error_set")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_error_set")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void ErrorSet(FfiError* err, int code, byte* message);
 
-    [LibraryImport(LibName, EntryPoint = "kosher_rust_bindings_error_set_payload")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_error_set_payload")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void ErrorSetPayload(FfiError* err, byte* ptr, nuint len);
 
-    [LibraryImport(LibName, EntryPoint = "kosher_rust_bindings_error_clear")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_error_clear")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void ErrorClear(FfiError* err);
 
-    [LibraryImport(LibName, EntryPoint = "kosher_rust_bindings_error_free")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_error_free")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void ErrorFree(FfiError* err);
 
-    [LibraryImport(LibName, EntryPoint = "kosher_rust_bindings_alloc")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_alloc")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial byte* Alloc(nuint len);
 
-    [LibraryImport(LibName, EntryPoint = "kosher_rust_bindings_free_bytes")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_free_bytes")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void FreeBytes(byte* ptr, nuint len);
 
-    [LibraryImport(LibName, EntryPoint = "kosher_rust_bindings_cancel_token_create")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_cancel_token_create")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial IntPtr CancelTokenCreate();
 
-    [LibraryImport(LibName, EntryPoint = "kosher_rust_bindings_cancel_token_cancel")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_cancel_token_cancel")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void CancelTokenCancel(IntPtr token);
 
-    [LibraryImport(LibName, EntryPoint = "kosher_rust_bindings_cancel_token_destroy")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_cancel_token_destroy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void CancelTokenDestroy(IntPtr token);
 }

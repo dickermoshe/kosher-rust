@@ -2,15 +2,15 @@
 <!-- DO NOT EDIT. Your changes will be overwritten. -->
 <!-- To regenerate: weaveffi generate -->
 
-# kosher_rust_bindings (Go)
+# kosherz (Go)
 
-cgo bindings for the `kosher_rust_bindings` native library.
+cgo bindings for the `kosherz` native library.
 
 ## Build
 
-The module ships its own copy of the C header (`kosher_rust_bindings.h`) and links with
-`-lkosher_rust_bindings`. Point the linker at the directory holding `libkosher_rust_bindings.so`,
-`libkosher_rust_bindings.dylib`, or `kosher_rust_bindings.dll`, and make the library findable at
+The module ships its own copy of the C header (`kosherz.h`) and links with
+`-lkosherz`. Point the linker at the directory holding `libkosherz.so`,
+`libkosherz.dylib`, or `kosherz.dll`, and make the library findable at
 run time:
 
 ```sh
@@ -26,10 +26,10 @@ Add `-Wl,-rpath,/path/to/lib` to `CGO_LDFLAGS` to record the directory in the
 binary instead of setting the loader path.
 
 Depend on the module from your own project with a `require` (and, for a
-local checkout, a `replace`) of `kosher-rust-bindings`, then import it:
+local checkout, a `replace`) of `kosherz`, then import it:
 
 ```go
-import "kosher-rust-bindings"
+import "kosherz"
 ```
 
 Go 1.23 or newer is required.

@@ -14,7 +14,7 @@
  * (-1 generic, -2 producer panic, -3 marshalling failure, -4 a callback
  * implementation failed, -5 cancelled).
  */
-export class KosherRustBindingsError extends Error {
+export class KosherzError extends Error {
   constructor(code, message) {
     super(message === undefined ? '' : message);
     this.name = new.target.name;
@@ -23,7 +23,7 @@ export class KosherRustBindingsError extends Error {
 }
 
 /** The error a cancelled async call rejects with (code -5). */
-export class CancelledError extends KosherRustBindingsError {
+export class CancelledError extends KosherzError {
   constructor(message = 'cancelled') {
     super(-5, message);
   }
@@ -53,10 +53,10 @@ export function $fault(e) {
   if (e instanceof $Fault) {
     return e.code === -5
       ? new CancelledError(e.message || undefined)
-      : new KosherRustBindingsError(e.code, e.message);
+      : new KosherzError(e.code, e.message);
   }
   if (typeof WebAssembly === 'object' && e instanceof WebAssembly.RuntimeError) {
-    return new KosherRustBindingsError(-2, 'the native library trapped: ' + e.message);
+    return new KosherzError(-2, 'the native library trapped: ' + e.message);
   }
   return e;
 }
@@ -96,7 +96,7 @@ export function $raise(e, domain, codes, fields) {
 }
 
 function $malformed(what) {
-  return new KosherRustBindingsError(-3, 'malformed value buffer: ' + what);
+  return new KosherzError(-3, 'malformed value buffer: ' + what);
 }
 
 function $expected(what, v) {
@@ -420,7 +420,7 @@ export function $adoptOpt(cls, handle) {
  */
 export function $lend(o, cls) {
   if (!(o instanceof cls)) throw $expected(`a ${cls.name}`, o);
-  if (o.$closed !== false) throw new KosherRustBindingsError(-3, `${cls.name} used after close()`);
+  if (o.$closed !== false) throw new KosherzError(-3, `${cls.name} used after close()`);
   o.$calls++;
   return o.$h;
 }

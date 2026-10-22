@@ -1,16 +1,8 @@
-"""Calls kosher-rust from Python through the generated bindings.
-
-From bindings/kosher-rust-bindings, after `weaveffi generate --target python`:
-
-    KOSHER_RUST_BINDINGS_LIBRARY=../../target/debug/kosher_rust_bindings.dll \
-        PYTHONPATH=generated/python python examples/smoke.py
-
-(`libkosher_rust_bindings.so` on Linux, `.dylib` on macOS.)
-"""
+"""Calls kosher-rust from Python through the generated bindings. The README says how to run it."""
 
 from datetime import datetime, timedelta, timezone
 
-import kosher_rust_bindings as k
+import kosherz as k
 
 
 class UsEastern(k.TimeZoneOffset):

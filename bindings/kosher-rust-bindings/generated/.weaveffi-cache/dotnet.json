@@ -1,7 +1,7 @@
 {
   "files": [
-    "dotnet/KosherRustBindings.cs",
-    "dotnet/KosherRustBindings.csproj",
+    "dotnet/Kosherz.cs",
+    "dotnet/Kosherz.csproj",
     "dotnet/README.md",
     "dotnet/Runtime.cs"
   ]

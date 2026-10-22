@@ -7,16 +7,16 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "kosher-rust-bindings"
+name = "kosherz"
 version = "0.0.0"
 description = "C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI."
 requires-python = ">=3.9"
 license = { text = "LGPL-2.1-or-later" }
 
 [tool.setuptools]
-packages = ["kosher_rust_bindings"]
+packages = ["kosherz"]
 
 [tool.setuptools.package-data]
-"kosher_rust_bindings" = ["py.typed", "*.so", "*.dylib", "*.dll"]
+"kosherz" = ["py.typed", "*.so", "*.dylib", "*.dll"]
 
 # END pyproject.toml

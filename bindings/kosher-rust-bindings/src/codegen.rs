@@ -51,6 +51,7 @@ pub fn regions() -> Vec<Region> {
             name: "Zman",
             body: render_enum(
                 "Zman",
+                "    ",
                 &[
                     "A halachic time this library can calculate, named after the KosherJava getter that",
                     "calculates it, without `get`. Its value is its position in `all_zmanim`.",
@@ -68,6 +69,7 @@ pub fn regions() -> Vec<Region> {
             name: "MyZman",
             body: render_enum(
                 "MyZman",
+                "        ",
                 &["One row of the MyZmanim website's \"All zmanim\" table, in the table's order."],
                 &my_zmanim,
             ),
@@ -75,7 +77,7 @@ pub fn regions() -> Vec<Region> {
         Region {
             file: "src/convert/myzmanim.rs",
             name: "MyZman",
-            body: render_conversions("myzmanim::MyZman", "kosher_rust::myzmanim::MyZman", &my_zmanim),
+            body: render_conversions("zmanim::myzmanim::MyZman", "kosher_rust::myzmanim::MyZman", &my_zmanim),
         },
     ]
 }
@@ -86,25 +88,25 @@ struct Variant {
     deprecated: bool,
 }
 
-/// The enum, indented to sit in a module nested in the root module.
-fn render_enum(name: &str, doc: &[&str], variants: &[Variant]) -> String {
+/// The enum, indented by `indent` to sit in its module.
+fn render_enum(name: &str, indent: &str, doc: &[&str], variants: &[Variant]) -> String {
     let mut out = String::new();
     for line in doc {
-        writeln!(out, "        /// {line}").unwrap();
+        writeln!(out, "{indent}/// {line}").unwrap();
     }
-    writeln!(out, "        #[weaveffi::enumeration]").unwrap();
-    writeln!(out, "        #[repr(i32)]").unwrap();
-    writeln!(out, "        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]").unwrap();
-    writeln!(out, "        pub enum {name} {{").unwrap();
+    writeln!(out, "{indent}#[weaveffi::enumeration]").unwrap();
+    writeln!(out, "{indent}#[repr(i32)]").unwrap();
+    writeln!(out, "{indent}#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]").unwrap();
+    writeln!(out, "{indent}pub enum {name} {{").unwrap();
     for (value, variant) in variants.iter().enumerate() {
-        writeln!(out, "            /// {}", variant.doc).unwrap();
+        writeln!(out, "{indent}    /// {}", variant.doc).unwrap();
         if variant.deprecated {
-            writeln!(out, "            ///").unwrap();
-            writeln!(out, "            /// Deprecated in KosherJava.").unwrap();
+            writeln!(out, "{indent}    ///").unwrap();
+            writeln!(out, "{indent}    /// Deprecated in KosherJava.").unwrap();
         }
-        writeln!(out, "            {} = {value},", variant.ident).unwrap();
+        writeln!(out, "{indent}    {} = {value},", variant.ident).unwrap();
     }
-    writeln!(out, "        }}").unwrap();
+    writeln!(out, "{indent}}}").unwrap();
     out
 }
 
@@ -112,7 +114,7 @@ fn render_enum(name: &str, doc: &[&str], variants: &[Variant]) -> String {
 /// kosher-rust's (`theirs`).
 fn render_conversions(ours: &str, theirs: &str, variants: &[Variant]) -> String {
     let mut out = String::new();
-    let ours = format!("crate::api::kosher::{ours}");
+    let ours = format!("crate::api::{ours}");
     for (from_path, to_path) in [(ours.as_str(), theirs), (theirs, ours.as_str())] {
         writeln!(out, "#[allow(deprecated)]").unwrap();
         writeln!(out, "#[rustfmt::skip]").unwrap();

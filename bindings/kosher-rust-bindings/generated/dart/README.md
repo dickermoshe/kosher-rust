@@ -2,21 +2,21 @@
 <!-- DO NOT EDIT. Your changes will be overwritten. -->
 <!-- To regenerate: weaveffi generate -->
 
-# kosher-rust-bindings (Dart)
+# kosherz (Dart)
 
-`dart:ffi` bindings for the `kosher-rust-bindings` native library.
+`dart:ffi` bindings for the `kosherz` native library.
 
 ## Usage
 
 Add this package as a dependency (a `path:` dependency works) and import it:
 
 ```dart
-import 'package:kosher_rust_bindings/kosher_rust_bindings.dart';
+import 'package:kosherz/kosherz.dart';
 ```
 
-The library loads `libkosher_rust_bindings.dylib` (macOS), `libkosher_rust_bindings.so` (Linux and Android), or
-`kosher_rust_bindings.dll` (Windows) from the platform's search path on first use. Set
-`KOSHER_RUST_BINDINGS_LIBRARY` to a full path to load a specific build. On iOS, and as a macOS
+The library loads `libkosherz.dylib` (macOS), `libkosherz.so` (Linux and Android), or
+`kosherz.dll` (Windows) from the platform's search path on first use. Set
+`KOSHERZ_LIBRARY` to a full path to load a specific build. On iOS, and as a macOS
 fallback, the bindings look the symbols up in the running executable.
 
 ## Objects and callbacks

@@ -2,14 +2,14 @@
 <!-- DO NOT EDIT. Your changes will be overwritten. -->
 <!-- To regenerate: weaveffi generate -->
 
-# kosher-rust-bindings (Python)
+# kosherz (Python)
 
-Python bindings for the `kosher_rust_bindings` native library, built on `ctypes`.
+Python bindings for the `kosherz` native library, built on `ctypes`.
 
 ## Requirements
 
 - Python 3.9 or later
-- The native library (`libkosher_rust_bindings.so`, `libkosher_rust_bindings.dylib`, or `kosher_rust_bindings.dll`)
+- The native library (`libkosherz.so`, `libkosherz.dylib`, or `kosherz.dll`)
 
 ## Install
 
@@ -19,14 +19,14 @@ pip install .
 
 ## Loading the native library
 
-The bindings load the library from `KOSHER_RUST_BINDINGS_LIBRARY` when it is set (a full path),
+The bindings load the library from `KOSHERZ_LIBRARY` when it is set (a full path),
 then from inside the installed package, then from the system loader's search
 path.
 
 ## Usage
 
 ```python
-import kosher_rust_bindings
+import kosherz
 ```
 
 <!-- END README.md -->

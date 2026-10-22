@@ -2,29 +2,29 @@
 <!-- DO NOT EDIT. Your changes will be overwritten. -->
 <!-- To regenerate: weaveffi generate -->
 
-# kosher-rust-bindings (Ruby)
+# kosherz (Ruby)
 
-Ruby bindings for `kosher-rust-bindings` using the [ffi](https://github.com/ffi/ffi) gem.
+Ruby bindings for `kosherz` using the [ffi](https://github.com/ffi/ffi) gem.
 
 ## Prerequisites
 
 - Ruby 2.7 or newer
-- The native library (`libkosher_rust_bindings.so`, `libkosher_rust_bindings.dylib`, or `kosher_rust_bindings.dll`) on the library
-  search path, or its path in the `KOSHER_RUST_BINDINGS_LIBRARY` environment variable.
+- The native library (`libkosherz.so`, `libkosherz.dylib`, or `kosherz.dll`) on the library
+  search path, or its path in the `KOSHERZ_LIBRARY` environment variable.
 
 ## Install
 
 ```bash
-gem build kosher-rust-bindings.gemspec
-gem install kosher-rust-bindings-0.0.0.gem
+gem build kosherz.gemspec
+gem install kosherz-0.0.0.gem
 ```
 
 ## Usage
 
 ```ruby
-require 'kosher_rust_bindings'
+require 'kosherz'
 
-KosherRustBindings::ABI_VERSION
+Kosherz::ABI_VERSION
 ```
 
 <!-- END README.md -->

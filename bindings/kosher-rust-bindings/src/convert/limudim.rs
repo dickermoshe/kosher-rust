@@ -1,9 +1,11 @@
+use std::ops::RangeInclusive;
+
 use kosher_rust::limudim::{self as k, Schedule};
 
-use super::calendar::mirror;
-use crate::api::kosher::{
-    calendar::HebrewDate,
-    limudim::{Amud, Daf, Mishna, MishnaPair, PirkeiAvosUnit, Side, TehillimUnit, Tractate},
+use super::{calendar::mirror, valid_number};
+use crate::api::calendar::{
+    HebrewDate,
+    limudim::{Amud, Daf, LimudimError, Mishna, MishnaPair, PirkeiAvosUnit, Side, TehillimUnit, Tractate},
 };
 
 /// `schedule`'s portion on `date`.
@@ -126,25 +128,9 @@ impl From<k::MishnaPair> for MishnaPair {
     }
 }
 
-/// A chapter or verse number from outside, saturated into kosher-rust's narrower type.
-fn narrow<T: TryFrom<i32> + Bounded>(value: i32) -> T {
-    T::try_from(value).unwrap_or(if value < 0 { T::MIN } else { T::MAX })
-}
-
-trait Bounded {
-    const MIN: Self;
-    const MAX: Self;
-}
-
-impl Bounded for u8 {
-    const MIN: Self = u8::MIN;
-    const MAX: Self = u8::MAX;
-}
-
-impl Bounded for u16 {
-    const MIN: Self = u16::MIN;
-    const MAX: Self = u16::MAX;
-}
+const PSALMS: RangeInclusive<i32> = 1..=150;
+const VERSES: RangeInclusive<i32> = 1..=176;
+const CHAPTERS_OF_AVOS: RangeInclusive<i32> = 1..=6;
 
 impl From<k::TehillimUnit> for TehillimUnit {
     fn from(unit: k::TehillimUnit) -> Self {
@@ -166,23 +152,25 @@ impl From<k::TehillimUnit> for TehillimUnit {
     }
 }
 
-impl From<TehillimUnit> for k::TehillimUnit {
-    fn from(unit: TehillimUnit) -> Self {
-        match unit {
+impl TryFrom<TehillimUnit> for k::TehillimUnit {
+    type Error = LimudimError;
+
+    fn try_from(unit: TehillimUnit) -> Result<Self, LimudimError> {
+        Ok(match unit {
             TehillimUnit::Psalms { start, end } => Self::Psalms {
-                start: narrow(start),
-                end: narrow(end),
+                start: valid_number(start, PSALMS).ok_or(LimudimError::InvalidUnit)?,
+                end: valid_number(end, PSALMS).ok_or(LimudimError::InvalidUnit)?,
             },
             TehillimUnit::PsalmVerses {
                 psalm,
                 start_verse,
                 end_verse,
             } => Self::PsalmVerses {
-                psalm: narrow(psalm),
-                start_verse: narrow(start_verse),
-                end_verse: narrow(end_verse),
+                psalm: valid_number(psalm, PSALMS).ok_or(LimudimError::InvalidUnit)?,
+                start_verse: valid_number(start_verse, VERSES).ok_or(LimudimError::InvalidUnit)?,
+                end_verse: valid_number(end_verse, VERSES).ok_or(LimudimError::InvalidUnit)?,
             },
-        }
+        })
     }
 }
 
@@ -200,11 +188,18 @@ impl From<k::PirkeiAvosUnit> for PirkeiAvosUnit {
     }
 }
 
-impl From<PirkeiAvosUnit> for k::PirkeiAvosUnit {
-    fn from(unit: PirkeiAvosUnit) -> Self {
-        match unit {
-            PirkeiAvosUnit::Single { chapter } => Self::Single(narrow(chapter)),
-            PirkeiAvosUnit::Combined { first, second } => Self::Combined(narrow(first), narrow(second)),
-        }
+impl TryFrom<PirkeiAvosUnit> for k::PirkeiAvosUnit {
+    type Error = LimudimError;
+
+    fn try_from(unit: PirkeiAvosUnit) -> Result<Self, LimudimError> {
+        Ok(match unit {
+            PirkeiAvosUnit::Single { chapter } => {
+                Self::Single(valid_number(chapter, CHAPTERS_OF_AVOS).ok_or(LimudimError::InvalidUnit)?)
+            }
+            PirkeiAvosUnit::Combined { first, second } => Self::Combined(
+                valid_number(first, CHAPTERS_OF_AVOS).ok_or(LimudimError::InvalidUnit)?,
+                valid_number(second, CHAPTERS_OF_AVOS).ok_or(LimudimError::InvalidUnit)?,
+            ),
+        })
     }
 }

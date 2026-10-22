@@ -115,6 +115,10 @@ impl Location {
 impl<Tz: TimeZoneLike> Location<Tz> {
     /// Like [`Location::new`], with any [`TimeZoneLike`] as the time zone.
     ///
+    /// Passing `None` needs the time zone type spelled out, as in
+    /// `Location::<MyZone>::new_with_timezone(lat, lon, None)`; without a time zone of your own,
+    /// use [`Location::new`].
+    ///
     /// # Errors
     ///
     /// The same as [`Location::new`].

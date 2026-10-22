@@ -2,7 +2,7 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-package kosher_rust_bindings
+package kosherz
 
 import java.lang.ref.PhantomReference
 import java.lang.ref.ReferenceQueue
@@ -80,11 +80,11 @@ class NativeIterator<T> internal constructor(
 
 /** Loads the producer library and then the JNI shim, exactly once. */
 internal object NativeLibrary {
-    private const val LIBRARY = "kosher_rust_bindings"
-    private const val JNI_LIBRARY = "kosher_rust_bindings_jni"
+    private const val LIBRARY = "kosherz"
+    private const val JNI_LIBRARY = "kosherz_jni"
 
     init {
-        val explicit = System.getenv("KOSHER_RUST_BINDINGS_LIBRARY")
+        val explicit = System.getenv("KOSHERZ_LIBRARY")
         if (!explicit.isNullOrEmpty()) {
             System.load(explicit)
         } else if (!loadBundled(LIBRARY)) {
@@ -194,7 +194,7 @@ internal object NativeCleaner {
         PhantomReference<Any>(owner, queue)
 
     init {
-        val thread = Thread({ drain() }, "kosher_rust_bindings-cleaner")
+        val thread = Thread({ drain() }, "kosherz-cleaner")
         thread.isDaemon = true
         thread.start()
     }
