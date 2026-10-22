@@ -1,42 +1,34 @@
 """Calls kosher-rust from Python through the generated bindings. The README says how to run it."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import kosherz as k
 
 
-class UsEastern(k.TimeZoneOffset):
-    """US Eastern time by the post-2007 rules, without a time zone database."""
+class IanaZone(k.TimeZoneOffset):
+    """An IANA time zone, through Python's zoneinfo."""
+
+    def __init__(self, name: str) -> None:
+        self.zone = ZoneInfo(name)
 
     def offset_seconds(self, unix_seconds: int) -> int:
-        instant = datetime.fromtimestamp(unix_seconds, timezone.utc)
-        year = instant.year
-        # Daylight time runs from 2:00 EST on the second Sunday of March to 2:00 EDT on the
-        # first Sunday of November.
-        march = datetime(year, 3, 8 + (6 - datetime(year, 3, 8).weekday()) % 7, 7, tzinfo=timezone.utc)
-        november = datetime(year, 11, 1 + (6 - datetime(year, 11, 1).weekday()) % 7, 6, tzinfo=timezone.utc)
-        return -4 * 3600 if march <= instant < november else -5 * 3600
+        return int(datetime.fromtimestamp(unix_seconds, self.zone).utcoffset().total_seconds())
 
     def local_to_unix_seconds(self, year: int, month: int, day: int, hour: int, minute: int, second: int) -> int:
-        as_utc = int(datetime(year, month, day, hour, minute, second, tzinfo=timezone.utc).timestamp())
-        # Daylight time gives the earlier instant, so it is tried first.
-        for offset in (-4 * 3600, -5 * 3600):
-            if self.offset_seconds(as_utc - offset) == offset:
-                return as_utc - offset
-        # The clocks skipped the time in spring. Java moves it later by the gap.
-        return as_utc + 5 * 3600
+        # fold=0 resolves a skipped or repeated local time the way Java's ZonedDateTime.of does.
+        return int(datetime(year, month, day, hour, minute, second, tzinfo=self.zone, fold=0).timestamp())
 
 
-eastern = UsEastern()
+new_york = IanaZone("America/New_York")
 
 
 def local(ms: int) -> str:
-    instant = datetime.fromtimestamp(ms / 1000, timezone.utc)
-    return f"{instant + timedelta(seconds=eastern.offset_seconds(ms // 1000)):%H:%M:%S}"
+    return f"{datetime.fromtimestamp(ms / 1000, new_york.zone):%H:%M:%S}"
 
 
 lakewood = k.sea_level_location(40.09, -74.22)
-day = k.Zmanim(lakewood, k.GregorianDate(2024, 4, 23), k.default_config(), eastern)
+day = k.Zmanim(lakewood, k.GregorianDate(2024, 4, 23), k.default_config(), new_york)
 for zman in [k.Zman.Alos72Minutes, k.Zman.Sunrise, k.Zman.SofZmanShmaGra, k.Zman.Sunset, k.Zman.Tzais72Minutes]:
     print(f"{k.zman_name(zman):<28} {local(day.get(zman))}")
 print(len(k.all_zmanim()), "zmanim in the catalog")

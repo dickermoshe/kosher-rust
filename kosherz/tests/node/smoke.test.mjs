@@ -5,44 +5,23 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
+import { Temporal } from '@js-temporal/polyfill';
+
 import { calendar, times } from '../../generated/node/index.js';
 
 const { limudim } = calendar;
 const { myzmanim } = times;
 
-/**
- * A time zone backed by Node's ICU data. It gives the UTC offset of `name` at an instant, and the
- * instant of a local date and time resolved the way Java's `ZonedDateTime.of` resolves it.
- */
+/** The IANA time zone `name`, through Temporal. */
 function ianaZone(name) {
-  const format = new Intl.DateTimeFormat('en-US', {
-    timeZone: name,
-    hourCycle: 'h23',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
   return {
     offsetSeconds(unixSeconds) {
-      const instant = new Date(Number(unixSeconds) * 1000);
-      const parts = Object.fromEntries(format.formatToParts(instant).map((part) => [part.type, part.value]));
-      const local = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
-      return Math.round((local - instant.getTime()) / 1000);
+      const instant = Temporal.Instant.fromEpochMilliseconds(Number(unixSeconds) * 1000);
+      return instant.toZonedDateTimeISO(name).offsetNanoseconds / 1e9;
     },
     localToUnixSeconds(year, month, day, hour, minute, second) {
-      const asUtc = Date.UTC(year, month - 1, day, hour, minute, second) / 1000;
-      // The offsets a day before and a day after are the only ones the local time can have.
-      const before = this.offsetSeconds(BigInt(asUtc - 86400));
-      const after = this.offsetSeconds(BigInt(asUtc + 86400));
-      // The earlier instant comes from the larger offset. Use it if the clocks show the time then.
-      for (const offset of [Math.max(before, after), Math.min(before, after)]) {
-        if (this.offsetSeconds(BigInt(asUtc - offset)) === offset) return BigInt(asUtc - offset);
-      }
-      // The clocks skipped the time. Java moves it later by the gap, using the offset before it.
-      return BigInt(asUtc - before);
+      const local = Temporal.PlainDateTime.from({ year, month, day, hour, minute, second });
+      return BigInt(local.toZonedDateTime(name).epochMilliseconds / 1000);
     },
   };
 }

@@ -4,3 +4,5 @@ generated/node/build/
 generated/node/node_modules/
 generated/node/package-lock.json
 __pycache__/
+tests/node/node_modules/
+tests/node/package-lock.json

@@ -68,6 +68,9 @@ jobs:
         env:
           KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug
         run: npm install --no-audit --no-fund
+      - name: Install the Node tests' Temporal polyfill
+        working-directory: kosherz/tests/node
+        run: npm install --no-audit --no-fund
       - name: Node tests
         working-directory: kosherz
         run: node --test tests/node/*.test.mjs

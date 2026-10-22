@@ -84,12 +84,15 @@ date.holidays(calendar.Region.Diaspora); // [{ tag: 'Pesach' }]
 limudim.dafYomiBavli(date).display;     // 'Bava Metzia 55'
 ```
 
-`tests/node/smoke.test.mjs` has a complete `Intl`-backed time zone.
+`tests/node/smoke.test.mjs` has a complete time zone built on the Temporal polyfill. Install it
+with `npm install` in `tests/node` before running the tests.
 
 ### Python
 
 From `kosherz`, after `cargo build -p kosherz`. The library is `libkosherz.so` on
-Linux, `libkosherz.dylib` on macOS and `kosherz.dll` on Windows.
+Linux, `libkosherz.dylib` on macOS and `kosherz.dll` on Windows. The example takes its time zone
+from Python's `zoneinfo`. On Windows, `zoneinfo` needs the `tzdata` package, so run
+`pip install tzdata` first.
 
 ```bash
 KOSHERZ_LIBRARY=../target/debug/libkosherz.so \
