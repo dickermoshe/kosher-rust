@@ -130,3 +130,38 @@ jobs:
           ZMANIM_JAVA_PARITY_ITERATIONS: 10000
           ZMANIM_LIMUDIM_JAVA_PARITY_ITERATIONS: 10000
         run: cargo test 
+
+  bindings:
+    name: Bindings (Rust parity + Node)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install the WeaveFFI CLI
+        run: cargo install weaveffi-cli --version 0.25.0 --locked
+      - name: Rust tests (parity with kosher-rust, generated enums up to date)
+        run: cargo test -p kosher-rust-bindings
+      - name: Generate bindings for every language
+        working-directory: bindings/kosher-rust-bindings
+        run: weaveffi generate --warn
+      - name: Check the committed bindings are up to date
+        run: |
+          generated=bindings/kosher-rust-bindings/generated
+          if [ -n "$(git status --porcelain -- "$generated")" ]; then
+            git status --short -- "$generated"
+            git --no-pager diff --stat -- "$generated"
+            echo "::error::The committed bindings are out of date. Run 'weaveffi generate' in bindings/kosher-rust-bindings and commit $generated."
+            exit 1
+          fi
+      - name: Build the Node addon
+        working-directory: bindings/kosher-rust-bindings/generated/node
+        env:
+          KOSHER_RUST_BINDINGS_LIBRARY: ${{ github.workspace }}/target/debug
+        run: npm install --no-audit --no-fund
+      - name: Node tests
+        working-directory: bindings/kosher-rust-bindings
+        run: node --test tests/node/*.test.mjs

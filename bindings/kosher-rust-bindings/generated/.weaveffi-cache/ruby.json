@@ -1,0 +1,8 @@
+{
+  "files": [
+    "ruby/README.md",
+    "ruby/kosher-rust-bindings.gemspec",
+    "ruby/lib/kosher_rust_bindings.rb",
+    "ruby/lib/kosher_rust_bindings/runtime.rb"
+  ]
+}

@@ -1,5 +1,47 @@
-use jiff::tz::TimeZone;
+use jiff::{
+    Timestamp,
+    tz::{Offset, TimeZone},
+};
 use thiserror::Error;
+
+/// A time zone: anything that can say what the UTC offset is at a given instant.
+///
+/// [`jiff::tz::TimeZone`] implements it. Implement it yourself to take time zone rules from
+/// somewhere else, such as the operating system or another language through FFI, then build the
+/// location with [`Location::new_with_timezone`].
+///
+/// ```
+/// use jiff::{Timestamp, tz::Offset};
+/// use kosher_rust::{Location, TimeZoneLike};
+///
+/// /// Israel Standard Time all year, ignoring daylight saving.
+/// struct IsraelStandardTime;
+///
+/// impl TimeZoneLike for IsraelStandardTime {
+///     fn offset_at(&self, _timestamp: Timestamp) -> Offset {
+///         Offset::constant(2)
+///     }
+/// }
+///
+/// let jerusalem = Location::new_with_timezone(31.778, 35.235, Some(IsraelStandardTime))?;
+/// # Ok::<(), kosher_rust::LocationError>(())
+/// ```
+pub trait TimeZoneLike {
+    /// The offset from UTC in effect at `timestamp`.
+    fn offset_at(&self, timestamp: Timestamp) -> Offset;
+}
+
+impl TimeZoneLike for TimeZone {
+    fn offset_at(&self, timestamp: Timestamp) -> Offset {
+        self.to_offset(timestamp)
+    }
+}
+
+impl<T: TimeZoneLike + ?Sized> TimeZoneLike for &T {
+    fn offset_at(&self, timestamp: Timestamp) -> Offset {
+        (**self).offset_at(timestamp)
+    }
+}
 
 /// A place on earth: where to calculate *zmanim* for.
 ///
@@ -16,14 +58,17 @@ use thiserror::Error;
 ///     .with_horizons(754.0, 0.0)?;
 /// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
+///
+/// The time zone is a [`jiff::tz::TimeZone`] by default; [`Location::new_with_timezone`] takes any
+/// [`TimeZoneLike`].
 #[derive(Debug, Clone, PartialEq)]
-pub struct Location {
+pub struct Location<Tz = TimeZone> {
     pub(crate) latitude: f64,
     pub(crate) longitude: f64,
     pub(crate) elevation: f64,
     pub(crate) eastern_horizon_elevation: f64,
     pub(crate) western_horizon_elevation: f64,
-    pub(crate) timezone: Option<TimeZone>,
+    pub(crate) timezone: Option<Tz>,
 }
 
 /// Why a [`Location`] was rejected.
@@ -58,6 +103,17 @@ impl Location {
     /// - [`LocationError::TimeZoneRequired`] when `timezone` is `None` and the longitude is
     ///   beyond ±150°.
     pub fn new(latitude: f64, longitude: f64, timezone: Option<TimeZone>) -> Result<Self, LocationError> {
+        Self::new_with_timezone(latitude, longitude, timezone)
+    }
+}
+
+impl<Tz: TimeZoneLike> Location<Tz> {
+    /// Like [`Location::new`], with any [`TimeZoneLike`] as the time zone.
+    ///
+    /// # Errors
+    ///
+    /// The same as [`Location::new`].
+    pub fn new_with_timezone(latitude: f64, longitude: f64, timezone: Option<Tz>) -> Result<Self, LocationError> {
         if timezone.is_none() && longitude.abs() > 150.0 {
             return Err(LocationError::TimeZoneRequired);
         }
@@ -76,7 +132,9 @@ impl Location {
             timezone,
         })
     }
+}
 
+impl<Tz> Location<Tz> {
     /// The same location with the observer `meters` above sea level.
     ///
     /// Elevation makes sunrise earlier and sunset later. Which *zmanim* use it depends on
@@ -133,7 +191,7 @@ impl Location {
     }
 
     /// The time zone, if one was given.
-    pub fn timezone(&self) -> Option<&TimeZone> {
+    pub fn timezone(&self) -> Option<&Tz> {
         self.timezone.as_ref()
     }
 
@@ -157,7 +215,7 @@ fn valid_elevation(meters: f64) -> Result<f64, LocationError> {
 }
 
 #[cfg(feature = "defmt")]
-impl defmt::Format for Location {
+impl<Tz> defmt::Format for Location<Tz> {
     fn format(&self, fmt: defmt::Formatter) {
         defmt::write!(
             fmt,

@@ -1,0 +1,10 @@
+{
+  "files": [
+    "wasm/README.md",
+    "wasm/index.d.ts",
+    "wasm/index.js",
+    "wasm/linear.js",
+    "wasm/package.json",
+    "wasm/runtime.js"
+  ]
+}

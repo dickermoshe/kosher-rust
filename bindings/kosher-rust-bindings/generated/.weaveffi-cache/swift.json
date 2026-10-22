@@ -1,0 +1,8 @@
+{
+  "files": [
+    "swift/Package.swift",
+    "swift/Sources/CKosherRustBindings/kosher_rust_bindings.h",
+    "swift/Sources/CKosherRustBindings/module.modulemap",
+    "swift/Sources/KosherRustBindings/KosherRustBindings.swift"
+  ]
+}

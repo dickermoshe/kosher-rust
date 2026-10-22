@@ -1,12 +1,12 @@
 use core::fmt;
 
-use jiff::{SignedDuration, Timestamp, civil::Date};
+use jiff::{SignedDuration, Timestamp, civil::Date, tz::TimeZone};
 
 #[allow(unused_imports)]
 use core_maths::*;
 
 use crate::{
-    Location,
+    Location, TimeZoneLike,
     astronomy::{
         GEOMETRIC_ZENITH, SolarEvent, adjusted_local_date, apparent_solar_radius, meeus::Meeus,
         rise_set_on_adjusted_date,
@@ -225,17 +225,17 @@ impl fmt::Display for MyZman {
 /// [elevation](Location::with_elevation) and [horizons](Location::with_horizons) matter here:
 /// MyZmanim reports both "level region" and "elevated" sunrise and sunset.
 #[derive(Debug, Clone, PartialEq)]
-pub struct MyZmanim {
-    location: Location,
+pub struct MyZmanim<Tz = TimeZone> {
+    location: Location<Tz>,
     date: Date,
     candle_lighting_minutes: f64,
 }
 
-impl MyZmanim {
+impl<Tz: TimeZoneLike> MyZmanim<Tz> {
     /// The *zmanim* at `location` on `date`, lighting candles
     /// [`DEFAULT_CANDLE_LIGHTING_MINUTES`] before sunset.
     #[must_use]
-    pub fn new(location: Location, date: Date) -> Self {
+    pub fn new(location: Location<Tz>, date: Date) -> Self {
         Self {
             location,
             date,
@@ -252,7 +252,7 @@ impl MyZmanim {
 
     /// The location, with its observer and horizon heights.
     #[must_use]
-    pub fn location(&self) -> &Location {
+    pub fn location(&self) -> &Location<Tz> {
         &self.location
     }
 
@@ -327,7 +327,7 @@ impl MyZmanim {
             Midnight => {
                 let sunset = self.get(SunsetLevel)?;
                 let tomorrow = self.date.tomorrow().map_err(|_| ZmanimError::Internal)?;
-                let next_sunrise = Self::new(self.location.clone(), tomorrow).get(SunriseLevel)?;
+                let next_sunrise = self.rise_set_on(tomorrow, SolarEvent::Sunrise, false)?;
                 midpoint(sunset, next_sunrise)
             }
         }
@@ -373,7 +373,12 @@ impl MyZmanim {
     /// the light grazes the horizon, so it is scaled for the air at that horizon's height: the
     /// observer's own for the level times, the eastern or western horizon's for the elevated.
     fn rise_set(&self, event: SolarEvent, elevated: bool) -> Result<Timestamp, ZmanimError> {
-        let adjusted_date = adjusted_local_date(self.date, &self.location)?;
+        self.rise_set_on(self.date, event, elevated)
+    }
+
+    /// [`rise_set`](Self::rise_set) on another `date` at the same location.
+    fn rise_set_on(&self, date: Date, event: SolarEvent, elevated: bool) -> Result<Timestamp, ZmanimError> {
+        let adjusted_date = adjusted_local_date(date, &self.location)?;
         let (horizon_elevation, height_above_horizon) = match (event, elevated) {
             (SolarEvent::Sunrise, true) => (
                 self.location.eastern_horizon_elevation,

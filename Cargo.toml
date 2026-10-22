@@ -14,6 +14,7 @@ keywords = ["zmanim", "hebrew-calendar", "jewish", "daf-yomi", "halacha"]
 categories = ["date-and-time", "no-std", "internationalization"]
 exclude = [
     "/interop-tests/",
+    "/bindings/",
     "/third-party/",
     # About 1 MB of conformance data; the tests that read it stay in the repository.
     "/tests/fixtures/",
@@ -71,7 +72,7 @@ workspace = true
 
 [workspace]
 resolver = "2"
-members = ["interop-tests/java_interop_tests", "interop-tests/js_interop_tests"]
+members = ["interop-tests/java_interop_tests", "interop-tests/js_interop_tests", "bindings/kosher-rust-bindings"]
 
 [workspace.lints.rust]
 missing_docs = "deny"

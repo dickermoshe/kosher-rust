@@ -11,6 +11,7 @@ use icu_calendar::{
 use jiff::{SignedDuration as Duration, Timestamp, ToSpan, tz::TimeZone};
 
 use crate::{
+    TimeZoneLike,
     calendar::{
         HebrewDate, Holiday, Region,
         molad::{is_same_gregorian_day, months_molad},
@@ -120,7 +121,7 @@ pub(crate) enum Formula {
 }
 
 impl Formula {
-    pub(crate) fn evaluate(&self, calculator: &Zmanim) -> Result<Timestamp, ZmanimError> {
+    pub(crate) fn evaluate<Tz: TimeZoneLike>(&self, calculator: &Zmanim<Tz>) -> Result<Timestamp, ZmanimError> {
         match *self {
             Formula::ConfiguredSunrise => {
                 if calculator.config.use_elevation {
@@ -184,12 +185,12 @@ impl Formula {
             ),
             Formula::LocalMeanTime(hours) => {
                 let date = calculator.date;
-                let location = calculator.location.clone();
+                let location = &calculator.location;
                 if !(0.0..24.0).contains(&hours) {
                     return Err(ZmanimError::Internal);
                 }
 
-                let adjusted_date = crate::astronomy::adjusted_local_date(date, &location)?;
+                let adjusted_date = crate::astronomy::adjusted_local_date(date, location)?;
                 let midnight = adjusted_date.at(0, 0, 0, 0);
                 let lmt_nanos = CoreFloat::round(hours * 3600.0 * 1_000_000_000.0) as i64;
                 let offset_nanos = CoreFloat::round(location.longitude * 240.0 * 1_000_000_000.0) as i64;
@@ -549,10 +550,16 @@ impl Formula {
             }
             Formula::ChatzosHalaylaAsHalfDay => {
                 let sunset = Formula::SeaLevelSunset.evaluate(calculator)?;
-                // Create a copy of the calculator and increment the date by one day
-                let mut tomorrow = calculator.clone();
-                tomorrow.date = tomorrow.date.checked_add(1.day()).map_err(|_| ZmanimError::Internal)?;
-                let sunrise = Formula::SeaLevelSunrise.evaluate(&tomorrow)?;
+                let tomorrow = calculator
+                    .date
+                    .checked_add(1.day())
+                    .map_err(|_| ZmanimError::Internal)?;
+                let sunrise = crate::astronomy::sunrise(
+                    calculator.config.astronomical_calculator,
+                    tomorrow,
+                    &calculator.location,
+                    false,
+                )?;
                 let diff = sunrise.duration_since(sunset) / 2;
                 Ok(sunset + diff)
             }

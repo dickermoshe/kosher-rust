@@ -1,0 +1,9 @@
+{
+  "files": [
+    "python/README.md",
+    "python/kosher_rust_bindings/__init__.py",
+    "python/kosher_rust_bindings/kosher_rust_bindings.py",
+    "python/kosher_rust_bindings/py.typed",
+    "python/pyproject.toml"
+  ]
+}
