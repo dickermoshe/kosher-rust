@@ -452,9 +452,9 @@ impl TimeZoneOffset for Counting {
     }
 }
 
-/// The callback is called once per instant, however often kosher-rust asks about it.
+/// A time asks the callback once for each sunrise, sunset or other event it is built from.
 #[test]
-fn the_callback_is_asked_once_per_instant() {
+fn the_callback_is_asked_a_few_times_per_zman() {
     let counting = Arc::new(Counting(
         TimeZone::get("America/New_York").unwrap(),
         AtomicUsize::new(0),
@@ -468,16 +468,26 @@ fn the_callback_is_asked_once_per_instant() {
     let calls = || counting.1.swap(0, Ordering::Relaxed);
 
     let day = Zmanim::new(lakewood, date, zmanim::default_config(), Some(counting.clone())).unwrap();
-    day.all();
-    let first = calls();
-    assert!((1..=12).contains(&first), "{first}");
-    day.all();
-    assert_eq!(calls(), 0);
+    let most = zmanim::all_zmanim()
+        .into_iter()
+        .map(|zman| {
+            let _ = day.get(zman);
+            calls()
+        })
+        .max()
+        .unwrap();
+    assert!(most <= 8, "{most}");
 
     let my_day = MyZmanim::new(lakewood, date, 18.0, Some(counting.clone())).unwrap();
-    my_day.all();
-    let first = calls();
-    assert!((1..=12).contains(&first), "{first}");
+    let most = myzmanim::all_my_zmanim()
+        .into_iter()
+        .map(|zman| {
+            let _ = my_day.get(zman);
+            calls()
+        })
+        .max()
+        .unwrap();
+    assert!(most <= 8, "{most}");
 }
 
 /// One object used from two threads at once: a callback failure during one call is reported by

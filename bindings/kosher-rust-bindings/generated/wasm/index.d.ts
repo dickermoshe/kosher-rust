@@ -1121,8 +1121,8 @@ export declare namespace kosher {
      * The time zone, supplied by the caller: the offset from UTC at an instant.
      *
      * Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
-     * one. It is called synchronously, and each `Zmanim` or `MyZmanim` remembers its answers,
-     * so it must give the same offset whenever it is asked about the same instant.
+     * one. It is called synchronously, once for each sunrise, sunset or other event a time is
+     * built from.
      */
     export interface TimeZoneOffset {
       /**

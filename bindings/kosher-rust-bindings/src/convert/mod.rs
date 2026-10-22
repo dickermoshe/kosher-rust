@@ -9,10 +9,7 @@ pub(crate) mod limudim;
 pub(crate) mod myzmanim;
 pub(crate) mod zmanim;
 
-use std::{
-    cell::Cell,
-    sync::{Arc, Mutex, MutexGuard, PoisonError},
-};
+use std::{cell::Cell, sync::Arc};
 
 use jiff::{Timestamp, civil, tz::Offset};
 use kosher_rust::TimeZoneLike;
@@ -24,54 +21,30 @@ thread_local! {
     static CALLBACK_FAILED: Cell<bool> = const { Cell::new(false) };
 }
 
-/// How many answers a [`CallbackTimeZone`] remembers.
-const ANSWERS_REMEMBERED: usize = 32;
-
 /// A caller's [`TimeZoneOffset`] callback as a kosher-rust time zone. A failed call answers UTC
-/// and is recorded for [`watching_callbacks`] to report; successful answers are remembered.
+/// and is recorded for [`watching_callbacks`] to report.
 pub(crate) struct CallbackTimeZone {
     callback: Arc<dyn TimeZoneOffset>,
-    /// Offsets the callback gave, by the Unix second it was asked about.
-    answers: Mutex<Vec<(i64, Offset)>>,
 }
 
 impl CallbackTimeZone {
     pub(crate) fn new(callback: Arc<dyn TimeZoneOffset>) -> Self {
-        Self {
-            callback,
-            answers: Mutex::new(Vec::with_capacity(ANSWERS_REMEMBERED)),
-        }
-    }
-
-    fn answers(&self) -> MutexGuard<'_, Vec<(i64, Offset)>> {
-        // Nothing panics while holding the lock, so a poisoned one still holds whole answers.
-        self.answers.lock().unwrap_or_else(PoisonError::into_inner)
+        Self { callback }
     }
 }
 
 impl TimeZoneLike for CallbackTimeZone {
     fn offset_at(&self, timestamp: Timestamp) -> Offset {
-        let second = timestamp.as_second();
-        if let Some(&(_, offset)) = self.answers().iter().find(|(asked, _)| *asked == second) {
-            return offset;
-        }
-        // The lock is released: the callback may calculate something on this object itself.
         let offset = self
             .callback
-            .offset_seconds(second)
+            .offset_seconds(timestamp.as_second())
             .ok()
             .filter(|seconds| seconds.unsigned_abs() < 86_400)
             .and_then(|seconds| Offset::from_seconds(seconds).ok());
-        let Some(offset) = offset else {
+        offset.unwrap_or_else(|| {
             CALLBACK_FAILED.set(true);
-            return Offset::UTC;
-        };
-        let mut answers = self.answers();
-        if answers.len() == ANSWERS_REMEMBERED {
-            answers.clear();
-        }
-        answers.push((second, offset));
-        offset
+            Offset::UTC
+        })
     }
 }
 

@@ -3348,8 +3348,8 @@ inline void check_kosher(kosher_rust_bindings_error& err) {
  * The time zone, supplied by the caller: the offset from UTC at an instant.
  *
  * Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
- * one. It is called synchronously, and each `Zmanim` or `MyZmanim` remembers its answers,
- * so it must give the same offset whenever it is asked about the same instant.
+ * one. It is called synchronously, once for each sunrise, sunset or other event a time is
+ * built from.
  *
  * Subclass it and pass a `std::shared_ptr<TimeZoneOffset>` where the API takes a `TimeZoneOffset`. The producer may call the methods from any thread, so they must be thread-safe, until it releases the implementation (also from any thread). An exception a method throws reaches the producer as a callback failure (code -4).
  */

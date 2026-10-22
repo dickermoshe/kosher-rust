@@ -1326,8 +1326,8 @@ typedef struct kosher_rust_bindings_kosher_myzmanim_MyZmanim kosher_rust_binding
  * The time zone, supplied by the caller: the offset from UTC at an instant.
  *
  * Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
- * one. It is called synchronously, and each `Zmanim` or `MyZmanim` remembers its answers,
- * so it must give the same offset whenever it is asked about the same instant.
+ * one. It is called synchronously, once for each sunrise, sunset or other event a time is
+ * built from.
  *
  * Consumer-implemented callback interface. The consumer passes a context pointer plus a pointer to a static instance of this vtable, with `size` set to `sizeof` the vtable and `flags` to 0 (the producer rejects a smaller vtable). The producer may call any entry from any thread until it calls `free(ctx)` exactly once, also from any thread. A method reports failure with `error_set(out_err, ...)`; a string, bytes, or buffer return is a run the consumer allocates with `alloc` and writes to `out_ptr` and `out_len`, which the producer adopts.
  */
