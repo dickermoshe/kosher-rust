@@ -8,21 +8,21 @@ plugins {
     `maven-publish`
 }
 
-group = "kosher_rust_bindings"
+group = "kosherz"
 version = "0.0.0"
 
-// A packaged build ships a prebuilt libkosher_rust_bindings_jni.so next to the producer
+// A packaged build ships a prebuilt libkosherz_jni.so next to the producer
 // library in src/main/jniLibs/<abi>/; without one, CMake builds it.
-val prebuiltJni = fileTree("src/main/jniLibs") { include("**/libkosher_rust_bindings_jni.so") }.files.isNotEmpty()
+val prebuiltJni = fileTree("src/main/jniLibs") { include("**/libkosherz_jni.so") }.files.isNotEmpty()
 
 android {
-    namespace = "kosher_rust_bindings"
+    namespace = "kosherz"
     compileSdk = 35
     defaultConfig {
         minSdk = 21
         consumerProguardFiles("consumer-rules.pro")
     }
-    // Builds libkosher_rust_bindings_jni.so per ABI, linked against the producer library in
+    // Builds libkosherz_jni.so per ABI, linked against the producer library in
     // src/main/jniLibs/<abi>/ (see src/main/cpp/CMakeLists.txt).
     if (!prebuiltJni) {
         externalNativeBuild {
@@ -51,7 +51,7 @@ kotlin {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            artifactId = "kosher-rust-bindings"
+            artifactId = "kosherz"
             afterEvaluate {
                 from(components["release"])
             }

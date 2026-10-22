@@ -16,7 +16,7 @@ use crate::{
         HebrewDate, Holiday, Region,
         molad::{is_same_gregorian_day, months_molad},
     },
-    zmanim::{Zmanim, ZmanimError},
+    zmanim::{Zmanim, ZmanimError, minus, plus},
 };
 
 static CIVIL_ZENITH: f64 = 6.0;
@@ -214,11 +214,11 @@ impl Formula {
                 // (e.g., sunset itself), an earlier time is not universally considered
                 // *l’chumrah*, so we do not apply this rule there.
                 let sunset = Formula::SeaLevelSunset.evaluate(calculator)?;
-                Ok(sunset - calculator.config.candle_lighting_offset)
+                minus(sunset, calculator.config.candle_lighting_offset)
             }
             Formula::Offset(event, duration) => {
                 let event_time = event.evaluate(calculator)?;
-                Ok(event_time + duration)
+                plus(event_time, duration)
             }
             Formula::ZmanisOffset(event, hours) => {
                 let event_time = event.evaluate(calculator)?;
@@ -227,7 +227,7 @@ impl Formula {
                 let shaah_zmanis = sunset.duration_since(sunrise) / 12;
                 let offset = shaah_zmanis.mul_f64(hours);
 
-                Ok(event_time + offset)
+                plus(event_time, offset)
             }
 
             Formula::HalfDayBasedOffset(event1, event2, hours) => {
@@ -236,9 +236,9 @@ impl Formula {
                 let shaah_zmanis = event2_time.duration_since(event1_time) / 6;
                 let offset = shaah_zmanis.mul_f64(hours);
                 if hours >= 0.0 {
-                    Ok(event1_time + offset)
+                    plus(event1_time, offset)
                 } else {
-                    Ok(event2_time + offset)
+                    plus(event2_time, offset)
                 }
             }
             Formula::Shema(event1, event2, synchronous) => {
@@ -248,12 +248,12 @@ impl Formula {
                     let chatzos = Formula::ChatzosHayom.evaluate(calculator)?;
                     let shaah_zmanis = chatzos.duration_since(event1_time) / 6;
                     let offset = shaah_zmanis.mul_f64(3.0);
-                    Ok(event1_time + offset)
+                    plus(event1_time, offset)
                 } else {
                     let event2_time = event2_time?;
                     let shaah_zmanis = event2_time.duration_since(event1_time) / 12;
                     let offset = shaah_zmanis.mul_f64(3.0);
-                    Ok(event1_time + offset)
+                    plus(event1_time, offset)
                 }
             }
             Formula::MinchaGedola(event1, event2, synchronous) => {
@@ -263,12 +263,12 @@ impl Formula {
                     let chatzos = Formula::ChatzosHayom.evaluate(calculator)?;
                     let shaah_zmanis = event2_time.duration_since(chatzos) / 6;
                     let offset = shaah_zmanis.mul_f64(0.5);
-                    Ok(chatzos + offset)
+                    plus(chatzos, offset)
                 } else {
                     let event1_time = event1_time?;
                     let shaah_zmanis = event2_time.duration_since(event1_time) / 12;
                     let offset = shaah_zmanis.mul_f64(6.5);
-                    Ok(event1_time + offset)
+                    plus(event1_time, offset)
                 }
             }
             Formula::SamuchLeMinchaKetana(event1, event2, synchronous) => {
@@ -278,12 +278,12 @@ impl Formula {
                     let chatzos = Formula::ChatzosHayom.evaluate(calculator)?;
                     let shaah_zmanis = event2_time.duration_since(chatzos) / 6;
                     let offset = shaah_zmanis.mul_f64(3.0);
-                    Ok(chatzos + offset)
+                    plus(chatzos, offset)
                 } else {
                     let event1_time = event1_time?;
                     let shaah_zmanis = event2_time.duration_since(event1_time) / 12;
                     let offset = shaah_zmanis.mul_f64(9.0);
-                    Ok(event1_time + offset)
+                    plus(event1_time, offset)
                 }
             }
             Formula::MinchaKetana(event1, event2, synchronous) => {
@@ -293,12 +293,12 @@ impl Formula {
                     let chatzos = Formula::ChatzosHayom.evaluate(calculator)?;
                     let shaah_zmanis = event2_time.duration_since(chatzos) / 6;
                     let offset = shaah_zmanis.mul_f64(3.5);
-                    Ok(chatzos + offset)
+                    plus(chatzos, offset)
                 } else {
                     let event1_time = event1_time?;
                     let shaah_zmanis = event2_time.duration_since(event1_time) / 12;
                     let offset = shaah_zmanis.mul_f64(9.5);
-                    Ok(event1_time + offset)
+                    plus(event1_time, offset)
                 }
             }
             Formula::Tefila(event1, event2, synchronous) => {
@@ -308,12 +308,12 @@ impl Formula {
                     let chatzos = Formula::ChatzosHayom.evaluate(calculator)?;
                     let shaah_zmanis = chatzos.duration_since(event1_time) / 6;
                     let offset = shaah_zmanis.mul_f64(4.0);
-                    Ok(event1_time + offset)
+                    plus(event1_time, offset)
                 } else {
                     let event2_time = event2_time?;
                     let shaah_zmanis = event2_time.duration_since(event1_time) / 12;
                     let offset = shaah_zmanis.mul_f64(4.0);
-                    Ok(event1_time + offset)
+                    plus(event1_time, offset)
                 }
             }
             Formula::PlagHamincha(event1, event2, synchronous) => {
@@ -323,12 +323,12 @@ impl Formula {
                     let chatzos = Formula::ChatzosHayom.evaluate(calculator)?;
                     let shaah_zmanis = event2_time.duration_since(chatzos) / 6;
                     let offset = shaah_zmanis.mul_f64(4.75);
-                    Ok(chatzos + offset)
+                    plus(chatzos, offset)
                 } else {
                     let event1_time = event1_time?;
                     let shaah_zmanis = event2_time.duration_since(event1_time) / 12;
                     let offset = shaah_zmanis.mul_f64(10.75);
-                    Ok(event1_time + offset)
+                    plus(event1_time, offset)
                 }
             }
             Formula::SofZmanBiurChametz(event1, event2, synchronous) => {
@@ -345,7 +345,7 @@ impl Formula {
                     let event2_time = event2.evaluate(calculator)?;
                     let shaah_zmanis = event2_time.duration_since(event1_time) / 12;
                     let offset = shaah_zmanis.mul_f64(5.0);
-                    return Ok(event1_time + offset);
+                    return plus(event1_time, offset);
                 };
                 primitive.evaluate(calculator)
             }
@@ -362,17 +362,17 @@ impl Formula {
                     let chatzos = Formula::ChatzosHayom.evaluate(calculator)?;
                     let shaah_zmanis = chatzos.duration_since(event1_time) / 6;
                     let offset = shaah_zmanis.mul_f64(4.0);
-                    Ok(event1_time + offset)
+                    plus(event1_time, offset)
                 } else {
                     let event2_time = event2_time?;
                     let shaah_zmanis = event2_time.duration_since(event1_time) / 12;
                     let offset = shaah_zmanis.mul_f64(4.0);
-                    Ok(event1_time + offset)
+                    plus(event1_time, offset)
                 }
             }
             Formula::TzaisAteretTorah => {
                 let sunset = Formula::ConfiguredSunset.evaluate(calculator)?;
-                Ok(sunset + calculator.config.ateret_torah_sunset_offset)
+                plus(sunset, calculator.config.ateret_torah_sunset_offset)
             }
             Formula::SofZmanKidushLevana15Days => {
                 let tz = calculator
@@ -385,7 +385,10 @@ impl Formula {
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 17 {
                     return Err(ZmanimError::NotApplicable);
                 }
-                let molad = months_molad(&hebrew).ok_or(ZmanimError::Internal)? + Duration::from_hours(24 * 15);
+                let molad = plus(
+                    months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
+                    Duration::from_hours(24 * 15),
+                )?;
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
                     return Ok(molad);
                 }
@@ -402,11 +405,13 @@ impl Formula {
                 if hebrew.day_of_month().0 < 11 || hebrew.day_of_month().0 > 16 {
                     return Err(ZmanimError::NotApplicable);
                 }
-                let molad = months_molad(&hebrew).ok_or(ZmanimError::Internal)?
-                    + Duration::from_hours(24 * 14 + 18)
-                    + Duration::from_mins(22)
-                    + Duration::from_secs(1)
-                    + Duration::from_millis(666);
+                let molad = plus(
+                    months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
+                    Duration::from_hours(24 * 14 + 18)
+                        + Duration::from_mins(22)
+                        + Duration::from_secs(1)
+                        + Duration::from_millis(666),
+                )?;
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
                     return Ok(molad);
                 }
@@ -423,7 +428,10 @@ impl Formula {
                 if hebrew.day_of_month().0 > 5 && hebrew.day_of_month().0 < 30 {
                     return Err(ZmanimError::NotApplicable);
                 }
-                let molad = months_molad(&hebrew).ok_or(ZmanimError::Internal)? + Duration::from_hours(72);
+                let molad = plus(
+                    months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
+                    Duration::from_hours(72),
+                )?;
 
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
                     return Ok(molad);
@@ -436,7 +444,10 @@ impl Formula {
                     let new = hebrew
                         .try_added_with_options(DateDuration::for_months(1), add_option)
                         .map_err(|_| ZmanimError::Internal)?;
-                    let molad = months_molad(&new).ok_or(ZmanimError::Internal)? + Duration::from_hours(72);
+                    let molad = plus(
+                        months_molad(&new).ok_or(ZmanimError::Internal)?,
+                        Duration::from_hours(72),
+                    )?;
                     if is_same_gregorian_day(&hebrew, &molad, tz) {
                         return Ok(molad);
                     }
@@ -454,7 +465,10 @@ impl Formula {
                 if hebrew.day_of_month().0 < 4 || hebrew.day_of_month().0 > 9 {
                     return Err(ZmanimError::NotApplicable);
                 }
-                let molad = months_molad(&hebrew).ok_or(ZmanimError::Internal)? + Duration::from_hours(168);
+                let molad = plus(
+                    months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
+                    Duration::from_hours(168),
+                )?;
                 if is_same_gregorian_day(&hebrew, &molad, tz) {
                     return Ok(molad);
                 }
@@ -466,16 +480,16 @@ impl Formula {
                 let sunset = Formula::ConfiguredSunset.evaluate(calculator)?;
                 let time_diff = sunrise.duration_since(alos19_point_8);
                 let offset = time_diff.as_millis() as f64 * (5.0 / 18.0);
-                Ok(sunset + Duration::from_millis(offset as i64))
+                plus(sunset, Duration::from_millis(offset as i64))
             }
             Formula::MinchaGedolaAhavatShalom => {
                 let chatzos = Formula::ChatzosHayom.evaluate(calculator)?;
-                let mincha_gedola_30 = chatzos + Duration::from_mins(30);
+                let mincha_gedola_30 = plus(chatzos, Duration::from_mins(30))?;
 
                 let alos = Formula::SunriseOffsetByDegrees(16.1).evaluate(calculator)?;
                 let tzais = Formula::SunsetOffsetByDegrees(3.7).evaluate(calculator)?;
                 let shaah_zmanis = tzais.duration_since(alos) / 12;
-                let mincha_alternative = chatzos + (shaah_zmanis / 2);
+                let mincha_alternative = plus(chatzos, shaah_zmanis / 2)?;
                 if mincha_gedola_30 > mincha_alternative {
                     Ok(mincha_gedola_30)
                 } else {
@@ -494,13 +508,13 @@ impl Formula {
                 let tzais = Formula::SunsetOffsetByDegrees(3.8).evaluate(calculator)?;
                 let alos = Formula::SunriseOffsetByDegrees(16.1).evaluate(calculator)?;
                 let shaah_zmanis = tzais.duration_since(alos) / 12;
-                Ok(tzais - (shaah_zmanis * 5 / 2))
+                minus(tzais, shaah_zmanis * 5 / 2)
             }
             Formula::PlagAhavatShalom => {
                 let tzais = Formula::SunsetOffsetByDegrees(3.8).evaluate(calculator)?;
                 let alos = Formula::SunriseOffsetByDegrees(16.1).evaluate(calculator)?;
                 let shaah_zmanis = tzais.duration_since(alos) / 12;
-                Ok(tzais - (shaah_zmanis * 5 / 4))
+                minus(tzais, shaah_zmanis * 5 / 4)
             }
             Formula::BeginCivilTwilight => Formula::SunriseOffsetByDegrees(CIVIL_ZENITH).evaluate(calculator),
             Formula::EndCivilTwilight => Formula::SunsetOffsetByDegrees(CIVIL_ZENITH).evaluate(calculator),
@@ -536,7 +550,7 @@ impl Formula {
                 let sunrise = Formula::SeaLevelSunrise.evaluate(calculator)?;
                 let sunset = Formula::SeaLevelSunset.evaluate(calculator)?;
                 let diff = sunset.duration_since(sunrise) / 2;
-                Ok(sunrise + diff)
+                plus(sunrise, diff)
             }
             Formula::ChatzosHayom => {
                 if calculator.config.use_astronomical_chatzos {
@@ -561,7 +575,7 @@ impl Formula {
                     false,
                 )?;
                 let diff = sunrise.duration_since(sunset) / 2;
-                Ok(sunset + diff)
+                plus(sunset, diff)
             }
             Formula::ChatzosHalayla => {
                 if calculator.config.use_astronomical_chatzos {

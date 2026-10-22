@@ -4,13 +4,13 @@
 
 {
   "variables": {
-    "native_dir%": "<!(node -p \"(() => { const path = require('path'); const p = process.env.KOSHER_RUST_BINDINGS_LIBRARY || process.env.npm_config_kosher_rust_bindings_library; if (!p) return path.resolve('.'); return require('fs').statSync(p).isFile() ? path.dirname(path.resolve(p)) : path.resolve(p); })()\")"
+    "native_dir%": "<!(node -p \"(() => { const path = require('path'); const p = process.env.KOSHERZ_LIBRARY || process.env.npm_config_kosherz_library; if (!p) return path.resolve('.'); return require('fs').statSync(p).isFile() ? path.dirname(path.resolve(p)) : path.resolve(p); })()\")"
   },
   "targets": [
     {
-      "target_name": "kosher_rust_bindings_node",
+      "target_name": "kosherz_node",
       "sources": [
-        "kosher_rust_bindings_node.c"
+        "kosherz_node.c"
       ],
       "include_dirs": [
         "."
@@ -19,7 +19,7 @@
         "<(native_dir)"
       ],
       "libraries": [
-        "-lkosher_rust_bindings"
+        "-lkosherz"
       ],
       "conditions": [
         ["OS=='mac'", { "xcode_settings": { "OTHER_LDFLAGS": ["-Wl,-rpath,@loader_path", "-Wl,-rpath,<(native_dir)"] } }],

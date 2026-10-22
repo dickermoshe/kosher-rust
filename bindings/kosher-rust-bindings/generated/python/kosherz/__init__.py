@@ -2,6 +2,6 @@
 # DO NOT EDIT. Your changes will be overwritten.
 # To regenerate: weaveffi generate
 
-from .kosher_rust_bindings import *  # noqa: F401,F403
+from .kosherz import *  # noqa: F401,F403
 
 # END __init__.py

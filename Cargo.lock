@@ -947,7 +947,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "kosher-rust-bindings"
+name = "kosherz"
 version = "0.0.0"
 dependencies = [
  "jiff",

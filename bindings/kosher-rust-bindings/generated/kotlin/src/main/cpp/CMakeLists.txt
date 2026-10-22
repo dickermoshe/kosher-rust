@@ -3,29 +3,29 @@
 # To regenerate: weaveffi generate
 
 cmake_minimum_required(VERSION 3.18)
-project(kosher_rust_bindings_jni C)
+project(kosherz_jni C)
 
-# The directory holding the producer library (libkosher_rust_bindings). Android builds
+# The directory holding the producer library (libkosherz). Android builds
 # default to the per-ABI copy under src/main/jniLibs/.
-set(KOSHER_RUST_BINDINGS_LIBRARY_DIR "" CACHE PATH "Directory holding the kosher_rust_bindings producer library")
-if(NOT KOSHER_RUST_BINDINGS_LIBRARY_DIR AND ANDROID)
-    set(KOSHER_RUST_BINDINGS_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}")
+set(KOSHERZ_LIBRARY_DIR "" CACHE PATH "Directory holding the kosherz producer library")
+if(NOT KOSHERZ_LIBRARY_DIR AND ANDROID)
+    set(KOSHERZ_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}")
 endif()
-if(KOSHER_RUST_BINDINGS_LIBRARY_DIR)
-    find_library(KOSHER_RUST_BINDINGS_PRODUCER NAMES kosher_rust_bindings PATHS "${KOSHER_RUST_BINDINGS_LIBRARY_DIR}" NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH REQUIRED)
+if(KOSHERZ_LIBRARY_DIR)
+    find_library(KOSHERZ_PRODUCER NAMES kosherz PATHS "${KOSHERZ_LIBRARY_DIR}" NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH REQUIRED)
 else()
     set(CMAKE_FIND_FRAMEWORK NEVER)
-    find_library(KOSHER_RUST_BINDINGS_PRODUCER NAMES kosher_rust_bindings REQUIRED)
+    find_library(KOSHERZ_PRODUCER NAMES kosherz REQUIRED)
 endif()
 
-add_library(kosher_rust_bindings_jni SHARED kosher_rust_bindings_jni.c)
-target_include_directories(kosher_rust_bindings_jni PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
-target_link_libraries(kosher_rust_bindings_jni PRIVATE "${KOSHER_RUST_BINDINGS_PRODUCER}")
+add_library(kosherz_jni SHARED kosherz_jni.c)
+target_include_directories(kosherz_jni PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(kosherz_jni PRIVATE "${KOSHERZ_PRODUCER}")
 if(NOT ANDROID)
     find_package(JNI REQUIRED)
     find_package(Threads REQUIRED)
-    target_include_directories(kosher_rust_bindings_jni PRIVATE ${JNI_INCLUDE_DIRS})
-    target_link_libraries(kosher_rust_bindings_jni PRIVATE Threads::Threads)
+    target_include_directories(kosherz_jni PRIVATE ${JNI_INCLUDE_DIRS})
+    target_link_libraries(kosherz_jni PRIVATE Threads::Threads)
 endif()
 
 # END CMakeLists.txt

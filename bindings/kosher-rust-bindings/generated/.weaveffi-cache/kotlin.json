@@ -4,12 +4,13 @@
     "kotlin/consumer-rules.pro",
     "kotlin/settings.gradle.kts",
     "kotlin/src/main/cpp/CMakeLists.txt",
-    "kotlin/src/main/cpp/kosher_rust_bindings.h",
-    "kotlin/src/main/cpp/kosher_rust_bindings_jni.c",
-    "kotlin/src/main/kotlin/kosher_rust_bindings/Buffers.kt",
-    "kotlin/src/main/kotlin/kosher_rust_bindings/Codecs.kt",
-    "kotlin/src/main/kotlin/kosher_rust_bindings/JniBridge.kt",
-    "kotlin/src/main/kotlin/kosher_rust_bindings/Kosher.kt",
-    "kotlin/src/main/kotlin/kosher_rust_bindings/Runtime.kt"
+    "kotlin/src/main/cpp/kosherz.h",
+    "kotlin/src/main/cpp/kosherz_jni.c",
+    "kotlin/src/main/kotlin/kosherz/Buffers.kt",
+    "kotlin/src/main/kotlin/kosherz/Calendar.kt",
+    "kotlin/src/main/kotlin/kosherz/Codecs.kt",
+    "kotlin/src/main/kotlin/kosherz/JniBridge.kt",
+    "kotlin/src/main/kotlin/kosherz/Runtime.kt",
+    "kotlin/src/main/kotlin/kosherz/ZmanimModule.kt"
   ]
 }

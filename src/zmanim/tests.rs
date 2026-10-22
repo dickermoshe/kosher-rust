@@ -742,3 +742,45 @@ fn test_preset_description_uses_chatzos_for_other_zmanim_config_flag() {
     assert!(desc.contains("fixed fraction of the sunrise-to-sunset interval"));
     assert!(!desc.contains("divides the afternoon from astronomical chatzos"));
 }
+
+/// On the first and last days a `Timestamp` holds, with any offsets, every zman is a time or an
+/// error.
+#[test]
+fn test_range_edges_report_errors_not_panics() {
+    let dates = [
+        Date::new(-9999, 1, 1).unwrap(),
+        Date::new(-9999, 1, 2).unwrap(),
+        Date::new(9999, 12, 29).unwrap(),
+        Date::new(9999, 12, 30).unwrap(),
+        Date::new(9999, 12, 31).unwrap(),
+    ];
+    let configs = [
+        Config::default(),
+        Config {
+            candle_lighting_offset: Duration::MIN,
+            ateret_torah_sunset_offset: Duration::MAX,
+            ..Config::default()
+        },
+        Config {
+            candle_lighting_offset: Duration::MAX,
+            ateret_torah_sunset_offset: Duration::MIN,
+            ..Config::default()
+        },
+    ];
+    for date in dates {
+        for longitude in [-179.0, -120.0, -55.0, 0.0, 55.0, 120.0, 179.0] {
+            let zone = TimeZone::fixed(jiff::tz::Offset::from_hours((longitude / 15.0) as i8).unwrap());
+            for timezone in [None, Some(zone)] {
+                let Ok(location) = Location::new(0.0, longitude, timezone) else {
+                    continue;
+                };
+                for config in configs {
+                    let zmanim = Zmanim::with_config(location.clone(), date, config);
+                    for zman in Zman::ALL {
+                        let _ = zmanim.get(zman);
+                    }
+                }
+            }
+        }
+    }
+}

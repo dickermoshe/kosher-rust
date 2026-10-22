@@ -3,21 +3,21 @@
 # To regenerate: weaveffi generate
 
 cmake_minimum_required(VERSION 3.14)
-project(kosher_rust_bindings_cpp VERSION 0.0.0 LANGUAGES CXX)
+project(kosherz_cpp VERSION 0.0.0 LANGUAGES CXX)
 
-# The producer library to link: a full path from the KOSHER_RUST_BINDINGS_LIBRARY cache or
-# environment variable, or else the library name `kosher_rust_bindings` (a CMake target
-# of that name, or libkosher_rust_bindings on the linker search path).
-set(KOSHER_RUST_BINDINGS_LIBRARY "$ENV{KOSHER_RUST_BINDINGS_LIBRARY}" CACHE FILEPATH "Path to the kosher_rust_bindings native library")
+# The producer library to link: a full path from the KOSHERZ_LIBRARY cache or
+# environment variable, or else the library name `kosherz` (a CMake target
+# of that name, or libkosherz on the linker search path).
+set(KOSHERZ_LIBRARY "$ENV{KOSHERZ_LIBRARY}" CACHE FILEPATH "Path to the kosherz native library")
 
-add_library(kosher_rust_bindings_cpp INTERFACE)
-add_library(kosher_rust_bindings::cpp ALIAS kosher_rust_bindings_cpp)
-target_include_directories(kosher_rust_bindings_cpp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_features(kosher_rust_bindings_cpp INTERFACE cxx_std_17)
-if(KOSHER_RUST_BINDINGS_LIBRARY)
-  target_link_libraries(kosher_rust_bindings_cpp INTERFACE "${KOSHER_RUST_BINDINGS_LIBRARY}")
+add_library(kosherz_cpp INTERFACE)
+add_library(kosherz::cpp ALIAS kosherz_cpp)
+target_include_directories(kosherz_cpp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_features(kosherz_cpp INTERFACE cxx_std_17)
+if(KOSHERZ_LIBRARY)
+  target_link_libraries(kosherz_cpp INTERFACE "${KOSHERZ_LIBRARY}")
 else()
-  target_link_libraries(kosher_rust_bindings_cpp INTERFACE kosher_rust_bindings)
+  target_link_libraries(kosherz_cpp INTERFACE kosherz)
 endif()
 
 # END CMakeLists.txt

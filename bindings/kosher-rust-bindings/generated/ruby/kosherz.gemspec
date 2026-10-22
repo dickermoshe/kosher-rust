@@ -3,10 +3,10 @@
 # To regenerate: weaveffi generate
 
 Gem::Specification.new do |s|
-  s.name        = 'kosher-rust-bindings'
+  s.name        = 'kosherz'
   s.version     = '0.0.0'
   s.summary     = 'C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI.'
-  s.authors     = ['kosher-rust-bindings']
+  s.authors     = ['kosherz']
   s.license     = 'LGPL-2.1-or-later'
   s.files       = Dir['lib/**/*.rb']
   s.require_paths = ['lib']
@@ -15,4 +15,4 @@ Gem::Specification.new do |s|
   s.add_dependency 'ffi', '~> 1.15'
 end
 
-# END kosher-rust-bindings.gemspec
+# END kosherz.gemspec

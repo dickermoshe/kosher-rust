@@ -2,7 +2,7 @@
 # DO NOT EDIT. Your changes will be overwritten.
 # To regenerate: weaveffi generate
 
-name: kosher_rust_bindings
+name: kosherz
 version: 0.0.0
 description: 'C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI.'
 

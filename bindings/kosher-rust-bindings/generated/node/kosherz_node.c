@@ -20,8 +20,8 @@
 
 /* The addon wraps deprecated functions too; the JavaScript API carries the
  * deprecation instead. */
-#define KOSHER_RUST_BINDINGS_DEPRECATED(msg)
-#include "kosher_rust_bindings.h"
+#define KOSHERZ_DEPRECATED(msg)
+#include "kosherz.h"
 
 /*
  * The N-API transport of the JavaScript bindings. Every C symbol of the
@@ -34,7 +34,7 @@
  * runtime's `$Fault` class.
  */
 
-typedef kosher_rust_bindings_error js_error;
+typedef kosherz_error js_error;
 
 /* Helpers an API may not need. */
 #if defined(__GNUC__) || defined(__clang__)
@@ -235,18 +235,18 @@ JS_HELPER napi_value js_new_handle(napi_env env, const void* p) {
 /* Returned strings and buffers: convert, then release the producer's copy. */
 JS_HELPER napi_value js_take_str(napi_env env, const uint8_t* ptr, size_t len) {
   napi_value out = js_new_str(env, ptr, len);
-  if (ptr != NULL) kosher_rust_bindings_free_bytes((uint8_t*)ptr, len);
+  if (ptr != NULL) kosherz_free_bytes((uint8_t*)ptr, len);
   return out;
 }
 
 JS_HELPER napi_value js_take_bytes(napi_env env, const uint8_t* ptr, size_t len) {
   napi_value out = js_new_bytes(env, ptr, len);
-  if (ptr != NULL) kosher_rust_bindings_free_bytes((uint8_t*)ptr, len);
+  if (ptr != NULL) kosherz_free_bytes((uint8_t*)ptr, len);
   return out;
 }
 
 /* A module's contract table as a BigUint64Array of `id, hash` pairs. */
-JS_HELPER napi_value js_new_contract(napi_env env, const kosher_rust_bindings_contract_entry* table,
+JS_HELPER napi_value js_new_contract(napi_env env, const kosherz_contract_entry* table,
                                      size_t len) {
   napi_value ab, out;
   void* data = NULL;
@@ -281,7 +281,7 @@ JS_HELPER napi_value js_fault(napi_env env, int32_t code, const char* message,
 /* Throw the error a call reported, then release it. */
 JS_HELPER napi_value js_throw(napi_env env, js_error* err) {
   napi_throw(env, js_fault(env, err->code, err->message, err->payload_ptr, err->payload_len));
-  kosher_rust_bindings_error_clear(err);
+  kosherz_error_clear(err);
   return NULL;
 }
 
@@ -507,9 +507,9 @@ JS_HELPER void js_async_settle(napi_env env, napi_value cb, void* context, void*
     napi_resolve_deferred(env, a->deferred, v);
   } else if (!failed && (a->kind == JS_R_STR || a->kind == JS_R_BYTES) && a->v.p != NULL) {
     /* The environment is shutting down: just release the result. */
-    kosher_rust_bindings_free_bytes((uint8_t*)a->v.p, a->len);
+    kosherz_free_bytes((uint8_t*)a->v.p, a->len);
   }
-  kosher_rust_bindings_error_free(a->err);
+  kosherz_error_free(a->err);
   napi_release_threadsafe_function(a->tsfn, napi_tsfn_release);
   free(a);
 }
@@ -657,7 +657,7 @@ JS_HELPER void js_cb_hop(js_cb* cb, int method, void* frame, js_error* out_err,
     uv_mutex_unlock(&t->mu);
     free(req);
     js_thread_release(t);
-    kosher_rust_bindings_error_set(out_err, -4, "the callback implementation is no longer reachable");
+    kosherz_error_set(out_err, -4, "the callback implementation is no longer reachable");
     return;
   }
   const uint64_t limit = (uint64_t)JS_CB_DEADLOCK_MS * 1000000u;
@@ -683,7 +683,7 @@ JS_HELPER void js_cb_hop(js_cb* cb, int method, void* frame, js_error* out_err,
                  "callback, so waiting longer would deadlock (call it asynchronously, or call "
                  "back on the calling thread)",
                  what, JS_CB_DEADLOCK_MS);
-        kosher_rust_bindings_error_set(out_err, -4, msg);
+        kosherz_error_set(out_err, -4, msg);
         return;
       }
       uv_cond_timedwait(&t->cv, &t->mu, limit - (now - since));
@@ -774,8 +774,8 @@ JS_HELPER void js_cb_report(napi_env env, js_error* out_err, const char* fallbac
     napi_is_exception_pending(env, &pending);
     if (pending) napi_get_and_clear_last_exception(env, &exc);
   }
-  kosher_rust_bindings_error_set(out_err, code, msg != NULL && msg[0] != 0 ? msg : fallback);
-  if (payload != NULL) kosher_rust_bindings_error_set_payload(out_err, payload, payload_len);
+  kosherz_error_set(out_err, code, msg != NULL && msg[0] != 0 ? msg : fallback);
+  if (payload != NULL) kosherz_error_set_payload(out_err, payload, payload_len);
   free(msg);
 }
 
@@ -791,7 +791,7 @@ JS_HELPER bool js_cb_call(napi_env env, js_cb* cb, const char* method, size_t ar
 /* Hand `len` bytes to the producer through a callback's out slots, as a run
  * from {p}_alloc that the producer adopts. */
 JS_HELPER void js_give(const void* data, size_t len, uint8_t** out_ptr, size_t* out_len) {
-  uint8_t* run = kosher_rust_bindings_alloc(len);
+  uint8_t* run = kosherz_alloc(len);
   if (len > 0) memcpy(run, data, len);
   *out_ptr = run;
   *out_len = len;
@@ -822,26 +822,26 @@ JS_HELPER bool js_ret_bytes(napi_env env, napi_value v, uint8_t** out_ptr, size_
 
 static napi_value js_abi_version(napi_env env, napi_callback_info info) {
   (void)info;
-  return js_new_u32(env, kosher_rust_bindings_abi_version());
+  return js_new_u32(env, kosherz_abi_version());
 }
 
 static napi_value js_debug_live(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   int32_t kind = 0;
   if (!js_arg_i32(env, argv[0], &kind)) return NULL;
-  return js_new_u64(env, kosher_rust_bindings_debug_live(kind));
+  return js_new_u64(env, kosherz_debug_live(kind));
 }
 
 static napi_value js_cancel_token_create(napi_env env, napi_callback_info info) {
   (void)info;
-  return js_new_handle(env, kosher_rust_bindings_cancel_token_create());
+  return js_new_handle(env, kosherz_cancel_token_create());
 }
 
 static napi_value js_cancel_token_cancel(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   void* token = NULL;
   if (!js_arg_handle(env, argv[0], &token, false)) return NULL;
-  kosher_rust_bindings_cancel_token_cancel((kosher_rust_bindings_cancel_token*)token);
+  kosherz_cancel_token_cancel((kosherz_cancel_token*)token);
   return js_undefined(env);
 }
 
@@ -849,25 +849,32 @@ static napi_value js_cancel_token_destroy(napi_env env, napi_callback_info info)
   JS_ARGS(1);
   void* token = NULL;
   if (!js_arg_handle(env, argv[0], &token, false)) return NULL;
-  kosher_rust_bindings_cancel_token_destroy((kosher_rust_bindings_cancel_token*)token);
+  kosherz_cancel_token_destroy((kosherz_cancel_token*)token);
   return js_undefined(env);
 }
 
 #define JS_RUNTIME_EXPORTS                                                                  \
   {"$setup", NULL, js_setup, NULL, NULL, NULL, napi_default, NULL},                         \
-  {"kosher_rust_bindings_abi_version", NULL, js_abi_version, NULL, NULL, NULL, napi_default, NULL},   \
-  {"kosher_rust_bindings_debug_live", NULL, js_debug_live, NULL, NULL, NULL, napi_default, NULL},     \
-  {"kosher_rust_bindings_cancel_token_create", NULL, js_cancel_token_create, NULL, NULL, NULL,        \
+  {"kosherz_abi_version", NULL, js_abi_version, NULL, NULL, NULL, napi_default, NULL},   \
+  {"kosherz_debug_live", NULL, js_debug_live, NULL, NULL, NULL, napi_default, NULL},     \
+  {"kosherz_cancel_token_create", NULL, js_cancel_token_create, NULL, NULL, NULL,        \
    napi_default, NULL},                                                                     \
-  {"kosher_rust_bindings_cancel_token_cancel", NULL, js_cancel_token_cancel, NULL, NULL, NULL,        \
+  {"kosherz_cancel_token_cancel", NULL, js_cancel_token_cancel, NULL, NULL, NULL,        \
    napi_default, NULL},                                                                     \
-  {"kosher_rust_bindings_cancel_token_destroy", NULL, js_cancel_token_destroy, NULL, NULL, NULL,      \
+  {"kosherz_cancel_token_destroy", NULL, js_cancel_token_destroy, NULL, NULL, NULL,      \
    napi_default, NULL}
 
-static napi_value nx_kosher_rust_bindings_kosher_contract(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_calendar_contract(napi_env env, napi_callback_info info) {
   (void)info;
   size_t len = 0;
-  const kosher_rust_bindings_contract_entry* table = kosher_rust_bindings_kosher_contract(&len);
+  const kosherz_contract_entry* table = kosherz_calendar_contract(&len);
+  return js_new_contract(env, table, len);
+}
+
+static napi_value nx_kosherz_zmanim_contract(napi_env env, napi_callback_info info) {
+  (void)info;
+  size_t len = 0;
+  const kosherz_contract_entry* table = kosherz_zmanim_contract(&len);
   return js_new_contract(env, table, len);
 }
 
@@ -875,9 +882,9 @@ typedef struct {
   js_error* out_err;
   int64_t p0;
   int32_t result;
-} frame_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds;
+} frame_kosherz_zmanim_TimeZoneOffset_offset_seconds;
 
-static void invoke_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds(napi_env env, js_cb* cb, frame_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds* f) {
+static void invoke_kosherz_zmanim_TimeZoneOffset_offset_seconds(napi_env env, js_cb* cb, frame_kosherz_zmanim_TimeZoneOffset_offset_seconds* f) {
   napi_handle_scope scope;
   napi_open_handle_scope(env, &scope);
   napi_value argv[2];
@@ -896,21 +903,21 @@ static void invoke_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seco
   napi_close_handle_scope(env, scope);
 }
 
-static int32_t tramp_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds(void* ctx, int64_t p0, kosher_rust_bindings_error* out_err) {
-  frame_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds f;
+static int32_t tramp_kosherz_zmanim_TimeZoneOffset_offset_seconds(void* ctx, int64_t p0, kosherz_error* out_err) {
+  frame_kosherz_zmanim_TimeZoneOffset_offset_seconds f;
   memset(&f, 0, sizeof f);
   f.out_err = out_err;
   f.p0 = p0;
   js_cb* cb = (js_cb*)ctx;
   if (js_cb_on_js_thread(cb)) {
-    invoke_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds(cb->env, cb, &f);
+    invoke_kosherz_zmanim_TimeZoneOffset_offset_seconds(cb->env, cb, &f);
   } else {
     js_cb_hop(cb, 0, &f, out_err, "TimeZoneOffset.offsetSeconds");
   }
   return f.result;
 }
 
-static void dispatch_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset(napi_env env, napi_value fn, void* context, void* data) {
+static void dispatch_kosherz_zmanim_TimeZoneOffset(napi_env env, napi_value fn, void* context, void* data) {
   (void)fn;
   (void)context;
   js_cb_req* req = (js_cb_req*)data;
@@ -921,30 +928,48 @@ static void dispatch_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset(napi_env 
   }
   if (!js_cb_take(req)) return;
   if (env == NULL) {
-    kosher_rust_bindings_error_set(req->out_err, -4, "the JavaScript environment is shutting down");
+    kosherz_error_set(req->out_err, -4, "the JavaScript environment is shutting down");
   } else {
     switch (req->method) {
-      case 0: invoke_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds(env, req->cb, (frame_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds*)req->frame); break;
+      case 0: invoke_kosherz_zmanim_TimeZoneOffset_offset_seconds(env, req->cb, (frame_kosherz_zmanim_TimeZoneOffset_offset_seconds*)req->frame); break;
       default: break;
     }
   }
   js_cb_finish(req);
 }
 
-static const kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable vtable_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset = {sizeof(kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable), 0, js_cb_free, tramp_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds};
+static const kosherz_zmanim_TimeZoneOffset_vtable vtable_kosherz_zmanim_TimeZoneOffset = {sizeof(kosherz_zmanim_TimeZoneOffset_vtable), 0, js_cb_free, tramp_kosherz_zmanim_TimeZoneOffset_offset_seconds};
 
-static napi_value nx_kosher_rust_bindings_kosher_sea_level_location(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
+static napi_value nx_kosherz_calendar_HebrewDate_clone(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  void* h = NULL;
+  if (!js_arg_handle(env, argv[0], &h, false)) return NULL;
+  js_sync_begin();
+  kosherz_calendar_HebrewDate* r = kosherz_calendar_HebrewDate_clone((const kosherz_calendar_HebrewDate*)h);
+  js_sync_end();
+  return js_new_handle(env, r);
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_destroy(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  void* h = NULL;
+  if (!js_arg_handle(env, argv[0], &h, false)) return NULL;
+  js_sync_begin();
+  kosherz_calendar_HebrewDate_destroy((kosherz_calendar_HebrewDate*)h);
+  js_sync_end();
+  return js_undefined(env);
+}
+
+static napi_value nx_kosherz_calendar_year_info(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
   napi_value ret = NULL;
-  double a0 = 0;
-  double a1 = 0;
-  if (!js_arg_f64(env, argv[0], &a0)) goto done;
-  if (!js_arg_f64(env, argv[1], &a1)) goto done;
+  int32_t a0 = 0;
+  if (!js_arg_i32(env, argv[0], &a0)) goto done;
   {
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_sea_level_location(a0, a1, &out_len, &err);
+    const uint8_t* r = kosherz_calendar_year_info(a0, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -957,7 +982,992 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_validate_location(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_calendar_days_in_month(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  int32_t a0 = 0;
+  int32_t a1 = 0;
+  if (!js_arg_i32(env, argv[0], &a0)) goto done;
+  if (!js_arg_i32(env, argv[1], &a1)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_days_in_month(a0, (kosherz_calendar_HebrewMonth)a1, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_rosh_hashana(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_i32(env, argv[0], &a0)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    kosherz_calendar_HebrewDate* r = kosherz_calendar_rosh_hashana(a0, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_handle(env, r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_holiday_name(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  const uint8_t* a0 = NULL;
+  size_t a0_len = 0;
+  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_holiday_name(a0, a0_len, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_str(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_holiday_hebrew(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  const uint8_t* a0 = NULL;
+  size_t a0_len = 0;
+  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_holiday_hebrew(a0, a0_len, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_str(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_holiday_is_assur_bemelacha(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  const uint8_t* a0 = NULL;
+  size_t a0_len = 0;
+  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    bool r = kosherz_calendar_holiday_is_assur_bemelacha(a0, a0_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_bool(env, r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_holiday_is_modern(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  const uint8_t* a0 = NULL;
+  size_t a0_len = 0;
+  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    bool r = kosherz_calendar_holiday_is_modern(a0, a0_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_bool(env, r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_holiday_is_fast_day(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  const uint8_t* a0 = NULL;
+  size_t a0_len = 0;
+  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    bool r = kosherz_calendar_holiday_is_fast_day(a0, a0_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_bool(env, r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_parsha_name(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_i32(env, argv[0], &a0)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_parsha_name((kosherz_calendar_Parsha)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_str(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_parsha_hebrew(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_i32(env, argv[0], &a0)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_parsha_hebrew((kosherz_calendar_Parsha)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_str(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_month_name(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_i32(env, argv[0], &a0)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_month_name((kosherz_calendar_HebrewMonth)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_str(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_month_hebrew(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_i32(env, argv[0], &a0)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_month_hebrew((kosherz_calendar_HebrewMonth)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_str(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_new(napi_env env, napi_callback_info info) {
+  JS_ARGS(3);
+  napi_value ret = NULL;
+  int32_t a0 = 0;
+  int32_t a1 = 0;
+  int32_t a2 = 0;
+  if (!js_arg_i32(env, argv[0], &a0)) goto done;
+  if (!js_arg_i32(env, argv[1], &a1)) goto done;
+  if (!js_arg_i32(env, argv[2], &a2)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    kosherz_calendar_HebrewDate* r = kosherz_calendar_HebrewDate_new(a0, (kosherz_calendar_HebrewMonth)a1, a2, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_handle(env, r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_from_gregorian(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  const uint8_t* a0 = NULL;
+  size_t a0_len = 0;
+  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    kosherz_calendar_HebrewDate* r = kosherz_calendar_HebrewDate_from_gregorian(a0, a0_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_handle(env, r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_year(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    int32_t r = kosherz_calendar_HebrewDate_year((const kosherz_calendar_HebrewDate*)self_h, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_i32(env, (int32_t)r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_month(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    kosherz_calendar_HebrewMonth r = kosherz_calendar_HebrewDate_month((const kosherz_calendar_HebrewDate*)self_h, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_i32(env, (int32_t)r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_day(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    int32_t r = kosherz_calendar_HebrewDate_day((const kosherz_calendar_HebrewDate*)self_h, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_i32(env, (int32_t)r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_day_of_year(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    int32_t r = kosherz_calendar_HebrewDate_day_of_year((const kosherz_calendar_HebrewDate*)self_h, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_i32(env, (int32_t)r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_weekday(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    kosherz_calendar_Weekday r = kosherz_calendar_HebrewDate_weekday((const kosherz_calendar_HebrewDate*)self_h, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_i32(env, (int32_t)r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_to_gregorian(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_HebrewDate_to_gregorian((const kosherz_calendar_HebrewDate*)self_h, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_add_days(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  if (!js_arg_i32(env, argv[1], &a0)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    kosherz_calendar_HebrewDate* r = kosherz_calendar_HebrewDate_add_days((const kosherz_calendar_HebrewDate*)self_h, a0, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_handle(env, r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_holidays(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  if (!js_arg_i32(env, argv[1], &a0)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_HebrewDate_holidays((const kosherz_calendar_HebrewDate*)self_h, (kosherz_calendar_Region)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_is_assur_bemelacha(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  if (!js_arg_i32(env, argv[1], &a0)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    bool r = kosherz_calendar_HebrewDate_is_assur_bemelacha((const kosherz_calendar_HebrewDate*)self_h, (kosherz_calendar_Region)a0, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_bool(env, r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_has_candle_lighting(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  if (!js_arg_i32(env, argv[1], &a0)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    bool r = kosherz_calendar_HebrewDate_has_candle_lighting((const kosherz_calendar_HebrewDate*)self_h, (kosherz_calendar_Region)a0, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_bool(env, r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    bool r = kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva((const kosherz_calendar_HebrewDate*)self_h, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_bool(env, r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_parsha(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  if (!js_arg_i32(env, argv[1], &a0)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_HebrewDate_parsha((const kosherz_calendar_HebrewDate*)self_h, (kosherz_calendar_Region)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_special_parsha(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  if (!js_arg_i32(env, argv[1], &a0)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_HebrewDate_special_parsha((const kosherz_calendar_HebrewDate*)self_h, (kosherz_calendar_Region)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_next_parsha(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  if (!js_arg_i32(env, argv[1], &a0)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_HebrewDate_next_parsha((const kosherz_calendar_HebrewDate*)self_h, (kosherz_calendar_Region)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_molad(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_HebrewDate_molad((const kosherz_calendar_HebrewDate*)self_h, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_display(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_HebrewDate_display((const kosherz_calendar_HebrewDate*)self_h, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_str(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_equals(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  void* a0 = NULL;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  if (!js_arg_handle(env, argv[1], &a0, false)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    bool r = kosherz_calendar_HebrewDate_equals((const kosherz_calendar_HebrewDate*)self_h, (const kosherz_calendar_HebrewDate*)a0, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_bool(env, r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_HebrewDate_compare(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  void* self_h = NULL;
+  void* a0 = NULL;
+  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
+  if (!js_arg_handle(env, argv[1], &a0, false)) goto done;
+  {
+    js_error err = {0};
+    js_sync_begin();
+    int32_t r = kosherz_calendar_HebrewDate_compare((const kosherz_calendar_HebrewDate*)self_h, (const kosherz_calendar_HebrewDate*)a0, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_new_i32(env, (int32_t)r);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_limudim_tractate_name(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_i32(env, argv[0], &a0)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_limudim_tractate_name((kosherz_calendar_limudim_Tractate)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_str(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_limudim_tractate_hebrew(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  int32_t a0 = 0;
+  if (!js_arg_i32(env, argv[0], &a0)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_limudim_tractate_hebrew((kosherz_calendar_limudim_Tractate)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_str(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_limudim_tehillim_display(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  const uint8_t* a0 = NULL;
+  size_t a0_len = 0;
+  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_limudim_tehillim_display(a0, a0_len, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_str(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_limudim_pirkei_avos_display(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  const uint8_t* a0 = NULL;
+  size_t a0_len = 0;
+  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_limudim_pirkei_avos_display(a0, a0_len, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_str(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_limudim_daf_yomi_bavli(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* a0 = NULL;
+  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_limudim_daf_yomi_bavli((const kosherz_calendar_HebrewDate*)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_limudim_daf_hashavua_bavli(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* a0 = NULL;
+  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_limudim_daf_hashavua_bavli((const kosherz_calendar_HebrewDate*)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_limudim_daf_yomi_yerushalmi(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* a0 = NULL;
+  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_limudim_daf_yomi_yerushalmi((const kosherz_calendar_HebrewDate*)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_limudim_amud_yomi_dirshu(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* a0 = NULL;
+  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_limudim_amud_yomi_dirshu((const kosherz_calendar_HebrewDate*)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_limudim_mishna_yomis(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* a0 = NULL;
+  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_limudim_mishna_yomis((const kosherz_calendar_HebrewDate*)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_limudim_tehillim_monthly(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  napi_value ret = NULL;
+  void* a0 = NULL;
+  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_limudim_tehillim_monthly((const kosherz_calendar_HebrewDate*)a0, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_calendar_limudim_pirkei_avos(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  void* a0 = NULL;
+  int32_t a1 = 0;
+  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
+  if (!js_arg_i32(env, argv[1], &a1)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_calendar_limudim_pirkei_avos((const kosherz_calendar_HebrewDate*)a0, (kosherz_calendar_Region)a1, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_zmanim_Zmanim_clone(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  void* h = NULL;
+  if (!js_arg_handle(env, argv[0], &h, false)) return NULL;
+  js_sync_begin();
+  kosherz_zmanim_Zmanim* r = kosherz_zmanim_Zmanim_clone((const kosherz_zmanim_Zmanim*)h);
+  js_sync_end();
+  return js_new_handle(env, r);
+}
+
+static napi_value nx_kosherz_zmanim_Zmanim_destroy(napi_env env, napi_callback_info info) {
+  JS_ARGS(1);
+  void* h = NULL;
+  if (!js_arg_handle(env, argv[0], &h, false)) return NULL;
+  js_sync_begin();
+  kosherz_zmanim_Zmanim_destroy((kosherz_zmanim_Zmanim*)h);
+  js_sync_end();
+  return js_undefined(env);
+}
+
+static napi_value nx_kosherz_zmanim_sea_level_location(napi_env env, napi_callback_info info) {
+  JS_ARGS(2);
+  napi_value ret = NULL;
+  double a0 = 0;
+  double a1 = 0;
+  if (!js_arg_f64(env, argv[0], &a0)) goto done;
+  if (!js_arg_f64(env, argv[1], &a1)) goto done;
+  {
+    js_error err = {0};
+    size_t out_len = 0;
+    js_sync_begin();
+    const uint8_t* r = kosherz_zmanim_sea_level_location(a0, a1, &out_len, &err);
+    js_sync_end();
+    if (err.code != 0) {
+      js_throw(env, &err);
+      goto done;
+    }
+    ret = js_take_bytes(env, r, out_len);
+  }
+  goto done;
+done:
+  return ret;
+}
+
+static napi_value nx_kosherz_zmanim_validate_location(napi_env env, napi_callback_info info) {
   JS_ARGS(2);
   napi_value ret = NULL;
   const uint8_t* a0 = NULL;
@@ -968,7 +1978,7 @@ static napi_value nx_kosher_rust_bindings_kosher_validate_location(napi_env env,
   {
     js_error err = {0};
     js_sync_begin();
-    kosher_rust_bindings_kosher_validate_location(a0, a0_len, a1, &err);
+    kosherz_zmanim_validate_location(a0, a0_len, a1, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -981,771 +1991,14 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_clone(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  void* h = NULL;
-  if (!js_arg_handle(env, argv[0], &h, false)) return NULL;
-  js_sync_begin();
-  kosher_rust_bindings_kosher_calendar_HebrewDate* r = kosher_rust_bindings_kosher_calendar_HebrewDate_clone((const kosher_rust_bindings_kosher_calendar_HebrewDate*)h);
-  js_sync_end();
-  return js_new_handle(env, r);
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_destroy(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  void* h = NULL;
-  if (!js_arg_handle(env, argv[0], &h, false)) return NULL;
-  js_sync_begin();
-  kosher_rust_bindings_kosher_calendar_HebrewDate_destroy((kosher_rust_bindings_kosher_calendar_HebrewDate*)h);
-  js_sync_end();
-  return js_undefined(env);
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_year_info(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_i32(env, argv[0], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_year_info(a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_days_in_month(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
-  napi_value ret = NULL;
-  int32_t a0 = 0;
-  int32_t a1 = 0;
-  if (!js_arg_i32(env, argv[0], &a0)) goto done;
-  if (!js_arg_i32(env, argv[1], &a1)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_days_in_month(a0, (kosher_rust_bindings_kosher_calendar_HebrewMonth)a1, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_rosh_hashana(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_i32(env, argv[0], &a0)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    kosher_rust_bindings_kosher_calendar_HebrewDate* r = kosher_rust_bindings_kosher_calendar_rosh_hashana(a0, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_handle(env, r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_holiday_name(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  const uint8_t* a0 = NULL;
-  size_t a0_len = 0;
-  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_holiday_name(a0, a0_len, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_str(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_holiday_hebrew(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  const uint8_t* a0 = NULL;
-  size_t a0_len = 0;
-  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_holiday_hebrew(a0, a0_len, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_str(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_holiday_is_assur_bemelacha(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  const uint8_t* a0 = NULL;
-  size_t a0_len = 0;
-  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    bool r = kosher_rust_bindings_kosher_calendar_holiday_is_assur_bemelacha(a0, a0_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_bool(env, r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_holiday_is_modern(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  const uint8_t* a0 = NULL;
-  size_t a0_len = 0;
-  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    bool r = kosher_rust_bindings_kosher_calendar_holiday_is_modern(a0, a0_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_bool(env, r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_holiday_is_fast_day(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  const uint8_t* a0 = NULL;
-  size_t a0_len = 0;
-  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    bool r = kosher_rust_bindings_kosher_calendar_holiday_is_fast_day(a0, a0_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_bool(env, r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_parsha_name(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_i32(env, argv[0], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_parsha_name((kosher_rust_bindings_kosher_calendar_Parsha)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_str(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_parsha_hebrew(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_i32(env, argv[0], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_parsha_hebrew((kosher_rust_bindings_kosher_calendar_Parsha)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_str(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_month_name(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_i32(env, argv[0], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_month_name((kosher_rust_bindings_kosher_calendar_HebrewMonth)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_str(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_month_hebrew(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_i32(env, argv[0], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_month_hebrew((kosher_rust_bindings_kosher_calendar_HebrewMonth)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_str(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_new(napi_env env, napi_callback_info info) {
-  JS_ARGS(3);
-  napi_value ret = NULL;
-  int32_t a0 = 0;
-  int32_t a1 = 0;
-  int32_t a2 = 0;
-  if (!js_arg_i32(env, argv[0], &a0)) goto done;
-  if (!js_arg_i32(env, argv[1], &a1)) goto done;
-  if (!js_arg_i32(env, argv[2], &a2)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    kosher_rust_bindings_kosher_calendar_HebrewDate* r = kosher_rust_bindings_kosher_calendar_HebrewDate_new(a0, (kosher_rust_bindings_kosher_calendar_HebrewMonth)a1, a2, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_handle(env, r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_from_gregorian(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  const uint8_t* a0 = NULL;
-  size_t a0_len = 0;
-  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    kosher_rust_bindings_kosher_calendar_HebrewDate* r = kosher_rust_bindings_kosher_calendar_HebrewDate_from_gregorian(a0, a0_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_handle(env, r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_year(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    int32_t r = kosher_rust_bindings_kosher_calendar_HebrewDate_year((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_i32(env, (int32_t)r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_month(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    kosher_rust_bindings_kosher_calendar_HebrewMonth r = kosher_rust_bindings_kosher_calendar_HebrewDate_month((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_i32(env, (int32_t)r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_day(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    int32_t r = kosher_rust_bindings_kosher_calendar_HebrewDate_day((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_i32(env, (int32_t)r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_day_of_year(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    int32_t r = kosher_rust_bindings_kosher_calendar_HebrewDate_day_of_year((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_i32(env, (int32_t)r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_weekday(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    kosher_rust_bindings_kosher_calendar_Weekday r = kosher_rust_bindings_kosher_calendar_HebrewDate_weekday((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_i32(env, (int32_t)r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_to_gregorian(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_HebrewDate_to_gregorian((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_add_days(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  if (!js_arg_i32(env, argv[1], &a0)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    kosher_rust_bindings_kosher_calendar_HebrewDate* r = kosher_rust_bindings_kosher_calendar_HebrewDate_add_days((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, a0, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_handle(env, r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_holidays(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  if (!js_arg_i32(env, argv[1], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_HebrewDate_holidays((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, (kosher_rust_bindings_kosher_calendar_Region)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_is_assur_bemelacha(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  if (!js_arg_i32(env, argv[1], &a0)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    bool r = kosher_rust_bindings_kosher_calendar_HebrewDate_is_assur_bemelacha((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, (kosher_rust_bindings_kosher_calendar_Region)a0, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_bool(env, r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_has_candle_lighting(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  if (!js_arg_i32(env, argv[1], &a0)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    bool r = kosher_rust_bindings_kosher_calendar_HebrewDate_has_candle_lighting((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, (kosher_rust_bindings_kosher_calendar_Region)a0, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_bool(env, r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_is_aseres_yemei_teshuva(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    bool r = kosher_rust_bindings_kosher_calendar_HebrewDate_is_aseres_yemei_teshuva((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_bool(env, r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_parsha(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  if (!js_arg_i32(env, argv[1], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_HebrewDate_parsha((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, (kosher_rust_bindings_kosher_calendar_Region)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_special_parsha(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  if (!js_arg_i32(env, argv[1], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_HebrewDate_special_parsha((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, (kosher_rust_bindings_kosher_calendar_Region)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_next_parsha(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  if (!js_arg_i32(env, argv[1], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_HebrewDate_next_parsha((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, (kosher_rust_bindings_kosher_calendar_Region)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_molad(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_HebrewDate_molad((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_display(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_calendar_HebrewDate_display((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_str(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_equals(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  void* a0 = NULL;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  if (!js_arg_handle(env, argv[1], &a0, false)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    bool r = kosher_rust_bindings_kosher_calendar_HebrewDate_equals((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, (const kosher_rust_bindings_kosher_calendar_HebrewDate*)a0, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_bool(env, r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_calendar_HebrewDate_compare(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
-  napi_value ret = NULL;
-  void* self_h = NULL;
-  void* a0 = NULL;
-  if (!js_arg_handle(env, argv[0], &self_h, false)) goto done;
-  if (!js_arg_handle(env, argv[1], &a0, false)) goto done;
-  {
-    js_error err = {0};
-    js_sync_begin();
-    int32_t r = kosher_rust_bindings_kosher_calendar_HebrewDate_compare((const kosher_rust_bindings_kosher_calendar_HebrewDate*)self_h, (const kosher_rust_bindings_kosher_calendar_HebrewDate*)a0, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_new_i32(env, (int32_t)r);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_clone(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  void* h = NULL;
-  if (!js_arg_handle(env, argv[0], &h, false)) return NULL;
-  js_sync_begin();
-  kosher_rust_bindings_kosher_zmanim_Zmanim* r = kosher_rust_bindings_kosher_zmanim_Zmanim_clone((const kosher_rust_bindings_kosher_zmanim_Zmanim*)h);
-  js_sync_end();
-  return js_new_handle(env, r);
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_destroy(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  void* h = NULL;
-  if (!js_arg_handle(env, argv[0], &h, false)) return NULL;
-  js_sync_begin();
-  kosher_rust_bindings_kosher_zmanim_Zmanim_destroy((kosher_rust_bindings_kosher_zmanim_Zmanim*)h);
-  js_sync_end();
-  return js_undefined(env);
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_default_config(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_default_config(napi_env env, napi_callback_info info) {
   JS_ARGS(0);
   napi_value ret = NULL;
   {
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_zmanim_default_config(&out_len, &err);
+    const uint8_t* r = kosherz_zmanim_default_config(&out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1758,14 +2011,14 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_all_zmanim(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_all_zmanim(napi_env env, napi_callback_info info) {
   JS_ARGS(0);
   napi_value ret = NULL;
   {
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_zmanim_all_zmanim(&out_len, &err);
+    const uint8_t* r = kosherz_zmanim_all_zmanim(&out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1778,7 +2031,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_name(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_zman_name(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   int32_t a0 = 0;
@@ -1787,7 +2040,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_name(napi_env env, 
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_zmanim_zman_name((kosher_rust_bindings_kosher_zmanim_Zman)a0, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_zman_name((kosherz_zmanim_Zman)a0, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1800,7 +2053,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_java_name(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_zman_java_name(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   int32_t a0 = 0;
@@ -1809,7 +2062,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_java_name(napi_env 
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_zmanim_zman_java_name((kosher_rust_bindings_kosher_zmanim_Zman)a0, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_zman_java_name((kosherz_zmanim_Zman)a0, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1822,7 +2075,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_from_java_name(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_zman_from_java_name(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   js_str a0 = JS_STR_INIT;
@@ -1831,7 +2084,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_from_java_name(napi
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_zmanim_zman_from_java_name(JS_STR_PTR(a0), a0.len, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_zman_from_java_name(JS_STR_PTR(a0), a0.len, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1845,7 +2098,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_category(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_zman_category(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   int32_t a0 = 0;
@@ -1853,7 +2106,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_category(napi_env e
   {
     js_error err = {0};
     js_sync_begin();
-    kosher_rust_bindings_kosher_zmanim_Category r = kosher_rust_bindings_kosher_zmanim_zman_category((kosher_rust_bindings_kosher_zmanim_Zman)a0, &err);
+    kosherz_zmanim_Category r = kosherz_zmanim_zman_category((kosherz_zmanim_Zman)a0, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1866,7 +2119,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_is_deprecated(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_zman_is_deprecated(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   int32_t a0 = 0;
@@ -1874,7 +2127,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_is_deprecated(napi_
   {
     js_error err = {0};
     js_sync_begin();
-    bool r = kosher_rust_bindings_kosher_zmanim_zman_is_deprecated((kosher_rust_bindings_kosher_zmanim_Zman)a0, &err);
+    bool r = kosherz_zmanim_zman_is_deprecated((kosherz_zmanim_Zman)a0, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1887,7 +2140,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_description(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_zman_description(napi_env env, napi_callback_info info) {
   JS_ARGS(2);
   napi_value ret = NULL;
   int32_t a0 = 0;
@@ -1899,7 +2152,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_zman_description(napi_en
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_zmanim_zman_description((kosher_rust_bindings_kosher_zmanim_Zman)a0, a1, a1_len, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_zman_description((kosherz_zmanim_Zman)a0, a1, a1_len, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1912,7 +2165,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_calculator_name(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_calculator_name(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   int32_t a0 = 0;
@@ -1921,7 +2174,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_calculator_name(napi_env
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_zmanim_calculator_name((kosher_rust_bindings_kosher_zmanim_Calculator)a0, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_calculator_name((kosherz_zmanim_Calculator)a0, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1934,7 +2187,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_shaah_zmanis(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_shaah_zmanis(napi_env env, napi_callback_info info) {
   JS_ARGS(2);
   napi_value ret = NULL;
   int64_t a0 = 0;
@@ -1944,7 +2197,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_shaah_zmanis(napi_env en
   {
     js_error err = {0};
     js_sync_begin();
-    int64_t r = kosher_rust_bindings_kosher_zmanim_shaah_zmanis(a0, a1, &err);
+    int64_t r = kosherz_zmanim_shaah_zmanis(a0, a1, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -1957,7 +2210,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_new(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_Zmanim_new(napi_env env, napi_callback_info info) {
   JS_ARGS(4);
   napi_value ret = NULL;
   const uint8_t* a0 = NULL;
@@ -1970,11 +2223,11 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_new(napi_env env,
   if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
   if (!js_arg_bytes(env, argv[1], &a1, &a1_len)) goto done;
   if (!js_arg_bytes(env, argv[2], &a2, &a2_len)) goto done;
-  if (!js_arg_cb(env, argv[3], "kosher_rust_bindings_kosher_zmanim_TimeZoneOffset", dispatch_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset, true, &a3)) goto done;
+  if (!js_arg_cb(env, argv[3], "kosherz_zmanim_TimeZoneOffset", dispatch_kosherz_zmanim_TimeZoneOffset, true, &a3)) goto done;
   {
     js_error err = {0};
     js_sync_begin();
-    kosher_rust_bindings_kosher_zmanim_Zmanim* r = kosher_rust_bindings_kosher_zmanim_Zmanim_new(a0, a0_len, a1, a1_len, a2, a2_len, (void*)a3, a3 != NULL ? &vtable_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset : NULL, &err);
+    kosherz_zmanim_Zmanim* r = kosherz_zmanim_Zmanim_new(a0, a0_len, a1, a1_len, a2, a2_len, (void*)a3, a3 != NULL ? &vtable_kosherz_zmanim_TimeZoneOffset : NULL, &err);
     js_sync_end();
     a3 = NULL;
     if (err.code != 0) {
@@ -1989,7 +2242,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_get(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_Zmanim_get(napi_env env, napi_callback_info info) {
   JS_ARGS(2);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -1999,7 +2252,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_get(napi_env env,
   {
     js_error err = {0};
     js_sync_begin();
-    int64_t r = kosher_rust_bindings_kosher_zmanim_Zmanim_get((const kosher_rust_bindings_kosher_zmanim_Zmanim*)self_h, (kosher_rust_bindings_kosher_zmanim_Zman)a0, &err);
+    int64_t r = kosherz_zmanim_Zmanim_get((const kosherz_zmanim_Zmanim*)self_h, (kosherz_zmanim_Zman)a0, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2012,7 +2265,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_all(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_Zmanim_all(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2021,7 +2274,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_all(napi_env env,
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_zmanim_Zmanim_all((const kosher_rust_bindings_kosher_zmanim_Zmanim*)self_h, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_Zmanim_all((const kosherz_zmanim_Zmanim*)self_h, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2034,7 +2287,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_sunrise_offset_by_degrees(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_Zmanim_sunrise_offset_by_degrees(napi_env env, napi_callback_info info) {
   JS_ARGS(2);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2044,7 +2297,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_sunrise_offset_by
   {
     js_error err = {0};
     js_sync_begin();
-    int64_t r = kosher_rust_bindings_kosher_zmanim_Zmanim_sunrise_offset_by_degrees((const kosher_rust_bindings_kosher_zmanim_Zmanim*)self_h, a0, &err);
+    int64_t r = kosherz_zmanim_Zmanim_sunrise_offset_by_degrees((const kosherz_zmanim_Zmanim*)self_h, a0, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2057,7 +2310,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_sunset_offset_by_degrees(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_Zmanim_sunset_offset_by_degrees(napi_env env, napi_callback_info info) {
   JS_ARGS(2);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2067,7 +2320,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_sunset_offset_by_
   {
     js_error err = {0};
     js_sync_begin();
-    int64_t r = kosher_rust_bindings_kosher_zmanim_Zmanim_sunset_offset_by_degrees((const kosher_rust_bindings_kosher_zmanim_Zmanim*)self_h, a0, &err);
+    int64_t r = kosherz_zmanim_Zmanim_sunset_offset_by_degrees((const kosherz_zmanim_Zmanim*)self_h, a0, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2080,7 +2333,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_location(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_Zmanim_location(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2089,7 +2342,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_location(napi_env
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_zmanim_Zmanim_location((const kosher_rust_bindings_kosher_zmanim_Zmanim*)self_h, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_Zmanim_location((const kosherz_zmanim_Zmanim*)self_h, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2102,7 +2355,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_date(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_Zmanim_date(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2111,7 +2364,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_date(napi_env env
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_zmanim_Zmanim_date((const kosher_rust_bindings_kosher_zmanim_Zmanim*)self_h, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_Zmanim_date((const kosherz_zmanim_Zmanim*)self_h, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2124,7 +2377,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_config(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_Zmanim_config(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2133,7 +2386,7 @@ static napi_value nx_kosher_rust_bindings_kosher_zmanim_Zmanim_config(napi_env e
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_zmanim_Zmanim_config((const kosher_rust_bindings_kosher_zmanim_Zmanim*)self_h, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_Zmanim_config((const kosherz_zmanim_Zmanim*)self_h, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2146,273 +2399,27 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_limudim_tractate_name(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_i32(env, argv[0], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_limudim_tractate_name((kosher_rust_bindings_kosher_limudim_Tractate)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_str(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_limudim_tractate_hebrew(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  int32_t a0 = 0;
-  if (!js_arg_i32(env, argv[0], &a0)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_limudim_tractate_hebrew((kosher_rust_bindings_kosher_limudim_Tractate)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_str(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_limudim_tehillim_display(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  const uint8_t* a0 = NULL;
-  size_t a0_len = 0;
-  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_limudim_tehillim_display(a0, a0_len, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_str(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_limudim_pirkei_avos_display(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  const uint8_t* a0 = NULL;
-  size_t a0_len = 0;
-  if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_limudim_pirkei_avos_display(a0, a0_len, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_str(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_limudim_daf_yomi_bavli(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* a0 = NULL;
-  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_limudim_daf_yomi_bavli((const kosher_rust_bindings_kosher_calendar_HebrewDate*)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_limudim_daf_hashavua_bavli(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* a0 = NULL;
-  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_limudim_daf_hashavua_bavli((const kosher_rust_bindings_kosher_calendar_HebrewDate*)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_limudim_daf_yomi_yerushalmi(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* a0 = NULL;
-  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_limudim_daf_yomi_yerushalmi((const kosher_rust_bindings_kosher_calendar_HebrewDate*)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_limudim_amud_yomi_dirshu(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* a0 = NULL;
-  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_limudim_amud_yomi_dirshu((const kosher_rust_bindings_kosher_calendar_HebrewDate*)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_limudim_mishna_yomis(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* a0 = NULL;
-  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_limudim_mishna_yomis((const kosher_rust_bindings_kosher_calendar_HebrewDate*)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_limudim_tehillim_monthly(napi_env env, napi_callback_info info) {
-  JS_ARGS(1);
-  napi_value ret = NULL;
-  void* a0 = NULL;
-  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_limudim_tehillim_monthly((const kosher_rust_bindings_kosher_calendar_HebrewDate*)a0, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_limudim_pirkei_avos(napi_env env, napi_callback_info info) {
-  JS_ARGS(2);
-  napi_value ret = NULL;
-  void* a0 = NULL;
-  int32_t a1 = 0;
-  if (!js_arg_handle(env, argv[0], &a0, false)) goto done;
-  if (!js_arg_i32(env, argv[1], &a1)) goto done;
-  {
-    js_error err = {0};
-    size_t out_len = 0;
-    js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_limudim_pirkei_avos((const kosher_rust_bindings_kosher_calendar_HebrewDate*)a0, (kosher_rust_bindings_kosher_calendar_Region)a1, &out_len, &err);
-    js_sync_end();
-    if (err.code != 0) {
-      js_throw(env, &err);
-      goto done;
-    }
-    ret = js_take_bytes(env, r, out_len);
-  }
-  goto done;
-done:
-  return ret;
-}
-
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_clone(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_MyZmanim_clone(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   void* h = NULL;
   if (!js_arg_handle(env, argv[0], &h, false)) return NULL;
   js_sync_begin();
-  kosher_rust_bindings_kosher_myzmanim_MyZmanim* r = kosher_rust_bindings_kosher_myzmanim_MyZmanim_clone((const kosher_rust_bindings_kosher_myzmanim_MyZmanim*)h);
+  kosherz_zmanim_myzmanim_MyZmanim* r = kosherz_zmanim_myzmanim_MyZmanim_clone((const kosherz_zmanim_myzmanim_MyZmanim*)h);
   js_sync_end();
   return js_new_handle(env, r);
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_destroy(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_MyZmanim_destroy(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   void* h = NULL;
   if (!js_arg_handle(env, argv[0], &h, false)) return NULL;
   js_sync_begin();
-  kosher_rust_bindings_kosher_myzmanim_MyZmanim_destroy((kosher_rust_bindings_kosher_myzmanim_MyZmanim*)h);
+  kosherz_zmanim_myzmanim_MyZmanim_destroy((kosherz_zmanim_myzmanim_MyZmanim*)h);
   js_sync_end();
   return js_undefined(env);
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_my_zman_name(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_my_zman_name(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   int32_t a0 = 0;
@@ -2421,7 +2428,7 @@ static napi_value nx_kosher_rust_bindings_kosher_myzmanim_my_zman_name(napi_env 
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_myzmanim_my_zman_name((kosher_rust_bindings_kosher_myzmanim_MyZman)a0, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_myzmanim_my_zman_name((kosherz_zmanim_myzmanim_MyZman)a0, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2434,14 +2441,14 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_all_my_zmanim(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_all_my_zmanim(napi_env env, napi_callback_info info) {
   JS_ARGS(0);
   napi_value ret = NULL;
   {
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_myzmanim_all_my_zmanim(&out_len, &err);
+    const uint8_t* r = kosherz_zmanim_myzmanim_all_my_zmanim(&out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2454,13 +2461,13 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_dawn_90_degrees(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_dawn_90_degrees(napi_env env, napi_callback_info info) {
   JS_ARGS(0);
   napi_value ret = NULL;
   {
     js_error err = {0};
     js_sync_begin();
-    double r = kosher_rust_bindings_kosher_myzmanim_dawn_90_degrees(&err);
+    double r = kosherz_zmanim_myzmanim_dawn_90_degrees(&err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2473,13 +2480,13 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_dawn_72_degrees(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_dawn_72_degrees(napi_env env, napi_callback_info info) {
   JS_ARGS(0);
   napi_value ret = NULL;
   {
     js_error err = {0};
     js_sync_begin();
-    double r = kosher_rust_bindings_kosher_myzmanim_dawn_72_degrees(&err);
+    double r = kosherz_zmanim_myzmanim_dawn_72_degrees(&err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2492,13 +2499,13 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_sea_level_refraction_arcminutes(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(napi_env env, napi_callback_info info) {
   JS_ARGS(0);
   napi_value ret = NULL;
   {
     js_error err = {0};
     js_sync_begin();
-    double r = kosher_rust_bindings_kosher_myzmanim_sea_level_refraction_arcminutes(&err);
+    double r = kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(&err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2511,13 +2518,13 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_dip_degrees_per_root_meter(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(napi_env env, napi_callback_info info) {
   JS_ARGS(0);
   napi_value ret = NULL;
   {
     js_error err = {0};
     js_sync_begin();
-    double r = kosher_rust_bindings_kosher_myzmanim_dip_degrees_per_root_meter(&err);
+    double r = kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(&err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2530,13 +2537,13 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_default_candle_lighting_minutes(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_default_candle_lighting_minutes(napi_env env, napi_callback_info info) {
   JS_ARGS(0);
   napi_value ret = NULL;
   {
     js_error err = {0};
     js_sync_begin();
-    double r = kosher_rust_bindings_kosher_myzmanim_default_candle_lighting_minutes(&err);
+    double r = kosherz_zmanim_myzmanim_default_candle_lighting_minutes(&err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2549,7 +2556,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_new(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_MyZmanim_new(napi_env env, napi_callback_info info) {
   JS_ARGS(4);
   napi_value ret = NULL;
   const uint8_t* a0 = NULL;
@@ -2561,11 +2568,11 @@ static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_new(napi_env 
   if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
   if (!js_arg_bytes(env, argv[1], &a1, &a1_len)) goto done;
   if (!js_arg_f64(env, argv[2], &a2)) goto done;
-  if (!js_arg_cb(env, argv[3], "kosher_rust_bindings_kosher_zmanim_TimeZoneOffset", dispatch_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset, true, &a3)) goto done;
+  if (!js_arg_cb(env, argv[3], "kosherz_zmanim_TimeZoneOffset", dispatch_kosherz_zmanim_TimeZoneOffset, true, &a3)) goto done;
   {
     js_error err = {0};
     js_sync_begin();
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim* r = kosher_rust_bindings_kosher_myzmanim_MyZmanim_new(a0, a0_len, a1, a1_len, a2, (void*)a3, a3 != NULL ? &vtable_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset : NULL, &err);
+    kosherz_zmanim_myzmanim_MyZmanim* r = kosherz_zmanim_myzmanim_MyZmanim_new(a0, a0_len, a1, a1_len, a2, (void*)a3, a3 != NULL ? &vtable_kosherz_zmanim_TimeZoneOffset : NULL, &err);
     js_sync_end();
     a3 = NULL;
     if (err.code != 0) {
@@ -2580,7 +2587,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_get(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_MyZmanim_get(napi_env env, napi_callback_info info) {
   JS_ARGS(2);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2590,7 +2597,7 @@ static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_get(napi_env 
   {
     js_error err = {0};
     js_sync_begin();
-    int64_t r = kosher_rust_bindings_kosher_myzmanim_MyZmanim_get((const kosher_rust_bindings_kosher_myzmanim_MyZmanim*)self_h, (kosher_rust_bindings_kosher_myzmanim_MyZman)a0, &err);
+    int64_t r = kosherz_zmanim_myzmanim_MyZmanim_get((const kosherz_zmanim_myzmanim_MyZmanim*)self_h, (kosherz_zmanim_myzmanim_MyZman)a0, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2603,7 +2610,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_all(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_MyZmanim_all(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2612,7 +2619,7 @@ static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_all(napi_env 
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_myzmanim_MyZmanim_all((const kosher_rust_bindings_kosher_myzmanim_MyZmanim*)self_h, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_myzmanim_MyZmanim_all((const kosherz_zmanim_myzmanim_MyZmanim*)self_h, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2625,7 +2632,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_proportional_hour_gra(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2633,7 +2640,7 @@ static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_proportional_
   {
     js_error err = {0};
     js_sync_begin();
-    int64_t r = kosher_rust_bindings_kosher_myzmanim_MyZmanim_proportional_hour_gra((const kosher_rust_bindings_kosher_myzmanim_MyZmanim*)self_h, &err);
+    int64_t r = kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra((const kosherz_zmanim_myzmanim_MyZmanim*)self_h, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2646,7 +2653,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_location(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_MyZmanim_location(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2655,7 +2662,7 @@ static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_location(napi
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_myzmanim_MyZmanim_location((const kosher_rust_bindings_kosher_myzmanim_MyZmanim*)self_h, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_myzmanim_MyZmanim_location((const kosherz_zmanim_myzmanim_MyZmanim*)self_h, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2668,7 +2675,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_date(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_MyZmanim_date(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2677,7 +2684,7 @@ static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_date(napi_env
     js_error err = {0};
     size_t out_len = 0;
     js_sync_begin();
-    const uint8_t* r = kosher_rust_bindings_kosher_myzmanim_MyZmanim_date((const kosher_rust_bindings_kosher_myzmanim_MyZmanim*)self_h, &out_len, &err);
+    const uint8_t* r = kosherz_zmanim_myzmanim_MyZmanim_date((const kosherz_zmanim_myzmanim_MyZmanim*)self_h, &out_len, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2690,7 +2697,7 @@ done:
   return ret;
 }
 
-static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_candle_lighting_minutes(napi_env env, napi_callback_info info) {
+static napi_value nx_kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   napi_value ret = NULL;
   void* self_h = NULL;
@@ -2698,7 +2705,7 @@ static napi_value nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_candle_lighti
   {
     js_error err = {0};
     js_sync_begin();
-    double r = kosher_rust_bindings_kosher_myzmanim_MyZmanim_candle_lighting_minutes((const kosher_rust_bindings_kosher_myzmanim_MyZmanim*)self_h, &err);
+    double r = kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes((const kosherz_zmanim_myzmanim_MyZmanim*)self_h, &err);
     js_sync_end();
     if (err.code != 0) {
       js_throw(env, &err);
@@ -2715,93 +2722,94 @@ NAPI_MODULE_INIT() {
   js_env_init(env);
   napi_property_descriptor props[] = {
     JS_RUNTIME_EXPORTS,
-    {"kosher_rust_bindings_kosher_contract", NULL, nx_kosher_rust_bindings_kosher_contract, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_sea_level_location", NULL, nx_kosher_rust_bindings_kosher_sea_level_location, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_validate_location", NULL, nx_kosher_rust_bindings_kosher_validate_location, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_clone", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_clone, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_destroy", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_destroy, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_year_info", NULL, nx_kosher_rust_bindings_kosher_calendar_year_info, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_days_in_month", NULL, nx_kosher_rust_bindings_kosher_calendar_days_in_month, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_rosh_hashana", NULL, nx_kosher_rust_bindings_kosher_calendar_rosh_hashana, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_holiday_name", NULL, nx_kosher_rust_bindings_kosher_calendar_holiday_name, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_holiday_hebrew", NULL, nx_kosher_rust_bindings_kosher_calendar_holiday_hebrew, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_holiday_is_assur_bemelacha", NULL, nx_kosher_rust_bindings_kosher_calendar_holiday_is_assur_bemelacha, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_holiday_is_modern", NULL, nx_kosher_rust_bindings_kosher_calendar_holiday_is_modern, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_holiday_is_fast_day", NULL, nx_kosher_rust_bindings_kosher_calendar_holiday_is_fast_day, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_parsha_name", NULL, nx_kosher_rust_bindings_kosher_calendar_parsha_name, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_parsha_hebrew", NULL, nx_kosher_rust_bindings_kosher_calendar_parsha_hebrew, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_month_name", NULL, nx_kosher_rust_bindings_kosher_calendar_month_name, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_month_hebrew", NULL, nx_kosher_rust_bindings_kosher_calendar_month_hebrew, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_new", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_new, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_from_gregorian", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_from_gregorian, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_year", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_year, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_month", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_month, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_day", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_day, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_day_of_year", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_day_of_year, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_weekday", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_weekday, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_to_gregorian", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_to_gregorian, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_add_days", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_add_days, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_holidays", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_holidays, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_is_assur_bemelacha", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_is_assur_bemelacha, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_has_candle_lighting", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_has_candle_lighting, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_is_aseres_yemei_teshuva", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_is_aseres_yemei_teshuva, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_parsha", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_parsha, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_special_parsha", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_special_parsha, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_next_parsha", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_next_parsha, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_molad", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_molad, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_display", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_display, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_equals", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_equals, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_calendar_HebrewDate_compare", NULL, nx_kosher_rust_bindings_kosher_calendar_HebrewDate_compare, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_Zmanim_clone", NULL, nx_kosher_rust_bindings_kosher_zmanim_Zmanim_clone, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_Zmanim_destroy", NULL, nx_kosher_rust_bindings_kosher_zmanim_Zmanim_destroy, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_default_config", NULL, nx_kosher_rust_bindings_kosher_zmanim_default_config, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_all_zmanim", NULL, nx_kosher_rust_bindings_kosher_zmanim_all_zmanim, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_zman_name", NULL, nx_kosher_rust_bindings_kosher_zmanim_zman_name, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_zman_java_name", NULL, nx_kosher_rust_bindings_kosher_zmanim_zman_java_name, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_zman_from_java_name", NULL, nx_kosher_rust_bindings_kosher_zmanim_zman_from_java_name, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_zman_category", NULL, nx_kosher_rust_bindings_kosher_zmanim_zman_category, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_zman_is_deprecated", NULL, nx_kosher_rust_bindings_kosher_zmanim_zman_is_deprecated, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_zman_description", NULL, nx_kosher_rust_bindings_kosher_zmanim_zman_description, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_calculator_name", NULL, nx_kosher_rust_bindings_kosher_zmanim_calculator_name, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_shaah_zmanis", NULL, nx_kosher_rust_bindings_kosher_zmanim_shaah_zmanis, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_Zmanim_new", NULL, nx_kosher_rust_bindings_kosher_zmanim_Zmanim_new, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_Zmanim_get", NULL, nx_kosher_rust_bindings_kosher_zmanim_Zmanim_get, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_Zmanim_all", NULL, nx_kosher_rust_bindings_kosher_zmanim_Zmanim_all, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_Zmanim_sunrise_offset_by_degrees", NULL, nx_kosher_rust_bindings_kosher_zmanim_Zmanim_sunrise_offset_by_degrees, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_Zmanim_sunset_offset_by_degrees", NULL, nx_kosher_rust_bindings_kosher_zmanim_Zmanim_sunset_offset_by_degrees, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_Zmanim_location", NULL, nx_kosher_rust_bindings_kosher_zmanim_Zmanim_location, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_Zmanim_date", NULL, nx_kosher_rust_bindings_kosher_zmanim_Zmanim_date, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_zmanim_Zmanim_config", NULL, nx_kosher_rust_bindings_kosher_zmanim_Zmanim_config, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_limudim_tractate_name", NULL, nx_kosher_rust_bindings_kosher_limudim_tractate_name, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_limudim_tractate_hebrew", NULL, nx_kosher_rust_bindings_kosher_limudim_tractate_hebrew, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_limudim_tehillim_display", NULL, nx_kosher_rust_bindings_kosher_limudim_tehillim_display, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_limudim_pirkei_avos_display", NULL, nx_kosher_rust_bindings_kosher_limudim_pirkei_avos_display, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_limudim_daf_yomi_bavli", NULL, nx_kosher_rust_bindings_kosher_limudim_daf_yomi_bavli, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_limudim_daf_hashavua_bavli", NULL, nx_kosher_rust_bindings_kosher_limudim_daf_hashavua_bavli, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_limudim_daf_yomi_yerushalmi", NULL, nx_kosher_rust_bindings_kosher_limudim_daf_yomi_yerushalmi, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_limudim_amud_yomi_dirshu", NULL, nx_kosher_rust_bindings_kosher_limudim_amud_yomi_dirshu, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_limudim_mishna_yomis", NULL, nx_kosher_rust_bindings_kosher_limudim_mishna_yomis, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_limudim_tehillim_monthly", NULL, nx_kosher_rust_bindings_kosher_limudim_tehillim_monthly, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_limudim_pirkei_avos", NULL, nx_kosher_rust_bindings_kosher_limudim_pirkei_avos, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_MyZmanim_clone", NULL, nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_clone, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_MyZmanim_destroy", NULL, nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_destroy, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_my_zman_name", NULL, nx_kosher_rust_bindings_kosher_myzmanim_my_zman_name, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_all_my_zmanim", NULL, nx_kosher_rust_bindings_kosher_myzmanim_all_my_zmanim, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_dawn_90_degrees", NULL, nx_kosher_rust_bindings_kosher_myzmanim_dawn_90_degrees, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_dawn_72_degrees", NULL, nx_kosher_rust_bindings_kosher_myzmanim_dawn_72_degrees, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_sea_level_refraction_arcminutes", NULL, nx_kosher_rust_bindings_kosher_myzmanim_sea_level_refraction_arcminutes, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_dip_degrees_per_root_meter", NULL, nx_kosher_rust_bindings_kosher_myzmanim_dip_degrees_per_root_meter, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_default_candle_lighting_minutes", NULL, nx_kosher_rust_bindings_kosher_myzmanim_default_candle_lighting_minutes, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_MyZmanim_new", NULL, nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_new, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_MyZmanim_get", NULL, nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_get, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_MyZmanim_all", NULL, nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_all, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_MyZmanim_proportional_hour_gra", NULL, nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_proportional_hour_gra, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_MyZmanim_location", NULL, nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_location, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_MyZmanim_date", NULL, nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_date, NULL, NULL, NULL, napi_default, NULL},
-    {"kosher_rust_bindings_kosher_myzmanim_MyZmanim_candle_lighting_minutes", NULL, nx_kosher_rust_bindings_kosher_myzmanim_MyZmanim_candle_lighting_minutes, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_contract", NULL, nx_kosherz_calendar_contract, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_contract", NULL, nx_kosherz_zmanim_contract, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_clone", NULL, nx_kosherz_calendar_HebrewDate_clone, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_destroy", NULL, nx_kosherz_calendar_HebrewDate_destroy, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_year_info", NULL, nx_kosherz_calendar_year_info, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_days_in_month", NULL, nx_kosherz_calendar_days_in_month, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_rosh_hashana", NULL, nx_kosherz_calendar_rosh_hashana, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_holiday_name", NULL, nx_kosherz_calendar_holiday_name, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_holiday_hebrew", NULL, nx_kosherz_calendar_holiday_hebrew, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_holiday_is_assur_bemelacha", NULL, nx_kosherz_calendar_holiday_is_assur_bemelacha, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_holiday_is_modern", NULL, nx_kosherz_calendar_holiday_is_modern, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_holiday_is_fast_day", NULL, nx_kosherz_calendar_holiday_is_fast_day, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_parsha_name", NULL, nx_kosherz_calendar_parsha_name, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_parsha_hebrew", NULL, nx_kosherz_calendar_parsha_hebrew, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_month_name", NULL, nx_kosherz_calendar_month_name, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_month_hebrew", NULL, nx_kosherz_calendar_month_hebrew, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_new", NULL, nx_kosherz_calendar_HebrewDate_new, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_from_gregorian", NULL, nx_kosherz_calendar_HebrewDate_from_gregorian, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_year", NULL, nx_kosherz_calendar_HebrewDate_year, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_month", NULL, nx_kosherz_calendar_HebrewDate_month, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_day", NULL, nx_kosherz_calendar_HebrewDate_day, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_day_of_year", NULL, nx_kosherz_calendar_HebrewDate_day_of_year, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_weekday", NULL, nx_kosherz_calendar_HebrewDate_weekday, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_to_gregorian", NULL, nx_kosherz_calendar_HebrewDate_to_gregorian, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_add_days", NULL, nx_kosherz_calendar_HebrewDate_add_days, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_holidays", NULL, nx_kosherz_calendar_HebrewDate_holidays, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_is_assur_bemelacha", NULL, nx_kosherz_calendar_HebrewDate_is_assur_bemelacha, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_has_candle_lighting", NULL, nx_kosherz_calendar_HebrewDate_has_candle_lighting, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva", NULL, nx_kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_parsha", NULL, nx_kosherz_calendar_HebrewDate_parsha, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_special_parsha", NULL, nx_kosherz_calendar_HebrewDate_special_parsha, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_next_parsha", NULL, nx_kosherz_calendar_HebrewDate_next_parsha, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_molad", NULL, nx_kosherz_calendar_HebrewDate_molad, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_display", NULL, nx_kosherz_calendar_HebrewDate_display, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_equals", NULL, nx_kosherz_calendar_HebrewDate_equals, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_HebrewDate_compare", NULL, nx_kosherz_calendar_HebrewDate_compare, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_limudim_tractate_name", NULL, nx_kosherz_calendar_limudim_tractate_name, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_limudim_tractate_hebrew", NULL, nx_kosherz_calendar_limudim_tractate_hebrew, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_limudim_tehillim_display", NULL, nx_kosherz_calendar_limudim_tehillim_display, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_limudim_pirkei_avos_display", NULL, nx_kosherz_calendar_limudim_pirkei_avos_display, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_limudim_daf_yomi_bavli", NULL, nx_kosherz_calendar_limudim_daf_yomi_bavli, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_limudim_daf_hashavua_bavli", NULL, nx_kosherz_calendar_limudim_daf_hashavua_bavli, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_limudim_daf_yomi_yerushalmi", NULL, nx_kosherz_calendar_limudim_daf_yomi_yerushalmi, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_limudim_amud_yomi_dirshu", NULL, nx_kosherz_calendar_limudim_amud_yomi_dirshu, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_limudim_mishna_yomis", NULL, nx_kosherz_calendar_limudim_mishna_yomis, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_limudim_tehillim_monthly", NULL, nx_kosherz_calendar_limudim_tehillim_monthly, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_calendar_limudim_pirkei_avos", NULL, nx_kosherz_calendar_limudim_pirkei_avos, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_Zmanim_clone", NULL, nx_kosherz_zmanim_Zmanim_clone, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_Zmanim_destroy", NULL, nx_kosherz_zmanim_Zmanim_destroy, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_sea_level_location", NULL, nx_kosherz_zmanim_sea_level_location, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_validate_location", NULL, nx_kosherz_zmanim_validate_location, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_default_config", NULL, nx_kosherz_zmanim_default_config, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_all_zmanim", NULL, nx_kosherz_zmanim_all_zmanim, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_zman_name", NULL, nx_kosherz_zmanim_zman_name, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_zman_java_name", NULL, nx_kosherz_zmanim_zman_java_name, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_zman_from_java_name", NULL, nx_kosherz_zmanim_zman_from_java_name, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_zman_category", NULL, nx_kosherz_zmanim_zman_category, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_zman_is_deprecated", NULL, nx_kosherz_zmanim_zman_is_deprecated, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_zman_description", NULL, nx_kosherz_zmanim_zman_description, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_calculator_name", NULL, nx_kosherz_zmanim_calculator_name, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_shaah_zmanis", NULL, nx_kosherz_zmanim_shaah_zmanis, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_Zmanim_new", NULL, nx_kosherz_zmanim_Zmanim_new, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_Zmanim_get", NULL, nx_kosherz_zmanim_Zmanim_get, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_Zmanim_all", NULL, nx_kosherz_zmanim_Zmanim_all, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_Zmanim_sunrise_offset_by_degrees", NULL, nx_kosherz_zmanim_Zmanim_sunrise_offset_by_degrees, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_Zmanim_sunset_offset_by_degrees", NULL, nx_kosherz_zmanim_Zmanim_sunset_offset_by_degrees, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_Zmanim_location", NULL, nx_kosherz_zmanim_Zmanim_location, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_Zmanim_date", NULL, nx_kosherz_zmanim_Zmanim_date, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_Zmanim_config", NULL, nx_kosherz_zmanim_Zmanim_config, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_MyZmanim_clone", NULL, nx_kosherz_zmanim_myzmanim_MyZmanim_clone, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_MyZmanim_destroy", NULL, nx_kosherz_zmanim_myzmanim_MyZmanim_destroy, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_my_zman_name", NULL, nx_kosherz_zmanim_myzmanim_my_zman_name, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_all_my_zmanim", NULL, nx_kosherz_zmanim_myzmanim_all_my_zmanim, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_dawn_90_degrees", NULL, nx_kosherz_zmanim_myzmanim_dawn_90_degrees, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_dawn_72_degrees", NULL, nx_kosherz_zmanim_myzmanim_dawn_72_degrees, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes", NULL, nx_kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_dip_degrees_per_root_meter", NULL, nx_kosherz_zmanim_myzmanim_dip_degrees_per_root_meter, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_default_candle_lighting_minutes", NULL, nx_kosherz_zmanim_myzmanim_default_candle_lighting_minutes, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_MyZmanim_new", NULL, nx_kosherz_zmanim_myzmanim_MyZmanim_new, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_MyZmanim_get", NULL, nx_kosherz_zmanim_myzmanim_MyZmanim_get, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_MyZmanim_all", NULL, nx_kosherz_zmanim_myzmanim_MyZmanim_all, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra", NULL, nx_kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_MyZmanim_location", NULL, nx_kosherz_zmanim_myzmanim_MyZmanim_location, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_MyZmanim_date", NULL, nx_kosherz_zmanim_myzmanim_MyZmanim_date, NULL, NULL, NULL, napi_default, NULL},
+    {"kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes", NULL, nx_kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes, NULL, NULL, NULL, napi_default, NULL},
   };
   napi_define_properties(env, exports, sizeof props / sizeof props[0], props);
   return exports;
 }
 
-// END kosher_rust_bindings_node.c
+// END kosherz_node.c

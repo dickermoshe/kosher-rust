@@ -2,11 +2,11 @@
 <!-- DO NOT EDIT. Your changes will be overwritten. -->
 <!-- To regenerate: weaveffi generate -->
 
-# KosherRustBindings (.NET)
+# Kosherz (.NET)
 
 C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI.
 
-The `KosherRustBindings` namespace binds the `kosher_rust_bindings` native library through
+The `Kosherz` namespace binds the `kosherz` native library through
 source-generated P/Invoke (`[LibraryImport]`), so it's trim- and
 AOT-friendly.
 
@@ -16,14 +16,14 @@ AOT-friendly.
 dotnet build
 ```
 
-Reference this project from yours (`dotnet add reference KosherRustBindings.csproj`)
+Reference this project from yours (`dotnet add reference Kosherz.csproj`)
 or pack it (`dotnet pack -c Release`).
 
 ## Loading the native library
 
-The bindings load `kosher_rust_bindings` with the platform's normal rules
-(`libkosher_rust_bindings.dylib`, `libkosher_rust_bindings.so`, or `kosher_rust_bindings.dll` next to the app or on the
-library search path). Set `KOSHER_RUST_BINDINGS_LIBRARY` to a full path to load a
+The bindings load `kosherz` with the platform's normal rules
+(`libkosherz.dylib`, `libkosherz.so`, or `kosherz.dll` next to the app or on the
+library search path). Set `KOSHERZ_LIBRARY` to a full path to load a
 specific file instead.
 
 <!-- END README.md -->

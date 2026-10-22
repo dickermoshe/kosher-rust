@@ -5,9 +5,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { kosher } from '../../generated/node/index.js';
+import { calendar, zmanim } from '../../generated/node/index.js';
 
-const { calendar, limudim, myzmanim, zmanim } = kosher;
+const { limudim } = calendar;
+const { myzmanim } = zmanim;
 
 /** A time zone backed by Node's ICU data: the UTC offset of `name` at an instant. */
 function ianaZone(name) {
@@ -36,7 +37,7 @@ function newYorkTime(ms) {
   return new Date(Number(ms)).toLocaleTimeString('en-GB', { timeZone: 'America/New_York' });
 }
 
-const lakewood = kosher.seaLevelLocation(40.09, -74.22);
+const lakewood = zmanim.seaLevelLocation(40.09, -74.22);
 const newYork = ianaZone('America/New_York');
 
 test('zmanim', () => {
@@ -59,7 +60,7 @@ test('Kiddush Levana through a JS time zone, the day after the clocks went back'
   assert.equal(newYorkTime(time), '08:44:50');
 
   const noZone = new zmanim.Zmanim(lakewood, { year: 2024, month: 11, day: 4 }, zmanim.defaultConfig(), null);
-  assert.throws(() => noZone.get(zmanim.Zman.TchilasZmanKidushLevana3Days), kosher.TimeZoneRequiredError);
+  assert.throws(() => noZone.get(zmanim.Zman.TchilasZmanKidushLevana3Days), zmanim.TimeZoneRequiredError);
 });
 
 test('a throwing time zone callback is a typed error', () => {
@@ -69,18 +70,26 @@ test('a throwing time zone callback is a typed error', () => {
     },
   };
   const day = new zmanim.Zmanim(lakewood, { year: 2024, month: 4, day: 23 }, zmanim.defaultConfig(), broken);
-  assert.throws(() => day.get(zmanim.Zman.Sunrise), kosher.TimeZoneCallbackFailedError);
+  assert.throws(() => day.get(zmanim.Zman.Sunrise), zmanim.TimeZoneCallbackFailedError);
 });
 
 test('invalid input is a typed error', () => {
   const config = zmanim.defaultConfig();
   assert.throws(
-    () => new zmanim.Zmanim(kosher.seaLevelLocation(91, 0), { year: 2024, month: 1, day: 1 }, config, newYork),
-    kosher.InvalidLatitudeError,
+    () => new zmanim.Zmanim(zmanim.seaLevelLocation(91, 0), { year: 2024, month: 1, day: 1 }, config, newYork),
+    zmanim.InvalidLatitudeError,
   );
   assert.throws(
     () => new zmanim.Zmanim(lakewood, { year: 2024, month: 2, day: 30 }, config, newYork),
-    kosher.InvalidDateError,
+    zmanim.InvalidGregorianDateError,
+  );
+  assert.throws(
+    () => new zmanim.Zmanim(lakewood, { year: 2024, month: 1, day: 1 }, { ...config, candle_lighting_minutes: 1441 }, newYork),
+    zmanim.InvalidMinutesError,
+  );
+  assert.throws(
+    () => new myzmanim.MyZmanim(lakewood, { year: 2024, month: 1, day: 1 }, NaN, newYork),
+    zmanim.InvalidMinutesError,
   );
 });
 

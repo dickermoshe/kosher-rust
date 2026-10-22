@@ -17,6 +17,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "kosher-rust-bindings"
+rootProject.name = "kosherz"
 
 // END settings.gradle.kts

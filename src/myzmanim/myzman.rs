@@ -11,7 +11,7 @@ use crate::{
         GEOMETRIC_ZENITH, SolarEvent, adjusted_local_date, apparent_solar_radius, meeus::Meeus,
         rise_set_on_adjusted_date,
     },
-    zmanim::ZmanimError,
+    zmanim::{ZmanimError, minus, plus},
 };
 
 use super::{
@@ -278,7 +278,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
         use MyZman::*;
         match zman {
             Dawn90Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, DAWN_90_DEGREES),
-            Dawn72Fixed => Ok(self.get(SunriseLevel)? - minutes(FIXED_72_MINUTES)),
+            Dawn72Fixed => minus(self.get(SunriseLevel)?, minutes(FIXED_72_MINUTES)),
             Dawn72Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, DAWN_72_DEGREES),
             Talis11Point5Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, 11.5),
             Talis11Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, 11.0),
@@ -294,7 +294,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
             ShacharisMA72Degrees => self.proportional(Dawn72Degrees, NightRTam72Degrees, 4.0),
             ShacharisGra => self.proportional(SunriseLevel, SunsetLevel, 4.0),
             Midday => midpoint(self.get(SunriseLevel)?, self.get(SunsetLevel)?),
-            Mincha30Fixed => Ok(self.get(Midday)? + minutes(MINCHA_30_MINUTES)),
+            Mincha30Fixed => plus(self.get(Midday)?, minutes(MINCHA_30_MINUTES)),
             MinchaGra => self.proportional(SunriseLevel, SunsetLevel, 6.5),
             MinchaLechumra => {
                 let fixed = self.get(Mincha30Fixed)?;
@@ -309,7 +309,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
             CandleLighting => {
                 let sunset = self.get(SunsetElevated)?;
                 let millis = (self.candle_lighting_minutes * 60_000.0).round() as i64;
-                Ok(sunset - SignedDuration::from_millis(millis))
+                minus(sunset, SignedDuration::from_millis(millis))
             }
             SunsetLevel => self.rise_set(SolarEvent::Sunset, false),
             SunsetElevated => self.rise_set(SolarEvent::Sunset, true),
@@ -322,7 +322,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
             NightMoed => self.rise_set_by_degrees(SolarEvent::Sunset, 8.0),
             NightShabbos => self.rise_set_by_degrees(SolarEvent::Sunset, 8.5),
             NightChazonIsh => self.rise_set_by_degrees(SolarEvent::Sunset, 9.28),
-            NightRTam72Fixed => Ok(self.get(SunsetElevated)? + minutes(FIXED_72_MINUTES)),
+            NightRTam72Fixed => plus(self.get(SunsetElevated)?, minutes(FIXED_72_MINUTES)),
             NightRTam72Degrees => self.rise_set_by_degrees(SolarEvent::Sunset, DAWN_72_DEGREES),
             Midnight => {
                 let sunset = self.get(SunsetLevel)?;
@@ -363,7 +363,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
             // The end of the 19.75° Magen Avraham day; the website shows no row for it.
             DayBound::Night90Degrees => self.rise_set_by_degrees(SolarEvent::Sunset, DAWN_90_DEGREES),
             // The end of the fixed-72-minute Magen Avraham day: 72 minutes after sea-level sunset.
-            DayBound::Night72FixedLevel => Ok(self.get(MyZman::SunsetLevel)? + minutes(FIXED_72_MINUTES)),
+            DayBound::Night72FixedLevel => plus(self.get(MyZman::SunsetLevel)?, minutes(FIXED_72_MINUTES)),
         }
     }
 
@@ -392,7 +392,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
         };
         let zenith = GEOMETRIC_ZENITH
             + (apparent_solar_radius(adjusted_date) + refraction(horizon_elevation) + dip(height_above_horizon));
-        rise_set_on_adjusted_date(&calculator(), adjusted_date, &self.location, zenith, event)
+        rise_set_on_adjusted_date(&calculator(), adjusted_date, &self.location.place(), zenith, event)
     }
 
     /// The time the sun is `degrees` below the geometric horizon: no refraction, radius or dip.
@@ -401,7 +401,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
         rise_set_on_adjusted_date(
             &calculator(),
             adjusted_date,
-            &self.location,
+            &self.location.place(),
             GEOMETRIC_ZENITH + degrees,
             event,
         )

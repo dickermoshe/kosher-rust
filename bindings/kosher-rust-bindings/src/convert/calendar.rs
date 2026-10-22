@@ -1,19 +1,45 @@
+use std::ops::RangeInclusive;
+
 use jiff::civil;
 use kosher_rust::calendar::{self as k, HebrewYear};
 
-use crate::api::kosher::{
-    KosherError,
-    calendar::{HebrewMonth, Holiday, Parsha, Region, Weekday, YearInfo, YearLength},
+use super::valid_number;
+use crate::api::calendar::{
+    CalendarError, GregorianDate, HebrewMonth, Holiday, Parsha, Region, Weekday, YearInfo, YearLength,
 };
 
-pub(crate) fn hebrew_date(year: i32, month: HebrewMonth, day: i32) -> Result<k::HebrewDate, KosherError> {
-    let day = u8::try_from(day).map_err(|_| KosherError::InvalidDate)?;
-    k::HebrewDate::new(year, month.into(), day).ok_or(KosherError::InvalidDate)
+/// The Hebrew years the bindings take and give: the years a date can be built from.
+const YEARS: RangeInclusive<i32> = 1..=9999;
+
+fn hebrew_year(year: i32) -> Result<HebrewYear, CalendarError> {
+    if YEARS.contains(&year) {
+        Ok(HebrewYear::new(year))
+    } else {
+        Err(CalendarError::InvalidDate)
+    }
 }
 
-pub(crate) fn year_info(year: i32) -> YearInfo {
-    let year = HebrewYear::new(year);
-    YearInfo {
+/// `date`, if its year is in [`YEARS`].
+fn in_range(date: k::HebrewDate) -> Result<k::HebrewDate, CalendarError> {
+    hebrew_year(date.year().get()).map(|_| date)
+}
+
+pub(crate) fn hebrew_date(year: i32, month: HebrewMonth, day: i32) -> Result<k::HebrewDate, CalendarError> {
+    let day = u8::try_from(day).map_err(|_| CalendarError::InvalidDate)?;
+    k::HebrewDate::new(hebrew_year(year)?.get(), month.into(), day).ok_or(CalendarError::InvalidDate)
+}
+
+pub(crate) fn from_gregorian(date: &GregorianDate) -> Result<k::HebrewDate, CalendarError> {
+    in_range(super::civil_date(date).ok_or(CalendarError::InvalidDate)?.into())
+}
+
+pub(crate) fn add_days(date: k::HebrewDate, days: i32) -> Result<k::HebrewDate, CalendarError> {
+    in_range(date.add_days(days).ok_or(CalendarError::InvalidDate)?)
+}
+
+pub(crate) fn year_info(year: i32) -> Result<YearInfo, CalendarError> {
+    let year = hebrew_year(year)?;
+    Ok(YearInfo {
         year: year.get(),
         is_leap: year.is_leap(),
         days: i32::from(year.days()),
@@ -21,7 +47,15 @@ pub(crate) fn year_info(year: i32) -> YearInfo {
         is_cheshvan_long: year.is_cheshvan_long(),
         is_kislev_short: year.is_kislev_short(),
         months: year.months().iter().map(|&month| month.into()).collect(),
-    }
+    })
+}
+
+pub(crate) fn days_in_month(year: i32, month: HebrewMonth) -> Option<i32> {
+    hebrew_year(year).ok()?.days_in(month.into()).map(i32::from)
+}
+
+pub(crate) fn rosh_hashana(year: i32) -> Result<k::HebrewDate, CalendarError> {
+    hebrew_year(year)?.rosh_hashana().ok_or(CalendarError::InvalidDate)
 }
 
 impl From<Region> for k::Region {
@@ -199,16 +233,18 @@ mirror!(
     ]
 );
 
-/// Both `From` impls for [`Holiday`], whose numbered variants become named fields.
+/// The conversions both ways for [`Holiday`], whose numbered variants become named fields, each
+/// with the range its day must be in.
 macro_rules! holidays {
-    ([$($variant:ident),* $(,)?], [$($numbered:ident),* $(,)?]) => {
-        impl From<Holiday> for k::Holiday {
-            fn from(holiday: Holiday) -> Self {
-                match holiday {
+    ([$($variant:ident),* $(,)?], [$($numbered:ident: $days:expr),* $(,)?]) => {
+        impl TryFrom<Holiday> for k::Holiday {
+            type Error = CalendarError;
+
+            fn try_from(holiday: Holiday) -> Result<Self, CalendarError> {
+                Ok(match holiday {
                     $(Holiday::$variant => Self::$variant,)*
-                    // The day is 1 to 8 or 1 to 49; anything else came from outside and saturates.
-                    $(Holiday::$numbered { day } => Self::$numbered(u8::try_from(day).unwrap_or(u8::MAX)),)*
-                }
+                    $(Holiday::$numbered { day } => Self::$numbered(valid_number(day, $days).ok_or(CalendarError::InvalidHoliday)?),)*
+                })
             }
         }
 
@@ -266,5 +302,5 @@ holidays!(
         MacharHachodesh,
         ShabbosMevarchim,
     ],
-    [Chanukah, CountOfTheOmer]
+    [Chanukah: 1..=8, CountOfTheOmer: 1..=49]
 );

@@ -2,11 +2,11 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-package kosher_rust_bindings
+package kosherz
 
 /*
 #include <stdlib.h>
-#include "kosher_rust_bindings.h"
+#include "kosherz.h"
 
 static void* wvRuntimeHandlePtr(uintptr_t h) { return (void*)h; }
 */
@@ -45,7 +45,7 @@ type Error struct {
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("kosher_rust_bindings: %s (code %d)", e.Message, e.Code)
+	return fmt.Sprintf("kosherz: %s (code %d)", e.Message, e.Code)
 }
 
 // DebugLive reports how many resources of one kind the native library holds:
@@ -54,7 +54,7 @@ func (e *Error) Error() string {
 // library was built with leak checks enabled; tests use it to assert that
 // nothing leaked.
 func DebugLive(kind int32) uint64 {
-	return uint64(C.kosher_rust_bindings_debug_live(C.int32_t(kind)))
+	return uint64(C.kosherz_debug_live(C.int32_t(kind)))
 }
 
 // ── Load-time checks ──
@@ -62,8 +62,8 @@ func DebugLive(kind int32) uint64 {
 // wvCheckABI panics when the linked library implements a different C ABI
 // revision than these bindings were generated for.
 func wvCheckABI() {
-	if found := uint32(C.kosher_rust_bindings_abi_version()); found != wvABIVersion {
-		panic(fmt.Errorf("kosher_rust_bindings: the linked library implements C ABI revision %d, but these bindings were generated for revision %d", found, wvABIVersion))
+	if found := uint32(C.kosherz_abi_version()); found != wvABIVersion {
+		panic(fmt.Errorf("kosherz: the linked library implements C ABI revision %d, but these bindings were generated for revision %d", found, wvABIVersion))
 	}
 }
 
@@ -77,17 +77,17 @@ type wvContractEntry struct {
 // wvCheckContract panics unless every entry in want is in the library's
 // contract table for one top-level module (n entries sorted by id) with an
 // equal signature hash. Entries only the library has are fine.
-func wvCheckContract(table *C.kosher_rust_bindings_contract_entry, n C.size_t, want []wvContractEntry) {
+func wvCheckContract(table *C.kosherz_contract_entry, n C.size_t, want []wvContractEntry) {
 	have := unsafe.Slice(table, int(n))
 	for _, w := range want {
-		i, found := slices.BinarySearchFunc(have, w.id, func(e C.kosher_rust_bindings_contract_entry, id uint64) int {
+		i, found := slices.BinarySearchFunc(have, w.id, func(e C.kosherz_contract_entry, id uint64) int {
 			return cmp.Compare(uint64(e.id), id)
 		})
 		if !found {
-			panic(fmt.Errorf("kosher_rust_bindings: %s is missing from the library", w.path))
+			panic(fmt.Errorf("kosherz: %s is missing from the library", w.path))
 		}
 		if uint64(have[i].hash) != w.hash {
-			panic(fmt.Errorf("kosher_rust_bindings: %s changed since these bindings were generated", w.path))
+			panic(fmt.Errorf("kosherz: %s changed since these bindings were generated", w.path))
 		}
 	}
 }
@@ -106,7 +106,7 @@ func (f wvFailure) err() error {
 	return &Error{Code: f.code, Message: f.message}
 }
 
-func wvCopyFailure(cErr *C.kosher_rust_bindings_error) wvFailure {
+func wvCopyFailure(cErr *C.kosherz_error) wvFailure {
 	f := wvFailure{code: int32(cErr.code)}
 	if cErr.message != nil {
 		f.message = C.GoString(cErr.message)
@@ -118,17 +118,17 @@ func wvCopyFailure(cErr *C.kosher_rust_bindings_error) wvFailure {
 }
 
 // wvTakeError copies a non-zero error slot and clears it.
-func wvTakeError(cErr *C.kosher_rust_bindings_error) wvFailure {
+func wvTakeError(cErr *C.kosherz_error) wvFailure {
 	f := wvCopyFailure(cErr)
-	C.kosher_rust_bindings_error_clear(cErr)
+	C.kosherz_error_clear(cErr)
 	return f
 }
 
 // wvTakeBoxedError copies the heap-boxed error an async completion receives
 // and frees the box.
-func wvTakeBoxedError(cErr *C.kosher_rust_bindings_error) wvFailure {
+func wvTakeBoxedError(cErr *C.kosherz_error) wvFailure {
 	f := wvCopyFailure(cErr)
-	C.kosher_rust_bindings_error_free(cErr)
+	C.kosherz_error_free(cErr)
 	return f
 }
 
@@ -136,7 +136,7 @@ func wvTakeBoxedError(cErr *C.kosher_rust_bindings_error) wvFailure {
 // calls that declare no errors check their slot with it: a failure there is
 // a bug in the native library, an argument it couldn't take, or a callback
 // failure it let through.
-func wvTrap(cErr *C.kosher_rust_bindings_error) {
+func wvTrap(cErr *C.kosherz_error) {
 	if cErr.code != 0 {
 		panic(wvTakeError(cErr).err())
 	}
@@ -152,20 +152,20 @@ type wvDomainError interface {
 
 // wvSetError reports a failure through a callback's error slot. The native
 // library copies the message and payload, so both are only borrowed.
-func wvSetError(outErr *C.kosher_rust_bindings_error, code int32, message string, payload []byte) {
+func wvSetError(outErr *C.kosherz_error, code int32, message string, payload []byte) {
 	msg := C.CString(message)
 	defer C.free(unsafe.Pointer(msg))
-	C.kosher_rust_bindings_error_set(outErr, C.int32_t(code), msg)
+	C.kosherz_error_set(outErr, C.int32_t(code), msg)
 	if len(payload) > 0 {
 		ptr, n := wvBytes(payload)
-		C.kosher_rust_bindings_error_set_payload(outErr, ptr, n)
+		C.kosherz_error_set_payload(outErr, ptr, n)
 	}
 }
 
 // wvCallbackFailed reports the error a throwing callback method returned:
 // an error of the domain D in scope for the method reports its code and
 // payload, and anything else is a callback failure (code -4).
-func wvCallbackFailed[D error](outErr *C.kosher_rust_bindings_error, err error) {
+func wvCallbackFailed[D error](outErr *C.kosherz_error, err error) {
 	var domain D
 	if errors.As(err, &domain) {
 		if d, ok := any(domain).(wvDomainError); ok {
@@ -179,7 +179,7 @@ func wvCallbackFailed[D error](outErr *C.kosher_rust_bindings_error, err error) 
 // wvRecoverCallback, deferred by every callback trampoline, reports a panic
 // in the implementation as a callback failure (code -4) instead of letting
 // it unwind into the native caller.
-func wvRecoverCallback(outErr *C.kosher_rust_bindings_error) {
+func wvRecoverCallback(outErr *C.kosherz_error) {
 	if r := recover(); r != nil {
 		msg := fmt.Sprint(r)
 		if err, ok := r.(error); ok {
@@ -197,7 +197,7 @@ func wvRecoverCallback(outErr *C.kosher_rust_bindings_error) {
 // implementation of a required callback panics.
 func wvNewCallback(impl any) unsafe.Pointer {
 	if impl == nil {
-		panic("kosher_rust_bindings: nil callback implementation")
+		panic("kosherz: nil callback implementation")
 	}
 	return C.wvRuntimeHandlePtr(C.uintptr_t(cgo.NewHandle(impl)))
 }
@@ -239,7 +239,7 @@ func wvBorrowString(ptr *C.uint8_t, n C.size_t) string {
 // native allocation.
 func wvTakeString(ptr *C.uint8_t, n C.size_t) string {
 	s := wvBorrowString(ptr, n)
-	C.kosher_rust_bindings_free_bytes(ptr, n)
+	C.kosherz_free_bytes(ptr, n)
 	return s
 }
 
@@ -256,7 +256,7 @@ func wvBorrowBytes(ptr *C.uint8_t, n C.size_t) []byte {
 // native allocation.
 func wvTakeBytes(ptr *C.uint8_t, n C.size_t) []byte {
 	b := wvBorrowBytes(ptr, n)
-	C.kosher_rust_bindings_free_bytes(ptr, n)
+	C.kosherz_free_bytes(ptr, n)
 	return b
 }
 
@@ -276,7 +276,7 @@ func wvHandOverBytes(b []byte, outPtr **C.uint8_t, outLen *C.size_t) {
 }
 
 func wvHandOver(ptr *C.uint8_t, n C.size_t, outPtr **C.uint8_t, outLen *C.size_t) {
-	run := C.kosher_rust_bindings_alloc(n)
+	run := C.kosherz_alloc(n)
 	if n > 0 {
 		copy(unsafe.Slice((*byte)(unsafe.Pointer(run)), n), unsafe.Slice((*byte)(unsafe.Pointer(ptr)), n))
 	}
@@ -308,7 +308,7 @@ func (r *wvRef) acquire(typeName string) unsafe.Pointer {
 	for {
 		s := r.state.Load()
 		if s&1 != 0 {
-			panic("kosher_rust_bindings: " + typeName + " used after Close")
+			panic("kosherz: " + typeName + " used after Close")
 		}
 		if r.state.CompareAndSwap(s, s+2) {
 			return r.ptr
@@ -370,14 +370,14 @@ func (c *wvAsyncCall[T]) context() unsafe.Pointer {
 // wvComplete delivers one async completion to the waiting wrapper. It runs on
 // a native thread inside an exported trampoline, so it never panics: a result
 // that fails to decode is delivered as a marshalling failure.
-func wvComplete[T any](context unsafe.Pointer, cErr *C.kosher_rust_bindings_error, convert func() T) {
+func wvComplete[T any](context unsafe.Pointer, cErr *C.kosherz_error, convert func() T) {
 	h := cgo.Handle(uintptr(context))
 	done := h.Value().(chan wvOutcome[T])
 	h.Delete()
 	done <- wvSettle(cErr, convert)
 }
 
-func wvSettle[T any](cErr *C.kosher_rust_bindings_error, convert func() T) (o wvOutcome[T]) {
+func wvSettle[T any](cErr *C.kosherz_error, convert func() T) (o wvOutcome[T]) {
 	if cErr != nil {
 		if f := wvTakeBoxedError(cErr); f.code != 0 {
 			o.fail = &f
@@ -398,7 +398,7 @@ func wvSettle[T any](cErr *C.kosher_rust_bindings_error, convert func() T) (o wv
 // which the native library delivers promptly; without one, the call is
 // abandoned and ctx.Err() returned at once. A cancelled completion (code -5)
 // returns ctx.Err(), or context.Canceled when ctx itself isn't done.
-func (c *wvAsyncCall[T]) wait(ctx context.Context, token *C.kosher_rust_bindings_cancel_token) (T, *wvFailure, error) {
+func (c *wvAsyncCall[T]) wait(ctx context.Context, token *C.kosherz_cancel_token) (T, *wvFailure, error) {
 	var o wvOutcome[T]
 	select {
 	case o = <-c.done:
@@ -407,7 +407,7 @@ func (c *wvAsyncCall[T]) wait(ctx context.Context, token *C.kosher_rust_bindings
 			var zero T
 			return zero, nil, ctx.Err()
 		}
-		C.kosher_rust_bindings_cancel_token_cancel(token)
+		C.kosherz_cancel_token_cancel(token)
 		o = <-c.done
 	}
 	if o.fail != nil && o.fail.code == wvCodeCancelled {

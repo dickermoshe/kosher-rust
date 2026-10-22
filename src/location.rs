@@ -1,3 +1,5 @@
+use core::convert::Infallible;
+
 use jiff::{
     Timestamp,
     tz::{Offset, TimeZone},
@@ -42,6 +44,9 @@ impl<T: TimeZoneLike + ?Sized> TimeZoneLike for &T {
         (**self).offset_at(timestamp)
     }
 }
+
+/// A location's coordinates and heights without its time zone: what the solar calculations take.
+pub(crate) type Place = Location<Infallible>;
 
 /// A place on earth: where to calculate *zmanim* for.
 ///
@@ -110,6 +115,10 @@ impl Location {
 impl<Tz: TimeZoneLike> Location<Tz> {
     /// Like [`Location::new`], with any [`TimeZoneLike`] as the time zone.
     ///
+    /// Passing `None` needs the time zone type spelled out, as in
+    /// `Location::<MyZone>::new_with_timezone(lat, lon, None)`; without a time zone of your own,
+    /// use [`Location::new`].
+    ///
     /// # Errors
     ///
     /// The same as [`Location::new`].
@@ -135,6 +144,18 @@ impl<Tz: TimeZoneLike> Location<Tz> {
 }
 
 impl<Tz> Location<Tz> {
+    /// The same place without its time zone.
+    pub(crate) fn place(&self) -> Place {
+        Location {
+            latitude: self.latitude,
+            longitude: self.longitude,
+            elevation: self.elevation,
+            eastern_horizon_elevation: self.eastern_horizon_elevation,
+            western_horizon_elevation: self.western_horizon_elevation,
+            timezone: None,
+        }
+    }
+
     /// The same location with the observer `meters` above sea level.
     ///
     /// Elevation makes sunrise earlier and sunset later. Which *zmanim* use it depends on

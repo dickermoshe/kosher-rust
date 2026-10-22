@@ -2,39 +2,39 @@
 <!-- DO NOT EDIT. Your changes will be overwritten. -->
 <!-- To regenerate: weaveffi generate -->
 
-# kosher_rust_bindings C++ bindings
+# kosherz C++ bindings
 
-A header-only C++17 wrapper over the `kosher_rust_bindings` C ABI. `kosher_rust_bindings.hpp`
+A header-only C++17 wrapper over the `kosherz` C ABI. `kosherz.hpp`
 includes the C header beside it; every declaration lives in
-`namespace kosher_rust_bindings`.
+`namespace kosherz`.
 
 ## Prerequisites
 
 - CMake 3.14 or later
 - A C++17 compiler
-- The `kosher_rust_bindings` native library (`libkosher_rust_bindings.so`, `libkosher_rust_bindings.dylib`, or
-  `kosher_rust_bindings.dll`)
+- The `kosherz` native library (`libkosherz.so`, `libkosherz.dylib`, or
+  `kosherz.dll`)
 
 ## Use with CMake
 
 ```cmake
 add_subdirectory(path/to/cpp)
 add_executable(app main.cpp)
-target_link_libraries(app PRIVATE kosher_rust_bindings::cpp)
+target_link_libraries(app PRIVATE kosherz::cpp)
 ```
 
-`kosher_rust_bindings::cpp` adds this directory to the include path, requires
-C++17, and links the native library: the file named by the `KOSHER_RUST_BINDINGS_LIBRARY`
+`kosherz::cpp` adds this directory to the include path, requires
+C++17, and links the native library: the file named by the `KOSHERZ_LIBRARY`
 CMake cache variable or environment variable when set, or else
-`kosher_rust_bindings` by name.
+`kosherz` by name.
 
 ```cpp
-#include "kosher_rust_bindings.hpp"
+#include "kosherz.hpp"
 ```
 
 The first free function, constructor, or static member you call checks
 that the linked library matches these headers and throws
-`kosher_rust_bindings::LoadError` if it doesn't; call `kosher_rust_bindings::check_library()`
+`kosherz::LoadError` if it doesn't; call `kosherz::check_library()`
 at startup to check eagerly.
 
 <!-- END README.md -->

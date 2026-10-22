@@ -2,21 +2,21 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-// Package kosher_rust_bindings binds the kosher_rust_bindings native library.
-package kosher_rust_bindings
+// Package kosherz binds the kosherz native library.
+package kosherz
 
 /*
-#cgo LDFLAGS: -lkosher_rust_bindings
-#include "kosher_rust_bindings.h"
-extern int32_t goWv_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds(void* ctx, int64_t unix_seconds, kosher_rust_bindings_error* out_err);
-extern void goWv_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_free(void* ctx);
-static const kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable wvVtable_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable = {
-	.size = sizeof(kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable),
+#cgo LDFLAGS: -lkosherz
+#include "kosherz.h"
+extern int32_t goWv_kosherz_zmanim_TimeZoneOffset_offset_seconds(void* ctx, int64_t unix_seconds, kosherz_error* out_err);
+extern void goWv_kosherz_zmanim_TimeZoneOffset_free(void* ctx);
+static const kosherz_zmanim_TimeZoneOffset_vtable wvVtable_kosherz_zmanim_TimeZoneOffset_vtable = {
+	.size = sizeof(kosherz_zmanim_TimeZoneOffset_vtable),
 	.flags = 0,
-	.free = goWv_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_free,
-	.offset_seconds = goWv_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds,
+	.free = goWv_kosherz_zmanim_TimeZoneOffset_free,
+	.offset_seconds = goWv_kosherz_zmanim_TimeZoneOffset_offset_seconds,
 };
-__attribute__((unused)) static const kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable* wvVtablePtr_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable(void) { return &wvVtable_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable; }
+__attribute__((unused)) static const kosherz_zmanim_TimeZoneOffset_vtable* wvVtablePtr_kosherz_zmanim_TimeZoneOffset_vtable(void) { return &wvVtable_kosherz_zmanim_TimeZoneOffset_vtable; }
 */
 import "C"
 
@@ -28,513 +28,197 @@ import (
 func init() {
 	wvCheckABI()
 	var n C.size_t
-	table := C.kosher_rust_bindings_kosher_contract(&n)
+	table := C.kosherz_calendar_contract(&n)
 	wvCheckContract(table, n, []wvContractEntry{
-		{0x01718c61982b1186, 0xf4f23e6586bd1dd7, "kosher.calendar.HebrewDate"},
-		{0x02e9ea1e074d9616, 0xf9b3a1fb63fa80ad, "kosher.calendar.HebrewDate.new"},
-		{0x03882ac679d96689, 0xcddd8b18c602be76, "kosher.myzmanim.MyZman"},
-		{0x04f3f14d3ef83ceb, 0x0577fa34d1dea8c3, "kosher.zmanim.default_config"},
-		{0x0724ad3f4488a4d6, 0x54411bdda9d3b13b, "kosher.calendar.HebrewDate.month"},
-		{0x094083ae8fe1abb7, 0xc3e1903a4dc8359d, "kosher.calendar.HebrewDate.is_aseres_yemei_teshuva"},
-		{0x0b156d1de3432ebb, 0xdf4697e13848d687, "kosher.zmanim.zman_from_java_name"},
-		{0x0c01dba1f7f4f711, 0x2bf1569214921669, "kosher.calendar.month_hebrew"},
-		{0x0fbb1be0dca80b07, 0x174890db5e5166c8, "kosher.zmanim.TimeZoneOffset"},
-		{0x1079a40f22149b4f, 0xffb3d691737a4f38, "kosher.zmanim.Category"},
-		{0x138f4214c0e77bcf, 0xc3cb9f9d3b5b28ba, "kosher.myzmanim.MyZmanim.date"},
-		{0x153826166a12ca36, 0x6e401597e28209a9, "kosher.limudim.MishnaPair"},
-		{0x2243ea36986d7b66, 0x35e622a32a88ef57, "kosher.limudim.mishna_yomis"},
-		{0x2313acabb3163fab, 0xcc6eb9ea8c42ca79, "kosher.myzmanim.MyZmanim.new"},
-		{0x24cdc086cf36be51, 0x399eab22141dffd3, "kosher.GregorianDate"},
-		{0x2668512b1aa64aab, 0x3278f3a62bb6e469, "kosher.myzmanim.dawn_72_degrees"},
-		{0x2ad783776a9172c8, 0x4a23e822039987a7, "kosher.zmanim.zman_description"},
-		{0x30806b553ee3151b, 0x6d8fbc67948278bc, "kosher.calendar.holiday_name"},
-		{0x34e5c6abbe2615d9, 0x32c85d18778b0bb4, "kosher.calendar.HebrewDate.equals"},
-		{0x36dd321b76c0ed69, 0x684e92fa36717939, "kosher.calendar.month_name"},
-		{0x37448571e33eb4c8, 0xc5f954c475f4dc9d, "kosher.zmanim.zman_java_name"},
-		{0x385ec0e5c6b6cbe1, 0xf70eea6f6621717f, "kosher.validate_location"},
-		{0x394b7220ed1cfcfc, 0xdec9155329278f29, "kosher.myzmanim.my_zman_name"},
-		{0x3961ee1e26dcc2c2, 0x19e0d2b3ff9d26fe, "kosher.calendar.HebrewDate.day"},
-		{0x3ab97e588077d102, 0x6c9e0901963a2dfc, "kosher.limudim.tractate_hebrew"},
-		{0x3c39234035bb9609, 0xe44d7e786ec0b8a3, "kosher.zmanim.ZmanFailure"},
-		{0x3d59747696651911, 0xbea68784cf687a1a, "kosher.zmanim.Zmanim.get"},
-		{0x423ec30f385c7ebd, 0x2d505394972243a9, "kosher.calendar.HebrewDate.holidays"},
-		{0x45c5a852c65a0ffd, 0x1b7e37005bd2f8e9, "kosher.limudim.Daf"},
-		{0x4e4b62abcb8a2d5e, 0x975c3a96549104d2, "kosher.myzmanim.MyZmanim.all"},
-		{0x4e661ecc2b8ca32c, 0xda6045b56b1c2c6e, "kosher.calendar.holiday_is_assur_bemelacha"},
-		{0x5172659a7426e2c3, 0xc3cb9f9d3b5b28ba, "kosher.zmanim.Zmanim.date"},
-		{0x523623f570203876, 0x57c83a0f8bc36c6c, "kosher.limudim.Mishna"},
-		{0x526a26b03028a9da, 0xd86a18c3b722f6c7, "kosher.limudim.tehillim_monthly"},
-		{0x5354814de360e8f7, 0x74c7180edff5c022, "kosher.calendar.HebrewDate.from_gregorian"},
-		{0x5592c98a3cb09e5d, 0xe1e8d4dad467e3e7, "kosher.limudim.Amud"},
-		{0x55993c04bd9835de, 0x21bf463baf36e8ae, "kosher.limudim.daf_hashavua_bavli"},
-		{0x5991196a080a26dc, 0x63856359341062ee, "kosher.myzmanim.MyZmanim.location"},
-		{0x5997bfd0eb719c13, 0xfa44bbb1fab132e5, "kosher.sea_level_location"},
-		{0x5a9c64882b7b2804, 0x9328a81ac256b477, "kosher.calendar.parsha_hebrew"},
-		{0x5aee55dd28f11b30, 0x63856359341062ee, "kosher.zmanim.Zmanim.location"},
-		{0x5cdab24b47a3224d, 0x96b30eb7f85eaf21, "kosher.limudim.daf_yomi_bavli"},
-		{0x6096beabd62d7955, 0x93dc654d560a63b8, "kosher.myzmanim.MyZmanim.get"},
-		{0x61310307963101d6, 0x93ef9500cb5f1cfc, "kosher.zmanim.Zmanim.sunrise_offset_by_degrees"},
-		{0x62d21d4da295991f, 0x549f4e736961b812, "kosher.zmanim.calculator_name"},
-		{0x66735e59c1eb8811, 0xf35981f09fb986df, "kosher.calendar.HebrewDate.year"},
-		{0x698e779f5d09291f, 0x71127b971df5975a, "kosher.limudim.PirkeiAvosUnit"},
-		{0x6b2789499d0e4dac, 0xdc1addb4a7ab46ef, "kosher.calendar.parsha_name"},
-		{0x7050bfa115351067, 0x11babf7c30a11935, "kosher.myzmanim.dip_degrees_per_root_meter"},
-		{0x70610003fc81f35a, 0x4d70455ac9baa1e4, "kosher.limudim.tractate_name"},
-		{0x70907076b3302b62, 0x669e3d4d3e9d42cc, "kosher.zmanim.Zmanim.all"},
-		{0x740a5191148d4e6d, 0x0486761191984fd0, "kosher.zmanim.Zman"},
-		{0x77e7388817ca6657, 0xe3c7eb49f063a0ce, "kosher.myzmanim.MyZmanim"},
-		{0x7902c024b0b550a2, 0xd6c2f5c20a8b129d, "kosher.limudim.TehillimUnit"},
-		{0x81b92bcb06f03438, 0x6c389ed6ad08dbe3, "kosher.calendar.rosh_hashana"},
-		{0x8377f31b2f2926d1, 0x5962ffa89080c41b, "kosher.zmanim.shaah_zmanis"},
-		{0x853f786f228ae745, 0x6614e227c469c232, "kosher.zmanim.Zmanim.config"},
-		{0x86cd6b9d8b9124ad, 0xe37c3b01bade2393, "kosher.calendar.year_info"},
-		{0x87fd7cca8a5ad41b, 0x52972cadc08c13ef, "kosher.zmanim.all_zmanim"},
-		{0x88ce069eb9d759f1, 0x2b82d4d65ec59dd7, "kosher.myzmanim.default_candle_lighting_minutes"},
-		{0x8cfae276c3f8b0c7, 0x99d014ada9906437, "kosher.zmanim.Zmanim.new"},
-		{0x8dc9c19aaf9ab29d, 0x03b0248b8cfa2de8, "kosher.calendar.days_in_month"},
-		{0x8f259528012c269f, 0x0ddfa27385759174, "kosher.calendar.HebrewDate.add_days"},
-		{0x91c1ac3d327bcf7f, 0xc7b188714edbf795, "kosher.calendar.HebrewDate.special_parsha"},
-		{0x94c44cc0a0a11679, 0x8111a6d476ecf648, "kosher.calendar.Region"},
-		{0x955ac51b92c6da8e, 0x47b992630b03d56a, "kosher.calendar.HebrewDate.weekday"},
-		{0x963e4b9032d6c193, 0x2d4c4ce495502494, "kosher.zmanim.Zmanim"},
-		{0x9895af63ce3c6bd7, 0x8a4e9ca163a6a190, "kosher.calendar.Holiday"},
-		{0x9928700767cf87cf, 0x735499ab0a625d6d, "kosher.myzmanim.dawn_90_degrees"},
-		{0x992997612da78180, 0x551064f95ab5110d, "kosher.myzmanim.MyZmanTime"},
-		{0x994cdaef2a1c855c, 0x434883db6c285c4e, "kosher.limudim.pirkei_avos"},
-		{0x99dcae3af7180a0d, 0x914508f7681ccd43, "kosher.calendar.HebrewDate.next_parsha"},
-		{0x9f7c1ea6de2fe0ac, 0x7321133365af2acb, "kosher.calendar.YearInfo"},
-		{0xa08e9220643b8a14, 0x4af5df9a96d3f535, "kosher.myzmanim.MyZmanim.proportional_hour_gra"},
-		{0xa39eb51297bc91f3, 0xf13823120f5b4c46, "kosher.zmanim.Calculator"},
-		{0xa8a5a90069657051, 0xff11e092dce92ed7, "kosher.limudim.Side"},
-		{0xad25d6c40cc7cf82, 0x5736a479b626cd7d, "kosher.calendar.HebrewDate.to_gregorian"},
-		{0xadb380140cc3eeb1, 0x4160e49b2189685b, "kosher.limudim.tehillim_display"},
-		{0xaec8ec9290788fd6, 0x18c3086aa662d366, "kosher.limudim.amud_yomi_dirshu"},
-		{0xb24e9bddf1807e70, 0xa82a63cd8b5c9bc8, "kosher.myzmanim.all_my_zmanim"},
-		{0xb579b9ecc406baf5, 0x459375a830f8b5a0, "kosher.zmanim.zman_name"},
-		{0xb76c47656229eb96, 0x689307845875e63e, "kosher.zmanim.zman_is_deprecated"},
-		{0xb981b278e60920ea, 0x96aec4b485c90c92, "kosher.calendar.Parsha"},
-		{0xba3b126941948d6e, 0x4b1d4aaf11dfd132, "kosher.zmanim.zman_category"},
-		{0xc0ff05667de674f9, 0x685412d4d80250ea, "kosher.zmanim.Config"},
-		{0xc1053bbb382f0a8a, 0x1175c871bc023b86, "kosher.calendar.HebrewDate.day_of_year"},
-		{0xc3bd6e3e1dc59ed1, 0x55884ddb65b50739, "kosher.calendar.HebrewDate.has_candle_lighting"},
-		{0xc8cc7c3ab9a25c72, 0x497f2852a5cdb1f0, "kosher.calendar.holiday_is_fast_day"},
-		{0xcffb36e0ca0b9371, 0x19a2809df98650c2, "kosher.limudim.pirkei_avos_display"},
-		{0xd071f45bb69ffd10, 0x7110b3413cfd8e83, "kosher.Location"},
-		{0xd17988807ad73a17, 0xf2a52228396d8635, "kosher.myzmanim.sea_level_refraction_arcminutes"},
-		{0xd3e595d5c721f7a9, 0xb0d75a9e88cb28e1, "kosher.KosherError"},
-		{0xd6e2bb7649059df2, 0x4ba24826d4ea04e8, "kosher.calendar.holiday_is_modern"},
-		{0xd7bdd85ada6f743d, 0x258faa23773bfcae, "kosher.myzmanim.MyZmanim.candle_lighting_minutes"},
-		{0xdac1e65044d04433, 0x1c81765c98ab54f9, "kosher.calendar.HebrewDate.parsha"},
-		{0xe5a8bf04942592ac, 0xf8a4981ca376ff28, "kosher.calendar.HebrewDate.is_assur_bemelacha"},
-		{0xe6441fe0bbbb6a29, 0x263b2a60d4b349b3, "kosher.calendar.Weekday"},
-		{0xe8f7e393f719034c, 0x017ce9984014d3c1, "kosher.zmanim.ZmanTime"},
-		{0xe9f5fcea0d967345, 0x4c30c7a90dcabaa5, "kosher.zmanim.Zmanim.sunset_offset_by_degrees"},
-		{0xea13f549891c3477, 0xc29b76894e14326c, "kosher.calendar.HebrewDate.compare"},
-		{0xf1378230702a0fec, 0xb882de90a2c3493f, "kosher.calendar.YearLength"},
-		{0xf25c4b987aa7c2c6, 0x839d21df44603348, "kosher.limudim.daf_yomi_yerushalmi"},
-		{0xf329781ab14b80d4, 0x4d5e82347ae7a3fc, "kosher.calendar.HebrewMonth"},
-		{0xf4b7693f39c89b41, 0x96615bd3eb7f1761, "kosher.calendar.HebrewDate.molad"},
-		{0xf5fec5bfb35600db, 0x4fdfe92954d63564, "kosher.calendar.holiday_hebrew"},
-		{0xf7a6a502dfd1a4e4, 0xf5d8629c4bfb2f06, "kosher.limudim.Tractate"},
-		{0xfda0c61f32016586, 0xc7f3965b813050f5, "kosher.calendar.HebrewDate.display"},
+		{0x0076e887e475ab9f, 0x96615bd3eb7f1761, "calendar.HebrewDate.molad"},
+		{0x01344feb6b733690, 0x47b992630b03d56a, "calendar.HebrewDate.weekday"},
+		{0x12decead9d8a44cf, 0x4b1b3a695325cfca, "calendar.limudim.LimudimError"},
+		{0x190ecd13c0fccffa, 0x35e622a32a88ef57, "calendar.limudim.mishna_yomis"},
+		{0x1c33df579fac36d8, 0x1175c871bc023b86, "calendar.HebrewDate.day_of_year"},
+		{0x235fd1db8b7dd5f5, 0x399eab22141dffd3, "calendar.GregorianDate"},
+		{0x2b066dc65c460024, 0xf4f23e6586bd1dd7, "calendar.HebrewDate"},
+		{0x2c8e60589f58d792, 0x57c83a0f8bc36c6c, "calendar.limudim.Mishna"},
+		{0x2da09ea1403b727e, 0x4d5e82347ae7a3fc, "calendar.HebrewMonth"},
+		{0x2e1645ba38a77559, 0x1c81765c98ab54f9, "calendar.HebrewDate.parsha"},
+		{0x2e561d4c25bf877d, 0x47ff51d038dbe0d8, "calendar.limudim.tehillim_display"},
+		{0x3a2980b734ba8883, 0x2d505394972243a9, "calendar.HebrewDate.holidays"},
+		{0x3a3316910057484e, 0xd86a18c3b722f6c7, "calendar.limudim.tehillim_monthly"},
+		{0x3c8950ed1f7f370c, 0x19e0d2b3ff9d26fe, "calendar.HebrewDate.day"},
+		{0x422860078e596223, 0x32c85d18778b0bb4, "calendar.HebrewDate.equals"},
+		{0x4288f1610e27c8a4, 0x96aec4b485c90c92, "calendar.Parsha"},
+		{0x43844d8599f0b2ae, 0x4d70455ac9baa1e4, "calendar.limudim.tractate_name"},
+		{0x44447c5a4c5c2038, 0x5736a479b626cd7d, "calendar.HebrewDate.to_gregorian"},
+		{0x4594cc91482239da, 0x839d21df44603348, "calendar.limudim.daf_yomi_yerushalmi"},
+		{0x47b5dba468556c10, 0x434883db6c285c4e, "calendar.limudim.pirkei_avos"},
+		{0x4f321ae0eef0ee45, 0x0ddfa27385759174, "calendar.HebrewDate.add_days"},
+		{0x53798234777e19ea, 0x6c389ed6ad08dbe3, "calendar.rosh_hashana"},
+		{0x58fc9af210a33bdd, 0xc3e1903a4dc8359d, "calendar.HebrewDate.is_aseres_yemei_teshuva"},
+		{0x5c2a6a6f333ead35, 0x74c7180edff5c022, "calendar.HebrewDate.from_gregorian"},
+		{0x5d5d66098ee06c49, 0x8a4e9ca163a6a190, "calendar.Holiday"},
+		{0x65535c1ad3d9f893, 0x55884ddb65b50739, "calendar.HebrewDate.has_candle_lighting"},
+		{0x6a0735856dec8d1a, 0xdc1addb4a7ab46ef, "calendar.parsha_name"},
+		{0x6d120a34fc12b94e, 0x2444827e369b819b, "calendar.holiday_is_assur_bemelacha"},
+		{0x734de195723c4bec, 0xc7f3965b813050f5, "calendar.HebrewDate.display"},
+		{0x753c68bed189444b, 0x8111a6d476ecf648, "calendar.Region"},
+		{0x78416ddbbcc55dd6, 0x6c9e0901963a2dfc, "calendar.limudim.tractate_hebrew"},
+		{0x7b66ec4056f4dcbc, 0xe848ea2454d6e4c1, "calendar.holiday_is_fast_day"},
+		{0x7ed52a27f9477122, 0x6e401597e28209a9, "calendar.limudim.MishnaPair"},
+		{0x82b460a35e9ba56a, 0x18c3086aa662d366, "calendar.limudim.amud_yomi_dirshu"},
+		{0x854dedb50653c50f, 0x914508f7681ccd43, "calendar.HebrewDate.next_parsha"},
+		{0x8f180424826294a4, 0xa976cce390a71369, "calendar.holiday_is_modern"},
+		{0x924fdf3d84514e8e, 0xd6c2f5c20a8b129d, "calendar.limudim.TehillimUnit"},
+		{0x93ceba93a2b10131, 0xc7b188714edbf795, "calendar.HebrewDate.special_parsha"},
+		{0x94dc4cc8ea8c02c9, 0x51105a7bb4b55bdd, "calendar.holiday_name"},
+		{0x98cc81d52e65776b, 0x2bf1569214921669, "calendar.month_hebrew"},
+		{0x9b48ba34fb52812d, 0xff11e092dce92ed7, "calendar.limudim.Side"},
+		{0x9e20ba757aee97c2, 0x9328a81ac256b477, "calendar.parsha_hebrew"},
+		{0xa1e3409cebf37881, 0x1b7e37005bd2f8e9, "calendar.limudim.Daf"},
+		{0xa5864219850af272, 0xf8a4981ca376ff28, "calendar.HebrewDate.is_assur_bemelacha"},
+		{0xaeb433ce589b7931, 0xe1e8d4dad467e3e7, "calendar.limudim.Amud"},
+		{0xaf5dd6acc2e8ba71, 0xa2fdd5f43f90f755, "calendar.holiday_hebrew"},
+		{0xbd8865ae2177f9ff, 0x6bc5f7eea096d080, "calendar.year_info"},
+		{0xc3fd51b677226bab, 0x684e92fa36717939, "calendar.month_name"},
+		{0xc47f6755efcc97f2, 0xb882de90a2c3493f, "calendar.YearLength"},
+		{0xc984acddaecd3a8b, 0x71127b971df5975a, "calendar.limudim.PirkeiAvosUnit"},
+		{0xd099b5b97c1dddb6, 0x7321133365af2acb, "calendar.YearInfo"},
+		{0xd542917e9468e665, 0xc29b76894e14326c, "calendar.HebrewDate.compare"},
+		{0xe055421dad70d98d, 0xc2712588daaabbaf, "calendar.limudim.pirkei_avos_display"},
+		{0xe5bd2ded003a830a, 0x21bf463baf36e8ae, "calendar.limudim.daf_hashavua_bavli"},
+		{0xe5f7bcecee7a3148, 0xf9b3a1fb63fa80ad, "calendar.HebrewDate.new"},
+		{0xea80ab8c284067d9, 0x96b30eb7f85eaf21, "calendar.limudim.daf_yomi_bavli"},
+		{0xeb41af932363bd25, 0xc681430e19f4d7b1, "calendar.CalendarError"},
+		{0xeb6a6e150a6abbe0, 0xf5d8629c4bfb2f06, "calendar.limudim.Tractate"},
+		{0xee029887d9af6ef8, 0x54411bdda9d3b13b, "calendar.HebrewDate.month"},
+		{0xefe1cb89cb8314f3, 0x03b0248b8cfa2de8, "calendar.days_in_month"},
+		{0xf56c124b8ec1c493, 0xf35981f09fb986df, "calendar.HebrewDate.year"},
+		{0xfb59656a30b3c76f, 0x263b2a60d4b349b3, "calendar.Weekday"},
+	})
+	table = C.kosherz_zmanim_contract(&n)
+	wvCheckContract(table, n, []wvContractEntry{
+		{0x022d265126fcbd47, 0xf70eea6f6621717f, "zmanim.validate_location"},
+		{0x02e0caa49b3a204b, 0x5962ffa89080c41b, "zmanim.shaah_zmanis"},
+		{0x04493862e57a4cdf, 0x258faa23773bfcae, "zmanim.myzmanim.MyZmanim.candle_lighting_minutes"},
+		{0x0709c5af4b818c01, 0xf2a52228396d8635, "zmanim.myzmanim.sea_level_refraction_arcminutes"},
+		{0x10234c837e5331b1, 0xcc6eb9ea8c42ca79, "zmanim.myzmanim.MyZmanim.new"},
+		{0x1d3f31835b116405, 0x3278f3a62bb6e469, "zmanim.myzmanim.dawn_72_degrees"},
+		{0x1fd629eb299bc703, 0xcddd8b18c602be76, "zmanim.myzmanim.MyZman"},
+		{0x2550c75ec58dae49, 0xc3cb9f9d3b5b28ba, "zmanim.Zmanim.date"},
+		{0x2791137b8945b8dd, 0x9169cc1ef07d2488, "zmanim.ZmanimError"},
+		{0x27ff9dab340588fc, 0x4b1d4aaf11dfd132, "zmanim.zman_category"},
+		{0x29795294927af42d, 0xffb3d691737a4f38, "zmanim.Category"},
+		{0x30cabeb665248a1d, 0xfa44bbb1fab132e5, "zmanim.sea_level_location"},
+		{0x334bc497c2e1b7f6, 0xa82a63cd8b5c9bc8, "zmanim.myzmanim.all_my_zmanim"},
+		{0x406a9d72e9cc44d8, 0x689307845875e63e, "zmanim.zman_is_deprecated"},
+		{0x4118dd5a26e15851, 0x549f4e736961b812, "zmanim.calculator_name"},
+		{0x484846a2e9ee0a81, 0xdf4697e13848d687, "zmanim.zman_from_java_name"},
+		{0x484f114766abb5e2, 0xc5f954c475f4dc9d, "zmanim.zman_java_name"},
+		{0x5f3ebb1c37c66ab9, 0xc3cb9f9d3b5b28ba, "zmanim.myzmanim.MyZmanim.date"},
+		{0x631f48e27eef2376, 0x63856359341062ee, "zmanim.Zmanim.location"},
+		{0x65058d455e954e8e, 0x4a23e822039987a7, "zmanim.zman_description"},
+		{0x66df597381790f0b, 0x4c30c7a90dcabaa5, "zmanim.Zmanim.sunset_offset_by_degrees"},
+		{0x6c14e7ba35220983, 0x7d00a18dba45f065, "zmanim.ZmanFailure"},
+		{0x7b6a0d0953f70457, 0x6614e227c469c232, "zmanim.Zmanim.config"},
+		{0x7bda2eefee3cd432, 0x4af5df9a96d3f535, "zmanim.myzmanim.MyZmanim.proportional_hour_gra"},
+		{0x84cfd0af1981e364, 0x93ef9500cb5f1cfc, "zmanim.Zmanim.sunrise_offset_by_degrees"},
+		{0x852e1ce68e6270fa, 0xdec9155329278f29, "zmanim.myzmanim.my_zman_name"},
+		{0x972d8aa47e75b0ea, 0x017ce9984014d3c1, "zmanim.ZmanTime"},
+		{0x988396c1a4000b66, 0x63856359341062ee, "zmanim.myzmanim.MyZmanim.location"},
+		{0x9e23e59cc6d2b627, 0xbea68784cf687a1a, "zmanim.Zmanim.get"},
+		{0xa7022817cb0f3781, 0x11babf7c30a11935, "zmanim.myzmanim.dip_degrees_per_root_meter"},
+		{0xa7e497ece825babf, 0x459375a830f8b5a0, "zmanim.zman_name"},
+		{0xb0323d9cd1424d34, 0x669e3d4d3e9d42cc, "zmanim.Zmanim.all"},
+		{0xb668f699c44a8b25, 0x0577fa34d1dea8c3, "zmanim.default_config"},
+		{0xbc0120c65a9a7e69, 0xe3c7eb49f063a0ce, "zmanim.myzmanim.MyZmanim"},
+		{0xc3ccda83538bf477, 0x93dc654d560a63b8, "zmanim.myzmanim.MyZmanim.get"},
+		{0xc80294024eefae95, 0x52972cadc08c13ef, "zmanim.all_zmanim"},
+		{0xcdc06faffaf38ffa, 0x551064f95ab5110d, "zmanim.myzmanim.MyZmanTime"},
+		{0xcfe843f87495c18a, 0x7110b3413cfd8e83, "zmanim.Location"},
+		{0xd12031217533824b, 0x2b82d4d65ec59dd7, "zmanim.myzmanim.default_candle_lighting_minutes"},
+		{0xd5db12835dfb5524, 0x975c3a96549104d2, "zmanim.myzmanim.MyZmanim.all"},
+		{0xd904b56e2a7d27f9, 0x2d4c4ce495502494, "zmanim.Zmanim"},
+		{0xd90e158541be4971, 0xf13823120f5b4c46, "zmanim.Calculator"},
+		{0xe178a9bb3808bfb3, 0x685412d4d80250ea, "zmanim.Config"},
+		{0xea9baabba2ea9789, 0x174890db5e5166c8, "zmanim.TimeZoneOffset"},
+		{0xed07579cf3c52ba1, 0x99d014ada9906437, "zmanim.Zmanim.new"},
+		{0xf9ebba0666552393, 0x0486761191984fd0, "zmanim.Zman"},
+		{0xfa3f9e72b3e59929, 0x735499ab0a625d6d, "zmanim.myzmanim.dawn_90_degrees"},
 	})
 }
 
-// KosherError is an error the kosher module reports: *InvalidLatitudeError,
-// *InvalidLongitudeError, *InvalidElevationError, *InvalidDateError,
-// *TimeZoneRequiredError, *TimeZoneCallbackFailedError, *AllDayError,
-// *AllNightError, *NotApplicableError, or *InternalError.
+// CalendarError is an error the calendar module reports: *InvalidDateError, or
+// *InvalidHolidayError.
 //
 // Match one code with errors.As and its type, or any of them with a
-// KosherError.
-type KosherError interface {
+// CalendarError.
+type CalendarError interface {
 	error
 	// Code returns the error's numeric code.
 	Code() int32
-	isKosherError()
+	isCalendarError()
 }
 
-// InvalidLatitudeError is the KosherError code InvalidLatitude (1): The
-// latitude is not between -90 and 90 degrees.
-type InvalidLatitudeError struct {
-	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "The latitude is not between -90 and 90 degrees.".
-	Message string
-}
-
-// Error returns the error's message.
-func (e *InvalidLatitudeError) Error() string {
-	if e.Message == "" {
-		return "The latitude is not between -90 and 90 degrees."
-	}
-	return e.Message
-}
-
-// Code returns 1.
-func (*InvalidLatitudeError) Code() int32 {
-	return 1
-}
-
-func (*InvalidLatitudeError) isKosherError() {}
-
-func (*InvalidLatitudeError) wvPayload() []byte {
-	return nil
-}
-
-// InvalidLongitudeError is the KosherError code InvalidLongitude (2): The
-// longitude is not between -180 and 180 degrees.
-type InvalidLongitudeError struct {
-	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "The longitude is not between -180 and 180 degrees.".
-	Message string
-}
-
-// Error returns the error's message.
-func (e *InvalidLongitudeError) Error() string {
-	if e.Message == "" {
-		return "The longitude is not between -180 and 180 degrees."
-	}
-	return e.Message
-}
-
-// Code returns 2.
-func (*InvalidLongitudeError) Code() int32 {
-	return 2
-}
-
-func (*InvalidLongitudeError) isKosherError() {}
-
-func (*InvalidLongitudeError) wvPayload() []byte {
-	return nil
-}
-
-// InvalidElevationError is the KosherError code InvalidElevation (3): An
-// elevation is negative or not a finite number.
-type InvalidElevationError struct {
-	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "An elevation is negative or not a finite number.".
-	Message string
-}
-
-// Error returns the error's message.
-func (e *InvalidElevationError) Error() string {
-	if e.Message == "" {
-		return "An elevation is negative or not a finite number."
-	}
-	return e.Message
-}
-
-// Code returns 3.
-func (*InvalidElevationError) Code() int32 {
-	return 3
-}
-
-func (*InvalidElevationError) isKosherError() {}
-
-func (*InvalidElevationError) wvPayload() []byte {
-	return nil
-}
-
-// InvalidDateError is the KosherError code InvalidDate (4): The date does not
-// exist, or is outside the supported range.
+// InvalidDateError is the CalendarError code InvalidDate (1): The date does
+// not exist, or is outside Hebrew years 1 to 9999.
 type InvalidDateError struct {
 	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "The date does not exist, or is outside the supported range.".
+	// code's default message, "The date does not exist, or is outside Hebrew years 1 to 9999.".
 	Message string
 }
 
 // Error returns the error's message.
 func (e *InvalidDateError) Error() string {
 	if e.Message == "" {
-		return "The date does not exist, or is outside the supported range."
+		return "The date does not exist, or is outside Hebrew years 1 to 9999."
 	}
 	return e.Message
 }
 
-// Code returns 4.
+// Code returns 1.
 func (*InvalidDateError) Code() int32 {
-	return 4
+	return 1
 }
 
-func (*InvalidDateError) isKosherError() {}
+func (*InvalidDateError) isCalendarError() {}
 
 func (*InvalidDateError) wvPayload() []byte {
 	return nil
 }
 
-// TimeZoneRequiredError: The time needs a time zone and none was given: the Kiddush Levana times, and any time
-// more than 150 degrees from Greenwich.
-type TimeZoneRequiredError struct {
+// InvalidHolidayError is the CalendarError code InvalidHoliday (2): A day of
+// Chanukah outside 1 to 8, or of the Omer outside 1 to 49.
+type InvalidHolidayError struct {
 	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "The time needs a time zone and none was given: the Kiddush Levana times, and any time".
+	// code's default message, "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.".
 	Message string
 }
 
 // Error returns the error's message.
-func (e *TimeZoneRequiredError) Error() string {
+func (e *InvalidHolidayError) Error() string {
 	if e.Message == "" {
-		return "The time needs a time zone and none was given: the Kiddush Levana times, and any time"
+		return "A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49."
 	}
 	return e.Message
 }
 
-// Code returns 5.
-func (*TimeZoneRequiredError) Code() int32 {
-	return 5
+// Code returns 2.
+func (*InvalidHolidayError) Code() int32 {
+	return 2
 }
 
-func (*TimeZoneRequiredError) isKosherError() {}
+func (*InvalidHolidayError) isCalendarError() {}
 
-func (*TimeZoneRequiredError) wvPayload() []byte {
+func (*InvalidHolidayError) wvPayload() []byte {
 	return nil
 }
 
-// TimeZoneCallbackFailedError is the KosherError code TimeZoneCallbackFailed
-// (6): The time zone callback failed, or gave an offset of a day or more.
-type TimeZoneCallbackFailedError struct {
-	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "The time zone callback failed, or gave an offset of a day or more.".
-	Message string
-}
-
-// Error returns the error's message.
-func (e *TimeZoneCallbackFailedError) Error() string {
-	if e.Message == "" {
-		return "The time zone callback failed, or gave an offset of a day or more."
-	}
-	return e.Message
-}
-
-// Code returns 6.
-func (*TimeZoneCallbackFailedError) Code() int32 {
-	return 6
-}
-
-func (*TimeZoneCallbackFailedError) isKosherError() {}
-
-func (*TimeZoneCallbackFailedError) wvPayload() []byte {
-	return nil
-}
-
-// AllDayError is the KosherError code AllDay (10): The sun stays above the
-// angle the time needs all day, as in the far north in summer.
-type AllDayError struct {
-	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "The sun stays above the angle the time needs all day, as in the far north in summer.".
-	Message string
-}
-
-// Error returns the error's message.
-func (e *AllDayError) Error() string {
-	if e.Message == "" {
-		return "The sun stays above the angle the time needs all day, as in the far north in summer."
-	}
-	return e.Message
-}
-
-// Code returns 10.
-func (*AllDayError) Code() int32 {
-	return 10
-}
-
-func (*AllDayError) isKosherError() {}
-
-func (*AllDayError) wvPayload() []byte {
-	return nil
-}
-
-// AllNightError is the KosherError code AllNight (11): The sun stays below the
-// angle the time needs all day, as in the far north in winter.
-type AllNightError struct {
-	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "The sun stays below the angle the time needs all day, as in the far north in winter.".
-	Message string
-}
-
-// Error returns the error's message.
-func (e *AllNightError) Error() string {
-	if e.Message == "" {
-		return "The sun stays below the angle the time needs all day, as in the far north in winter."
-	}
-	return e.Message
-}
-
-// Code returns 11.
-func (*AllNightError) Code() int32 {
-	return 11
-}
-
-func (*AllNightError) isKosherError() {}
-
-func (*AllNightError) wvPayload() []byte {
-	return nil
-}
-
-// NotApplicableError is the KosherError code NotApplicable (12): The time only
-// exists on certain dates, and this is not one.
-type NotApplicableError struct {
-	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "The time only exists on certain dates, and this is not one.".
-	Message string
-}
-
-// Error returns the error's message.
-func (e *NotApplicableError) Error() string {
-	if e.Message == "" {
-		return "The time only exists on certain dates, and this is not one."
-	}
-	return e.Message
-}
-
-// Code returns 12.
-func (*NotApplicableError) Code() int32 {
-	return 12
-}
-
-func (*NotApplicableError) isKosherError() {}
-
-func (*NotApplicableError) wvPayload() []byte {
-	return nil
-}
-
-// InternalError: A calculation failed in a way that should not happen; please report the location and
-// date.
-type InternalError struct {
-	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "A calculation failed in a way that should not happen; please report the location and".
-	Message string
-}
-
-// Error returns the error's message.
-func (e *InternalError) Error() string {
-	if e.Message == "" {
-		return "A calculation failed in a way that should not happen; please report the location and"
-	}
-	return e.Message
-}
-
-// Code returns 13.
-func (*InternalError) Code() int32 {
-	return 13
-}
-
-func (*InternalError) isKosherError() {}
-
-func (*InternalError) wvPayload() []byte {
-	return nil
-}
-
-func wvKosherError(f wvFailure) error {
+func wvCalendarError(f wvFailure) error {
 	switch f.code {
 	case 1:
-		return &InvalidLatitudeError{Message: f.message}
-	case 2:
-		return &InvalidLongitudeError{Message: f.message}
-	case 3:
-		return &InvalidElevationError{Message: f.message}
-	case 4:
 		return &InvalidDateError{Message: f.message}
-	case 5:
-		return &TimeZoneRequiredError{Message: f.message}
-	case 6:
-		return &TimeZoneCallbackFailedError{Message: f.message}
-	case 10:
-		return &AllDayError{Message: f.message}
-	case 11:
-		return &AllNightError{Message: f.message}
-	case 12:
-		return &NotApplicableError{Message: f.message}
-	case 13:
-		return &InternalError{Message: f.message}
+	case 2:
+		return &InvalidHolidayError{Message: f.message}
 	}
 	return f.err()
-}
-
-// GregorianDate is a day on the Gregorian calendar.
-type GregorianDate struct {
-	// Year is the year, for example 2024.
-	Year int32
-	// Month is the month, 1 to 12.
-	Month int32
-	// Day is the day of the month, from 1.
-	Day int32
-}
-
-func wvWriteGregorianDate(w *wvWriter, v GregorianDate) {
-	w.writeI32(v.Year)
-	w.writeI32(v.Month)
-	w.writeI32(v.Day)
-}
-
-func wvReadGregorianDate(r *wvReader) GregorianDate {
-	var v GregorianDate
-	v.Year = r.readI32()
-	v.Month = r.readI32()
-	v.Day = r.readI32()
-	return v
-}
-
-// Location is a place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
-// leave them 0 for sea level.
-//
-// The time zone is not part of the location: pass a
-// `TimeZoneOffset` to `Zmanim` and
-// `MyZmanim`.
-type Location struct {
-	// Latitude in degrees, north positive.
-	Latitude float64
-	// Longitude in degrees, east positive.
-	Longitude float64
-	// Elevation is the observer's height. Elevation makes sunrise earlier and sunset later.
-	Elevation float64
-	// EasternHorizonElevation is the height of the eastern horizon, over which the sun rises.
-	EasternHorizonElevation float64
-	// WesternHorizonElevation is the height of the western horizon, behind which the sun sets.
-	WesternHorizonElevation float64
-}
-
-func wvWriteLocation(w *wvWriter, v Location) {
-	w.writeF64(v.Latitude)
-	w.writeF64(v.Longitude)
-	w.writeF64(v.Elevation)
-	w.writeF64(v.EasternHorizonElevation)
-	w.writeF64(v.WesternHorizonElevation)
-}
-
-func wvReadLocation(r *wvReader) Location {
-	var v Location
-	v.Latitude = r.readF64()
-	v.Longitude = r.readF64()
-	v.Elevation = r.readF64()
-	v.EasternHorizonElevation = r.readF64()
-	v.WesternHorizonElevation = r.readF64()
-	return v
-}
-
-// SeaLevelLocation returns a location at sea level, with flat horizons.
-func SeaLevelLocation(latitude float64, longitude float64) Location {
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_sea_level_location(C.double(latitude), C.double(longitude), &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvDecode(cRet, cRetLen, wvReadLocation)
-}
-
-// ValidateLocation checks a location the way `Zmanim` will.
-//
-// # Errors
-//
-// `KosherError::InvalidLatitude`, `KosherError::InvalidLongitude` or
-// `KosherError::InvalidElevation`; `KosherError::TimeZoneRequired` beyond 150 degrees
-// from Greenwich when `has_time_zone` is false.
-func ValidateLocation(location Location, hasTimeZone bool) error {
-	cLocationPtr, cLocationLen := wvBytes(wvEncode(location, wvWriteLocation))
-	var cErr C.kosher_rust_bindings_error
-	C.kosher_rust_bindings_kosher_validate_location(cLocationPtr, cLocationLen, C._Bool(hasTimeZone), &cErr)
-	if cErr.code != 0 {
-		return wvKosherError(wvTakeError(&cErr))
-	}
-	return nil
 }
 
 // Region is where the calendar is kept. Outside Israel, Yom Tov has a second day.
@@ -1097,7 +781,7 @@ func wvWriteHoliday(w *wvWriter, v Holiday) {
 	case HolidayShabbosMevarchim:
 		w.writeI32(41)
 	default:
-		panic("kosher_rust_bindings: Holiday value is not one of its variants")
+		panic("kosherz: Holiday value is not one of its variants")
 	}
 }
 
@@ -1196,6 +880,30 @@ func wvReadHoliday(r *wvReader) Holiday {
 	return nil
 }
 
+// GregorianDate is a day on the Gregorian calendar.
+type GregorianDate struct {
+	// Year is the year, for example 2024.
+	Year int32
+	// Month is the month, 1 to 12.
+	Month int32
+	// Day is the day of the month, from 1.
+	Day int32
+}
+
+func wvWriteGregorianDate(w *wvWriter, v GregorianDate) {
+	w.writeI32(v.Year)
+	w.writeI32(v.Month)
+	w.writeI32(v.Day)
+}
+
+func wvReadGregorianDate(r *wvReader) GregorianDate {
+	var v GregorianDate
+	v.Year = r.readI32()
+	v.Month = r.readI32()
+	v.Day = r.readI32()
+	return v
+}
+
 // YearInfo: Facts about a Hebrew year.
 type YearInfo struct {
 	// Year is the year, for example 5785.
@@ -1237,7 +945,7 @@ func wvReadYearInfo(r *wvReader) YearInfo {
 }
 
 // HebrewDate is a day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
-// begins at nightfall.
+// begins at nightfall. Years 1 to 9999.
 //
 // Each wrapper holds one strong reference; Close releases it, and a finalizer
 // releases it if the wrapper is garbage collected first.
@@ -1246,11 +954,11 @@ type HebrewDate struct {
 }
 
 func wvDestroyHebrewDate(ptr unsafe.Pointer) {
-	C.kosher_rust_bindings_kosher_calendar_HebrewDate_destroy((*C.kosher_rust_bindings_kosher_calendar_HebrewDate)(ptr))
+	C.kosherz_calendar_HebrewDate_destroy((*C.kosherz_calendar_HebrewDate)(ptr))
 }
 
 // wvAdoptHebrewDate wraps one owned strong reference. A null pointer adopts to nil.
-func wvAdoptHebrewDate(ptr *C.kosher_rust_bindings_kosher_calendar_HebrewDate) *HebrewDate {
+func wvAdoptHebrewDate(ptr *C.kosherz_calendar_HebrewDate) *HebrewDate {
 	if ptr == nil {
 		return nil
 	}
@@ -1262,22 +970,22 @@ func wvAdoptHebrewDate(ptr *C.kosher_rust_bindings_kosher_calendar_HebrewDate) *
 
 // native borrows the wrapper's pointer for one call; pair it with a
 // deferred s.ref.release().
-func (s *HebrewDate) native() *C.kosher_rust_bindings_kosher_calendar_HebrewDate {
+func (s *HebrewDate) native() *C.kosherz_calendar_HebrewDate {
 	if s == nil {
-		panic("kosher_rust_bindings: nil *HebrewDate")
+		panic("kosherz: nil *HebrewDate")
 	}
-	return (*C.kosher_rust_bindings_kosher_calendar_HebrewDate)(s.ref.acquire("HebrewDate"))
+	return (*C.kosherz_calendar_HebrewDate)(s.ref.acquire("HebrewDate"))
 }
 
 // share returns a new strong reference to the wrapper's object for the
 // native library to adopt (the wrapper keeps its own), or null for nil.
-func (s *HebrewDate) share() *C.kosher_rust_bindings_kosher_calendar_HebrewDate {
+func (s *HebrewDate) share() *C.kosherz_calendar_HebrewDate {
 	if s == nil {
 		return nil
 	}
 	ptr := s.native()
 	defer s.ref.release()
-	return C.kosher_rust_bindings_kosher_calendar_HebrewDate_clone(ptr)
+	return C.kosherz_calendar_HebrewDate_clone(ptr)
 }
 
 // Close releases the wrapper's strong reference and always returns nil.
@@ -1295,13 +1003,13 @@ func (s *HebrewDate) Close() error {
 //
 // # Errors
 //
-// `KosherError::InvalidDate` when there is no such day: day 0, day 30 of a 29-day
+// `CalendarError::InvalidDate` when there is no such day: day 0, day 30 of a 29-day
 // month, Adar I in a common year, or a year outside the supported range.
 func NewHebrewDate(year int32, month HebrewMonth, day int32) (*HebrewDate, error) {
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_new(C.int32_t(year), C.kosher_rust_bindings_kosher_calendar_HebrewMonth(month), C.int32_t(day), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_new(C.int32_t(year), C.kosherz_calendar_HebrewMonth(month), C.int32_t(day), &cErr)
 	if cErr.code != 0 {
-		return nil, wvKosherError(wvTakeError(&cErr))
+		return nil, wvCalendarError(wvTakeError(&cErr))
 	}
 	return wvAdoptHebrewDate(cRet), nil
 }
@@ -1310,13 +1018,14 @@ func NewHebrewDate(year int32, month HebrewMonth, day int32) (*HebrewDate, error
 //
 // # Errors
 //
-// `KosherError::InvalidDate` when `date` does not exist.
+// `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
+// to 9999.
 func FromGregorianHebrewDate(date GregorianDate) (*HebrewDate, error) {
 	cDatePtr, cDateLen := wvBytes(wvEncode(date, wvWriteGregorianDate))
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_from_gregorian(cDatePtr, cDateLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_from_gregorian(cDatePtr, cDateLen, &cErr)
 	if cErr.code != 0 {
-		return nil, wvKosherError(wvTakeError(&cErr))
+		return nil, wvCalendarError(wvTakeError(&cErr))
 	}
 	return wvAdoptHebrewDate(cRet), nil
 }
@@ -1325,8 +1034,8 @@ func FromGregorianHebrewDate(date GregorianDate) (*HebrewDate, error) {
 func (s *HebrewDate) Year() int32 {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_year(cSelf, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_year(cSelf, &cErr)
 	wvTrap(&cErr)
 	return int32(cRet)
 }
@@ -1335,8 +1044,8 @@ func (s *HebrewDate) Year() int32 {
 func (s *HebrewDate) Month() HebrewMonth {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_month(cSelf, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_month(cSelf, &cErr)
 	wvTrap(&cErr)
 	return HebrewMonth(cRet)
 }
@@ -1345,8 +1054,8 @@ func (s *HebrewDate) Month() HebrewMonth {
 func (s *HebrewDate) Day() int32 {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_day(cSelf, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_day(cSelf, &cErr)
 	wvTrap(&cErr)
 	return int32(cRet)
 }
@@ -1355,8 +1064,8 @@ func (s *HebrewDate) Day() int32 {
 func (s *HebrewDate) DayOfYear() int32 {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_day_of_year(cSelf, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_day_of_year(cSelf, &cErr)
 	wvTrap(&cErr)
 	return int32(cRet)
 }
@@ -1365,8 +1074,8 @@ func (s *HebrewDate) DayOfYear() int32 {
 func (s *HebrewDate) Weekday() Weekday {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_weekday(cSelf, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_weekday(cSelf, &cErr)
 	wvTrap(&cErr)
 	return Weekday(cRet)
 }
@@ -1376,8 +1085,8 @@ func (s *HebrewDate) ToGregorian() *GregorianDate {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_to_gregorian(cSelf, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_to_gregorian(cSelf, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadOptGregorianDate)
 }
@@ -1386,14 +1095,14 @@ func (s *HebrewDate) ToGregorian() *GregorianDate {
 //
 // # Errors
 //
-// `KosherError::InvalidDate` past the supported range.
+// `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
 func (s *HebrewDate) AddDays(days int32) (*HebrewDate, error) {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_add_days(cSelf, C.int32_t(days), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_add_days(cSelf, C.int32_t(days), &cErr)
 	if cErr.code != 0 {
-		return nil, wvKosherError(wvTakeError(&cErr))
+		return nil, wvCalendarError(wvTakeError(&cErr))
 	}
 	return wvAdoptHebrewDate(cRet), nil
 }
@@ -1403,8 +1112,8 @@ func (s *HebrewDate) Holidays(region Region) []Holiday {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_holidays(cSelf, C.kosher_rust_bindings_kosher_calendar_Region(region), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_holidays(cSelf, C.kosherz_calendar_Region(region), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadListHoliday)
 }
@@ -1413,8 +1122,8 @@ func (s *HebrewDate) Holidays(region Region) []Holiday {
 func (s *HebrewDate) IsAssurBemelacha(region Region) bool {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_is_assur_bemelacha(cSelf, C.kosher_rust_bindings_kosher_calendar_Region(region), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_is_assur_bemelacha(cSelf, C.kosherz_calendar_Region(region), &cErr)
 	wvTrap(&cErr)
 	return bool(cRet)
 }
@@ -1423,8 +1132,8 @@ func (s *HebrewDate) IsAssurBemelacha(region Region) bool {
 func (s *HebrewDate) HasCandleLighting(region Region) bool {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_has_candle_lighting(cSelf, C.kosher_rust_bindings_kosher_calendar_Region(region), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_has_candle_lighting(cSelf, C.kosherz_calendar_Region(region), &cErr)
 	wvTrap(&cErr)
 	return bool(cRet)
 }
@@ -1433,8 +1142,8 @@ func (s *HebrewDate) HasCandleLighting(region Region) bool {
 func (s *HebrewDate) IsAseresYemeiTeshuva() bool {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_is_aseres_yemei_teshuva(cSelf, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva(cSelf, &cErr)
 	wvTrap(&cErr)
 	return bool(cRet)
 }
@@ -1444,8 +1153,8 @@ func (s *HebrewDate) Parsha(region Region) *Parsha {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_parsha(cSelf, C.kosher_rust_bindings_kosher_calendar_Region(region), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_parsha(cSelf, C.kosherz_calendar_Region(region), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadOptParsha)
 }
@@ -1455,8 +1164,8 @@ func (s *HebrewDate) SpecialParsha(region Region) *Parsha {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_special_parsha(cSelf, C.kosher_rust_bindings_kosher_calendar_Region(region), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_special_parsha(cSelf, C.kosherz_calendar_Region(region), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadOptParsha)
 }
@@ -1466,8 +1175,8 @@ func (s *HebrewDate) NextParsha(region Region) *Parsha {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_next_parsha(cSelf, C.kosher_rust_bindings_kosher_calendar_Region(region), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_next_parsha(cSelf, C.kosherz_calendar_Region(region), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadOptParsha)
 }
@@ -1477,8 +1186,8 @@ func (s *HebrewDate) Molad() *int64 {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_molad(cSelf, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_molad(cSelf, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadOptI64)
 }
@@ -1488,8 +1197,8 @@ func (s *HebrewDate) Display() string {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_display(cSelf, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_display(cSelf, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvTakeString(cRet, cRetLen)
 }
@@ -1500,8 +1209,8 @@ func (s *HebrewDate) Equals(other *HebrewDate) bool {
 	defer s.ref.release()
 	cOther := other.native()
 	defer other.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_equals(cSelf, cOther, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_equals(cSelf, cOther, &cErr)
 	wvTrap(&cErr)
 	return bool(cRet)
 }
@@ -1512,26 +1221,33 @@ func (s *HebrewDate) Compare(other *HebrewDate) int32 {
 	defer s.ref.release()
 	cOther := other.native()
 	defer other.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_HebrewDate_compare(cSelf, cOther, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_HebrewDate_compare(cSelf, cOther, &cErr)
 	wvTrap(&cErr)
 	return int32(cRet)
 }
 
-// KosherCalendarYearInfo: Facts about the Hebrew year `year`.
-func KosherCalendarYearInfo(year int32) YearInfo {
+// CalendarYearInfo: Facts about the Hebrew year `year`.
+//
+// # Errors
+//
+// `CalendarError::InvalidDate` for a year outside 1 to 9999.
+func CalendarYearInfo(year int32) (YearInfo, error) {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_year_info(C.int32_t(year), &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvDecode(cRet, cRetLen, wvReadYearInfo)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_year_info(C.int32_t(year), &cRetLen, &cErr)
+	if cErr.code != 0 {
+		return YearInfo{}, wvCalendarError(wvTakeError(&cErr))
+	}
+	return wvDecode(cRet, cRetLen, wvReadYearInfo), nil
 }
 
-// DaysInMonth returns the number of days in `month` of `year`, or none when the year has no such month.
+// DaysInMonth returns the number of days in `month` of `year`, or none when the year has no such month or is
+// outside 1 to 9999.
 func DaysInMonth(year int32, month HebrewMonth) *int32 {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_days_in_month(C.int32_t(year), C.kosher_rust_bindings_kosher_calendar_HebrewMonth(month), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_days_in_month(C.int32_t(year), C.kosherz_calendar_HebrewMonth(month), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadOptI32)
 }
@@ -1540,68 +1256,103 @@ func DaysInMonth(year int32, month HebrewMonth) *int32 {
 //
 // # Errors
 //
-// `KosherError::InvalidDate` for a year outside the supported range.
+// `CalendarError::InvalidDate` for a year outside 1 to 9999.
 func RoshHashana(year int32) (*HebrewDate, error) {
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_rosh_hashana(C.int32_t(year), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_rosh_hashana(C.int32_t(year), &cErr)
 	if cErr.code != 0 {
-		return nil, wvKosherError(wvTakeError(&cErr))
+		return nil, wvCalendarError(wvTakeError(&cErr))
 	}
 	return wvAdoptHebrewDate(cRet), nil
 }
 
 // HolidayName returns the holiday's English name, for example "Chanukah".
-func HolidayName(holiday Holiday) string {
+//
+// # Errors
+//
+// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+// outside 1 to 49.
+func HolidayName(holiday Holiday) (string, error) {
 	cHolidayPtr, cHolidayLen := wvBytes(wvEncode(holiday, wvWriteHoliday))
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_holiday_name(cHolidayPtr, cHolidayLen, &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvTakeString(cRet, cRetLen)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_holiday_name(cHolidayPtr, cHolidayLen, &cRetLen, &cErr)
+	if cErr.code != 0 {
+		return "", wvCalendarError(wvTakeError(&cErr))
+	}
+	return wvTakeString(cRet, cRetLen), nil
 }
 
 // HolidayHebrew returns the holiday's Hebrew name.
-func HolidayHebrew(holiday Holiday) string {
+//
+// # Errors
+//
+// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+// outside 1 to 49.
+func HolidayHebrew(holiday Holiday) (string, error) {
 	cHolidayPtr, cHolidayLen := wvBytes(wvEncode(holiday, wvWriteHoliday))
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_holiday_hebrew(cHolidayPtr, cHolidayLen, &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvTakeString(cRet, cRetLen)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_holiday_hebrew(cHolidayPtr, cHolidayLen, &cRetLen, &cErr)
+	if cErr.code != 0 {
+		return "", wvCalendarError(wvTakeError(&cErr))
+	}
+	return wvTakeString(cRet, cRetLen), nil
 }
 
 // HolidayIsAssurBemelacha reports whether melacha is forbidden on the holiday.
-func HolidayIsAssurBemelacha(holiday Holiday) bool {
+//
+// # Errors
+//
+// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+// outside 1 to 49.
+func HolidayIsAssurBemelacha(holiday Holiday) (bool, error) {
 	cHolidayPtr, cHolidayLen := wvBytes(wvEncode(holiday, wvWriteHoliday))
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_holiday_is_assur_bemelacha(cHolidayPtr, cHolidayLen, &cErr)
-	wvTrap(&cErr)
-	return bool(cRet)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_holiday_is_assur_bemelacha(cHolidayPtr, cHolidayLen, &cErr)
+	if cErr.code != 0 {
+		return false, wvCalendarError(wvTakeError(&cErr))
+	}
+	return bool(cRet), nil
 }
 
 // HolidayIsModern reports whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
-func HolidayIsModern(holiday Holiday) bool {
+//
+// # Errors
+//
+// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+// outside 1 to 49.
+func HolidayIsModern(holiday Holiday) (bool, error) {
 	cHolidayPtr, cHolidayLen := wvBytes(wvEncode(holiday, wvWriteHoliday))
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_holiday_is_modern(cHolidayPtr, cHolidayLen, &cErr)
-	wvTrap(&cErr)
-	return bool(cRet)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_holiday_is_modern(cHolidayPtr, cHolidayLen, &cErr)
+	if cErr.code != 0 {
+		return false, wvCalendarError(wvTakeError(&cErr))
+	}
+	return bool(cRet), nil
 }
 
 // HolidayIsFastDay reports whether the holiday is a fast day.
-func HolidayIsFastDay(holiday Holiday) bool {
+//
+// # Errors
+//
+// `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+// outside 1 to 49.
+func HolidayIsFastDay(holiday Holiday) (bool, error) {
 	cHolidayPtr, cHolidayLen := wvBytes(wvEncode(holiday, wvWriteHoliday))
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_holiday_is_fast_day(cHolidayPtr, cHolidayLen, &cErr)
-	wvTrap(&cErr)
-	return bool(cRet)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_holiday_is_fast_day(cHolidayPtr, cHolidayLen, &cErr)
+	if cErr.code != 0 {
+		return false, wvCalendarError(wvTakeError(&cErr))
+	}
+	return bool(cRet), nil
 }
 
 // ParshaName returns the portion's English name, for example "Lech Lecha".
 func ParshaName(parsha Parsha) string {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_parsha_name(C.kosher_rust_bindings_kosher_calendar_Parsha(parsha), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_parsha_name(C.kosherz_calendar_Parsha(parsha), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvTakeString(cRet, cRetLen)
 }
@@ -1609,8 +1360,8 @@ func ParshaName(parsha Parsha) string {
 // ParshaHebrew returns the portion's Hebrew name.
 func ParshaHebrew(parsha Parsha) string {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_parsha_hebrew(C.kosher_rust_bindings_kosher_calendar_Parsha(parsha), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_parsha_hebrew(C.kosherz_calendar_Parsha(parsha), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvTakeString(cRet, cRetLen)
 }
@@ -1618,8 +1369,8 @@ func ParshaHebrew(parsha Parsha) string {
 // MonthName returns the month's English name, for example "Nisan".
 func MonthName(month HebrewMonth) string {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_month_name(C.kosher_rust_bindings_kosher_calendar_HebrewMonth(month), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_month_name(C.kosherz_calendar_HebrewMonth(month), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvTakeString(cRet, cRetLen)
 }
@@ -1627,10 +1378,935 @@ func MonthName(month HebrewMonth) string {
 // MonthHebrew returns the month's Hebrew name.
 func MonthHebrew(month HebrewMonth) string {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_calendar_month_hebrew(C.kosher_rust_bindings_kosher_calendar_HebrewMonth(month), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_month_hebrew(C.kosherz_calendar_HebrewMonth(month), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvTakeString(cRet, cRetLen)
+}
+
+// LimudimError is an error the calendar.limudim module reports:
+// *InvalidUnitError.
+//
+// Match one code with errors.As and its type, or any of them with a
+// LimudimError.
+type LimudimError interface {
+	error
+	// Code returns the error's numeric code.
+	Code() int32
+	isLimudimError()
+}
+
+// InvalidUnitError: A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
+// to 6.
+type InvalidUnitError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *InvalidUnitError) Error() string {
+	if e.Message == "" {
+		return "A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1"
+	}
+	return e.Message
+}
+
+// Code returns 1.
+func (*InvalidUnitError) Code() int32 {
+	return 1
+}
+
+func (*InvalidUnitError) isLimudimError() {}
+
+func (*InvalidUnitError) wvPayload() []byte {
+	return nil
+}
+
+func wvLimudimError(f wvFailure) error {
+	switch f.code {
+	case 1:
+		return &InvalidUnitError{Message: f.message}
+	}
+	return f.err()
+}
+
+// Tractate is a tractate of the Mishnah and Talmud, in the order of the Mishnah.
+type Tractate int32
+
+const (
+	// TractateBerachos: Berachos.
+	TractateBerachos Tractate = 0
+	// TractatePeah: Peah.
+	TractatePeah Tractate = 1
+	// TractateDemai: Demai.
+	TractateDemai Tractate = 2
+	// TractateKilayim: Kilayim.
+	TractateKilayim Tractate = 3
+	// TractateSheviis: Sheviis.
+	TractateSheviis Tractate = 4
+	// TractateTerumos: Terumos.
+	TractateTerumos Tractate = 5
+	// TractateMaasros: Maasros.
+	TractateMaasros Tractate = 6
+	// TractateMaaserSheni: Maaser Sheni.
+	TractateMaaserSheni Tractate = 7
+	// TractateChalah: Chalah.
+	TractateChalah Tractate = 8
+	// TractateOrlah: Orlah.
+	TractateOrlah Tractate = 9
+	// TractateBikurim: Bikurim.
+	TractateBikurim Tractate = 10
+	// TractateShabbos: Shabbos.
+	TractateShabbos Tractate = 11
+	// TractateEruvin: Eruvin.
+	TractateEruvin Tractate = 12
+	// TractatePesachim: Pesachim.
+	TractatePesachim Tractate = 13
+	// TractateShekalim: Shekalim.
+	TractateShekalim Tractate = 14
+	// TractateYoma: Yoma.
+	TractateYoma Tractate = 15
+	// TractateSukkah: Sukkah.
+	TractateSukkah Tractate = 16
+	// TractateBeitzah: Beitzah.
+	TractateBeitzah Tractate = 17
+	// TractateRoshHashanah: Rosh Hashanah.
+	TractateRoshHashanah Tractate = 18
+	// TractateTaanis: Taanis.
+	TractateTaanis Tractate = 19
+	// TractateMegillah: Megillah.
+	TractateMegillah Tractate = 20
+	// TractateMoedKatan: Moed Katan.
+	TractateMoedKatan Tractate = 21
+	// TractateChagigah: Chagigah.
+	TractateChagigah Tractate = 22
+	// TractateYevamos: Yevamos.
+	TractateYevamos Tractate = 23
+	// TractateKesubos: Kesubos.
+	TractateKesubos Tractate = 24
+	// TractateNedarim: Nedarim.
+	TractateNedarim Tractate = 25
+	// TractateNazir: Nazir.
+	TractateNazir Tractate = 26
+	// TractateSotah: Sotah.
+	TractateSotah Tractate = 27
+	// TractateGitin: Gitin.
+	TractateGitin Tractate = 28
+	// TractateKiddushin: Kiddushin.
+	TractateKiddushin Tractate = 29
+	// TractateBavaKamma: Bava Kamma.
+	TractateBavaKamma Tractate = 30
+	// TractateBavaMetzia: Bava Metzia.
+	TractateBavaMetzia Tractate = 31
+	// TractateBavaBasra: Bava Basra.
+	TractateBavaBasra Tractate = 32
+	// TractateSanhedrin: Sanhedrin.
+	TractateSanhedrin Tractate = 33
+	// TractateMakkos: Makkos.
+	TractateMakkos Tractate = 34
+	// TractateShevuos: Shevuos.
+	TractateShevuos Tractate = 35
+	// TractateEduyos: Eduyos.
+	TractateEduyos Tractate = 36
+	// TractateAvodahZarah: Avodah Zarah.
+	TractateAvodahZarah Tractate = 37
+	// TractateAvos: Avos.
+	TractateAvos Tractate = 38
+	// TractateHoriyos: Horiyos.
+	TractateHoriyos Tractate = 39
+	// TractateZevachim: Zevachim.
+	TractateZevachim Tractate = 40
+	// TractateMenachos: Menachos.
+	TractateMenachos Tractate = 41
+	// TractateChullin: Chullin.
+	TractateChullin Tractate = 42
+	// TractateBechoros: Bechoros.
+	TractateBechoros Tractate = 43
+	// TractateArachin: Arachin.
+	TractateArachin Tractate = 44
+	// TractateTemurah: Temurah.
+	TractateTemurah Tractate = 45
+	// TractateKerisos: Kerisos.
+	TractateKerisos Tractate = 46
+	// TractateMeilah: Meilah.
+	TractateMeilah Tractate = 47
+	// TractateTamid: Tamid.
+	TractateTamid Tractate = 48
+	// TractateMidos: Midos.
+	TractateMidos Tractate = 49
+	// TractateKinnim: Kinnim.
+	TractateKinnim Tractate = 50
+	// TractateKeilim: Keilim.
+	TractateKeilim Tractate = 51
+	// TractateOhalos: Ohalos.
+	TractateOhalos Tractate = 52
+	// TractateNegaim: Negaim.
+	TractateNegaim Tractate = 53
+	// TractateParah: Parah.
+	TractateParah Tractate = 54
+	// TractateTaharos: Taharos.
+	TractateTaharos Tractate = 55
+	// TractateMikvaos: Mikvaos.
+	TractateMikvaos Tractate = 56
+	// TractateNiddah: Niddah.
+	TractateNiddah Tractate = 57
+	// TractateMachshirin: Machshirin.
+	TractateMachshirin Tractate = 58
+	// TractateZavim: Zavim.
+	TractateZavim Tractate = 59
+	// TractateTevulYom: Tevul Yom.
+	TractateTevulYom Tractate = 60
+	// TractateYadayim: Yadayim.
+	TractateYadayim Tractate = 61
+	// TractateUktzin: Uktzin.
+	TractateUktzin Tractate = 62
+)
+
+func wvWriteTractate(w *wvWriter, v Tractate) {
+	w.writeI32(int32(v))
+}
+
+func wvReadTractate(r *wvReader) Tractate {
+	return Tractate(r.readI32())
+}
+
+// Side is a side of a page: *amud aleph* (a) or *amud beis* (b).
+type Side int32
+
+const (
+	// SideAleph: The front of the page, "a".
+	SideAleph Side = 0
+	// SideBet: The back of the page, "b".
+	SideBet Side = 1
+)
+
+func wvWriteSide(w *wvWriter, v Side) {
+	w.writeI32(int32(v))
+}
+
+func wvReadSide(r *wvReader) Side {
+	return Side(r.readI32())
+}
+
+// TehillimUnit is a day's portion of Tehillim.
+//
+// TehillimUnit is a sealed sum type: exactly one of its variant structs is the
+// value at a time.
+type TehillimUnit interface {
+	isTehillimUnit()
+}
+
+// TehillimUnitPsalms: Whole chapters, `start` to `end` inclusive.
+type TehillimUnitPsalms struct {
+	// Start is the first chapter.
+	Start int32
+	// End is the last chapter.
+	End int32
+}
+
+func (TehillimUnitPsalms) isTehillimUnit() {}
+
+// TehillimUnitPsalmVerses: Part of one long chapter (119, split over two days).
+type TehillimUnitPsalmVerses struct {
+	// Psalm is the chapter.
+	Psalm int32
+	// StartVerse is the first verse.
+	StartVerse int32
+	// EndVerse is the last verse.
+	EndVerse int32
+}
+
+func (TehillimUnitPsalmVerses) isTehillimUnit() {}
+
+func wvWriteTehillimUnit(w *wvWriter, v TehillimUnit) {
+	switch x := v.(type) {
+	case TehillimUnitPsalms:
+		w.writeI32(0)
+		w.writeI32(x.Start)
+		w.writeI32(x.End)
+	case TehillimUnitPsalmVerses:
+		w.writeI32(1)
+		w.writeI32(x.Psalm)
+		w.writeI32(x.StartVerse)
+		w.writeI32(x.EndVerse)
+	default:
+		panic("kosherz: TehillimUnit value is not one of its variants")
+	}
+}
+
+func wvReadTehillimUnit(r *wvReader) TehillimUnit {
+	switch r.readI32() {
+	case 0:
+		var x TehillimUnitPsalms
+		x.Start = r.readI32()
+		x.End = r.readI32()
+		return x
+	case 1:
+		var x TehillimUnitPsalmVerses
+		x.Psalm = r.readI32()
+		x.StartVerse = r.readI32()
+		x.EndVerse = r.readI32()
+		return x
+	}
+	wvMalformed("TehillimUnit tag out of range")
+	return nil
+}
+
+// PirkeiAvosUnit is the Pirkei Avos read on a Shabbos afternoon.
+//
+// PirkeiAvosUnit is a sealed sum type: exactly one of its variant structs is
+// the value at a time.
+type PirkeiAvosUnit interface {
+	isPirkeiAvosUnit()
+}
+
+// PirkeiAvosUnitSingle: One chapter.
+type PirkeiAvosUnitSingle struct {
+	// Chapter is the chapter, 1 to 6.
+	Chapter int32
+}
+
+func (PirkeiAvosUnitSingle) isPirkeiAvosUnit() {}
+
+// PirkeiAvosUnitCombined: Two chapters read together, at the end of the summer.
+type PirkeiAvosUnitCombined struct {
+	// First is the first chapter.
+	First int32
+	// Second is the second chapter.
+	Second int32
+}
+
+func (PirkeiAvosUnitCombined) isPirkeiAvosUnit() {}
+
+func wvWritePirkeiAvosUnit(w *wvWriter, v PirkeiAvosUnit) {
+	switch x := v.(type) {
+	case PirkeiAvosUnitSingle:
+		w.writeI32(0)
+		w.writeI32(x.Chapter)
+	case PirkeiAvosUnitCombined:
+		w.writeI32(1)
+		w.writeI32(x.First)
+		w.writeI32(x.Second)
+	default:
+		panic("kosherz: PirkeiAvosUnit value is not one of its variants")
+	}
+}
+
+func wvReadPirkeiAvosUnit(r *wvReader) PirkeiAvosUnit {
+	switch r.readI32() {
+	case 0:
+		var x PirkeiAvosUnitSingle
+		x.Chapter = r.readI32()
+		return x
+	case 1:
+		var x PirkeiAvosUnitCombined
+		x.First = r.readI32()
+		x.Second = r.readI32()
+		return x
+	}
+	wvMalformed("PirkeiAvosUnit tag out of range")
+	return nil
+}
+
+// Daf is a page (*daf*) of the Talmud: both sides of one leaf.
+type Daf struct {
+	// Tractate is the tractate.
+	Tractate Tractate
+	// Daf is the page number. The Bavli starts at 2, the Yerushalmi at 1.
+	Daf int32
+	// Display: As text, for example "Bava Metzia 55".
+	Display string
+}
+
+func wvWriteDaf(w *wvWriter, v Daf) {
+	wvWriteTractate(w, v.Tractate)
+	w.writeI32(v.Daf)
+	w.writeString(v.Display)
+}
+
+func wvReadDaf(r *wvReader) Daf {
+	var v Daf
+	v.Tractate = wvReadTractate(r)
+	v.Daf = r.readI32()
+	v.Display = r.readString()
+	return v
+}
+
+// Amud: One side of a page (*amud*).
+type Amud struct {
+	// Tractate is the tractate.
+	Tractate Tractate
+	// Daf is the page number.
+	Daf int32
+	// Side is which side of the page.
+	Side Side
+	// Display: As text, for example "Bava Metzia 55b".
+	Display string
+}
+
+func wvWriteAmud(w *wvWriter, v Amud) {
+	wvWriteTractate(w, v.Tractate)
+	w.writeI32(v.Daf)
+	wvWriteSide(w, v.Side)
+	w.writeString(v.Display)
+}
+
+func wvReadAmud(r *wvReader) Amud {
+	var v Amud
+	v.Tractate = wvReadTractate(r)
+	v.Daf = r.readI32()
+	v.Side = wvReadSide(r)
+	v.Display = r.readString()
+	return v
+}
+
+// Mishna: One *mishnah*.
+type Mishna struct {
+	// Tractate is the tractate.
+	Tractate Tractate
+	// Chapter is the chapter (*perek*), from 1.
+	Chapter int32
+	// Mishna is the *mishnah* within the chapter, from 1.
+	Mishna int32
+	// Display: As text, for example "Nazir 5:5".
+	Display string
+}
+
+func wvWriteMishna(w *wvWriter, v Mishna) {
+	wvWriteTractate(w, v.Tractate)
+	w.writeI32(v.Chapter)
+	w.writeI32(v.Mishna)
+	w.writeString(v.Display)
+}
+
+func wvReadMishna(r *wvReader) Mishna {
+	var v Mishna
+	v.Tractate = wvReadTractate(r)
+	v.Chapter = r.readI32()
+	v.Mishna = r.readI32()
+	v.Display = r.readString()
+	return v
+}
+
+// MishnaPair is the two *mishnayos* of a day of Mishna Yomis.
+type MishnaPair struct {
+	// First is the first *mishnah*.
+	First Mishna
+	// Second is the second, the next *mishnah* in order.
+	Second Mishna
+	// Display: As text, for example "Nazir 5:5-6".
+	Display string
+}
+
+func wvWriteMishnaPair(w *wvWriter, v MishnaPair) {
+	wvWriteMishna(w, v.First)
+	wvWriteMishna(w, v.Second)
+	w.writeString(v.Display)
+}
+
+func wvReadMishnaPair(r *wvReader) MishnaPair {
+	var v MishnaPair
+	v.First = wvReadMishna(r)
+	v.Second = wvReadMishna(r)
+	v.Display = r.readString()
+	return v
+}
+
+// TractateName returns the tractate's English name, for example "Bava Metzia".
+func TractateName(tractate Tractate) string {
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_limudim_tractate_name(C.kosherz_calendar_limudim_Tractate(tractate), &cRetLen, &cErr)
+	wvTrap(&cErr)
+	return wvTakeString(cRet, cRetLen)
+}
+
+// TractateHebrew returns the tractate's Hebrew name.
+func TractateHebrew(tractate Tractate) string {
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_limudim_tractate_hebrew(C.kosherz_calendar_limudim_Tractate(tractate), &cRetLen, &cErr)
+	wvTrap(&cErr)
+	return wvTakeString(cRet, cRetLen)
+}
+
+// TehillimDisplay returns the portion as text, for example "Tehillim 1-9".
+//
+// # Errors
+//
+// `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+func TehillimDisplay(unit TehillimUnit) (string, error) {
+	cUnitPtr, cUnitLen := wvBytes(wvEncode(unit, wvWriteTehillimUnit))
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_limudim_tehillim_display(cUnitPtr, cUnitLen, &cRetLen, &cErr)
+	if cErr.code != 0 {
+		return "", wvLimudimError(wvTakeError(&cErr))
+	}
+	return wvTakeString(cRet, cRetLen), nil
+}
+
+// PirkeiAvosDisplay returns the portion as text, for example "Pirkei Avos 5-6".
+//
+// # Errors
+//
+// `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+func PirkeiAvosDisplay(unit PirkeiAvosUnit) (string, error) {
+	cUnitPtr, cUnitLen := wvBytes(wvEncode(unit, wvWritePirkeiAvosUnit))
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_limudim_pirkei_avos_display(cUnitPtr, cUnitLen, &cRetLen, &cErr)
+	if cErr.code != 0 {
+		return "", wvLimudimError(wvTakeError(&cErr))
+	}
+	return wvTakeString(cRet, cRetLen), nil
+}
+
+// DafYomiBavli: Daf Yomi: a page of the Babylonian Talmud a day, from 11 September 1923.
+func DafYomiBavli(date *HebrewDate) *Daf {
+	cDate := date.native()
+	defer date.ref.release()
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_limudim_daf_yomi_bavli(cDate, &cRetLen, &cErr)
+	wvTrap(&cErr)
+	return wvDecode(cRet, cRetLen, wvReadOptDaf)
+}
+
+// DafHashavuaBavli: Daf Hashavua: a page of the Babylonian Talmud a week.
+func DafHashavuaBavli(date *HebrewDate) *Daf {
+	cDate := date.native()
+	defer date.ref.release()
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_limudim_daf_hashavua_bavli(cDate, &cRetLen, &cErr)
+	wvTrap(&cErr)
+	return wvDecode(cRet, cRetLen, wvReadOptDaf)
+}
+
+// DafYomiYerushalmi: Daf Yomi Yerushalmi: a page of the Jerusalem Talmud a day.
+func DafYomiYerushalmi(date *HebrewDate) *Daf {
+	cDate := date.native()
+	defer date.ref.release()
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_limudim_daf_yomi_yerushalmi(cDate, &cRetLen, &cErr)
+	wvTrap(&cErr)
+	return wvDecode(cRet, cRetLen, wvReadOptDaf)
+}
+
+// AmudYomiDirshu: Dirshu's Amud Yomi: one side of a page of the Babylonian Talmud a day.
+func AmudYomiDirshu(date *HebrewDate) *Amud {
+	cDate := date.native()
+	defer date.ref.release()
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_limudim_amud_yomi_dirshu(cDate, &cRetLen, &cErr)
+	wvTrap(&cErr)
+	return wvDecode(cRet, cRetLen, wvReadOptAmud)
+}
+
+// MishnaYomis: Mishna Yomis: two *mishnayos* a day, from 20 May 1947.
+func MishnaYomis(date *HebrewDate) *MishnaPair {
+	cDate := date.native()
+	defer date.ref.release()
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_limudim_mishna_yomis(cDate, &cRetLen, &cErr)
+	wvTrap(&cErr)
+	return wvDecode(cRet, cRetLen, wvReadOptMishnaPair)
+}
+
+// TehillimMonthly: Tehillim divided over the days of the Hebrew month.
+func TehillimMonthly(date *HebrewDate) TehillimUnit {
+	cDate := date.native()
+	defer date.ref.release()
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_limudim_tehillim_monthly(cDate, &cRetLen, &cErr)
+	wvTrap(&cErr)
+	return wvDecode(cRet, cRetLen, wvReadOptTehillimUnit)
+}
+
+// PirkeiAvos: Pirkei Avos: a chapter each Shabbos afternoon from Pesach to Rosh Hashana.
+func PirkeiAvos(date *HebrewDate, region Region) PirkeiAvosUnit {
+	cDate := date.native()
+	defer date.ref.release()
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_calendar_limudim_pirkei_avos(cDate, C.kosherz_calendar_Region(region), &cRetLen, &cErr)
+	wvTrap(&cErr)
+	return wvDecode(cRet, cRetLen, wvReadOptPirkeiAvosUnit)
+}
+
+// ZmanimError is an error the zmanim module reports: *InvalidLatitudeError,
+// *InvalidLongitudeError, *InvalidElevationError, *InvalidGregorianDateError,
+// *TimeZoneRequiredError, *TimeZoneCallbackFailedError, *InvalidMinutesError,
+// *InvalidDegreesError, *AllDayError, *AllNightError, *NotApplicableError, or
+// *UnexpectedError.
+//
+// Match one code with errors.As and its type, or any of them with a
+// ZmanimError.
+type ZmanimError interface {
+	error
+	// Code returns the error's numeric code.
+	Code() int32
+	isZmanimError()
+}
+
+// InvalidLatitudeError is the ZmanimError code InvalidLatitude (1): The
+// latitude is not between -90 and 90 degrees.
+type InvalidLatitudeError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "The latitude is not between -90 and 90 degrees.".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *InvalidLatitudeError) Error() string {
+	if e.Message == "" {
+		return "The latitude is not between -90 and 90 degrees."
+	}
+	return e.Message
+}
+
+// Code returns 1.
+func (*InvalidLatitudeError) Code() int32 {
+	return 1
+}
+
+func (*InvalidLatitudeError) isZmanimError() {}
+
+func (*InvalidLatitudeError) wvPayload() []byte {
+	return nil
+}
+
+// InvalidLongitudeError is the ZmanimError code InvalidLongitude (2): The
+// longitude is not between -180 and 180 degrees.
+type InvalidLongitudeError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "The longitude is not between -180 and 180 degrees.".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *InvalidLongitudeError) Error() string {
+	if e.Message == "" {
+		return "The longitude is not between -180 and 180 degrees."
+	}
+	return e.Message
+}
+
+// Code returns 2.
+func (*InvalidLongitudeError) Code() int32 {
+	return 2
+}
+
+func (*InvalidLongitudeError) isZmanimError() {}
+
+func (*InvalidLongitudeError) wvPayload() []byte {
+	return nil
+}
+
+// InvalidElevationError is the ZmanimError code InvalidElevation (3): An
+// elevation is negative or not a finite number.
+type InvalidElevationError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "An elevation is negative or not a finite number.".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *InvalidElevationError) Error() string {
+	if e.Message == "" {
+		return "An elevation is negative or not a finite number."
+	}
+	return e.Message
+}
+
+// Code returns 3.
+func (*InvalidElevationError) Code() int32 {
+	return 3
+}
+
+func (*InvalidElevationError) isZmanimError() {}
+
+func (*InvalidElevationError) wvPayload() []byte {
+	return nil
+}
+
+// InvalidGregorianDateError is the ZmanimError code InvalidGregorianDate (4):
+// The Gregorian date does not exist, or is outside the supported range.
+type InvalidGregorianDateError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "The Gregorian date does not exist, or is outside the supported range.".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *InvalidGregorianDateError) Error() string {
+	if e.Message == "" {
+		return "The Gregorian date does not exist, or is outside the supported range."
+	}
+	return e.Message
+}
+
+// Code returns 4.
+func (*InvalidGregorianDateError) Code() int32 {
+	return 4
+}
+
+func (*InvalidGregorianDateError) isZmanimError() {}
+
+func (*InvalidGregorianDateError) wvPayload() []byte {
+	return nil
+}
+
+// TimeZoneRequiredError: The time needs a time zone and none was given: the Kiddush Levana times, and any time
+// more than 150 degrees from Greenwich.
+type TimeZoneRequiredError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "The time needs a time zone and none was given: the Kiddush Levana times, and any time".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *TimeZoneRequiredError) Error() string {
+	if e.Message == "" {
+		return "The time needs a time zone and none was given: the Kiddush Levana times, and any time"
+	}
+	return e.Message
+}
+
+// Code returns 5.
+func (*TimeZoneRequiredError) Code() int32 {
+	return 5
+}
+
+func (*TimeZoneRequiredError) isZmanimError() {}
+
+func (*TimeZoneRequiredError) wvPayload() []byte {
+	return nil
+}
+
+// TimeZoneCallbackFailedError is the ZmanimError code TimeZoneCallbackFailed
+// (6): The time zone callback failed, or gave an offset of a day or more.
+type TimeZoneCallbackFailedError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "The time zone callback failed, or gave an offset of a day or more.".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *TimeZoneCallbackFailedError) Error() string {
+	if e.Message == "" {
+		return "The time zone callback failed, or gave an offset of a day or more."
+	}
+	return e.Message
+}
+
+// Code returns 6.
+func (*TimeZoneCallbackFailedError) Code() int32 {
+	return 6
+}
+
+func (*TimeZoneCallbackFailedError) isZmanimError() {}
+
+func (*TimeZoneCallbackFailedError) wvPayload() []byte {
+	return nil
+}
+
+// InvalidMinutesError: A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
+// within a day (1440 minutes) either way.
+type InvalidMinutesError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *InvalidMinutesError) Error() string {
+	if e.Message == "" {
+		return "A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number"
+	}
+	return e.Message
+}
+
+// Code returns 7.
+func (*InvalidMinutesError) Code() int32 {
+	return 7
+}
+
+func (*InvalidMinutesError) isZmanimError() {}
+
+func (*InvalidMinutesError) wvPayload() []byte {
+	return nil
+}
+
+// InvalidDegreesError is the ZmanimError code InvalidDegrees (8): An angle in
+// degrees is not a finite number.
+type InvalidDegreesError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "An angle in degrees is not a finite number.".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *InvalidDegreesError) Error() string {
+	if e.Message == "" {
+		return "An angle in degrees is not a finite number."
+	}
+	return e.Message
+}
+
+// Code returns 8.
+func (*InvalidDegreesError) Code() int32 {
+	return 8
+}
+
+func (*InvalidDegreesError) isZmanimError() {}
+
+func (*InvalidDegreesError) wvPayload() []byte {
+	return nil
+}
+
+// AllDayError is the ZmanimError code AllDay (10): The sun stays above the
+// angle the time needs all day, as in the far north in summer.
+type AllDayError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "The sun stays above the angle the time needs all day, as in the far north in summer.".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *AllDayError) Error() string {
+	if e.Message == "" {
+		return "The sun stays above the angle the time needs all day, as in the far north in summer."
+	}
+	return e.Message
+}
+
+// Code returns 10.
+func (*AllDayError) Code() int32 {
+	return 10
+}
+
+func (*AllDayError) isZmanimError() {}
+
+func (*AllDayError) wvPayload() []byte {
+	return nil
+}
+
+// AllNightError is the ZmanimError code AllNight (11): The sun stays below the
+// angle the time needs all day, as in the far north in winter.
+type AllNightError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "The sun stays below the angle the time needs all day, as in the far north in winter.".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *AllNightError) Error() string {
+	if e.Message == "" {
+		return "The sun stays below the angle the time needs all day, as in the far north in winter."
+	}
+	return e.Message
+}
+
+// Code returns 11.
+func (*AllNightError) Code() int32 {
+	return 11
+}
+
+func (*AllNightError) isZmanimError() {}
+
+func (*AllNightError) wvPayload() []byte {
+	return nil
+}
+
+// NotApplicableError is the ZmanimError code NotApplicable (12): The time only
+// exists on certain dates, and this is not one.
+type NotApplicableError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "The time only exists on certain dates, and this is not one.".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *NotApplicableError) Error() string {
+	if e.Message == "" {
+		return "The time only exists on certain dates, and this is not one."
+	}
+	return e.Message
+}
+
+// Code returns 12.
+func (*NotApplicableError) Code() int32 {
+	return 12
+}
+
+func (*NotApplicableError) isZmanimError() {}
+
+func (*NotApplicableError) wvPayload() []byte {
+	return nil
+}
+
+// UnexpectedError: A calculation failed in a way that should not happen; please report the location and
+// date.
+type UnexpectedError struct {
+	// Message describes the failure; when it's empty, Error returns the
+	// code's default message, "A calculation failed in a way that should not happen; please report the location and".
+	Message string
+}
+
+// Error returns the error's message.
+func (e *UnexpectedError) Error() string {
+	if e.Message == "" {
+		return "A calculation failed in a way that should not happen; please report the location and"
+	}
+	return e.Message
+}
+
+// Code returns 13.
+func (*UnexpectedError) Code() int32 {
+	return 13
+}
+
+func (*UnexpectedError) isZmanimError() {}
+
+func (*UnexpectedError) wvPayload() []byte {
+	return nil
+}
+
+func wvZmanimError(f wvFailure) error {
+	switch f.code {
+	case 1:
+		return &InvalidLatitudeError{Message: f.message}
+	case 2:
+		return &InvalidLongitudeError{Message: f.message}
+	case 3:
+		return &InvalidElevationError{Message: f.message}
+	case 4:
+		return &InvalidGregorianDateError{Message: f.message}
+	case 5:
+		return &TimeZoneRequiredError{Message: f.message}
+	case 6:
+		return &TimeZoneCallbackFailedError{Message: f.message}
+	case 7:
+		return &InvalidMinutesError{Message: f.message}
+	case 8:
+		return &InvalidDegreesError{Message: f.message}
+	case 10:
+		return &AllDayError{Message: f.message}
+	case 11:
+		return &AllNightError{Message: f.message}
+	case 12:
+		return &NotApplicableError{Message: f.message}
+	case 13:
+		return &UnexpectedError{Message: f.message}
+	}
+	return f.err()
 }
 
 // Zman is a halachic time this library can calculate, named after the KosherJava getter that
@@ -2108,8 +2784,8 @@ const (
 	ZmanFailureTimeZoneRequired ZmanFailure = 3
 	// ZmanFailureTimeZoneCallbackFailed: The time zone callback failed.
 	ZmanFailureTimeZoneCallbackFailed ZmanFailure = 4
-	// ZmanFailureInternal: An internal calculation error.
-	ZmanFailureInternal ZmanFailure = 5
+	// ZmanFailureUnexpected: An internal calculation error.
+	ZmanFailureUnexpected ZmanFailure = 5
 )
 
 func wvWriteZmanFailure(w *wvWriter, v ZmanFailure) {
@@ -2120,16 +2796,55 @@ func wvReadZmanFailure(r *wvReader) ZmanFailure {
 	return ZmanFailure(r.readI32())
 }
 
+// Location is a place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
+// leave them 0 for sea level.
+//
+// The time zone is not part of the location: pass a
+// `TimeZoneOffset` to `Zmanim` and
+// `MyZmanim`.
+type Location struct {
+	// Latitude in degrees, north positive.
+	Latitude float64
+	// Longitude in degrees, east positive.
+	Longitude float64
+	// Elevation is the observer's height. Elevation makes sunrise earlier and sunset later.
+	Elevation float64
+	// EasternHorizonElevation is the height of the eastern horizon, over which the sun rises.
+	EasternHorizonElevation float64
+	// WesternHorizonElevation is the height of the western horizon, behind which the sun sets.
+	WesternHorizonElevation float64
+}
+
+func wvWriteLocation(w *wvWriter, v Location) {
+	w.writeF64(v.Latitude)
+	w.writeF64(v.Longitude)
+	w.writeF64(v.Elevation)
+	w.writeF64(v.EasternHorizonElevation)
+	w.writeF64(v.WesternHorizonElevation)
+}
+
+func wvReadLocation(r *wvReader) Location {
+	var v Location
+	v.Latitude = r.readF64()
+	v.Longitude = r.readF64()
+	v.Elevation = r.readF64()
+	v.EasternHorizonElevation = r.readF64()
+	v.WesternHorizonElevation = r.readF64()
+	return v
+}
+
 // Config is how `Zmanim` calculates. `default_config` matches KosherJava's defaults.
 type Config struct {
-	// CandleLightingMinutes is how long before sea-level sunset candle lighting is, in minutes. Default 18.
+	// CandleLightingMinutes is how long before sea-level sunset candle lighting is, in minutes, at most 1440 either
+	// way. Default 18.
 	CandleLightingMinutes int32
 	// UseAstronomicalChatzosForOtherZmanim reports whether proportional zmanim divide the day at astronomical *chatzos*. Default false.
 	UseAstronomicalChatzosForOtherZmanim bool
 	// UseElevation reports whether elevation adjusts every zman built on sunrise and sunset, not only sunrise
 	// and sunset themselves. Default false.
 	UseElevation bool
-	// AteretTorahSunsetMinutes is how long after sunset Tzais Ateret Torah is, in minutes. Default 40.
+	// AteretTorahSunsetMinutes is how long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
+	// Default 40.
 	AteretTorahSunsetMinutes int32
 	// UseAstronomicalChatzos reports whether *chatzos* is the sun's transit rather than the midpoint of sunrise and
 	// sunset. Default true.
@@ -2189,7 +2904,8 @@ func wvReadZmanTime(r *wvReader) ZmanTime {
 // TimeZoneOffset is the time zone, supplied by the caller: the offset from UTC at an instant.
 //
 // Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
-// one. It is called synchronously, possibly several times per calculation.
+// one. It is called synchronously, once for each sunrise, sunset or other event a time is
+// built from.
 //
 // Implement TimeZoneOffset in Go and pass the value to the functions that take
 // it. The native library may call its methods from any thread until it
@@ -2202,19 +2918,19 @@ type TimeZoneOffset interface {
 	// # Errors
 	//
 	// Fail when the offset is unknown; the calculation then reports
-	// `KosherError::TimeZoneCallbackFailed`.
+	// `ZmanimError::TimeZoneCallbackFailed`.
 	OffsetSeconds(unixSeconds int64) int32
 }
 
-//export goWv_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds
-func goWv_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_offset_seconds(ctx unsafe.Pointer, unix_seconds C.int64_t, out_err *C.kosher_rust_bindings_error) (cRet C.int32_t) {
+//export goWv_kosherz_zmanim_TimeZoneOffset_offset_seconds
+func goWv_kosherz_zmanim_TimeZoneOffset_offset_seconds(ctx unsafe.Pointer, unix_seconds C.int64_t, out_err *C.kosherz_error) (cRet C.int32_t) {
 	defer wvRecoverCallback(out_err)
 	ret := wvCallback[TimeZoneOffset](ctx).OffsetSeconds(int64(unix_seconds))
 	return C.int32_t(ret)
 }
 
-//export goWv_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_free
-func goWv_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_free(ctx unsafe.Pointer) {
+//export goWv_kosherz_zmanim_TimeZoneOffset_free
+func goWv_kosherz_zmanim_TimeZoneOffset_free(ctx unsafe.Pointer) {
 	wvFreeCallback(ctx)
 }
 
@@ -2227,11 +2943,11 @@ type Zmanim struct {
 }
 
 func wvDestroyZmanim(ptr unsafe.Pointer) {
-	C.kosher_rust_bindings_kosher_zmanim_Zmanim_destroy((*C.kosher_rust_bindings_kosher_zmanim_Zmanim)(ptr))
+	C.kosherz_zmanim_Zmanim_destroy((*C.kosherz_zmanim_Zmanim)(ptr))
 }
 
 // wvAdoptZmanim wraps one owned strong reference. A null pointer adopts to nil.
-func wvAdoptZmanim(ptr *C.kosher_rust_bindings_kosher_zmanim_Zmanim) *Zmanim {
+func wvAdoptZmanim(ptr *C.kosherz_zmanim_Zmanim) *Zmanim {
 	if ptr == nil {
 		return nil
 	}
@@ -2243,22 +2959,22 @@ func wvAdoptZmanim(ptr *C.kosher_rust_bindings_kosher_zmanim_Zmanim) *Zmanim {
 
 // native borrows the wrapper's pointer for one call; pair it with a
 // deferred s.ref.release().
-func (s *Zmanim) native() *C.kosher_rust_bindings_kosher_zmanim_Zmanim {
+func (s *Zmanim) native() *C.kosherz_zmanim_Zmanim {
 	if s == nil {
-		panic("kosher_rust_bindings: nil *Zmanim")
+		panic("kosherz: nil *Zmanim")
 	}
-	return (*C.kosher_rust_bindings_kosher_zmanim_Zmanim)(s.ref.acquire("Zmanim"))
+	return (*C.kosherz_zmanim_Zmanim)(s.ref.acquire("Zmanim"))
 }
 
 // share returns a new strong reference to the wrapper's object for the
 // native library to adopt (the wrapper keeps its own), or null for nil.
-func (s *Zmanim) share() *C.kosher_rust_bindings_kosher_zmanim_Zmanim {
+func (s *Zmanim) share() *C.kosherz_zmanim_Zmanim {
 	if s == nil {
 		return nil
 	}
 	ptr := s.native()
 	defer s.ref.release()
-	return C.kosher_rust_bindings_kosher_zmanim_Zmanim_clone(ptr)
+	return C.kosherz_zmanim_Zmanim_clone(ptr)
 }
 
 // Close releases the wrapper's strong reference and always returns nil.
@@ -2276,21 +2992,22 @@ func (s *Zmanim) Close() error {
 //
 // # Errors
 //
-// `KosherError::InvalidDate` for a date that does not exist; the errors of
-// `validate_location`.
+// `ZmanimError::InvalidGregorianDate` for a date that does not exist;
+// `ZmanimError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
+// than a day; the errors of `validate_location`.
 func NewZmanim(location Location, date GregorianDate, config Config, timeZone TimeZoneOffset) (*Zmanim, error) {
 	cLocationPtr, cLocationLen := wvBytes(wvEncode(location, wvWriteLocation))
 	cDatePtr, cDateLen := wvBytes(wvEncode(date, wvWriteGregorianDate))
 	cConfigPtr, cConfigLen := wvBytes(wvEncode(config, wvWriteConfig))
 	var cTimeZoneCtx unsafe.Pointer
-	var cTimeZoneVtable *C.kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable
+	var cTimeZoneVtable *C.kosherz_zmanim_TimeZoneOffset_vtable
 	if timeZone != nil {
-		cTimeZoneCtx, cTimeZoneVtable = wvNewCallback(timeZone), C.wvVtablePtr_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable()
+		cTimeZoneCtx, cTimeZoneVtable = wvNewCallback(timeZone), C.wvVtablePtr_kosherz_zmanim_TimeZoneOffset_vtable()
 	}
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_Zmanim_new(cLocationPtr, cLocationLen, cDatePtr, cDateLen, cConfigPtr, cConfigLen, cTimeZoneCtx, cTimeZoneVtable, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_Zmanim_new(cLocationPtr, cLocationLen, cDatePtr, cDateLen, cConfigPtr, cConfigLen, cTimeZoneCtx, cTimeZoneVtable, &cErr)
 	if cErr.code != 0 {
-		return nil, wvKosherError(wvTakeError(&cErr))
+		return nil, wvZmanimError(wvTakeError(&cErr))
 	}
 	return wvAdoptZmanim(cRet), nil
 }
@@ -2299,17 +3016,17 @@ func NewZmanim(location Location, date GregorianDate, config Config, timeZone Ti
 //
 // # Errors
 //
-// `KosherError::AllDay` or `KosherError::AllNight` where the sun never reaches
-// the angle the time needs; `KosherError::NotApplicable` for a time that only exists
-// on some days; `KosherError::TimeZoneRequired` for the Kiddush Levana times without
-// a time zone; `KosherError::TimeZoneCallbackFailed` when the callback failed.
+// `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
+// the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
+// on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
+// a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
 func (s *Zmanim) Get(zman Zman) (int64, error) {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_Zmanim_get(cSelf, C.kosher_rust_bindings_kosher_zmanim_Zman(zman), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_Zmanim_get(cSelf, C.kosherz_zmanim_Zman(zman), &cErr)
 	if cErr.code != 0 {
-		return 0, wvKosherError(wvTakeError(&cErr))
+		return 0, wvZmanimError(wvTakeError(&cErr))
 	}
 	return int64(cRet), nil
 }
@@ -2319,8 +3036,8 @@ func (s *Zmanim) All() []ZmanTime {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_Zmanim_all(cSelf, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_Zmanim_all(cSelf, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadListZmanTime)
 }
@@ -2330,14 +3047,15 @@ func (s *Zmanim) All() []ZmanTime {
 //
 // # Errors
 //
-// The same as `get`.
+// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
+// same as `get`.
 func (s *Zmanim) SunriseOffsetByDegrees(degrees float64) (int64, error) {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_Zmanim_sunrise_offset_by_degrees(cSelf, C.double(degrees), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_Zmanim_sunrise_offset_by_degrees(cSelf, C.double(degrees), &cErr)
 	if cErr.code != 0 {
-		return 0, wvKosherError(wvTakeError(&cErr))
+		return 0, wvZmanimError(wvTakeError(&cErr))
 	}
 	return int64(cRet), nil
 }
@@ -2347,14 +3065,15 @@ func (s *Zmanim) SunriseOffsetByDegrees(degrees float64) (int64, error) {
 //
 // # Errors
 //
-// The same as `get`.
+// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
+// same as `get`.
 func (s *Zmanim) SunsetOffsetByDegrees(degrees float64) (int64, error) {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_Zmanim_sunset_offset_by_degrees(cSelf, C.double(degrees), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_Zmanim_sunset_offset_by_degrees(cSelf, C.double(degrees), &cErr)
 	if cErr.code != 0 {
-		return 0, wvKosherError(wvTakeError(&cErr))
+		return 0, wvZmanimError(wvTakeError(&cErr))
 	}
 	return int64(cRet), nil
 }
@@ -2364,8 +3083,8 @@ func (s *Zmanim) Location() Location {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_Zmanim_location(cSelf, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_Zmanim_location(cSelf, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadLocation)
 }
@@ -2375,28 +3094,54 @@ func (s *Zmanim) Date() GregorianDate {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_Zmanim_date(cSelf, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_Zmanim_date(cSelf, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadGregorianDate)
 }
 
-// Config returns the configuration.
+// Config returns the configuration, as given to `new`.
 func (s *Zmanim) Config() Config {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_Zmanim_config(cSelf, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_Zmanim_config(cSelf, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadConfig)
+}
+
+// SeaLevelLocation returns a location at sea level, with flat horizons.
+func SeaLevelLocation(latitude float64, longitude float64) Location {
+	var cRetLen C.size_t
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_sea_level_location(C.double(latitude), C.double(longitude), &cRetLen, &cErr)
+	wvTrap(&cErr)
+	return wvDecode(cRet, cRetLen, wvReadLocation)
+}
+
+// ValidateLocation checks a location the way `Zmanim` will.
+//
+// # Errors
+//
+// `ZmanimError::InvalidLatitude`, `ZmanimError::InvalidLongitude` or
+// `ZmanimError::InvalidElevation`; `ZmanimError::TimeZoneRequired` beyond 150 degrees
+// from Greenwich when `has_time_zone` is false.
+func ValidateLocation(location Location, hasTimeZone bool) error {
+	cLocationPtr, cLocationLen := wvBytes(wvEncode(location, wvWriteLocation))
+	var cErr C.kosherz_error
+	C.kosherz_zmanim_validate_location(cLocationPtr, cLocationLen, C._Bool(hasTimeZone), &cErr)
+	if cErr.code != 0 {
+		return wvZmanimError(wvTakeError(&cErr))
+	}
+	return nil
 }
 
 // DefaultConfig: KosherJava's default configuration.
 func DefaultConfig() Config {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_default_config(&cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_default_config(&cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadConfig)
 }
@@ -2404,8 +3149,8 @@ func DefaultConfig() Config {
 // AllZmanim: Every zman, grouped by `Category`.
 func AllZmanim() []Zman {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_all_zmanim(&cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_all_zmanim(&cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadListZman)
 }
@@ -2413,8 +3158,8 @@ func AllZmanim() []Zman {
 // ZmanName returns the zman's display name, for example "Sof Zman Shma (GR'A)".
 func ZmanName(zman Zman) string {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_zman_name(C.kosher_rust_bindings_kosher_zmanim_Zman(zman), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_zman_name(C.kosherz_zmanim_Zman(zman), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvTakeString(cRet, cRetLen)
 }
@@ -2422,8 +3167,8 @@ func ZmanName(zman Zman) string {
 // ZmanJavaName returns the KosherJava method that calculates the zman, for example "getSofZmanShmaGRA".
 func ZmanJavaName(zman Zman) string {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_zman_java_name(C.kosher_rust_bindings_kosher_zmanim_Zman(zman), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_zman_java_name(C.kosherz_zmanim_Zman(zman), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvTakeString(cRet, cRetLen)
 }
@@ -2432,24 +3177,24 @@ func ZmanJavaName(zman Zman) string {
 func ZmanFromJavaName(javaName string) *Zman {
 	cJavaNamePtr, cJavaNameLen := wvStr(javaName)
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_zman_from_java_name(cJavaNamePtr, cJavaNameLen, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_zman_from_java_name(cJavaNamePtr, cJavaNameLen, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadOptZman)
 }
 
 // ZmanCategory returns what kind of time the zman is.
 func ZmanCategory(zman Zman) Category {
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_zman_category(C.kosher_rust_bindings_kosher_zmanim_Zman(zman), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_zman_category(C.kosherz_zmanim_Zman(zman), &cErr)
 	wvTrap(&cErr)
 	return Category(cRet)
 }
 
 // ZmanIsDeprecated reports whether KosherJava deprecates the zman.
 func ZmanIsDeprecated(zman Zman) bool {
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_zman_is_deprecated(C.kosher_rust_bindings_kosher_zmanim_Zman(zman), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_zman_is_deprecated(C.kosherz_zmanim_Zman(zman), &cErr)
 	wvTrap(&cErr)
 	return bool(cRet)
 }
@@ -2459,8 +3204,8 @@ func ZmanIsDeprecated(zman Zman) bool {
 func ZmanDescription(zman Zman, config Config) string {
 	cConfigPtr, cConfigLen := wvBytes(wvEncode(config, wvWriteConfig))
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_zman_description(C.kosher_rust_bindings_kosher_zmanim_Zman(zman), cConfigPtr, cConfigLen, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_zman_description(C.kosherz_zmanim_Zman(zman), cConfigPtr, cConfigLen, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvTakeString(cRet, cRetLen)
 }
@@ -2468,8 +3213,8 @@ func ZmanDescription(zman Zman, config Config) string {
 // CalculatorName returns the algorithm's descriptive name, as KosherJava's `getCalculatorName` gives it.
 func CalculatorName(calculator Calculator) string {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_calculator_name(C.kosher_rust_bindings_kosher_zmanim_Calculator(calculator), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_calculator_name(C.kosherz_zmanim_Calculator(calculator), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvTakeString(cRet, cRetLen)
 }
@@ -2477,507 +3222,10 @@ func CalculatorName(calculator Calculator) string {
 // ShaahZmanis returns a *shaah zmanis*: a twelfth of the day from `start` to `end` (Unix milliseconds), in
 // milliseconds.
 func ShaahZmanis(start int64, end int64) int64 {
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_zmanim_shaah_zmanis(C.int64_t(start), C.int64_t(end), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_shaah_zmanis(C.int64_t(start), C.int64_t(end), &cErr)
 	wvTrap(&cErr)
 	return int64(cRet)
-}
-
-// Tractate is a tractate of the Mishnah and Talmud, in the order of the Mishnah.
-type Tractate int32
-
-const (
-	// TractateBerachos: Berachos.
-	TractateBerachos Tractate = 0
-	// TractatePeah: Peah.
-	TractatePeah Tractate = 1
-	// TractateDemai: Demai.
-	TractateDemai Tractate = 2
-	// TractateKilayim: Kilayim.
-	TractateKilayim Tractate = 3
-	// TractateSheviis: Sheviis.
-	TractateSheviis Tractate = 4
-	// TractateTerumos: Terumos.
-	TractateTerumos Tractate = 5
-	// TractateMaasros: Maasros.
-	TractateMaasros Tractate = 6
-	// TractateMaaserSheni: Maaser Sheni.
-	TractateMaaserSheni Tractate = 7
-	// TractateChalah: Chalah.
-	TractateChalah Tractate = 8
-	// TractateOrlah: Orlah.
-	TractateOrlah Tractate = 9
-	// TractateBikurim: Bikurim.
-	TractateBikurim Tractate = 10
-	// TractateShabbos: Shabbos.
-	TractateShabbos Tractate = 11
-	// TractateEruvin: Eruvin.
-	TractateEruvin Tractate = 12
-	// TractatePesachim: Pesachim.
-	TractatePesachim Tractate = 13
-	// TractateShekalim: Shekalim.
-	TractateShekalim Tractate = 14
-	// TractateYoma: Yoma.
-	TractateYoma Tractate = 15
-	// TractateSukkah: Sukkah.
-	TractateSukkah Tractate = 16
-	// TractateBeitzah: Beitzah.
-	TractateBeitzah Tractate = 17
-	// TractateRoshHashanah: Rosh Hashanah.
-	TractateRoshHashanah Tractate = 18
-	// TractateTaanis: Taanis.
-	TractateTaanis Tractate = 19
-	// TractateMegillah: Megillah.
-	TractateMegillah Tractate = 20
-	// TractateMoedKatan: Moed Katan.
-	TractateMoedKatan Tractate = 21
-	// TractateChagigah: Chagigah.
-	TractateChagigah Tractate = 22
-	// TractateYevamos: Yevamos.
-	TractateYevamos Tractate = 23
-	// TractateKesubos: Kesubos.
-	TractateKesubos Tractate = 24
-	// TractateNedarim: Nedarim.
-	TractateNedarim Tractate = 25
-	// TractateNazir: Nazir.
-	TractateNazir Tractate = 26
-	// TractateSotah: Sotah.
-	TractateSotah Tractate = 27
-	// TractateGitin: Gitin.
-	TractateGitin Tractate = 28
-	// TractateKiddushin: Kiddushin.
-	TractateKiddushin Tractate = 29
-	// TractateBavaKamma: Bava Kamma.
-	TractateBavaKamma Tractate = 30
-	// TractateBavaMetzia: Bava Metzia.
-	TractateBavaMetzia Tractate = 31
-	// TractateBavaBasra: Bava Basra.
-	TractateBavaBasra Tractate = 32
-	// TractateSanhedrin: Sanhedrin.
-	TractateSanhedrin Tractate = 33
-	// TractateMakkos: Makkos.
-	TractateMakkos Tractate = 34
-	// TractateShevuos: Shevuos.
-	TractateShevuos Tractate = 35
-	// TractateEduyos: Eduyos.
-	TractateEduyos Tractate = 36
-	// TractateAvodahZarah: Avodah Zarah.
-	TractateAvodahZarah Tractate = 37
-	// TractateAvos: Avos.
-	TractateAvos Tractate = 38
-	// TractateHoriyos: Horiyos.
-	TractateHoriyos Tractate = 39
-	// TractateZevachim: Zevachim.
-	TractateZevachim Tractate = 40
-	// TractateMenachos: Menachos.
-	TractateMenachos Tractate = 41
-	// TractateChullin: Chullin.
-	TractateChullin Tractate = 42
-	// TractateBechoros: Bechoros.
-	TractateBechoros Tractate = 43
-	// TractateArachin: Arachin.
-	TractateArachin Tractate = 44
-	// TractateTemurah: Temurah.
-	TractateTemurah Tractate = 45
-	// TractateKerisos: Kerisos.
-	TractateKerisos Tractate = 46
-	// TractateMeilah: Meilah.
-	TractateMeilah Tractate = 47
-	// TractateTamid: Tamid.
-	TractateTamid Tractate = 48
-	// TractateMidos: Midos.
-	TractateMidos Tractate = 49
-	// TractateKinnim: Kinnim.
-	TractateKinnim Tractate = 50
-	// TractateKeilim: Keilim.
-	TractateKeilim Tractate = 51
-	// TractateOhalos: Ohalos.
-	TractateOhalos Tractate = 52
-	// TractateNegaim: Negaim.
-	TractateNegaim Tractate = 53
-	// TractateParah: Parah.
-	TractateParah Tractate = 54
-	// TractateTaharos: Taharos.
-	TractateTaharos Tractate = 55
-	// TractateMikvaos: Mikvaos.
-	TractateMikvaos Tractate = 56
-	// TractateNiddah: Niddah.
-	TractateNiddah Tractate = 57
-	// TractateMachshirin: Machshirin.
-	TractateMachshirin Tractate = 58
-	// TractateZavim: Zavim.
-	TractateZavim Tractate = 59
-	// TractateTevulYom: Tevul Yom.
-	TractateTevulYom Tractate = 60
-	// TractateYadayim: Yadayim.
-	TractateYadayim Tractate = 61
-	// TractateUktzin: Uktzin.
-	TractateUktzin Tractate = 62
-)
-
-func wvWriteTractate(w *wvWriter, v Tractate) {
-	w.writeI32(int32(v))
-}
-
-func wvReadTractate(r *wvReader) Tractate {
-	return Tractate(r.readI32())
-}
-
-// Side is a side of a page: *amud aleph* (a) or *amud beis* (b).
-type Side int32
-
-const (
-	// SideAleph: The front of the page, "a".
-	SideAleph Side = 0
-	// SideBet: The back of the page, "b".
-	SideBet Side = 1
-)
-
-func wvWriteSide(w *wvWriter, v Side) {
-	w.writeI32(int32(v))
-}
-
-func wvReadSide(r *wvReader) Side {
-	return Side(r.readI32())
-}
-
-// TehillimUnit is a day's portion of Tehillim.
-//
-// TehillimUnit is a sealed sum type: exactly one of its variant structs is the
-// value at a time.
-type TehillimUnit interface {
-	isTehillimUnit()
-}
-
-// TehillimUnitPsalms: Whole chapters, `start` to `end` inclusive.
-type TehillimUnitPsalms struct {
-	// Start is the first chapter.
-	Start int32
-	// End is the last chapter.
-	End int32
-}
-
-func (TehillimUnitPsalms) isTehillimUnit() {}
-
-// TehillimUnitPsalmVerses: Part of one long chapter (119, split over two days).
-type TehillimUnitPsalmVerses struct {
-	// Psalm is the chapter.
-	Psalm int32
-	// StartVerse is the first verse.
-	StartVerse int32
-	// EndVerse is the last verse.
-	EndVerse int32
-}
-
-func (TehillimUnitPsalmVerses) isTehillimUnit() {}
-
-func wvWriteTehillimUnit(w *wvWriter, v TehillimUnit) {
-	switch x := v.(type) {
-	case TehillimUnitPsalms:
-		w.writeI32(0)
-		w.writeI32(x.Start)
-		w.writeI32(x.End)
-	case TehillimUnitPsalmVerses:
-		w.writeI32(1)
-		w.writeI32(x.Psalm)
-		w.writeI32(x.StartVerse)
-		w.writeI32(x.EndVerse)
-	default:
-		panic("kosher_rust_bindings: TehillimUnit value is not one of its variants")
-	}
-}
-
-func wvReadTehillimUnit(r *wvReader) TehillimUnit {
-	switch r.readI32() {
-	case 0:
-		var x TehillimUnitPsalms
-		x.Start = r.readI32()
-		x.End = r.readI32()
-		return x
-	case 1:
-		var x TehillimUnitPsalmVerses
-		x.Psalm = r.readI32()
-		x.StartVerse = r.readI32()
-		x.EndVerse = r.readI32()
-		return x
-	}
-	wvMalformed("TehillimUnit tag out of range")
-	return nil
-}
-
-// PirkeiAvosUnit is the Pirkei Avos read on a Shabbos afternoon.
-//
-// PirkeiAvosUnit is a sealed sum type: exactly one of its variant structs is
-// the value at a time.
-type PirkeiAvosUnit interface {
-	isPirkeiAvosUnit()
-}
-
-// PirkeiAvosUnitSingle: One chapter.
-type PirkeiAvosUnitSingle struct {
-	// Chapter is the chapter, 1 to 6.
-	Chapter int32
-}
-
-func (PirkeiAvosUnitSingle) isPirkeiAvosUnit() {}
-
-// PirkeiAvosUnitCombined: Two chapters read together, at the end of the summer.
-type PirkeiAvosUnitCombined struct {
-	// First is the first chapter.
-	First int32
-	// Second is the second chapter.
-	Second int32
-}
-
-func (PirkeiAvosUnitCombined) isPirkeiAvosUnit() {}
-
-func wvWritePirkeiAvosUnit(w *wvWriter, v PirkeiAvosUnit) {
-	switch x := v.(type) {
-	case PirkeiAvosUnitSingle:
-		w.writeI32(0)
-		w.writeI32(x.Chapter)
-	case PirkeiAvosUnitCombined:
-		w.writeI32(1)
-		w.writeI32(x.First)
-		w.writeI32(x.Second)
-	default:
-		panic("kosher_rust_bindings: PirkeiAvosUnit value is not one of its variants")
-	}
-}
-
-func wvReadPirkeiAvosUnit(r *wvReader) PirkeiAvosUnit {
-	switch r.readI32() {
-	case 0:
-		var x PirkeiAvosUnitSingle
-		x.Chapter = r.readI32()
-		return x
-	case 1:
-		var x PirkeiAvosUnitCombined
-		x.First = r.readI32()
-		x.Second = r.readI32()
-		return x
-	}
-	wvMalformed("PirkeiAvosUnit tag out of range")
-	return nil
-}
-
-// Daf is a page (*daf*) of the Talmud: both sides of one leaf.
-type Daf struct {
-	// Tractate is the tractate.
-	Tractate Tractate
-	// Daf is the page number. The Bavli starts at 2, the Yerushalmi at 1.
-	Daf int32
-	// Display: As text, for example "Bava Metzia 55".
-	Display string
-}
-
-func wvWriteDaf(w *wvWriter, v Daf) {
-	wvWriteTractate(w, v.Tractate)
-	w.writeI32(v.Daf)
-	w.writeString(v.Display)
-}
-
-func wvReadDaf(r *wvReader) Daf {
-	var v Daf
-	v.Tractate = wvReadTractate(r)
-	v.Daf = r.readI32()
-	v.Display = r.readString()
-	return v
-}
-
-// Amud: One side of a page (*amud*).
-type Amud struct {
-	// Tractate is the tractate.
-	Tractate Tractate
-	// Daf is the page number.
-	Daf int32
-	// Side is which side of the page.
-	Side Side
-	// Display: As text, for example "Bava Metzia 55b".
-	Display string
-}
-
-func wvWriteAmud(w *wvWriter, v Amud) {
-	wvWriteTractate(w, v.Tractate)
-	w.writeI32(v.Daf)
-	wvWriteSide(w, v.Side)
-	w.writeString(v.Display)
-}
-
-func wvReadAmud(r *wvReader) Amud {
-	var v Amud
-	v.Tractate = wvReadTractate(r)
-	v.Daf = r.readI32()
-	v.Side = wvReadSide(r)
-	v.Display = r.readString()
-	return v
-}
-
-// Mishna: One *mishnah*.
-type Mishna struct {
-	// Tractate is the tractate.
-	Tractate Tractate
-	// Chapter is the chapter (*perek*), from 1.
-	Chapter int32
-	// Mishna is the *mishnah* within the chapter, from 1.
-	Mishna int32
-	// Display: As text, for example "Nazir 5:5".
-	Display string
-}
-
-func wvWriteMishna(w *wvWriter, v Mishna) {
-	wvWriteTractate(w, v.Tractate)
-	w.writeI32(v.Chapter)
-	w.writeI32(v.Mishna)
-	w.writeString(v.Display)
-}
-
-func wvReadMishna(r *wvReader) Mishna {
-	var v Mishna
-	v.Tractate = wvReadTractate(r)
-	v.Chapter = r.readI32()
-	v.Mishna = r.readI32()
-	v.Display = r.readString()
-	return v
-}
-
-// MishnaPair is the two *mishnayos* of a day of Mishna Yomis.
-type MishnaPair struct {
-	// First is the first *mishnah*.
-	First Mishna
-	// Second is the second, the next *mishnah* in order.
-	Second Mishna
-	// Display: As text, for example "Nazir 5:5-6".
-	Display string
-}
-
-func wvWriteMishnaPair(w *wvWriter, v MishnaPair) {
-	wvWriteMishna(w, v.First)
-	wvWriteMishna(w, v.Second)
-	w.writeString(v.Display)
-}
-
-func wvReadMishnaPair(r *wvReader) MishnaPair {
-	var v MishnaPair
-	v.First = wvReadMishna(r)
-	v.Second = wvReadMishna(r)
-	v.Display = r.readString()
-	return v
-}
-
-// TractateName returns the tractate's English name, for example "Bava Metzia".
-func TractateName(tractate Tractate) string {
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_limudim_tractate_name(C.kosher_rust_bindings_kosher_limudim_Tractate(tractate), &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvTakeString(cRet, cRetLen)
-}
-
-// TractateHebrew returns the tractate's Hebrew name.
-func TractateHebrew(tractate Tractate) string {
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_limudim_tractate_hebrew(C.kosher_rust_bindings_kosher_limudim_Tractate(tractate), &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvTakeString(cRet, cRetLen)
-}
-
-// TehillimDisplay returns the portion as text, for example "Tehillim 1-9".
-func TehillimDisplay(unit TehillimUnit) string {
-	cUnitPtr, cUnitLen := wvBytes(wvEncode(unit, wvWriteTehillimUnit))
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_limudim_tehillim_display(cUnitPtr, cUnitLen, &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvTakeString(cRet, cRetLen)
-}
-
-// PirkeiAvosDisplay returns the portion as text, for example "Pirkei Avos 5-6".
-func PirkeiAvosDisplay(unit PirkeiAvosUnit) string {
-	cUnitPtr, cUnitLen := wvBytes(wvEncode(unit, wvWritePirkeiAvosUnit))
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_limudim_pirkei_avos_display(cUnitPtr, cUnitLen, &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvTakeString(cRet, cRetLen)
-}
-
-// DafYomiBavli: Daf Yomi: a page of the Babylonian Talmud a day, from 11 September 1923.
-func DafYomiBavli(date *HebrewDate) *Daf {
-	cDate := date.native()
-	defer date.ref.release()
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_limudim_daf_yomi_bavli(cDate, &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvDecode(cRet, cRetLen, wvReadOptDaf)
-}
-
-// DafHashavuaBavli: Daf Hashavua: a page of the Babylonian Talmud a week.
-func DafHashavuaBavli(date *HebrewDate) *Daf {
-	cDate := date.native()
-	defer date.ref.release()
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_limudim_daf_hashavua_bavli(cDate, &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvDecode(cRet, cRetLen, wvReadOptDaf)
-}
-
-// DafYomiYerushalmi: Daf Yomi Yerushalmi: a page of the Jerusalem Talmud a day.
-func DafYomiYerushalmi(date *HebrewDate) *Daf {
-	cDate := date.native()
-	defer date.ref.release()
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_limudim_daf_yomi_yerushalmi(cDate, &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvDecode(cRet, cRetLen, wvReadOptDaf)
-}
-
-// AmudYomiDirshu: Dirshu's Amud Yomi: one side of a page of the Babylonian Talmud a day.
-func AmudYomiDirshu(date *HebrewDate) *Amud {
-	cDate := date.native()
-	defer date.ref.release()
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_limudim_amud_yomi_dirshu(cDate, &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvDecode(cRet, cRetLen, wvReadOptAmud)
-}
-
-// MishnaYomis: Mishna Yomis: two *mishnayos* a day, from 20 May 1947.
-func MishnaYomis(date *HebrewDate) *MishnaPair {
-	cDate := date.native()
-	defer date.ref.release()
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_limudim_mishna_yomis(cDate, &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvDecode(cRet, cRetLen, wvReadOptMishnaPair)
-}
-
-// TehillimMonthly: Tehillim divided over the days of the Hebrew month.
-func TehillimMonthly(date *HebrewDate) TehillimUnit {
-	cDate := date.native()
-	defer date.ref.release()
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_limudim_tehillim_monthly(cDate, &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvDecode(cRet, cRetLen, wvReadOptTehillimUnit)
-}
-
-// PirkeiAvos: Pirkei Avos: a chapter each Shabbos afternoon from Pesach to Rosh Hashana.
-func PirkeiAvos(date *HebrewDate, region Region) PirkeiAvosUnit {
-	cDate := date.native()
-	defer date.ref.release()
-	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_limudim_pirkei_avos(cDate, C.kosher_rust_bindings_kosher_calendar_Region(region), &cRetLen, &cErr)
-	wvTrap(&cErr)
-	return wvDecode(cRet, cRetLen, wvReadOptPirkeiAvosUnit)
 }
 
 // MyZman: One row of the MyZmanim website's "All zmanim" table, in the table's order.
@@ -3108,11 +3356,11 @@ type MyZmanim struct {
 }
 
 func wvDestroyMyZmanim(ptr unsafe.Pointer) {
-	C.kosher_rust_bindings_kosher_myzmanim_MyZmanim_destroy((*C.kosher_rust_bindings_kosher_myzmanim_MyZmanim)(ptr))
+	C.kosherz_zmanim_myzmanim_MyZmanim_destroy((*C.kosherz_zmanim_myzmanim_MyZmanim)(ptr))
 }
 
 // wvAdoptMyZmanim wraps one owned strong reference. A null pointer adopts to nil.
-func wvAdoptMyZmanim(ptr *C.kosher_rust_bindings_kosher_myzmanim_MyZmanim) *MyZmanim {
+func wvAdoptMyZmanim(ptr *C.kosherz_zmanim_myzmanim_MyZmanim) *MyZmanim {
 	if ptr == nil {
 		return nil
 	}
@@ -3124,22 +3372,22 @@ func wvAdoptMyZmanim(ptr *C.kosher_rust_bindings_kosher_myzmanim_MyZmanim) *MyZm
 
 // native borrows the wrapper's pointer for one call; pair it with a
 // deferred s.ref.release().
-func (s *MyZmanim) native() *C.kosher_rust_bindings_kosher_myzmanim_MyZmanim {
+func (s *MyZmanim) native() *C.kosherz_zmanim_myzmanim_MyZmanim {
 	if s == nil {
-		panic("kosher_rust_bindings: nil *MyZmanim")
+		panic("kosherz: nil *MyZmanim")
 	}
-	return (*C.kosher_rust_bindings_kosher_myzmanim_MyZmanim)(s.ref.acquire("MyZmanim"))
+	return (*C.kosherz_zmanim_myzmanim_MyZmanim)(s.ref.acquire("MyZmanim"))
 }
 
 // share returns a new strong reference to the wrapper's object for the
 // native library to adopt (the wrapper keeps its own), or null for nil.
-func (s *MyZmanim) share() *C.kosher_rust_bindings_kosher_myzmanim_MyZmanim {
+func (s *MyZmanim) share() *C.kosherz_zmanim_myzmanim_MyZmanim {
 	if s == nil {
 		return nil
 	}
 	ptr := s.native()
 	defer s.ref.release()
-	return C.kosher_rust_bindings_kosher_myzmanim_MyZmanim_clone(ptr)
+	return C.kosherz_zmanim_myzmanim_MyZmanim_clone(ptr)
 }
 
 // Close releases the wrapper's strong reference and always returns nil.
@@ -3158,20 +3406,21 @@ func (s *MyZmanim) Close() error {
 //
 // # Errors
 //
-// `KosherError::InvalidDate` for a date that does not exist; the errors of
-// `validate_location`.
+// `ZmanimError::InvalidGregorianDate` for a date that does not exist;
+// `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
+// of at most 1440 either way; the errors of `validate_location`.
 func NewMyZmanim(location Location, date GregorianDate, candleLightingMinutes float64, timeZone TimeZoneOffset) (*MyZmanim, error) {
 	cLocationPtr, cLocationLen := wvBytes(wvEncode(location, wvWriteLocation))
 	cDatePtr, cDateLen := wvBytes(wvEncode(date, wvWriteGregorianDate))
 	var cTimeZoneCtx unsafe.Pointer
-	var cTimeZoneVtable *C.kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable
+	var cTimeZoneVtable *C.kosherz_zmanim_TimeZoneOffset_vtable
 	if timeZone != nil {
-		cTimeZoneCtx, cTimeZoneVtable = wvNewCallback(timeZone), C.wvVtablePtr_kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable()
+		cTimeZoneCtx, cTimeZoneVtable = wvNewCallback(timeZone), C.wvVtablePtr_kosherz_zmanim_TimeZoneOffset_vtable()
 	}
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_MyZmanim_new(cLocationPtr, cLocationLen, cDatePtr, cDateLen, C.double(candleLightingMinutes), cTimeZoneCtx, cTimeZoneVtable, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_MyZmanim_new(cLocationPtr, cLocationLen, cDatePtr, cDateLen, C.double(candleLightingMinutes), cTimeZoneCtx, cTimeZoneVtable, &cErr)
 	if cErr.code != 0 {
-		return nil, wvKosherError(wvTakeError(&cErr))
+		return nil, wvZmanimError(wvTakeError(&cErr))
 	}
 	return wvAdoptMyZmanim(cRet), nil
 }
@@ -3180,15 +3429,15 @@ func NewMyZmanim(location Location, date GregorianDate, candleLightingMinutes fl
 //
 // # Errors
 //
-// `KosherError::AllDay` or `KosherError::AllNight` where the website shows no
-// time; `KosherError::TimeZoneCallbackFailed` when the callback failed.
+// `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
+// time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
 func (s *MyZmanim) Get(zman MyZman) (int64, error) {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_MyZmanim_get(cSelf, C.kosher_rust_bindings_kosher_myzmanim_MyZman(zman), &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_MyZmanim_get(cSelf, C.kosherz_zmanim_myzmanim_MyZman(zman), &cErr)
 	if cErr.code != 0 {
-		return 0, wvKosherError(wvTakeError(&cErr))
+		return 0, wvZmanimError(wvTakeError(&cErr))
 	}
 	return int64(cRet), nil
 }
@@ -3198,8 +3447,8 @@ func (s *MyZmanim) All() []MyZmanTime {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_MyZmanim_all(cSelf, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_MyZmanim_all(cSelf, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadListMyZmanTime)
 }
@@ -3212,10 +3461,10 @@ func (s *MyZmanim) All() []MyZmanTime {
 func (s *MyZmanim) ProportionalHourGra() (int64, error) {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_MyZmanim_proportional_hour_gra(cSelf, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra(cSelf, &cErr)
 	if cErr.code != 0 {
-		return 0, wvKosherError(wvTakeError(&cErr))
+		return 0, wvZmanimError(wvTakeError(&cErr))
 	}
 	return int64(cRet), nil
 }
@@ -3225,8 +3474,8 @@ func (s *MyZmanim) Location() Location {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_MyZmanim_location(cSelf, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_MyZmanim_location(cSelf, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadLocation)
 }
@@ -3236,8 +3485,8 @@ func (s *MyZmanim) Date() GregorianDate {
 	cSelf := s.native()
 	defer s.ref.release()
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_MyZmanim_date(cSelf, &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_MyZmanim_date(cSelf, &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadGregorianDate)
 }
@@ -3246,8 +3495,8 @@ func (s *MyZmanim) Date() GregorianDate {
 func (s *MyZmanim) CandleLightingMinutes() float64 {
 	cSelf := s.native()
 	defer s.ref.release()
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_MyZmanim_candle_lighting_minutes(cSelf, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes(cSelf, &cErr)
 	wvTrap(&cErr)
 	return float64(cRet)
 }
@@ -3255,8 +3504,8 @@ func (s *MyZmanim) CandleLightingMinutes() float64 {
 // MyZmanName returns the row's name as the website shows it.
 func MyZmanName(zman MyZman) string {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_my_zman_name(C.kosher_rust_bindings_kosher_myzmanim_MyZman(zman), &cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_my_zman_name(C.kosherz_zmanim_myzmanim_MyZman(zman), &cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvTakeString(cRet, cRetLen)
 }
@@ -3264,48 +3513,48 @@ func MyZmanName(zman MyZman) string {
 // AllMyZmanim: Every row, in the website's order.
 func AllMyZmanim() []MyZman {
 	var cRetLen C.size_t
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_all_my_zmanim(&cRetLen, &cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_all_my_zmanim(&cRetLen, &cErr)
 	wvTrap(&cErr)
 	return wvDecode(cRet, cRetLen, wvReadListMyZman)
 }
 
 // Dawn90Degrees returns the sun's depression for "90 minutes as degrees": 19.75 degrees.
 func Dawn90Degrees() float64 {
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_dawn_90_degrees(&cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_dawn_90_degrees(&cErr)
 	wvTrap(&cErr)
 	return float64(cRet)
 }
 
 // Dawn72Degrees returns the sun's depression for "72 minutes as 16.1 degrees".
 func Dawn72Degrees() float64 {
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_dawn_72_degrees(&cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_dawn_72_degrees(&cErr)
 	wvTrap(&cErr)
 	return float64(cRet)
 }
 
 // SeaLevelRefractionArcminutes: Refraction at a sea-level horizon, in arcminutes.
 func SeaLevelRefractionArcminutes() float64 {
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_sea_level_refraction_arcminutes(&cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(&cErr)
 	wvTrap(&cErr)
 	return float64(cRet)
 }
 
 // DipDegreesPerRootMeter returns the dip of the horizon per square root of a meter of height, in degrees.
 func DipDegreesPerRootMeter() float64 {
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_dip_degrees_per_root_meter(&cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(&cErr)
 	wvTrap(&cErr)
 	return float64(cRet)
 }
 
 // DefaultCandleLightingMinutes returns the website's default minutes before sunset for candle lighting.
 func DefaultCandleLightingMinutes() float64 {
-	var cErr C.kosher_rust_bindings_error
-	cRet := C.kosher_rust_bindings_kosher_myzmanim_default_candle_lighting_minutes(&cErr)
+	var cErr C.kosherz_error
+	cRet := C.kosherz_zmanim_myzmanim_default_candle_lighting_minutes(&cErr)
 	wvTrap(&cErr)
 	return float64(cRet)
 }

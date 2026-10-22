@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "kosher_rust_bindings.h"
+#include "kosherz.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -21,7 +21,7 @@
 #include <variant>
 #include <vector>
 
-namespace kosher_rust_bindings {
+namespace kosherz {
 
 /**
  * An error a call that declares errors reports.
@@ -64,7 +64,7 @@ class InternalError : public std::runtime_error {
 public:
     /** Builds an internal error carrying `code` and the producer's `message`. */
     InternalError(int32_t code, const std::string& message)
-        : std::runtime_error("kosher_rust_bindings: runtime error " + std::to_string(code) + ": " + message),
+        : std::runtime_error("kosherz: runtime error " + std::to_string(code) + ": " + message),
           code_(code),
           message_(message) {}
 
@@ -76,7 +76,7 @@ public:
 };
 
 /**
- * Thrown on first use when the linked kosher_rust_bindings library implements a
+ * Thrown on first use when the linked kosherz library implements a
  * different C ABI revision than this header, or lacks or changed a
  * declaration this header was generated with.
  */
@@ -106,20 +106,20 @@ inline constexpr adopt_t adopt{};
  * destroyed at any time; the destructor releases this wrapper's reference.
  */
 class CancelToken {
-    kosher_rust_bindings_cancel_token* handle_;
+    kosherz_cancel_token* handle_;
 
     struct none_t {};
     explicit CancelToken(none_t) noexcept : handle_(nullptr) {}
 
 public:
     /** Creates a new, uncancelled token. */
-    CancelToken() : handle_(kosher_rust_bindings_cancel_token_create()) {
+    CancelToken() : handle_(kosherz_cancel_token_create()) {
         if (handle_ == nullptr) throw std::bad_alloc();
     }
 
     /** Releases this wrapper's reference to the native token. */
     ~CancelToken() {
-        if (handle_ != nullptr) kosher_rust_bindings_cancel_token_destroy(handle_);
+        if (handle_ != nullptr) kosherz_cancel_token_destroy(handle_);
     }
 
     CancelToken(const CancelToken&) = delete;
@@ -131,7 +131,7 @@ public:
     /** Releases the current token and takes over `other`'s. */
     CancelToken& operator=(CancelToken&& other) noexcept {
         if (this != &other) {
-            if (handle_ != nullptr) kosher_rust_bindings_cancel_token_destroy(handle_);
+            if (handle_ != nullptr) kosherz_cancel_token_destroy(handle_);
             handle_ = other.handle_;
             other.handle_ = nullptr;
         }
@@ -146,16 +146,16 @@ public:
 
     /** Requests cancellation of every call this token was passed to. Idempotent and thread-safe. */
     void cancel() const noexcept {
-        if (handle_ != nullptr) kosher_rust_bindings_cancel_token_cancel(handle_);
+        if (handle_ != nullptr) kosherz_cancel_token_cancel(handle_);
     }
 
     /** Whether cancel() has been called. */
     bool is_cancelled() const noexcept {
-        return handle_ != nullptr && kosher_rust_bindings_cancel_token_is_cancelled(handle_);
+        return handle_ != nullptr && kosherz_cancel_token_is_cancelled(handle_);
     }
 
     /** The native token, borrowed (null for an empty token). */
-    kosher_rust_bindings_cancel_token* handle() const noexcept { return handle_; }
+    kosherz_cancel_token* handle() const noexcept { return handle_; }
 };
 
 namespace detail {
@@ -167,15 +167,15 @@ inline std::exception_ptr make_internal_error(int32_t code, const std::string& m
 }
 
 /** The message of a nonzero error slot. */
-inline std::string error_message(const kosher_rust_bindings_error& err) {
+inline std::string error_message(const kosherz_error& err) {
     return std::string(err.message != nullptr ? err.message : "unknown error");
 }
 
 /** Throws InternalError if `err` carries a nonzero code (a call that declares no errors). */
-inline void check(kosher_rust_bindings_error& err) {
+inline void check(kosherz_error& err) {
     if (err.code == 0) return;
     std::exception_ptr ex = make_internal_error(err.code, error_message(err));
-    kosher_rust_bindings_error_clear(&err);
+    kosherz_error_clear(&err);
     std::rethrow_exception(ex);
 }
 
@@ -185,7 +185,7 @@ inline std::string take_string(const uint8_t* ptr, size_t len) {
     struct Release {
         const uint8_t* ptr;
         size_t len;
-        ~Release() { kosher_rust_bindings_free_bytes(const_cast<uint8_t*>(ptr), len); }
+        ~Release() { kosherz_free_bytes(const_cast<uint8_t*>(ptr), len); }
     } release{ptr, len};
     return std::string(reinterpret_cast<const char*>(ptr), len);
 }
@@ -196,7 +196,7 @@ inline std::vector<uint8_t> take_bytes(const uint8_t* ptr, size_t len) {
     struct Release {
         const uint8_t* ptr;
         size_t len;
-        ~Release() { kosher_rust_bindings_free_bytes(const_cast<uint8_t*>(ptr), len); }
+        ~Release() { kosherz_free_bytes(const_cast<uint8_t*>(ptr), len); }
     } release{ptr, len};
     return std::vector<uint8_t>(ptr, ptr + len);
 }
@@ -220,13 +220,13 @@ inline const uint8_t* utf8(std::string_view s) noexcept {
 
 /**
  * Hands `len` bytes from `data` to the producer through a callback method's
- * out slots: copies them into a run from kosher_rust_bindings_alloc, which the
+ * out slots: copies them into a run from kosherz_alloc, which the
  * producer adopts and frees.
  */
 inline void hand_over(const void* data, size_t len, uint8_t** out_ptr, size_t* out_len) {
     uint8_t* run = nullptr;
     if (len > 0) {
-        run = kosher_rust_bindings_alloc(len);
+        run = kosherz_alloc(len);
         if (run == nullptr) throw std::bad_alloc();
         std::memcpy(run, data, len);
     }
@@ -251,10 +251,10 @@ struct ContractEntry {
  * doesn't are fine.
  */
 template <size_t N>
-std::string contract_mismatch(const kosher_rust_bindings_contract_entry* (*contract)(size_t*),
+std::string contract_mismatch(const kosherz_contract_entry* (*contract)(size_t*),
                               const ContractEntry (&expected)[N]) {
     size_t len = 0;
-    const kosher_rust_bindings_contract_entry* table = contract(&len);
+    const kosherz_contract_entry* table = contract(&len);
     if (table == nullptr) len = 0;
     for (const ContractEntry& want : expected) {
         size_t lo = 0;
@@ -277,121 +277,127 @@ std::string contract_mismatch(const kosher_rust_bindings_contract_entry* (*contr
     return std::string();
 }
 
-/** The declarations of module `kosher` this header was generated with. */
-inline constexpr ContractEntry kosher_contract[] = {
-    {0x01718c61982b1186ull, 0xf4f23e6586bd1dd7ull, "kosher.calendar.HebrewDate"},
-    {0x02e9ea1e074d9616ull, 0xf9b3a1fb63fa80adull, "kosher.calendar.HebrewDate.new"},
-    {0x03882ac679d96689ull, 0xcddd8b18c602be76ull, "kosher.myzmanim.MyZman"},
-    {0x04f3f14d3ef83cebull, 0x0577fa34d1dea8c3ull, "kosher.zmanim.default_config"},
-    {0x0724ad3f4488a4d6ull, 0x54411bdda9d3b13bull, "kosher.calendar.HebrewDate.month"},
-    {0x094083ae8fe1abb7ull, 0xc3e1903a4dc8359dull, "kosher.calendar.HebrewDate.is_aseres_yemei_teshuva"},
-    {0x0b156d1de3432ebbull, 0xdf4697e13848d687ull, "kosher.zmanim.zman_from_java_name"},
-    {0x0c01dba1f7f4f711ull, 0x2bf1569214921669ull, "kosher.calendar.month_hebrew"},
-    {0x0fbb1be0dca80b07ull, 0x174890db5e5166c8ull, "kosher.zmanim.TimeZoneOffset"},
-    {0x1079a40f22149b4full, 0xffb3d691737a4f38ull, "kosher.zmanim.Category"},
-    {0x138f4214c0e77bcfull, 0xc3cb9f9d3b5b28baull, "kosher.myzmanim.MyZmanim.date"},
-    {0x153826166a12ca36ull, 0x6e401597e28209a9ull, "kosher.limudim.MishnaPair"},
-    {0x2243ea36986d7b66ull, 0x35e622a32a88ef57ull, "kosher.limudim.mishna_yomis"},
-    {0x2313acabb3163fabull, 0xcc6eb9ea8c42ca79ull, "kosher.myzmanim.MyZmanim.new"},
-    {0x24cdc086cf36be51ull, 0x399eab22141dffd3ull, "kosher.GregorianDate"},
-    {0x2668512b1aa64aabull, 0x3278f3a62bb6e469ull, "kosher.myzmanim.dawn_72_degrees"},
-    {0x2ad783776a9172c8ull, 0x4a23e822039987a7ull, "kosher.zmanim.zman_description"},
-    {0x30806b553ee3151bull, 0x6d8fbc67948278bcull, "kosher.calendar.holiday_name"},
-    {0x34e5c6abbe2615d9ull, 0x32c85d18778b0bb4ull, "kosher.calendar.HebrewDate.equals"},
-    {0x36dd321b76c0ed69ull, 0x684e92fa36717939ull, "kosher.calendar.month_name"},
-    {0x37448571e33eb4c8ull, 0xc5f954c475f4dc9dull, "kosher.zmanim.zman_java_name"},
-    {0x385ec0e5c6b6cbe1ull, 0xf70eea6f6621717full, "kosher.validate_location"},
-    {0x394b7220ed1cfcfcull, 0xdec9155329278f29ull, "kosher.myzmanim.my_zman_name"},
-    {0x3961ee1e26dcc2c2ull, 0x19e0d2b3ff9d26feull, "kosher.calendar.HebrewDate.day"},
-    {0x3ab97e588077d102ull, 0x6c9e0901963a2dfcull, "kosher.limudim.tractate_hebrew"},
-    {0x3c39234035bb9609ull, 0xe44d7e786ec0b8a3ull, "kosher.zmanim.ZmanFailure"},
-    {0x3d59747696651911ull, 0xbea68784cf687a1aull, "kosher.zmanim.Zmanim.get"},
-    {0x423ec30f385c7ebdull, 0x2d505394972243a9ull, "kosher.calendar.HebrewDate.holidays"},
-    {0x45c5a852c65a0ffdull, 0x1b7e37005bd2f8e9ull, "kosher.limudim.Daf"},
-    {0x4e4b62abcb8a2d5eull, 0x975c3a96549104d2ull, "kosher.myzmanim.MyZmanim.all"},
-    {0x4e661ecc2b8ca32cull, 0xda6045b56b1c2c6eull, "kosher.calendar.holiday_is_assur_bemelacha"},
-    {0x5172659a7426e2c3ull, 0xc3cb9f9d3b5b28baull, "kosher.zmanim.Zmanim.date"},
-    {0x523623f570203876ull, 0x57c83a0f8bc36c6cull, "kosher.limudim.Mishna"},
-    {0x526a26b03028a9daull, 0xd86a18c3b722f6c7ull, "kosher.limudim.tehillim_monthly"},
-    {0x5354814de360e8f7ull, 0x74c7180edff5c022ull, "kosher.calendar.HebrewDate.from_gregorian"},
-    {0x5592c98a3cb09e5dull, 0xe1e8d4dad467e3e7ull, "kosher.limudim.Amud"},
-    {0x55993c04bd9835deull, 0x21bf463baf36e8aeull, "kosher.limudim.daf_hashavua_bavli"},
-    {0x5991196a080a26dcull, 0x63856359341062eeull, "kosher.myzmanim.MyZmanim.location"},
-    {0x5997bfd0eb719c13ull, 0xfa44bbb1fab132e5ull, "kosher.sea_level_location"},
-    {0x5a9c64882b7b2804ull, 0x9328a81ac256b477ull, "kosher.calendar.parsha_hebrew"},
-    {0x5aee55dd28f11b30ull, 0x63856359341062eeull, "kosher.zmanim.Zmanim.location"},
-    {0x5cdab24b47a3224dull, 0x96b30eb7f85eaf21ull, "kosher.limudim.daf_yomi_bavli"},
-    {0x6096beabd62d7955ull, 0x93dc654d560a63b8ull, "kosher.myzmanim.MyZmanim.get"},
-    {0x61310307963101d6ull, 0x93ef9500cb5f1cfcull, "kosher.zmanim.Zmanim.sunrise_offset_by_degrees"},
-    {0x62d21d4da295991full, 0x549f4e736961b812ull, "kosher.zmanim.calculator_name"},
-    {0x66735e59c1eb8811ull, 0xf35981f09fb986dfull, "kosher.calendar.HebrewDate.year"},
-    {0x698e779f5d09291full, 0x71127b971df5975aull, "kosher.limudim.PirkeiAvosUnit"},
-    {0x6b2789499d0e4dacull, 0xdc1addb4a7ab46efull, "kosher.calendar.parsha_name"},
-    {0x7050bfa115351067ull, 0x11babf7c30a11935ull, "kosher.myzmanim.dip_degrees_per_root_meter"},
-    {0x70610003fc81f35aull, 0x4d70455ac9baa1e4ull, "kosher.limudim.tractate_name"},
-    {0x70907076b3302b62ull, 0x669e3d4d3e9d42ccull, "kosher.zmanim.Zmanim.all"},
-    {0x740a5191148d4e6dull, 0x0486761191984fd0ull, "kosher.zmanim.Zman"},
-    {0x77e7388817ca6657ull, 0xe3c7eb49f063a0ceull, "kosher.myzmanim.MyZmanim"},
-    {0x7902c024b0b550a2ull, 0xd6c2f5c20a8b129dull, "kosher.limudim.TehillimUnit"},
-    {0x81b92bcb06f03438ull, 0x6c389ed6ad08dbe3ull, "kosher.calendar.rosh_hashana"},
-    {0x8377f31b2f2926d1ull, 0x5962ffa89080c41bull, "kosher.zmanim.shaah_zmanis"},
-    {0x853f786f228ae745ull, 0x6614e227c469c232ull, "kosher.zmanim.Zmanim.config"},
-    {0x86cd6b9d8b9124adull, 0xe37c3b01bade2393ull, "kosher.calendar.year_info"},
-    {0x87fd7cca8a5ad41bull, 0x52972cadc08c13efull, "kosher.zmanim.all_zmanim"},
-    {0x88ce069eb9d759f1ull, 0x2b82d4d65ec59dd7ull, "kosher.myzmanim.default_candle_lighting_minutes"},
-    {0x8cfae276c3f8b0c7ull, 0x99d014ada9906437ull, "kosher.zmanim.Zmanim.new"},
-    {0x8dc9c19aaf9ab29dull, 0x03b0248b8cfa2de8ull, "kosher.calendar.days_in_month"},
-    {0x8f259528012c269full, 0x0ddfa27385759174ull, "kosher.calendar.HebrewDate.add_days"},
-    {0x91c1ac3d327bcf7full, 0xc7b188714edbf795ull, "kosher.calendar.HebrewDate.special_parsha"},
-    {0x94c44cc0a0a11679ull, 0x8111a6d476ecf648ull, "kosher.calendar.Region"},
-    {0x955ac51b92c6da8eull, 0x47b992630b03d56aull, "kosher.calendar.HebrewDate.weekday"},
-    {0x963e4b9032d6c193ull, 0x2d4c4ce495502494ull, "kosher.zmanim.Zmanim"},
-    {0x9895af63ce3c6bd7ull, 0x8a4e9ca163a6a190ull, "kosher.calendar.Holiday"},
-    {0x9928700767cf87cfull, 0x735499ab0a625d6dull, "kosher.myzmanim.dawn_90_degrees"},
-    {0x992997612da78180ull, 0x551064f95ab5110dull, "kosher.myzmanim.MyZmanTime"},
-    {0x994cdaef2a1c855cull, 0x434883db6c285c4eull, "kosher.limudim.pirkei_avos"},
-    {0x99dcae3af7180a0dull, 0x914508f7681ccd43ull, "kosher.calendar.HebrewDate.next_parsha"},
-    {0x9f7c1ea6de2fe0acull, 0x7321133365af2acbull, "kosher.calendar.YearInfo"},
-    {0xa08e9220643b8a14ull, 0x4af5df9a96d3f535ull, "kosher.myzmanim.MyZmanim.proportional_hour_gra"},
-    {0xa39eb51297bc91f3ull, 0xf13823120f5b4c46ull, "kosher.zmanim.Calculator"},
-    {0xa8a5a90069657051ull, 0xff11e092dce92ed7ull, "kosher.limudim.Side"},
-    {0xad25d6c40cc7cf82ull, 0x5736a479b626cd7dull, "kosher.calendar.HebrewDate.to_gregorian"},
-    {0xadb380140cc3eeb1ull, 0x4160e49b2189685bull, "kosher.limudim.tehillim_display"},
-    {0xaec8ec9290788fd6ull, 0x18c3086aa662d366ull, "kosher.limudim.amud_yomi_dirshu"},
-    {0xb24e9bddf1807e70ull, 0xa82a63cd8b5c9bc8ull, "kosher.myzmanim.all_my_zmanim"},
-    {0xb579b9ecc406baf5ull, 0x459375a830f8b5a0ull, "kosher.zmanim.zman_name"},
-    {0xb76c47656229eb96ull, 0x689307845875e63eull, "kosher.zmanim.zman_is_deprecated"},
-    {0xb981b278e60920eaull, 0x96aec4b485c90c92ull, "kosher.calendar.Parsha"},
-    {0xba3b126941948d6eull, 0x4b1d4aaf11dfd132ull, "kosher.zmanim.zman_category"},
-    {0xc0ff05667de674f9ull, 0x685412d4d80250eaull, "kosher.zmanim.Config"},
-    {0xc1053bbb382f0a8aull, 0x1175c871bc023b86ull, "kosher.calendar.HebrewDate.day_of_year"},
-    {0xc3bd6e3e1dc59ed1ull, 0x55884ddb65b50739ull, "kosher.calendar.HebrewDate.has_candle_lighting"},
-    {0xc8cc7c3ab9a25c72ull, 0x497f2852a5cdb1f0ull, "kosher.calendar.holiday_is_fast_day"},
-    {0xcffb36e0ca0b9371ull, 0x19a2809df98650c2ull, "kosher.limudim.pirkei_avos_display"},
-    {0xd071f45bb69ffd10ull, 0x7110b3413cfd8e83ull, "kosher.Location"},
-    {0xd17988807ad73a17ull, 0xf2a52228396d8635ull, "kosher.myzmanim.sea_level_refraction_arcminutes"},
-    {0xd3e595d5c721f7a9ull, 0xb0d75a9e88cb28e1ull, "kosher.KosherError"},
-    {0xd6e2bb7649059df2ull, 0x4ba24826d4ea04e8ull, "kosher.calendar.holiday_is_modern"},
-    {0xd7bdd85ada6f743dull, 0x258faa23773bfcaeull, "kosher.myzmanim.MyZmanim.candle_lighting_minutes"},
-    {0xdac1e65044d04433ull, 0x1c81765c98ab54f9ull, "kosher.calendar.HebrewDate.parsha"},
-    {0xe5a8bf04942592acull, 0xf8a4981ca376ff28ull, "kosher.calendar.HebrewDate.is_assur_bemelacha"},
-    {0xe6441fe0bbbb6a29ull, 0x263b2a60d4b349b3ull, "kosher.calendar.Weekday"},
-    {0xe8f7e393f719034cull, 0x017ce9984014d3c1ull, "kosher.zmanim.ZmanTime"},
-    {0xe9f5fcea0d967345ull, 0x4c30c7a90dcabaa5ull, "kosher.zmanim.Zmanim.sunset_offset_by_degrees"},
-    {0xea13f549891c3477ull, 0xc29b76894e14326cull, "kosher.calendar.HebrewDate.compare"},
-    {0xf1378230702a0fecull, 0xb882de90a2c3493full, "kosher.calendar.YearLength"},
-    {0xf25c4b987aa7c2c6ull, 0x839d21df44603348ull, "kosher.limudim.daf_yomi_yerushalmi"},
-    {0xf329781ab14b80d4ull, 0x4d5e82347ae7a3fcull, "kosher.calendar.HebrewMonth"},
-    {0xf4b7693f39c89b41ull, 0x96615bd3eb7f1761ull, "kosher.calendar.HebrewDate.molad"},
-    {0xf5fec5bfb35600dbull, 0x4fdfe92954d63564ull, "kosher.calendar.holiday_hebrew"},
-    {0xf7a6a502dfd1a4e4ull, 0xf5d8629c4bfb2f06ull, "kosher.limudim.Tractate"},
-    {0xfda0c61f32016586ull, 0xc7f3965b813050f5ull, "kosher.calendar.HebrewDate.display"},
+/** The declarations of module `calendar` this header was generated with. */
+inline constexpr ContractEntry calendar_contract[] = {
+    {0x0076e887e475ab9full, 0x96615bd3eb7f1761ull, "calendar.HebrewDate.molad"},
+    {0x01344feb6b733690ull, 0x47b992630b03d56aull, "calendar.HebrewDate.weekday"},
+    {0x12decead9d8a44cfull, 0x4b1b3a695325cfcaull, "calendar.limudim.LimudimError"},
+    {0x190ecd13c0fccffaull, 0x35e622a32a88ef57ull, "calendar.limudim.mishna_yomis"},
+    {0x1c33df579fac36d8ull, 0x1175c871bc023b86ull, "calendar.HebrewDate.day_of_year"},
+    {0x235fd1db8b7dd5f5ull, 0x399eab22141dffd3ull, "calendar.GregorianDate"},
+    {0x2b066dc65c460024ull, 0xf4f23e6586bd1dd7ull, "calendar.HebrewDate"},
+    {0x2c8e60589f58d792ull, 0x57c83a0f8bc36c6cull, "calendar.limudim.Mishna"},
+    {0x2da09ea1403b727eull, 0x4d5e82347ae7a3fcull, "calendar.HebrewMonth"},
+    {0x2e1645ba38a77559ull, 0x1c81765c98ab54f9ull, "calendar.HebrewDate.parsha"},
+    {0x2e561d4c25bf877dull, 0x47ff51d038dbe0d8ull, "calendar.limudim.tehillim_display"},
+    {0x3a2980b734ba8883ull, 0x2d505394972243a9ull, "calendar.HebrewDate.holidays"},
+    {0x3a3316910057484eull, 0xd86a18c3b722f6c7ull, "calendar.limudim.tehillim_monthly"},
+    {0x3c8950ed1f7f370cull, 0x19e0d2b3ff9d26feull, "calendar.HebrewDate.day"},
+    {0x422860078e596223ull, 0x32c85d18778b0bb4ull, "calendar.HebrewDate.equals"},
+    {0x4288f1610e27c8a4ull, 0x96aec4b485c90c92ull, "calendar.Parsha"},
+    {0x43844d8599f0b2aeull, 0x4d70455ac9baa1e4ull, "calendar.limudim.tractate_name"},
+    {0x44447c5a4c5c2038ull, 0x5736a479b626cd7dull, "calendar.HebrewDate.to_gregorian"},
+    {0x4594cc91482239daull, 0x839d21df44603348ull, "calendar.limudim.daf_yomi_yerushalmi"},
+    {0x47b5dba468556c10ull, 0x434883db6c285c4eull, "calendar.limudim.pirkei_avos"},
+    {0x4f321ae0eef0ee45ull, 0x0ddfa27385759174ull, "calendar.HebrewDate.add_days"},
+    {0x53798234777e19eaull, 0x6c389ed6ad08dbe3ull, "calendar.rosh_hashana"},
+    {0x58fc9af210a33bddull, 0xc3e1903a4dc8359dull, "calendar.HebrewDate.is_aseres_yemei_teshuva"},
+    {0x5c2a6a6f333ead35ull, 0x74c7180edff5c022ull, "calendar.HebrewDate.from_gregorian"},
+    {0x5d5d66098ee06c49ull, 0x8a4e9ca163a6a190ull, "calendar.Holiday"},
+    {0x65535c1ad3d9f893ull, 0x55884ddb65b50739ull, "calendar.HebrewDate.has_candle_lighting"},
+    {0x6a0735856dec8d1aull, 0xdc1addb4a7ab46efull, "calendar.parsha_name"},
+    {0x6d120a34fc12b94eull, 0x2444827e369b819bull, "calendar.holiday_is_assur_bemelacha"},
+    {0x734de195723c4becull, 0xc7f3965b813050f5ull, "calendar.HebrewDate.display"},
+    {0x753c68bed189444bull, 0x8111a6d476ecf648ull, "calendar.Region"},
+    {0x78416ddbbcc55dd6ull, 0x6c9e0901963a2dfcull, "calendar.limudim.tractate_hebrew"},
+    {0x7b66ec4056f4dcbcull, 0xe848ea2454d6e4c1ull, "calendar.holiday_is_fast_day"},
+    {0x7ed52a27f9477122ull, 0x6e401597e28209a9ull, "calendar.limudim.MishnaPair"},
+    {0x82b460a35e9ba56aull, 0x18c3086aa662d366ull, "calendar.limudim.amud_yomi_dirshu"},
+    {0x854dedb50653c50full, 0x914508f7681ccd43ull, "calendar.HebrewDate.next_parsha"},
+    {0x8f180424826294a4ull, 0xa976cce390a71369ull, "calendar.holiday_is_modern"},
+    {0x924fdf3d84514e8eull, 0xd6c2f5c20a8b129dull, "calendar.limudim.TehillimUnit"},
+    {0x93ceba93a2b10131ull, 0xc7b188714edbf795ull, "calendar.HebrewDate.special_parsha"},
+    {0x94dc4cc8ea8c02c9ull, 0x51105a7bb4b55bddull, "calendar.holiday_name"},
+    {0x98cc81d52e65776bull, 0x2bf1569214921669ull, "calendar.month_hebrew"},
+    {0x9b48ba34fb52812dull, 0xff11e092dce92ed7ull, "calendar.limudim.Side"},
+    {0x9e20ba757aee97c2ull, 0x9328a81ac256b477ull, "calendar.parsha_hebrew"},
+    {0xa1e3409cebf37881ull, 0x1b7e37005bd2f8e9ull, "calendar.limudim.Daf"},
+    {0xa5864219850af272ull, 0xf8a4981ca376ff28ull, "calendar.HebrewDate.is_assur_bemelacha"},
+    {0xaeb433ce589b7931ull, 0xe1e8d4dad467e3e7ull, "calendar.limudim.Amud"},
+    {0xaf5dd6acc2e8ba71ull, 0xa2fdd5f43f90f755ull, "calendar.holiday_hebrew"},
+    {0xbd8865ae2177f9ffull, 0x6bc5f7eea096d080ull, "calendar.year_info"},
+    {0xc3fd51b677226babull, 0x684e92fa36717939ull, "calendar.month_name"},
+    {0xc47f6755efcc97f2ull, 0xb882de90a2c3493full, "calendar.YearLength"},
+    {0xc984acddaecd3a8bull, 0x71127b971df5975aull, "calendar.limudim.PirkeiAvosUnit"},
+    {0xd099b5b97c1dddb6ull, 0x7321133365af2acbull, "calendar.YearInfo"},
+    {0xd542917e9468e665ull, 0xc29b76894e14326cull, "calendar.HebrewDate.compare"},
+    {0xe055421dad70d98dull, 0xc2712588daaabbafull, "calendar.limudim.pirkei_avos_display"},
+    {0xe5bd2ded003a830aull, 0x21bf463baf36e8aeull, "calendar.limudim.daf_hashavua_bavli"},
+    {0xe5f7bcecee7a3148ull, 0xf9b3a1fb63fa80adull, "calendar.HebrewDate.new"},
+    {0xea80ab8c284067d9ull, 0x96b30eb7f85eaf21ull, "calendar.limudim.daf_yomi_bavli"},
+    {0xeb41af932363bd25ull, 0xc681430e19f4d7b1ull, "calendar.CalendarError"},
+    {0xeb6a6e150a6abbe0ull, 0xf5d8629c4bfb2f06ull, "calendar.limudim.Tractate"},
+    {0xee029887d9af6ef8ull, 0x54411bdda9d3b13bull, "calendar.HebrewDate.month"},
+    {0xefe1cb89cb8314f3ull, 0x03b0248b8cfa2de8ull, "calendar.days_in_month"},
+    {0xf56c124b8ec1c493ull, 0xf35981f09fb986dfull, "calendar.HebrewDate.year"},
+    {0xfb59656a30b3c76full, 0x263b2a60d4b349b3ull, "calendar.Weekday"},
+};
+
+/** The declarations of module `zmanim` this header was generated with. */
+inline constexpr ContractEntry zmanim_contract[] = {
+    {0x022d265126fcbd47ull, 0xf70eea6f6621717full, "zmanim.validate_location"},
+    {0x02e0caa49b3a204bull, 0x5962ffa89080c41bull, "zmanim.shaah_zmanis"},
+    {0x04493862e57a4cdfull, 0x258faa23773bfcaeull, "zmanim.myzmanim.MyZmanim.candle_lighting_minutes"},
+    {0x0709c5af4b818c01ull, 0xf2a52228396d8635ull, "zmanim.myzmanim.sea_level_refraction_arcminutes"},
+    {0x10234c837e5331b1ull, 0xcc6eb9ea8c42ca79ull, "zmanim.myzmanim.MyZmanim.new"},
+    {0x1d3f31835b116405ull, 0x3278f3a62bb6e469ull, "zmanim.myzmanim.dawn_72_degrees"},
+    {0x1fd629eb299bc703ull, 0xcddd8b18c602be76ull, "zmanim.myzmanim.MyZman"},
+    {0x2550c75ec58dae49ull, 0xc3cb9f9d3b5b28baull, "zmanim.Zmanim.date"},
+    {0x2791137b8945b8ddull, 0x9169cc1ef07d2488ull, "zmanim.ZmanimError"},
+    {0x27ff9dab340588fcull, 0x4b1d4aaf11dfd132ull, "zmanim.zman_category"},
+    {0x29795294927af42dull, 0xffb3d691737a4f38ull, "zmanim.Category"},
+    {0x30cabeb665248a1dull, 0xfa44bbb1fab132e5ull, "zmanim.sea_level_location"},
+    {0x334bc497c2e1b7f6ull, 0xa82a63cd8b5c9bc8ull, "zmanim.myzmanim.all_my_zmanim"},
+    {0x406a9d72e9cc44d8ull, 0x689307845875e63eull, "zmanim.zman_is_deprecated"},
+    {0x4118dd5a26e15851ull, 0x549f4e736961b812ull, "zmanim.calculator_name"},
+    {0x484846a2e9ee0a81ull, 0xdf4697e13848d687ull, "zmanim.zman_from_java_name"},
+    {0x484f114766abb5e2ull, 0xc5f954c475f4dc9dull, "zmanim.zman_java_name"},
+    {0x5f3ebb1c37c66ab9ull, 0xc3cb9f9d3b5b28baull, "zmanim.myzmanim.MyZmanim.date"},
+    {0x631f48e27eef2376ull, 0x63856359341062eeull, "zmanim.Zmanim.location"},
+    {0x65058d455e954e8eull, 0x4a23e822039987a7ull, "zmanim.zman_description"},
+    {0x66df597381790f0bull, 0x4c30c7a90dcabaa5ull, "zmanim.Zmanim.sunset_offset_by_degrees"},
+    {0x6c14e7ba35220983ull, 0x7d00a18dba45f065ull, "zmanim.ZmanFailure"},
+    {0x7b6a0d0953f70457ull, 0x6614e227c469c232ull, "zmanim.Zmanim.config"},
+    {0x7bda2eefee3cd432ull, 0x4af5df9a96d3f535ull, "zmanim.myzmanim.MyZmanim.proportional_hour_gra"},
+    {0x84cfd0af1981e364ull, 0x93ef9500cb5f1cfcull, "zmanim.Zmanim.sunrise_offset_by_degrees"},
+    {0x852e1ce68e6270faull, 0xdec9155329278f29ull, "zmanim.myzmanim.my_zman_name"},
+    {0x972d8aa47e75b0eaull, 0x017ce9984014d3c1ull, "zmanim.ZmanTime"},
+    {0x988396c1a4000b66ull, 0x63856359341062eeull, "zmanim.myzmanim.MyZmanim.location"},
+    {0x9e23e59cc6d2b627ull, 0xbea68784cf687a1aull, "zmanim.Zmanim.get"},
+    {0xa7022817cb0f3781ull, 0x11babf7c30a11935ull, "zmanim.myzmanim.dip_degrees_per_root_meter"},
+    {0xa7e497ece825babfull, 0x459375a830f8b5a0ull, "zmanim.zman_name"},
+    {0xb0323d9cd1424d34ull, 0x669e3d4d3e9d42ccull, "zmanim.Zmanim.all"},
+    {0xb668f699c44a8b25ull, 0x0577fa34d1dea8c3ull, "zmanim.default_config"},
+    {0xbc0120c65a9a7e69ull, 0xe3c7eb49f063a0ceull, "zmanim.myzmanim.MyZmanim"},
+    {0xc3ccda83538bf477ull, 0x93dc654d560a63b8ull, "zmanim.myzmanim.MyZmanim.get"},
+    {0xc80294024eefae95ull, 0x52972cadc08c13efull, "zmanim.all_zmanim"},
+    {0xcdc06faffaf38ffaull, 0x551064f95ab5110dull, "zmanim.myzmanim.MyZmanTime"},
+    {0xcfe843f87495c18aull, 0x7110b3413cfd8e83ull, "zmanim.Location"},
+    {0xd12031217533824bull, 0x2b82d4d65ec59dd7ull, "zmanim.myzmanim.default_candle_lighting_minutes"},
+    {0xd5db12835dfb5524ull, 0x975c3a96549104d2ull, "zmanim.myzmanim.MyZmanim.all"},
+    {0xd904b56e2a7d27f9ull, 0x2d4c4ce495502494ull, "zmanim.Zmanim"},
+    {0xd90e158541be4971ull, 0xf13823120f5b4c46ull, "zmanim.Calculator"},
+    {0xe178a9bb3808bfb3ull, 0x685412d4d80250eaull, "zmanim.Config"},
+    {0xea9baabba2ea9789ull, 0x174890db5e5166c8ull, "zmanim.TimeZoneOffset"},
+    {0xed07579cf3c52ba1ull, 0x99d014ada9906437ull, "zmanim.Zmanim.new"},
+    {0xf9ebba0666552393ull, 0x0486761191984fd0ull, "zmanim.Zman"},
+    {0xfa3f9e72b3e59929ull, 0x735499ab0a625d6dull, "zmanim.myzmanim.dawn_90_degrees"},
 };
 
 } // namespace detail
 
 /**
- * Verifies that the linked kosher_rust_bindings library implements C ABI revision
+ * Verifies that the linked kosherz library implements C ABI revision
  * 4 and every declaration this header was generated with, throwing
  * LoadError naming the first mismatch. The check runs once; every free
  * function, constructor, and static member calls this before its first
@@ -399,13 +405,16 @@ inline constexpr ContractEntry kosher_contract[] = {
  */
 inline void check_library() {
     static const std::string failure = []() -> std::string {
-        uint32_t abi = kosher_rust_bindings_abi_version();
-        if (abi != KOSHER_RUST_BINDINGS_ABI_VERSION) {
-            return "kosher_rust_bindings: C ABI revision mismatch (header " + std::to_string(KOSHER_RUST_BINDINGS_ABI_VERSION) +
+        uint32_t abi = kosherz_abi_version();
+        if (abi != KOSHERZ_ABI_VERSION) {
+            return "kosherz: C ABI revision mismatch (header " + std::to_string(KOSHERZ_ABI_VERSION) +
                    ", library " + std::to_string(abi) + ")";
         }
-        if (std::string why = detail::contract_mismatch(kosher_rust_bindings_kosher_contract, detail::kosher_contract); !why.empty()) {
-            return "kosher_rust_bindings: " + why;
+        if (std::string why = detail::contract_mismatch(kosherz_calendar_contract, detail::calendar_contract); !why.empty()) {
+            return "kosherz: " + why;
+        }
+        if (std::string why = detail::contract_mismatch(kosherz_zmanim_contract, detail::zmanim_contract); !why.empty()) {
+            return "kosherz: " + why;
         }
         return std::string();
     }();
@@ -605,7 +614,7 @@ public:
     }
 };
 
-/** Releases a producer-allocated buffer with kosher_rust_bindings_free_bytes on scope exit. */
+/** Releases a producer-allocated buffer with kosherz_free_bytes on scope exit. */
 struct BufferGuard {
     /** The producer-allocated buffer, or null when the call reported an error. */
     const uint8_t* ptr;
@@ -617,7 +626,7 @@ struct BufferGuard {
     BufferGuard& operator=(const BufferGuard&) = delete;
 
     ~BufferGuard() {
-        if (ptr != nullptr) kosher_rust_bindings_free_bytes(const_cast<uint8_t*>(ptr), len);
+        if (ptr != nullptr) kosherz_free_bytes(const_cast<uint8_t*>(ptr), len);
     }
 };
 
@@ -850,6 +859,144 @@ enum class Parsha : int32_t {
     Chazon = 68,
     /** Shabbos Nachamu. */
     Nachamu = 69,
+};
+
+/** A tractate of the Mishnah and Talmud, in the order of the Mishnah. */
+enum class Tractate : int32_t {
+    /** Berachos. */
+    Berachos = 0,
+    /** Peah. */
+    Peah = 1,
+    /** Demai. */
+    Demai = 2,
+    /** Kilayim. */
+    Kilayim = 3,
+    /** Sheviis. */
+    Sheviis = 4,
+    /** Terumos. */
+    Terumos = 5,
+    /** Maasros. */
+    Maasros = 6,
+    /** Maaser Sheni. */
+    MaaserSheni = 7,
+    /** Chalah. */
+    Chalah = 8,
+    /** Orlah. */
+    Orlah = 9,
+    /** Bikurim. */
+    Bikurim = 10,
+    /** Shabbos. */
+    Shabbos = 11,
+    /** Eruvin. */
+    Eruvin = 12,
+    /** Pesachim. */
+    Pesachim = 13,
+    /** Shekalim. */
+    Shekalim = 14,
+    /** Yoma. */
+    Yoma = 15,
+    /** Sukkah. */
+    Sukkah = 16,
+    /** Beitzah. */
+    Beitzah = 17,
+    /** Rosh Hashanah. */
+    RoshHashanah = 18,
+    /** Taanis. */
+    Taanis = 19,
+    /** Megillah. */
+    Megillah = 20,
+    /** Moed Katan. */
+    MoedKatan = 21,
+    /** Chagigah. */
+    Chagigah = 22,
+    /** Yevamos. */
+    Yevamos = 23,
+    /** Kesubos. */
+    Kesubos = 24,
+    /** Nedarim. */
+    Nedarim = 25,
+    /** Nazir. */
+    Nazir = 26,
+    /** Sotah. */
+    Sotah = 27,
+    /** Gitin. */
+    Gitin = 28,
+    /** Kiddushin. */
+    Kiddushin = 29,
+    /** Bava Kamma. */
+    BavaKamma = 30,
+    /** Bava Metzia. */
+    BavaMetzia = 31,
+    /** Bava Basra. */
+    BavaBasra = 32,
+    /** Sanhedrin. */
+    Sanhedrin = 33,
+    /** Makkos. */
+    Makkos = 34,
+    /** Shevuos. */
+    Shevuos = 35,
+    /** Eduyos. */
+    Eduyos = 36,
+    /** Avodah Zarah. */
+    AvodahZarah = 37,
+    /** Avos. */
+    Avos = 38,
+    /** Horiyos. */
+    Horiyos = 39,
+    /** Zevachim. */
+    Zevachim = 40,
+    /** Menachos. */
+    Menachos = 41,
+    /** Chullin. */
+    Chullin = 42,
+    /** Bechoros. */
+    Bechoros = 43,
+    /** Arachin. */
+    Arachin = 44,
+    /** Temurah. */
+    Temurah = 45,
+    /** Kerisos. */
+    Kerisos = 46,
+    /** Meilah. */
+    Meilah = 47,
+    /** Tamid. */
+    Tamid = 48,
+    /** Midos. */
+    Midos = 49,
+    /** Kinnim. */
+    Kinnim = 50,
+    /** Keilim. */
+    Keilim = 51,
+    /** Ohalos. */
+    Ohalos = 52,
+    /** Negaim. */
+    Negaim = 53,
+    /** Parah. */
+    Parah = 54,
+    /** Taharos. */
+    Taharos = 55,
+    /** Mikvaos. */
+    Mikvaos = 56,
+    /** Niddah. */
+    Niddah = 57,
+    /** Machshirin. */
+    Machshirin = 58,
+    /** Zavim. */
+    Zavim = 59,
+    /** Tevul Yom. */
+    TevulYom = 60,
+    /** Yadayim. */
+    Yadayim = 61,
+    /** Uktzin. */
+    Uktzin = 62,
+};
+
+/** A side of a page: *amud aleph* (a) or *amud beis* (b). */
+enum class Side : int32_t {
+    /** The front of the page, "a". */
+    Aleph = 0,
+    /** The back of the page, "b". */
+    Bet = 1,
 };
 
 /**
@@ -1354,145 +1501,7 @@ enum class ZmanFailure : int32_t {
     /** The time zone callback failed. */
     TimeZoneCallbackFailed = 4,
     /** An internal calculation error. */
-    Internal = 5,
-};
-
-/** A tractate of the Mishnah and Talmud, in the order of the Mishnah. */
-enum class Tractate : int32_t {
-    /** Berachos. */
-    Berachos = 0,
-    /** Peah. */
-    Peah = 1,
-    /** Demai. */
-    Demai = 2,
-    /** Kilayim. */
-    Kilayim = 3,
-    /** Sheviis. */
-    Sheviis = 4,
-    /** Terumos. */
-    Terumos = 5,
-    /** Maasros. */
-    Maasros = 6,
-    /** Maaser Sheni. */
-    MaaserSheni = 7,
-    /** Chalah. */
-    Chalah = 8,
-    /** Orlah. */
-    Orlah = 9,
-    /** Bikurim. */
-    Bikurim = 10,
-    /** Shabbos. */
-    Shabbos = 11,
-    /** Eruvin. */
-    Eruvin = 12,
-    /** Pesachim. */
-    Pesachim = 13,
-    /** Shekalim. */
-    Shekalim = 14,
-    /** Yoma. */
-    Yoma = 15,
-    /** Sukkah. */
-    Sukkah = 16,
-    /** Beitzah. */
-    Beitzah = 17,
-    /** Rosh Hashanah. */
-    RoshHashanah = 18,
-    /** Taanis. */
-    Taanis = 19,
-    /** Megillah. */
-    Megillah = 20,
-    /** Moed Katan. */
-    MoedKatan = 21,
-    /** Chagigah. */
-    Chagigah = 22,
-    /** Yevamos. */
-    Yevamos = 23,
-    /** Kesubos. */
-    Kesubos = 24,
-    /** Nedarim. */
-    Nedarim = 25,
-    /** Nazir. */
-    Nazir = 26,
-    /** Sotah. */
-    Sotah = 27,
-    /** Gitin. */
-    Gitin = 28,
-    /** Kiddushin. */
-    Kiddushin = 29,
-    /** Bava Kamma. */
-    BavaKamma = 30,
-    /** Bava Metzia. */
-    BavaMetzia = 31,
-    /** Bava Basra. */
-    BavaBasra = 32,
-    /** Sanhedrin. */
-    Sanhedrin = 33,
-    /** Makkos. */
-    Makkos = 34,
-    /** Shevuos. */
-    Shevuos = 35,
-    /** Eduyos. */
-    Eduyos = 36,
-    /** Avodah Zarah. */
-    AvodahZarah = 37,
-    /** Avos. */
-    Avos = 38,
-    /** Horiyos. */
-    Horiyos = 39,
-    /** Zevachim. */
-    Zevachim = 40,
-    /** Menachos. */
-    Menachos = 41,
-    /** Chullin. */
-    Chullin = 42,
-    /** Bechoros. */
-    Bechoros = 43,
-    /** Arachin. */
-    Arachin = 44,
-    /** Temurah. */
-    Temurah = 45,
-    /** Kerisos. */
-    Kerisos = 46,
-    /** Meilah. */
-    Meilah = 47,
-    /** Tamid. */
-    Tamid = 48,
-    /** Midos. */
-    Midos = 49,
-    /** Kinnim. */
-    Kinnim = 50,
-    /** Keilim. */
-    Keilim = 51,
-    /** Ohalos. */
-    Ohalos = 52,
-    /** Negaim. */
-    Negaim = 53,
-    /** Parah. */
-    Parah = 54,
-    /** Taharos. */
-    Taharos = 55,
-    /** Mikvaos. */
-    Mikvaos = 56,
-    /** Niddah. */
-    Niddah = 57,
-    /** Machshirin. */
-    Machshirin = 58,
-    /** Zavim. */
-    Zavim = 59,
-    /** Tevul Yom. */
-    TevulYom = 60,
-    /** Yadayim. */
-    Yadayim = 61,
-    /** Uktzin. */
-    Uktzin = 62,
-};
-
-/** A side of a page: *amud aleph* (a) or *amud beis* (b). */
-enum class Side : int32_t {
-    /** The front of the page, "a". */
-    Aleph = 0,
-    /** The back of the page, "b". */
-    Bet = 1,
+    Unexpected = 5,
 };
 
 /** One row of the MyZmanim website's "All zmanim" table, in the table's order. */
@@ -1580,50 +1589,50 @@ enum class MyZman : int32_t {
 };
 
 struct GregorianDate;
-struct Location;
 struct YearInfo;
 struct Holiday;
 class HebrewDate;
-struct Config;
-struct ZmanTime;
-class Zmanim;
-class TimeZoneOffset;
 struct Daf;
 struct Amud;
 struct Mishna;
 struct MishnaPair;
 struct TehillimUnit;
 struct PirkeiAvosUnit;
+struct Location;
+struct Config;
+struct ZmanTime;
+class Zmanim;
+class TimeZoneOffset;
 struct MyZmanTime;
 class MyZmanim;
 
 /**
  * A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
- * begins at nightfall.
+ * begins at nightfall. Years 1 to 9999.
  */
 class HebrewDate {
-    kosher_rust_bindings_kosher_calendar_HebrewDate* raw_;
+    kosherz_calendar_HebrewDate* raw_;
 
 public:
     /** The C type this class wraps. */
-    using raw_type = kosher_rust_bindings_kosher_calendar_HebrewDate;
+    using raw_type = kosherz_calendar_HebrewDate;
 
     /** Adopts one strong reference to a producer object: `HebrewDate(adopt, raw)`. */
-    explicit HebrewDate(adopt_t, kosher_rust_bindings_kosher_calendar_HebrewDate* h) noexcept : raw_(h) {}
+    explicit HebrewDate(adopt_t, kosherz_calendar_HebrewDate* h) noexcept : raw_(h) {}
 
     /** Releases this wrapper's reference; the object is dropped with its last one. */
     ~HebrewDate() {
-        if (raw_ != nullptr) kosher_rust_bindings_kosher_calendar_HebrewDate_destroy(raw_);
+        if (raw_ != nullptr) kosherz_calendar_HebrewDate_destroy(raw_);
     }
 
     /** Copies share the object: the copy takes a new strong reference. */
-    HebrewDate(const HebrewDate& other) : raw_(kosher_rust_bindings_kosher_calendar_HebrewDate_clone(other.raw_)) {}
+    HebrewDate(const HebrewDate& other) : raw_(kosherz_calendar_HebrewDate_clone(other.raw_)) {}
 
     /** Takes a new reference to `other`'s object and releases the current one. */
     HebrewDate& operator=(const HebrewDate& other) {
         if (this != &other) {
-            kosher_rust_bindings_kosher_calendar_HebrewDate* h = kosher_rust_bindings_kosher_calendar_HebrewDate_clone(other.raw_);
-            if (raw_ != nullptr) kosher_rust_bindings_kosher_calendar_HebrewDate_destroy(raw_);
+            kosherz_calendar_HebrewDate* h = kosherz_calendar_HebrewDate_clone(other.raw_);
+            if (raw_ != nullptr) kosherz_calendar_HebrewDate_destroy(raw_);
             raw_ = h;
         }
         return *this;
@@ -1635,7 +1644,7 @@ public:
     /** Releases the current reference and takes over `other`'s. */
     HebrewDate& operator=(HebrewDate&& other) noexcept {
         if (this != &other) {
-            if (raw_ != nullptr) kosher_rust_bindings_kosher_calendar_HebrewDate_destroy(raw_);
+            if (raw_ != nullptr) kosherz_calendar_HebrewDate_destroy(raw_);
             raw_ = other.raw_;
             other.raw_ = nullptr;
         }
@@ -1643,20 +1652,20 @@ public:
     }
 
     /** The wrapped pointer, borrowed (null after a move): this wrapper keeps its reference. */
-    const kosher_rust_bindings_kosher_calendar_HebrewDate* handle() const noexcept { return raw_; }
+    const kosherz_calendar_HebrewDate* handle() const noexcept { return raw_; }
 
     /** A new strong reference to the object, which the caller owns. */
-    kosher_rust_bindings_kosher_calendar_HebrewDate* clone_handle() const { return kosher_rust_bindings_kosher_calendar_HebrewDate_clone(raw_); }
+    kosherz_calendar_HebrewDate* clone_handle() const { return kosherz_calendar_HebrewDate_clone(raw_); }
 
     /**
      * The date `day` `month` `year`, for example 15 Nisan 5785.
      *
      * # Errors
      *
-     * `KosherError::InvalidDate` when there is no such day: day 0, day 30 of a 29-day
+     * `CalendarError::InvalidDate` when there is no such day: day 0, day 30 of a 29-day
      * month, Adar I in a common year, or a year outside the supported range.
      *
-     * @throws KosherError when the call fails with one of the domain's codes.
+     * @throws CalendarError when the call fails with one of the domain's codes.
      */
     explicit HebrewDate(int32_t year, HebrewMonth month, int32_t day);
 
@@ -1665,9 +1674,10 @@ public:
      *
      * # Errors
      *
-     * `KosherError::InvalidDate` when `date` does not exist.
+     * `CalendarError::InvalidDate` when `date` does not exist, or falls outside Hebrew years 1
+     * to 9999.
      *
-     * @throws KosherError when the call fails with one of the domain's codes.
+     * @throws CalendarError when the call fails with one of the domain's codes.
      */
     static HebrewDate from_gregorian(const GregorianDate& date);
 
@@ -1694,9 +1704,9 @@ public:
      *
      * # Errors
      *
-     * `KosherError::InvalidDate` past the supported range.
+     * `CalendarError::InvalidDate` outside Hebrew years 1 to 9999.
      *
-     * @throws KosherError when the call fails with one of the domain's codes.
+     * @throws CalendarError when the call fails with one of the domain's codes.
      */
     HebrewDate add_days(int32_t days) const;
 
@@ -1737,28 +1747,28 @@ public:
 
 /** The *zmanim* for one place on one day. */
 class Zmanim {
-    kosher_rust_bindings_kosher_zmanim_Zmanim* raw_;
+    kosherz_zmanim_Zmanim* raw_;
 
 public:
     /** The C type this class wraps. */
-    using raw_type = kosher_rust_bindings_kosher_zmanim_Zmanim;
+    using raw_type = kosherz_zmanim_Zmanim;
 
     /** Adopts one strong reference to a producer object: `Zmanim(adopt, raw)`. */
-    explicit Zmanim(adopt_t, kosher_rust_bindings_kosher_zmanim_Zmanim* h) noexcept : raw_(h) {}
+    explicit Zmanim(adopt_t, kosherz_zmanim_Zmanim* h) noexcept : raw_(h) {}
 
     /** Releases this wrapper's reference; the object is dropped with its last one. */
     ~Zmanim() {
-        if (raw_ != nullptr) kosher_rust_bindings_kosher_zmanim_Zmanim_destroy(raw_);
+        if (raw_ != nullptr) kosherz_zmanim_Zmanim_destroy(raw_);
     }
 
     /** Copies share the object: the copy takes a new strong reference. */
-    Zmanim(const Zmanim& other) : raw_(kosher_rust_bindings_kosher_zmanim_Zmanim_clone(other.raw_)) {}
+    Zmanim(const Zmanim& other) : raw_(kosherz_zmanim_Zmanim_clone(other.raw_)) {}
 
     /** Takes a new reference to `other`'s object and releases the current one. */
     Zmanim& operator=(const Zmanim& other) {
         if (this != &other) {
-            kosher_rust_bindings_kosher_zmanim_Zmanim* h = kosher_rust_bindings_kosher_zmanim_Zmanim_clone(other.raw_);
-            if (raw_ != nullptr) kosher_rust_bindings_kosher_zmanim_Zmanim_destroy(raw_);
+            kosherz_zmanim_Zmanim* h = kosherz_zmanim_Zmanim_clone(other.raw_);
+            if (raw_ != nullptr) kosherz_zmanim_Zmanim_destroy(raw_);
             raw_ = h;
         }
         return *this;
@@ -1770,7 +1780,7 @@ public:
     /** Releases the current reference and takes over `other`'s. */
     Zmanim& operator=(Zmanim&& other) noexcept {
         if (this != &other) {
-            if (raw_ != nullptr) kosher_rust_bindings_kosher_zmanim_Zmanim_destroy(raw_);
+            if (raw_ != nullptr) kosherz_zmanim_Zmanim_destroy(raw_);
             raw_ = other.raw_;
             other.raw_ = nullptr;
         }
@@ -1778,20 +1788,21 @@ public:
     }
 
     /** The wrapped pointer, borrowed (null after a move): this wrapper keeps its reference. */
-    const kosher_rust_bindings_kosher_zmanim_Zmanim* handle() const noexcept { return raw_; }
+    const kosherz_zmanim_Zmanim* handle() const noexcept { return raw_; }
 
     /** A new strong reference to the object, which the caller owns. */
-    kosher_rust_bindings_kosher_zmanim_Zmanim* clone_handle() const { return kosher_rust_bindings_kosher_zmanim_Zmanim_clone(raw_); }
+    kosherz_zmanim_Zmanim* clone_handle() const { return kosherz_zmanim_Zmanim_clone(raw_); }
 
     /**
      * The *zmanim* at `location` on `date`, calculated with `config`, in `time_zone`.
      *
      * # Errors
      *
-     * `KosherError::InvalidDate` for a date that does not exist; the errors of
-     * `validate_location`.
+     * `ZmanimError::InvalidGregorianDate` for a date that does not exist;
+     * `ZmanimError::InvalidMinutes` for a candle-lighting or Ateret Torah offset of more
+     * than a day; the errors of `validate_location`.
      *
-     * @throws KosherError when the call fails with one of the domain's codes.
+     * @throws ZmanimError when the call fails with one of the domain's codes.
      */
     explicit Zmanim(const Location& location, const GregorianDate& date, const Config& config, std::shared_ptr<TimeZoneOffset> time_zone);
 
@@ -1800,12 +1811,12 @@ public:
      *
      * # Errors
      *
-     * `KosherError::AllDay` or `KosherError::AllNight` where the sun never reaches
-     * the angle the time needs; `KosherError::NotApplicable` for a time that only exists
-     * on some days; `KosherError::TimeZoneRequired` for the Kiddush Levana times without
-     * a time zone; `KosherError::TimeZoneCallbackFailed` when the callback failed.
+     * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
+     * the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
+     * on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
+     * a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
      *
-     * @throws KosherError when the call fails with one of the domain's codes.
+     * @throws ZmanimError when the call fails with one of the domain's codes.
      */
     int64_t get(Zman zman) const;
 
@@ -1818,9 +1829,10 @@ public:
      *
      * # Errors
      *
-     * The same as `get`.
+     * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
+     * same as `get`.
      *
-     * @throws KosherError when the call fails with one of the domain's codes.
+     * @throws ZmanimError when the call fails with one of the domain's codes.
      */
     int64_t sunrise_offset_by_degrees(double degrees) const;
 
@@ -1830,9 +1842,10 @@ public:
      *
      * # Errors
      *
-     * The same as `get`.
+     * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
+     * same as `get`.
      *
-     * @throws KosherError when the call fails with one of the domain's codes.
+     * @throws ZmanimError when the call fails with one of the domain's codes.
      */
     int64_t sunset_offset_by_degrees(double degrees) const;
 
@@ -1842,7 +1855,7 @@ public:
     /** The date. */
     GregorianDate date() const;
 
-    /** The configuration. */
+    /** The configuration, as given to `new`. */
     Config config() const;
 
 };
@@ -1852,28 +1865,28 @@ public:
  * matter: MyZmanim gives both "level" and "elevated" sunrise and sunset.
  */
 class MyZmanim {
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim* raw_;
+    kosherz_zmanim_myzmanim_MyZmanim* raw_;
 
 public:
     /** The C type this class wraps. */
-    using raw_type = kosher_rust_bindings_kosher_myzmanim_MyZmanim;
+    using raw_type = kosherz_zmanim_myzmanim_MyZmanim;
 
     /** Adopts one strong reference to a producer object: `MyZmanim(adopt, raw)`. */
-    explicit MyZmanim(adopt_t, kosher_rust_bindings_kosher_myzmanim_MyZmanim* h) noexcept : raw_(h) {}
+    explicit MyZmanim(adopt_t, kosherz_zmanim_myzmanim_MyZmanim* h) noexcept : raw_(h) {}
 
     /** Releases this wrapper's reference; the object is dropped with its last one. */
     ~MyZmanim() {
-        if (raw_ != nullptr) kosher_rust_bindings_kosher_myzmanim_MyZmanim_destroy(raw_);
+        if (raw_ != nullptr) kosherz_zmanim_myzmanim_MyZmanim_destroy(raw_);
     }
 
     /** Copies share the object: the copy takes a new strong reference. */
-    MyZmanim(const MyZmanim& other) : raw_(kosher_rust_bindings_kosher_myzmanim_MyZmanim_clone(other.raw_)) {}
+    MyZmanim(const MyZmanim& other) : raw_(kosherz_zmanim_myzmanim_MyZmanim_clone(other.raw_)) {}
 
     /** Takes a new reference to `other`'s object and releases the current one. */
     MyZmanim& operator=(const MyZmanim& other) {
         if (this != &other) {
-            kosher_rust_bindings_kosher_myzmanim_MyZmanim* h = kosher_rust_bindings_kosher_myzmanim_MyZmanim_clone(other.raw_);
-            if (raw_ != nullptr) kosher_rust_bindings_kosher_myzmanim_MyZmanim_destroy(raw_);
+            kosherz_zmanim_myzmanim_MyZmanim* h = kosherz_zmanim_myzmanim_MyZmanim_clone(other.raw_);
+            if (raw_ != nullptr) kosherz_zmanim_myzmanim_MyZmanim_destroy(raw_);
             raw_ = h;
         }
         return *this;
@@ -1885,7 +1898,7 @@ public:
     /** Releases the current reference and takes over `other`'s. */
     MyZmanim& operator=(MyZmanim&& other) noexcept {
         if (this != &other) {
-            if (raw_ != nullptr) kosher_rust_bindings_kosher_myzmanim_MyZmanim_destroy(raw_);
+            if (raw_ != nullptr) kosherz_zmanim_myzmanim_MyZmanim_destroy(raw_);
             raw_ = other.raw_;
             other.raw_ = nullptr;
         }
@@ -1893,10 +1906,10 @@ public:
     }
 
     /** The wrapped pointer, borrowed (null after a move): this wrapper keeps its reference. */
-    const kosher_rust_bindings_kosher_myzmanim_MyZmanim* handle() const noexcept { return raw_; }
+    const kosherz_zmanim_myzmanim_MyZmanim* handle() const noexcept { return raw_; }
 
     /** A new strong reference to the object, which the caller owns. */
-    kosher_rust_bindings_kosher_myzmanim_MyZmanim* clone_handle() const { return kosher_rust_bindings_kosher_myzmanim_MyZmanim_clone(raw_); }
+    kosherz_zmanim_myzmanim_MyZmanim* clone_handle() const { return kosherz_zmanim_myzmanim_MyZmanim_clone(raw_); }
 
     /**
      * The *zmanim* at `location` on `date`, lighting candles `candle_lighting_minutes`
@@ -1904,10 +1917,11 @@ public:
      *
      * # Errors
      *
-     * `KosherError::InvalidDate` for a date that does not exist; the errors of
-     * `validate_location`.
+     * `ZmanimError::InvalidGregorianDate` for a date that does not exist;
+     * `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a finite number
+     * of at most 1440 either way; the errors of `validate_location`.
      *
-     * @throws KosherError when the call fails with one of the domain's codes.
+     * @throws ZmanimError when the call fails with one of the domain's codes.
      */
     explicit MyZmanim(const Location& location, const GregorianDate& date, double candle_lighting_minutes, std::shared_ptr<TimeZoneOffset> time_zone);
 
@@ -1916,10 +1930,10 @@ public:
      *
      * # Errors
      *
-     * `KosherError::AllDay` or `KosherError::AllNight` where the website shows no
-     * time; `KosherError::TimeZoneCallbackFailed` when the callback failed.
+     * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
+     * time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
      *
-     * @throws KosherError when the call fails with one of the domain's codes.
+     * @throws ZmanimError when the call fails with one of the domain's codes.
      */
     int64_t get(MyZman zman) const;
 
@@ -1933,7 +1947,7 @@ public:
      *
      * The same as `get`.
      *
-     * @throws KosherError when the call fails with one of the domain's codes.
+     * @throws ZmanimError when the call fails with one of the domain's codes.
      */
     int64_t proportional_hour_gra() const;
 
@@ -1956,27 +1970,6 @@ struct GregorianDate {
     int32_t month;
     /** The day of the month, from 1. */
     int32_t day;
-};
-
-/**
- * A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
- * leave them 0 for sea level.
- *
- * The time zone is not part of the location: pass a
- * `TimeZoneOffset` to `Zmanim` and
- * `MyZmanim`.
- */
-struct Location {
-    /** Latitude in degrees, north positive. */
-    double latitude;
-    /** Longitude in degrees, east positive. */
-    double longitude;
-    /** The observer's height. Elevation makes sunrise earlier and sunset later. */
-    double elevation;
-    /** The height of the eastern horizon, over which the sun rises. */
-    double eastern_horizon_elevation;
-    /** The height of the western horizon, behind which the sun sets. */
-    double western_horizon_elevation;
 };
 
 /** Facts about a Hebrew year. */
@@ -2231,40 +2224,6 @@ struct Holiday {
     }
 };
 
-/** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
-struct Config {
-    /** How long before sea-level sunset candle lighting is, in minutes. Default 18. */
-    int32_t candle_lighting_minutes;
-    /** Whether proportional zmanim divide the day at astronomical *chatzos*. Default false. */
-    bool use_astronomical_chatzos_for_other_zmanim;
-    /**
-     * Whether elevation adjusts every zman built on sunrise and sunset, not only sunrise
-     * and sunset themselves. Default false.
-     */
-    bool use_elevation;
-    /** How long after sunset Tzais Ateret Torah is, in minutes. Default 40. */
-    int32_t ateret_torah_sunset_minutes;
-    /**
-     * Whether *chatzos* is the sun's transit rather than the midpoint of sunrise and
-     * sunset. Default true.
-     */
-    bool use_astronomical_chatzos;
-    /** The solar position algorithm. Default NOAA. */
-    Calculator calculator;
-    /** For Meeus and SPA: whether to apply the delta-T (TT - UT) correction. Default true. */
-    bool apply_delta_t;
-};
-
-/** One zman's time, or why it has none. */
-struct ZmanTime {
-    /** The zman. */
-    Zman zman;
-    /** The time in Unix milliseconds, when it could be calculated. */
-    std::optional<int64_t> time;
-    /** Why it could not, when it could not. */
-    std::optional<ZmanFailure> failure;
-};
-
 /** A page (*daf*) of the Talmud: both sides of one leaf. */
 struct Daf {
     /** The tractate. */
@@ -2377,6 +2336,67 @@ struct PirkeiAvosUnit {
     }
 };
 
+/**
+ * A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
+ * leave them 0 for sea level.
+ *
+ * The time zone is not part of the location: pass a
+ * `TimeZoneOffset` to `Zmanim` and
+ * `MyZmanim`.
+ */
+struct Location {
+    /** Latitude in degrees, north positive. */
+    double latitude;
+    /** Longitude in degrees, east positive. */
+    double longitude;
+    /** The observer's height. Elevation makes sunrise earlier and sunset later. */
+    double elevation;
+    /** The height of the eastern horizon, over which the sun rises. */
+    double eastern_horizon_elevation;
+    /** The height of the western horizon, behind which the sun sets. */
+    double western_horizon_elevation;
+};
+
+/** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
+struct Config {
+    /**
+     * How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
+     * way. Default 18.
+     */
+    int32_t candle_lighting_minutes;
+    /** Whether proportional zmanim divide the day at astronomical *chatzos*. Default false. */
+    bool use_astronomical_chatzos_for_other_zmanim;
+    /**
+     * Whether elevation adjusts every zman built on sunrise and sunset, not only sunrise
+     * and sunset themselves. Default false.
+     */
+    bool use_elevation;
+    /**
+     * How long after sunset Tzais Ateret Torah is, in minutes, at most 1440 either way.
+     * Default 40.
+     */
+    int32_t ateret_torah_sunset_minutes;
+    /**
+     * Whether *chatzos* is the sun's transit rather than the midpoint of sunrise and
+     * sunset. Default true.
+     */
+    bool use_astronomical_chatzos;
+    /** The solar position algorithm. Default NOAA. */
+    Calculator calculator;
+    /** For Meeus and SPA: whether to apply the delta-T (TT - UT) correction. Default true. */
+    bool apply_delta_t;
+};
+
+/** One zman's time, or why it has none. */
+struct ZmanTime {
+    /** The zman. */
+    Zman zman;
+    /** The time in Unix milliseconds, when it could be calculated. */
+    std::optional<int64_t> time;
+    /** Why it could not, when it could not. */
+    std::optional<ZmanFailure> failure;
+};
+
 /** One MyZmanim time, or why it has none. */
 struct MyZmanTime {
     /** The row. */
@@ -2391,16 +2411,10 @@ namespace detail {
 
 inline void write_GregorianDate(BufferWriter& w, const GregorianDate& v);
 inline GregorianDate read_GregorianDate(BufferReader& r);
-inline void write_Location(BufferWriter& w, const Location& v);
-inline Location read_Location(BufferReader& r);
 inline void write_YearInfo(BufferWriter& w, const YearInfo& v);
 inline YearInfo read_YearInfo(BufferReader& r);
 inline void write_Holiday(BufferWriter& w, const Holiday& v);
 inline Holiday read_Holiday(BufferReader& r);
-inline void write_Config(BufferWriter& w, const Config& v);
-inline Config read_Config(BufferReader& r);
-inline void write_ZmanTime(BufferWriter& w, const ZmanTime& v);
-inline ZmanTime read_ZmanTime(BufferReader& r);
 inline void write_Daf(BufferWriter& w, const Daf& v);
 inline Daf read_Daf(BufferReader& r);
 inline void write_Amud(BufferWriter& w, const Amud& v);
@@ -2413,6 +2427,12 @@ inline void write_TehillimUnit(BufferWriter& w, const TehillimUnit& v);
 inline TehillimUnit read_TehillimUnit(BufferReader& r);
 inline void write_PirkeiAvosUnit(BufferWriter& w, const PirkeiAvosUnit& v);
 inline PirkeiAvosUnit read_PirkeiAvosUnit(BufferReader& r);
+inline void write_Location(BufferWriter& w, const Location& v);
+inline Location read_Location(BufferReader& r);
+inline void write_Config(BufferWriter& w, const Config& v);
+inline Config read_Config(BufferReader& r);
+inline void write_ZmanTime(BufferWriter& w, const ZmanTime& v);
+inline ZmanTime read_ZmanTime(BufferReader& r);
 inline void write_MyZmanTime(BufferWriter& w, const MyZmanTime& v);
 inline MyZmanTime read_MyZmanTime(BufferReader& r);
 inline void write_list_HebrewMonth(BufferWriter& w, const std::vector<HebrewMonth>& v);
@@ -2429,12 +2449,6 @@ inline void write_list_Holiday(BufferWriter& w, const std::vector<Holiday>& v);
 inline std::vector<Holiday> read_list_Holiday(BufferReader& r);
 inline void write_opt_Parsha(BufferWriter& w, const std::optional<Parsha>& v);
 inline std::optional<Parsha> read_opt_Parsha(BufferReader& r);
-inline void write_list_Zman(BufferWriter& w, const std::vector<Zman>& v);
-inline std::vector<Zman> read_list_Zman(BufferReader& r);
-inline void write_opt_Zman(BufferWriter& w, const std::optional<Zman>& v);
-inline std::optional<Zman> read_opt_Zman(BufferReader& r);
-inline void write_list_ZmanTime(BufferWriter& w, const std::vector<ZmanTime>& v);
-inline std::vector<ZmanTime> read_list_ZmanTime(BufferReader& r);
 inline void write_opt_Daf(BufferWriter& w, const std::optional<Daf>& v);
 inline std::optional<Daf> read_opt_Daf(BufferReader& r);
 inline void write_opt_Amud(BufferWriter& w, const std::optional<Amud>& v);
@@ -2445,6 +2459,12 @@ inline void write_opt_TehillimUnit(BufferWriter& w, const std::optional<Tehillim
 inline std::optional<TehillimUnit> read_opt_TehillimUnit(BufferReader& r);
 inline void write_opt_PirkeiAvosUnit(BufferWriter& w, const std::optional<PirkeiAvosUnit>& v);
 inline std::optional<PirkeiAvosUnit> read_opt_PirkeiAvosUnit(BufferReader& r);
+inline void write_list_Zman(BufferWriter& w, const std::vector<Zman>& v);
+inline std::vector<Zman> read_list_Zman(BufferReader& r);
+inline void write_opt_Zman(BufferWriter& w, const std::optional<Zman>& v);
+inline std::optional<Zman> read_opt_Zman(BufferReader& r);
+inline void write_list_ZmanTime(BufferWriter& w, const std::vector<ZmanTime>& v);
+inline std::vector<ZmanTime> read_list_ZmanTime(BufferReader& r);
 inline void write_list_MyZman(BufferWriter& w, const std::vector<MyZman>& v);
 inline std::vector<MyZman> read_list_MyZman(BufferReader& r);
 inline void write_list_MyZmanTime(BufferWriter& w, const std::vector<MyZmanTime>& v);
@@ -2463,26 +2483,6 @@ inline GregorianDate read_GregorianDate(BufferReader& r) {
         r.read_i32(),
         r.read_i32(),
         r.read_i32(),
-    };
-}
-
-/** Writes one `Location` to a value buffer. */
-inline void write_Location(BufferWriter& w, const Location& v) {
-    w.write_f64(v.latitude);
-    w.write_f64(v.longitude);
-    w.write_f64(v.elevation);
-    w.write_f64(v.eastern_horizon_elevation);
-    w.write_f64(v.western_horizon_elevation);
-}
-
-/** Reads one `Location` from a value buffer. */
-inline Location read_Location(BufferReader& r) {
-    return Location{
-        r.read_f64(),
-        r.read_f64(),
-        r.read_f64(),
-        r.read_f64(),
-        r.read_f64(),
     };
 }
 
@@ -2745,46 +2745,6 @@ inline Holiday read_Holiday(BufferReader& r) {
     BufferReader::fail("unknown Holiday tag");
 }
 
-/** Writes one `Config` to a value buffer. */
-inline void write_Config(BufferWriter& w, const Config& v) {
-    w.write_i32(v.candle_lighting_minutes);
-    w.write_bool(v.use_astronomical_chatzos_for_other_zmanim);
-    w.write_bool(v.use_elevation);
-    w.write_i32(v.ateret_torah_sunset_minutes);
-    w.write_bool(v.use_astronomical_chatzos);
-    w.write_i32(static_cast<int32_t>(v.calculator));
-    w.write_bool(v.apply_delta_t);
-}
-
-/** Reads one `Config` from a value buffer. */
-inline Config read_Config(BufferReader& r) {
-    return Config{
-        r.read_i32(),
-        r.read_bool(),
-        r.read_bool(),
-        r.read_i32(),
-        r.read_bool(),
-        static_cast<Calculator>(r.read_i32()),
-        r.read_bool(),
-    };
-}
-
-/** Writes one `ZmanTime` to a value buffer. */
-inline void write_ZmanTime(BufferWriter& w, const ZmanTime& v) {
-    w.write_i32(static_cast<int32_t>(v.zman));
-    detail::write_opt_i64(w, v.time);
-    detail::write_opt_ZmanFailure(w, v.failure);
-}
-
-/** Reads one `ZmanTime` from a value buffer. */
-inline ZmanTime read_ZmanTime(BufferReader& r) {
-    return ZmanTime{
-        static_cast<Zman>(r.read_i32()),
-        detail::read_opt_i64(r),
-        detail::read_opt_ZmanFailure(r),
-    };
-}
-
 /** Writes one `Daf` to a value buffer. */
 inline void write_Daf(BufferWriter& w, const Daf& v) {
     w.write_i32(static_cast<int32_t>(v.tractate));
@@ -2931,6 +2891,66 @@ inline PirkeiAvosUnit read_PirkeiAvosUnit(BufferReader& r) {
     BufferReader::fail("unknown PirkeiAvosUnit tag");
 }
 
+/** Writes one `Location` to a value buffer. */
+inline void write_Location(BufferWriter& w, const Location& v) {
+    w.write_f64(v.latitude);
+    w.write_f64(v.longitude);
+    w.write_f64(v.elevation);
+    w.write_f64(v.eastern_horizon_elevation);
+    w.write_f64(v.western_horizon_elevation);
+}
+
+/** Reads one `Location` from a value buffer. */
+inline Location read_Location(BufferReader& r) {
+    return Location{
+        r.read_f64(),
+        r.read_f64(),
+        r.read_f64(),
+        r.read_f64(),
+        r.read_f64(),
+    };
+}
+
+/** Writes one `Config` to a value buffer. */
+inline void write_Config(BufferWriter& w, const Config& v) {
+    w.write_i32(v.candle_lighting_minutes);
+    w.write_bool(v.use_astronomical_chatzos_for_other_zmanim);
+    w.write_bool(v.use_elevation);
+    w.write_i32(v.ateret_torah_sunset_minutes);
+    w.write_bool(v.use_astronomical_chatzos);
+    w.write_i32(static_cast<int32_t>(v.calculator));
+    w.write_bool(v.apply_delta_t);
+}
+
+/** Reads one `Config` from a value buffer. */
+inline Config read_Config(BufferReader& r) {
+    return Config{
+        r.read_i32(),
+        r.read_bool(),
+        r.read_bool(),
+        r.read_i32(),
+        r.read_bool(),
+        static_cast<Calculator>(r.read_i32()),
+        r.read_bool(),
+    };
+}
+
+/** Writes one `ZmanTime` to a value buffer. */
+inline void write_ZmanTime(BufferWriter& w, const ZmanTime& v) {
+    w.write_i32(static_cast<int32_t>(v.zman));
+    detail::write_opt_i64(w, v.time);
+    detail::write_opt_ZmanFailure(w, v.failure);
+}
+
+/** Reads one `ZmanTime` from a value buffer. */
+inline ZmanTime read_ZmanTime(BufferReader& r) {
+    return ZmanTime{
+        static_cast<Zman>(r.read_i32()),
+        detail::read_opt_i64(r),
+        detail::read_opt_ZmanFailure(r),
+    };
+}
+
 /** Writes one `MyZmanTime` to a value buffer. */
 inline void write_MyZmanTime(BufferWriter& w, const MyZmanTime& v) {
     w.write_i32(static_cast<int32_t>(v.zman));
@@ -3037,48 +3057,6 @@ inline std::optional<Parsha> read_opt_Parsha(BufferReader& r) {
     return std::optional<Parsha>(static_cast<Parsha>(r.read_i32()));
 }
 
-/** Writes one `[Zman]` to a value buffer. */
-inline void write_list_Zman(BufferWriter& w, const std::vector<Zman>& v) {
-    w.write_len(v.size());
-    for (const auto& item : v) w.write_i32(static_cast<int32_t>(item));
-}
-
-/** Reads one `[Zman]` from a value buffer. */
-inline std::vector<Zman> read_list_Zman(BufferReader& r) {
-    size_t n = r.read_count();
-    std::vector<Zman> v;
-    v.reserve(r.reserve_hint(n));
-    for (size_t i = 0; i < n; ++i) v.push_back(static_cast<Zman>(r.read_i32()));
-    return v;
-}
-
-/** Writes one `Zman?` to a value buffer. */
-inline void write_opt_Zman(BufferWriter& w, const std::optional<Zman>& v) {
-    w.write_option_flag(v.has_value());
-    if (v.has_value()) w.write_i32(static_cast<int32_t>(*v));
-}
-
-/** Reads one `Zman?` from a value buffer. */
-inline std::optional<Zman> read_opt_Zman(BufferReader& r) {
-    if (!r.read_option_flag()) return std::nullopt;
-    return std::optional<Zman>(static_cast<Zman>(r.read_i32()));
-}
-
-/** Writes one `[ZmanTime]` to a value buffer. */
-inline void write_list_ZmanTime(BufferWriter& w, const std::vector<ZmanTime>& v) {
-    w.write_len(v.size());
-    for (const auto& item : v) detail::write_ZmanTime(w, item);
-}
-
-/** Reads one `[ZmanTime]` from a value buffer. */
-inline std::vector<ZmanTime> read_list_ZmanTime(BufferReader& r) {
-    size_t n = r.read_count();
-    std::vector<ZmanTime> v;
-    v.reserve(r.reserve_hint(n));
-    for (size_t i = 0; i < n; ++i) v.push_back(detail::read_ZmanTime(r));
-    return v;
-}
-
 /** Writes one `Daf?` to a value buffer. */
 inline void write_opt_Daf(BufferWriter& w, const std::optional<Daf>& v) {
     w.write_option_flag(v.has_value());
@@ -3139,6 +3117,48 @@ inline std::optional<PirkeiAvosUnit> read_opt_PirkeiAvosUnit(BufferReader& r) {
     return std::optional<PirkeiAvosUnit>(detail::read_PirkeiAvosUnit(r));
 }
 
+/** Writes one `[Zman]` to a value buffer. */
+inline void write_list_Zman(BufferWriter& w, const std::vector<Zman>& v) {
+    w.write_len(v.size());
+    for (const auto& item : v) w.write_i32(static_cast<int32_t>(item));
+}
+
+/** Reads one `[Zman]` from a value buffer. */
+inline std::vector<Zman> read_list_Zman(BufferReader& r) {
+    size_t n = r.read_count();
+    std::vector<Zman> v;
+    v.reserve(r.reserve_hint(n));
+    for (size_t i = 0; i < n; ++i) v.push_back(static_cast<Zman>(r.read_i32()));
+    return v;
+}
+
+/** Writes one `Zman?` to a value buffer. */
+inline void write_opt_Zman(BufferWriter& w, const std::optional<Zman>& v) {
+    w.write_option_flag(v.has_value());
+    if (v.has_value()) w.write_i32(static_cast<int32_t>(*v));
+}
+
+/** Reads one `Zman?` from a value buffer. */
+inline std::optional<Zman> read_opt_Zman(BufferReader& r) {
+    if (!r.read_option_flag()) return std::nullopt;
+    return std::optional<Zman>(static_cast<Zman>(r.read_i32()));
+}
+
+/** Writes one `[ZmanTime]` to a value buffer. */
+inline void write_list_ZmanTime(BufferWriter& w, const std::vector<ZmanTime>& v) {
+    w.write_len(v.size());
+    for (const auto& item : v) detail::write_ZmanTime(w, item);
+}
+
+/** Reads one `[ZmanTime]` from a value buffer. */
+inline std::vector<ZmanTime> read_list_ZmanTime(BufferReader& r) {
+    size_t n = r.read_count();
+    std::vector<ZmanTime> v;
+    v.reserve(r.reserve_hint(n));
+    for (size_t i = 0; i < n; ++i) v.push_back(detail::read_ZmanTime(r));
+    return v;
+}
+
 /** Writes one `[MyZman]` to a value buffer. */
 inline void write_list_MyZman(BufferWriter& w, const std::vector<MyZman>& v) {
     w.write_len(v.size());
@@ -3171,11 +3191,108 @@ inline std::vector<MyZmanTime> read_list_MyZmanTime(BufferReader& r) {
 
 } // namespace detail
 
-/** The errors the `kosher` module's throwing calls report; catch a code's subclass or this. */
-class KosherError : public Error {
+/** The errors the `calendar` module's throwing calls report; catch a code's subclass or this. */
+class CalendarError : public Error {
 public:
     /** Builds an error carrying a domain `code` and `message`. */
-    KosherError(int32_t code, const std::string& message) : Error(code, message) {}
+    CalendarError(int32_t code, const std::string& message) : Error(code, message) {}
+};
+
+/**
+ * The date does not exist, or is outside Hebrew years 1 to 9999.
+ *
+ * Code 1.
+ */
+class InvalidDateError : public CalendarError {
+public:
+    /** Builds the error with the producer's `message` and the code's fields. */
+    explicit InvalidDateError(const std::string& message) : CalendarError(1, message) {}
+};
+
+/**
+ * A day of Chanukah outside 1 to 8, or of the Omer outside 1 to 49.
+ *
+ * Code 2.
+ */
+class InvalidHolidayError : public CalendarError {
+public:
+    /** Builds the error with the producer's `message` and the code's fields. */
+    explicit InvalidHolidayError(const std::string& message) : CalendarError(2, message) {}
+};
+
+namespace detail {
+
+/** The exception for a failed `CalendarError` call: its code's subclass, Cancelled, or the root Error. */
+inline std::exception_ptr make_calendar_error(int32_t code, const std::string& message, const uint8_t* payload_ptr, size_t payload_len) {
+    if (code == -5) return std::make_exception_ptr(Cancelled(message));
+    if (code < 0) return std::make_exception_ptr(Error(code, message));
+    (void)payload_ptr;
+    (void)payload_len;
+    switch (code) {
+        case 1: return std::make_exception_ptr(InvalidDateError(message));
+        case 2: return std::make_exception_ptr(InvalidHolidayError(message));
+        default: return std::make_exception_ptr(CalendarError(code, message));
+    }
+}
+
+/** Throws the typed `CalendarError` exception if `err` carries a nonzero code. */
+inline void check_calendar(kosherz_error& err) {
+    if (err.code == 0) return;
+    std::exception_ptr ex = make_calendar_error(err.code, error_message(err), err.payload_ptr, err.payload_len);
+    kosherz_error_clear(&err);
+    std::rethrow_exception(ex);
+}
+
+} // namespace detail
+
+/** The errors the `calendar.limudim` module's throwing calls report; catch a code's subclass or this. */
+class LimudimError : public Error {
+public:
+    /** Builds an error carrying a domain `code` and `message`. */
+    LimudimError(int32_t code, const std::string& message) : Error(code, message) {}
+};
+
+/**
+ * A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
+ * to 6.
+ *
+ * Code 1.
+ */
+class InvalidUnitError : public LimudimError {
+public:
+    /** Builds the error with the producer's `message` and the code's fields. */
+    explicit InvalidUnitError(const std::string& message) : LimudimError(1, message) {}
+};
+
+namespace detail {
+
+/** The exception for a failed `LimudimError` call: its code's subclass, Cancelled, or the root Error. */
+inline std::exception_ptr make_calendar_limudim_error(int32_t code, const std::string& message, const uint8_t* payload_ptr, size_t payload_len) {
+    if (code == -5) return std::make_exception_ptr(Cancelled(message));
+    if (code < 0) return std::make_exception_ptr(Error(code, message));
+    (void)payload_ptr;
+    (void)payload_len;
+    switch (code) {
+        case 1: return std::make_exception_ptr(InvalidUnitError(message));
+        default: return std::make_exception_ptr(LimudimError(code, message));
+    }
+}
+
+/** Throws the typed `LimudimError` exception if `err` carries a nonzero code. */
+inline void check_calendar_limudim(kosherz_error& err) {
+    if (err.code == 0) return;
+    std::exception_ptr ex = make_calendar_limudim_error(err.code, error_message(err), err.payload_ptr, err.payload_len);
+    kosherz_error_clear(&err);
+    std::rethrow_exception(ex);
+}
+
+} // namespace detail
+
+/** The errors the `zmanim` module's throwing calls report; catch a code's subclass or this. */
+class ZmanimError : public Error {
+public:
+    /** Builds an error carrying a domain `code` and `message`. */
+    ZmanimError(int32_t code, const std::string& message) : Error(code, message) {}
 };
 
 /**
@@ -3183,10 +3300,10 @@ public:
  *
  * Code 1.
  */
-class InvalidLatitudeError : public KosherError {
+class InvalidLatitudeError : public ZmanimError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit InvalidLatitudeError(const std::string& message) : KosherError(1, message) {}
+    explicit InvalidLatitudeError(const std::string& message) : ZmanimError(1, message) {}
 };
 
 /**
@@ -3194,10 +3311,10 @@ public:
  *
  * Code 2.
  */
-class InvalidLongitudeError : public KosherError {
+class InvalidLongitudeError : public ZmanimError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit InvalidLongitudeError(const std::string& message) : KosherError(2, message) {}
+    explicit InvalidLongitudeError(const std::string& message) : ZmanimError(2, message) {}
 };
 
 /**
@@ -3205,21 +3322,21 @@ public:
  *
  * Code 3.
  */
-class InvalidElevationError : public KosherError {
+class InvalidElevationError : public ZmanimError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit InvalidElevationError(const std::string& message) : KosherError(3, message) {}
+    explicit InvalidElevationError(const std::string& message) : ZmanimError(3, message) {}
 };
 
 /**
- * The date does not exist, or is outside the supported range.
+ * The Gregorian date does not exist, or is outside the supported range.
  *
  * Code 4.
  */
-class InvalidDateError : public KosherError {
+class InvalidGregorianDateError : public ZmanimError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit InvalidDateError(const std::string& message) : KosherError(4, message) {}
+    explicit InvalidGregorianDateError(const std::string& message) : ZmanimError(4, message) {}
 };
 
 /**
@@ -3228,10 +3345,10 @@ public:
  *
  * Code 5.
  */
-class TimeZoneRequiredError : public KosherError {
+class TimeZoneRequiredError : public ZmanimError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit TimeZoneRequiredError(const std::string& message) : KosherError(5, message) {}
+    explicit TimeZoneRequiredError(const std::string& message) : ZmanimError(5, message) {}
 };
 
 /**
@@ -3239,10 +3356,33 @@ public:
  *
  * Code 6.
  */
-class TimeZoneCallbackFailedError : public KosherError {
+class TimeZoneCallbackFailedError : public ZmanimError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit TimeZoneCallbackFailedError(const std::string& message) : KosherError(6, message) {}
+    explicit TimeZoneCallbackFailedError(const std::string& message) : ZmanimError(6, message) {}
+};
+
+/**
+ * A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
+ * within a day (1440 minutes) either way.
+ *
+ * Code 7.
+ */
+class InvalidMinutesError : public ZmanimError {
+public:
+    /** Builds the error with the producer's `message` and the code's fields. */
+    explicit InvalidMinutesError(const std::string& message) : ZmanimError(7, message) {}
+};
+
+/**
+ * An angle in degrees is not a finite number.
+ *
+ * Code 8.
+ */
+class InvalidDegreesError : public ZmanimError {
+public:
+    /** Builds the error with the producer's `message` and the code's fields. */
+    explicit InvalidDegreesError(const std::string& message) : ZmanimError(8, message) {}
 };
 
 /**
@@ -3250,10 +3390,10 @@ public:
  *
  * Code 10.
  */
-class AllDayError : public KosherError {
+class AllDayError : public ZmanimError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit AllDayError(const std::string& message) : KosherError(10, message) {}
+    explicit AllDayError(const std::string& message) : ZmanimError(10, message) {}
 };
 
 /**
@@ -3261,10 +3401,10 @@ public:
  *
  * Code 11.
  */
-class AllNightError : public KosherError {
+class AllNightError : public ZmanimError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit AllNightError(const std::string& message) : KosherError(11, message) {}
+    explicit AllNightError(const std::string& message) : ZmanimError(11, message) {}
 };
 
 /**
@@ -3272,10 +3412,10 @@ public:
  *
  * Code 12.
  */
-class NotApplicableError : public KosherError {
+class NotApplicableError : public ZmanimError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit NotApplicableError(const std::string& message) : KosherError(12, message) {}
+    explicit NotApplicableError(const std::string& message) : ZmanimError(12, message) {}
 };
 
 /**
@@ -3284,16 +3424,16 @@ public:
  *
  * Code 13.
  */
-class InternalError : public KosherError {
+class UnexpectedError : public ZmanimError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit InternalError(const std::string& message) : KosherError(13, message) {}
+    explicit UnexpectedError(const std::string& message) : ZmanimError(13, message) {}
 };
 
 namespace detail {
 
-/** The exception for a failed `KosherError` call: its code's subclass, Cancelled, or the root Error. */
-inline std::exception_ptr make_kosher_error(int32_t code, const std::string& message, const uint8_t* payload_ptr, size_t payload_len) {
+/** The exception for a failed `ZmanimError` call: its code's subclass, Cancelled, or the root Error. */
+inline std::exception_ptr make_zmanim_error(int32_t code, const std::string& message, const uint8_t* payload_ptr, size_t payload_len) {
     if (code == -5) return std::make_exception_ptr(Cancelled(message));
     if (code < 0) return std::make_exception_ptr(Error(code, message));
     (void)payload_ptr;
@@ -3302,22 +3442,24 @@ inline std::exception_ptr make_kosher_error(int32_t code, const std::string& mes
         case 1: return std::make_exception_ptr(InvalidLatitudeError(message));
         case 2: return std::make_exception_ptr(InvalidLongitudeError(message));
         case 3: return std::make_exception_ptr(InvalidElevationError(message));
-        case 4: return std::make_exception_ptr(InvalidDateError(message));
+        case 4: return std::make_exception_ptr(InvalidGregorianDateError(message));
         case 5: return std::make_exception_ptr(TimeZoneRequiredError(message));
         case 6: return std::make_exception_ptr(TimeZoneCallbackFailedError(message));
+        case 7: return std::make_exception_ptr(InvalidMinutesError(message));
+        case 8: return std::make_exception_ptr(InvalidDegreesError(message));
         case 10: return std::make_exception_ptr(AllDayError(message));
         case 11: return std::make_exception_ptr(AllNightError(message));
         case 12: return std::make_exception_ptr(NotApplicableError(message));
-        case 13: return std::make_exception_ptr(InternalError(message));
-        default: return std::make_exception_ptr(KosherError(code, message));
+        case 13: return std::make_exception_ptr(UnexpectedError(message));
+        default: return std::make_exception_ptr(ZmanimError(code, message));
     }
 }
 
-/** Throws the typed `KosherError` exception if `err` carries a nonzero code. */
-inline void check_kosher(kosher_rust_bindings_error& err) {
+/** Throws the typed `ZmanimError` exception if `err` carries a nonzero code. */
+inline void check_zmanim(kosherz_error& err) {
     if (err.code == 0) return;
-    std::exception_ptr ex = make_kosher_error(err.code, error_message(err), err.payload_ptr, err.payload_len);
-    kosher_rust_bindings_error_clear(&err);
+    std::exception_ptr ex = make_zmanim_error(err.code, error_message(err), err.payload_ptr, err.payload_len);
+    kosherz_error_clear(&err);
     std::rethrow_exception(ex);
 }
 
@@ -3327,7 +3469,8 @@ inline void check_kosher(kosher_rust_bindings_error& err) {
  * The time zone, supplied by the caller: the offset from UTC at an instant.
  *
  * Only the Kiddush Levana times, and places more than 150 degrees from Greenwich, need
- * one. It is called synchronously, possibly several times per calculation.
+ * one. It is called synchronously, once for each sunrise, sunset or other event a time is
+ * built from.
  *
  * Subclass it and pass a `std::shared_ptr<TimeZoneOffset>` where the API takes a `TimeZoneOffset`. The producer may call the methods from any thread, so they must be thread-safe, until it releases the implementation (also from any thread). An exception a method throws reaches the producer as a callback failure (code -4).
  */
@@ -3341,23 +3484,23 @@ public:
      * # Errors
      *
      * Fail when the offset is unknown; the calculation then reports
-     * `KosherError::TimeZoneCallbackFailed`.
+     * `ZmanimError::TimeZoneCallbackFailed`.
      */
     virtual int32_t offset_seconds(int64_t unix_seconds) = 0;
 };
 
 namespace detail {
 
-/** Trampolines adapting a `TimeZoneOffset` implementation to `kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable`. */
+/** Trampolines adapting a `TimeZoneOffset` implementation to `kosherz_zmanim_TimeZoneOffset_vtable`. */
 struct TimeZoneOffset_trampolines {
-    static int32_t offset_seconds(void* ctx, int64_t unix_seconds, kosher_rust_bindings_error* out_err) {
+    static int32_t offset_seconds(void* ctx, int64_t unix_seconds, kosherz_error* out_err) {
         try {
             TimeZoneOffset& impl = **static_cast<std::shared_ptr<TimeZoneOffset>*>(ctx);
             return impl.offset_seconds(unix_seconds);
         } catch (const std::exception& e) {
-            kosher_rust_bindings_error_set(out_err, -4, e.what());
+            kosherz_error_set(out_err, -4, e.what());
         } catch (...) {
-            kosher_rust_bindings_error_set(out_err, -4, "TimeZoneOffset::offset_seconds threw a non-standard exception");
+            kosherz_error_set(out_err, -4, "TimeZoneOffset::offset_seconds threw a non-standard exception");
         }
         return int32_t{};
     }
@@ -3369,9 +3512,9 @@ struct TimeZoneOffset_trampolines {
 };
 
 /** The vtable every `TimeZoneOffset` implementation is passed with. */
-inline const kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable& TimeZoneOffset_vtable() {
-    static const kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable vtable = {
-        static_cast<uint32_t>(sizeof(kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable)),
+inline const kosherz_zmanim_TimeZoneOffset_vtable& TimeZoneOffset_vtable() {
+    static const kosherz_zmanim_TimeZoneOffset_vtable vtable = {
+        static_cast<uint32_t>(sizeof(kosherz_zmanim_TimeZoneOffset_vtable)),
         0,
         &TimeZoneOffset_trampolines::free_ctx,
         &TimeZoneOffset_trampolines::offset_seconds,
@@ -3383,9 +3526,9 @@ inline const kosher_rust_bindings_kosher_zmanim_TimeZoneOffset_vtable& TimeZoneO
 
 inline HebrewDate::HebrewDate(int32_t year, HebrewMonth month, int32_t day) : raw_(nullptr) {
     check_library();
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_new(year, static_cast<kosher_rust_bindings_kosher_calendar_HebrewMonth>(static_cast<int32_t>(month)), day, &err);
-    detail::check_kosher(err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_new(year, static_cast<kosherz_calendar_HebrewMonth>(static_cast<int32_t>(month)), day, &err);
+    detail::check_calendar(err);
     raw_ = result;
 }
 
@@ -3393,141 +3536,141 @@ inline HebrewDate HebrewDate::from_gregorian(const GregorianDate& date) {
     check_library();
     detail::BufferWriter date_buf;
     detail::write_GregorianDate(date_buf, date);
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_from_gregorian(date_buf.data(), date_buf.size(), &err);
-    detail::check_kosher(err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_from_gregorian(date_buf.data(), date_buf.size(), &err);
+    detail::check_calendar(err);
     return HebrewDate(adopt, result);
 }
 
 inline int32_t HebrewDate::year() const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_year(raw_, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_year(raw_, &err);
     detail::check(err);
     return result;
 }
 
 inline HebrewMonth HebrewDate::month() const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_month(raw_, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_month(raw_, &err);
     detail::check(err);
     return static_cast<HebrewMonth>(result);
 }
 
 inline int32_t HebrewDate::day() const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_day(raw_, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_day(raw_, &err);
     detail::check(err);
     return result;
 }
 
 inline int32_t HebrewDate::day_of_year() const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_day_of_year(raw_, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_day_of_year(raw_, &err);
     detail::check(err);
     return result;
 }
 
 inline Weekday HebrewDate::weekday() const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_weekday(raw_, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_weekday(raw_, &err);
     detail::check(err);
     return static_cast<Weekday>(result);
 }
 
 inline std::optional<GregorianDate> HebrewDate::to_gregorian() const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_to_gregorian(raw_, &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_to_gregorian(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_opt_GregorianDate);
 }
 
 inline HebrewDate HebrewDate::add_days(int32_t days) const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_add_days(raw_, days, &err);
-    detail::check_kosher(err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_add_days(raw_, days, &err);
+    detail::check_calendar(err);
     return HebrewDate(adopt, result);
 }
 
 inline std::vector<Holiday> HebrewDate::holidays(Region region) const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_holidays(raw_, static_cast<kosher_rust_bindings_kosher_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_holidays(raw_, static_cast<kosherz_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_list_Holiday);
 }
 
 inline bool HebrewDate::is_assur_bemelacha(Region region) const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_is_assur_bemelacha(raw_, static_cast<kosher_rust_bindings_kosher_calendar_Region>(static_cast<int32_t>(region)), &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_is_assur_bemelacha(raw_, static_cast<kosherz_calendar_Region>(static_cast<int32_t>(region)), &err);
     detail::check(err);
     return result;
 }
 
 inline bool HebrewDate::has_candle_lighting(Region region) const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_has_candle_lighting(raw_, static_cast<kosher_rust_bindings_kosher_calendar_Region>(static_cast<int32_t>(region)), &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_has_candle_lighting(raw_, static_cast<kosherz_calendar_Region>(static_cast<int32_t>(region)), &err);
     detail::check(err);
     return result;
 }
 
 inline bool HebrewDate::is_aseres_yemei_teshuva() const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_is_aseres_yemei_teshuva(raw_, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva(raw_, &err);
     detail::check(err);
     return result;
 }
 
 inline std::optional<Parsha> HebrewDate::parsha(Region region) const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_parsha(raw_, static_cast<kosher_rust_bindings_kosher_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_parsha(raw_, static_cast<kosherz_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_opt_Parsha);
 }
 
 inline std::optional<Parsha> HebrewDate::special_parsha(Region region) const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_special_parsha(raw_, static_cast<kosher_rust_bindings_kosher_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_special_parsha(raw_, static_cast<kosherz_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_opt_Parsha);
 }
 
 inline std::optional<Parsha> HebrewDate::next_parsha(Region region) const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_next_parsha(raw_, static_cast<kosher_rust_bindings_kosher_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_next_parsha(raw_, static_cast<kosherz_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_opt_Parsha);
 }
 
 inline std::optional<int64_t> HebrewDate::molad() const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_molad(raw_, &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_molad(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_opt_i64);
 }
 
 inline std::string HebrewDate::display() const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_display(raw_, &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_display(raw_, &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
 
 inline bool HebrewDate::equals(const HebrewDate& other) const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_equals(raw_, other.handle(), &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_equals(raw_, other.handle(), &err);
     detail::check(err);
     return result;
 }
 
 inline int32_t HebrewDate::compare(const HebrewDate& other) const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_HebrewDate_compare(raw_, other.handle(), &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_HebrewDate_compare(raw_, other.handle(), &err);
     detail::check(err);
     return result;
 }
@@ -3542,61 +3685,61 @@ inline Zmanim::Zmanim(const Location& location, const GregorianDate& date, const
     detail::write_Config(config_buf, config);
     const auto* time_zone_vtable = time_zone ? &detail::TimeZoneOffset_vtable() : nullptr;
     std::unique_ptr<std::shared_ptr<TimeZoneOffset>> time_zone_ctx(time_zone ? new std::shared_ptr<TimeZoneOffset>(std::move(time_zone)) : nullptr);
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_Zmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), config_buf.data(), config_buf.size(), static_cast<void*>(time_zone_ctx.release()), time_zone_vtable, &err);
-    detail::check_kosher(err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_Zmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), config_buf.data(), config_buf.size(), static_cast<void*>(time_zone_ctx.release()), time_zone_vtable, &err);
+    detail::check_zmanim(err);
     raw_ = result;
 }
 
 inline int64_t Zmanim::get(Zman zman) const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_Zmanim_get(raw_, static_cast<kosher_rust_bindings_kosher_zmanim_Zman>(static_cast<int32_t>(zman)), &err);
-    detail::check_kosher(err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_Zmanim_get(raw_, static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), &err);
+    detail::check_zmanim(err);
     return result;
 }
 
 inline std::vector<ZmanTime> Zmanim::all() const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_Zmanim_all(raw_, &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_Zmanim_all(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_list_ZmanTime);
 }
 
 inline int64_t Zmanim::sunrise_offset_by_degrees(double degrees) const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_Zmanim_sunrise_offset_by_degrees(raw_, degrees, &err);
-    detail::check_kosher(err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_Zmanim_sunrise_offset_by_degrees(raw_, degrees, &err);
+    detail::check_zmanim(err);
     return result;
 }
 
 inline int64_t Zmanim::sunset_offset_by_degrees(double degrees) const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_Zmanim_sunset_offset_by_degrees(raw_, degrees, &err);
-    detail::check_kosher(err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_Zmanim_sunset_offset_by_degrees(raw_, degrees, &err);
+    detail::check_zmanim(err);
     return result;
 }
 
 inline Location Zmanim::location() const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_Zmanim_location(raw_, &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_Zmanim_location(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_Location);
 }
 
 inline GregorianDate Zmanim::date() const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_Zmanim_date(raw_, &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_Zmanim_date(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_GregorianDate);
 }
 
 inline Config Zmanim::config() const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_Zmanim_config(raw_, &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_Zmanim_config(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_Config);
 }
@@ -3609,109 +3752,86 @@ inline MyZmanim::MyZmanim(const Location& location, const GregorianDate& date, d
     detail::write_GregorianDate(date_buf, date);
     const auto* time_zone_vtable = time_zone ? &detail::TimeZoneOffset_vtable() : nullptr;
     std::unique_ptr<std::shared_ptr<TimeZoneOffset>> time_zone_ctx(time_zone ? new std::shared_ptr<TimeZoneOffset>(std::move(time_zone)) : nullptr);
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_MyZmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), candle_lighting_minutes, static_cast<void*>(time_zone_ctx.release()), time_zone_vtable, &err);
-    detail::check_kosher(err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_MyZmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), candle_lighting_minutes, static_cast<void*>(time_zone_ctx.release()), time_zone_vtable, &err);
+    detail::check_zmanim(err);
     raw_ = result;
 }
 
 inline int64_t MyZmanim::get(MyZman zman) const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_MyZmanim_get(raw_, static_cast<kosher_rust_bindings_kosher_myzmanim_MyZman>(static_cast<int32_t>(zman)), &err);
-    detail::check_kosher(err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_MyZmanim_get(raw_, static_cast<kosherz_zmanim_myzmanim_MyZman>(static_cast<int32_t>(zman)), &err);
+    detail::check_zmanim(err);
     return result;
 }
 
 inline std::vector<MyZmanTime> MyZmanim::all() const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_MyZmanim_all(raw_, &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_MyZmanim_all(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_list_MyZmanTime);
 }
 
 inline int64_t MyZmanim::proportional_hour_gra() const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_MyZmanim_proportional_hour_gra(raw_, &err);
-    detail::check_kosher(err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra(raw_, &err);
+    detail::check_zmanim(err);
     return result;
 }
 
 inline Location MyZmanim::location() const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_MyZmanim_location(raw_, &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_MyZmanim_location(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_Location);
 }
 
 inline GregorianDate MyZmanim::date() const {
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_MyZmanim_date(raw_, &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_MyZmanim_date(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_GregorianDate);
 }
 
 inline double MyZmanim::candle_lighting_minutes() const {
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_MyZmanim_candle_lighting_minutes(raw_, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes(raw_, &err);
     detail::check(err);
     return result;
 }
 
-namespace kosher {
-
-/** A location at sea level, with flat horizons. */
-inline Location sea_level_location(double latitude, double longitude) {
-    check_library();
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_sea_level_location(latitude, longitude, &out_len, &err);
-    detail::check(err);
-    return detail::take(result, out_len, &detail::read_Location);
-}
+namespace calendar {
 
 /**
- * Checks a location the way `Zmanim` will.
+ * Facts about the Hebrew year `year`.
  *
  * # Errors
  *
- * `KosherError::InvalidLatitude`, `KosherError::InvalidLongitude` or
- * `KosherError::InvalidElevation`; `KosherError::TimeZoneRequired` beyond 150 degrees
- * from Greenwich when `has_time_zone` is false.
+ * `CalendarError::InvalidDate` for a year outside 1 to 9999.
  *
- * @throws KosherError when the call fails with one of the domain's codes.
+ * @throws CalendarError when the call fails with one of the domain's codes.
  */
-inline void validate_location(const Location& location, bool has_time_zone) {
-    check_library();
-    detail::BufferWriter location_buf;
-    detail::write_Location(location_buf, location);
-    kosher_rust_bindings_error err{};
-    kosher_rust_bindings_kosher_validate_location(location_buf.data(), location_buf.size(), has_time_zone, &err);
-    detail::check_kosher(err);
-}
-
-} // namespace kosher
-
-namespace kosher::calendar {
-
-/** Facts about the Hebrew year `year`. */
 inline YearInfo year_info(int32_t year) {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_year_info(year, &out_len, &err);
-    detail::check(err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_year_info(year, &out_len, &err);
+    detail::check_calendar(err);
     return detail::take(result, out_len, &detail::read_YearInfo);
 }
 
-/** The number of days in `month` of `year`, or none when the year has no such month. */
+/**
+ * The number of days in `month` of `year`, or none when the year has no such month or is
+ * outside 1 to 9999.
+ */
 inline std::optional<int32_t> days_in_month(int32_t year, HebrewMonth month) {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_days_in_month(year, static_cast<kosher_rust_bindings_kosher_calendar_HebrewMonth>(static_cast<int32_t>(month)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_days_in_month(year, static_cast<kosherz_calendar_HebrewMonth>(static_cast<int32_t>(month)), &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_opt_i32);
 }
@@ -3721,72 +3841,117 @@ inline std::optional<int32_t> days_in_month(int32_t year, HebrewMonth month) {
  *
  * # Errors
  *
- * `KosherError::InvalidDate` for a year outside the supported range.
+ * `CalendarError::InvalidDate` for a year outside 1 to 9999.
  *
- * @throws KosherError when the call fails with one of the domain's codes.
+ * @throws CalendarError when the call fails with one of the domain's codes.
  */
 inline HebrewDate rosh_hashana(int32_t year) {
     check_library();
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_rosh_hashana(year, &err);
-    detail::check_kosher(err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_rosh_hashana(year, &err);
+    detail::check_calendar(err);
     return HebrewDate(adopt, result);
 }
 
-/** The holiday's English name, for example "Chanukah". */
+/**
+ * The holiday's English name, for example "Chanukah".
+ *
+ * # Errors
+ *
+ * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * outside 1 to 49.
+ *
+ * @throws CalendarError when the call fails with one of the domain's codes.
+ */
 inline std::string holiday_name(const Holiday& holiday) {
     check_library();
     detail::BufferWriter holiday_buf;
     detail::write_Holiday(holiday_buf, holiday);
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_holiday_name(holiday_buf.data(), holiday_buf.size(), &out_len, &err);
-    detail::check(err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_holiday_name(holiday_buf.data(), holiday_buf.size(), &out_len, &err);
+    detail::check_calendar(err);
     return detail::take_string(result, out_len);
 }
 
-/** The holiday's Hebrew name. */
+/**
+ * The holiday's Hebrew name.
+ *
+ * # Errors
+ *
+ * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * outside 1 to 49.
+ *
+ * @throws CalendarError when the call fails with one of the domain's codes.
+ */
 inline std::string holiday_hebrew(const Holiday& holiday) {
     check_library();
     detail::BufferWriter holiday_buf;
     detail::write_Holiday(holiday_buf, holiday);
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_holiday_hebrew(holiday_buf.data(), holiday_buf.size(), &out_len, &err);
-    detail::check(err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_holiday_hebrew(holiday_buf.data(), holiday_buf.size(), &out_len, &err);
+    detail::check_calendar(err);
     return detail::take_string(result, out_len);
 }
 
-/** Whether melacha is forbidden on the holiday. */
+/**
+ * Whether melacha is forbidden on the holiday.
+ *
+ * # Errors
+ *
+ * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * outside 1 to 49.
+ *
+ * @throws CalendarError when the call fails with one of the domain's codes.
+ */
 inline bool holiday_is_assur_bemelacha(const Holiday& holiday) {
     check_library();
     detail::BufferWriter holiday_buf;
     detail::write_Holiday(holiday_buf, holiday);
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_holiday_is_assur_bemelacha(holiday_buf.data(), holiday_buf.size(), &err);
-    detail::check(err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_holiday_is_assur_bemelacha(holiday_buf.data(), holiday_buf.size(), &err);
+    detail::check_calendar(err);
     return result;
 }
 
-/** Whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut. */
+/**
+ * Whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
+ *
+ * # Errors
+ *
+ * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * outside 1 to 49.
+ *
+ * @throws CalendarError when the call fails with one of the domain's codes.
+ */
 inline bool holiday_is_modern(const Holiday& holiday) {
     check_library();
     detail::BufferWriter holiday_buf;
     detail::write_Holiday(holiday_buf, holiday);
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_holiday_is_modern(holiday_buf.data(), holiday_buf.size(), &err);
-    detail::check(err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_holiday_is_modern(holiday_buf.data(), holiday_buf.size(), &err);
+    detail::check_calendar(err);
     return result;
 }
 
-/** Whether the holiday is a fast day. */
+/**
+ * Whether the holiday is a fast day.
+ *
+ * # Errors
+ *
+ * `CalendarError::InvalidHoliday` for a day of Chanukah outside 1 to 8, or of the Omer
+ * outside 1 to 49.
+ *
+ * @throws CalendarError when the call fails with one of the domain's codes.
+ */
 inline bool holiday_is_fast_day(const Holiday& holiday) {
     check_library();
     detail::BufferWriter holiday_buf;
     detail::write_Holiday(holiday_buf, holiday);
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_holiday_is_fast_day(holiday_buf.data(), holiday_buf.size(), &err);
-    detail::check(err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_holiday_is_fast_day(holiday_buf.data(), holiday_buf.size(), &err);
+    detail::check_calendar(err);
     return result;
 }
 
@@ -3794,8 +3959,8 @@ inline bool holiday_is_fast_day(const Holiday& holiday) {
 inline std::string parsha_name(Parsha parsha) {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_parsha_name(static_cast<kosher_rust_bindings_kosher_calendar_Parsha>(static_cast<int32_t>(parsha)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_parsha_name(static_cast<kosherz_calendar_Parsha>(static_cast<int32_t>(parsha)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -3804,8 +3969,8 @@ inline std::string parsha_name(Parsha parsha) {
 inline std::string parsha_hebrew(Parsha parsha) {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_parsha_hebrew(static_cast<kosher_rust_bindings_kosher_calendar_Parsha>(static_cast<int32_t>(parsha)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_parsha_hebrew(static_cast<kosherz_calendar_Parsha>(static_cast<int32_t>(parsha)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -3814,8 +3979,8 @@ inline std::string parsha_hebrew(Parsha parsha) {
 inline std::string month_name(HebrewMonth month) {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_month_name(static_cast<kosher_rust_bindings_kosher_calendar_HebrewMonth>(static_cast<int32_t>(month)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_month_name(static_cast<kosherz_calendar_HebrewMonth>(static_cast<int32_t>(month)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -3824,22 +3989,186 @@ inline std::string month_name(HebrewMonth month) {
 inline std::string month_hebrew(HebrewMonth month) {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_calendar_month_hebrew(static_cast<kosher_rust_bindings_kosher_calendar_HebrewMonth>(static_cast<int32_t>(month)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_calendar_month_hebrew(static_cast<kosherz_calendar_HebrewMonth>(static_cast<int32_t>(month)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
 
-} // namespace kosher::calendar
+} // namespace calendar
 
-namespace kosher::zmanim {
+namespace calendar::limudim {
+
+/** The tractate's English name, for example "Bava Metzia". */
+inline std::string tractate_name(Tractate tractate) {
+    check_library();
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_calendar_limudim_tractate_name(static_cast<kosherz_calendar_limudim_Tractate>(static_cast<int32_t>(tractate)), &out_len, &err);
+    detail::check(err);
+    return detail::take_string(result, out_len);
+}
+
+/** The tractate's Hebrew name. */
+inline std::string tractate_hebrew(Tractate tractate) {
+    check_library();
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_calendar_limudim_tractate_hebrew(static_cast<kosherz_calendar_limudim_Tractate>(static_cast<int32_t>(tractate)), &out_len, &err);
+    detail::check(err);
+    return detail::take_string(result, out_len);
+}
+
+/**
+ * The portion as text, for example "Tehillim 1-9".
+ *
+ * # Errors
+ *
+ * `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+ *
+ * @throws LimudimError when the call fails with one of the domain's codes.
+ */
+inline std::string tehillim_display(const TehillimUnit& unit) {
+    check_library();
+    detail::BufferWriter unit_buf;
+    detail::write_TehillimUnit(unit_buf, unit);
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_calendar_limudim_tehillim_display(unit_buf.data(), unit_buf.size(), &out_len, &err);
+    detail::check_calendar_limudim(err);
+    return detail::take_string(result, out_len);
+}
+
+/**
+ * The portion as text, for example "Pirkei Avos 5-6".
+ *
+ * # Errors
+ *
+ * `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+ *
+ * @throws LimudimError when the call fails with one of the domain's codes.
+ */
+inline std::string pirkei_avos_display(const PirkeiAvosUnit& unit) {
+    check_library();
+    detail::BufferWriter unit_buf;
+    detail::write_PirkeiAvosUnit(unit_buf, unit);
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_calendar_limudim_pirkei_avos_display(unit_buf.data(), unit_buf.size(), &out_len, &err);
+    detail::check_calendar_limudim(err);
+    return detail::take_string(result, out_len);
+}
+
+/** Daf Yomi: a page of the Babylonian Talmud a day, from 11 September 1923. */
+inline std::optional<Daf> daf_yomi_bavli(const HebrewDate& date) {
+    check_library();
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_calendar_limudim_daf_yomi_bavli(date.handle(), &out_len, &err);
+    detail::check(err);
+    return detail::take(result, out_len, &detail::read_opt_Daf);
+}
+
+/** Daf Hashavua: a page of the Babylonian Talmud a week. */
+inline std::optional<Daf> daf_hashavua_bavli(const HebrewDate& date) {
+    check_library();
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_calendar_limudim_daf_hashavua_bavli(date.handle(), &out_len, &err);
+    detail::check(err);
+    return detail::take(result, out_len, &detail::read_opt_Daf);
+}
+
+/** Daf Yomi Yerushalmi: a page of the Jerusalem Talmud a day. */
+inline std::optional<Daf> daf_yomi_yerushalmi(const HebrewDate& date) {
+    check_library();
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_calendar_limudim_daf_yomi_yerushalmi(date.handle(), &out_len, &err);
+    detail::check(err);
+    return detail::take(result, out_len, &detail::read_opt_Daf);
+}
+
+/** Dirshu's Amud Yomi: one side of a page of the Babylonian Talmud a day. */
+inline std::optional<Amud> amud_yomi_dirshu(const HebrewDate& date) {
+    check_library();
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_calendar_limudim_amud_yomi_dirshu(date.handle(), &out_len, &err);
+    detail::check(err);
+    return detail::take(result, out_len, &detail::read_opt_Amud);
+}
+
+/** Mishna Yomis: two *mishnayos* a day, from 20 May 1947. */
+inline std::optional<MishnaPair> mishna_yomis(const HebrewDate& date) {
+    check_library();
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_calendar_limudim_mishna_yomis(date.handle(), &out_len, &err);
+    detail::check(err);
+    return detail::take(result, out_len, &detail::read_opt_MishnaPair);
+}
+
+/** Tehillim divided over the days of the Hebrew month. */
+inline std::optional<TehillimUnit> tehillim_monthly(const HebrewDate& date) {
+    check_library();
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_calendar_limudim_tehillim_monthly(date.handle(), &out_len, &err);
+    detail::check(err);
+    return detail::take(result, out_len, &detail::read_opt_TehillimUnit);
+}
+
+/** Pirkei Avos: a chapter each Shabbos afternoon from Pesach to Rosh Hashana. */
+inline std::optional<PirkeiAvosUnit> pirkei_avos(const HebrewDate& date, Region region) {
+    check_library();
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_calendar_limudim_pirkei_avos(date.handle(), static_cast<kosherz_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
+    detail::check(err);
+    return detail::take(result, out_len, &detail::read_opt_PirkeiAvosUnit);
+}
+
+} // namespace calendar::limudim
+
+namespace zmanim {
+
+/** A location at sea level, with flat horizons. */
+inline Location sea_level_location(double latitude, double longitude) {
+    check_library();
+    size_t out_len = 0;
+    kosherz_error err{};
+    auto result = kosherz_zmanim_sea_level_location(latitude, longitude, &out_len, &err);
+    detail::check(err);
+    return detail::take(result, out_len, &detail::read_Location);
+}
+
+/**
+ * Checks a location the way `Zmanim` will.
+ *
+ * # Errors
+ *
+ * `ZmanimError::InvalidLatitude`, `ZmanimError::InvalidLongitude` or
+ * `ZmanimError::InvalidElevation`; `ZmanimError::TimeZoneRequired` beyond 150 degrees
+ * from Greenwich when `has_time_zone` is false.
+ *
+ * @throws ZmanimError when the call fails with one of the domain's codes.
+ */
+inline void validate_location(const Location& location, bool has_time_zone) {
+    check_library();
+    detail::BufferWriter location_buf;
+    detail::write_Location(location_buf, location);
+    kosherz_error err{};
+    kosherz_zmanim_validate_location(location_buf.data(), location_buf.size(), has_time_zone, &err);
+    detail::check_zmanim(err);
+}
 
 /** KosherJava's default configuration. */
 inline Config default_config() {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_default_config(&out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_default_config(&out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_Config);
 }
@@ -3848,8 +4177,8 @@ inline Config default_config() {
 inline std::vector<Zman> all_zmanim() {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_all_zmanim(&out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_all_zmanim(&out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_list_Zman);
 }
@@ -3858,8 +4187,8 @@ inline std::vector<Zman> all_zmanim() {
 inline std::string zman_name(Zman zman) {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_zman_name(static_cast<kosher_rust_bindings_kosher_zmanim_Zman>(static_cast<int32_t>(zman)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_zman_name(static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -3868,8 +4197,8 @@ inline std::string zman_name(Zman zman) {
 inline std::string zman_java_name(Zman zman) {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_zman_java_name(static_cast<kosher_rust_bindings_kosher_zmanim_Zman>(static_cast<int32_t>(zman)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_zman_java_name(static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -3878,8 +4207,8 @@ inline std::string zman_java_name(Zman zman) {
 inline std::optional<Zman> zman_from_java_name(std::string_view java_name) {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_zman_from_java_name(detail::utf8(java_name), java_name.size(), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_zman_from_java_name(detail::utf8(java_name), java_name.size(), &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_opt_Zman);
 }
@@ -3887,8 +4216,8 @@ inline std::optional<Zman> zman_from_java_name(std::string_view java_name) {
 /** What kind of time the zman is. */
 inline Category zman_category(Zman zman) {
     check_library();
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_zman_category(static_cast<kosher_rust_bindings_kosher_zmanim_Zman>(static_cast<int32_t>(zman)), &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_zman_category(static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), &err);
     detail::check(err);
     return static_cast<Category>(result);
 }
@@ -3896,8 +4225,8 @@ inline Category zman_category(Zman zman) {
 /** Whether KosherJava deprecates the zman. */
 inline bool zman_is_deprecated(Zman zman) {
     check_library();
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_zman_is_deprecated(static_cast<kosher_rust_bindings_kosher_zmanim_Zman>(static_cast<int32_t>(zman)), &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_zman_is_deprecated(static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), &err);
     detail::check(err);
     return result;
 }
@@ -3911,8 +4240,8 @@ inline std::string zman_description(Zman zman, const Config& config) {
     detail::BufferWriter config_buf;
     detail::write_Config(config_buf, config);
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_zman_description(static_cast<kosher_rust_bindings_kosher_zmanim_Zman>(static_cast<int32_t>(zman)), config_buf.data(), config_buf.size(), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_zman_description(static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), config_buf.data(), config_buf.size(), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -3921,8 +4250,8 @@ inline std::string zman_description(Zman zman, const Config& config) {
 inline std::string calculator_name(Calculator calculator) {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_calculator_name(static_cast<kosher_rust_bindings_kosher_zmanim_Calculator>(static_cast<int32_t>(calculator)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_calculator_name(static_cast<kosherz_zmanim_Calculator>(static_cast<int32_t>(calculator)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -3933,140 +4262,22 @@ inline std::string calculator_name(Calculator calculator) {
  */
 inline int64_t shaah_zmanis(int64_t start, int64_t end) {
     check_library();
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_zmanim_shaah_zmanis(start, end, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_shaah_zmanis(start, end, &err);
     detail::check(err);
     return result;
 }
 
-} // namespace kosher::zmanim
+} // namespace zmanim
 
-namespace kosher::limudim {
-
-/** The tractate's English name, for example "Bava Metzia". */
-inline std::string tractate_name(Tractate tractate) {
-    check_library();
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_limudim_tractate_name(static_cast<kosher_rust_bindings_kosher_limudim_Tractate>(static_cast<int32_t>(tractate)), &out_len, &err);
-    detail::check(err);
-    return detail::take_string(result, out_len);
-}
-
-/** The tractate's Hebrew name. */
-inline std::string tractate_hebrew(Tractate tractate) {
-    check_library();
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_limudim_tractate_hebrew(static_cast<kosher_rust_bindings_kosher_limudim_Tractate>(static_cast<int32_t>(tractate)), &out_len, &err);
-    detail::check(err);
-    return detail::take_string(result, out_len);
-}
-
-/** The portion as text, for example "Tehillim 1-9". */
-inline std::string tehillim_display(const TehillimUnit& unit) {
-    check_library();
-    detail::BufferWriter unit_buf;
-    detail::write_TehillimUnit(unit_buf, unit);
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_limudim_tehillim_display(unit_buf.data(), unit_buf.size(), &out_len, &err);
-    detail::check(err);
-    return detail::take_string(result, out_len);
-}
-
-/** The portion as text, for example "Pirkei Avos 5-6". */
-inline std::string pirkei_avos_display(const PirkeiAvosUnit& unit) {
-    check_library();
-    detail::BufferWriter unit_buf;
-    detail::write_PirkeiAvosUnit(unit_buf, unit);
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_limudim_pirkei_avos_display(unit_buf.data(), unit_buf.size(), &out_len, &err);
-    detail::check(err);
-    return detail::take_string(result, out_len);
-}
-
-/** Daf Yomi: a page of the Babylonian Talmud a day, from 11 September 1923. */
-inline std::optional<Daf> daf_yomi_bavli(const HebrewDate& date) {
-    check_library();
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_limudim_daf_yomi_bavli(date.handle(), &out_len, &err);
-    detail::check(err);
-    return detail::take(result, out_len, &detail::read_opt_Daf);
-}
-
-/** Daf Hashavua: a page of the Babylonian Talmud a week. */
-inline std::optional<Daf> daf_hashavua_bavli(const HebrewDate& date) {
-    check_library();
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_limudim_daf_hashavua_bavli(date.handle(), &out_len, &err);
-    detail::check(err);
-    return detail::take(result, out_len, &detail::read_opt_Daf);
-}
-
-/** Daf Yomi Yerushalmi: a page of the Jerusalem Talmud a day. */
-inline std::optional<Daf> daf_yomi_yerushalmi(const HebrewDate& date) {
-    check_library();
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_limudim_daf_yomi_yerushalmi(date.handle(), &out_len, &err);
-    detail::check(err);
-    return detail::take(result, out_len, &detail::read_opt_Daf);
-}
-
-/** Dirshu's Amud Yomi: one side of a page of the Babylonian Talmud a day. */
-inline std::optional<Amud> amud_yomi_dirshu(const HebrewDate& date) {
-    check_library();
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_limudim_amud_yomi_dirshu(date.handle(), &out_len, &err);
-    detail::check(err);
-    return detail::take(result, out_len, &detail::read_opt_Amud);
-}
-
-/** Mishna Yomis: two *mishnayos* a day, from 20 May 1947. */
-inline std::optional<MishnaPair> mishna_yomis(const HebrewDate& date) {
-    check_library();
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_limudim_mishna_yomis(date.handle(), &out_len, &err);
-    detail::check(err);
-    return detail::take(result, out_len, &detail::read_opt_MishnaPair);
-}
-
-/** Tehillim divided over the days of the Hebrew month. */
-inline std::optional<TehillimUnit> tehillim_monthly(const HebrewDate& date) {
-    check_library();
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_limudim_tehillim_monthly(date.handle(), &out_len, &err);
-    detail::check(err);
-    return detail::take(result, out_len, &detail::read_opt_TehillimUnit);
-}
-
-/** Pirkei Avos: a chapter each Shabbos afternoon from Pesach to Rosh Hashana. */
-inline std::optional<PirkeiAvosUnit> pirkei_avos(const HebrewDate& date, Region region) {
-    check_library();
-    size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_limudim_pirkei_avos(date.handle(), static_cast<kosher_rust_bindings_kosher_calendar_Region>(static_cast<int32_t>(region)), &out_len, &err);
-    detail::check(err);
-    return detail::take(result, out_len, &detail::read_opt_PirkeiAvosUnit);
-}
-
-} // namespace kosher::limudim
-
-namespace kosher::myzmanim {
+namespace zmanim::myzmanim {
 
 /** The row's name as the website shows it. */
 inline std::string my_zman_name(MyZman zman) {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_my_zman_name(static_cast<kosher_rust_bindings_kosher_myzmanim_MyZman>(static_cast<int32_t>(zman)), &out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_my_zman_name(static_cast<kosherz_zmanim_myzmanim_MyZman>(static_cast<int32_t>(zman)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -4075,8 +4286,8 @@ inline std::string my_zman_name(MyZman zman) {
 inline std::vector<MyZman> all_my_zmanim() {
     check_library();
     size_t out_len = 0;
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_all_my_zmanim(&out_len, &err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_all_my_zmanim(&out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_list_MyZman);
 }
@@ -4084,8 +4295,8 @@ inline std::vector<MyZman> all_my_zmanim() {
 /** The sun's depression for "90 minutes as degrees": 19.75 degrees. */
 inline double dawn_90_degrees() {
     check_library();
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_dawn_90_degrees(&err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_dawn_90_degrees(&err);
     detail::check(err);
     return result;
 }
@@ -4093,8 +4304,8 @@ inline double dawn_90_degrees() {
 /** The sun's depression for "72 minutes as 16.1 degrees". */
 inline double dawn_72_degrees() {
     check_library();
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_dawn_72_degrees(&err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_dawn_72_degrees(&err);
     detail::check(err);
     return result;
 }
@@ -4102,8 +4313,8 @@ inline double dawn_72_degrees() {
 /** Refraction at a sea-level horizon, in arcminutes. */
 inline double sea_level_refraction_arcminutes() {
     check_library();
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_sea_level_refraction_arcminutes(&err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(&err);
     detail::check(err);
     return result;
 }
@@ -4111,8 +4322,8 @@ inline double sea_level_refraction_arcminutes() {
 /** The dip of the horizon per square root of a meter of height, in degrees. */
 inline double dip_degrees_per_root_meter() {
     check_library();
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_dip_degrees_per_root_meter(&err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(&err);
     detail::check(err);
     return result;
 }
@@ -4120,14 +4331,14 @@ inline double dip_degrees_per_root_meter() {
 /** The website's default minutes before sunset for candle lighting. */
 inline double default_candle_lighting_minutes() {
     check_library();
-    kosher_rust_bindings_error err{};
-    auto result = kosher_rust_bindings_kosher_myzmanim_default_candle_lighting_minutes(&err);
+    kosherz_error err{};
+    auto result = kosherz_zmanim_myzmanim_default_candle_lighting_minutes(&err);
     detail::check(err);
     return result;
 }
 
-} // namespace kosher::myzmanim
+} // namespace zmanim::myzmanim
 
-} // namespace kosher_rust_bindings
+} // namespace kosherz
 
-// END kosher_rust_bindings.hpp
+// END kosherz.hpp

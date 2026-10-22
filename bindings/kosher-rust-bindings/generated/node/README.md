@@ -2,20 +2,20 @@
 <!-- DO NOT EDIT. Your changes will be overwritten. -->
 <!-- To regenerate: weaveffi generate -->
 
-# kosher-rust-bindings
+# kosherz
 
 C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI.
 
-Node.js bindings for the `kosher_rust_bindings` native library: an ES module over a small N-API addon (`kosher_rust_bindings_node.c`). `npm install` uses a prebuilt addon when one matches the platform (from a per-platform package, or under `prebuilds/<os>-<cpu>/`) and otherwise compiles it with node-gyp. A compiled addon links `kosher_rust_bindings`; set `KOSHER_RUST_BINDINGS_LIBRARY` to the library file (or its directory) when installing, or pass `--kosher_rust_bindings-library=<path>` to npm.
+Node.js bindings for the `kosherz` native library: an ES module over a small N-API addon (`kosherz_node.c`). `npm install` uses a prebuilt addon when one matches the platform (from a per-platform package, or under `prebuilds/<os>-<cpu>/`) and otherwise compiles it with node-gyp. A compiled addon links `kosherz`; set `KOSHERZ_LIBRARY` to the library file (or its directory) when installing, or pass `--kosherz-library=<path>` to npm.
 
 ```sh
-KOSHER_RUST_BINDINGS_LIBRARY=/path/to/libkosher_rust_bindings.so npm install kosher-rust-bindings
+KOSHERZ_LIBRARY=/path/to/libkosherz.so npm install kosherz
 ```
 
 Each top-level module of the API is a namespace export:
 
 ```js
-import { kosher } from 'kosher-rust-bindings';
+import { calendar, zmanim } from 'kosherz';
 ```
 
 <!-- END README.md -->

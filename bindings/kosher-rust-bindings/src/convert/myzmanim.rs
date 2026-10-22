@@ -1,10 +1,13 @@
 use std::sync::Arc;
 
 use jiff::Timestamp;
-use kosher_rust::{myzmanim::MyZman, zmanim::ZmanimError};
+use kosher_rust::myzmanim::MyZman;
 
-use super::{CallbackTimeZone, callback_failed};
-use crate::api::kosher::{GregorianDate, KosherError, Location, myzmanim::MyZmanTime, zmanim::TimeZoneOffset};
+use super::{CallbackTimeZone, watching_callbacks};
+use crate::api::{
+    calendar::GregorianDate,
+    zmanim::{Location, TimeZoneOffset, ZmanimError, myzmanim::MyZmanTime},
+};
 
 pub(crate) type Inner = kosher_rust::myzmanim::MyZmanim<CallbackTimeZone>;
 
@@ -13,29 +16,29 @@ pub(crate) fn my_zmanim(
     date: &GregorianDate,
     candle_lighting_minutes: f64,
     time_zone: Option<Arc<dyn TimeZoneOffset>>,
-) -> Result<Inner, KosherError> {
-    Ok(
-        kosher_rust::myzmanim::MyZmanim::new(super::location(location, time_zone)?, super::civil_date(date)?)
-            .candle_lighting(candle_lighting_minutes),
-    )
+) -> Result<Inner, ZmanimError> {
+    let location = super::location(location, time_zone)?;
+    let date = super::civil_date(date).ok_or(ZmanimError::InvalidGregorianDate)?;
+    let candle_lighting_minutes = super::valid_minutes(candle_lighting_minutes)?;
+    Ok(kosher_rust::myzmanim::MyZmanim::new(location, date).candle_lighting(candle_lighting_minutes))
 }
 
 /// Runs `calculate`, reporting a failed time zone callback over its result.
 pub(crate) fn checked(
     inner: &Inner,
-    calculate: impl FnOnce(&Inner) -> Result<Timestamp, ZmanimError>,
-) -> Result<i64, KosherError> {
-    let result = calculate(inner);
-    if callback_failed(inner.location()) {
-        return Err(KosherError::TimeZoneCallbackFailed);
+    calculate: impl FnOnce(&Inner) -> Result<Timestamp, kosher_rust::zmanim::ZmanimError>,
+) -> Result<i64, ZmanimError> {
+    let (result, callback_failed) = watching_callbacks(|| calculate(inner));
+    if callback_failed {
+        return Err(ZmanimError::TimeZoneCallbackFailed);
     }
     Ok(result?.as_millisecond())
 }
 
-pub(crate) fn checked_duration(inner: &Inner) -> Result<i64, KosherError> {
-    let result = inner.proportional_hour_gra();
-    if callback_failed(inner.location()) {
-        return Err(KosherError::TimeZoneCallbackFailed);
+pub(crate) fn checked_duration(inner: &Inner) -> Result<i64, ZmanimError> {
+    let (result, callback_failed) = watching_callbacks(|| inner.proportional_hour_gra());
+    if callback_failed {
+        return Err(ZmanimError::TimeZoneCallbackFailed);
     }
     // A twelfth of a day fits in i64 milliseconds many times over.
     Ok(i64::try_from(result?.as_millis()).unwrap_or(i64::MAX))
@@ -58,9 +61,9 @@ pub(crate) fn all(inner: &Inner) -> Vec<MyZmanTime> {
 // BEGIN GENERATED: MyZman
 #[allow(deprecated)]
 #[rustfmt::skip]
-impl From<crate::api::kosher::myzmanim::MyZman> for kosher_rust::myzmanim::MyZman {
-    fn from(value: crate::api::kosher::myzmanim::MyZman) -> Self {
-        use crate::api::kosher::myzmanim::MyZman as F;
+impl From<crate::api::zmanim::myzmanim::MyZman> for kosher_rust::myzmanim::MyZman {
+    fn from(value: crate::api::zmanim::myzmanim::MyZman) -> Self {
+        use crate::api::zmanim::myzmanim::MyZman as F;
         match value {
             F::Dawn90Degrees => Self::Dawn90Degrees,
             F::Dawn72Fixed => Self::Dawn72Fixed,
@@ -107,7 +110,7 @@ impl From<crate::api::kosher::myzmanim::MyZman> for kosher_rust::myzmanim::MyZma
 }
 #[allow(deprecated)]
 #[rustfmt::skip]
-impl From<kosher_rust::myzmanim::MyZman> for crate::api::kosher::myzmanim::MyZman {
+impl From<kosher_rust::myzmanim::MyZman> for crate::api::zmanim::myzmanim::MyZman {
     fn from(value: kosher_rust::myzmanim::MyZman) -> Self {
         use kosher_rust::myzmanim::MyZman as F;
         match value {

@@ -2,7 +2,7 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-module kosher-rust-bindings
+module kosherz
 
 go 1.23
 

@@ -2,9 +2,9 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-module CKosherRustBindings [system] {
-  header "kosher_rust_bindings.h"
-  link "kosher_rust_bindings"
+module CKosherz [system] {
+  header "kosherz.h"
+  link "kosherz"
   export *
 }
 

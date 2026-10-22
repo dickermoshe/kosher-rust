@@ -3,6 +3,6 @@
 # To regenerate: weaveffi generate
 
 # The JNI shim looks classes and methods up by name.
--keep class kosher_rust_bindings.** { *; }
+-keep class kosherz.** { *; }
 
 # END consumer-rules.pro

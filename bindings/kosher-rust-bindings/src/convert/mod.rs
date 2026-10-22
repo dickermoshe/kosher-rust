@@ -9,31 +9,30 @@ pub(crate) mod limudim;
 pub(crate) mod myzmanim;
 pub(crate) mod zmanim;
 
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
-};
+use std::{cell::Cell, ops::RangeInclusive, sync::Arc};
 
 use jiff::{Timestamp, civil, tz::Offset};
 use kosher_rust::TimeZoneLike;
 
-use crate::api::kosher::{GregorianDate, KosherError, Location, zmanim::TimeZoneOffset};
+use crate::api::{
+    calendar::GregorianDate,
+    zmanim::{Location, TimeZoneOffset, ZmanimError},
+};
 
-/// A caller's [`TimeZoneOffset`] callback as a kosher-rust time zone.
-///
-/// kosher-rust asks a time zone for offsets without expecting failure, so a failed call answers
-/// UTC and sets `failed`; [`callback_failed`] reads and clears it after each calculation.
+thread_local! {
+    /// Whether a time zone callback failed during the calculation running on this thread.
+    static CALLBACK_FAILED: Cell<bool> = const { Cell::new(false) };
+}
+
+/// A caller's [`TimeZoneOffset`] callback as a kosher-rust time zone. A failed call answers UTC
+/// and is recorded for [`watching_callbacks`] to report.
 pub(crate) struct CallbackTimeZone {
     callback: Arc<dyn TimeZoneOffset>,
-    failed: AtomicBool,
 }
 
 impl CallbackTimeZone {
     pub(crate) fn new(callback: Arc<dyn TimeZoneOffset>) -> Self {
-        Self {
-            callback,
-            failed: AtomicBool::new(false),
-        }
+        Self { callback }
     }
 }
 
@@ -43,30 +42,29 @@ impl TimeZoneLike for CallbackTimeZone {
             .callback
             .offset_seconds(timestamp.as_second())
             .ok()
-            .filter(|seconds| seconds.abs() < 86_400)
+            .filter(|seconds| seconds.unsigned_abs() < 86_400)
             .and_then(|seconds| Offset::from_seconds(seconds).ok());
         offset.unwrap_or_else(|| {
-            self.failed.store(true, Ordering::Relaxed);
+            CALLBACK_FAILED.set(true);
             Offset::UTC
         })
     }
 }
 
-/// Whether the location's callback failed since the last check, clearing the flag.
-///
-/// Calls on one object from several threads at once share the flag, so a failure may be reported
-/// by a concurrent call instead; either way it is reported.
-pub(crate) fn callback_failed(location: &kosher_rust::Location<CallbackTimeZone>) -> bool {
-    location
-        .timezone()
-        .is_some_and(|timezone| timezone.failed.swap(false, Ordering::Relaxed))
+/// Runs `calculate`, and says whether a time zone callback failed during it. The record is per
+/// thread, and saved and restored around `calculate`, so concurrent and nested calculations each
+/// see only their own failures.
+pub(crate) fn watching_callbacks<T>(calculate: impl FnOnce() -> T) -> (T, bool) {
+    let outer = CALLBACK_FAILED.replace(false);
+    let result = calculate();
+    (result, CALLBACK_FAILED.replace(outer))
 }
 
 /// The kosher-rust location, with the caller's time zone.
 pub(crate) fn location(
     location: &Location,
     time_zone: Option<Arc<dyn TimeZoneOffset>>,
-) -> Result<kosher_rust::Location<CallbackTimeZone>, KosherError> {
+) -> Result<kosher_rust::Location<CallbackTimeZone>, ZmanimError> {
     let time_zone = time_zone.map(CallbackTimeZone::new);
     Ok(
         kosher_rust::Location::new_with_timezone(location.latitude, location.longitude, time_zone)?
@@ -75,7 +73,7 @@ pub(crate) fn location(
     )
 }
 
-pub(crate) fn validate_location(location: &Location, has_time_zone: bool) -> Result<(), KosherError> {
+pub(crate) fn validate_location(location: &Location, has_time_zone: bool) -> Result<(), ZmanimError> {
     let time_zone = has_time_zone.then_some(jiff::tz::TimeZone::UTC);
     kosher_rust::Location::new(location.latitude, location.longitude, time_zone)?
         .with_elevation(location.elevation)?
@@ -95,11 +93,35 @@ impl<Tz> From<&kosher_rust::Location<Tz>> for Location {
     }
 }
 
-pub(crate) fn civil_date(date: &GregorianDate) -> Result<civil::Date, KosherError> {
-    let year = i16::try_from(date.year).map_err(|_| KosherError::InvalidDate)?;
-    let month = i8::try_from(date.month).map_err(|_| KosherError::InvalidDate)?;
-    let day = i8::try_from(date.day).map_err(|_| KosherError::InvalidDate)?;
-    civil::Date::new(year, month, day).map_err(|_| KosherError::InvalidDate)
+/// `minutes`, if it is a finite number within a day either way.
+pub(crate) fn valid_minutes(minutes: f64) -> Result<f64, ZmanimError> {
+    if minutes.is_finite() && minutes.abs() <= 1440.0 {
+        Ok(minutes)
+    } else {
+        Err(ZmanimError::InvalidMinutes)
+    }
+}
+
+/// `degrees`, if it is a finite number.
+pub(crate) fn valid_degrees(degrees: f64) -> Result<f64, ZmanimError> {
+    if degrees.is_finite() {
+        Ok(degrees)
+    } else {
+        Err(ZmanimError::InvalidDegrees)
+    }
+}
+
+/// `value` as kosher-rust's narrower type, if it is in `range`.
+pub(crate) fn valid_number<T: TryFrom<i32>>(value: i32, range: RangeInclusive<i32>) -> Option<T> {
+    range.contains(&value).then(|| T::try_from(value).ok()).flatten()
+}
+
+/// The date, if it exists.
+pub(crate) fn civil_date(date: &GregorianDate) -> Option<civil::Date> {
+    let year = i16::try_from(date.year).ok()?;
+    let month = i8::try_from(date.month).ok()?;
+    let day = i8::try_from(date.day).ok()?;
+    civil::Date::new(year, month, day).ok()
 }
 
 impl From<civil::Date> for GregorianDate {

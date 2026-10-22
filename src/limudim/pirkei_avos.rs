@@ -1,23 +1,14 @@
 use core::fmt;
 
-use icu_calendar::{
-    Date,
-    cal::Hebrew,
-    types::{Month, Weekday},
-};
+use icu_calendar::{Date, cal::Hebrew, types::Weekday};
 
 use crate::{
     calendar::{
         Region,
-        month::{AV, NISAN, SIVAN, TISHREI},
+        month::{AV, ELUL, NISAN, SIVAN},
     },
     limudim::engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
 };
-
-#[allow(clippy::expect_used)]
-fn from_hebrew_date(year: i32, month: Month, day: u8) -> Date<Hebrew> {
-    Date::try_new_hebrew_v2(year, month, day).expect("hard-coded Hebrew date should be valid")
-}
 
 fn day_of_week_number(date: Date<Hebrew>) -> i32 {
     match date.weekday() {
@@ -130,50 +121,72 @@ super::schedule!(PirkeiAvos => PirkeiAvosUnit);
 
 impl PirkeiAvos {
     fn find_yearly_cycle_israel(date: Date<Hebrew>) -> Option<(Date<Hebrew>, Date<Hebrew>)> {
-        Some(Self::find_yearly_cycle(true, date))
+        Self::find_yearly_cycle(true, date)
     }
 
     fn find_yearly_cycle_diaspora(date: Date<Hebrew>) -> Option<(Date<Hebrew>, Date<Hebrew>)> {
-        Some(Self::find_yearly_cycle(false, date))
+        Self::find_yearly_cycle(false, date)
     }
 
     /// Find the Pirkei Avos cycle for a given date.
     /// Cycle starts the day after Pesach (Nissan 22 in Israel, Nissan 23 outside)
     /// and ends on the last Shabbos before Rosh Hashanah.
-    fn find_yearly_cycle(in_israel: bool, date: Date<Hebrew>) -> (Date<Hebrew>, Date<Hebrew>) {
+    ///
+    /// `None` from the year 10000 on: the calendar builds dates by year only up to 9999.
+    fn find_yearly_cycle(in_israel: bool, date: Date<Hebrew>) -> Option<(Date<Hebrew>, Date<Hebrew>)> {
         let year = date.year().extended_year();
 
         // Day after Pesach: Nissan 22 in Israel, Nissan 23 outside
         let anchor_day = if in_israel { 22 } else { 23 };
-        let cycle_start_this_year = from_hebrew_date(year, NISAN, anchor_day);
+        let cycle_start_this_year = Date::try_new_hebrew_v2(year, NISAN, anchor_day).ok()?;
 
         // Determine which year's cycle we're in
         let (start_date, cycle_year) = if date >= cycle_start_this_year {
             (cycle_start_this_year, year)
         } else {
             // We're before this year's cycle starts, use previous year's cycle
-            let prev_year_start = from_hebrew_date(year - 1, NISAN, anchor_day);
+            let prev_year_start = Date::try_new_hebrew_v2(year - 1, NISAN, anchor_day).ok()?;
             (prev_year_start, year - 1)
         };
 
-        // End date: last Shabbos before Rosh Hashanah of the following year
-        let rosh_hashana = from_hebrew_date(cycle_year + 1, TISHREI, 1);
+        // End date: last Shabbos before Rosh Hashanah of the following year, the day after 29 Elul.
+        let rosh_hashana = Date::try_new_hebrew_v2(cycle_year, ELUL, 29).ok()?.add_days(1)?;
         let day_number = day_of_week_number(rosh_hashana);
         // Subtract days to get to the previous Shabbos
         let end_date = rosh_hashana.add_days(-day_number).unwrap_or(rosh_hashana);
 
-        (start_date, end_date)
+        Some((start_date, end_date))
     }
 }
 
 #[cfg(test)]
 #[allow(clippy::expect_used)]
 mod tests {
-    use crate::calendar::month::ELUL;
+    use icu_calendar::types::Month;
+
+    use crate::calendar::month::TAMMUZ;
 
     use super::*;
 
+    fn from_hebrew_date(year: i32, month: Month, day: u8) -> Date<Hebrew> {
+        Date::try_new_hebrew_v2(year, month, day).expect("hard-coded Hebrew date should be valid")
+    }
+
     // Test cases based on Python test_pirkei_avos_calculator.py
+
+    /// The summer of 9999 has its portions; from 10000 on, which the calendar can't build, there
+    /// are none.
+    #[test]
+    fn test_past_year_9999() {
+        let last_summer = from_hebrew_date(9999, TAMMUZ, 2);
+        let year_10000 = from_hebrew_date(9999, ELUL, 29).add_days(1).expect("1 Tishrei 10000");
+        let far_future = crate::calendar::HebrewDate::from(jiff::civil::date(9999, 12, 31)).icu();
+        for region in [Region::Israel, Region::Diaspora] {
+            assert!(PirkeiAvos(region).limud(last_summer).is_some(), "{region:?}");
+            assert_eq!(PirkeiAvos(region).limud(year_10000), None, "{region:?}");
+            assert_eq!(PirkeiAvos(region).limud(far_future), None, "{region:?}");
+        }
+    }
 
     #[test]
     fn test_simple_date() {

@@ -144,7 +144,7 @@ jobs:
       - name: Install the WeaveFFI CLI
         run: cargo install weaveffi-cli --version 0.25.0 --locked
       - name: Rust tests (parity with kosher-rust, generated enums up to date)
-        run: cargo test -p kosher-rust-bindings
+        run: cargo test -p kosherz
       - name: Generate bindings for every language
         working-directory: bindings/kosher-rust-bindings
         run: weaveffi generate --warn
@@ -160,8 +160,21 @@ jobs:
       - name: Build the Node addon
         working-directory: bindings/kosher-rust-bindings/generated/node
         env:
-          KOSHER_RUST_BINDINGS_LIBRARY: ${{ github.workspace }}/target/debug
+          KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug
         run: npm install --no-audit --no-fund
       - name: Node tests
         working-directory: bindings/kosher-rust-bindings
         run: node --test tests/node/*.test.mjs
+      - name: Python example
+        working-directory: bindings/kosher-rust-bindings
+        env:
+          KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug/libkosherz.so
+          PYTHONPATH: generated/python
+        run: python3 examples/smoke.py
+      - name: C and C++ headers compile
+        working-directory: bindings/kosher-rust-bindings/generated
+        run: |
+          for header in kosherz.h kosherz_buffer.h; do
+            gcc -std=c11 -Wall -Wextra -Wno-unused-function -Werror -fsyntax-only -x c "c/$header"
+          done
+          echo '#include "kosherz.hpp"' | g++ -std=c++17 -Wall -Wextra -Wno-unused-function -Werror -fsyntax-only -I cpp -x c++ -
