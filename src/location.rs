@@ -1,17 +1,21 @@
 use jiff::{
     Timestamp,
+    civil::DateTime,
     tz::{Offset, TimeZone},
 };
 use thiserror::Error;
 
-/// A time zone: anything that can say what the UTC offset is at a given instant.
+/// A time zone. It answers the two questions the calculations ask a time zone.
+///
+/// The first question is the UTC offset in effect at an instant. The second is the instant of a
+/// local date and time. These are the same two answers KosherJava gets from Java's `ZoneId`.
 ///
 /// [`jiff::tz::TimeZone`] implements it. Implement it yourself to take time zone rules from
-/// somewhere else, such as the operating system or another language through FFI, and give it to
+/// somewhere else, such as the operating system or another language through FFI. Then give it to
 /// [`Zmanim::with_custom_timezone`](crate::Zmanim::with_custom_timezone).
 ///
 /// ```
-/// use jiff::{Timestamp, civil::date, tz::Offset};
+/// use jiff::{SignedDuration, Timestamp, civil::{DateTime, date}, tz::{Offset, TimeZone}};
 /// use kosher_rust::{Location, TimeZoneLike, Zmanim, zmanim::Config};
 ///
 /// /// Israel Standard Time all year, ignoring daylight saving.
@@ -20,6 +24,10 @@ use thiserror::Error;
 /// impl TimeZoneLike for IsraelStandardTime {
 ///     fn offset_at(&self, _timestamp: Timestamp) -> Offset {
 ///         Offset::constant(2)
+///     }
+///
+///     fn local_to_timestamp(&self, datetime: DateTime) -> Option<Timestamp> {
+///         datetime.to_zoned(TimeZone::fixed(Offset::constant(2))).ok().map(|zoned| zoned.timestamp())
 ///     }
 /// }
 ///
@@ -31,17 +39,33 @@ use thiserror::Error;
 pub trait TimeZoneLike {
     /// The offset from UTC in effect at `timestamp`.
     fn offset_at(&self, timestamp: Timestamp) -> Offset;
+
+    /// The instant at which the clocks in this time zone show `datetime`.
+    ///
+    /// It must be resolved the way Java's `ZonedDateTime.of` resolves it. When the clocks skip
+    /// over `datetime`, the result is the instant one gap length later. When the clocks show
+    /// `datetime` twice, the result is the earlier of the two instants. jiff calls this the
+    /// `compatible` choice. Return `None` when the instant can't be found.
+    fn local_to_timestamp(&self, datetime: DateTime) -> Option<Timestamp>;
 }
 
 impl TimeZoneLike for TimeZone {
     fn offset_at(&self, timestamp: Timestamp) -> Offset {
         self.to_offset(timestamp)
     }
+
+    fn local_to_timestamp(&self, datetime: DateTime) -> Option<Timestamp> {
+        self.to_ambiguous_timestamp(datetime).compatible().ok()
+    }
 }
 
 impl<T: TimeZoneLike + ?Sized> TimeZoneLike for &T {
     fn offset_at(&self, timestamp: Timestamp) -> Offset {
         (**self).offset_at(timestamp)
+    }
+
+    fn local_to_timestamp(&self, datetime: DateTime) -> Option<Timestamp> {
+        (**self).local_to_timestamp(datetime)
     }
 }
 

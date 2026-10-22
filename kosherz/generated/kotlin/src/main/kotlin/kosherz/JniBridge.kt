@@ -138,6 +138,14 @@ internal object JniBridge {
         fail(_err, _e, null)
         0
     }
+
+    @JvmStatic
+    fun times_TimeZoneOffset_local_to_unix_seconds(_impl: TimeZoneOffset, _err: Long, year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int): Long = try {
+        _impl.localToUnixSeconds(year, month, day, hour, minute, second)
+    } catch (_e: Throwable) {
+        fail(_err, _e, null)
+        0L
+    }
 }
 
 // END JniBridge.kt

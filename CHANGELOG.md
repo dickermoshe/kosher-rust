@@ -10,7 +10,13 @@
 - **`get_zoned`.** `Zmanim` and `MyZmanim` have a new `get_zoned` method. It gives a time in the
   time zone of the *zmanim*. Use it to show the time to someone.
 - **Custom time zones.** `Zmanim::with_custom_timezone` and `MyZmanim::with_custom_timezone` take
-  any `TimeZoneLike`. A `TimeZoneLike` is any type that gives the UTC offset at an instant.
+  any `TimeZoneLike`. A `TimeZoneLike` answers two questions. It gives the UTC offset at an
+  instant. It also gives the instant of a local date and time, resolved the way Java's
+  `ZonedDateTime.of` resolves it. `jiff::tz::TimeZone` implements it.
+- **Kiddush Levana checks the day the way KosherJava does.** A Kiddush Levana time counts for a
+  date when it falls between the local midnight that starts the date and the local midnight that
+  ends it. A time exactly at the midnight that ends the date now counts for that date, as it does
+  in KosherJava.
 - **No panics at the ends of the date range.** Near the first and last days a `Timestamp` holds,
   times built by adding to or subtracting from another time panicked when the result fell
   outside the range, even with the default `Config`; they now return `ZmanimError::Internal`,

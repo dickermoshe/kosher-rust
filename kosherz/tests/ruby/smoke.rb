@@ -13,6 +13,10 @@ class Edt
   def offset_seconds(_unix_seconds)
     -4 * 3600
   end
+
+  def local_to_unix_seconds(year, month, day, hour, minute, second)
+    Time.new(year, month, day, hour, minute, second, '-04:00').to_i
+  end
 end
 
 $failures = 0

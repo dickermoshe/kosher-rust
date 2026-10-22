@@ -338,6 +338,7 @@ JNIEXPORT void JNICALL Java_kosherz_JniBridge_error_1set_1payload(JNIEnv* env, j
 }
 
 static jmethodID Jni_mid_times_TimeZoneOffset_offset_seconds = NULL;
+static jmethodID Jni_mid_times_TimeZoneOffset_local_to_unix_seconds = NULL;
 
 static int32_t Jni_times_TimeZoneOffset_offset_seconds(void* ctx, int64_t p_unix_seconds, kosherz_error* out_err) {
     int detach = 0;
@@ -350,7 +351,18 @@ static int32_t Jni_times_TimeZoneOffset_offset_seconds(void* ctx, int64_t p_unix
     return (int32_t)rv;
 }
 
-static const kosherz_times_TimeZoneOffset_vtable Jni_times_TimeZoneOffset_vtable = {sizeof(kosherz_times_TimeZoneOffset_vtable), 0, Jni_release_callback, Jni_times_TimeZoneOffset_offset_seconds};
+static int64_t Jni_times_TimeZoneOffset_local_to_unix_seconds(void* ctx, int32_t p_year, int32_t p_month, int32_t p_day, int32_t p_hour, int32_t p_minute, int32_t p_second, kosherz_error* out_err) {
+    int detach = 0;
+    JNIEnv* env = Jni_callback_begin(out_err, &detach);
+    if (env == NULL) {
+        return (int64_t)0;
+    }
+    jlong rv = (*env)->CallStaticLongMethod(env, Jni_bridge, Jni_mid_times_TimeZoneOffset_local_to_unix_seconds, (jobject)ctx, (jlong)(intptr_t)out_err, (jint)p_year, (jint)p_month, (jint)p_day, (jint)p_hour, (jint)p_minute, (jint)p_second);
+    Jni_callback_end(env, out_err, detach);
+    return (int64_t)rv;
+}
+
+static const kosherz_times_TimeZoneOffset_vtable Jni_times_TimeZoneOffset_vtable = {sizeof(kosherz_times_TimeZoneOffset_vtable), 0, Jni_release_callback, Jni_times_TimeZoneOffset_offset_seconds, Jni_times_TimeZoneOffset_local_to_unix_seconds};
 
 static const Jni_contract_entry Jni_contract_calendar[] = {
     {UINT64_C(0x0076e887e475ab9f), UINT64_C(0x96615bd3eb7f1761), "calendar.HebrewDate.molad"},
@@ -421,7 +433,7 @@ static const Jni_contract_entry Jni_contract_times[] = {
     {UINT64_C(0x01ce427485afb43a), UINT64_C(0x017ce9984014d3c1), "times.ZmanTime"},
     {UINT64_C(0x0643c19407762211), UINT64_C(0x11babf7c30a11935), "times.myzmanim.dip_degrees_per_root_meter"},
     {UINT64_C(0x091fabaf00184561), UINT64_C(0xf13823120f5b4c46), "times.Calculator"},
-    {UINT64_C(0x0a21d46001720019), UINT64_C(0x174890db5e5166c8), "times.TimeZoneOffset"},
+    {UINT64_C(0x0a21d46001720019), UINT64_C(0x5cf262e1982cf8f7), "times.TimeZoneOffset"},
     {UINT64_C(0x0a86c54f2d84238c), UINT64_C(0x4b1d4aaf11dfd132), "times.zman_category"},
     {UINT64_C(0x0d3bc9cd549a7137), UINT64_C(0xbea68784cf687a1a), "times.Zmanim.get"},
     {UINT64_C(0x0e595d82f4b54ade), UINT64_C(0x4a23e822039987a7), "times.zman_description"},
@@ -477,6 +489,10 @@ static jint Jni_load(JNIEnv* env) {
     }
     Jni_mid_times_TimeZoneOffset_offset_seconds = (*env)->GetStaticMethodID(env, Jni_bridge, "times_TimeZoneOffset_offset_seconds", "(Lkosherz/TimeZoneOffset;JJ)I");
     if (Jni_mid_times_TimeZoneOffset_offset_seconds == NULL) {
+        return JNI_ERR;
+    }
+    Jni_mid_times_TimeZoneOffset_local_to_unix_seconds = (*env)->GetStaticMethodID(env, Jni_bridge, "times_TimeZoneOffset_local_to_unix_seconds", "(Lkosherz/TimeZoneOffset;JIIIIII)J");
+    if (Jni_mid_times_TimeZoneOffset_local_to_unix_seconds == NULL) {
         return JNI_ERR;
     }
     return JNI_OK;

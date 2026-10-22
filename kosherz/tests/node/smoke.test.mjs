@@ -10,7 +10,10 @@ import { calendar, times } from '../../generated/node/index.js';
 const { limudim } = calendar;
 const { myzmanim } = times;
 
-/** A time zone backed by Node's ICU data: the UTC offset of `name` at an instant. */
+/**
+ * A time zone backed by Node's ICU data. It gives the UTC offset of `name` at an instant, and the
+ * instant of a local date and time resolved the way Java's `ZonedDateTime.of` resolves it.
+ */
 function ianaZone(name) {
   const format = new Intl.DateTimeFormat('en-US', {
     timeZone: name,
@@ -28,6 +31,18 @@ function ianaZone(name) {
       const parts = Object.fromEntries(format.formatToParts(instant).map((part) => [part.type, part.value]));
       const local = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
       return Math.round((local - instant.getTime()) / 1000);
+    },
+    localToUnixSeconds(year, month, day, hour, minute, second) {
+      const asUtc = Date.UTC(year, month - 1, day, hour, minute, second) / 1000;
+      // The offsets a day before and a day after are the only ones the local time can have.
+      const before = this.offsetSeconds(BigInt(asUtc - 86400));
+      const after = this.offsetSeconds(BigInt(asUtc + 86400));
+      // The earlier instant comes from the larger offset. Use it if the clocks show the time then.
+      for (const offset of [Math.max(before, after), Math.min(before, after)]) {
+        if (this.offsetSeconds(BigInt(asUtc - offset)) === offset) return BigInt(asUtc - offset);
+      }
+      // The clocks skipped the time. Java moves it later by the gap, using the offset before it.
+      return BigInt(asUtc - before);
     },
   };
 }

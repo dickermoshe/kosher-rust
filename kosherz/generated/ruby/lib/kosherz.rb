@@ -80,7 +80,7 @@ module Kosherz
       [0x01ce427485afb43a, 0x017ce9984014d3c1, 'times.ZmanTime'],
       [0x0643c19407762211, 0x11babf7c30a11935, 'times.myzmanim.dip_degrees_per_root_meter'],
       [0x091fabaf00184561, 0xf13823120f5b4c46, 'times.Calculator'],
-      [0x0a21d46001720019, 0x174890db5e5166c8, 'times.TimeZoneOffset'],
+      [0x0a21d46001720019, 0x5cf262e1982cf8f7, 'times.TimeZoneOffset'],
       [0x0a86c54f2d84238c, 0x4b1d4aaf11dfd132, 'times.zman_category'],
       [0x0d3bc9cd549a7137, 0xbea68784cf687a1a, 'times.Zmanim.get'],
       [0x0e595d82f4b54ade, 0x4a23e822039987a7, 'times.zman_description'],
@@ -3105,7 +3105,9 @@ module Kosherz
   attach_function :kosherz_times_calculator_name, [:int32, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_times_shaah_zmanis, [:int64, :int64, :pointer], :int64, blocking: true
 
-  # The time zone. You supply it as a callback that gives the offset from UTC at an instant.
+  # The time zone. You supply it as a callback with two methods. One gives the offset from UTC
+  # at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
+  # `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
   #
   # The time zone is optional. With a time zone every time works. You can also leave it out.
   # These do not work without a time zone:
@@ -3127,11 +3129,28 @@ module Kosherz
     #
     # # Errors
     #
-    # Fail when the offset is unknown; the calculation then reports
+    # Fail when the offset is unknown. The calculation then reports
     # `ZmanimError::TimeZoneCallbackFailed`.
     # @return [Integer]
     def offset_seconds(unix_seconds)
       raise NotImplementedError, "#{self.class}#offset_seconds is not implemented"
+    end
+
+    # The Unix time, in seconds, at which the clocks in this time zone show the local date
+    # and time given.
+    #
+    # Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
+    # return the instant one gap length later. When the clocks show the time twice, return
+    # the earlier instant. JavaScript's `Temporal` calls this the `compatible`
+    # disambiguation, and it is Temporal's default.
+    #
+    # # Errors
+    #
+    # Fail when the instant is unknown. The calculation then reports
+    # `ZmanimError::TimeZoneCallbackFailed`.
+    # @return [Integer]
+    def local_to_unix_seconds(year, month, day, hour, minute, second)
+      raise NotImplementedError, "#{self.class}#local_to_unix_seconds is not implemented"
     end
   end
 
@@ -3141,7 +3160,8 @@ module Kosherz
     layout :wv_size, :uint32,
            :wv_flags, :uint32,
            :wv_free, :pointer,
-           :offset_seconds, :pointer
+           :offset_seconds, :pointer,
+           :local_to_unix_seconds, :pointer
   end
 
   # @api private
@@ -3160,6 +3180,15 @@ module Kosherz
     0
   end
 
+  # @api private
+  # Trampoline for TimeZoneOffset#local_to_unix_seconds.
+  WV_TIME_ZONE_OFFSET_LOCAL_TO_UNIX_SECONDS = FFI::Function.new(:int64, [:pointer, :int32, :int32, :int32, :int32, :int32, :int32, :pointer]) do |wv_ctx, year, month, day, hour, minute, second, wv_err|
+    _wv_int(_wv_cb_lookup(wv_ctx).local_to_unix_seconds(year, month, day, hour, minute, second), :i64)
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    _wv_cb_fail(wv_err, e)
+    0
+  end
+
   # The one process-wide TimeZoneOffset vtable every registration hands the
   # library; its entries live for the process lifetime.
   WV_TIME_ZONE_OFFSET_VTABLE = WvTimeZoneOffsetVtable.new
@@ -3167,6 +3196,7 @@ module Kosherz
   WV_TIME_ZONE_OFFSET_VTABLE[:wv_flags] = 0
   WV_TIME_ZONE_OFFSET_VTABLE[:wv_free] = WV_TIME_ZONE_OFFSET_FREE
   WV_TIME_ZONE_OFFSET_VTABLE[:offset_seconds] = WV_TIME_ZONE_OFFSET_OFFSET_SECONDS
+  WV_TIME_ZONE_OFFSET_VTABLE[:local_to_unix_seconds] = WV_TIME_ZONE_OFFSET_LOCAL_TO_UNIX_SECONDS
 
   # @api private
   # Owns one strong reference to a Zmanim; releases it exactly once.

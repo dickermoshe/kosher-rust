@@ -204,7 +204,7 @@ KOSHERZ_API const kosherz_contract_entry* kosherz_times_contract(size_t* out_len
     {0x01ce427485afb43aull, 0x017ce9984014d3c1ull}, /* times.ZmanTime */ \
     {0x0643c19407762211ull, 0x11babf7c30a11935ull}, /* times.myzmanim.dip_degrees_per_root_meter */ \
     {0x091fabaf00184561ull, 0xf13823120f5b4c46ull}, /* times.Calculator */ \
-    {0x0a21d46001720019ull, 0x174890db5e5166c8ull}, /* times.TimeZoneOffset */ \
+    {0x0a21d46001720019ull, 0x5cf262e1982cf8f7ull}, /* times.TimeZoneOffset */ \
     {0x0a86c54f2d84238cull, 0x4b1d4aaf11dfd132ull}, /* times.zman_category */ \
     {0x0d3bc9cd549a7137ull, 0xbea68784cf687a1aull}, /* times.Zmanim.get */ \
     {0x0e595d82f4b54adeull, 0x4a23e822039987a7ull}, /* times.zman_description */ \
@@ -1389,7 +1389,9 @@ typedef struct kosherz_calendar_HebrewDate kosherz_calendar_HebrewDate;
 typedef struct kosherz_times_Zmanim kosherz_times_Zmanim;
 typedef struct kosherz_times_myzmanim_MyZmanim kosherz_times_myzmanim_MyZmanim;
 /**
- * The time zone. You supply it as a callback that gives the offset from UTC at an instant.
+ * The time zone. You supply it as a callback with two methods. One gives the offset from UTC
+ * at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
+ * `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
  *
  * The time zone is optional. With a time zone every time works. You can also leave it out.
  * These do not work without a time zone:
@@ -1412,10 +1414,25 @@ typedef struct kosherz_times_TimeZoneOffset_vtable {
      *
      * # Errors
      *
-     * Fail when the offset is unknown; the calculation then reports
+     * Fail when the offset is unknown. The calculation then reports
      * `ZmanimError::TimeZoneCallbackFailed`.
      */
     int32_t (*offset_seconds)(void* ctx, int64_t unix_seconds, kosherz_error* out_err);
+    /**
+     * The Unix time, in seconds, at which the clocks in this time zone show the local date
+     * and time given.
+     *
+     * Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
+     * return the instant one gap length later. When the clocks show the time twice, return
+     * the earlier instant. JavaScript's `Temporal` calls this the `compatible`
+     * disambiguation, and it is Temporal's default.
+     *
+     * # Errors
+     *
+     * Fail when the instant is unknown. The calculation then reports
+     * `ZmanimError::TimeZoneCallbackFailed`.
+     */
+    int64_t (*local_to_unix_seconds)(void* ctx, int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute, int32_t second, kosherz_error* out_err);
 } kosherz_times_TimeZoneOffset_vtable;
 
 // Module: calendar

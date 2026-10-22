@@ -31,6 +31,42 @@ impl TimeZoneOffset for Jiff {
         let timestamp = jiff::Timestamp::from_second(unix_seconds).unwrap();
         Ok(self.0.to_offset(timestamp).seconds())
     }
+
+    fn local_to_unix_seconds(
+        &self,
+        year: i32,
+        month: i32,
+        day: i32,
+        hour: i32,
+        minute: i32,
+        second: i32,
+    ) -> Result<i64, weaveffi::ForeignError> {
+        let local = local(year, month, day, hour, minute, second);
+        Ok(self.0.to_ambiguous_timestamp(local).compatible().unwrap().as_second())
+    }
+}
+
+/// The local date and time a callback is asked about.
+fn local(year: i32, month: i32, day: i32, hour: i32, minute: i32, second: i32) -> civil::DateTime {
+    let part = |value: i32| i8::try_from(value).unwrap();
+    civil::datetime(
+        i16::try_from(year).unwrap(),
+        part(month),
+        part(day),
+        part(hour),
+        part(minute),
+        part(second),
+        0,
+    )
+}
+
+/// The Unix time of a local date and time read as UTC.
+fn as_utc(year: i32, month: i32, day: i32, hour: i32, minute: i32, second: i32) -> i64 {
+    local(year, month, day, hour, minute, second)
+        .to_zoned(TimeZone::UTC)
+        .unwrap()
+        .timestamp()
+        .as_second()
 }
 
 /// A callback that always fails, counting its calls.
@@ -42,20 +78,46 @@ impl TimeZoneOffset for Broken {
         self.0.fetch_add(1, Ordering::Relaxed);
         Err(weaveffi::ForeignError::new(1, "no offset"))
     }
+
+    fn local_to_unix_seconds(
+        &self,
+        _year: i32,
+        _month: i32,
+        _day: i32,
+        _hour: i32,
+        _minute: i32,
+        _second: i32,
+    ) -> Result<i64, weaveffi::ForeignError> {
+        self.0.fetch_add(1, Ordering::Relaxed);
+        Err(weaveffi::ForeignError::new(1, "no instant"))
+    }
 }
 
-/// A callback that fails for instants within an hour of `bad` and answers `zone` otherwise.
-struct FailsNear {
-    bad: i64,
+/// A callback that fails when asked about a local time on `bad_day` and answers like `zone`
+/// otherwise.
+struct FailsOn {
+    bad_day: civil::Date,
     zone: TimeZone,
 }
 
-impl TimeZoneOffset for FailsNear {
+impl TimeZoneOffset for FailsOn {
     fn offset_seconds(&self, unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
-        if (unix_seconds - self.bad).abs() < 3600 {
-            return Err(weaveffi::ForeignError::new(1, "no offset"));
-        }
         Jiff(self.zone.clone()).offset_seconds(unix_seconds)
+    }
+
+    fn local_to_unix_seconds(
+        &self,
+        year: i32,
+        month: i32,
+        day: i32,
+        hour: i32,
+        minute: i32,
+        second: i32,
+    ) -> Result<i64, weaveffi::ForeignError> {
+        if local(year, month, day, hour, minute, second).date() == self.bad_day {
+            return Err(weaveffi::ForeignError::new(1, "no instant"));
+        }
+        Jiff(self.zone.clone()).local_to_unix_seconds(year, month, day, hour, minute, second)
     }
 }
 
@@ -65,6 +127,18 @@ struct TooFar;
 impl TimeZoneOffset for TooFar {
     fn offset_seconds(&self, _unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
         Ok(90_000)
+    }
+
+    fn local_to_unix_seconds(
+        &self,
+        year: i32,
+        month: i32,
+        day: i32,
+        hour: i32,
+        minute: i32,
+        second: i32,
+    ) -> Result<i64, weaveffi::ForeignError> {
+        Ok(as_utc(year, month, day, hour, minute, second) - 90_000)
     }
 }
 
@@ -405,6 +479,18 @@ impl TimeZoneOffset for Fixed {
     fn offset_seconds(&self, _unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
         Ok(self.0)
     }
+
+    fn local_to_unix_seconds(
+        &self,
+        year: i32,
+        month: i32,
+        day: i32,
+        hour: i32,
+        minute: i32,
+        second: i32,
+    ) -> Result<i64, weaveffi::ForeignError> {
+        Ok(as_utc(year, month, day, hour, minute, second) - i64::from(self.0))
+    }
 }
 
 /// Numbers at and past the limits the bindings accept.
@@ -469,9 +555,22 @@ impl TimeZoneOffset for Counting {
         self.1.fetch_add(1, Ordering::Relaxed);
         Jiff(self.0.clone()).offset_seconds(unix_seconds)
     }
+
+    fn local_to_unix_seconds(
+        &self,
+        year: i32,
+        month: i32,
+        day: i32,
+        hour: i32,
+        minute: i32,
+        second: i32,
+    ) -> Result<i64, weaveffi::ForeignError> {
+        self.1.fetch_add(1, Ordering::Relaxed);
+        Jiff(self.0.clone()).local_to_unix_seconds(year, month, day, hour, minute, second)
+    }
 }
 
-/// A time asks the callback once for each sunrise, sunset or other event it is built from.
+/// A time asks the callback about twice for each sunrise, sunset or other event it is built from.
 #[test]
 fn the_callback_is_asked_a_few_times_per_zman() {
     let counting = Arc::new(Counting(
@@ -495,7 +594,7 @@ fn the_callback_is_asked_a_few_times_per_zman() {
         })
         .max()
         .unwrap();
-    assert!(most <= 8, "{most}");
+    assert!(most <= 12, "{most}");
 
     let my_day = MyZmanim::new(lakewood, date, 18.0, Some(counting.clone())).unwrap();
     let most = myzmanim::all_my_zmanim()
@@ -506,7 +605,7 @@ fn the_callback_is_asked_a_few_times_per_zman() {
         })
         .max()
         .unwrap();
-    assert!(most <= 8, "{most}");
+    assert!(most <= 12, "{most}");
 }
 
 /// One object used from two threads at once: a callback failure during one call is reported by
@@ -514,12 +613,7 @@ fn the_callback_is_asked_a_few_times_per_zman() {
 #[test]
 fn concurrent_calls_report_only_their_own_callback_failures() {
     let new_york = TimeZone::get("America/New_York").unwrap();
-    // Kiddush Levana on this date asks the time zone about this instant; sunrise never does.
-    let molad = civil::datetime(2024, 11, 4, 8, 44, 50, 0)
-        .to_zoned(new_york.clone())
-        .unwrap()
-        .timestamp()
-        .as_second();
+    // Kiddush Levana on this date asks about local midnight on 5 November. Sunrise never does.
     let shared = Arc::new(
         Zmanim::new(
             sea_level_location(40.09, -74.22),
@@ -529,8 +623,8 @@ fn concurrent_calls_report_only_their_own_callback_failures() {
                 day: 4,
             },
             times::default_config(),
-            Some(Arc::new(FailsNear {
-                bad: molad,
+            Some(Arc::new(FailsOn {
+                bad_day: civil::date(2024, 11, 5),
                 zone: new_york,
             })),
         )
@@ -552,8 +646,8 @@ fn concurrent_calls_report_only_their_own_callback_failures() {
     assert_eq!((wrong_levanas, wrong_sunrises.join().unwrap()), (0, 0));
 }
 
-/// Kiddush Levana on the day after the clocks went back, through a callback: the day check
-/// needs the offset at the molad, not at the start of the day.
+/// Kiddush Levana on the day after the clocks went back, through a callback. The day check
+/// compares the time with the local midnights that start and end the day.
 #[test]
 fn kiddush_levana_after_a_clock_change() {
     let lakewood = sea_level_location(40.09, -74.22);

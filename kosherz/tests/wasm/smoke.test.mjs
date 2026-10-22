@@ -9,7 +9,11 @@ import assert from 'node:assert/strict';
 import { calendar, init, times } from '../../generated/wasm/index.js';
 
 /** Eastern daylight time, every day of the year. */
-const edt = { offsetSeconds: () => -4 * 3600 };
+const edt = {
+  offsetSeconds: () => -4 * 3600,
+  localToUnixSeconds: (year, month, day, hour, minute, second) =>
+    BigInt(Date.UTC(year, month - 1, day, hour, minute, second) / 1000 + 4 * 3600),
+};
 const date = { year: 2024, month: 4, day: 23 };
 
 before(() => init());

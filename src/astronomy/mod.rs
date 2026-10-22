@@ -341,7 +341,8 @@ pub(super) fn time_at_azimuth_iterative(
 }
 
 /// `date`, moved a day where the time zone's clock is a day or so from solar time, as across the
-/// date line. The time zone's offset is read at local midnight starting `date`.
+/// date line. The time zone's offset is read at the local midnight starting `date`, as KosherJava's
+/// `GeoLocation.getAntimeridianAdjustment` reads it.
 pub(crate) fn adjusted_local_date(
     date: Date,
     location: &Location,
@@ -355,7 +356,10 @@ pub(crate) fn adjusted_local_date(
         };
     };
 
-    let offset = offset_at_local_midnight(date, timezone)?;
+    let midnight = timezone
+        .local_to_timestamp(date.at(0, 0, 0, 0))
+        .ok_or(ZmanimError::Internal)?;
+    let offset = timezone.offset_at(midnight).seconds();
     let local_hours_offset = (location.longitude * 240.0 - f64::from(offset)) / 3600.0;
 
     if local_hours_offset >= 20.0 {
@@ -365,33 +369,6 @@ pub(crate) fn adjusted_local_date(
     } else {
         Ok(date)
     }
-}
-
-/// The UTC offset in seconds at the first moment of `date` in `timezone`. A skipped midnight
-/// resolves to the instant after the gap and a repeated one to the earlier instant.
-fn offset_at_local_midnight(date: Date, timezone: &impl TimeZoneLike) -> Result<i32, ZmanimError> {
-    let midnight_as_utc = date
-        .at(0, 0, 0, 0)
-        .to_zoned(TimeZone::UTC)
-        .map_err(|_| ZmanimError::Internal)?
-        .timestamp();
-    let offset_at = |seconds_from_midnight: i64| {
-        midnight_as_utc
-            .checked_add(SignedDuration::from_secs(seconds_from_midnight))
-            .map(|instant| timezone.offset_at(instant).seconds())
-            .map_err(|_| ZmanimError::Internal)
-    };
-    let fits = |offset: i32| offset_at(-i64::from(offset)).map(|actual| actual == offset);
-
-    // Local midnight falls within 14 hours before and 12 hours after midnight UTC.
-    let before = offset_at(-15 * 3600)?;
-    let after = offset_at(13 * 3600)?;
-    Ok(match (fits(before)?, fits(after)?) {
-        (true, true) => before.max(after),
-        (true, false) => before,
-        (false, true) => after,
-        (false, false) => offset_at(-i64::from(before))?,
-    })
 }
 
 pub(crate) fn instant_from_utc_hours(

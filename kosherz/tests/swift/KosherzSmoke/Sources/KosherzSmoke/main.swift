@@ -10,6 +10,17 @@ final class FixedOffset: TimeZoneOffset {
     func offsetSeconds(unixSeconds: Int64) throws -> Int32 {
         -4 * 3600
     }
+
+    func localToUnixSeconds(
+        year: Int32, month: Int32, day: Int32, hour: Int32, minute: Int32, second: Int32
+    ) throws -> Int64 {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: -4 * 3600)!
+        let components = DateComponents(
+            year: Int(year), month: Int(month), day: Int(day),
+            hour: Int(hour), minute: Int(minute), second: Int(second))
+        return Int64(calendar.date(from: components)!.timeIntervalSince1970)
+    }
 }
 
 func check(_ condition: Bool, _ message: String) {

@@ -17,6 +17,10 @@ import kotlin.system.exitProcess
 /** Eastern Daylight Time, UTC-4, at every instant. */
 object FixedOffset : TimeZoneOffset {
     override fun offsetSeconds(unixSeconds: Long): Int = -4 * 3600
+
+    override fun localToUnixSeconds(year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int): Long =
+        java.time.LocalDateTime.of(year, month, day, hour, minute, second)
+            .toEpochSecond(java.time.ZoneOffset.ofHours(-4))
 }
 
 fun verify(condition: Boolean, message: String) {

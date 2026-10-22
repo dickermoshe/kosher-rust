@@ -6,8 +6,7 @@ import kosherz as k
 
 
 class UsEastern(k.TimeZoneOffset):
-    """US Eastern time by the post-2007 rules, without a time zone database: the bindings only
-    ever ask for the UTC offset at an instant."""
+    """US Eastern time by the post-2007 rules, without a time zone database."""
 
     def offset_seconds(self, unix_seconds: int) -> int:
         instant = datetime.fromtimestamp(unix_seconds, timezone.utc)
@@ -17,6 +16,15 @@ class UsEastern(k.TimeZoneOffset):
         march = datetime(year, 3, 8 + (6 - datetime(year, 3, 8).weekday()) % 7, 7, tzinfo=timezone.utc)
         november = datetime(year, 11, 1 + (6 - datetime(year, 11, 1).weekday()) % 7, 6, tzinfo=timezone.utc)
         return -4 * 3600 if march <= instant < november else -5 * 3600
+
+    def local_to_unix_seconds(self, year: int, month: int, day: int, hour: int, minute: int, second: int) -> int:
+        as_utc = int(datetime(year, month, day, hour, minute, second, tzinfo=timezone.utc).timestamp())
+        # Daylight time gives the earlier instant, so it is tried first.
+        for offset in (-4 * 3600, -5 * 3600):
+            if self.offset_seconds(as_utc - offset) == offset:
+                return as_utc - offset
+        # The clocks skipped the time in spring. Java moves it later by the gap.
+        return as_utc + 5 * 3600
 
 
 eastern = UsEastern()

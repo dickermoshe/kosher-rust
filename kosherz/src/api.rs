@@ -1043,7 +1043,9 @@ pub mod times {
         convert::validate_location(&location, has_time_zone)
     }
 
-    /// The time zone. You supply it as a callback that gives the offset from UTC at an instant.
+    /// The time zone. You supply it as a callback with two methods. One gives the offset from UTC
+    /// at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
+    /// `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
     ///
     /// The time zone is optional. With a time zone every time works. You can also leave it out.
     /// These do not work without a time zone:
@@ -1060,9 +1062,31 @@ pub mod times {
         ///
         /// # Errors
         ///
-        /// Fail when the offset is unknown; the calculation then reports
+        /// Fail when the offset is unknown. The calculation then reports
         /// `ZmanimError::TimeZoneCallbackFailed`.
         fn offset_seconds(&self, unix_seconds: i64) -> Result<i32, weaveffi::ForeignError>;
+
+        /// The Unix time, in seconds, at which the clocks in this time zone show the local date
+        /// and time given.
+        ///
+        /// Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
+        /// return the instant one gap length later. When the clocks show the time twice, return
+        /// the earlier instant. JavaScript's `Temporal` calls this the `compatible`
+        /// disambiguation, and it is Temporal's default.
+        ///
+        /// # Errors
+        ///
+        /// Fail when the instant is unknown. The calculation then reports
+        /// `ZmanimError::TimeZoneCallbackFailed`.
+        fn local_to_unix_seconds(
+            &self,
+            year: i32,
+            month: i32,
+            day: i32,
+            hour: i32,
+            minute: i32,
+            second: i32,
+        ) -> Result<i64, weaveffi::ForeignError>;
     }
 
     // BEGIN GENERATED: Zman

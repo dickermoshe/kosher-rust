@@ -23,9 +23,23 @@ void check(bool ok, const std::string& message) {
 }
 
 // A fixed UTC-4 time zone.
+// Days from 1970-01-01 to the given date on the Gregorian calendar.
+static int64_t days_from_civil(int64_t year, int64_t month, int64_t day) {
+    year -= month <= 2;
+    int64_t era = (year >= 0 ? year : year - 399) / 400;
+    int64_t year_of_era = year - era * 400;
+    int64_t day_of_year = (153 * (month + (month > 2 ? -3 : 9)) + 2) / 5 + day - 1;
+    int64_t day_of_era = year_of_era * 365 + year_of_era / 4 - year_of_era / 100 + day_of_year;
+    return era * 146097 + day_of_era - 719468;
+}
+
 class Edt : public kosherz::TimeZoneOffset {
 public:
     int32_t offset_seconds(int64_t) override { return -4 * 3600; }
+    int64_t local_to_unix_seconds(int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute,
+                                  int32_t second) override {
+        return days_from_civil(year, month, day) * 86400 + hour * 3600 + minute * 60 + second + 4 * 3600;
+    }
 };
 
 const kosherz::GregorianDate april_23{2024, 4, 23};

@@ -11,6 +11,10 @@ import 'package:kosherz/kosherz.dart';
 class Edt implements TimeZoneOffset {
   @override
   int offsetSeconds(int unixSeconds) => -4 * 3600;
+
+  @override
+  int localToUnixSeconds(int year, int month, int day, int hour, int minute, int second) =>
+      DateTime.utc(year, month, day, hour, minute, second).millisecondsSinceEpoch ~/ 1000 + 4 * 3600;
 }
 
 var failures = 0;

@@ -721,7 +721,7 @@ let wvContract: Void = {
         (0x01ce427485afb43a, 0x017ce9984014d3c1, "times.ZmanTime"),
         (0x0643c19407762211, 0x11babf7c30a11935, "times.myzmanim.dip_degrees_per_root_meter"),
         (0x091fabaf00184561, 0xf13823120f5b4c46, "times.Calculator"),
-        (0x0a21d46001720019, 0x174890db5e5166c8, "times.TimeZoneOffset"),
+        (0x0a21d46001720019, 0x5cf262e1982cf8f7, "times.TimeZoneOffset"),
         (0x0a86c54f2d84238c, 0x4b1d4aaf11dfd132, "times.zman_category"),
         (0x0d3bc9cd549a7137, 0xbea68784cf687a1a, "times.Zmanim.get"),
         (0x0e595d82f4b54ade, 0x4a23e822039987a7, "times.zman_description"),
@@ -2604,7 +2604,9 @@ extension ZmanTime: WvCodable {
     }
 }
 
-/// The time zone. You supply it as a callback that gives the offset from UTC at an instant.
+/// The time zone. You supply it as a callback with two methods. One gives the offset from UTC
+/// at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
+/// `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
 ///
 /// The time zone is optional. With a time zone every time works. You can also leave it out.
 /// These do not work without a time zone:
@@ -2627,9 +2629,23 @@ public protocol TimeZoneOffset: AnyObject, Sendable {
     ///
     /// # Errors
     ///
-    /// Fail when the offset is unknown; the calculation then reports
+    /// Fail when the offset is unknown. The calculation then reports
     /// `ZmanimError::TimeZoneCallbackFailed`.
     func offsetSeconds(unixSeconds: Int64) throws -> Int32
+
+    /// The Unix time, in seconds, at which the clocks in this time zone show the local date
+    /// and time given.
+    ///
+    /// Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
+    /// return the instant one gap length later. When the clocks show the time twice, return
+    /// the earlier instant. JavaScript's `Temporal` calls this the `compatible`
+    /// disambiguation, and it is Temporal's default.
+    ///
+    /// # Errors
+    ///
+    /// Fail when the instant is unknown. The calculation then reports
+    /// `ZmanimError::TimeZoneCallbackFailed`.
+    func localToUnixSeconds(year: Int32, month: Int32, day: Int32, hour: Int32, minute: Int32, second: Int32) throws -> Int64
 }
 
 /// The process-wide vtable the library calls `TimeZoneOffset` implementations
@@ -2646,6 +2662,11 @@ enum WvTimeZoneOffsetVtable {
         offset_seconds: { ctx, unix_seconds, out_err in
             wvInvoke(ctx, out_err, as: (any TimeZoneOffset).self, fallback: 0) { wvImpl in
                 try wvImpl.offsetSeconds(unixSeconds: unix_seconds)
+            }
+        },
+        local_to_unix_seconds: { ctx, year, month, day, hour, minute, second, out_err in
+            wvInvoke(ctx, out_err, as: (any TimeZoneOffset).self, fallback: 0) { wvImpl in
+                try wvImpl.localToUnixSeconds(year: year, month: month, day: day, hour: hour, minute: minute, second: second)
             }
         }
     ))

@@ -9,6 +9,7 @@ package smoke
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"kosherz"
 )
@@ -17,6 +18,11 @@ import (
 type edt struct{}
 
 func (edt) OffsetSeconds(int64) int32 { return -4 * 3600 }
+
+func (edt) LocalToUnixSeconds(year, month, day, hour, minute, second int32) int64 {
+	local := time.Date(int(year), time.Month(month), int(day), int(hour), int(minute), int(second), 0, time.UTC)
+	return local.Unix() + 4*3600
+}
 
 var april23 = kosherz.GregorianDate{Year: 2024, Month: 4, Day: 23}
 

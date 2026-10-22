@@ -31,10 +31,27 @@ static int32_t edt_offset(void* ctx, int64_t unix_seconds, kosherz_error* out_er
     return -4 * 3600;
 }
 
+// Days from 1970-01-01 to the given date on the Gregorian calendar.
+static int64_t days_from_civil(int64_t year, int64_t month, int64_t day) {
+    year -= month <= 2;
+    int64_t era = (year >= 0 ? year : year - 399) / 400;
+    int64_t year_of_era = year - era * 400;
+    int64_t day_of_year = (153 * (month + (month > 2 ? -3 : 9)) + 2) / 5 + day - 1;
+    int64_t day_of_era = year_of_era * 365 + year_of_era / 4 - year_of_era / 100 + day_of_year;
+    return era * 146097 + day_of_era - 719468;
+}
+
+static int64_t edt_local(void* ctx, int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute,
+                         int32_t second, kosherz_error* out_err) {
+    (void)ctx;
+    (void)out_err;
+    return days_from_civil(year, month, day) * 86400 + hour * 3600 + minute * 60 + second + 4 * 3600;
+}
+
 static void edt_free(void* ctx) { (void)ctx; }
 
 static const kosherz_times_TimeZoneOffset_vtable edt = {
-    sizeof(kosherz_times_TimeZoneOffset_vtable), 0, edt_free, edt_offset,
+    sizeof(kosherz_times_TimeZoneOffset_vtable), 0, edt_free, edt_offset, edt_local,
 };
 
 // Builds Zmanim for 2024-04-23 at sea level, leaving any error in `err`.

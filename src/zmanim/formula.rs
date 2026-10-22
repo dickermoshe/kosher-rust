@@ -12,10 +12,7 @@ use jiff::{SignedDuration as Duration, Timestamp, ToSpan, tz::TimeZone};
 
 use crate::{
     TimeZoneLike,
-    calendar::{
-        HebrewDate, Holiday, Region,
-        molad::{is_same_gregorian_day, months_molad},
-    },
+    calendar::{HebrewDate, Holiday, Region, molad::months_molad},
     zmanim::{Zmanim, ZmanimError, minus, plus},
 };
 
@@ -118,6 +115,18 @@ pub(crate) enum Formula {
     PolarSunsetBenIshChai,
     /// Polar sunrise (Ben Ish Chai): due east azimuth on polar no-sunrise days only.
     PolarSunriseBenIshChai,
+}
+
+/// Whether `time` falls on `date` in `timezone`: from the local midnight starting `date` through
+/// the local midnight ending it. This is the check KosherJava's `getMoladBasedTime` makes.
+fn is_on_date(time: Timestamp, date: jiff::civil::Date, timezone: &impl TimeZoneLike) -> Result<bool, ZmanimError> {
+    let midnight = |date: jiff::civil::Date| {
+        timezone
+            .local_to_timestamp(date.at(0, 0, 0, 0))
+            .ok_or(ZmanimError::Internal)
+    };
+    let tomorrow = date.tomorrow().map_err(|_| ZmanimError::Internal)?;
+    Ok(time >= midnight(date)? && time <= midnight(tomorrow)?)
 }
 
 impl Formula {
@@ -394,7 +403,7 @@ impl Formula {
                     months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
                     Duration::from_hours(24 * 15),
                 )?;
-                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                if is_on_date(molad, calculator.date, tz)? {
                     return Ok(molad);
                 }
                 Err(ZmanimError::NotApplicable)
@@ -413,7 +422,7 @@ impl Formula {
                         + Duration::from_secs(1)
                         + Duration::from_millis(666),
                 )?;
-                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                if is_on_date(molad, calculator.date, tz)? {
                     return Ok(molad);
                 }
                 Err(ZmanimError::NotApplicable)
@@ -430,7 +439,7 @@ impl Formula {
                     Duration::from_hours(72),
                 )?;
 
-                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                if is_on_date(molad, calculator.date, tz)? {
                     return Ok(molad);
                 }
 
@@ -445,7 +454,7 @@ impl Formula {
                         months_molad(&new).ok_or(ZmanimError::Internal)?,
                         Duration::from_hours(72),
                     )?;
-                    if is_same_gregorian_day(&hebrew, &molad, tz) {
+                    if is_on_date(molad, calculator.date, tz)? {
                         return Ok(molad);
                     }
                 }
@@ -462,7 +471,7 @@ impl Formula {
                     months_molad(&hebrew).ok_or(ZmanimError::Internal)?,
                     Duration::from_hours(168),
                 )?;
-                if is_same_gregorian_day(&hebrew, &molad, tz) {
+                if is_on_date(molad, calculator.date, tz)? {
                     return Ok(molad);
                 }
                 Err(ZmanimError::NotApplicable)

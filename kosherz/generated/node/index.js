@@ -137,7 +137,7 @@ const $contract = [
     [0x01ce427485afb43an, 0x017ce9984014d3c1n, 'times.ZmanTime'],
     [0x0643c19407762211n, 0x11babf7c30a11935n, 'times.myzmanim.dip_degrees_per_root_meter'],
     [0x091fabaf00184561n, 0xf13823120f5b4c46n, 'times.Calculator'],
-    [0x0a21d46001720019n, 0x174890db5e5166c8n, 'times.TimeZoneOffset'],
+    [0x0a21d46001720019n, 0x5cf262e1982cf8f7n, 'times.TimeZoneOffset'],
     [0x0a86c54f2d84238cn, 0x4b1d4aaf11dfd132n, 'times.zman_category'],
     [0x0d3bc9cd549a7137n, 0xbea68784cf687a1an, 'times.Zmanim.get'],
     [0x0e595d82f4b54aden, 0x4a23e822039987a7n, 'times.zman_description'],
@@ -2071,6 +2071,9 @@ function $adapt$times$TimeZoneOffset(impl) {
   return {
     offset_seconds($a0) {
       return $ret.I32(impl.offsetSeconds($a0), 'TimeZoneOffset.offsetSeconds');
+    },
+    local_to_unix_seconds($a0, $a1, $a2, $a3, $a4, $a5) {
+      return $ret.I64(impl.localToUnixSeconds($a0, $a1, $a2, $a3, $a4, $a5), 'TimeZoneOffset.localToUnixSeconds');
     },
   };
 }

@@ -9,12 +9,14 @@ package kosherz
 #cgo LDFLAGS: -lkosherz
 #include "kosherz.h"
 extern int32_t goWv_kosherz_times_TimeZoneOffset_offset_seconds(void* ctx, int64_t unix_seconds, kosherz_error* out_err);
+extern int64_t goWv_kosherz_times_TimeZoneOffset_local_to_unix_seconds(void* ctx, int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute, int32_t second, kosherz_error* out_err);
 extern void goWv_kosherz_times_TimeZoneOffset_free(void* ctx);
 static const kosherz_times_TimeZoneOffset_vtable wvVtable_kosherz_times_TimeZoneOffset_vtable = {
 	.size = sizeof(kosherz_times_TimeZoneOffset_vtable),
 	.flags = 0,
 	.free = goWv_kosherz_times_TimeZoneOffset_free,
 	.offset_seconds = goWv_kosherz_times_TimeZoneOffset_offset_seconds,
+	.local_to_unix_seconds = goWv_kosherz_times_TimeZoneOffset_local_to_unix_seconds,
 };
 __attribute__((unused)) static const kosherz_times_TimeZoneOffset_vtable* wvVtablePtr_kosherz_times_TimeZoneOffset_vtable(void) { return &wvVtable_kosherz_times_TimeZoneOffset_vtable; }
 */
@@ -98,7 +100,7 @@ func init() {
 		{0x01ce427485afb43a, 0x017ce9984014d3c1, "times.ZmanTime"},
 		{0x0643c19407762211, 0x11babf7c30a11935, "times.myzmanim.dip_degrees_per_root_meter"},
 		{0x091fabaf00184561, 0xf13823120f5b4c46, "times.Calculator"},
-		{0x0a21d46001720019, 0x174890db5e5166c8, "times.TimeZoneOffset"},
+		{0x0a21d46001720019, 0x5cf262e1982cf8f7, "times.TimeZoneOffset"},
 		{0x0a86c54f2d84238c, 0x4b1d4aaf11dfd132, "times.zman_category"},
 		{0x0d3bc9cd549a7137, 0xbea68784cf687a1a, "times.Zmanim.get"},
 		{0x0e595d82f4b54ade, 0x4a23e822039987a7, "times.zman_description"},
@@ -2910,7 +2912,9 @@ func wvReadZmanTime(r *wvReader) ZmanTime {
 	return v
 }
 
-// TimeZoneOffset is the time zone. You supply it as a callback that gives the offset from UTC at an instant.
+// TimeZoneOffset is the time zone. You supply it as a callback with two methods. One gives the offset from UTC
+// at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
+// `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
 //
 // The time zone is optional. With a time zone every time works. You can also leave it out.
 // These do not work without a time zone:
@@ -2932,9 +2936,22 @@ type TimeZoneOffset interface {
 	//
 	// # Errors
 	//
-	// Fail when the offset is unknown; the calculation then reports
+	// Fail when the offset is unknown. The calculation then reports
 	// `ZmanimError::TimeZoneCallbackFailed`.
 	OffsetSeconds(unixSeconds int64) int32
+	// LocalToUnixSeconds returns the Unix time, in seconds, at which the clocks in this time zone show the local date
+	// and time given.
+	//
+	// Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
+	// return the instant one gap length later. When the clocks show the time twice, return
+	// the earlier instant. JavaScript's `Temporal` calls this the `compatible`
+	// disambiguation, and it is Temporal's default.
+	//
+	// # Errors
+	//
+	// Fail when the instant is unknown. The calculation then reports
+	// `ZmanimError::TimeZoneCallbackFailed`.
+	LocalToUnixSeconds(year int32, month int32, day int32, hour int32, minute int32, second int32) int64
 }
 
 //export goWv_kosherz_times_TimeZoneOffset_offset_seconds
@@ -2942,6 +2959,13 @@ func goWv_kosherz_times_TimeZoneOffset_offset_seconds(ctx unsafe.Pointer, unix_s
 	defer wvRecoverCallback(out_err)
 	ret := wvCallback[TimeZoneOffset](ctx).OffsetSeconds(int64(unix_seconds))
 	return C.int32_t(ret)
+}
+
+//export goWv_kosherz_times_TimeZoneOffset_local_to_unix_seconds
+func goWv_kosherz_times_TimeZoneOffset_local_to_unix_seconds(ctx unsafe.Pointer, year C.int32_t, month C.int32_t, day C.int32_t, hour C.int32_t, minute C.int32_t, second C.int32_t, out_err *C.kosherz_error) (cRet C.int64_t) {
+	defer wvRecoverCallback(out_err)
+	ret := wvCallback[TimeZoneOffset](ctx).LocalToUnixSeconds(int32(year), int32(month), int32(day), int32(hour), int32(minute), int32(second))
+	return C.int64_t(ret)
 }
 
 //export goWv_kosherz_times_TimeZoneOffset_free

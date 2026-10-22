@@ -2645,7 +2645,9 @@ public sealed class ZmanTime
 }
 
 /// <summary>
-/// The time zone. You supply it as a callback that gives the offset from UTC at an instant.
+/// The time zone. You supply it as a callback with two methods. One gives the offset from UTC
+/// at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
+/// `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
 ///
 /// The time zone is optional. With a time zone every time works. You can also leave it out.
 /// These do not work without a time zone:
@@ -2670,10 +2672,26 @@ public interface ITimeZoneOffset
     ///
     /// # Errors
     ///
-    /// Fail when the offset is unknown; the calculation then reports
+    /// Fail when the offset is unknown. The calculation then reports
     /// `ZmanimError::TimeZoneCallbackFailed`.
     /// </summary>
     int OffsetSeconds(long unixSeconds);
+
+    /// <summary>
+    /// The Unix time, in seconds, at which the clocks in this time zone show the local date
+    /// and time given.
+    ///
+    /// Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
+    /// return the instant one gap length later. When the clocks show the time twice, return
+    /// the earlier instant. JavaScript's `Temporal` calls this the `compatible`
+    /// disambiguation, and it is Temporal's default.
+    ///
+    /// # Errors
+    ///
+    /// Fail when the instant is unknown. The calculation then reports
+    /// `ZmanimError::TimeZoneCallbackFailed`.
+    /// </summary>
+    long LocalToUnixSeconds(int year, int month, int day, int hour, int minute, int second);
 }
 
 /// <summary>The process-wide <c>kosherz_times_TimeZoneOffset_vtable</c> and the trampolines behind it,
@@ -2687,6 +2705,7 @@ internal static unsafe class FfiVtable_times_TimeZoneOffset
         public uint Flags;
         public delegate* unmanaged[Cdecl]<IntPtr, void> Free;
         public delegate* unmanaged[Cdecl]<IntPtr, long, FfiError*, int> offset_seconds;
+        public delegate* unmanaged[Cdecl]<IntPtr, int, int, int, int, int, int, FfiError*, long> local_to_unix_seconds;
     }
 
     /// <summary>The vtable's address, valid for the process lifetime.</summary>
@@ -2699,6 +2718,7 @@ internal static unsafe class FfiVtable_times_TimeZoneOffset
         vtable->Flags = 0;
         vtable->Free = &FreeTrampoline;
         vtable->offset_seconds = &OffsetSecondsTrampoline;
+        vtable->local_to_unix_seconds = &LocalToUnixSecondsTrampoline;
         return (IntPtr)vtable;
     }
 
@@ -2714,6 +2734,20 @@ internal static unsafe class FfiVtable_times_TimeZoneOffset
         try
         {
             return Ffi.Target<ITimeZoneOffset>(ctx).OffsetSeconds(unix_seconds);
+        }
+        catch (Exception e)
+        {
+            Ffi.SetForeignError(out_err, e);
+            return default;
+        }
+    }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    private static long LocalToUnixSecondsTrampoline(IntPtr ctx, int year, int month, int day, int hour, int minute, int second, FfiError* out_err)
+    {
+        try
+        {
+            return Ffi.Target<ITimeZoneOffset>(ctx).LocalToUnixSeconds(year, month, day, hour, minute, second);
         }
         catch (Exception e)
         {
@@ -4176,7 +4210,7 @@ internal static unsafe partial class NativeMethods
             (0x01ce427485afb43aUL, 0x017ce9984014d3c1UL, "times.ZmanTime"),
             (0x0643c19407762211UL, 0x11babf7c30a11935UL, "times.myzmanim.dip_degrees_per_root_meter"),
             (0x091fabaf00184561UL, 0xf13823120f5b4c46UL, "times.Calculator"),
-            (0x0a21d46001720019UL, 0x174890db5e5166c8UL, "times.TimeZoneOffset"),
+            (0x0a21d46001720019UL, 0x5cf262e1982cf8f7UL, "times.TimeZoneOffset"),
             (0x0a86c54f2d84238cUL, 0x4b1d4aaf11dfd132UL, "times.zman_category"),
             (0x0d3bc9cd549a7137UL, 0xbea68784cf687a1aUL, "times.Zmanim.get"),
             (0x0e595d82f4b54adeUL, 0x4a23e822039987a7UL, "times.zman_description"),

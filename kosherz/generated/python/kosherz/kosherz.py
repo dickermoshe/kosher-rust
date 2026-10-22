@@ -187,7 +187,7 @@ _CONTRACTS: Dict[str, List[Tuple[int, int, str]]] = {
         (0x01ce427485afb43a, 0x017ce9984014d3c1, "times.ZmanTime"),
         (0x0643c19407762211, 0x11babf7c30a11935, "times.myzmanim.dip_degrees_per_root_meter"),
         (0x091fabaf00184561, 0xf13823120f5b4c46, "times.Calculator"),
-        (0x0a21d46001720019, 0x174890db5e5166c8, "times.TimeZoneOffset"),
+        (0x0a21d46001720019, 0x5cf262e1982cf8f7, "times.TimeZoneOffset"),
         (0x0a86c54f2d84238c, 0x4b1d4aaf11dfd132, "times.zman_category"),
         (0x0d3bc9cd549a7137, 0xbea68784cf687a1a, "times.Zmanim.get"),
         (0x0e595d82f4b54ade, 0x4a23e822039987a7, "times.zman_description"),
@@ -3778,7 +3778,9 @@ def _read_ZmanTime(_r: _Reader) -> ZmanTime:
 
 
 class TimeZoneOffset(abc.ABC):
-    """The time zone. You supply it as a callback that gives the offset from UTC at an instant.
+    """The time zone. You supply it as a callback with two methods. One gives the offset from UTC
+    at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
+    `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
 
     The time zone is optional. With a time zone every time works. You can also leave it out.
     These do not work without a time zone:
@@ -3802,12 +3804,29 @@ class TimeZoneOffset(abc.ABC):
 
         # Errors
 
-        Fail when the offset is unknown; the calculation then reports
+        Fail when the offset is unknown. The calculation then reports
+        `ZmanimError::TimeZoneCallbackFailed`.
+        """
+
+    @abc.abstractmethod
+    def local_to_unix_seconds(self, year: int, month: int, day: int, hour: int, minute: int, second: int) -> int:
+        """The Unix time, in seconds, at which the clocks in this time zone show the local date
+        and time given.
+
+        Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
+        return the instant one gap length later. When the clocks show the time twice, return
+        the earlier instant. JavaScript's `Temporal` calls this the `compatible`
+        disambiguation, and it is Temporal's default.
+
+        # Errors
+
+        Fail when the instant is unknown. The calculation then reports
         `ZmanimError::TimeZoneCallbackFailed`.
         """
 
 
 _TimeZoneOffset_offset_seconds_t = ctypes.CFUNCTYPE(ctypes.c_int32, ctypes.c_void_p, ctypes.c_int64, ctypes.POINTER(_ErrorStruct))
+_TimeZoneOffset_local_to_unix_seconds_t = ctypes.CFUNCTYPE(ctypes.c_int64, ctypes.c_void_p, ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, ctypes.POINTER(_ErrorStruct))
 
 
 class _TimeZoneOffsetVtable(ctypes.Structure):
@@ -3818,6 +3837,7 @@ class _TimeZoneOffsetVtable(ctypes.Structure):
         ("flags", ctypes.c_uint32),
         ("free", _CallbackFree),
         ("offset_seconds", _TimeZoneOffset_offset_seconds_t),
+        ("local_to_unix_seconds", _TimeZoneOffset_local_to_unix_seconds_t),
     ]
 
 
@@ -3829,11 +3849,20 @@ def _TimeZoneOffset_offset_seconds(ctx: Optional[int], unix_seconds: int, out_er
         return 0
 
 
+def _TimeZoneOffset_local_to_unix_seconds(ctx: Optional[int], year: int, month: int, day: int, hour: int, minute: int, second: int, out_err: Any) -> int:
+    try:
+        return int(_callback_get(ctx).local_to_unix_seconds(year, month, day, hour, minute, second))
+    except BaseException as exc:
+        _callback_fail(out_err, exc)
+        return 0
+
+
 _TimeZoneOffset_vtable = _TimeZoneOffsetVtable(
     ctypes.sizeof(_TimeZoneOffsetVtable),
     0,
     _callback_free_fn,
     _TimeZoneOffset_offset_seconds_t(_TimeZoneOffset_offset_seconds),
+    _TimeZoneOffset_local_to_unix_seconds_t(_TimeZoneOffset_local_to_unix_seconds),
 )
 _TimeZoneOffset_vtable_ptr = ctypes.addressof(_TimeZoneOffset_vtable)
 

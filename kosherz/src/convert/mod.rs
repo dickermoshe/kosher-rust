@@ -11,7 +11,10 @@ pub(crate) mod zmanim;
 
 use std::{cell::Cell, ops::RangeInclusive, sync::Arc};
 
-use jiff::{Timestamp, civil, tz::Offset};
+use jiff::{
+    Timestamp, civil,
+    tz::{Offset, TimeZone},
+};
 use kosher_rust::TimeZoneLike;
 
 use crate::api::{
@@ -24,8 +27,8 @@ thread_local! {
     static CALLBACK_FAILED: Cell<bool> = const { Cell::new(false) };
 }
 
-/// A caller's [`TimeZoneOffset`] callback as a kosher-rust time zone. A failed call answers UTC
-/// and is recorded for [`watching_callbacks`] to report.
+/// A caller's [`TimeZoneOffset`] callback as a kosher-rust time zone. A failed call is recorded
+/// for [`watching_callbacks`] to report. A failed offset answers UTC in the meantime.
 pub(crate) struct CallbackTimeZone {
     callback: Arc<dyn TimeZoneOffset>,
 }
@@ -48,6 +51,28 @@ impl TimeZoneLike for CallbackTimeZone {
             CALLBACK_FAILED.set(true);
             Offset::UTC
         })
+    }
+
+    fn local_to_timestamp(&self, datetime: civil::DateTime) -> Option<Timestamp> {
+        let as_utc = datetime.to_zoned(TimeZone::UTC).ok()?.timestamp().as_second();
+        let instant = self
+            .callback
+            .local_to_unix_seconds(
+                i32::from(datetime.year()),
+                i32::from(datetime.month()),
+                i32::from(datetime.day()),
+                i32::from(datetime.hour()),
+                i32::from(datetime.minute()),
+                i32::from(datetime.second()),
+            )
+            .ok()
+            // The instant is the local time minus an offset, and offsets are under a day.
+            .filter(|seconds| seconds.abs_diff(as_utc) < 86_400)
+            .and_then(|seconds| Timestamp::from_second(seconds).ok());
+        if instant.is_none() {
+            CALLBACK_FAILED.set(true);
+        }
+        instant
     }
 }
 

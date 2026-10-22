@@ -22,8 +22,12 @@ Conventions:
 - **Instants** are milliseconds since the Unix epoch (an `i64`: a `bigint` in JavaScript);
   durations are milliseconds.
 - **Gregorian dates** are `GregorianDate { year, month, day }` records.
-- **Time zones** come from you. You supply a `TimeZoneOffset` callback. It returns the UTC
-  offset in seconds at a Unix time. No time zone database is bundled.
+- **Time zones** come from you. You supply a `TimeZoneOffset` callback with two methods. The
+  first returns the UTC offset in seconds at a Unix time. The second returns the Unix time at
+  which the clocks show a local date and time. It must resolve that time the way Java's
+  `ZonedDateTime.of` does. When the clocks skip the time, it returns the instant one gap length
+  later. When the clocks show the time twice, it returns the earlier instant. No time zone database
+  is bundled.
 
   The time zone is optional. With a time zone every time works. You can also leave it out. These
   do not work without a time zone:
@@ -59,7 +63,14 @@ as shown.
 import { calendar, times } from 'kosherz';
 const { limudim } = calendar;
 
-const newYork = { offsetSeconds: (unixSeconds) => /* seconds east of UTC at that instant */ -4 * 3600 };
+// Eastern Daylight Time all year. A real time zone answers both questions from its rules.
+const newYork = {
+  // The offset from UTC in seconds east at an instant.
+  offsetSeconds: (unixSeconds) => -4 * 3600,
+  // The Unix time at which the clocks show a local date and time.
+  localToUnixSeconds: (year, month, day, hour, minute, second) =>
+    BigInt(Date.UTC(year, month - 1, day, hour, minute, second) / 1000 + 4 * 3600),
+};
 const day = new times.Zmanim(
   times.seaLevelLocation(40.09, -74.22),
   { year: 2024, month: 4, day: 23 },

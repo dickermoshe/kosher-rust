@@ -42,4 +42,7 @@ static void Check(bool condition, string message)
 sealed class FixedOffset : ITimeZoneOffset
 {
     public int OffsetSeconds(long unixSeconds) => -4 * 3600;
+
+    public long LocalToUnixSeconds(int year, int month, int day, int hour, int minute, int second) =>
+        new DateTimeOffset(year, month, day, hour, minute, second, TimeSpan.FromHours(-4)).ToUnixTimeSeconds();
 }
