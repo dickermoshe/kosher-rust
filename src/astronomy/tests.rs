@@ -787,12 +787,11 @@ fn time_at_azimuth_normalizes_hours_before_timestamp() {
     }
 }
 
-/// Reading the offset at noon UTC picks the same date as KosherJava's
-/// `GeoLocation.getAntimeridianAdjustment`, which reads it at `ZonedDateTime.of(date, MIDNIGHT,
-/// zone)`: the first midnight where it happens twice, and past the jump where it's skipped (jiff's
-/// `compatible`). At each zone's own place, every day from 1970 to 2040.
+/// The adjusted date matches KosherJava's `GeoLocation.getAntimeridianAdjustment`, which reads the
+/// offset at `ZonedDateTime.of(date, MIDNIGHT, zone)`: the first midnight where it happens twice,
+/// and past the jump where it's skipped (jiff's `compatible`). Every day from 1970 to 2040.
 #[test]
-fn adjusted_date_is_the_same_from_noon_as_from_local_midnight() {
+fn adjusted_date_reads_the_offset_at_local_midnight() {
     let zones = [
         ("America/New_York", -74.0),
         ("America/Havana", -82.4),      // spring forward at midnight
@@ -807,6 +806,7 @@ fn adjusted_date_is_the_same_from_noon_as_from_local_midnight() {
         ("Pacific/Chatham", -176.5),    // UTC+12:45, with DST
         ("America/Adak", -176.7),       // UTC-10, with DST
         ("Australia/Lord_Howe", 159.1), // half-hour DST
+        ("Antarctica/McMurdo", -111.5), // DST starts the morning the adjustment flips
     ];
     let mut differences = std::vec::Vec::new();
     for (name, longitude) in zones {
