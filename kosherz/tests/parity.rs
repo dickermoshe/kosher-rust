@@ -16,7 +16,7 @@ use kosherz::api::{
         self, CalendarError, GregorianDate, HebrewDate, Region,
         limudim::{self, LimudimError},
     },
-    zmanim::{
+    times::{
         self, Calculator, Location, TimeZoneOffset, ZmanFailure, Zmanim, ZmanimError,
         myzmanim::{self, MyZmanim},
         sea_level_location, validate_location,
@@ -194,9 +194,9 @@ fn zmanim_match_kosher_rust_for_every_calculator() {
                     kosher_rust::zmanim::AstronomicalCalculator::Spa { apply_delta_t: true },
                 ),
             ] {
-                let config = zmanim::Config {
+                let config = times::Config {
                     calculator,
-                    ..zmanim::default_config()
+                    ..times::default_config()
                 };
                 let ours = Zmanim::new(location(place), date.into_gregorian(), config, time_zone(place)).unwrap();
                 let theirs = kosher_rust::Zmanim::with_config(
@@ -272,22 +272,22 @@ impl IntoGregorian for civil::Date {
 
 #[test]
 fn zman_values_are_positions_and_round_trip() {
-    let all = zmanim::all_zmanim();
+    let all = times::all_zmanim();
     assert_eq!(all.len(), kosher_rust::Zman::ALL.len());
     for (position, zman) in all.into_iter().enumerate() {
         assert_eq!(zman as i32, position as i32);
         let theirs = kosher_rust::Zman::from(zman);
         assert_eq!(theirs, kosher_rust::Zman::ALL[position]);
-        assert_eq!(zmanim::zman_java_name(zman), theirs.java_name());
-        assert_eq!(zmanim::zman_from_java_name(theirs.java_name()), Some(zman));
-        assert_eq!(zmanim::zman_name(zman), theirs.name());
-        assert_eq!(zmanim::zman_is_deprecated(zman), theirs.is_deprecated());
+        assert_eq!(times::zman_java_name(zman), theirs.java_name());
+        assert_eq!(times::zman_from_java_name(theirs.java_name()), Some(zman));
+        assert_eq!(times::zman_name(zman), theirs.name());
+        assert_eq!(times::zman_is_deprecated(zman), theirs.is_deprecated());
         assert_eq!(
-            kosher_rust::zmanim::Category::from(zmanim::zman_category(zman)),
+            kosher_rust::zmanim::Category::from(times::zman_category(zman)),
             theirs.category()
         );
         assert_eq!(
-            zmanim::zman_description(zman, zmanim::default_config()),
+            times::zman_description(zman, times::default_config()),
             theirs.description(&Default::default())
         );
     }
@@ -305,10 +305,10 @@ fn zman_values_are_positions_and_round_trip() {
 #[test]
 fn config_round_trips() {
     assert_eq!(
-        kosher_rust::zmanim::Config::from(zmanim::default_config()),
+        kosher_rust::zmanim::Config::from(times::default_config()),
         kosher_rust::zmanim::Config::default()
     );
-    let custom = zmanim::Config {
+    let custom = times::Config {
         candle_lighting_minutes: 40,
         use_astronomical_chatzos_for_other_zmanim: true,
         use_elevation: true,
@@ -317,14 +317,14 @@ fn config_round_trips() {
         calculator: Calculator::Spa,
         apply_delta_t: false,
     };
-    assert_eq!(zmanim::Config::from(kosher_rust::zmanim::Config::from(custom)), custom);
+    assert_eq!(times::Config::from(kosher_rust::zmanim::Config::from(custom)), custom);
     assert_eq!(
-        zmanim::calculator_name(Calculator::Meeus),
+        times::calculator_name(Calculator::Meeus),
         "Jean Meeus Higher-Accuracy (VSOP87) Algorithm"
     );
 
     // NOAA ignores delta-T, and `config` still gives back what was passed in.
-    let noaa = zmanim::Config {
+    let noaa = times::Config {
         calculator: Calculator::Noaa,
         apply_delta_t: false,
         ..custom
@@ -346,8 +346,8 @@ fn errors() {
         month: 11,
         day: 4,
     };
-    let config = zmanim::default_config();
-    let levana = zmanim::Zman::TchilasZmanKidushLevana3Days;
+    let config = times::default_config();
+    let levana = times::Zman::TchilasZmanKidushLevana3Days;
 
     let utc = || Some(Arc::new(Jiff(TimeZone::UTC)) as Arc<dyn TimeZoneOffset>);
     let bad = |location: Location| Zmanim::new(location, date, config, utc()).err();
@@ -372,7 +372,7 @@ fn errors() {
 
     let no_zone = Zmanim::new(lakewood, date, config, None).unwrap();
     assert_eq!(no_zone.get(levana), Err(ZmanimError::TimeZoneRequired));
-    assert!(no_zone.get(zmanim::Zman::Sunrise).is_ok());
+    assert!(no_zone.get(times::Zman::Sunrise).is_ok());
 
     let broken = Arc::new(Broken::default());
     let failing = Zmanim::new(lakewood, date, config, Some(broken.clone())).unwrap();
@@ -380,7 +380,7 @@ fn errors() {
     assert!(broken.0.load(Ordering::Relaxed) > 0);
     // Every time asks the time zone for the date-line check, so every time reports the failure.
     assert_eq!(
-        failing.get(zmanim::Zman::Sunrise),
+        failing.get(times::Zman::Sunrise),
         Err(ZmanimError::TimeZoneCallbackFailed)
     );
 
@@ -415,7 +415,7 @@ fn inputs_at_their_limits() {
         month: 4,
         day: 23,
     };
-    let config = zmanim::default_config();
+    let config = times::default_config();
     // Longitude 170 needs the time zone, so every time asks it.
     let offset = |seconds: i32| {
         Zmanim::new(
@@ -425,7 +425,7 @@ fn inputs_at_their_limits() {
             Some(Arc::new(Fixed(seconds))),
         )
         .unwrap()
-        .get(zmanim::Zman::Sunrise)
+        .get(times::Zman::Sunrise)
     };
     for seconds in [i32::MIN, i32::MAX, -86_400, 86_400] {
         assert_eq!(offset(seconds), Err(ZmanimError::TimeZoneCallbackFailed), "{seconds}");
@@ -434,13 +434,13 @@ fn inputs_at_their_limits() {
         assert!(offset(seconds).is_ok(), "{seconds}");
     }
 
-    assert_eq!(zmanim::shaah_zmanis(0, 12 * 3_600_000), 3_600_000);
-    assert_eq!(zmanim::shaah_zmanis(i64::MIN, i64::MAX), 1_537_228_672_809_129_301);
-    assert_eq!(zmanim::shaah_zmanis(i64::MAX, i64::MIN), -1_537_228_672_809_129_301);
+    assert_eq!(times::shaah_zmanis(0, 12 * 3_600_000), 3_600_000);
+    assert_eq!(times::shaah_zmanis(i64::MIN, i64::MAX), 1_537_228_672_809_129_301);
+    assert_eq!(times::shaah_zmanis(i64::MAX, i64::MIN), -1_537_228_672_809_129_301);
 
     let lakewood = sea_level_location(40.09, -74.22);
     let with_minutes = |candle_lighting_minutes: i32, ateret_torah_sunset_minutes: i32| {
-        let config = zmanim::Config {
+        let config = times::Config {
             candle_lighting_minutes,
             ateret_torah_sunset_minutes,
             ..config
@@ -486,8 +486,8 @@ fn the_callback_is_asked_a_few_times_per_zman() {
     };
     let calls = || counting.1.swap(0, Ordering::Relaxed);
 
-    let day = Zmanim::new(lakewood, date, zmanim::default_config(), Some(counting.clone())).unwrap();
-    let most = zmanim::all_zmanim()
+    let day = Zmanim::new(lakewood, date, times::default_config(), Some(counting.clone())).unwrap();
+    let most = times::all_zmanim()
         .into_iter()
         .map(|zman| {
             let _ = day.get(zman);
@@ -528,7 +528,7 @@ fn concurrent_calls_report_only_their_own_callback_failures() {
                 month: 11,
                 day: 4,
             },
-            zmanim::default_config(),
+            times::default_config(),
             Some(Arc::new(FailsNear {
                 bad: molad,
                 zone: new_york,
@@ -536,14 +536,14 @@ fn concurrent_calls_report_only_their_own_callback_failures() {
         )
         .unwrap(),
     );
-    let levana = zmanim::Zman::TchilasZmanKidushLevana3Days;
+    let levana = times::Zman::TchilasZmanKidushLevana3Days;
     assert_eq!(shared.get(levana), Err(ZmanimError::TimeZoneCallbackFailed));
-    let sunrise = shared.get(zmanim::Zman::Sunrise).unwrap();
+    let sunrise = shared.get(times::Zman::Sunrise).unwrap();
 
     let other = Arc::clone(&shared);
     let wrong_sunrises = std::thread::spawn(move || {
         (0..20_000)
-            .filter(|_| other.get(zmanim::Zman::Sunrise) != Ok(sunrise))
+            .filter(|_| other.get(times::Zman::Sunrise) != Ok(sunrise))
             .count()
     });
     let wrong_levanas = (0..20_000)
@@ -563,8 +563,8 @@ fn kiddush_levana_after_a_clock_change() {
         day: 4,
     };
     let zone = Some(Arc::new(Jiff(TimeZone::get("America/New_York").unwrap())) as Arc<dyn TimeZoneOffset>);
-    let zmanim = Zmanim::new(lakewood, date, zmanim::default_config(), zone).unwrap();
-    let time = zmanim.get(zmanim::Zman::TchilasZmanKidushLevana3Days).unwrap();
+    let zmanim = Zmanim::new(lakewood, date, times::default_config(), zone).unwrap();
+    let time = zmanim.get(times::Zman::TchilasZmanKidushLevana3Days).unwrap();
     let local = jiff::Timestamp::from_millisecond(time)
         .unwrap()
         .to_zoned(TimeZone::get("America/New_York").unwrap());
@@ -734,7 +734,7 @@ fn out_of_range_values_are_rejected() {
             month: 4,
             day: 23,
         },
-        zmanim::default_config(),
+        times::default_config(),
         None,
     )
     .unwrap();

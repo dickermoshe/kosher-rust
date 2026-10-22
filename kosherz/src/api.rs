@@ -1,5 +1,5 @@
 //! Everything the bindings export: the `calendar` module, with `limudim` inside it, and the
-//! `zmanim` module, with `myzmanim` inside it. Each has its own error type.
+//! `times` module, with `myzmanim` inside it. Each has its own error type.
 //!
 //! WeaveFFI reads this module's source to generate the bindings, so every exported declaration is
 //! written out here, inline. Method bodies are one-liners into the private `convert` module, which holds
@@ -789,7 +789,7 @@ pub mod calendar {
             /// The tractate.
             pub tractate: Tractate,
             /// The page number. The Bavli starts at 2, the Yerushalmi at 1.
-            pub daf: i32,
+            pub number: i32,
             /// As text, for example "Bava Metzia 55".
             pub display: String,
         }
@@ -801,7 +801,7 @@ pub mod calendar {
             /// The tractate.
             pub tractate: Tractate,
             /// The page number.
-            pub daf: i32,
+            pub number: i32,
             /// Which side of the page.
             pub side: Side,
             /// As text, for example "Bava Metzia 55b".
@@ -817,7 +817,7 @@ pub mod calendar {
             /// The chapter (*perek*), from 1.
             pub chapter: i32,
             /// The *mishnah* within the chapter, from 1.
-            pub mishna: i32,
+            pub number: i32,
             /// As text, for example "Nazir 5:5".
             pub display: String,
         }
@@ -952,7 +952,7 @@ pub mod calendar {
 
 /// Halachic times (*zmanim*) for a place and a day.
 #[weaveffi::module]
-pub mod zmanim {
+pub mod times {
     use std::sync::Arc;
 
     use crate::api::calendar::GregorianDate;

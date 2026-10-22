@@ -113,7 +113,7 @@ public abstract class LimudimException : NativeException
     }
 }
 
-/// <summary>The errors of the <c>ZmanimError</c> domain, declared by module <c>zmanim</c>.
+/// <summary>The errors of the <c>ZmanimError</c> domain, declared by module <c>times</c>.
 /// Catch a nested class for one code, or this class for any of them.</summary>
 public abstract class ZmanimException : NativeException
 {
@@ -1805,23 +1805,23 @@ public sealed class Daf
     public Tractate Tractate { get; }
 
     /// <summary>The page number. The Bavli starts at 2, the Yerushalmi at 1.</summary>
-    public int Daf { get; }
+    public int Number { get; }
 
     /// <summary>As text, for example "Bava Metzia 55".</summary>
     public string Display { get; }
 
     /// <summary>Creates a <see cref="Daf"/> from every field.</summary>
-    public Daf(Tractate tractate, int daf, string display)
+    public Daf(Tractate tractate, int number, string display)
     {
         Tractate = tractate;
-        Daf = daf;
+        Number = number;
         Display = display;
     }
 
     internal void WriteTo(FfiBufferWriter writer)
     {
         writer.WriteI32((int)Tractate);
-        writer.WriteI32(Daf);
+        writer.WriteI32(Number);
         writer.WriteString(Display);
     }
 
@@ -1841,7 +1841,7 @@ public sealed class Amud
     public Tractate Tractate { get; }
 
     /// <summary>The page number.</summary>
-    public int Daf { get; }
+    public int Number { get; }
 
     /// <summary>Which side of the page.</summary>
     public Side Side { get; }
@@ -1850,10 +1850,10 @@ public sealed class Amud
     public string Display { get; }
 
     /// <summary>Creates a <see cref="Amud"/> from every field.</summary>
-    public Amud(Tractate tractate, int daf, Side side, string display)
+    public Amud(Tractate tractate, int number, Side side, string display)
     {
         Tractate = tractate;
-        Daf = daf;
+        Number = number;
         Side = side;
         Display = display;
     }
@@ -1861,7 +1861,7 @@ public sealed class Amud
     internal void WriteTo(FfiBufferWriter writer)
     {
         writer.WriteI32((int)Tractate);
-        writer.WriteI32(Daf);
+        writer.WriteI32(Number);
         writer.WriteI32((int)Side);
         writer.WriteString(Display);
     }
@@ -1886,17 +1886,17 @@ public sealed class Mishna
     public int Chapter { get; }
 
     /// <summary>The *mishnah* within the chapter, from 1.</summary>
-    public int Mishna { get; }
+    public int Number { get; }
 
     /// <summary>As text, for example "Nazir 5:5".</summary>
     public string Display { get; }
 
     /// <summary>Creates a <see cref="Mishna"/> from every field.</summary>
-    public Mishna(Tractate tractate, int chapter, int mishna, string display)
+    public Mishna(Tractate tractate, int chapter, int number, string display)
     {
         Tractate = tractate;
         Chapter = chapter;
-        Mishna = mishna;
+        Number = number;
         Display = display;
     }
 
@@ -1904,7 +1904,7 @@ public sealed class Mishna
     {
         writer.WriteI32((int)Tractate);
         writer.WriteI32(Chapter);
-        writer.WriteI32(Mishna);
+        writer.WriteI32(Number);
         writer.WriteString(Display);
     }
 
@@ -2676,9 +2676,9 @@ public interface ITimeZoneOffset
     int OffsetSeconds(long unixSeconds);
 }
 
-/// <summary>The process-wide <c>kosherz_zmanim_TimeZoneOffset_vtable</c> and the trampolines behind it,
+/// <summary>The process-wide <c>kosherz_times_TimeZoneOffset_vtable</c> and the trampolines behind it,
 /// adapting an <see cref="ITimeZoneOffset"/> to the C ABI.</summary>
-internal static unsafe class FfiVtable_zmanim_TimeZoneOffset
+internal static unsafe class FfiVtable_times_TimeZoneOffset
 {
     [StructLayout(LayoutKind.Sequential)]
     private struct Layout
@@ -2744,7 +2744,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     /// object token in a value buffer requires.</summary>
     internal IntPtr CloneHandle()
     {
-        return NativeMethods.kosherz_zmanim_Zmanim_clone(Handle);
+        return NativeMethods.kosherz_times_Zmanim_clone(Handle);
     }
 
     /// <summary>
@@ -2779,7 +2779,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
             IntPtr ffiResult;
             try
             {
-                ffiResult = NativeMethods.kosherz_zmanim_Zmanim_new(locationPtr, (nuint)locationWriter.Length, datePtr, (nuint)dateWriter.Length, configPtr, (nuint)configWriter.Length, timeZoneCtx, timeZone == null ? IntPtr.Zero : FfiVtable_zmanim_TimeZoneOffset.Pointer, &ffiErr);
+                ffiResult = NativeMethods.kosherz_times_Zmanim_new(locationPtr, (nuint)locationWriter.Length, datePtr, (nuint)dateWriter.Length, configPtr, (nuint)configWriter.Length, timeZoneCtx, timeZone == null ? IntPtr.Zero : FfiVtable_times_TimeZoneOffset.Pointer, &ffiErr);
             }
             catch
             {
@@ -2805,7 +2805,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     public long Get(Zman zman)
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_Zmanim_get(Handle, (int)zman, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_Zmanim_get(Handle, (int)zman, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.ZmanimException.FromError);
         return ffiResult;
     }
@@ -2815,7 +2815,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_Zmanim_all(Handle, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_Zmanim_all(Handle, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => FfiCodecs.ReadListOfZmanTime(r));
     }
@@ -2833,7 +2833,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     public long SunriseOffsetByDegrees(double degrees)
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_Zmanim_sunrise_offset_by_degrees(Handle, degrees, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_Zmanim_sunrise_offset_by_degrees(Handle, degrees, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.ZmanimException.FromError);
         return ffiResult;
     }
@@ -2851,7 +2851,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     public long SunsetOffsetByDegrees(double degrees)
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_Zmanim_sunset_offset_by_degrees(Handle, degrees, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_Zmanim_sunset_offset_by_degrees(Handle, degrees, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.ZmanimException.FromError);
         return ffiResult;
     }
@@ -2861,7 +2861,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_Zmanim_location(Handle, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_Zmanim_location(Handle, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => global::Kosherz.Location.ReadFrom(r));
     }
@@ -2871,7 +2871,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_Zmanim_date(Handle, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_Zmanim_date(Handle, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => global::Kosherz.GregorianDate.ReadFrom(r));
     }
@@ -2881,7 +2881,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_Zmanim_config(Handle, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_Zmanim_config(Handle, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => global::Kosherz.Config.ReadFrom(r));
     }
@@ -2913,7 +2913,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     }
 
     /// <summary>One strong reference, released through
-    /// <c>kosherz_zmanim_Zmanim_destroy</c>.</summary>
+    /// <c>kosherz_times_Zmanim_destroy</c>.</summary>
     internal sealed class NativeHandle : SafeHandle
     {
         /// <summary>A null handle, passed for an absent optional object.</summary>
@@ -2932,7 +2932,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.kosherz_zmanim_Zmanim_destroy(handle);
+            NativeMethods.kosherz_times_Zmanim_destroy(handle);
             return true;
         }
     }
@@ -3083,7 +3083,7 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     /// object token in a value buffer requires.</summary>
     internal IntPtr CloneHandle()
     {
-        return NativeMethods.kosherz_zmanim_myzmanim_MyZmanim_clone(Handle);
+        return NativeMethods.kosherz_times_myzmanim_MyZmanim_clone(Handle);
     }
 
     /// <summary>
@@ -3117,7 +3117,7 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
             IntPtr ffiResult;
             try
             {
-                ffiResult = NativeMethods.kosherz_zmanim_myzmanim_MyZmanim_new(locationPtr, (nuint)locationWriter.Length, datePtr, (nuint)dateWriter.Length, candleLightingMinutes, timeZoneCtx, timeZone == null ? IntPtr.Zero : FfiVtable_zmanim_TimeZoneOffset.Pointer, &ffiErr);
+                ffiResult = NativeMethods.kosherz_times_myzmanim_MyZmanim_new(locationPtr, (nuint)locationWriter.Length, datePtr, (nuint)dateWriter.Length, candleLightingMinutes, timeZoneCtx, timeZone == null ? IntPtr.Zero : FfiVtable_times_TimeZoneOffset.Pointer, &ffiErr);
             }
             catch
             {
@@ -3141,7 +3141,7 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     public long Get(MyZman zman)
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_MyZmanim_get(Handle, (int)zman, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_MyZmanim_get(Handle, (int)zman, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.ZmanimException.FromError);
         return ffiResult;
     }
@@ -3151,7 +3151,7 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_MyZmanim_all(Handle, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_MyZmanim_all(Handle, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => FfiCodecs.ReadListOfMyZmanTime(r));
     }
@@ -3167,7 +3167,7 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     public long ProportionalHourGra()
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra(Handle, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_MyZmanim_proportional_hour_gra(Handle, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.ZmanimException.FromError);
         return ffiResult;
     }
@@ -3177,7 +3177,7 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_MyZmanim_location(Handle, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_MyZmanim_location(Handle, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => global::Kosherz.Location.ReadFrom(r));
     }
@@ -3187,7 +3187,7 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_MyZmanim_date(Handle, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_MyZmanim_date(Handle, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => global::Kosherz.GregorianDate.ReadFrom(r));
     }
@@ -3196,7 +3196,7 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     public double CandleLightingMinutes()
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes(Handle, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes(Handle, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return ffiResult;
     }
@@ -3228,7 +3228,7 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     }
 
     /// <summary>One strong reference, released through
-    /// <c>kosherz_zmanim_myzmanim_MyZmanim_destroy</c>.</summary>
+    /// <c>kosherz_times_myzmanim_MyZmanim_destroy</c>.</summary>
     internal sealed class NativeHandle : SafeHandle
     {
         /// <summary>A null handle, passed for an absent optional object.</summary>
@@ -3247,7 +3247,7 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.kosherz_zmanim_myzmanim_MyZmanim_destroy(handle);
+            NativeMethods.kosherz_times_myzmanim_MyZmanim_destroy(handle);
             return true;
         }
     }
@@ -3599,14 +3599,14 @@ public static unsafe class CalendarLimudim
 }
 
 /// <summary>Halachic times (*zmanim*) for a place and a day.</summary>
-public static unsafe class Zmanim
+public static unsafe class Times
 {
     /// <summary>A location at sea level, with flat horizons.</summary>
     public static Location SeaLevelLocation(double latitude, double longitude)
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_sea_level_location(latitude, longitude, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_sea_level_location(latitude, longitude, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => global::Kosherz.Location.ReadFrom(r));
     }
@@ -3628,7 +3628,7 @@ public static unsafe class Zmanim
         var ffiErr = default(FfiError);
         fixed (byte* locationPtr = locationWriter.Written)
         {
-            NativeMethods.kosherz_zmanim_validate_location(locationPtr, (nuint)locationWriter.Length, (byte)(hasTimeZone ? 1 : 0), &ffiErr);
+            NativeMethods.kosherz_times_validate_location(locationPtr, (nuint)locationWriter.Length, (byte)(hasTimeZone ? 1 : 0), &ffiErr);
             if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.ZmanimException.FromError);
         }
     }
@@ -3638,7 +3638,7 @@ public static unsafe class Zmanim
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_default_config(&ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_default_config(&ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => global::Kosherz.Config.ReadFrom(r));
     }
@@ -3648,7 +3648,7 @@ public static unsafe class Zmanim
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_all_zmanim(&ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_all_zmanim(&ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => FfiCodecs.ReadListOfZman(r));
     }
@@ -3658,7 +3658,7 @@ public static unsafe class Zmanim
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_zman_name((int)zman, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_zman_name((int)zman, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return Ffi.TakeString(ffiResult, ffiOutLen);
     }
@@ -3668,7 +3668,7 @@ public static unsafe class Zmanim
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_zman_java_name((int)zman, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_zman_java_name((int)zman, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return Ffi.TakeString(ffiResult, ffiOutLen);
     }
@@ -3681,7 +3681,7 @@ public static unsafe class Zmanim
         nuint ffiOutLen = 0;
         fixed (byte* javaNamePtr = javaNameBytes)
         {
-            var ffiResult = NativeMethods.kosherz_zmanim_zman_from_java_name(javaNamePtr, (nuint)javaNameBytes.Length, &ffiOutLen, &ffiErr);
+            var ffiResult = NativeMethods.kosherz_times_zman_from_java_name(javaNamePtr, (nuint)javaNameBytes.Length, &ffiOutLen, &ffiErr);
             if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
             return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => FfiCodecs.ReadOptionalOfZman(r));
         }
@@ -3691,7 +3691,7 @@ public static unsafe class Zmanim
     public static Category ZmanCategory(Zman zman)
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_zman_category((int)zman, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_zman_category((int)zman, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return (global::Kosherz.Category)ffiResult;
     }
@@ -3700,7 +3700,7 @@ public static unsafe class Zmanim
     public static bool ZmanIsDeprecated(Zman zman)
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_zman_is_deprecated((int)zman, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_zman_is_deprecated((int)zman, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return ffiResult != 0;
     }
@@ -3717,7 +3717,7 @@ public static unsafe class Zmanim
         nuint ffiOutLen = 0;
         fixed (byte* configPtr = configWriter.Written)
         {
-            var ffiResult = NativeMethods.kosherz_zmanim_zman_description((int)zman, configPtr, (nuint)configWriter.Length, &ffiOutLen, &ffiErr);
+            var ffiResult = NativeMethods.kosherz_times_zman_description((int)zman, configPtr, (nuint)configWriter.Length, &ffiOutLen, &ffiErr);
             if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
             return Ffi.TakeString(ffiResult, ffiOutLen);
         }
@@ -3728,7 +3728,7 @@ public static unsafe class Zmanim
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_calculator_name((int)calculator, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_calculator_name((int)calculator, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return Ffi.TakeString(ffiResult, ffiOutLen);
     }
@@ -3740,21 +3740,21 @@ public static unsafe class Zmanim
     public static long ShaahZmanis(long start, long end)
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_shaah_zmanis(start, end, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_shaah_zmanis(start, end, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return ffiResult;
     }
 }
 
 /// <summary>The *zmanim* of the MyZmanim website, reproduced to the second.</summary>
-public static unsafe class ZmanimMyzmanim
+public static unsafe class TimesMyzmanim
 {
     /// <summary>The row's name as the website shows it.</summary>
     public static string MyZmanName(MyZman zman)
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_my_zman_name((int)zman, &ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_my_zman_name((int)zman, &ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return Ffi.TakeString(ffiResult, ffiOutLen);
     }
@@ -3764,7 +3764,7 @@ public static unsafe class ZmanimMyzmanim
     {
         var ffiErr = default(FfiError);
         nuint ffiOutLen = 0;
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_all_my_zmanim(&ffiOutLen, &ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_all_my_zmanim(&ffiOutLen, &ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return FfiCodecs.Decode(Ffi.TakeBuffer(ffiResult, ffiOutLen), static r => FfiCodecs.ReadListOfMyZman(r));
     }
@@ -3773,7 +3773,7 @@ public static unsafe class ZmanimMyzmanim
     public static double Dawn90Degrees()
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_dawn_90_degrees(&ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_dawn_90_degrees(&ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return ffiResult;
     }
@@ -3782,7 +3782,7 @@ public static unsafe class ZmanimMyzmanim
     public static double Dawn72Degrees()
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_dawn_72_degrees(&ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_dawn_72_degrees(&ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return ffiResult;
     }
@@ -3791,7 +3791,7 @@ public static unsafe class ZmanimMyzmanim
     public static double SeaLevelRefractionArcminutes()
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(&ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_sea_level_refraction_arcminutes(&ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return ffiResult;
     }
@@ -3800,7 +3800,7 @@ public static unsafe class ZmanimMyzmanim
     public static double DipDegreesPerRootMeter()
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(&ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_dip_degrees_per_root_meter(&ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return ffiResult;
     }
@@ -3809,7 +3809,7 @@ public static unsafe class ZmanimMyzmanim
     public static double DefaultCandleLightingMinutes()
     {
         var ffiErr = default(FfiError);
-        var ffiResult = NativeMethods.kosherz_zmanim_myzmanim_default_candle_lighting_minutes(&ffiErr);
+        var ffiResult = NativeMethods.kosherz_times_myzmanim_default_candle_lighting_minutes(&ffiErr);
         if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.NativeBugException.FromError);
         return ffiResult;
     }
@@ -4115,7 +4115,7 @@ internal static unsafe partial class NativeMethods
             (0x1c33df579fac36d8UL, 0x1175c871bc023b86UL, "calendar.HebrewDate.day_of_year"),
             (0x235fd1db8b7dd5f5UL, 0x399eab22141dffd3UL, "calendar.GregorianDate"),
             (0x2b066dc65c460024UL, 0xf4f23e6586bd1dd7UL, "calendar.HebrewDate"),
-            (0x2c8e60589f58d792UL, 0x57c83a0f8bc36c6cUL, "calendar.limudim.Mishna"),
+            (0x2c8e60589f58d792UL, 0xa0608634cb2f46cbUL, "calendar.limudim.Mishna"),
             (0x2da09ea1403b727eUL, 0x4d5e82347ae7a3fcUL, "calendar.HebrewMonth"),
             (0x2e1645ba38a77559UL, 0x1c81765c98ab54f9UL, "calendar.HebrewDate.parsha"),
             (0x2e561d4c25bf877dUL, 0x47ff51d038dbe0d8UL, "calendar.limudim.tehillim_display"),
@@ -4150,9 +4150,9 @@ internal static unsafe partial class NativeMethods
             (0x98cc81d52e65776bUL, 0x2bf1569214921669UL, "calendar.month_hebrew"),
             (0x9b48ba34fb52812dUL, 0xff11e092dce92ed7UL, "calendar.limudim.Side"),
             (0x9e20ba757aee97c2UL, 0x9328a81ac256b477UL, "calendar.parsha_hebrew"),
-            (0xa1e3409cebf37881UL, 0x1b7e37005bd2f8e9UL, "calendar.limudim.Daf"),
+            (0xa1e3409cebf37881UL, 0xfeebfaab6c533e17UL, "calendar.limudim.Daf"),
             (0xa5864219850af272UL, 0xf8a4981ca376ff28UL, "calendar.HebrewDate.is_assur_bemelacha"),
-            (0xaeb433ce589b7931UL, 0xe1e8d4dad467e3e7UL, "calendar.limudim.Amud"),
+            (0xaeb433ce589b7931UL, 0x364d4d0b6a770631UL, "calendar.limudim.Amud"),
             (0xaf5dd6acc2e8ba71UL, 0xa2fdd5f43f90f755UL, "calendar.holiday_hebrew"),
             (0xbd8865ae2177f9ffUL, 0x6bc5f7eea096d080UL, "calendar.year_info"),
             (0xc3fd51b677226babUL, 0x684e92fa36717939UL, "calendar.month_name"),
@@ -4171,55 +4171,55 @@ internal static unsafe partial class NativeMethods
             (0xf56c124b8ec1c493UL, 0xf35981f09fb986dfUL, "calendar.HebrewDate.year"),
             (0xfb59656a30b3c76fUL, 0x263b2a60d4b349b3UL, "calendar.Weekday"),
         });
-        VerifyContract("kosherz_zmanim_contract", &kosherz_zmanim_contract, new (ulong, ulong, string)[]
+        VerifyContract("kosherz_times_contract", &kosherz_times_contract, new (ulong, ulong, string)[]
         {
-            (0x022d265126fcbd47UL, 0xf70eea6f6621717fUL, "zmanim.validate_location"),
-            (0x02e0caa49b3a204bUL, 0x5962ffa89080c41bUL, "zmanim.shaah_zmanis"),
-            (0x04493862e57a4cdfUL, 0x258faa23773bfcaeUL, "zmanim.myzmanim.MyZmanim.candle_lighting_minutes"),
-            (0x0709c5af4b818c01UL, 0xf2a52228396d8635UL, "zmanim.myzmanim.sea_level_refraction_arcminutes"),
-            (0x10234c837e5331b1UL, 0xcc6eb9ea8c42ca79UL, "zmanim.myzmanim.MyZmanim.new"),
-            (0x1d3f31835b116405UL, 0x3278f3a62bb6e469UL, "zmanim.myzmanim.dawn_72_degrees"),
-            (0x1fd629eb299bc703UL, 0xcddd8b18c602be76UL, "zmanim.myzmanim.MyZman"),
-            (0x2550c75ec58dae49UL, 0xc3cb9f9d3b5b28baUL, "zmanim.Zmanim.date"),
-            (0x2791137b8945b8ddUL, 0x9169cc1ef07d2488UL, "zmanim.ZmanimError"),
-            (0x27ff9dab340588fcUL, 0x4b1d4aaf11dfd132UL, "zmanim.zman_category"),
-            (0x29795294927af42dUL, 0xffb3d691737a4f38UL, "zmanim.Category"),
-            (0x30cabeb665248a1dUL, 0xfa44bbb1fab132e5UL, "zmanim.sea_level_location"),
-            (0x334bc497c2e1b7f6UL, 0xa82a63cd8b5c9bc8UL, "zmanim.myzmanim.all_my_zmanim"),
-            (0x406a9d72e9cc44d8UL, 0x689307845875e63eUL, "zmanim.zman_is_deprecated"),
-            (0x4118dd5a26e15851UL, 0x549f4e736961b812UL, "zmanim.calculator_name"),
-            (0x484846a2e9ee0a81UL, 0xdf4697e13848d687UL, "zmanim.zman_from_java_name"),
-            (0x484f114766abb5e2UL, 0xc5f954c475f4dc9dUL, "zmanim.zman_java_name"),
-            (0x5f3ebb1c37c66ab9UL, 0xc3cb9f9d3b5b28baUL, "zmanim.myzmanim.MyZmanim.date"),
-            (0x631f48e27eef2376UL, 0x63856359341062eeUL, "zmanim.Zmanim.location"),
-            (0x65058d455e954e8eUL, 0x4a23e822039987a7UL, "zmanim.zman_description"),
-            (0x66df597381790f0bUL, 0x4c30c7a90dcabaa5UL, "zmanim.Zmanim.sunset_offset_by_degrees"),
-            (0x6c14e7ba35220983UL, 0x7d00a18dba45f065UL, "zmanim.ZmanFailure"),
-            (0x7b6a0d0953f70457UL, 0x6614e227c469c232UL, "zmanim.Zmanim.config"),
-            (0x7bda2eefee3cd432UL, 0x4af5df9a96d3f535UL, "zmanim.myzmanim.MyZmanim.proportional_hour_gra"),
-            (0x84cfd0af1981e364UL, 0x93ef9500cb5f1cfcUL, "zmanim.Zmanim.sunrise_offset_by_degrees"),
-            (0x852e1ce68e6270faUL, 0xdec9155329278f29UL, "zmanim.myzmanim.my_zman_name"),
-            (0x972d8aa47e75b0eaUL, 0x017ce9984014d3c1UL, "zmanim.ZmanTime"),
-            (0x988396c1a4000b66UL, 0x63856359341062eeUL, "zmanim.myzmanim.MyZmanim.location"),
-            (0x9e23e59cc6d2b627UL, 0xbea68784cf687a1aUL, "zmanim.Zmanim.get"),
-            (0xa7022817cb0f3781UL, 0x11babf7c30a11935UL, "zmanim.myzmanim.dip_degrees_per_root_meter"),
-            (0xa7e497ece825babfUL, 0x459375a830f8b5a0UL, "zmanim.zman_name"),
-            (0xb0323d9cd1424d34UL, 0x669e3d4d3e9d42ccUL, "zmanim.Zmanim.all"),
-            (0xb668f699c44a8b25UL, 0x0577fa34d1dea8c3UL, "zmanim.default_config"),
-            (0xbc0120c65a9a7e69UL, 0xe3c7eb49f063a0ceUL, "zmanim.myzmanim.MyZmanim"),
-            (0xc3ccda83538bf477UL, 0x93dc654d560a63b8UL, "zmanim.myzmanim.MyZmanim.get"),
-            (0xc80294024eefae95UL, 0x52972cadc08c13efUL, "zmanim.all_zmanim"),
-            (0xcdc06faffaf38ffaUL, 0x551064f95ab5110dUL, "zmanim.myzmanim.MyZmanTime"),
-            (0xcfe843f87495c18aUL, 0x7110b3413cfd8e83UL, "zmanim.Location"),
-            (0xd12031217533824bUL, 0x2b82d4d65ec59dd7UL, "zmanim.myzmanim.default_candle_lighting_minutes"),
-            (0xd5db12835dfb5524UL, 0x975c3a96549104d2UL, "zmanim.myzmanim.MyZmanim.all"),
-            (0xd904b56e2a7d27f9UL, 0x2d4c4ce495502494UL, "zmanim.Zmanim"),
-            (0xd90e158541be4971UL, 0xf13823120f5b4c46UL, "zmanim.Calculator"),
-            (0xe178a9bb3808bfb3UL, 0x685412d4d80250eaUL, "zmanim.Config"),
-            (0xea9baabba2ea9789UL, 0x174890db5e5166c8UL, "zmanim.TimeZoneOffset"),
-            (0xed07579cf3c52ba1UL, 0x99d014ada9906437UL, "zmanim.Zmanim.new"),
-            (0xf9ebba0666552393UL, 0x0486761191984fd0UL, "zmanim.Zman"),
-            (0xfa3f9e72b3e59929UL, 0x735499ab0a625d6dUL, "zmanim.myzmanim.dawn_90_degrees"),
+            (0x01ce427485afb43aUL, 0x017ce9984014d3c1UL, "times.ZmanTime"),
+            (0x0643c19407762211UL, 0x11babf7c30a11935UL, "times.myzmanim.dip_degrees_per_root_meter"),
+            (0x091fabaf00184561UL, 0xf13823120f5b4c46UL, "times.Calculator"),
+            (0x0a21d46001720019UL, 0x174890db5e5166c8UL, "times.TimeZoneOffset"),
+            (0x0a86c54f2d84238cUL, 0x4b1d4aaf11dfd132UL, "times.zman_category"),
+            (0x0d3bc9cd549a7137UL, 0xbea68784cf687a1aUL, "times.Zmanim.get"),
+            (0x0e595d82f4b54adeUL, 0x4a23e822039987a7UL, "times.zman_description"),
+            (0x1164ca1d22579c8dUL, 0xfa44bbb1fab132e5UL, "times.sea_level_location"),
+            (0x196240a5b18bd7a9UL, 0x2d4c4ce495502494UL, "times.Zmanim"),
+            (0x1f4901cd5f081ee4UL, 0x669e3d4d3e9d42ccUL, "times.Zmanim.all"),
+            (0x2eabf209e8de2867UL, 0x6614e227c469c232UL, "times.Zmanim.config"),
+            (0x38596a351e356743UL, 0x685412d4d80250eaUL, "times.Config"),
+            (0x39389f0e68d3cc22UL, 0x4af5df9a96d3f535UL, "times.myzmanim.MyZmanim.proportional_hour_gra"),
+            (0x3c92cd49c8b4515bUL, 0x5962ffa89080c41bUL, "times.shaah_zmanis"),
+            (0x4048d3ca4b000831UL, 0xdf4697e13848d687UL, "times.zman_from_java_name"),
+            (0x44a0809dedbd4a4dUL, 0x9169cc1ef07d2488UL, "times.ZmanimError"),
+            (0x4d259836d7137c43UL, 0x0486761191984fd0UL, "times.Zman"),
+            (0x57d7a9c5a715b9faUL, 0x7110b3413cfd8e83UL, "times.Location"),
+            (0x5cf83bcd8244d771UL, 0x99d014ada9906437UL, "times.Zmanim.new"),
+            (0x65aa216d77a78308UL, 0x689307845875e63eUL, "times.zman_is_deprecated"),
+            (0x68ffad4e5539ca69UL, 0xc3cb9f9d3b5b28baUL, "times.myzmanim.MyZmanim.date"),
+            (0x6b5635f618146d65UL, 0x52972cadc08c13efUL, "times.all_zmanim"),
+            (0x7438d1e6d2e55275UL, 0x3278f3a62bb6e469UL, "times.myzmanim.dawn_72_degrees"),
+            (0x743c832eb2e19415UL, 0x0577fa34d1dea8c3UL, "times.default_config"),
+            (0x77857568cbec63b3UL, 0xcddd8b18c602be76UL, "times.myzmanim.MyZman"),
+            (0x79dc07bc571a3ab7UL, 0xf70eea6f6621717fUL, "times.validate_location"),
+            (0x80d913d2e48601c7UL, 0x93dc654d560a63b8UL, "times.myzmanim.MyZmanim.get"),
+            (0x8a9dcfc50ecf7193UL, 0x7d00a18dba45f065UL, "times.ZmanFailure"),
+            (0x8f816bd2ec126fd4UL, 0x975c3a96549104d2UL, "times.myzmanim.MyZmanim.all"),
+            (0x94ec9f2dd31dd154UL, 0x93ef9500cb5f1cfcUL, "times.Zmanim.sunrise_offset_by_degrees"),
+            (0x968059cb1e92252aUL, 0xdec9155329278f29UL, "times.myzmanim.my_zman_name"),
+            (0x97a962b59a32c7dbUL, 0x4c30c7a90dcabaa5UL, "times.Zmanim.sunset_offset_by_degrees"),
+            (0x9b8cdf454932d1afUL, 0x459375a830f8b5a0UL, "times.zman_name"),
+            (0x9d5bd45067baa0fbUL, 0x2b82d4d65ec59dd7UL, "times.myzmanim.default_candle_lighting_minutes"),
+            (0x9d85f89bf54e8206UL, 0xa82a63cd8b5c9bc8UL, "times.myzmanim.all_my_zmanim"),
+            (0x9e749626c03b8981UL, 0x549f4e736961b812UL, "times.calculator_name"),
+            (0xbb0373c362e8a226UL, 0x63856359341062eeUL, "times.Zmanim.location"),
+            (0xc1a3c3740d199619UL, 0xe3c7eb49f063a0ceUL, "times.myzmanim.MyZmanim"),
+            (0xc29ca29cb7cd2999UL, 0x735499ab0a625d6dUL, "times.myzmanim.dawn_90_degrees"),
+            (0xcc5685d30e954e41UL, 0xcc6eb9ea8c42ca79UL, "times.myzmanim.MyZmanim.new"),
+            (0xce8ce7ef4ad0db32UL, 0xc5f954c475f4dc9dUL, "times.zman_java_name"),
+            (0xdb5095e0e87f0d79UL, 0xc3cb9f9d3b5b28baUL, "times.Zmanim.date"),
+            (0xdda7b795bf202896UL, 0x63856359341062eeUL, "times.myzmanim.MyZmanim.location"),
+            (0xe05ccdd3147e3c9dUL, 0xffb3d691737a4f38UL, "times.Category"),
+            (0xe46d58cfab0684cfUL, 0x258faa23773bfcaeUL, "times.myzmanim.MyZmanim.candle_lighting_minutes"),
+            (0xf0a3c8d75d8fb1caUL, 0x551064f95ab5110dUL, "times.myzmanim.MyZmanTime"),
+            (0xf577b8fb530d1ad1UL, 0xf2a52228396d8635UL, "times.myzmanim.sea_level_refraction_arcminutes"),
         });
     }
 
@@ -4227,9 +4227,9 @@ internal static unsafe partial class NativeMethods
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial FfiContractEntry* kosherz_calendar_contract(nuint* out_len);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_contract")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_contract")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial FfiContractEntry* kosherz_zmanim_contract(nuint* out_len);
+    internal static partial FfiContractEntry* kosherz_times_contract(nuint* out_len);
 
     [LibraryImport(LibName, EntryPoint = "kosherz_calendar_HebrewDate_clone")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -4411,157 +4411,157 @@ internal static unsafe partial class NativeMethods
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial byte* kosherz_calendar_limudim_pirkei_avos(HebrewDate.NativeHandle date, int region, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_Zmanim_clone")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_clone")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial IntPtr kosherz_zmanim_Zmanim_clone(Zmanim.NativeHandle self);
+    internal static partial IntPtr kosherz_times_Zmanim_clone(Zmanim.NativeHandle self);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_Zmanim_destroy")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_destroy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial void kosherz_zmanim_Zmanim_destroy(IntPtr self);
+    internal static partial void kosherz_times_Zmanim_destroy(IntPtr self);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_Zmanim_new")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_new")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial IntPtr kosherz_zmanim_Zmanim_new(byte* location_ptr, nuint location_len, byte* date_ptr, nuint date_len, byte* config_ptr, nuint config_len, IntPtr time_zone_ctx, IntPtr time_zone_vtable, FfiError* out_err);
+    internal static partial IntPtr kosherz_times_Zmanim_new(byte* location_ptr, nuint location_len, byte* date_ptr, nuint date_len, byte* config_ptr, nuint config_len, IntPtr time_zone_ctx, IntPtr time_zone_vtable, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_Zmanim_get")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_get")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial long kosherz_zmanim_Zmanim_get(Zmanim.NativeHandle self, int zman, FfiError* out_err);
+    internal static partial long kosherz_times_Zmanim_get(Zmanim.NativeHandle self, int zman, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_Zmanim_all")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_all")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_Zmanim_all(Zmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_Zmanim_all(Zmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_Zmanim_sunrise_offset_by_degrees")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_sunrise_offset_by_degrees")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial long kosherz_zmanim_Zmanim_sunrise_offset_by_degrees(Zmanim.NativeHandle self, double degrees, FfiError* out_err);
+    internal static partial long kosherz_times_Zmanim_sunrise_offset_by_degrees(Zmanim.NativeHandle self, double degrees, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_Zmanim_sunset_offset_by_degrees")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_sunset_offset_by_degrees")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial long kosherz_zmanim_Zmanim_sunset_offset_by_degrees(Zmanim.NativeHandle self, double degrees, FfiError* out_err);
+    internal static partial long kosherz_times_Zmanim_sunset_offset_by_degrees(Zmanim.NativeHandle self, double degrees, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_Zmanim_location")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_location")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_Zmanim_location(Zmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_Zmanim_location(Zmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_Zmanim_date")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_date")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_Zmanim_date(Zmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_Zmanim_date(Zmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_Zmanim_config")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_config")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_Zmanim_config(Zmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_Zmanim_config(Zmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_sea_level_location")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_sea_level_location")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_sea_level_location(double latitude, double longitude, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_sea_level_location(double latitude, double longitude, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_validate_location")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_validate_location")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial void kosherz_zmanim_validate_location(byte* location_ptr, nuint location_len, byte has_time_zone, FfiError* out_err);
+    internal static partial void kosherz_times_validate_location(byte* location_ptr, nuint location_len, byte has_time_zone, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_default_config")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_default_config")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_default_config(nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_default_config(nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_all_zmanim")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_all_zmanim")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_all_zmanim(nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_all_zmanim(nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_zman_name")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_zman_name")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_zman_name(int zman, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_zman_name(int zman, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_zman_java_name")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_zman_java_name")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_zman_java_name(int zman, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_zman_java_name(int zman, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_zman_from_java_name")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_zman_from_java_name")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_zman_from_java_name(byte* java_name_ptr, nuint java_name_len, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_zman_from_java_name(byte* java_name_ptr, nuint java_name_len, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_zman_category")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_zman_category")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial int kosherz_zmanim_zman_category(int zman, FfiError* out_err);
+    internal static partial int kosherz_times_zman_category(int zman, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_zman_is_deprecated")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_zman_is_deprecated")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte kosherz_zmanim_zman_is_deprecated(int zman, FfiError* out_err);
+    internal static partial byte kosherz_times_zman_is_deprecated(int zman, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_zman_description")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_zman_description")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_zman_description(int zman, byte* config_ptr, nuint config_len, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_zman_description(int zman, byte* config_ptr, nuint config_len, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_calculator_name")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_calculator_name")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_calculator_name(int calculator, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_calculator_name(int calculator, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_shaah_zmanis")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_shaah_zmanis")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial long kosherz_zmanim_shaah_zmanis(long start, long end, FfiError* out_err);
+    internal static partial long kosherz_times_shaah_zmanis(long start, long end, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_MyZmanim_clone")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_MyZmanim_clone")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial IntPtr kosherz_zmanim_myzmanim_MyZmanim_clone(MyZmanim.NativeHandle self);
+    internal static partial IntPtr kosherz_times_myzmanim_MyZmanim_clone(MyZmanim.NativeHandle self);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_MyZmanim_destroy")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_MyZmanim_destroy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial void kosherz_zmanim_myzmanim_MyZmanim_destroy(IntPtr self);
+    internal static partial void kosherz_times_myzmanim_MyZmanim_destroy(IntPtr self);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_MyZmanim_new")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_MyZmanim_new")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial IntPtr kosherz_zmanim_myzmanim_MyZmanim_new(byte* location_ptr, nuint location_len, byte* date_ptr, nuint date_len, double candle_lighting_minutes, IntPtr time_zone_ctx, IntPtr time_zone_vtable, FfiError* out_err);
+    internal static partial IntPtr kosherz_times_myzmanim_MyZmanim_new(byte* location_ptr, nuint location_len, byte* date_ptr, nuint date_len, double candle_lighting_minutes, IntPtr time_zone_ctx, IntPtr time_zone_vtable, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_MyZmanim_get")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_MyZmanim_get")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial long kosherz_zmanim_myzmanim_MyZmanim_get(MyZmanim.NativeHandle self, int zman, FfiError* out_err);
+    internal static partial long kosherz_times_myzmanim_MyZmanim_get(MyZmanim.NativeHandle self, int zman, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_MyZmanim_all")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_MyZmanim_all")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_myzmanim_MyZmanim_all(MyZmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_myzmanim_MyZmanim_all(MyZmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_MyZmanim_proportional_hour_gra")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial long kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra(MyZmanim.NativeHandle self, FfiError* out_err);
+    internal static partial long kosherz_times_myzmanim_MyZmanim_proportional_hour_gra(MyZmanim.NativeHandle self, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_MyZmanim_location")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_MyZmanim_location")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_myzmanim_MyZmanim_location(MyZmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_myzmanim_MyZmanim_location(MyZmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_MyZmanim_date")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_MyZmanim_date")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_myzmanim_MyZmanim_date(MyZmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_myzmanim_MyZmanim_date(MyZmanim.NativeHandle self, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial double kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes(MyZmanim.NativeHandle self, FfiError* out_err);
+    internal static partial double kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes(MyZmanim.NativeHandle self, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_my_zman_name")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_my_zman_name")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_myzmanim_my_zman_name(int zman, nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_myzmanim_my_zman_name(int zman, nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_all_my_zmanim")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_all_my_zmanim")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial byte* kosherz_zmanim_myzmanim_all_my_zmanim(nuint* out_len, FfiError* out_err);
+    internal static partial byte* kosherz_times_myzmanim_all_my_zmanim(nuint* out_len, FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_dawn_90_degrees")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_dawn_90_degrees")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial double kosherz_zmanim_myzmanim_dawn_90_degrees(FfiError* out_err);
+    internal static partial double kosherz_times_myzmanim_dawn_90_degrees(FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_dawn_72_degrees")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_dawn_72_degrees")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial double kosherz_zmanim_myzmanim_dawn_72_degrees(FfiError* out_err);
+    internal static partial double kosherz_times_myzmanim_dawn_72_degrees(FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_sea_level_refraction_arcminutes")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial double kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(FfiError* out_err);
+    internal static partial double kosherz_times_myzmanim_sea_level_refraction_arcminutes(FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_dip_degrees_per_root_meter")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_dip_degrees_per_root_meter")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial double kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(FfiError* out_err);
+    internal static partial double kosherz_times_myzmanim_dip_degrees_per_root_meter(FfiError* out_err);
 
-    [LibraryImport(LibName, EntryPoint = "kosherz_zmanim_myzmanim_default_candle_lighting_minutes")]
+    [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_default_candle_lighting_minutes")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial double kosherz_zmanim_myzmanim_default_candle_lighting_minutes(FfiError* out_err);
+    internal static partial double kosherz_times_myzmanim_default_candle_lighting_minutes(FfiError* out_err);
 }
 
 // END Kosherz.cs

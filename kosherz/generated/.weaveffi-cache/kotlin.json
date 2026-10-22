@@ -11,6 +11,6 @@
     "kotlin/src/main/kotlin/kosherz/Codecs.kt",
     "kotlin/src/main/kotlin/kosherz/JniBridge.kt",
     "kotlin/src/main/kotlin/kosherz/Runtime.kt",
-    "kotlin/src/main/kotlin/kosherz/ZmanimModule.kt"
+    "kotlin/src/main/kotlin/kosherz/Times.kt"
   ]
 }

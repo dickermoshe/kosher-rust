@@ -89,7 +89,7 @@ impl From<k::Daf> for Daf {
     fn from(daf: k::Daf) -> Self {
         Self {
             tractate: daf.tractate.into(),
-            daf: i32::from(daf.daf),
+            number: i32::from(daf.daf),
             display: daf.to_string(),
         }
     }
@@ -99,7 +99,7 @@ impl From<k::Amud> for Amud {
     fn from(amud: k::Amud) -> Self {
         Self {
             tractate: amud.tractate.into(),
-            daf: i32::from(amud.daf),
+            number: i32::from(amud.daf),
             side: amud.side.into(),
             display: amud.to_string(),
         }
@@ -112,7 +112,7 @@ impl From<k::Mishna> for Mishna {
             tractate: mishna.tractate.into(),
             // Chapters number at most 30.
             chapter: i32::try_from(mishna.chapter).unwrap_or(i32::MAX),
-            mishna: i32::from(mishna.mishna),
+            number: i32::from(mishna.mishna),
             display: mishna.to_string(),
         }
     }

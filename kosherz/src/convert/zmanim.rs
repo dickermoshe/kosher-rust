@@ -6,7 +6,7 @@ use kosher_rust::zmanim::{self as k, AstronomicalCalculator};
 use super::{CallbackTimeZone, calendar::mirror, watching_callbacks};
 use crate::api::{
     calendar::GregorianDate,
-    zmanim::{Calculator, Category, Config, Location, TimeZoneOffset, ZmanTime, ZmanimError},
+    times::{Calculator, Category, Config, Location, TimeZoneOffset, ZmanTime, ZmanimError},
 };
 
 pub(crate) type Inner = kosher_rust::Zmanim<CallbackTimeZone>;
@@ -144,9 +144,9 @@ mirror!(
 // BEGIN GENERATED: Zman
 #[allow(deprecated)]
 #[rustfmt::skip]
-impl From<crate::api::zmanim::Zman> for kosher_rust::Zman {
-    fn from(value: crate::api::zmanim::Zman) -> Self {
-        use crate::api::zmanim::Zman as F;
+impl From<crate::api::times::Zman> for kosher_rust::Zman {
+    fn from(value: crate::api::times::Zman) -> Self {
+        use crate::api::times::Zman as F;
         match value {
             F::BeginCivilTwilight => Self::BeginCivilTwilight,
             F::EndCivilTwilight => Self::EndCivilTwilight,
@@ -320,7 +320,7 @@ impl From<crate::api::zmanim::Zman> for kosher_rust::Zman {
 }
 #[allow(deprecated)]
 #[rustfmt::skip]
-impl From<kosher_rust::Zman> for crate::api::zmanim::Zman {
+impl From<kosher_rust::Zman> for crate::api::times::Zman {
     fn from(value: kosher_rust::Zman) -> Self {
         use kosher_rust::Zman as F;
         match value {

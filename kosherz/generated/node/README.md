@@ -15,7 +15,7 @@ KOSHERZ_LIBRARY=/path/to/libkosherz.so npm install kosherz
 Each top-level module of the API is a namespace export:
 
 ```js
-import { calendar, zmanim } from 'kosherz';
+import { calendar, times } from 'kosherz';
 ```
 
 <!-- END README.md -->

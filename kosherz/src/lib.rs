@@ -8,7 +8,7 @@
 //! - Instants are milliseconds since the Unix epoch; durations are milliseconds.
 //! - Gregorian dates are [`GregorianDate`](api::calendar::GregorianDate) records.
 //! - Time zones are supplied by the caller as a
-//!   [`TimeZoneOffset`](api::zmanim::TimeZoneOffset) callback that gives the UTC offset
+//!   [`TimeZoneOffset`](api::times::TimeZoneOffset) callback that gives the UTC offset
 //!   at an instant, so no time zone database is bundled.
 
 pub mod api;

@@ -16,7 +16,7 @@ use kosher_rust::TimeZoneLike;
 
 use crate::api::{
     calendar::GregorianDate,
-    zmanim::{Location, TimeZoneOffset, ZmanimError},
+    times::{Location, TimeZoneOffset, ZmanimError},
 };
 
 thread_local! {

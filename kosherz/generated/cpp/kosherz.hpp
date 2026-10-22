@@ -286,7 +286,7 @@ inline constexpr ContractEntry calendar_contract[] = {
     {0x1c33df579fac36d8ull, 0x1175c871bc023b86ull, "calendar.HebrewDate.day_of_year"},
     {0x235fd1db8b7dd5f5ull, 0x399eab22141dffd3ull, "calendar.GregorianDate"},
     {0x2b066dc65c460024ull, 0xf4f23e6586bd1dd7ull, "calendar.HebrewDate"},
-    {0x2c8e60589f58d792ull, 0x57c83a0f8bc36c6cull, "calendar.limudim.Mishna"},
+    {0x2c8e60589f58d792ull, 0xa0608634cb2f46cbull, "calendar.limudim.Mishna"},
     {0x2da09ea1403b727eull, 0x4d5e82347ae7a3fcull, "calendar.HebrewMonth"},
     {0x2e1645ba38a77559ull, 0x1c81765c98ab54f9ull, "calendar.HebrewDate.parsha"},
     {0x2e561d4c25bf877dull, 0x47ff51d038dbe0d8ull, "calendar.limudim.tehillim_display"},
@@ -321,9 +321,9 @@ inline constexpr ContractEntry calendar_contract[] = {
     {0x98cc81d52e65776bull, 0x2bf1569214921669ull, "calendar.month_hebrew"},
     {0x9b48ba34fb52812dull, 0xff11e092dce92ed7ull, "calendar.limudim.Side"},
     {0x9e20ba757aee97c2ull, 0x9328a81ac256b477ull, "calendar.parsha_hebrew"},
-    {0xa1e3409cebf37881ull, 0x1b7e37005bd2f8e9ull, "calendar.limudim.Daf"},
+    {0xa1e3409cebf37881ull, 0xfeebfaab6c533e17ull, "calendar.limudim.Daf"},
     {0xa5864219850af272ull, 0xf8a4981ca376ff28ull, "calendar.HebrewDate.is_assur_bemelacha"},
-    {0xaeb433ce589b7931ull, 0xe1e8d4dad467e3e7ull, "calendar.limudim.Amud"},
+    {0xaeb433ce589b7931ull, 0x364d4d0b6a770631ull, "calendar.limudim.Amud"},
     {0xaf5dd6acc2e8ba71ull, 0xa2fdd5f43f90f755ull, "calendar.holiday_hebrew"},
     {0xbd8865ae2177f9ffull, 0x6bc5f7eea096d080ull, "calendar.year_info"},
     {0xc3fd51b677226babull, 0x684e92fa36717939ull, "calendar.month_name"},
@@ -343,55 +343,55 @@ inline constexpr ContractEntry calendar_contract[] = {
     {0xfb59656a30b3c76full, 0x263b2a60d4b349b3ull, "calendar.Weekday"},
 };
 
-/** The declarations of module `zmanim` this header was generated with. */
-inline constexpr ContractEntry zmanim_contract[] = {
-    {0x022d265126fcbd47ull, 0xf70eea6f6621717full, "zmanim.validate_location"},
-    {0x02e0caa49b3a204bull, 0x5962ffa89080c41bull, "zmanim.shaah_zmanis"},
-    {0x04493862e57a4cdfull, 0x258faa23773bfcaeull, "zmanim.myzmanim.MyZmanim.candle_lighting_minutes"},
-    {0x0709c5af4b818c01ull, 0xf2a52228396d8635ull, "zmanim.myzmanim.sea_level_refraction_arcminutes"},
-    {0x10234c837e5331b1ull, 0xcc6eb9ea8c42ca79ull, "zmanim.myzmanim.MyZmanim.new"},
-    {0x1d3f31835b116405ull, 0x3278f3a62bb6e469ull, "zmanim.myzmanim.dawn_72_degrees"},
-    {0x1fd629eb299bc703ull, 0xcddd8b18c602be76ull, "zmanim.myzmanim.MyZman"},
-    {0x2550c75ec58dae49ull, 0xc3cb9f9d3b5b28baull, "zmanim.Zmanim.date"},
-    {0x2791137b8945b8ddull, 0x9169cc1ef07d2488ull, "zmanim.ZmanimError"},
-    {0x27ff9dab340588fcull, 0x4b1d4aaf11dfd132ull, "zmanim.zman_category"},
-    {0x29795294927af42dull, 0xffb3d691737a4f38ull, "zmanim.Category"},
-    {0x30cabeb665248a1dull, 0xfa44bbb1fab132e5ull, "zmanim.sea_level_location"},
-    {0x334bc497c2e1b7f6ull, 0xa82a63cd8b5c9bc8ull, "zmanim.myzmanim.all_my_zmanim"},
-    {0x406a9d72e9cc44d8ull, 0x689307845875e63eull, "zmanim.zman_is_deprecated"},
-    {0x4118dd5a26e15851ull, 0x549f4e736961b812ull, "zmanim.calculator_name"},
-    {0x484846a2e9ee0a81ull, 0xdf4697e13848d687ull, "zmanim.zman_from_java_name"},
-    {0x484f114766abb5e2ull, 0xc5f954c475f4dc9dull, "zmanim.zman_java_name"},
-    {0x5f3ebb1c37c66ab9ull, 0xc3cb9f9d3b5b28baull, "zmanim.myzmanim.MyZmanim.date"},
-    {0x631f48e27eef2376ull, 0x63856359341062eeull, "zmanim.Zmanim.location"},
-    {0x65058d455e954e8eull, 0x4a23e822039987a7ull, "zmanim.zman_description"},
-    {0x66df597381790f0bull, 0x4c30c7a90dcabaa5ull, "zmanim.Zmanim.sunset_offset_by_degrees"},
-    {0x6c14e7ba35220983ull, 0x7d00a18dba45f065ull, "zmanim.ZmanFailure"},
-    {0x7b6a0d0953f70457ull, 0x6614e227c469c232ull, "zmanim.Zmanim.config"},
-    {0x7bda2eefee3cd432ull, 0x4af5df9a96d3f535ull, "zmanim.myzmanim.MyZmanim.proportional_hour_gra"},
-    {0x84cfd0af1981e364ull, 0x93ef9500cb5f1cfcull, "zmanim.Zmanim.sunrise_offset_by_degrees"},
-    {0x852e1ce68e6270faull, 0xdec9155329278f29ull, "zmanim.myzmanim.my_zman_name"},
-    {0x972d8aa47e75b0eaull, 0x017ce9984014d3c1ull, "zmanim.ZmanTime"},
-    {0x988396c1a4000b66ull, 0x63856359341062eeull, "zmanim.myzmanim.MyZmanim.location"},
-    {0x9e23e59cc6d2b627ull, 0xbea68784cf687a1aull, "zmanim.Zmanim.get"},
-    {0xa7022817cb0f3781ull, 0x11babf7c30a11935ull, "zmanim.myzmanim.dip_degrees_per_root_meter"},
-    {0xa7e497ece825babfull, 0x459375a830f8b5a0ull, "zmanim.zman_name"},
-    {0xb0323d9cd1424d34ull, 0x669e3d4d3e9d42ccull, "zmanim.Zmanim.all"},
-    {0xb668f699c44a8b25ull, 0x0577fa34d1dea8c3ull, "zmanim.default_config"},
-    {0xbc0120c65a9a7e69ull, 0xe3c7eb49f063a0ceull, "zmanim.myzmanim.MyZmanim"},
-    {0xc3ccda83538bf477ull, 0x93dc654d560a63b8ull, "zmanim.myzmanim.MyZmanim.get"},
-    {0xc80294024eefae95ull, 0x52972cadc08c13efull, "zmanim.all_zmanim"},
-    {0xcdc06faffaf38ffaull, 0x551064f95ab5110dull, "zmanim.myzmanim.MyZmanTime"},
-    {0xcfe843f87495c18aull, 0x7110b3413cfd8e83ull, "zmanim.Location"},
-    {0xd12031217533824bull, 0x2b82d4d65ec59dd7ull, "zmanim.myzmanim.default_candle_lighting_minutes"},
-    {0xd5db12835dfb5524ull, 0x975c3a96549104d2ull, "zmanim.myzmanim.MyZmanim.all"},
-    {0xd904b56e2a7d27f9ull, 0x2d4c4ce495502494ull, "zmanim.Zmanim"},
-    {0xd90e158541be4971ull, 0xf13823120f5b4c46ull, "zmanim.Calculator"},
-    {0xe178a9bb3808bfb3ull, 0x685412d4d80250eaull, "zmanim.Config"},
-    {0xea9baabba2ea9789ull, 0x174890db5e5166c8ull, "zmanim.TimeZoneOffset"},
-    {0xed07579cf3c52ba1ull, 0x99d014ada9906437ull, "zmanim.Zmanim.new"},
-    {0xf9ebba0666552393ull, 0x0486761191984fd0ull, "zmanim.Zman"},
-    {0xfa3f9e72b3e59929ull, 0x735499ab0a625d6dull, "zmanim.myzmanim.dawn_90_degrees"},
+/** The declarations of module `times` this header was generated with. */
+inline constexpr ContractEntry times_contract[] = {
+    {0x01ce427485afb43aull, 0x017ce9984014d3c1ull, "times.ZmanTime"},
+    {0x0643c19407762211ull, 0x11babf7c30a11935ull, "times.myzmanim.dip_degrees_per_root_meter"},
+    {0x091fabaf00184561ull, 0xf13823120f5b4c46ull, "times.Calculator"},
+    {0x0a21d46001720019ull, 0x174890db5e5166c8ull, "times.TimeZoneOffset"},
+    {0x0a86c54f2d84238cull, 0x4b1d4aaf11dfd132ull, "times.zman_category"},
+    {0x0d3bc9cd549a7137ull, 0xbea68784cf687a1aull, "times.Zmanim.get"},
+    {0x0e595d82f4b54adeull, 0x4a23e822039987a7ull, "times.zman_description"},
+    {0x1164ca1d22579c8dull, 0xfa44bbb1fab132e5ull, "times.sea_level_location"},
+    {0x196240a5b18bd7a9ull, 0x2d4c4ce495502494ull, "times.Zmanim"},
+    {0x1f4901cd5f081ee4ull, 0x669e3d4d3e9d42ccull, "times.Zmanim.all"},
+    {0x2eabf209e8de2867ull, 0x6614e227c469c232ull, "times.Zmanim.config"},
+    {0x38596a351e356743ull, 0x685412d4d80250eaull, "times.Config"},
+    {0x39389f0e68d3cc22ull, 0x4af5df9a96d3f535ull, "times.myzmanim.MyZmanim.proportional_hour_gra"},
+    {0x3c92cd49c8b4515bull, 0x5962ffa89080c41bull, "times.shaah_zmanis"},
+    {0x4048d3ca4b000831ull, 0xdf4697e13848d687ull, "times.zman_from_java_name"},
+    {0x44a0809dedbd4a4dull, 0x9169cc1ef07d2488ull, "times.ZmanimError"},
+    {0x4d259836d7137c43ull, 0x0486761191984fd0ull, "times.Zman"},
+    {0x57d7a9c5a715b9faull, 0x7110b3413cfd8e83ull, "times.Location"},
+    {0x5cf83bcd8244d771ull, 0x99d014ada9906437ull, "times.Zmanim.new"},
+    {0x65aa216d77a78308ull, 0x689307845875e63eull, "times.zman_is_deprecated"},
+    {0x68ffad4e5539ca69ull, 0xc3cb9f9d3b5b28baull, "times.myzmanim.MyZmanim.date"},
+    {0x6b5635f618146d65ull, 0x52972cadc08c13efull, "times.all_zmanim"},
+    {0x7438d1e6d2e55275ull, 0x3278f3a62bb6e469ull, "times.myzmanim.dawn_72_degrees"},
+    {0x743c832eb2e19415ull, 0x0577fa34d1dea8c3ull, "times.default_config"},
+    {0x77857568cbec63b3ull, 0xcddd8b18c602be76ull, "times.myzmanim.MyZman"},
+    {0x79dc07bc571a3ab7ull, 0xf70eea6f6621717full, "times.validate_location"},
+    {0x80d913d2e48601c7ull, 0x93dc654d560a63b8ull, "times.myzmanim.MyZmanim.get"},
+    {0x8a9dcfc50ecf7193ull, 0x7d00a18dba45f065ull, "times.ZmanFailure"},
+    {0x8f816bd2ec126fd4ull, 0x975c3a96549104d2ull, "times.myzmanim.MyZmanim.all"},
+    {0x94ec9f2dd31dd154ull, 0x93ef9500cb5f1cfcull, "times.Zmanim.sunrise_offset_by_degrees"},
+    {0x968059cb1e92252aull, 0xdec9155329278f29ull, "times.myzmanim.my_zman_name"},
+    {0x97a962b59a32c7dbull, 0x4c30c7a90dcabaa5ull, "times.Zmanim.sunset_offset_by_degrees"},
+    {0x9b8cdf454932d1afull, 0x459375a830f8b5a0ull, "times.zman_name"},
+    {0x9d5bd45067baa0fbull, 0x2b82d4d65ec59dd7ull, "times.myzmanim.default_candle_lighting_minutes"},
+    {0x9d85f89bf54e8206ull, 0xa82a63cd8b5c9bc8ull, "times.myzmanim.all_my_zmanim"},
+    {0x9e749626c03b8981ull, 0x549f4e736961b812ull, "times.calculator_name"},
+    {0xbb0373c362e8a226ull, 0x63856359341062eeull, "times.Zmanim.location"},
+    {0xc1a3c3740d199619ull, 0xe3c7eb49f063a0ceull, "times.myzmanim.MyZmanim"},
+    {0xc29ca29cb7cd2999ull, 0x735499ab0a625d6dull, "times.myzmanim.dawn_90_degrees"},
+    {0xcc5685d30e954e41ull, 0xcc6eb9ea8c42ca79ull, "times.myzmanim.MyZmanim.new"},
+    {0xce8ce7ef4ad0db32ull, 0xc5f954c475f4dc9dull, "times.zman_java_name"},
+    {0xdb5095e0e87f0d79ull, 0xc3cb9f9d3b5b28baull, "times.Zmanim.date"},
+    {0xdda7b795bf202896ull, 0x63856359341062eeull, "times.myzmanim.MyZmanim.location"},
+    {0xe05ccdd3147e3c9dull, 0xffb3d691737a4f38ull, "times.Category"},
+    {0xe46d58cfab0684cfull, 0x258faa23773bfcaeull, "times.myzmanim.MyZmanim.candle_lighting_minutes"},
+    {0xf0a3c8d75d8fb1caull, 0x551064f95ab5110dull, "times.myzmanim.MyZmanTime"},
+    {0xf577b8fb530d1ad1ull, 0xf2a52228396d8635ull, "times.myzmanim.sea_level_refraction_arcminutes"},
 };
 
 } // namespace detail
@@ -413,7 +413,7 @@ inline void check_library() {
         if (std::string why = detail::contract_mismatch(kosherz_calendar_contract, detail::calendar_contract); !why.empty()) {
             return "kosherz: " + why;
         }
-        if (std::string why = detail::contract_mismatch(kosherz_zmanim_contract, detail::zmanim_contract); !why.empty()) {
+        if (std::string why = detail::contract_mismatch(kosherz_times_contract, detail::times_contract); !why.empty()) {
             return "kosherz: " + why;
         }
         return std::string();
@@ -1766,28 +1766,28 @@ public:
 
 /** The *zmanim* for one place on one day. */
 class Zmanim {
-    kosherz_zmanim_Zmanim* raw_;
+    kosherz_times_Zmanim* raw_;
 
 public:
     /** The C type this class wraps. */
-    using raw_type = kosherz_zmanim_Zmanim;
+    using raw_type = kosherz_times_Zmanim;
 
     /** Adopts one strong reference to a producer object: `Zmanim(adopt, raw)`. */
-    explicit Zmanim(adopt_t, kosherz_zmanim_Zmanim* h) noexcept : raw_(h) {}
+    explicit Zmanim(adopt_t, kosherz_times_Zmanim* h) noexcept : raw_(h) {}
 
     /** Releases this wrapper's reference; the object is dropped with its last one. */
     ~Zmanim() {
-        if (raw_ != nullptr) kosherz_zmanim_Zmanim_destroy(raw_);
+        if (raw_ != nullptr) kosherz_times_Zmanim_destroy(raw_);
     }
 
     /** Copies share the object: the copy takes a new strong reference. */
-    Zmanim(const Zmanim& other) : raw_(kosherz_zmanim_Zmanim_clone(other.raw_)) {}
+    Zmanim(const Zmanim& other) : raw_(kosherz_times_Zmanim_clone(other.raw_)) {}
 
     /** Takes a new reference to `other`'s object and releases the current one. */
     Zmanim& operator=(const Zmanim& other) {
         if (this != &other) {
-            kosherz_zmanim_Zmanim* h = kosherz_zmanim_Zmanim_clone(other.raw_);
-            if (raw_ != nullptr) kosherz_zmanim_Zmanim_destroy(raw_);
+            kosherz_times_Zmanim* h = kosherz_times_Zmanim_clone(other.raw_);
+            if (raw_ != nullptr) kosherz_times_Zmanim_destroy(raw_);
             raw_ = h;
         }
         return *this;
@@ -1799,7 +1799,7 @@ public:
     /** Releases the current reference and takes over `other`'s. */
     Zmanim& operator=(Zmanim&& other) noexcept {
         if (this != &other) {
-            if (raw_ != nullptr) kosherz_zmanim_Zmanim_destroy(raw_);
+            if (raw_ != nullptr) kosherz_times_Zmanim_destroy(raw_);
             raw_ = other.raw_;
             other.raw_ = nullptr;
         }
@@ -1807,10 +1807,10 @@ public:
     }
 
     /** The wrapped pointer, borrowed (null after a move): this wrapper keeps its reference. */
-    const kosherz_zmanim_Zmanim* handle() const noexcept { return raw_; }
+    const kosherz_times_Zmanim* handle() const noexcept { return raw_; }
 
     /** A new strong reference to the object, which the caller owns. */
-    kosherz_zmanim_Zmanim* clone_handle() const { return kosherz_zmanim_Zmanim_clone(raw_); }
+    kosherz_times_Zmanim* clone_handle() const { return kosherz_times_Zmanim_clone(raw_); }
 
     /**
      * The *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
@@ -1891,28 +1891,28 @@ public:
  * matter: MyZmanim gives both "level" and "elevated" sunrise and sunset.
  */
 class MyZmanim {
-    kosherz_zmanim_myzmanim_MyZmanim* raw_;
+    kosherz_times_myzmanim_MyZmanim* raw_;
 
 public:
     /** The C type this class wraps. */
-    using raw_type = kosherz_zmanim_myzmanim_MyZmanim;
+    using raw_type = kosherz_times_myzmanim_MyZmanim;
 
     /** Adopts one strong reference to a producer object: `MyZmanim(adopt, raw)`. */
-    explicit MyZmanim(adopt_t, kosherz_zmanim_myzmanim_MyZmanim* h) noexcept : raw_(h) {}
+    explicit MyZmanim(adopt_t, kosherz_times_myzmanim_MyZmanim* h) noexcept : raw_(h) {}
 
     /** Releases this wrapper's reference; the object is dropped with its last one. */
     ~MyZmanim() {
-        if (raw_ != nullptr) kosherz_zmanim_myzmanim_MyZmanim_destroy(raw_);
+        if (raw_ != nullptr) kosherz_times_myzmanim_MyZmanim_destroy(raw_);
     }
 
     /** Copies share the object: the copy takes a new strong reference. */
-    MyZmanim(const MyZmanim& other) : raw_(kosherz_zmanim_myzmanim_MyZmanim_clone(other.raw_)) {}
+    MyZmanim(const MyZmanim& other) : raw_(kosherz_times_myzmanim_MyZmanim_clone(other.raw_)) {}
 
     /** Takes a new reference to `other`'s object and releases the current one. */
     MyZmanim& operator=(const MyZmanim& other) {
         if (this != &other) {
-            kosherz_zmanim_myzmanim_MyZmanim* h = kosherz_zmanim_myzmanim_MyZmanim_clone(other.raw_);
-            if (raw_ != nullptr) kosherz_zmanim_myzmanim_MyZmanim_destroy(raw_);
+            kosherz_times_myzmanim_MyZmanim* h = kosherz_times_myzmanim_MyZmanim_clone(other.raw_);
+            if (raw_ != nullptr) kosherz_times_myzmanim_MyZmanim_destroy(raw_);
             raw_ = h;
         }
         return *this;
@@ -1924,7 +1924,7 @@ public:
     /** Releases the current reference and takes over `other`'s. */
     MyZmanim& operator=(MyZmanim&& other) noexcept {
         if (this != &other) {
-            if (raw_ != nullptr) kosherz_zmanim_myzmanim_MyZmanim_destroy(raw_);
+            if (raw_ != nullptr) kosherz_times_myzmanim_MyZmanim_destroy(raw_);
             raw_ = other.raw_;
             other.raw_ = nullptr;
         }
@@ -1932,10 +1932,10 @@ public:
     }
 
     /** The wrapped pointer, borrowed (null after a move): this wrapper keeps its reference. */
-    const kosherz_zmanim_myzmanim_MyZmanim* handle() const noexcept { return raw_; }
+    const kosherz_times_myzmanim_MyZmanim* handle() const noexcept { return raw_; }
 
     /** A new strong reference to the object, which the caller owns. */
-    kosherz_zmanim_myzmanim_MyZmanim* clone_handle() const { return kosherz_zmanim_myzmanim_MyZmanim_clone(raw_); }
+    kosherz_times_myzmanim_MyZmanim* clone_handle() const { return kosherz_times_myzmanim_MyZmanim_clone(raw_); }
 
     /**
      * The *zmanim* at `location` on `date` in `time_zone`. Candles are lit
@@ -2262,7 +2262,7 @@ struct Daf {
     /** The tractate. */
     Tractate tractate;
     /** The page number. The Bavli starts at 2, the Yerushalmi at 1. */
-    int32_t daf;
+    int32_t number;
     /** As text, for example "Bava Metzia 55". */
     std::string display;
 };
@@ -2272,7 +2272,7 @@ struct Amud {
     /** The tractate. */
     Tractate tractate;
     /** The page number. */
-    int32_t daf;
+    int32_t number;
     /** Which side of the page. */
     Side side;
     /** As text, for example "Bava Metzia 55b". */
@@ -2286,7 +2286,7 @@ struct Mishna {
     /** The chapter (*perek*), from 1. */
     int32_t chapter;
     /** The *mishnah* within the chapter, from 1. */
-    int32_t mishna;
+    int32_t number;
     /** As text, for example "Nazir 5:5". */
     std::string display;
 };
@@ -2780,7 +2780,7 @@ inline Holiday read_Holiday(BufferReader& r) {
 /** Writes one `Daf` to a value buffer. */
 inline void write_Daf(BufferWriter& w, const Daf& v) {
     w.write_i32(static_cast<int32_t>(v.tractate));
-    w.write_i32(v.daf);
+    w.write_i32(v.number);
     w.write_string(v.display);
 }
 
@@ -2796,7 +2796,7 @@ inline Daf read_Daf(BufferReader& r) {
 /** Writes one `Amud` to a value buffer. */
 inline void write_Amud(BufferWriter& w, const Amud& v) {
     w.write_i32(static_cast<int32_t>(v.tractate));
-    w.write_i32(v.daf);
+    w.write_i32(v.number);
     w.write_i32(static_cast<int32_t>(v.side));
     w.write_string(v.display);
 }
@@ -2815,7 +2815,7 @@ inline Amud read_Amud(BufferReader& r) {
 inline void write_Mishna(BufferWriter& w, const Mishna& v) {
     w.write_i32(static_cast<int32_t>(v.tractate));
     w.write_i32(v.chapter);
-    w.write_i32(v.mishna);
+    w.write_i32(v.number);
     w.write_string(v.display);
 }
 
@@ -3320,7 +3320,7 @@ inline void check_calendar_limudim(kosherz_error& err) {
 
 } // namespace detail
 
-/** The errors the `zmanim` module's throwing calls report; catch a code's subclass or this. */
+/** The errors the `times` module's throwing calls report; catch a code's subclass or this. */
 class ZmanimError : public Error {
 public:
     /** Builds an error carrying a domain `code` and `message`. */
@@ -3466,7 +3466,7 @@ public:
 namespace detail {
 
 /** The exception for a failed `ZmanimError` call: its code's subclass, Cancelled, or the root Error. */
-inline std::exception_ptr make_zmanim_error(int32_t code, const std::string& message, const uint8_t* payload_ptr, size_t payload_len) {
+inline std::exception_ptr make_times_error(int32_t code, const std::string& message, const uint8_t* payload_ptr, size_t payload_len) {
     if (code == -5) return std::make_exception_ptr(Cancelled(message));
     if (code < 0) return std::make_exception_ptr(Error(code, message));
     (void)payload_ptr;
@@ -3489,9 +3489,9 @@ inline std::exception_ptr make_zmanim_error(int32_t code, const std::string& mes
 }
 
 /** Throws the typed `ZmanimError` exception if `err` carries a nonzero code. */
-inline void check_zmanim(kosherz_error& err) {
+inline void check_times(kosherz_error& err) {
     if (err.code == 0) return;
-    std::exception_ptr ex = make_zmanim_error(err.code, error_message(err), err.payload_ptr, err.payload_len);
+    std::exception_ptr ex = make_times_error(err.code, error_message(err), err.payload_ptr, err.payload_len);
     kosherz_error_clear(&err);
     std::rethrow_exception(ex);
 }
@@ -3530,7 +3530,7 @@ public:
 
 namespace detail {
 
-/** Trampolines adapting a `TimeZoneOffset` implementation to `kosherz_zmanim_TimeZoneOffset_vtable`. */
+/** Trampolines adapting a `TimeZoneOffset` implementation to `kosherz_times_TimeZoneOffset_vtable`. */
 struct TimeZoneOffset_trampolines {
     static int32_t offset_seconds(void* ctx, int64_t unix_seconds, kosherz_error* out_err) {
         try {
@@ -3551,9 +3551,9 @@ struct TimeZoneOffset_trampolines {
 };
 
 /** The vtable every `TimeZoneOffset` implementation is passed with. */
-inline const kosherz_zmanim_TimeZoneOffset_vtable& TimeZoneOffset_vtable() {
-    static const kosherz_zmanim_TimeZoneOffset_vtable vtable = {
-        static_cast<uint32_t>(sizeof(kosherz_zmanim_TimeZoneOffset_vtable)),
+inline const kosherz_times_TimeZoneOffset_vtable& TimeZoneOffset_vtable() {
+    static const kosherz_times_TimeZoneOffset_vtable vtable = {
+        static_cast<uint32_t>(sizeof(kosherz_times_TimeZoneOffset_vtable)),
         0,
         &TimeZoneOffset_trampolines::free_ctx,
         &TimeZoneOffset_trampolines::offset_seconds,
@@ -3725,44 +3725,44 @@ inline Zmanim::Zmanim(const Location& location, const GregorianDate& date, const
     const auto* time_zone_vtable = time_zone ? &detail::TimeZoneOffset_vtable() : nullptr;
     std::unique_ptr<std::shared_ptr<TimeZoneOffset>> time_zone_ctx(time_zone ? new std::shared_ptr<TimeZoneOffset>(std::move(time_zone)) : nullptr);
     kosherz_error err{};
-    auto result = kosherz_zmanim_Zmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), config_buf.data(), config_buf.size(), static_cast<void*>(time_zone_ctx.release()), time_zone_vtable, &err);
-    detail::check_zmanim(err);
+    auto result = kosherz_times_Zmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), config_buf.data(), config_buf.size(), static_cast<void*>(time_zone_ctx.release()), time_zone_vtable, &err);
+    detail::check_times(err);
     raw_ = result;
 }
 
 inline int64_t Zmanim::get(Zman zman) const {
     kosherz_error err{};
-    auto result = kosherz_zmanim_Zmanim_get(raw_, static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), &err);
-    detail::check_zmanim(err);
+    auto result = kosherz_times_Zmanim_get(raw_, static_cast<kosherz_times_Zman>(static_cast<int32_t>(zman)), &err);
+    detail::check_times(err);
     return result;
 }
 
 inline std::vector<ZmanTime> Zmanim::all() const {
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_Zmanim_all(raw_, &out_len, &err);
+    auto result = kosherz_times_Zmanim_all(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_list_ZmanTime);
 }
 
 inline int64_t Zmanim::sunrise_offset_by_degrees(double degrees) const {
     kosherz_error err{};
-    auto result = kosherz_zmanim_Zmanim_sunrise_offset_by_degrees(raw_, degrees, &err);
-    detail::check_zmanim(err);
+    auto result = kosherz_times_Zmanim_sunrise_offset_by_degrees(raw_, degrees, &err);
+    detail::check_times(err);
     return result;
 }
 
 inline int64_t Zmanim::sunset_offset_by_degrees(double degrees) const {
     kosherz_error err{};
-    auto result = kosherz_zmanim_Zmanim_sunset_offset_by_degrees(raw_, degrees, &err);
-    detail::check_zmanim(err);
+    auto result = kosherz_times_Zmanim_sunset_offset_by_degrees(raw_, degrees, &err);
+    detail::check_times(err);
     return result;
 }
 
 inline Location Zmanim::location() const {
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_Zmanim_location(raw_, &out_len, &err);
+    auto result = kosherz_times_Zmanim_location(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_Location);
 }
@@ -3770,7 +3770,7 @@ inline Location Zmanim::location() const {
 inline GregorianDate Zmanim::date() const {
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_Zmanim_date(raw_, &out_len, &err);
+    auto result = kosherz_times_Zmanim_date(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_GregorianDate);
 }
@@ -3778,7 +3778,7 @@ inline GregorianDate Zmanim::date() const {
 inline Config Zmanim::config() const {
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_Zmanim_config(raw_, &out_len, &err);
+    auto result = kosherz_times_Zmanim_config(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_Config);
 }
@@ -3792,37 +3792,37 @@ inline MyZmanim::MyZmanim(const Location& location, const GregorianDate& date, d
     const auto* time_zone_vtable = time_zone ? &detail::TimeZoneOffset_vtable() : nullptr;
     std::unique_ptr<std::shared_ptr<TimeZoneOffset>> time_zone_ctx(time_zone ? new std::shared_ptr<TimeZoneOffset>(std::move(time_zone)) : nullptr);
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_MyZmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), candle_lighting_minutes, static_cast<void*>(time_zone_ctx.release()), time_zone_vtable, &err);
-    detail::check_zmanim(err);
+    auto result = kosherz_times_myzmanim_MyZmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), candle_lighting_minutes, static_cast<void*>(time_zone_ctx.release()), time_zone_vtable, &err);
+    detail::check_times(err);
     raw_ = result;
 }
 
 inline int64_t MyZmanim::get(MyZman zman) const {
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_MyZmanim_get(raw_, static_cast<kosherz_zmanim_myzmanim_MyZman>(static_cast<int32_t>(zman)), &err);
-    detail::check_zmanim(err);
+    auto result = kosherz_times_myzmanim_MyZmanim_get(raw_, static_cast<kosherz_times_myzmanim_MyZman>(static_cast<int32_t>(zman)), &err);
+    detail::check_times(err);
     return result;
 }
 
 inline std::vector<MyZmanTime> MyZmanim::all() const {
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_MyZmanim_all(raw_, &out_len, &err);
+    auto result = kosherz_times_myzmanim_MyZmanim_all(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_list_MyZmanTime);
 }
 
 inline int64_t MyZmanim::proportional_hour_gra() const {
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra(raw_, &err);
-    detail::check_zmanim(err);
+    auto result = kosherz_times_myzmanim_MyZmanim_proportional_hour_gra(raw_, &err);
+    detail::check_times(err);
     return result;
 }
 
 inline Location MyZmanim::location() const {
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_MyZmanim_location(raw_, &out_len, &err);
+    auto result = kosherz_times_myzmanim_MyZmanim_location(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_Location);
 }
@@ -3830,14 +3830,14 @@ inline Location MyZmanim::location() const {
 inline GregorianDate MyZmanim::date() const {
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_MyZmanim_date(raw_, &out_len, &err);
+    auto result = kosherz_times_myzmanim_MyZmanim_date(raw_, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_GregorianDate);
 }
 
 inline double MyZmanim::candle_lighting_minutes() const {
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes(raw_, &err);
+    auto result = kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes(raw_, &err);
     detail::check(err);
     return result;
 }
@@ -4170,14 +4170,14 @@ inline std::optional<PirkeiAvosUnit> pirkei_avos(const HebrewDate& date, Region 
 
 } // namespace calendar::limudim
 
-namespace zmanim {
+namespace times {
 
 /** A location at sea level, with flat horizons. */
 inline Location sea_level_location(double latitude, double longitude) {
     check_library();
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_sea_level_location(latitude, longitude, &out_len, &err);
+    auto result = kosherz_times_sea_level_location(latitude, longitude, &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_Location);
 }
@@ -4198,8 +4198,8 @@ inline void validate_location(const Location& location, bool has_time_zone) {
     detail::BufferWriter location_buf;
     detail::write_Location(location_buf, location);
     kosherz_error err{};
-    kosherz_zmanim_validate_location(location_buf.data(), location_buf.size(), has_time_zone, &err);
-    detail::check_zmanim(err);
+    kosherz_times_validate_location(location_buf.data(), location_buf.size(), has_time_zone, &err);
+    detail::check_times(err);
 }
 
 /** KosherJava's default configuration. */
@@ -4207,7 +4207,7 @@ inline Config default_config() {
     check_library();
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_default_config(&out_len, &err);
+    auto result = kosherz_times_default_config(&out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_Config);
 }
@@ -4217,7 +4217,7 @@ inline std::vector<Zman> all_zmanim() {
     check_library();
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_all_zmanim(&out_len, &err);
+    auto result = kosherz_times_all_zmanim(&out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_list_Zman);
 }
@@ -4227,7 +4227,7 @@ inline std::string zman_name(Zman zman) {
     check_library();
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_zman_name(static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), &out_len, &err);
+    auto result = kosherz_times_zman_name(static_cast<kosherz_times_Zman>(static_cast<int32_t>(zman)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -4237,7 +4237,7 @@ inline std::string zman_java_name(Zman zman) {
     check_library();
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_zman_java_name(static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), &out_len, &err);
+    auto result = kosherz_times_zman_java_name(static_cast<kosherz_times_Zman>(static_cast<int32_t>(zman)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -4247,7 +4247,7 @@ inline std::optional<Zman> zman_from_java_name(std::string_view java_name) {
     check_library();
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_zman_from_java_name(detail::utf8(java_name), java_name.size(), &out_len, &err);
+    auto result = kosherz_times_zman_from_java_name(detail::utf8(java_name), java_name.size(), &out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_opt_Zman);
 }
@@ -4256,7 +4256,7 @@ inline std::optional<Zman> zman_from_java_name(std::string_view java_name) {
 inline Category zman_category(Zman zman) {
     check_library();
     kosherz_error err{};
-    auto result = kosherz_zmanim_zman_category(static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), &err);
+    auto result = kosherz_times_zman_category(static_cast<kosherz_times_Zman>(static_cast<int32_t>(zman)), &err);
     detail::check(err);
     return static_cast<Category>(result);
 }
@@ -4265,7 +4265,7 @@ inline Category zman_category(Zman zman) {
 inline bool zman_is_deprecated(Zman zman) {
     check_library();
     kosherz_error err{};
-    auto result = kosherz_zmanim_zman_is_deprecated(static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), &err);
+    auto result = kosherz_times_zman_is_deprecated(static_cast<kosherz_times_Zman>(static_cast<int32_t>(zman)), &err);
     detail::check(err);
     return result;
 }
@@ -4280,7 +4280,7 @@ inline std::string zman_description(Zman zman, const Config& config) {
     detail::write_Config(config_buf, config);
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_zman_description(static_cast<kosherz_zmanim_Zman>(static_cast<int32_t>(zman)), config_buf.data(), config_buf.size(), &out_len, &err);
+    auto result = kosherz_times_zman_description(static_cast<kosherz_times_Zman>(static_cast<int32_t>(zman)), config_buf.data(), config_buf.size(), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -4290,7 +4290,7 @@ inline std::string calculator_name(Calculator calculator) {
     check_library();
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_calculator_name(static_cast<kosherz_zmanim_Calculator>(static_cast<int32_t>(calculator)), &out_len, &err);
+    auto result = kosherz_times_calculator_name(static_cast<kosherz_times_Calculator>(static_cast<int32_t>(calculator)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -4302,21 +4302,21 @@ inline std::string calculator_name(Calculator calculator) {
 inline int64_t shaah_zmanis(int64_t start, int64_t end) {
     check_library();
     kosherz_error err{};
-    auto result = kosherz_zmanim_shaah_zmanis(start, end, &err);
+    auto result = kosherz_times_shaah_zmanis(start, end, &err);
     detail::check(err);
     return result;
 }
 
-} // namespace zmanim
+} // namespace times
 
-namespace zmanim::myzmanim {
+namespace times::myzmanim {
 
 /** The row's name as the website shows it. */
 inline std::string my_zman_name(MyZman zman) {
     check_library();
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_my_zman_name(static_cast<kosherz_zmanim_myzmanim_MyZman>(static_cast<int32_t>(zman)), &out_len, &err);
+    auto result = kosherz_times_myzmanim_my_zman_name(static_cast<kosherz_times_myzmanim_MyZman>(static_cast<int32_t>(zman)), &out_len, &err);
     detail::check(err);
     return detail::take_string(result, out_len);
 }
@@ -4326,7 +4326,7 @@ inline std::vector<MyZman> all_my_zmanim() {
     check_library();
     size_t out_len = 0;
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_all_my_zmanim(&out_len, &err);
+    auto result = kosherz_times_myzmanim_all_my_zmanim(&out_len, &err);
     detail::check(err);
     return detail::take(result, out_len, &detail::read_list_MyZman);
 }
@@ -4335,7 +4335,7 @@ inline std::vector<MyZman> all_my_zmanim() {
 inline double dawn_90_degrees() {
     check_library();
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_dawn_90_degrees(&err);
+    auto result = kosherz_times_myzmanim_dawn_90_degrees(&err);
     detail::check(err);
     return result;
 }
@@ -4344,7 +4344,7 @@ inline double dawn_90_degrees() {
 inline double dawn_72_degrees() {
     check_library();
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_dawn_72_degrees(&err);
+    auto result = kosherz_times_myzmanim_dawn_72_degrees(&err);
     detail::check(err);
     return result;
 }
@@ -4353,7 +4353,7 @@ inline double dawn_72_degrees() {
 inline double sea_level_refraction_arcminutes() {
     check_library();
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(&err);
+    auto result = kosherz_times_myzmanim_sea_level_refraction_arcminutes(&err);
     detail::check(err);
     return result;
 }
@@ -4362,7 +4362,7 @@ inline double sea_level_refraction_arcminutes() {
 inline double dip_degrees_per_root_meter() {
     check_library();
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(&err);
+    auto result = kosherz_times_myzmanim_dip_degrees_per_root_meter(&err);
     detail::check(err);
     return result;
 }
@@ -4371,12 +4371,12 @@ inline double dip_degrees_per_root_meter() {
 inline double default_candle_lighting_minutes() {
     check_library();
     kosherz_error err{};
-    auto result = kosherz_zmanim_myzmanim_default_candle_lighting_minutes(&err);
+    auto result = kosherz_times_myzmanim_default_candle_lighting_minutes(&err);
     detail::check(err);
     return result;
 }
 
-} // namespace zmanim::myzmanim
+} // namespace times::myzmanim
 
 } // namespace kosherz
 

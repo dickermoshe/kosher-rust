@@ -2,7 +2,7 @@ use kosher_rust::LocationError;
 
 use crate::api::{
     calendar::{CalendarError, limudim::LimudimError},
-    zmanim::{ZmanFailure, ZmanimError},
+    times::{ZmanFailure, ZmanimError},
 };
 
 /// The text of an error, as its `Display` shows it.

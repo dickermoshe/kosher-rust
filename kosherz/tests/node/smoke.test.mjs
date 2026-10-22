@@ -5,10 +5,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { calendar, zmanim } from '../../generated/node/index.js';
+import { calendar, times } from '../../generated/node/index.js';
 
 const { limudim } = calendar;
-const { myzmanim } = zmanim;
+const { myzmanim } = times;
 
 /** A time zone backed by Node's ICU data: the UTC offset of `name` at an instant. */
 function ianaZone(name) {
@@ -37,30 +37,30 @@ function newYorkTime(ms) {
   return new Date(Number(ms)).toLocaleTimeString('en-GB', { timeZone: 'America/New_York' });
 }
 
-const lakewood = zmanim.seaLevelLocation(40.09, -74.22);
+const lakewood = times.seaLevelLocation(40.09, -74.22);
 const newYork = ianaZone('America/New_York');
 
 test('zmanim', () => {
-  const day = new zmanim.Zmanim(lakewood, { year: 2024, month: 4, day: 23 }, zmanim.defaultConfig(), newYork);
-  assert.equal(newYorkTime(day.get(zmanim.Zman.Sunrise)), '06:06:35');
-  assert.equal(newYorkTime(day.get(zmanim.Zman.SofZmanShmaGra)), '09:31:00');
+  const day = new times.Zmanim(lakewood, { year: 2024, month: 4, day: 23 }, times.defaultConfig(), newYork);
+  assert.equal(newYorkTime(day.get(times.Zman.Sunrise)), '06:06:35');
+  assert.equal(newYorkTime(day.get(times.Zman.SofZmanShmaGra)), '09:31:00');
 
   const all = day.all();
-  assert.equal(all.length, zmanim.allZmanim().length);
-  assert.ok(all.some((row) => row.failure === zmanim.ZmanFailure.NotApplicable));
-  assert.equal(zmanim.zmanJavaName(zmanim.Zman.SofZmanShmaGra), 'getSofZmanShmaGRA');
-  assert.equal(zmanim.zmanFromJavaName('getSofZmanShmaGRA'), zmanim.Zman.SofZmanShmaGra);
+  assert.equal(all.length, times.allZmanim().length);
+  assert.ok(all.some((row) => row.failure === times.ZmanFailure.NotApplicable));
+  assert.equal(times.zmanJavaName(times.Zman.SofZmanShmaGra), 'getSofZmanShmaGRA');
+  assert.equal(times.zmanFromJavaName('getSofZmanShmaGRA'), times.Zman.SofZmanShmaGra);
   assert.equal(day.config().candle_lighting_minutes, 18);
   day.close();
 });
 
 test('Kiddush Levana through a JS time zone, the day after the clocks went back', () => {
-  const day = new zmanim.Zmanim(lakewood, { year: 2024, month: 11, day: 4 }, zmanim.defaultConfig(), newYork);
-  const time = day.get(zmanim.Zman.TchilasZmanKidushLevana3Days);
+  const day = new times.Zmanim(lakewood, { year: 2024, month: 11, day: 4 }, times.defaultConfig(), newYork);
+  const time = day.get(times.Zman.TchilasZmanKidushLevana3Days);
   assert.equal(newYorkTime(time), '08:44:50');
 
-  const noZone = new zmanim.Zmanim(lakewood, { year: 2024, month: 11, day: 4 }, zmanim.defaultConfig(), null);
-  assert.throws(() => noZone.get(zmanim.Zman.TchilasZmanKidushLevana3Days), zmanim.TimeZoneRequiredError);
+  const noZone = new times.Zmanim(lakewood, { year: 2024, month: 11, day: 4 }, times.defaultConfig(), null);
+  assert.throws(() => noZone.get(times.Zman.TchilasZmanKidushLevana3Days), times.TimeZoneRequiredError);
 });
 
 test('a throwing time zone callback is a typed error', () => {
@@ -69,27 +69,27 @@ test('a throwing time zone callback is a typed error', () => {
       throw new Error('no time zone data');
     },
   };
-  const day = new zmanim.Zmanim(lakewood, { year: 2024, month: 4, day: 23 }, zmanim.defaultConfig(), broken);
-  assert.throws(() => day.get(zmanim.Zman.Sunrise), zmanim.TimeZoneCallbackFailedError);
+  const day = new times.Zmanim(lakewood, { year: 2024, month: 4, day: 23 }, times.defaultConfig(), broken);
+  assert.throws(() => day.get(times.Zman.Sunrise), times.TimeZoneCallbackFailedError);
 });
 
 test('invalid input is a typed error', () => {
-  const config = zmanim.defaultConfig();
+  const config = times.defaultConfig();
   assert.throws(
-    () => new zmanim.Zmanim(zmanim.seaLevelLocation(91, 0), { year: 2024, month: 1, day: 1 }, config, newYork),
-    zmanim.InvalidLatitudeError,
+    () => new times.Zmanim(times.seaLevelLocation(91, 0), { year: 2024, month: 1, day: 1 }, config, newYork),
+    times.InvalidLatitudeError,
   );
   assert.throws(
-    () => new zmanim.Zmanim(lakewood, { year: 2024, month: 2, day: 30 }, config, newYork),
-    zmanim.InvalidGregorianDateError,
+    () => new times.Zmanim(lakewood, { year: 2024, month: 2, day: 30 }, config, newYork),
+    times.InvalidGregorianDateError,
   );
   assert.throws(
-    () => new zmanim.Zmanim(lakewood, { year: 2024, month: 1, day: 1 }, { ...config, candle_lighting_minutes: 1441 }, newYork),
-    zmanim.InvalidMinutesError,
+    () => new times.Zmanim(lakewood, { year: 2024, month: 1, day: 1 }, { ...config, candle_lighting_minutes: 1441 }, newYork),
+    times.InvalidMinutesError,
   );
   assert.throws(
     () => new myzmanim.MyZmanim(lakewood, { year: 2024, month: 1, day: 1 }, NaN, newYork),
-    zmanim.InvalidMinutesError,
+    times.InvalidMinutesError,
   );
 });
 

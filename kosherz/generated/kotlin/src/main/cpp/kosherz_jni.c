@@ -337,20 +337,20 @@ JNIEXPORT void JNICALL Java_kosherz_JniBridge_error_1set_1payload(JNIEnv* env, j
     Jni_release_bytes(env, &p);
 }
 
-static jmethodID Jni_mid_zmanim_TimeZoneOffset_offset_seconds = NULL;
+static jmethodID Jni_mid_times_TimeZoneOffset_offset_seconds = NULL;
 
-static int32_t Jni_zmanim_TimeZoneOffset_offset_seconds(void* ctx, int64_t p_unix_seconds, kosherz_error* out_err) {
+static int32_t Jni_times_TimeZoneOffset_offset_seconds(void* ctx, int64_t p_unix_seconds, kosherz_error* out_err) {
     int detach = 0;
     JNIEnv* env = Jni_callback_begin(out_err, &detach);
     if (env == NULL) {
         return (int32_t)0;
     }
-    jint rv = (*env)->CallStaticIntMethod(env, Jni_bridge, Jni_mid_zmanim_TimeZoneOffset_offset_seconds, (jobject)ctx, (jlong)(intptr_t)out_err, (jlong)p_unix_seconds);
+    jint rv = (*env)->CallStaticIntMethod(env, Jni_bridge, Jni_mid_times_TimeZoneOffset_offset_seconds, (jobject)ctx, (jlong)(intptr_t)out_err, (jlong)p_unix_seconds);
     Jni_callback_end(env, out_err, detach);
     return (int32_t)rv;
 }
 
-static const kosherz_zmanim_TimeZoneOffset_vtable Jni_zmanim_TimeZoneOffset_vtable = {sizeof(kosherz_zmanim_TimeZoneOffset_vtable), 0, Jni_release_callback, Jni_zmanim_TimeZoneOffset_offset_seconds};
+static const kosherz_times_TimeZoneOffset_vtable Jni_times_TimeZoneOffset_vtable = {sizeof(kosherz_times_TimeZoneOffset_vtable), 0, Jni_release_callback, Jni_times_TimeZoneOffset_offset_seconds};
 
 static const Jni_contract_entry Jni_contract_calendar[] = {
     {UINT64_C(0x0076e887e475ab9f), UINT64_C(0x96615bd3eb7f1761), "calendar.HebrewDate.molad"},
@@ -360,7 +360,7 @@ static const Jni_contract_entry Jni_contract_calendar[] = {
     {UINT64_C(0x1c33df579fac36d8), UINT64_C(0x1175c871bc023b86), "calendar.HebrewDate.day_of_year"},
     {UINT64_C(0x235fd1db8b7dd5f5), UINT64_C(0x399eab22141dffd3), "calendar.GregorianDate"},
     {UINT64_C(0x2b066dc65c460024), UINT64_C(0xf4f23e6586bd1dd7), "calendar.HebrewDate"},
-    {UINT64_C(0x2c8e60589f58d792), UINT64_C(0x57c83a0f8bc36c6c), "calendar.limudim.Mishna"},
+    {UINT64_C(0x2c8e60589f58d792), UINT64_C(0xa0608634cb2f46cb), "calendar.limudim.Mishna"},
     {UINT64_C(0x2da09ea1403b727e), UINT64_C(0x4d5e82347ae7a3fc), "calendar.HebrewMonth"},
     {UINT64_C(0x2e1645ba38a77559), UINT64_C(0x1c81765c98ab54f9), "calendar.HebrewDate.parsha"},
     {UINT64_C(0x2e561d4c25bf877d), UINT64_C(0x47ff51d038dbe0d8), "calendar.limudim.tehillim_display"},
@@ -395,9 +395,9 @@ static const Jni_contract_entry Jni_contract_calendar[] = {
     {UINT64_C(0x98cc81d52e65776b), UINT64_C(0x2bf1569214921669), "calendar.month_hebrew"},
     {UINT64_C(0x9b48ba34fb52812d), UINT64_C(0xff11e092dce92ed7), "calendar.limudim.Side"},
     {UINT64_C(0x9e20ba757aee97c2), UINT64_C(0x9328a81ac256b477), "calendar.parsha_hebrew"},
-    {UINT64_C(0xa1e3409cebf37881), UINT64_C(0x1b7e37005bd2f8e9), "calendar.limudim.Daf"},
+    {UINT64_C(0xa1e3409cebf37881), UINT64_C(0xfeebfaab6c533e17), "calendar.limudim.Daf"},
     {UINT64_C(0xa5864219850af272), UINT64_C(0xf8a4981ca376ff28), "calendar.HebrewDate.is_assur_bemelacha"},
-    {UINT64_C(0xaeb433ce589b7931), UINT64_C(0xe1e8d4dad467e3e7), "calendar.limudim.Amud"},
+    {UINT64_C(0xaeb433ce589b7931), UINT64_C(0x364d4d0b6a770631), "calendar.limudim.Amud"},
     {UINT64_C(0xaf5dd6acc2e8ba71), UINT64_C(0xa2fdd5f43f90f755), "calendar.holiday_hebrew"},
     {UINT64_C(0xbd8865ae2177f9ff), UINT64_C(0x6bc5f7eea096d080), "calendar.year_info"},
     {UINT64_C(0xc3fd51b677226bab), UINT64_C(0x684e92fa36717939), "calendar.month_name"},
@@ -417,54 +417,54 @@ static const Jni_contract_entry Jni_contract_calendar[] = {
     {UINT64_C(0xfb59656a30b3c76f), UINT64_C(0x263b2a60d4b349b3), "calendar.Weekday"},
 };
 
-static const Jni_contract_entry Jni_contract_zmanim[] = {
-    {UINT64_C(0x022d265126fcbd47), UINT64_C(0xf70eea6f6621717f), "zmanim.validate_location"},
-    {UINT64_C(0x02e0caa49b3a204b), UINT64_C(0x5962ffa89080c41b), "zmanim.shaah_zmanis"},
-    {UINT64_C(0x04493862e57a4cdf), UINT64_C(0x258faa23773bfcae), "zmanim.myzmanim.MyZmanim.candle_lighting_minutes"},
-    {UINT64_C(0x0709c5af4b818c01), UINT64_C(0xf2a52228396d8635), "zmanim.myzmanim.sea_level_refraction_arcminutes"},
-    {UINT64_C(0x10234c837e5331b1), UINT64_C(0xcc6eb9ea8c42ca79), "zmanim.myzmanim.MyZmanim.new"},
-    {UINT64_C(0x1d3f31835b116405), UINT64_C(0x3278f3a62bb6e469), "zmanim.myzmanim.dawn_72_degrees"},
-    {UINT64_C(0x1fd629eb299bc703), UINT64_C(0xcddd8b18c602be76), "zmanim.myzmanim.MyZman"},
-    {UINT64_C(0x2550c75ec58dae49), UINT64_C(0xc3cb9f9d3b5b28ba), "zmanim.Zmanim.date"},
-    {UINT64_C(0x2791137b8945b8dd), UINT64_C(0x9169cc1ef07d2488), "zmanim.ZmanimError"},
-    {UINT64_C(0x27ff9dab340588fc), UINT64_C(0x4b1d4aaf11dfd132), "zmanim.zman_category"},
-    {UINT64_C(0x29795294927af42d), UINT64_C(0xffb3d691737a4f38), "zmanim.Category"},
-    {UINT64_C(0x30cabeb665248a1d), UINT64_C(0xfa44bbb1fab132e5), "zmanim.sea_level_location"},
-    {UINT64_C(0x334bc497c2e1b7f6), UINT64_C(0xa82a63cd8b5c9bc8), "zmanim.myzmanim.all_my_zmanim"},
-    {UINT64_C(0x406a9d72e9cc44d8), UINT64_C(0x689307845875e63e), "zmanim.zman_is_deprecated"},
-    {UINT64_C(0x4118dd5a26e15851), UINT64_C(0x549f4e736961b812), "zmanim.calculator_name"},
-    {UINT64_C(0x484846a2e9ee0a81), UINT64_C(0xdf4697e13848d687), "zmanim.zman_from_java_name"},
-    {UINT64_C(0x484f114766abb5e2), UINT64_C(0xc5f954c475f4dc9d), "zmanim.zman_java_name"},
-    {UINT64_C(0x5f3ebb1c37c66ab9), UINT64_C(0xc3cb9f9d3b5b28ba), "zmanim.myzmanim.MyZmanim.date"},
-    {UINT64_C(0x631f48e27eef2376), UINT64_C(0x63856359341062ee), "zmanim.Zmanim.location"},
-    {UINT64_C(0x65058d455e954e8e), UINT64_C(0x4a23e822039987a7), "zmanim.zman_description"},
-    {UINT64_C(0x66df597381790f0b), UINT64_C(0x4c30c7a90dcabaa5), "zmanim.Zmanim.sunset_offset_by_degrees"},
-    {UINT64_C(0x6c14e7ba35220983), UINT64_C(0x7d00a18dba45f065), "zmanim.ZmanFailure"},
-    {UINT64_C(0x7b6a0d0953f70457), UINT64_C(0x6614e227c469c232), "zmanim.Zmanim.config"},
-    {UINT64_C(0x7bda2eefee3cd432), UINT64_C(0x4af5df9a96d3f535), "zmanim.myzmanim.MyZmanim.proportional_hour_gra"},
-    {UINT64_C(0x84cfd0af1981e364), UINT64_C(0x93ef9500cb5f1cfc), "zmanim.Zmanim.sunrise_offset_by_degrees"},
-    {UINT64_C(0x852e1ce68e6270fa), UINT64_C(0xdec9155329278f29), "zmanim.myzmanim.my_zman_name"},
-    {UINT64_C(0x972d8aa47e75b0ea), UINT64_C(0x017ce9984014d3c1), "zmanim.ZmanTime"},
-    {UINT64_C(0x988396c1a4000b66), UINT64_C(0x63856359341062ee), "zmanim.myzmanim.MyZmanim.location"},
-    {UINT64_C(0x9e23e59cc6d2b627), UINT64_C(0xbea68784cf687a1a), "zmanim.Zmanim.get"},
-    {UINT64_C(0xa7022817cb0f3781), UINT64_C(0x11babf7c30a11935), "zmanim.myzmanim.dip_degrees_per_root_meter"},
-    {UINT64_C(0xa7e497ece825babf), UINT64_C(0x459375a830f8b5a0), "zmanim.zman_name"},
-    {UINT64_C(0xb0323d9cd1424d34), UINT64_C(0x669e3d4d3e9d42cc), "zmanim.Zmanim.all"},
-    {UINT64_C(0xb668f699c44a8b25), UINT64_C(0x0577fa34d1dea8c3), "zmanim.default_config"},
-    {UINT64_C(0xbc0120c65a9a7e69), UINT64_C(0xe3c7eb49f063a0ce), "zmanim.myzmanim.MyZmanim"},
-    {UINT64_C(0xc3ccda83538bf477), UINT64_C(0x93dc654d560a63b8), "zmanim.myzmanim.MyZmanim.get"},
-    {UINT64_C(0xc80294024eefae95), UINT64_C(0x52972cadc08c13ef), "zmanim.all_zmanim"},
-    {UINT64_C(0xcdc06faffaf38ffa), UINT64_C(0x551064f95ab5110d), "zmanim.myzmanim.MyZmanTime"},
-    {UINT64_C(0xcfe843f87495c18a), UINT64_C(0x7110b3413cfd8e83), "zmanim.Location"},
-    {UINT64_C(0xd12031217533824b), UINT64_C(0x2b82d4d65ec59dd7), "zmanim.myzmanim.default_candle_lighting_minutes"},
-    {UINT64_C(0xd5db12835dfb5524), UINT64_C(0x975c3a96549104d2), "zmanim.myzmanim.MyZmanim.all"},
-    {UINT64_C(0xd904b56e2a7d27f9), UINT64_C(0x2d4c4ce495502494), "zmanim.Zmanim"},
-    {UINT64_C(0xd90e158541be4971), UINT64_C(0xf13823120f5b4c46), "zmanim.Calculator"},
-    {UINT64_C(0xe178a9bb3808bfb3), UINT64_C(0x685412d4d80250ea), "zmanim.Config"},
-    {UINT64_C(0xea9baabba2ea9789), UINT64_C(0x174890db5e5166c8), "zmanim.TimeZoneOffset"},
-    {UINT64_C(0xed07579cf3c52ba1), UINT64_C(0x99d014ada9906437), "zmanim.Zmanim.new"},
-    {UINT64_C(0xf9ebba0666552393), UINT64_C(0x0486761191984fd0), "zmanim.Zman"},
-    {UINT64_C(0xfa3f9e72b3e59929), UINT64_C(0x735499ab0a625d6d), "zmanim.myzmanim.dawn_90_degrees"},
+static const Jni_contract_entry Jni_contract_times[] = {
+    {UINT64_C(0x01ce427485afb43a), UINT64_C(0x017ce9984014d3c1), "times.ZmanTime"},
+    {UINT64_C(0x0643c19407762211), UINT64_C(0x11babf7c30a11935), "times.myzmanim.dip_degrees_per_root_meter"},
+    {UINT64_C(0x091fabaf00184561), UINT64_C(0xf13823120f5b4c46), "times.Calculator"},
+    {UINT64_C(0x0a21d46001720019), UINT64_C(0x174890db5e5166c8), "times.TimeZoneOffset"},
+    {UINT64_C(0x0a86c54f2d84238c), UINT64_C(0x4b1d4aaf11dfd132), "times.zman_category"},
+    {UINT64_C(0x0d3bc9cd549a7137), UINT64_C(0xbea68784cf687a1a), "times.Zmanim.get"},
+    {UINT64_C(0x0e595d82f4b54ade), UINT64_C(0x4a23e822039987a7), "times.zman_description"},
+    {UINT64_C(0x1164ca1d22579c8d), UINT64_C(0xfa44bbb1fab132e5), "times.sea_level_location"},
+    {UINT64_C(0x196240a5b18bd7a9), UINT64_C(0x2d4c4ce495502494), "times.Zmanim"},
+    {UINT64_C(0x1f4901cd5f081ee4), UINT64_C(0x669e3d4d3e9d42cc), "times.Zmanim.all"},
+    {UINT64_C(0x2eabf209e8de2867), UINT64_C(0x6614e227c469c232), "times.Zmanim.config"},
+    {UINT64_C(0x38596a351e356743), UINT64_C(0x685412d4d80250ea), "times.Config"},
+    {UINT64_C(0x39389f0e68d3cc22), UINT64_C(0x4af5df9a96d3f535), "times.myzmanim.MyZmanim.proportional_hour_gra"},
+    {UINT64_C(0x3c92cd49c8b4515b), UINT64_C(0x5962ffa89080c41b), "times.shaah_zmanis"},
+    {UINT64_C(0x4048d3ca4b000831), UINT64_C(0xdf4697e13848d687), "times.zman_from_java_name"},
+    {UINT64_C(0x44a0809dedbd4a4d), UINT64_C(0x9169cc1ef07d2488), "times.ZmanimError"},
+    {UINT64_C(0x4d259836d7137c43), UINT64_C(0x0486761191984fd0), "times.Zman"},
+    {UINT64_C(0x57d7a9c5a715b9fa), UINT64_C(0x7110b3413cfd8e83), "times.Location"},
+    {UINT64_C(0x5cf83bcd8244d771), UINT64_C(0x99d014ada9906437), "times.Zmanim.new"},
+    {UINT64_C(0x65aa216d77a78308), UINT64_C(0x689307845875e63e), "times.zman_is_deprecated"},
+    {UINT64_C(0x68ffad4e5539ca69), UINT64_C(0xc3cb9f9d3b5b28ba), "times.myzmanim.MyZmanim.date"},
+    {UINT64_C(0x6b5635f618146d65), UINT64_C(0x52972cadc08c13ef), "times.all_zmanim"},
+    {UINT64_C(0x7438d1e6d2e55275), UINT64_C(0x3278f3a62bb6e469), "times.myzmanim.dawn_72_degrees"},
+    {UINT64_C(0x743c832eb2e19415), UINT64_C(0x0577fa34d1dea8c3), "times.default_config"},
+    {UINT64_C(0x77857568cbec63b3), UINT64_C(0xcddd8b18c602be76), "times.myzmanim.MyZman"},
+    {UINT64_C(0x79dc07bc571a3ab7), UINT64_C(0xf70eea6f6621717f), "times.validate_location"},
+    {UINT64_C(0x80d913d2e48601c7), UINT64_C(0x93dc654d560a63b8), "times.myzmanim.MyZmanim.get"},
+    {UINT64_C(0x8a9dcfc50ecf7193), UINT64_C(0x7d00a18dba45f065), "times.ZmanFailure"},
+    {UINT64_C(0x8f816bd2ec126fd4), UINT64_C(0x975c3a96549104d2), "times.myzmanim.MyZmanim.all"},
+    {UINT64_C(0x94ec9f2dd31dd154), UINT64_C(0x93ef9500cb5f1cfc), "times.Zmanim.sunrise_offset_by_degrees"},
+    {UINT64_C(0x968059cb1e92252a), UINT64_C(0xdec9155329278f29), "times.myzmanim.my_zman_name"},
+    {UINT64_C(0x97a962b59a32c7db), UINT64_C(0x4c30c7a90dcabaa5), "times.Zmanim.sunset_offset_by_degrees"},
+    {UINT64_C(0x9b8cdf454932d1af), UINT64_C(0x459375a830f8b5a0), "times.zman_name"},
+    {UINT64_C(0x9d5bd45067baa0fb), UINT64_C(0x2b82d4d65ec59dd7), "times.myzmanim.default_candle_lighting_minutes"},
+    {UINT64_C(0x9d85f89bf54e8206), UINT64_C(0xa82a63cd8b5c9bc8), "times.myzmanim.all_my_zmanim"},
+    {UINT64_C(0x9e749626c03b8981), UINT64_C(0x549f4e736961b812), "times.calculator_name"},
+    {UINT64_C(0xbb0373c362e8a226), UINT64_C(0x63856359341062ee), "times.Zmanim.location"},
+    {UINT64_C(0xc1a3c3740d199619), UINT64_C(0xe3c7eb49f063a0ce), "times.myzmanim.MyZmanim"},
+    {UINT64_C(0xc29ca29cb7cd2999), UINT64_C(0x735499ab0a625d6d), "times.myzmanim.dawn_90_degrees"},
+    {UINT64_C(0xcc5685d30e954e41), UINT64_C(0xcc6eb9ea8c42ca79), "times.myzmanim.MyZmanim.new"},
+    {UINT64_C(0xce8ce7ef4ad0db32), UINT64_C(0xc5f954c475f4dc9d), "times.zman_java_name"},
+    {UINT64_C(0xdb5095e0e87f0d79), UINT64_C(0xc3cb9f9d3b5b28ba), "times.Zmanim.date"},
+    {UINT64_C(0xdda7b795bf202896), UINT64_C(0x63856359341062ee), "times.myzmanim.MyZmanim.location"},
+    {UINT64_C(0xe05ccdd3147e3c9d), UINT64_C(0xffb3d691737a4f38), "times.Category"},
+    {UINT64_C(0xe46d58cfab0684cf), UINT64_C(0x258faa23773bfcae), "times.myzmanim.MyZmanim.candle_lighting_minutes"},
+    {UINT64_C(0xf0a3c8d75d8fb1ca), UINT64_C(0x551064f95ab5110d), "times.myzmanim.MyZmanTime"},
+    {UINT64_C(0xf577b8fb530d1ad1), UINT64_C(0xf2a52228396d8635), "times.myzmanim.sea_level_refraction_arcminutes"},
 };
 
 static jint Jni_load(JNIEnv* env) {
@@ -472,11 +472,11 @@ static jint Jni_load(JNIEnv* env) {
     if (Jni_check_contract(env, kosherz_calendar_contract, Jni_contract_calendar, sizeof Jni_contract_calendar / sizeof Jni_contract_calendar[0]) != JNI_OK) {
         return JNI_ERR;
     }
-    if (Jni_check_contract(env, kosherz_zmanim_contract, Jni_contract_zmanim, sizeof Jni_contract_zmanim / sizeof Jni_contract_zmanim[0]) != JNI_OK) {
+    if (Jni_check_contract(env, kosherz_times_contract, Jni_contract_times, sizeof Jni_contract_times / sizeof Jni_contract_times[0]) != JNI_OK) {
         return JNI_ERR;
     }
-    Jni_mid_zmanim_TimeZoneOffset_offset_seconds = (*env)->GetStaticMethodID(env, Jni_bridge, "zmanim_TimeZoneOffset_offset_seconds", "(Lkosherz/TimeZoneOffset;JJ)I");
-    if (Jni_mid_zmanim_TimeZoneOffset_offset_seconds == NULL) {
+    Jni_mid_times_TimeZoneOffset_offset_seconds = (*env)->GetStaticMethodID(env, Jni_bridge, "times_TimeZoneOffset_offset_seconds", "(Lkosherz/TimeZoneOffset;JJ)I");
+    if (Jni_mid_times_TimeZoneOffset_offset_seconds == NULL) {
         return JNI_ERR;
     }
     return JNI_OK;
@@ -1009,23 +1009,23 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1pirkei_1a
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1clone(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1clone(JNIEnv* env, jclass cls, jlong self) {
     (void)env;
     (void)cls;
-    return (jlong)(intptr_t)kosherz_zmanim_Zmanim_clone((const kosherz_zmanim_Zmanim*)(intptr_t)self);
+    return (jlong)(intptr_t)kosherz_times_Zmanim_clone((const kosherz_times_Zmanim*)(intptr_t)self);
 }
 
-JNIEXPORT void JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1destroy(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT void JNICALL Java_kosherz_JniBridge_times_1Zmanim_1destroy(JNIEnv* env, jclass cls, jlong self) {
     (void)env;
     (void)cls;
-    kosherz_zmanim_Zmanim_destroy((kosherz_zmanim_Zmanim*)(intptr_t)self);
+    kosherz_times_Zmanim_destroy((kosherz_times_Zmanim*)(intptr_t)self);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1sea_1level_1location(JNIEnv* env, jclass cls, jdouble p_latitude, jdouble p_longitude) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1sea_1level_1location(JNIEnv* env, jclass cls, jdouble p_latitude, jdouble p_longitude) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_sea_level_location((double)p_latitude, (double)p_longitude, &out_len, &err);
+    const uint8_t* rv = kosherz_times_sea_level_location((double)p_latitude, (double)p_longitude, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1033,11 +1033,11 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1sea_1level_1location
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT void JNICALL Java_kosherz_JniBridge_zmanim_1validate_1location(JNIEnv* env, jclass cls, jbyteArray p_location, jboolean p_has_time_zone) {
+JNIEXPORT void JNICALL Java_kosherz_JniBridge_times_1validate_1location(JNIEnv* env, jclass cls, jbyteArray p_location, jboolean p_has_time_zone) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_location_b = Jni_borrow_bytes(env, p_location);
-    kosherz_zmanim_validate_location(p_location_b.ptr, p_location_b.len, p_has_time_zone == JNI_TRUE, &err);
+    kosherz_times_validate_location(p_location_b.ptr, p_location_b.len, p_has_time_zone == JNI_TRUE, &err);
     Jni_release_bytes(env, &p_location_b);
     if (err.code != 0) {
         Jni_throw(env, &err, 3);
@@ -1045,11 +1045,11 @@ JNIEXPORT void JNICALL Java_kosherz_JniBridge_zmanim_1validate_1location(JNIEnv*
     }
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1default_1config(JNIEnv* env, jclass cls) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1default_1config(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_default_config(&out_len, &err);
+    const uint8_t* rv = kosherz_times_default_config(&out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1057,11 +1057,11 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1default_1config(JNIE
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1all_1zmanim(JNIEnv* env, jclass cls) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1all_1zmanim(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_all_zmanim(&out_len, &err);
+    const uint8_t* rv = kosherz_times_all_zmanim(&out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1069,11 +1069,11 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1all_1zmanim(JNIEnv* 
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1zman_1name(JNIEnv* env, jclass cls, jint p_zman) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1name(JNIEnv* env, jclass cls, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_zman_name((kosherz_zmanim_Zman)p_zman, &out_len, &err);
+    const uint8_t* rv = kosherz_times_zman_name((kosherz_times_Zman)p_zman, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1081,11 +1081,11 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1zman_1name(JNIEnv* e
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1zman_1java_1name(JNIEnv* env, jclass cls, jint p_zman) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1java_1name(JNIEnv* env, jclass cls, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_zman_java_name((kosherz_zmanim_Zman)p_zman, &out_len, &err);
+    const uint8_t* rv = kosherz_times_zman_java_name((kosherz_times_Zman)p_zman, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1093,12 +1093,12 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1zman_1java_1name(JNI
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1zman_1from_1java_1name(JNIEnv* env, jclass cls, jbyteArray p_java_name) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1from_1java_1name(JNIEnv* env, jclass cls, jbyteArray p_java_name) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_java_name_b = Jni_borrow_bytes(env, p_java_name);
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_zman_from_java_name(p_java_name_b.ptr, p_java_name_b.len, &out_len, &err);
+    const uint8_t* rv = kosherz_times_zman_from_java_name(p_java_name_b.ptr, p_java_name_b.len, &out_len, &err);
     Jni_release_bytes(env, &p_java_name_b);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
@@ -1107,10 +1107,10 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1zman_1from_1java_1na
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jint JNICALL Java_kosherz_JniBridge_zmanim_1zman_1category(JNIEnv* env, jclass cls, jint p_zman) {
+JNIEXPORT jint JNICALL Java_kosherz_JniBridge_times_1zman_1category(JNIEnv* env, jclass cls, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    kosherz_zmanim_Category rv = kosherz_zmanim_zman_category((kosherz_zmanim_Zman)p_zman, &err);
+    kosherz_times_Category rv = kosherz_times_zman_category((kosherz_times_Zman)p_zman, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return 0;
@@ -1118,10 +1118,10 @@ JNIEXPORT jint JNICALL Java_kosherz_JniBridge_zmanim_1zman_1category(JNIEnv* env
     return (jint)rv;
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_zmanim_1zman_1is_1deprecated(JNIEnv* env, jclass cls, jint p_zman) {
+JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_times_1zman_1is_1deprecated(JNIEnv* env, jclass cls, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    bool rv = kosherz_zmanim_zman_is_deprecated((kosherz_zmanim_Zman)p_zman, &err);
+    bool rv = kosherz_times_zman_is_deprecated((kosherz_times_Zman)p_zman, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return 0;
@@ -1129,12 +1129,12 @@ JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_zmanim_1zman_1is_1deprecated(J
     return rv ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1zman_1description(JNIEnv* env, jclass cls, jint p_zman, jbyteArray p_config) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1description(JNIEnv* env, jclass cls, jint p_zman, jbyteArray p_config) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_config_b = Jni_borrow_bytes(env, p_config);
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_zman_description((kosherz_zmanim_Zman)p_zman, p_config_b.ptr, p_config_b.len, &out_len, &err);
+    const uint8_t* rv = kosherz_times_zman_description((kosherz_times_Zman)p_zman, p_config_b.ptr, p_config_b.len, &out_len, &err);
     Jni_release_bytes(env, &p_config_b);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
@@ -1143,11 +1143,11 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1zman_1description(JN
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1calculator_1name(JNIEnv* env, jclass cls, jint p_calculator) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1calculator_1name(JNIEnv* env, jclass cls, jint p_calculator) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_calculator_name((kosherz_zmanim_Calculator)p_calculator, &out_len, &err);
+    const uint8_t* rv = kosherz_times_calculator_name((kosherz_times_Calculator)p_calculator, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1155,10 +1155,10 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1calculator_1name(JNI
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1shaah_1zmanis(JNIEnv* env, jclass cls, jlong p_start, jlong p_end) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1shaah_1zmanis(JNIEnv* env, jclass cls, jlong p_start, jlong p_end) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    int64_t rv = kosherz_zmanim_shaah_zmanis((int64_t)p_start, (int64_t)p_end, &err);
+    int64_t rv = kosherz_times_shaah_zmanis((int64_t)p_start, (int64_t)p_end, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return 0;
@@ -1166,13 +1166,13 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1shaah_1zmanis(JNIEnv* env
     return (jlong)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jbyteArray p_config, jobject p_time_zone) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jbyteArray p_config, jobject p_time_zone) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_location_b = Jni_borrow_bytes(env, p_location);
     Jni_bytes p_date_b = Jni_borrow_bytes(env, p_date);
     Jni_bytes p_config_b = Jni_borrow_bytes(env, p_config);
-    kosherz_zmanim_Zmanim* rv = kosherz_zmanim_Zmanim_new(p_location_b.ptr, p_location_b.len, p_date_b.ptr, p_date_b.len, p_config_b.ptr, p_config_b.len, p_time_zone != NULL ? (void*)(*env)->NewGlobalRef(env, p_time_zone) : NULL, p_time_zone != NULL ? &Jni_zmanim_TimeZoneOffset_vtable : NULL, &err);
+    kosherz_times_Zmanim* rv = kosherz_times_Zmanim_new(p_location_b.ptr, p_location_b.len, p_date_b.ptr, p_date_b.len, p_config_b.ptr, p_config_b.len, p_time_zone != NULL ? (void*)(*env)->NewGlobalRef(env, p_time_zone) : NULL, p_time_zone != NULL ? &Jni_times_TimeZoneOffset_vtable : NULL, &err);
     Jni_release_bytes(env, &p_location_b);
     Jni_release_bytes(env, &p_date_b);
     Jni_release_bytes(env, &p_config_b);
@@ -1183,10 +1183,10 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1new(JNIEnv* env, 
     return (jlong)(intptr_t)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1get(JNIEnv* env, jclass cls, jlong self, jint p_zman) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1get(JNIEnv* env, jclass cls, jlong self, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    int64_t rv = kosherz_zmanim_Zmanim_get((const kosherz_zmanim_Zmanim*)(intptr_t)self, (kosherz_zmanim_Zman)p_zman, &err);
+    int64_t rv = kosherz_times_Zmanim_get((const kosherz_times_Zmanim*)(intptr_t)self, (kosherz_times_Zman)p_zman, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 3);
         return 0;
@@ -1194,11 +1194,11 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1get(JNIEnv* env, 
     return (jlong)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1all(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1all(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_Zmanim_all((const kosherz_zmanim_Zmanim*)(intptr_t)self, &out_len, &err);
+    const uint8_t* rv = kosherz_times_Zmanim_all((const kosherz_times_Zmanim*)(intptr_t)self, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1206,10 +1206,10 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1all(JNIEnv* 
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1sunrise_1offset_1by_1degrees(JNIEnv* env, jclass cls, jlong self, jdouble p_degrees) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1sunrise_1offset_1by_1degrees(JNIEnv* env, jclass cls, jlong self, jdouble p_degrees) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    int64_t rv = kosherz_zmanim_Zmanim_sunrise_offset_by_degrees((const kosherz_zmanim_Zmanim*)(intptr_t)self, (double)p_degrees, &err);
+    int64_t rv = kosherz_times_Zmanim_sunrise_offset_by_degrees((const kosherz_times_Zmanim*)(intptr_t)self, (double)p_degrees, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 3);
         return 0;
@@ -1217,10 +1217,10 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1sunrise_1offset_1
     return (jlong)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1sunset_1offset_1by_1degrees(JNIEnv* env, jclass cls, jlong self, jdouble p_degrees) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1sunset_1offset_1by_1degrees(JNIEnv* env, jclass cls, jlong self, jdouble p_degrees) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    int64_t rv = kosherz_zmanim_Zmanim_sunset_offset_by_degrees((const kosherz_zmanim_Zmanim*)(intptr_t)self, (double)p_degrees, &err);
+    int64_t rv = kosherz_times_Zmanim_sunset_offset_by_degrees((const kosherz_times_Zmanim*)(intptr_t)self, (double)p_degrees, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 3);
         return 0;
@@ -1228,11 +1228,11 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1sunset_1offset_1b
     return (jlong)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1location(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1location(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_Zmanim_location((const kosherz_zmanim_Zmanim*)(intptr_t)self, &out_len, &err);
+    const uint8_t* rv = kosherz_times_Zmanim_location((const kosherz_times_Zmanim*)(intptr_t)self, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1240,11 +1240,11 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1location(JNI
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1date(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1date(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_Zmanim_date((const kosherz_zmanim_Zmanim*)(intptr_t)self, &out_len, &err);
+    const uint8_t* rv = kosherz_times_Zmanim_date((const kosherz_times_Zmanim*)(intptr_t)self, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1252,11 +1252,11 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1date(JNIEnv*
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1config(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1config(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_Zmanim_config((const kosherz_zmanim_Zmanim*)(intptr_t)self, &out_len, &err);
+    const uint8_t* rv = kosherz_times_Zmanim_config((const kosherz_times_Zmanim*)(intptr_t)self, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1264,23 +1264,23 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1Zmanim_1config(JNIEn
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1clone(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1clone(JNIEnv* env, jclass cls, jlong self) {
     (void)env;
     (void)cls;
-    return (jlong)(intptr_t)kosherz_zmanim_myzmanim_MyZmanim_clone((const kosherz_zmanim_myzmanim_MyZmanim*)(intptr_t)self);
+    return (jlong)(intptr_t)kosherz_times_myzmanim_MyZmanim_clone((const kosherz_times_myzmanim_MyZmanim*)(intptr_t)self);
 }
 
-JNIEXPORT void JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1destroy(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT void JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1destroy(JNIEnv* env, jclass cls, jlong self) {
     (void)env;
     (void)cls;
-    kosherz_zmanim_myzmanim_MyZmanim_destroy((kosherz_zmanim_myzmanim_MyZmanim*)(intptr_t)self);
+    kosherz_times_myzmanim_MyZmanim_destroy((kosherz_times_myzmanim_MyZmanim*)(intptr_t)self);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1my_1zman_1name(JNIEnv* env, jclass cls, jint p_zman) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1my_1zman_1name(JNIEnv* env, jclass cls, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_myzmanim_my_zman_name((kosherz_zmanim_myzmanim_MyZman)p_zman, &out_len, &err);
+    const uint8_t* rv = kosherz_times_myzmanim_my_zman_name((kosherz_times_myzmanim_MyZman)p_zman, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1288,11 +1288,11 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1my_1zman_1
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1all_1my_1zmanim(JNIEnv* env, jclass cls) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1all_1my_1zmanim(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_myzmanim_all_my_zmanim(&out_len, &err);
+    const uint8_t* rv = kosherz_times_myzmanim_all_my_zmanim(&out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1300,10 +1300,10 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1all_1my_1z
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1dawn_190_1degrees(JNIEnv* env, jclass cls) {
+JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1dawn_190_1degrees(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    double rv = kosherz_zmanim_myzmanim_dawn_90_degrees(&err);
+    double rv = kosherz_times_myzmanim_dawn_90_degrees(&err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return 0;
@@ -1311,10 +1311,10 @@ JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1dawn_190_1deg
     return (jdouble)rv;
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1dawn_172_1degrees(JNIEnv* env, jclass cls) {
+JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1dawn_172_1degrees(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    double rv = kosherz_zmanim_myzmanim_dawn_72_degrees(&err);
+    double rv = kosherz_times_myzmanim_dawn_72_degrees(&err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return 0;
@@ -1322,10 +1322,10 @@ JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1dawn_172_1deg
     return (jdouble)rv;
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1sea_1level_1refraction_1arcminutes(JNIEnv* env, jclass cls) {
+JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1sea_1level_1refraction_1arcminutes(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    double rv = kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(&err);
+    double rv = kosherz_times_myzmanim_sea_level_refraction_arcminutes(&err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return 0;
@@ -1333,10 +1333,10 @@ JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1sea_1level_1r
     return (jdouble)rv;
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1dip_1degrees_1per_1root_1meter(JNIEnv* env, jclass cls) {
+JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1dip_1degrees_1per_1root_1meter(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    double rv = kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(&err);
+    double rv = kosherz_times_myzmanim_dip_degrees_per_root_meter(&err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return 0;
@@ -1344,10 +1344,10 @@ JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1dip_1degrees_
     return (jdouble)rv;
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1default_1candle_1lighting_1minutes(JNIEnv* env, jclass cls) {
+JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1default_1candle_1lighting_1minutes(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    double rv = kosherz_zmanim_myzmanim_default_candle_lighting_minutes(&err);
+    double rv = kosherz_times_myzmanim_default_candle_lighting_minutes(&err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return 0;
@@ -1355,12 +1355,12 @@ JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1default_1cand
     return (jdouble)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jdouble p_candle_lighting_minutes, jobject p_time_zone) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jdouble p_candle_lighting_minutes, jobject p_time_zone) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_location_b = Jni_borrow_bytes(env, p_location);
     Jni_bytes p_date_b = Jni_borrow_bytes(env, p_date);
-    kosherz_zmanim_myzmanim_MyZmanim* rv = kosherz_zmanim_myzmanim_MyZmanim_new(p_location_b.ptr, p_location_b.len, p_date_b.ptr, p_date_b.len, (double)p_candle_lighting_minutes, p_time_zone != NULL ? (void*)(*env)->NewGlobalRef(env, p_time_zone) : NULL, p_time_zone != NULL ? &Jni_zmanim_TimeZoneOffset_vtable : NULL, &err);
+    kosherz_times_myzmanim_MyZmanim* rv = kosherz_times_myzmanim_MyZmanim_new(p_location_b.ptr, p_location_b.len, p_date_b.ptr, p_date_b.len, (double)p_candle_lighting_minutes, p_time_zone != NULL ? (void*)(*env)->NewGlobalRef(env, p_time_zone) : NULL, p_time_zone != NULL ? &Jni_times_TimeZoneOffset_vtable : NULL, &err);
     Jni_release_bytes(env, &p_location_b);
     Jni_release_bytes(env, &p_date_b);
     if (err.code != 0) {
@@ -1370,10 +1370,10 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1new(J
     return (jlong)(intptr_t)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1get(JNIEnv* env, jclass cls, jlong self, jint p_zman) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1get(JNIEnv* env, jclass cls, jlong self, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    int64_t rv = kosherz_zmanim_myzmanim_MyZmanim_get((const kosherz_zmanim_myzmanim_MyZmanim*)(intptr_t)self, (kosherz_zmanim_myzmanim_MyZman)p_zman, &err);
+    int64_t rv = kosherz_times_myzmanim_MyZmanim_get((const kosherz_times_myzmanim_MyZmanim*)(intptr_t)self, (kosherz_times_myzmanim_MyZman)p_zman, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 3);
         return 0;
@@ -1381,11 +1381,11 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1get(J
     return (jlong)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1all(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1all(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_myzmanim_MyZmanim_all((const kosherz_zmanim_myzmanim_MyZmanim*)(intptr_t)self, &out_len, &err);
+    const uint8_t* rv = kosherz_times_myzmanim_MyZmanim_all((const kosherz_times_myzmanim_MyZmanim*)(intptr_t)self, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1393,10 +1393,10 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1proportional_1hour_1gra(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1proportional_1hour_1gra(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    int64_t rv = kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra((const kosherz_zmanim_myzmanim_MyZmanim*)(intptr_t)self, &err);
+    int64_t rv = kosherz_times_myzmanim_MyZmanim_proportional_hour_gra((const kosherz_times_myzmanim_MyZmanim*)(intptr_t)self, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 3);
         return 0;
@@ -1404,11 +1404,11 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1propo
     return (jlong)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1location(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1location(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_myzmanim_MyZmanim_location((const kosherz_zmanim_myzmanim_MyZmanim*)(intptr_t)self, &out_len, &err);
+    const uint8_t* rv = kosherz_times_myzmanim_MyZmanim_location((const kosherz_times_myzmanim_MyZmanim*)(intptr_t)self, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1416,11 +1416,11 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1date(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1date(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
-    const uint8_t* rv = kosherz_zmanim_myzmanim_MyZmanim_date((const kosherz_zmanim_myzmanim_MyZmanim*)(intptr_t)self, &out_len, &err);
+    const uint8_t* rv = kosherz_times_myzmanim_MyZmanim_date((const kosherz_times_myzmanim_MyZmanim*)(intptr_t)self, &out_len, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return NULL;
@@ -1428,10 +1428,10 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_zmanim_1myzmanim_1MyZmanim_1candle_1lighting_1minutes(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1candle_1lighting_1minutes(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
-    double rv = kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes((const kosherz_zmanim_myzmanim_MyZmanim*)(intptr_t)self, &err);
+    double rv = kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes((const kosherz_times_myzmanim_MyZmanim*)(intptr_t)self, &err);
     if (err.code != 0) {
         Jni_throw(env, &err, 0);
         return 0;

@@ -119,7 +119,7 @@ KOSHERZ_API const kosherz_contract_entry* kosherz_calendar_contract(size_t* out_
     {0x1c33df579fac36d8ull, 0x1175c871bc023b86ull}, /* calendar.HebrewDate.day_of_year */ \
     {0x235fd1db8b7dd5f5ull, 0x399eab22141dffd3ull}, /* calendar.GregorianDate */ \
     {0x2b066dc65c460024ull, 0xf4f23e6586bd1dd7ull}, /* calendar.HebrewDate */ \
-    {0x2c8e60589f58d792ull, 0x57c83a0f8bc36c6cull}, /* calendar.limudim.Mishna */ \
+    {0x2c8e60589f58d792ull, 0xa0608634cb2f46cbull}, /* calendar.limudim.Mishna */ \
     {0x2da09ea1403b727eull, 0x4d5e82347ae7a3fcull}, /* calendar.HebrewMonth */ \
     {0x2e1645ba38a77559ull, 0x1c81765c98ab54f9ull}, /* calendar.HebrewDate.parsha */ \
     {0x2e561d4c25bf877dull, 0x47ff51d038dbe0d8ull}, /* calendar.limudim.tehillim_display */ \
@@ -154,9 +154,9 @@ KOSHERZ_API const kosherz_contract_entry* kosherz_calendar_contract(size_t* out_
     {0x98cc81d52e65776bull, 0x2bf1569214921669ull}, /* calendar.month_hebrew */ \
     {0x9b48ba34fb52812dull, 0xff11e092dce92ed7ull}, /* calendar.limudim.Side */ \
     {0x9e20ba757aee97c2ull, 0x9328a81ac256b477ull}, /* calendar.parsha_hebrew */ \
-    {0xa1e3409cebf37881ull, 0x1b7e37005bd2f8e9ull}, /* calendar.limudim.Daf */ \
+    {0xa1e3409cebf37881ull, 0xfeebfaab6c533e17ull}, /* calendar.limudim.Daf */ \
     {0xa5864219850af272ull, 0xf8a4981ca376ff28ull}, /* calendar.HebrewDate.is_assur_bemelacha */ \
-    {0xaeb433ce589b7931ull, 0xe1e8d4dad467e3e7ull}, /* calendar.limudim.Amud */ \
+    {0xaeb433ce589b7931ull, 0x364d4d0b6a770631ull}, /* calendar.limudim.Amud */ \
     {0xaf5dd6acc2e8ba71ull, 0xa2fdd5f43f90f755ull}, /* calendar.holiday_hebrew */ \
     {0xbd8865ae2177f9ffull, 0x6bc5f7eea096d080ull}, /* calendar.year_info */ \
     {0xc3fd51b677226babull, 0x684e92fa36717939ull}, /* calendar.month_name */ \
@@ -194,68 +194,68 @@ static inline uint64_t kosherz_calendar_contract_check(void) {
     return 0;
 }
 
-/* The contract of module `zmanim`: one entry per declaration, sorted by
+/* The contract of module `times`: one entry per declaration, sorted by
    id. The producer's table comes from the function below; a consumer
    checks each entry it was generated with against it once, before any
    other call (producer entries it doesn't know are fine). */
-KOSHERZ_API const kosherz_contract_entry* kosherz_zmanim_contract(size_t* out_len);
-#define KOSHERZ_ZMANIM_CONTRACT_LEN 47
-#define KOSHERZ_ZMANIM_CONTRACT { \
-    {0x022d265126fcbd47ull, 0xf70eea6f6621717full}, /* zmanim.validate_location */ \
-    {0x02e0caa49b3a204bull, 0x5962ffa89080c41bull}, /* zmanim.shaah_zmanis */ \
-    {0x04493862e57a4cdfull, 0x258faa23773bfcaeull}, /* zmanim.myzmanim.MyZmanim.candle_lighting_minutes */ \
-    {0x0709c5af4b818c01ull, 0xf2a52228396d8635ull}, /* zmanim.myzmanim.sea_level_refraction_arcminutes */ \
-    {0x10234c837e5331b1ull, 0xcc6eb9ea8c42ca79ull}, /* zmanim.myzmanim.MyZmanim.new */ \
-    {0x1d3f31835b116405ull, 0x3278f3a62bb6e469ull}, /* zmanim.myzmanim.dawn_72_degrees */ \
-    {0x1fd629eb299bc703ull, 0xcddd8b18c602be76ull}, /* zmanim.myzmanim.MyZman */ \
-    {0x2550c75ec58dae49ull, 0xc3cb9f9d3b5b28baull}, /* zmanim.Zmanim.date */ \
-    {0x2791137b8945b8ddull, 0x9169cc1ef07d2488ull}, /* zmanim.ZmanimError */ \
-    {0x27ff9dab340588fcull, 0x4b1d4aaf11dfd132ull}, /* zmanim.zman_category */ \
-    {0x29795294927af42dull, 0xffb3d691737a4f38ull}, /* zmanim.Category */ \
-    {0x30cabeb665248a1dull, 0xfa44bbb1fab132e5ull}, /* zmanim.sea_level_location */ \
-    {0x334bc497c2e1b7f6ull, 0xa82a63cd8b5c9bc8ull}, /* zmanim.myzmanim.all_my_zmanim */ \
-    {0x406a9d72e9cc44d8ull, 0x689307845875e63eull}, /* zmanim.zman_is_deprecated */ \
-    {0x4118dd5a26e15851ull, 0x549f4e736961b812ull}, /* zmanim.calculator_name */ \
-    {0x484846a2e9ee0a81ull, 0xdf4697e13848d687ull}, /* zmanim.zman_from_java_name */ \
-    {0x484f114766abb5e2ull, 0xc5f954c475f4dc9dull}, /* zmanim.zman_java_name */ \
-    {0x5f3ebb1c37c66ab9ull, 0xc3cb9f9d3b5b28baull}, /* zmanim.myzmanim.MyZmanim.date */ \
-    {0x631f48e27eef2376ull, 0x63856359341062eeull}, /* zmanim.Zmanim.location */ \
-    {0x65058d455e954e8eull, 0x4a23e822039987a7ull}, /* zmanim.zman_description */ \
-    {0x66df597381790f0bull, 0x4c30c7a90dcabaa5ull}, /* zmanim.Zmanim.sunset_offset_by_degrees */ \
-    {0x6c14e7ba35220983ull, 0x7d00a18dba45f065ull}, /* zmanim.ZmanFailure */ \
-    {0x7b6a0d0953f70457ull, 0x6614e227c469c232ull}, /* zmanim.Zmanim.config */ \
-    {0x7bda2eefee3cd432ull, 0x4af5df9a96d3f535ull}, /* zmanim.myzmanim.MyZmanim.proportional_hour_gra */ \
-    {0x84cfd0af1981e364ull, 0x93ef9500cb5f1cfcull}, /* zmanim.Zmanim.sunrise_offset_by_degrees */ \
-    {0x852e1ce68e6270faull, 0xdec9155329278f29ull}, /* zmanim.myzmanim.my_zman_name */ \
-    {0x972d8aa47e75b0eaull, 0x017ce9984014d3c1ull}, /* zmanim.ZmanTime */ \
-    {0x988396c1a4000b66ull, 0x63856359341062eeull}, /* zmanim.myzmanim.MyZmanim.location */ \
-    {0x9e23e59cc6d2b627ull, 0xbea68784cf687a1aull}, /* zmanim.Zmanim.get */ \
-    {0xa7022817cb0f3781ull, 0x11babf7c30a11935ull}, /* zmanim.myzmanim.dip_degrees_per_root_meter */ \
-    {0xa7e497ece825babfull, 0x459375a830f8b5a0ull}, /* zmanim.zman_name */ \
-    {0xb0323d9cd1424d34ull, 0x669e3d4d3e9d42ccull}, /* zmanim.Zmanim.all */ \
-    {0xb668f699c44a8b25ull, 0x0577fa34d1dea8c3ull}, /* zmanim.default_config */ \
-    {0xbc0120c65a9a7e69ull, 0xe3c7eb49f063a0ceull}, /* zmanim.myzmanim.MyZmanim */ \
-    {0xc3ccda83538bf477ull, 0x93dc654d560a63b8ull}, /* zmanim.myzmanim.MyZmanim.get */ \
-    {0xc80294024eefae95ull, 0x52972cadc08c13efull}, /* zmanim.all_zmanim */ \
-    {0xcdc06faffaf38ffaull, 0x551064f95ab5110dull}, /* zmanim.myzmanim.MyZmanTime */ \
-    {0xcfe843f87495c18aull, 0x7110b3413cfd8e83ull}, /* zmanim.Location */ \
-    {0xd12031217533824bull, 0x2b82d4d65ec59dd7ull}, /* zmanim.myzmanim.default_candle_lighting_minutes */ \
-    {0xd5db12835dfb5524ull, 0x975c3a96549104d2ull}, /* zmanim.myzmanim.MyZmanim.all */ \
-    {0xd904b56e2a7d27f9ull, 0x2d4c4ce495502494ull}, /* zmanim.Zmanim */ \
-    {0xd90e158541be4971ull, 0xf13823120f5b4c46ull}, /* zmanim.Calculator */ \
-    {0xe178a9bb3808bfb3ull, 0x685412d4d80250eaull}, /* zmanim.Config */ \
-    {0xea9baabba2ea9789ull, 0x174890db5e5166c8ull}, /* zmanim.TimeZoneOffset */ \
-    {0xed07579cf3c52ba1ull, 0x99d014ada9906437ull}, /* zmanim.Zmanim.new */ \
-    {0xf9ebba0666552393ull, 0x0486761191984fd0ull}, /* zmanim.Zman */ \
-    {0xfa3f9e72b3e59929ull, 0x735499ab0a625d6dull}, /* zmanim.myzmanim.dawn_90_degrees */ \
+KOSHERZ_API const kosherz_contract_entry* kosherz_times_contract(size_t* out_len);
+#define KOSHERZ_TIMES_CONTRACT_LEN 47
+#define KOSHERZ_TIMES_CONTRACT { \
+    {0x01ce427485afb43aull, 0x017ce9984014d3c1ull}, /* times.ZmanTime */ \
+    {0x0643c19407762211ull, 0x11babf7c30a11935ull}, /* times.myzmanim.dip_degrees_per_root_meter */ \
+    {0x091fabaf00184561ull, 0xf13823120f5b4c46ull}, /* times.Calculator */ \
+    {0x0a21d46001720019ull, 0x174890db5e5166c8ull}, /* times.TimeZoneOffset */ \
+    {0x0a86c54f2d84238cull, 0x4b1d4aaf11dfd132ull}, /* times.zman_category */ \
+    {0x0d3bc9cd549a7137ull, 0xbea68784cf687a1aull}, /* times.Zmanim.get */ \
+    {0x0e595d82f4b54adeull, 0x4a23e822039987a7ull}, /* times.zman_description */ \
+    {0x1164ca1d22579c8dull, 0xfa44bbb1fab132e5ull}, /* times.sea_level_location */ \
+    {0x196240a5b18bd7a9ull, 0x2d4c4ce495502494ull}, /* times.Zmanim */ \
+    {0x1f4901cd5f081ee4ull, 0x669e3d4d3e9d42ccull}, /* times.Zmanim.all */ \
+    {0x2eabf209e8de2867ull, 0x6614e227c469c232ull}, /* times.Zmanim.config */ \
+    {0x38596a351e356743ull, 0x685412d4d80250eaull}, /* times.Config */ \
+    {0x39389f0e68d3cc22ull, 0x4af5df9a96d3f535ull}, /* times.myzmanim.MyZmanim.proportional_hour_gra */ \
+    {0x3c92cd49c8b4515bull, 0x5962ffa89080c41bull}, /* times.shaah_zmanis */ \
+    {0x4048d3ca4b000831ull, 0xdf4697e13848d687ull}, /* times.zman_from_java_name */ \
+    {0x44a0809dedbd4a4dull, 0x9169cc1ef07d2488ull}, /* times.ZmanimError */ \
+    {0x4d259836d7137c43ull, 0x0486761191984fd0ull}, /* times.Zman */ \
+    {0x57d7a9c5a715b9faull, 0x7110b3413cfd8e83ull}, /* times.Location */ \
+    {0x5cf83bcd8244d771ull, 0x99d014ada9906437ull}, /* times.Zmanim.new */ \
+    {0x65aa216d77a78308ull, 0x689307845875e63eull}, /* times.zman_is_deprecated */ \
+    {0x68ffad4e5539ca69ull, 0xc3cb9f9d3b5b28baull}, /* times.myzmanim.MyZmanim.date */ \
+    {0x6b5635f618146d65ull, 0x52972cadc08c13efull}, /* times.all_zmanim */ \
+    {0x7438d1e6d2e55275ull, 0x3278f3a62bb6e469ull}, /* times.myzmanim.dawn_72_degrees */ \
+    {0x743c832eb2e19415ull, 0x0577fa34d1dea8c3ull}, /* times.default_config */ \
+    {0x77857568cbec63b3ull, 0xcddd8b18c602be76ull}, /* times.myzmanim.MyZman */ \
+    {0x79dc07bc571a3ab7ull, 0xf70eea6f6621717full}, /* times.validate_location */ \
+    {0x80d913d2e48601c7ull, 0x93dc654d560a63b8ull}, /* times.myzmanim.MyZmanim.get */ \
+    {0x8a9dcfc50ecf7193ull, 0x7d00a18dba45f065ull}, /* times.ZmanFailure */ \
+    {0x8f816bd2ec126fd4ull, 0x975c3a96549104d2ull}, /* times.myzmanim.MyZmanim.all */ \
+    {0x94ec9f2dd31dd154ull, 0x93ef9500cb5f1cfcull}, /* times.Zmanim.sunrise_offset_by_degrees */ \
+    {0x968059cb1e92252aull, 0xdec9155329278f29ull}, /* times.myzmanim.my_zman_name */ \
+    {0x97a962b59a32c7dbull, 0x4c30c7a90dcabaa5ull}, /* times.Zmanim.sunset_offset_by_degrees */ \
+    {0x9b8cdf454932d1afull, 0x459375a830f8b5a0ull}, /* times.zman_name */ \
+    {0x9d5bd45067baa0fbull, 0x2b82d4d65ec59dd7ull}, /* times.myzmanim.default_candle_lighting_minutes */ \
+    {0x9d85f89bf54e8206ull, 0xa82a63cd8b5c9bc8ull}, /* times.myzmanim.all_my_zmanim */ \
+    {0x9e749626c03b8981ull, 0x549f4e736961b812ull}, /* times.calculator_name */ \
+    {0xbb0373c362e8a226ull, 0x63856359341062eeull}, /* times.Zmanim.location */ \
+    {0xc1a3c3740d199619ull, 0xe3c7eb49f063a0ceull}, /* times.myzmanim.MyZmanim */ \
+    {0xc29ca29cb7cd2999ull, 0x735499ab0a625d6dull}, /* times.myzmanim.dawn_90_degrees */ \
+    {0xcc5685d30e954e41ull, 0xcc6eb9ea8c42ca79ull}, /* times.myzmanim.MyZmanim.new */ \
+    {0xce8ce7ef4ad0db32ull, 0xc5f954c475f4dc9dull}, /* times.zman_java_name */ \
+    {0xdb5095e0e87f0d79ull, 0xc3cb9f9d3b5b28baull}, /* times.Zmanim.date */ \
+    {0xdda7b795bf202896ull, 0x63856359341062eeull}, /* times.myzmanim.MyZmanim.location */ \
+    {0xe05ccdd3147e3c9dull, 0xffb3d691737a4f38ull}, /* times.Category */ \
+    {0xe46d58cfab0684cfull, 0x258faa23773bfcaeull}, /* times.myzmanim.MyZmanim.candle_lighting_minutes */ \
+    {0xf0a3c8d75d8fb1caull, 0x551064f95ab5110dull}, /* times.myzmanim.MyZmanTime */ \
+    {0xf577b8fb530d1ad1ull, 0xf2a52228396d8635ull}, /* times.myzmanim.sea_level_refraction_arcminutes */ \
 }
 /* The id of the first expected entry the loaded library lacks or
    declares differently, or 0 when these bindings match it. */
-static inline uint64_t kosherz_zmanim_contract_check(void) {
-    static const kosherz_contract_entry expected[] = KOSHERZ_ZMANIM_CONTRACT;
+static inline uint64_t kosherz_times_contract_check(void) {
+    static const kosherz_contract_entry expected[] = KOSHERZ_TIMES_CONTRACT;
     size_t len = 0;
-    const kosherz_contract_entry* table = kosherz_zmanim_contract(&len);
-    for (size_t i = 0; i < KOSHERZ_ZMANIM_CONTRACT_LEN; i++) {
+    const kosherz_contract_entry* table = kosherz_times_contract(&len);
+    for (size_t i = 0; i < KOSHERZ_TIMES_CONTRACT_LEN; i++) {
         size_t lo = 0, hi = len;
         while (lo < hi) {
             size_t mid = lo + (hi - lo) / 2;
@@ -751,643 +751,643 @@ typedef enum {
  */
 typedef enum {
     /** Begin Civil Twilight (KosherJava `getBeginCivilTwilight`). */
-    kosherz_zmanim_Zman_BeginCivilTwilight = 0,
+    kosherz_times_Zman_BeginCivilTwilight = 0,
     /** End Civil Twilight (KosherJava `getEndCivilTwilight`). */
-    kosherz_zmanim_Zman_EndCivilTwilight = 1,
+    kosherz_times_Zman_EndCivilTwilight = 1,
     /** Begin Nautical Twilight (KosherJava `getBeginNauticalTwilight`). */
-    kosherz_zmanim_Zman_BeginNauticalTwilight = 2,
+    kosherz_times_Zman_BeginNauticalTwilight = 2,
     /** End Nautical Twilight (KosherJava `getEndNauticalTwilight`). */
-    kosherz_zmanim_Zman_EndNauticalTwilight = 3,
+    kosherz_times_Zman_EndNauticalTwilight = 3,
     /** Begin Astronomical Twilight (KosherJava `getBeginAstronomicalTwilight`). */
-    kosherz_zmanim_Zman_BeginAstronomicalTwilight = 4,
+    kosherz_times_Zman_BeginAstronomicalTwilight = 4,
     /** End Astronomical Twilight (KosherJava `getEndAstronomicalTwilight`). */
-    kosherz_zmanim_Zman_EndAstronomicalTwilight = 5,
+    kosherz_times_Zman_EndAstronomicalTwilight = 5,
     /** Alos (60 Minutes) (KosherJava `getAlos60Minutes`). */
-    kosherz_zmanim_Zman_Alos60Minutes = 6,
+    kosherz_times_Zman_Alos60Minutes = 6,
     /** Alos (72 Minutes) (KosherJava `getAlos72Minutes`). */
-    kosherz_zmanim_Zman_Alos72Minutes = 7,
+    kosherz_times_Zman_Alos72Minutes = 7,
     /** Alos (72 Minutes in Shaos Zmanios) (KosherJava `getAlos72Zmanis`). */
-    kosherz_zmanim_Zman_Alos72Zmanis = 8,
+    kosherz_times_Zman_Alos72Zmanis = 8,
     /** Alos (90 Minutes) (KosherJava `getAlos90Minutes`). */
-    kosherz_zmanim_Zman_Alos90Minutes = 9,
+    kosherz_times_Zman_Alos90Minutes = 9,
     /** Alos (90 Minutes in Shaos Zmanios) (KosherJava `getAlos90Zmanis`). */
-    kosherz_zmanim_Zman_Alos90Zmanis = 10,
+    kosherz_times_Zman_Alos90Zmanis = 10,
     /** Alos (96 Minutes) (KosherJava `getAlos96Minutes`). */
-    kosherz_zmanim_Zman_Alos96Minutes = 11,
+    kosherz_times_Zman_Alos96Minutes = 11,
     /** Alos (96 Minutes in Shaos Zmanios) (KosherJava `getAlos96Zmanis`). */
-    kosherz_zmanim_Zman_Alos96Zmanis = 12,
+    kosherz_times_Zman_Alos96Zmanis = 12,
     /**
      * Alos (120 Minutes) (KosherJava `getAlos120Minutes`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_Alos120Minutes = 13,
+    kosherz_times_Zman_Alos120Minutes = 13,
     /**
      * Alos (120 Minutes in Shaos Zmanios) (KosherJava `getAlos120Zmanis`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_Alos120Zmanis = 14,
+    kosherz_times_Zman_Alos120Zmanis = 14,
     /** Alos (16.1 Degrees) (KosherJava `getAlos16Point1Degrees`). */
-    kosherz_zmanim_Zman_Alos16Point1Degrees = 15,
+    kosherz_times_Zman_Alos16Point1Degrees = 15,
     /** Alos (18 Degrees) (KosherJava `getAlos18Degrees`). */
-    kosherz_zmanim_Zman_Alos18Degrees = 16,
+    kosherz_times_Zman_Alos18Degrees = 16,
     /** Alos (19 Degrees) (KosherJava `getAlos19Degrees`). */
-    kosherz_zmanim_Zman_Alos19Degrees = 17,
+    kosherz_times_Zman_Alos19Degrees = 17,
     /** Alos (19.8 Degrees) (KosherJava `getAlos19Point8Degrees`). */
-    kosherz_zmanim_Zman_Alos19Point8Degrees = 18,
+    kosherz_times_Zman_Alos19Point8Degrees = 18,
     /**
      * Alos (26 Degrees) (KosherJava `getAlos26Degrees`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_Alos26Degrees = 19,
+    kosherz_times_Zman_Alos26Degrees = 19,
     /** Alos (Baal Hatanya) (KosherJava `getAlosBaalHatanya`). */
-    kosherz_zmanim_Zman_AlosBaalHatanya = 20,
+    kosherz_times_Zman_AlosBaalHatanya = 20,
     /** Misheyakir (10.2 Degrees) (KosherJava `getMisheyakir10Point2Degrees`). */
-    kosherz_zmanim_Zman_Misheyakir10Point2Degrees = 21,
+    kosherz_times_Zman_Misheyakir10Point2Degrees = 21,
     /** Misheyakir (11 Degrees) (KosherJava `getMisheyakir11Degrees`). */
-    kosherz_zmanim_Zman_Misheyakir11Degrees = 22,
+    kosherz_times_Zman_Misheyakir11Degrees = 22,
     /** Misheyakir (11.5 Degrees) (KosherJava `getMisheyakir11Point5Degrees`). */
-    kosherz_zmanim_Zman_Misheyakir11Point5Degrees = 23,
+    kosherz_times_Zman_Misheyakir11Point5Degrees = 23,
     /**
      * Misheyakir (12.85 Degrees) (KosherJava `getMisheyakir12Point85Degrees`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_Misheyakir12Point85Degrees = 24,
+    kosherz_times_Zman_Misheyakir12Point85Degrees = 24,
     /** Misheyakir (7.65 Degrees) (KosherJava `getMisheyakir7Point65Degrees`). */
-    kosherz_zmanim_Zman_Misheyakir7Point65Degrees = 25,
+    kosherz_times_Zman_Misheyakir7Point65Degrees = 25,
     /** Misheyakir (9.5 Degrees) (KosherJava `getMisheyakir9Point5Degrees`). */
-    kosherz_zmanim_Zman_Misheyakir9Point5Degrees = 26,
+    kosherz_times_Zman_Misheyakir9Point5Degrees = 26,
     /** Polar Sunrise Ben Ish Chai (KosherJava `getPolarSunriseBenIshChai`). */
-    kosherz_zmanim_Zman_PolarSunriseBenIshChai = 27,
+    kosherz_times_Zman_PolarSunriseBenIshChai = 27,
     /** Sunrise (KosherJava `getSunrise`). */
-    kosherz_zmanim_Zman_Sunrise = 28,
+    kosherz_times_Zman_Sunrise = 28,
     /** Sea Level Sunrise (KosherJava `getSeaLevelSunrise`). */
-    kosherz_zmanim_Zman_SeaLevelSunrise = 29,
+    kosherz_times_Zman_SeaLevelSunrise = 29,
     /** Sof Zman Shma (GR'A) (KosherJava `getSofZmanShmaGRA`). */
-    kosherz_zmanim_Zman_SofZmanShmaGra = 30,
+    kosherz_times_Zman_SofZmanShmaGra = 30,
     /** Sof Zman Shma (MGA, 19.8 Degrees) (KosherJava `getSofZmanShmaMGA19Point8Degrees`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga19Point8Degrees = 31,
+    kosherz_times_Zman_SofZmanShmaMga19Point8Degrees = 31,
     /** Sof Zman Shma (MGA, 16.1 Degrees) (KosherJava `getSofZmanShmaMGA16Point1Degrees`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga16Point1Degrees = 32,
+    kosherz_times_Zman_SofZmanShmaMga16Point1Degrees = 32,
     /** Sof Zman Shma (MGA, 18 Degrees) (KosherJava `getSofZmanShmaMGA18Degrees`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga18Degrees = 33,
+    kosherz_times_Zman_SofZmanShmaMga18Degrees = 33,
     /** Sof Zman Shma (MGA, 72 Minutes) (KosherJava `getSofZmanShmaMGA72Minutes`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga72Minutes = 34,
+    kosherz_times_Zman_SofZmanShmaMga72Minutes = 34,
     /** Sof Zman Shma (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanShmaMGA72MinutesZmanis`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga72MinutesZmanis = 35,
+    kosherz_times_Zman_SofZmanShmaMga72MinutesZmanis = 35,
     /** Sof Zman Shma (MGA, 90 Minutes) (KosherJava `getSofZmanShmaMGA90Minutes`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga90Minutes = 36,
+    kosherz_times_Zman_SofZmanShmaMga90Minutes = 36,
     /** Sof Zman Shma (MGA, 90 Minutes in Shaos Zmanios) (KosherJava `getSofZmanShmaMGA90MinutesZmanis`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga90MinutesZmanis = 37,
+    kosherz_times_Zman_SofZmanShmaMga90MinutesZmanis = 37,
     /** Sof Zman Shma (MGA, 96 Minutes) (KosherJava `getSofZmanShmaMGA96Minutes`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga96Minutes = 38,
+    kosherz_times_Zman_SofZmanShmaMga96Minutes = 38,
     /** Sof Zman Shma (MGA, 96 Minutes in Shaos Zmanios) (KosherJava `getSofZmanShmaMGA96MinutesZmanis`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga96MinutesZmanis = 39,
+    kosherz_times_Zman_SofZmanShmaMga96MinutesZmanis = 39,
     /** Sof Zman Shma (3 Hours Before Chatzos) (KosherJava `getSofZmanShma3HoursBeforeChatzos`). */
-    kosherz_zmanim_Zman_SofZmanShma3HoursBeforeChatzos = 40,
+    kosherz_times_Zman_SofZmanShma3HoursBeforeChatzos = 40,
     /** Sof Zman Shma (MGA, 120 Minutes) (KosherJava `getSofZmanShmaMGA120Minutes`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga120Minutes = 41,
+    kosherz_times_Zman_SofZmanShmaMga120Minutes = 41,
     /** Sof Zman Shma (Alos 16.1 to Sunset) (KosherJava `getSofZmanShmaAlos16Point1ToSunset`). */
-    kosherz_zmanim_Zman_SofZmanShmaAlos16Point1ToSunset = 42,
+    kosherz_times_Zman_SofZmanShmaAlos16Point1ToSunset = 42,
     /** Sof Zman Shma (Alos 16.1 to Tzais Geonim 7.083 Degrees) (KosherJava `getSofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees`). */
-    kosherz_zmanim_Zman_SofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees = 43,
+    kosherz_times_Zman_SofZmanShmaAlos16Point1DegreesToTzaisGeonim7Point083Degrees = 43,
     /** Sof Zman Shma (Ateret Torah) (KosherJava `getSofZmanShmaAteretTorah`). */
-    kosherz_zmanim_Zman_SofZmanShmaAteretTorah = 44,
+    kosherz_times_Zman_SofZmanShmaAteretTorah = 44,
     /** Sof Zman Shma (Baal Hatanya) (KosherJava `getSofZmanShmaBaalHatanya`). */
-    kosherz_zmanim_Zman_SofZmanShmaBaalHatanya = 45,
+    kosherz_times_Zman_SofZmanShmaBaalHatanya = 45,
     /** Sof Zman Shma (GR'A, Sunrise to Fixed Local Chatzos) (KosherJava `getSofZmanShmaGRASunriseToFixedLocalChatzos`). */
-    kosherz_zmanim_Zman_SofZmanShmaGraSunriseToFixedLocalChatzos = 46,
+    kosherz_times_Zman_SofZmanShmaGraSunriseToFixedLocalChatzos = 46,
     /** Sof Zman Shma (MGA, 18 Degrees to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA18DegreesToFixedLocalChatzos`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga18DegreesToFixedLocalChatzos = 47,
+    kosherz_times_Zman_SofZmanShmaMga18DegreesToFixedLocalChatzos = 47,
     /** Sof Zman Shma (MGA, 16.1 Degrees to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA16Point1DegreesToFixedLocalChatzos`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga16Point1DegreesToFixedLocalChatzos = 48,
+    kosherz_times_Zman_SofZmanShmaMga16Point1DegreesToFixedLocalChatzos = 48,
     /** Sof Zman Shma (MGA, 90 Minutes to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA90MinutesToFixedLocalChatzos`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga90MinutesToFixedLocalChatzos = 49,
+    kosherz_times_Zman_SofZmanShmaMga90MinutesToFixedLocalChatzos = 49,
     /** Sof Zman Shma (MGA, 72 Minutes to Fixed Local Chatzos) (KosherJava `getSofZmanShmaMGA72MinutesToFixedLocalChatzos`). */
-    kosherz_zmanim_Zman_SofZmanShmaMga72MinutesToFixedLocalChatzos = 50,
+    kosherz_times_Zman_SofZmanShmaMga72MinutesToFixedLocalChatzos = 50,
     /** Sof Zman Tfila (GR'A) (KosherJava `getSofZmanTfilaGRA`). */
-    kosherz_zmanim_Zman_SofZmanTfilaGra = 51,
+    kosherz_times_Zman_SofZmanTfilaGra = 51,
     /** Sof Zman Tfila (MGA, 72 Minutes) (KosherJava `getSofZmanTfilaMGA72Minutes`). */
-    kosherz_zmanim_Zman_SofZmanTfilaMga72Minutes = 52,
+    kosherz_times_Zman_SofZmanTfilaMga72Minutes = 52,
     /** Sof Zman Tfila (MGA, 19.8 Degrees) (KosherJava `getSofZmanTfilaMGA19Point8Degrees`). */
-    kosherz_zmanim_Zman_SofZmanTfilaMga19Point8Degrees = 53,
+    kosherz_times_Zman_SofZmanTfilaMga19Point8Degrees = 53,
     /** Sof Zman Tfila (MGA, 16.1 Degrees) (KosherJava `getSofZmanTfilaMGA16Point1Degrees`). */
-    kosherz_zmanim_Zman_SofZmanTfilaMga16Point1Degrees = 54,
+    kosherz_times_Zman_SofZmanTfilaMga16Point1Degrees = 54,
     /** Sof Zman Tfila (MGA, 18 Degrees) (KosherJava `getSofZmanTfilaMGA18Degrees`). */
-    kosherz_zmanim_Zman_SofZmanTfilaMga18Degrees = 55,
+    kosherz_times_Zman_SofZmanTfilaMga18Degrees = 55,
     /** Sof Zman Tfila (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanTfilaMGA72MinutesZmanis`). */
-    kosherz_zmanim_Zman_SofZmanTfilaMga72MinutesZmanis = 56,
+    kosherz_times_Zman_SofZmanTfilaMga72MinutesZmanis = 56,
     /** Sof Zman Tfila (MGA, 90 Minutes) (KosherJava `getSofZmanTfilaMGA90Minutes`). */
-    kosherz_zmanim_Zman_SofZmanTfilaMga90Minutes = 57,
+    kosherz_times_Zman_SofZmanTfilaMga90Minutes = 57,
     /** Sof Zman Tfila (MGA, 90 Minutes in Shaos Zmanios) (KosherJava `getSofZmanTfilaMGA90MinutesZmanis`). */
-    kosherz_zmanim_Zman_SofZmanTfilaMga90MinutesZmanis = 58,
+    kosherz_times_Zman_SofZmanTfilaMga90MinutesZmanis = 58,
     /** Sof Zman Tfila (MGA, 96 Minutes) (KosherJava `getSofZmanTfilaMGA96Minutes`). */
-    kosherz_zmanim_Zman_SofZmanTfilaMga96Minutes = 59,
+    kosherz_times_Zman_SofZmanTfilaMga96Minutes = 59,
     /** Sof Zman Tfila (MGA, 96 Minutes in Shaos Zmanios) (KosherJava `getSofZmanTfilaMGA96MinutesZmanis`). */
-    kosherz_zmanim_Zman_SofZmanTfilaMga96MinutesZmanis = 60,
+    kosherz_times_Zman_SofZmanTfilaMga96MinutesZmanis = 60,
     /** Sof Zman Tfila (2 Hours Before Chatzos) (KosherJava `getSofZmanTfila2HoursBeforeChatzos`). */
-    kosherz_zmanim_Zman_SofZmanTfila2HoursBeforeChatzos = 61,
+    kosherz_times_Zman_SofZmanTfila2HoursBeforeChatzos = 61,
     /** Sof Zman Tfila (MGA, 120 Minutes) (KosherJava `getSofZmanTfilaMGA120Minutes`). */
-    kosherz_zmanim_Zman_SofZmanTfilaMga120Minutes = 62,
+    kosherz_times_Zman_SofZmanTfilaMga120Minutes = 62,
     /** Sof Zman Tfila (Ateret Torah) (KosherJava `getSofZmanTfilaAteretTorah`). */
-    kosherz_zmanim_Zman_SofZmanTfilaAteretTorah = 63,
+    kosherz_times_Zman_SofZmanTfilaAteretTorah = 63,
     /** Sof Zman Tfila (Baal Hatanya) (KosherJava `getSofZmanTfilaBaalHatanya`). */
-    kosherz_zmanim_Zman_SofZmanTfilaBaalHatanya = 64,
+    kosherz_times_Zman_SofZmanTfilaBaalHatanya = 64,
     /** Sof Zman Tfila (GR'A, Sunrise to Fixed Local Chatzos) (KosherJava `getSofZmanTfilaGRASunriseToFixedLocalChatzos`). */
-    kosherz_zmanim_Zman_SofZmanTfilaGraSunriseToFixedLocalChatzos = 65,
+    kosherz_times_Zman_SofZmanTfilaGraSunriseToFixedLocalChatzos = 65,
     /** Sof Zman Achilas Chametz (GR'A) (KosherJava `getSofZmanAchilasChametzGRA`). */
-    kosherz_zmanim_Zman_SofZmanAchilasChametzGra = 66,
+    kosherz_times_Zman_SofZmanAchilasChametzGra = 66,
     /** Sof Zman Achilas Chametz (MGA, 72 Minutes) (KosherJava `getSofZmanAchilasChametzMGA72Minutes`). */
-    kosherz_zmanim_Zman_SofZmanAchilasChametzMga72Minutes = 67,
+    kosherz_times_Zman_SofZmanAchilasChametzMga72Minutes = 67,
     /** Sof Zman Achilas Chametz (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanAchilasChametzMGA72MinutesZmanis`). */
-    kosherz_zmanim_Zman_SofZmanAchilasChametzMga72MinutesZmanis = 68,
+    kosherz_times_Zman_SofZmanAchilasChametzMga72MinutesZmanis = 68,
     /** Sof Zman Achilas Chametz (MGA, 16.1 Degrees) (KosherJava `getSofZmanAchilasChametzMGA16Point1Degrees`). */
-    kosherz_zmanim_Zman_SofZmanAchilasChametzMga16Point1Degrees = 69,
+    kosherz_times_Zman_SofZmanAchilasChametzMga16Point1Degrees = 69,
     /** Sof Zman Achilas Chametz (Baal Hatanya) (KosherJava `getSofZmanAchilasChametzBaalHatanya`). */
-    kosherz_zmanim_Zman_SofZmanAchilasChametzBaalHatanya = 70,
+    kosherz_times_Zman_SofZmanAchilasChametzBaalHatanya = 70,
     /** Sof Zman Biur Chametz (GR'A) (KosherJava `getSofZmanBiurChametzGRA`). */
-    kosherz_zmanim_Zman_SofZmanBiurChametzGra = 71,
+    kosherz_times_Zman_SofZmanBiurChametzGra = 71,
     /** Sof Zman Biur Chametz (MGA, 72 Minutes) (KosherJava `getSofZmanBiurChametzMGA72Minutes`). */
-    kosherz_zmanim_Zman_SofZmanBiurChametzMga72Minutes = 72,
+    kosherz_times_Zman_SofZmanBiurChametzMga72Minutes = 72,
     /** Sof Zman Biur Chametz (MGA, 72 Minutes in Shaos Zmanios) (KosherJava `getSofZmanBiurChametzMGA72MinutesZmanis`). */
-    kosherz_zmanim_Zman_SofZmanBiurChametzMga72MinutesZmanis = 73,
+    kosherz_times_Zman_SofZmanBiurChametzMga72MinutesZmanis = 73,
     /** Sof Zman Biur Chametz (MGA, 16.1 Degrees) (KosherJava `getSofZmanBiurChametzMGA16Point1Degrees`). */
-    kosherz_zmanim_Zman_SofZmanBiurChametzMga16Point1Degrees = 74,
+    kosherz_times_Zman_SofZmanBiurChametzMga16Point1Degrees = 74,
     /** Sof Zman Biur Chametz (Baal Hatanya) (KosherJava `getSofZmanBiurChametzBaalHatanya`). */
-    kosherz_zmanim_Zman_SofZmanBiurChametzBaalHatanya = 75,
+    kosherz_times_Zman_SofZmanBiurChametzBaalHatanya = 75,
     /** Solar Transit (KosherJava `getSunTransit`). */
-    kosherz_zmanim_Zman_SunTransit = 76,
+    kosherz_times_Zman_SunTransit = 76,
     /** Chatzos Hayom (KosherJava `getChatzosHayom`). */
-    kosherz_zmanim_Zman_ChatzosHayom = 77,
+    kosherz_times_Zman_ChatzosHayom = 77,
     /** Chatzos Hayom (Midpoint of Sunrise and Sunset) (KosherJava `getChatzosHayomAsHalfDay`). */
-    kosherz_zmanim_Zman_ChatzosHayomAsHalfDay = 78,
+    kosherz_times_Zman_ChatzosHayomAsHalfDay = 78,
     /** Chatzos Hayom (Fixed Local Chatzos) (KosherJava `getFixedLocalChatzosHayom`). */
-    kosherz_zmanim_Zman_FixedLocalChatzosHayom = 79,
+    kosherz_times_Zman_FixedLocalChatzosHayom = 79,
     /** Mincha Gedola (GR'A) (KosherJava `getMinchaGedolaGRA`). */
-    kosherz_zmanim_Zman_MinchaGedolaGra = 80,
+    kosherz_times_Zman_MinchaGedolaGra = 80,
     /** Mincha Gedola (16.1 Degrees) (KosherJava `getMinchaGedola16Point1Degrees`). */
-    kosherz_zmanim_Zman_MinchaGedola16Point1Degrees = 81,
+    kosherz_times_Zman_MinchaGedola16Point1Degrees = 81,
     /** Mincha Gedola (30 Minutes) (KosherJava `getMinchaGedola30Minutes`). */
-    kosherz_zmanim_Zman_MinchaGedola30Minutes = 82,
+    kosherz_times_Zman_MinchaGedola30Minutes = 82,
     /** Mincha Gedola (72 Minutes) (KosherJava `getMinchaGedola72Minutes`). */
-    kosherz_zmanim_Zman_MinchaGedola72Minutes = 83,
+    kosherz_times_Zman_MinchaGedola72Minutes = 83,
     /** Mincha Gedola (Ahavat Shalom) (KosherJava `getMinchaGedolaAhavatShalom`). */
-    kosherz_zmanim_Zman_MinchaGedolaAhavatShalom = 84,
+    kosherz_times_Zman_MinchaGedolaAhavatShalom = 84,
     /** Mincha Gedola (GR'A, Greater Than 30) (KosherJava `getMinchaGedolaGRAGreaterThan30`). */
-    kosherz_zmanim_Zman_MinchaGedolaGraGreaterThan30 = 85,
+    kosherz_times_Zman_MinchaGedolaGraGreaterThan30 = 85,
     /** Mincha Gedola (Ateret Torah) (KosherJava `getMinchaGedolaAteretTorah`). */
-    kosherz_zmanim_Zman_MinchaGedolaAteretTorah = 86,
+    kosherz_times_Zman_MinchaGedolaAteretTorah = 86,
     /** Mincha Gedola (Baal Hatanya) (KosherJava `getMinchaGedolaBaalHatanya`). */
-    kosherz_zmanim_Zman_MinchaGedolaBaalHatanya = 87,
+    kosherz_times_Zman_MinchaGedolaBaalHatanya = 87,
     /** Mincha Gedola (GR'A, Fixed Local Chatzos, 30 Minutes) (KosherJava `getMinchaGedolaGRAFixedLocalChatzos30Minutes`). */
-    kosherz_zmanim_Zman_MinchaGedolaGraFixedLocalChatzos30Minutes = 88,
+    kosherz_times_Zman_MinchaGedolaGraFixedLocalChatzos30Minutes = 88,
     /** Plag Hamincha (GR'A) (KosherJava `getPlagHaminchaGRA`). */
-    kosherz_zmanim_Zman_PlagHaminchaGra = 89,
+    kosherz_times_Zman_PlagHaminchaGra = 89,
     /** Plag Hamincha (Ahavat Shalom) (KosherJava `getPlagAhavatShalom`). */
-    kosherz_zmanim_Zman_PlagAhavatShalom = 90,
+    kosherz_times_Zman_PlagAhavatShalom = 90,
     /** Plag Hamincha (Alos 16.1 to Tzais Geonim 7.083 Degrees) (KosherJava `getPlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees`). */
-    kosherz_zmanim_Zman_PlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees = 91,
+    kosherz_times_Zman_PlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees = 91,
     /**
      * Plag Hamincha (Alos 16.1 to Sunset) (KosherJava `getPlagAlosToSunset`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagAlosToSunset = 92,
+    kosherz_times_Zman_PlagAlosToSunset = 92,
     /** Plag Hamincha (60 Minutes) (KosherJava `getPlagHamincha60Minutes`). */
-    kosherz_zmanim_Zman_PlagHamincha60Minutes = 93,
+    kosherz_times_Zman_PlagHamincha60Minutes = 93,
     /**
      * Plag Hamincha (72 Minutes) (KosherJava `getPlagHamincha72Minutes`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha72Minutes = 94,
+    kosherz_times_Zman_PlagHamincha72Minutes = 94,
     /**
      * Plag Hamincha (72 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha72MinutesZmanis`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha72MinutesZmanis = 95,
+    kosherz_times_Zman_PlagHamincha72MinutesZmanis = 95,
     /**
      * Plag Hamincha (90 Minutes) (KosherJava `getPlagHamincha90Minutes`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha90Minutes = 96,
+    kosherz_times_Zman_PlagHamincha90Minutes = 96,
     /**
      * Plag Hamincha (90 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha90MinutesZmanis`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha90MinutesZmanis = 97,
+    kosherz_times_Zman_PlagHamincha90MinutesZmanis = 97,
     /**
      * Plag Hamincha (96 Minutes) (KosherJava `getPlagHamincha96Minutes`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha96Minutes = 98,
+    kosherz_times_Zman_PlagHamincha96Minutes = 98,
     /**
      * Plag Hamincha (96 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha96MinutesZmanis`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha96MinutesZmanis = 99,
+    kosherz_times_Zman_PlagHamincha96MinutesZmanis = 99,
     /**
      * Plag Hamincha (120 Minutes) (KosherJava `getPlagHamincha120Minutes`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha120Minutes = 100,
+    kosherz_times_Zman_PlagHamincha120Minutes = 100,
     /**
      * Plag Hamincha (120 Minutes in Shaos Zmanios) (KosherJava `getPlagHamincha120MinutesZmanis`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha120MinutesZmanis = 101,
+    kosherz_times_Zman_PlagHamincha120MinutesZmanis = 101,
     /**
      * Plag Hamincha (16.1 Degrees) (KosherJava `getPlagHamincha16Point1Degrees`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha16Point1Degrees = 102,
+    kosherz_times_Zman_PlagHamincha16Point1Degrees = 102,
     /**
      * Plag Hamincha (18 Degrees) (KosherJava `getPlagHamincha18Degrees`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha18Degrees = 103,
+    kosherz_times_Zman_PlagHamincha18Degrees = 103,
     /**
      * Plag Hamincha (19.8 Degrees) (KosherJava `getPlagHamincha19Point8Degrees`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha19Point8Degrees = 104,
+    kosherz_times_Zman_PlagHamincha19Point8Degrees = 104,
     /**
      * Plag Hamincha (26 Degrees) (KosherJava `getPlagHamincha26Degrees`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_PlagHamincha26Degrees = 105,
+    kosherz_times_Zman_PlagHamincha26Degrees = 105,
     /** Plag Hamincha (Ateret Torah) (KosherJava `getPlagHaminchaAteretTorah`). */
-    kosherz_zmanim_Zman_PlagHaminchaAteretTorah = 106,
+    kosherz_times_Zman_PlagHaminchaAteretTorah = 106,
     /** Plag Hamincha (Baal Hatanya) (KosherJava `getPlagHaminchaBaalHatanya`). */
-    kosherz_zmanim_Zman_PlagHaminchaBaalHatanya = 107,
+    kosherz_times_Zman_PlagHaminchaBaalHatanya = 107,
     /** Plag Hamincha (GR'A, Fixed Local Chatzos to Sunset) (KosherJava `getPlagHaminchaGRAFixedLocalChatzosToSunset`). */
-    kosherz_zmanim_Zman_PlagHaminchaGraFixedLocalChatzosToSunset = 108,
+    kosherz_times_Zman_PlagHaminchaGraFixedLocalChatzosToSunset = 108,
     /** Samuch Le Mincha Ketana (GR'A) (KosherJava `getSamuchLeMinchaKetanaGRA`). */
-    kosherz_zmanim_Zman_SamuchLeMinchaKetanaGra = 109,
+    kosherz_times_Zman_SamuchLeMinchaKetanaGra = 109,
     /** Samuch Le Mincha Ketana (16.1 Degrees) (KosherJava `getSamuchLeMinchaKetana16Point1Degrees`). */
-    kosherz_zmanim_Zman_SamuchLeMinchaKetana16Point1Degrees = 110,
+    kosherz_times_Zman_SamuchLeMinchaKetana16Point1Degrees = 110,
     /** Samuch Le Mincha Ketana (72 Minutes) (KosherJava `getSamuchLeMinchaKetana72Minutes`). */
-    kosherz_zmanim_Zman_SamuchLeMinchaKetana72Minutes = 111,
+    kosherz_times_Zman_SamuchLeMinchaKetana72Minutes = 111,
     /** Mincha Ketana (GR'A) (KosherJava `getMinchaKetanaGRA`). */
-    kosherz_zmanim_Zman_MinchaKetanaGra = 112,
+    kosherz_times_Zman_MinchaKetanaGra = 112,
     /** Mincha Ketana (16.1 Degrees) (KosherJava `getMinchaKetana16Point1Degrees`). */
-    kosherz_zmanim_Zman_MinchaKetana16Point1Degrees = 113,
+    kosherz_times_Zman_MinchaKetana16Point1Degrees = 113,
     /** Mincha Ketana (72 Minutes) (KosherJava `getMinchaKetana72Minutes`). */
-    kosherz_zmanim_Zman_MinchaKetana72Minutes = 114,
+    kosherz_times_Zman_MinchaKetana72Minutes = 114,
     /** Mincha Ketana (Ahavat Shalom) (KosherJava `getMinchaKetanaAhavatShalom`). */
-    kosherz_zmanim_Zman_MinchaKetanaAhavatShalom = 115,
+    kosherz_times_Zman_MinchaKetanaAhavatShalom = 115,
     /** Mincha Ketana (Ateret Torah) (KosherJava `getMinchaKetanaAteretTorah`). */
-    kosherz_zmanim_Zman_MinchaKetanaAteretTorah = 116,
+    kosherz_times_Zman_MinchaKetanaAteretTorah = 116,
     /** Mincha Ketana (Baal Hatanya) (KosherJava `getMinchaKetanaBaalHatanya`). */
-    kosherz_zmanim_Zman_MinchaKetanaBaalHatanya = 117,
+    kosherz_times_Zman_MinchaKetanaBaalHatanya = 117,
     /** Mincha Ketana (GR'A, Fixed Local Chatzos to Sunset) (KosherJava `getMinchaKetanaGRAFixedLocalChatzosToSunset`). */
-    kosherz_zmanim_Zman_MinchaKetanaGraFixedLocalChatzosToSunset = 118,
+    kosherz_times_Zman_MinchaKetanaGraFixedLocalChatzosToSunset = 118,
     /** Bain Hashmashos (Rabbeinu Tam, 13.24 Degrees) (KosherJava `getBainHashmashosRT13Point24Degrees`). */
-    kosherz_zmanim_Zman_BainHashmashosRt13Point24Degrees = 119,
+    kosherz_times_Zman_BainHashmashosRt13Point24Degrees = 119,
     /** Bain Hashmashos (Rabbeinu Tam, 58.5 Minutes) (KosherJava `getBainHashmashosRT58Point5Minutes`). */
-    kosherz_zmanim_Zman_BainHashmashosRt58Point5Minutes = 120,
+    kosherz_times_Zman_BainHashmashosRt58Point5Minutes = 120,
     /** Bain Hashmashos (Rabbeinu Tam, 13.5 Minutes Before 7.083 Degrees) (KosherJava `getBainHashmashosRT13Point5MinutesBefore7Point083Degrees`). */
-    kosherz_zmanim_Zman_BainHashmashosRt13Point5MinutesBefore7Point083Degrees = 121,
+    kosherz_times_Zman_BainHashmashosRt13Point5MinutesBefore7Point083Degrees = 121,
     /** Bain Hashmashos (Rabbeinu Tam, 2 Stars) (KosherJava `getBainHashmashosRT2Stars`). */
-    kosherz_zmanim_Zman_BainHashmashosRt2Stars = 122,
+    kosherz_times_Zman_BainHashmashosRt2Stars = 122,
     /** Bain Hashmashos (Yereim, 18 Minutes) (KosherJava `getBainHashmashosYereim18Minutes`). */
-    kosherz_zmanim_Zman_BainHashmashosYereim18Minutes = 123,
+    kosherz_times_Zman_BainHashmashosYereim18Minutes = 123,
     /** Bain Hashmashos (Yereim, 16.875 Minutes) (KosherJava `getBainHashmashosYereim16Point875Minutes`). */
-    kosherz_zmanim_Zman_BainHashmashosYereim16Point875Minutes = 124,
+    kosherz_times_Zman_BainHashmashosYereim16Point875Minutes = 124,
     /** Bain Hashmashos (Yereim, 13.5 Minutes) (KosherJava `getBainHashmashosYereim13Point5Minutes`). */
-    kosherz_zmanim_Zman_BainHashmashosYereim13Point5Minutes = 125,
+    kosherz_times_Zman_BainHashmashosYereim13Point5Minutes = 125,
     /** Bain Hashmashos (Yereim, 2.1 Degrees) (KosherJava `getBainHashmashosYereim2Point1Degrees`). */
-    kosherz_zmanim_Zman_BainHashmashosYereim2Point1Degrees = 126,
+    kosherz_times_Zman_BainHashmashosYereim2Point1Degrees = 126,
     /** Bain Hashmashos (Yereim, 2.8 Degrees) (KosherJava `getBainHashmashosYereim2Point8Degrees`). */
-    kosherz_zmanim_Zman_BainHashmashosYereim2Point8Degrees = 127,
+    kosherz_times_Zman_BainHashmashosYereim2Point8Degrees = 127,
     /** Bain Hashmashos (Yereim, 3.05 Degrees) (KosherJava `getBainHashmashosYereim3Point05Degrees`). */
-    kosherz_zmanim_Zman_BainHashmashosYereim3Point05Degrees = 128,
+    kosherz_times_Zman_BainHashmashosYereim3Point05Degrees = 128,
     /** Candle Lighting (KosherJava `getCandleLighting`). */
-    kosherz_zmanim_Zman_CandleLighting = 129,
+    kosherz_times_Zman_CandleLighting = 129,
     /** Polar Sunset Ben Ish Chai (KosherJava `getPolarSunsetBenIshChai`). */
-    kosherz_zmanim_Zman_PolarSunsetBenIshChai = 130,
+    kosherz_times_Zman_PolarSunsetBenIshChai = 130,
     /** Sunset (KosherJava `getSunset`). */
-    kosherz_zmanim_Zman_Sunset = 131,
+    kosherz_times_Zman_Sunset = 131,
     /** Sea Level Sunset (KosherJava `getSeaLevelSunset`). */
-    kosherz_zmanim_Zman_SeaLevelSunset = 132,
+    kosherz_times_Zman_SeaLevelSunset = 132,
     /** Tzais (Geonim, 8.5 Degrees) (KosherJava `getTzaisGeonim8Point5Degrees`). */
-    kosherz_zmanim_Zman_TzaisGeonim8Point5Degrees = 133,
+    kosherz_times_Zman_TzaisGeonim8Point5Degrees = 133,
     /** Tzais (50 Minutes) (KosherJava `getTzais50Minutes`). */
-    kosherz_zmanim_Zman_Tzais50Minutes = 134,
+    kosherz_times_Zman_Tzais50Minutes = 134,
     /** Tzais (60 Minutes) (KosherJava `getTzais60Minutes`). */
-    kosherz_zmanim_Zman_Tzais60Minutes = 135,
+    kosherz_times_Zman_Tzais60Minutes = 135,
     /** Tzais (72 Minutes) (KosherJava `getTzais72Minutes`). */
-    kosherz_zmanim_Zman_Tzais72Minutes = 136,
+    kosherz_times_Zman_Tzais72Minutes = 136,
     /** Tzais (72 Minutes in Shaos Zmanios) (KosherJava `getTzais72Zmanis`). */
-    kosherz_zmanim_Zman_Tzais72Zmanis = 137,
+    kosherz_times_Zman_Tzais72Zmanis = 137,
     /** Tzais (90 Minutes) (KosherJava `getTzais90Minutes`). */
-    kosherz_zmanim_Zman_Tzais90Minutes = 138,
+    kosherz_times_Zman_Tzais90Minutes = 138,
     /** Tzais (90 Minutes in Shaos Zmanios) (KosherJava `getTzais90Zmanis`). */
-    kosherz_zmanim_Zman_Tzais90Zmanis = 139,
+    kosherz_times_Zman_Tzais90Zmanis = 139,
     /** Tzais (96 Minutes) (KosherJava `getTzais96Minutes`). */
-    kosherz_zmanim_Zman_Tzais96Minutes = 140,
+    kosherz_times_Zman_Tzais96Minutes = 140,
     /** Tzais (96 Minutes in Shaos Zmanios) (KosherJava `getTzais96Zmanis`). */
-    kosherz_zmanim_Zman_Tzais96Zmanis = 141,
+    kosherz_times_Zman_Tzais96Zmanis = 141,
     /**
      * Tzais (120 Minutes) (KosherJava `getTzais120Minutes`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_Tzais120Minutes = 142,
+    kosherz_times_Zman_Tzais120Minutes = 142,
     /**
      * Tzais (120 Minutes in Shaos Zmanios) (KosherJava `getTzais120Zmanis`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_Tzais120Zmanis = 143,
+    kosherz_times_Zman_Tzais120Zmanis = 143,
     /** Tzais (16.1 Degrees) (KosherJava `getTzais16Point1Degrees`). */
-    kosherz_zmanim_Zman_Tzais16Point1Degrees = 144,
+    kosherz_times_Zman_Tzais16Point1Degrees = 144,
     /** Tzais (18 Degrees) (KosherJava `getTzais18Degrees`). */
-    kosherz_zmanim_Zman_Tzais18Degrees = 145,
+    kosherz_times_Zman_Tzais18Degrees = 145,
     /** Tzais (19.8 Degrees) (KosherJava `getTzais19Point8Degrees`). */
-    kosherz_zmanim_Zman_Tzais19Point8Degrees = 146,
+    kosherz_times_Zman_Tzais19Point8Degrees = 146,
     /**
      * Tzais (26 Degrees) (KosherJava `getTzais26Degrees`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_Tzais26Degrees = 147,
+    kosherz_times_Zman_Tzais26Degrees = 147,
     /** Tzais (Ateret Torah) (KosherJava `getTzaisAteretTorah`). */
-    kosherz_zmanim_Zman_TzaisAteretTorah = 148,
+    kosherz_times_Zman_TzaisAteretTorah = 148,
     /** Tzais (Baal Hatanya) (KosherJava `getTzaisBaalHatanya`). */
-    kosherz_zmanim_Zman_TzaisBaalHatanya = 149,
+    kosherz_times_Zman_TzaisBaalHatanya = 149,
     /**
      * Tzais (Geonim, 3.7 Degrees) (KosherJava `getTzaisGeonim3Point7Degrees`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_TzaisGeonim3Point7Degrees = 150,
+    kosherz_times_Zman_TzaisGeonim3Point7Degrees = 150,
     /**
      * Tzais (Geonim, 3.8 Degrees) (KosherJava `getTzaisGeonim3Point8Degrees`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_TzaisGeonim3Point8Degrees = 151,
+    kosherz_times_Zman_TzaisGeonim3Point8Degrees = 151,
     /** Tzais (Geonim, 5.95 Degrees) (KosherJava `getTzaisGeonim5Point95Degrees`). */
-    kosherz_zmanim_Zman_TzaisGeonim5Point95Degrees = 152,
+    kosherz_times_Zman_TzaisGeonim5Point95Degrees = 152,
     /**
      * Tzais (Geonim, 4.66 Degrees) (KosherJava `getTzaisGeonim4Point66Degrees`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_TzaisGeonim4Point66Degrees = 153,
+    kosherz_times_Zman_TzaisGeonim4Point66Degrees = 153,
     /**
      * Tzais (Geonim, 4.42 Degrees) (KosherJava `getTzaisGeonim4Point42Degrees`).
      *
      * Deprecated in KosherJava.
      */
-    kosherz_zmanim_Zman_TzaisGeonim4Point42Degrees = 154,
+    kosherz_times_Zman_TzaisGeonim4Point42Degrees = 154,
     /** Tzais (Geonim, 4.8 Degrees) (KosherJava `getTzaisGeonim4Point8Degrees`). */
-    kosherz_zmanim_Zman_TzaisGeonim4Point8Degrees = 155,
+    kosherz_times_Zman_TzaisGeonim4Point8Degrees = 155,
     /** Tzais (Geonim, 6.45 Degrees) (KosherJava `getTzaisGeonim6Point45Degrees`). */
-    kosherz_zmanim_Zman_TzaisGeonim6Point45Degrees = 156,
+    kosherz_times_Zman_TzaisGeonim6Point45Degrees = 156,
     /** Tzais (Geonim, 7.083 Degrees) (KosherJava `getTzaisGeonim7Point083Degrees`). */
-    kosherz_zmanim_Zman_TzaisGeonim7Point083Degrees = 157,
+    kosherz_times_Zman_TzaisGeonim7Point083Degrees = 157,
     /** Tzais (Geonim, 7.67 Degrees) (KosherJava `getTzaisGeonim7Point67Degrees`). */
-    kosherz_zmanim_Zman_TzaisGeonim7Point67Degrees = 158,
+    kosherz_times_Zman_TzaisGeonim7Point67Degrees = 158,
     /** Tzais (Geonim, 9.3 Degrees) (KosherJava `getTzaisGeonim9Point3Degrees`). */
-    kosherz_zmanim_Zman_TzaisGeonim9Point3Degrees = 159,
+    kosherz_times_Zman_TzaisGeonim9Point3Degrees = 159,
     /** Tzais (Geonim, 9.75 Degrees) (KosherJava `getTzaisGeonim9Point75Degrees`). */
-    kosherz_zmanim_Zman_TzaisGeonim9Point75Degrees = 160,
+    kosherz_times_Zman_TzaisGeonim9Point75Degrees = 160,
     /**
      * Sof Zman Kidush Levana (15 Days) (KosherJava `getSofZmanKidushLevana15Days`).
      *
      * This time needs a time zone. Without one it fails with `ZmanimError::TimeZoneRequired`.
      */
-    kosherz_zmanim_Zman_SofZmanKidushLevana15Days = 161,
+    kosherz_times_Zman_SofZmanKidushLevana15Days = 161,
     /**
      * Sof Zman Kidush Levana (Between Moldos) (KosherJava `getSofZmanKidushLevanaBetweenMoldos`).
      *
      * This time needs a time zone. Without one it fails with `ZmanimError::TimeZoneRequired`.
      */
-    kosherz_zmanim_Zman_SofZmanKidushLevanaBetweenMoldos = 162,
+    kosherz_times_Zman_SofZmanKidushLevanaBetweenMoldos = 162,
     /**
      * Tchilas Zman Kidush Levana (3 Days) (KosherJava `getTchilasZmanKidushLevana3Days`).
      *
      * This time needs a time zone. Without one it fails with `ZmanimError::TimeZoneRequired`.
      */
-    kosherz_zmanim_Zman_TchilasZmanKidushLevana3Days = 163,
+    kosherz_times_Zman_TchilasZmanKidushLevana3Days = 163,
     /**
      * Tchilas Zman Kidush Levana (7 Days) (KosherJava `getTchilasZmanKidushLevana7Days`).
      *
      * This time needs a time zone. Without one it fails with `ZmanimError::TimeZoneRequired`.
      */
-    kosherz_zmanim_Zman_TchilasZmanKidushLevana7Days = 164,
+    kosherz_times_Zman_TchilasZmanKidushLevana7Days = 164,
     /** Solar Midnight (KosherJava `getSolarMidnight`). */
-    kosherz_zmanim_Zman_SolarMidnight = 165,
+    kosherz_times_Zman_SolarMidnight = 165,
     /** Chatzos Halayla (KosherJava `getChatzosHalayla`). */
-    kosherz_zmanim_Zman_ChatzosHalayla = 166
-} kosherz_zmanim_Zman;
+    kosherz_times_Zman_ChatzosHalayla = 166
+} kosherz_times_Zman;
 /** What kind of time a `Zman` is. */
 typedef enum {
     /** Start and end of astronomical, civil and nautical twilight. */
-    kosherz_zmanim_Category_Twilight = 0,
+    kosherz_times_Category_Twilight = 0,
     /** Dawn (*alos*). */
-    kosherz_zmanim_Category_Alos = 1,
+    kosherz_times_Category_Alos = 1,
     /** Earliest time for tallis and tefillin (*misheyakir*). */
-    kosherz_zmanim_Category_Misheyakir = 2,
+    kosherz_times_Category_Misheyakir = 2,
     /** Sunrise (*netz*). */
-    kosherz_zmanim_Category_Netz = 3,
+    kosherz_times_Category_Netz = 3,
     /** Latest time for the morning Shema. */
-    kosherz_zmanim_Category_SofZmanShma = 4,
+    kosherz_times_Category_SofZmanShma = 4,
     /** Latest time for the morning prayer. */
-    kosherz_zmanim_Category_SofZmanTefila = 5,
+    kosherz_times_Category_SofZmanTefila = 5,
     /** Latest time to eat chametz on Erev Pesach. */
-    kosherz_zmanim_Category_SofZmanAchilasChametz = 6,
+    kosherz_times_Category_SofZmanAchilasChametz = 6,
     /** Latest time to burn chametz on Erev Pesach. */
-    kosherz_zmanim_Category_SofZmanBiurChametz = 7,
+    kosherz_times_Category_SofZmanBiurChametz = 7,
     /** Midday (*chatzos hayom*). */
-    kosherz_zmanim_Category_ChatzosHayom = 8,
+    kosherz_times_Category_ChatzosHayom = 8,
     /** Earliest Mincha (*mincha gedola*). */
-    kosherz_zmanim_Category_MinchaGedola = 9,
+    kosherz_times_Category_MinchaGedola = 9,
     /** *Plag hamincha*. */
-    kosherz_zmanim_Category_PlagHamincha = 10,
+    kosherz_times_Category_PlagHamincha = 10,
     /** Shortly before *mincha ketana*. */
-    kosherz_zmanim_Category_SamuchLeMinchaKetana = 11,
+    kosherz_times_Category_SamuchLeMinchaKetana = 11,
     /** Preferred Mincha time (*mincha ketana*). */
-    kosherz_zmanim_Category_MinchaKetana = 12,
+    kosherz_times_Category_MinchaKetana = 12,
     /** Twilight between sunset and nightfall (*bein hashmashos*). */
-    kosherz_zmanim_Category_BeinHashmashos = 13,
+    kosherz_times_Category_BeinHashmashos = 13,
     /** Candle lighting before Shabbos or Yom Tov. */
-    kosherz_zmanim_Category_CandleLighting = 14,
+    kosherz_times_Category_CandleLighting = 14,
     /** Sunset (*shkiya*). */
-    kosherz_zmanim_Category_Shkiya = 15,
+    kosherz_times_Category_Shkiya = 15,
     /** Nightfall (*tzais*). */
-    kosherz_zmanim_Category_Tzais = 16,
+    kosherz_times_Category_Tzais = 16,
     /** The window for Kiddush Levana. */
-    kosherz_zmanim_Category_KidushLevana = 17,
+    kosherz_times_Category_KidushLevana = 17,
     /** Midnight (*chatzos halayla*). */
-    kosherz_zmanim_Category_ChatzosHalayla = 18
-} kosherz_zmanim_Category;
+    kosherz_times_Category_ChatzosHalayla = 18
+} kosherz_times_Category;
 /** The solar position algorithm. */
 typedef enum {
     /** The NOAA algorithm, KosherJava's default. Good to about a minute. */
-    kosherz_zmanim_Calculator_Noaa = 0,
+    kosherz_times_Calculator_Noaa = 0,
     /** Jean Meeus's higher-accuracy VSOP87 algorithm. */
-    kosherz_zmanim_Calculator_Meeus = 1,
+    kosherz_times_Calculator_Meeus = 1,
     /** The NREL Solar Position Algorithm, solved on the topocentric zenith. */
-    kosherz_zmanim_Calculator_Spa = 2
-} kosherz_zmanim_Calculator;
+    kosherz_times_Calculator_Spa = 2
+} kosherz_times_Calculator;
 /** Why a time in `ZmanTime` could not be calculated. */
 typedef enum {
     /** The sun stays above the angle the time needs all day. */
-    kosherz_zmanim_ZmanFailure_AllDay = 0,
+    kosherz_times_ZmanFailure_AllDay = 0,
     /** The sun stays below the angle the time needs all day. */
-    kosherz_zmanim_ZmanFailure_AllNight = 1,
+    kosherz_times_ZmanFailure_AllNight = 1,
     /** The time does not apply on this date. */
-    kosherz_zmanim_ZmanFailure_NotApplicable = 2,
+    kosherz_times_ZmanFailure_NotApplicable = 2,
     /**
      * The time needs a time zone and none was given. Only the four Kiddush Levana times need
      * one.
      */
-    kosherz_zmanim_ZmanFailure_TimeZoneRequired = 3,
+    kosherz_times_ZmanFailure_TimeZoneRequired = 3,
     /** The time zone callback failed. */
-    kosherz_zmanim_ZmanFailure_TimeZoneCallbackFailed = 4,
+    kosherz_times_ZmanFailure_TimeZoneCallbackFailed = 4,
     /** An internal calculation error. */
-    kosherz_zmanim_ZmanFailure_Unexpected = 5
-} kosherz_zmanim_ZmanFailure;
-/** Error codes reported by throwing functions in the `zmanim` module tree. */
+    kosherz_times_ZmanFailure_Unexpected = 5
+} kosherz_times_ZmanFailure;
+/** Error codes reported by throwing functions in the `times` module tree. */
 typedef enum {
     /** The latitude is not between -90 and 90 degrees. */
-    kosherz_zmanim_ZmanimError_InvalidLatitude = 1,
+    kosherz_times_ZmanimError_InvalidLatitude = 1,
     /** The longitude is not between -180 and 180 degrees. */
-    kosherz_zmanim_ZmanimError_InvalidLongitude = 2,
+    kosherz_times_ZmanimError_InvalidLongitude = 2,
     /** An elevation is negative or not a finite number. */
-    kosherz_zmanim_ZmanimError_InvalidElevation = 3,
+    kosherz_times_ZmanimError_InvalidElevation = 3,
     /** The Gregorian date does not exist, or is outside the supported range. */
-    kosherz_zmanim_ZmanimError_InvalidGregorianDate = 4,
+    kosherz_times_ZmanimError_InvalidGregorianDate = 4,
     /**
      * A time zone is needed and none was given. The four Kiddush Levana times need one.
      * `Zmanim` and `MyZmanim` also need one at a location more than 150 degrees from
      * Greenwich.
      */
-    kosherz_zmanim_ZmanimError_TimeZoneRequired = 5,
+    kosherz_times_ZmanimError_TimeZoneRequired = 5,
     /** The time zone callback failed, or gave an offset of a day or more. */
-    kosherz_zmanim_ZmanimError_TimeZoneCallbackFailed = 6,
+    kosherz_times_ZmanimError_TimeZoneCallbackFailed = 6,
     /**
      * A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
      * within a day (1440 minutes) either way.
      */
-    kosherz_zmanim_ZmanimError_InvalidMinutes = 7,
+    kosherz_times_ZmanimError_InvalidMinutes = 7,
     /** An angle in degrees is not a finite number. */
-    kosherz_zmanim_ZmanimError_InvalidDegrees = 8,
+    kosherz_times_ZmanimError_InvalidDegrees = 8,
     /** The sun stays above the angle the time needs all day, as in the far north in summer. */
-    kosherz_zmanim_ZmanimError_AllDay = 10,
+    kosherz_times_ZmanimError_AllDay = 10,
     /** The sun stays below the angle the time needs all day, as in the far north in winter. */
-    kosherz_zmanim_ZmanimError_AllNight = 11,
+    kosherz_times_ZmanimError_AllNight = 11,
     /** The time only exists on certain dates, and this is not one. */
-    kosherz_zmanim_ZmanimError_NotApplicable = 12,
+    kosherz_times_ZmanimError_NotApplicable = 12,
     /**
      * A calculation failed in a way that should not happen; please report the location and
      * date.
      */
-    kosherz_zmanim_ZmanimError_Unexpected = 13
-} kosherz_zmanim_ZmanimError;
+    kosherz_times_ZmanimError_Unexpected = 13
+} kosherz_times_ZmanimError;
 /** One row of the MyZmanim website's "All zmanim" table, in the table's order. */
 typedef enum {
     /** Dawn, 90 minutes as degrees. */
-    kosherz_zmanim_myzmanim_MyZman_Dawn90Degrees = 0,
+    kosherz_times_myzmanim_MyZman_Dawn90Degrees = 0,
     /** Dawn, fixed 72 minutes. */
-    kosherz_zmanim_myzmanim_MyZman_Dawn72Fixed = 1,
+    kosherz_times_myzmanim_MyZman_Dawn72Fixed = 1,
     /** Dawn, 72 minutes as 16.1 degrees. */
-    kosherz_zmanim_myzmanim_MyZman_Dawn72Degrees = 2,
+    kosherz_times_myzmanim_MyZman_Dawn72Degrees = 2,
     /** Earliest talis & tefillin, 11.5 degrees. */
-    kosherz_zmanim_myzmanim_MyZman_Talis11Point5Degrees = 3,
+    kosherz_times_myzmanim_MyZman_Talis11Point5Degrees = 3,
     /** Earliest talis & tefillin, 11 degrees. */
-    kosherz_zmanim_myzmanim_MyZman_Talis11Degrees = 4,
+    kosherz_times_myzmanim_MyZman_Talis11Degrees = 4,
     /** Earliest talis & tefillin, 10.2 degrees. */
-    kosherz_zmanim_myzmanim_MyZman_Talis10Point2Degrees = 5,
+    kosherz_times_myzmanim_MyZman_Talis10Point2Degrees = 5,
     /** Sunrise, level region. */
-    kosherz_zmanim_myzmanim_MyZman_SunriseLevel = 6,
+    kosherz_times_myzmanim_MyZman_SunriseLevel = 6,
     /** Sunrise, elevated observer/horizon. */
-    kosherz_zmanim_myzmanim_MyZman_SunriseElevated = 7,
+    kosherz_times_myzmanim_MyZman_SunriseElevated = 7,
     /** Latest shema Magen Avraham, 90 minutes as degrees. */
-    kosherz_zmanim_myzmanim_MyZman_ShemaMA90Degrees = 8,
+    kosherz_times_myzmanim_MyZman_ShemaMA90Degrees = 8,
     /** Latest shema Magen Avraham, fixed 72 minutes. */
-    kosherz_zmanim_myzmanim_MyZman_ShemaMA72Fixed = 9,
+    kosherz_times_myzmanim_MyZman_ShemaMA72Fixed = 9,
     /** Latest shema Magen Avraham, 72 minutes as 16.1 degrees. */
-    kosherz_zmanim_myzmanim_MyZman_ShemaMA72Degrees = 10,
+    kosherz_times_myzmanim_MyZman_ShemaMA72Degrees = 10,
     /** Latest shema Gra & Baal HaTanya. */
-    kosherz_zmanim_myzmanim_MyZman_ShemaGra = 11,
+    kosherz_times_myzmanim_MyZman_ShemaGra = 11,
     /** Latest shacharis Magen Avraham, 90 minutes as degrees. */
-    kosherz_zmanim_myzmanim_MyZman_ShacharisMA90Degrees = 12,
+    kosherz_times_myzmanim_MyZman_ShacharisMA90Degrees = 12,
     /** Latest shacharis Magen Avraham, fixed 72 minutes. */
-    kosherz_zmanim_myzmanim_MyZman_ShacharisMA72Fixed = 13,
+    kosherz_times_myzmanim_MyZman_ShacharisMA72Fixed = 13,
     /** Latest shacharis Magen Avraham, 72 minutes as 16.1 degrees. */
-    kosherz_zmanim_myzmanim_MyZman_ShacharisMA72Degrees = 14,
+    kosherz_times_myzmanim_MyZman_ShacharisMA72Degrees = 14,
     /** Latest shacharis Gra & Baal HaTanya. */
-    kosherz_zmanim_myzmanim_MyZman_ShacharisGra = 15,
+    kosherz_times_myzmanim_MyZman_ShacharisGra = 15,
     /** Midday. */
-    kosherz_zmanim_myzmanim_MyZman_Midday = 16,
+    kosherz_times_myzmanim_MyZman_Midday = 16,
     /** Earliest mincha, 30 fixed minutes after midday. */
-    kosherz_zmanim_myzmanim_MyZman_Mincha30Fixed = 17,
+    kosherz_times_myzmanim_MyZman_Mincha30Fixed = 17,
     /** Earliest mincha, Gra & Baal HaTanya. */
-    kosherz_zmanim_myzmanim_MyZman_MinchaGra = 18,
+    kosherz_times_myzmanim_MyZman_MinchaGra = 18,
     /** Earliest mincha, lechumra. */
-    kosherz_zmanim_myzmanim_MyZman_MinchaLechumra = 19,
+    kosherz_times_myzmanim_MyZman_MinchaLechumra = 19,
     /** Earliest mincha, Magen Avraham fixed 72 minutes. */
-    kosherz_zmanim_myzmanim_MyZman_MinchaMA72Fixed = 20,
+    kosherz_times_myzmanim_MyZman_MinchaMA72Fixed = 20,
     /** Mincha ketana, Gra & Baal HaTanya. */
-    kosherz_zmanim_myzmanim_MyZman_KetanaGra = 21,
+    kosherz_times_myzmanim_MyZman_KetanaGra = 21,
     /** Mincha ketana, Magen Avraham fixed 72 minutes. */
-    kosherz_zmanim_myzmanim_MyZman_KetanaMA72Fixed = 22,
+    kosherz_times_myzmanim_MyZman_KetanaMA72Fixed = 22,
     /** Plag hamincha, Gra & Baal HaTanya. */
-    kosherz_zmanim_myzmanim_MyZman_PlagGra = 23,
+    kosherz_times_myzmanim_MyZman_PlagGra = 23,
     /** Plag hamincha, Magen Avraham fixed 72 minutes. */
-    kosherz_zmanim_myzmanim_MyZman_PlagMA72Fixed = 24,
+    kosherz_times_myzmanim_MyZman_PlagMA72Fixed = 24,
     /** Candle lighting. */
-    kosherz_zmanim_myzmanim_MyZman_CandleLighting = 25,
+    kosherz_times_myzmanim_MyZman_CandleLighting = 25,
     /** Sunset, level region. */
-    kosherz_zmanim_myzmanim_MyZman_SunsetLevel = 26,
+    kosherz_times_myzmanim_MyZman_SunsetLevel = 26,
     /** Sunset, elevated observer/horizon. */
-    kosherz_zmanim_myzmanim_MyZman_SunsetElevated = 27,
+    kosherz_times_myzmanim_MyZman_SunsetElevated = 27,
     /** Gra's nightfall, 13 1/2 minutes as degrees. */
-    kosherz_zmanim_myzmanim_MyZman_NightGra18Minutes = 28,
+    kosherz_times_myzmanim_MyZman_NightGra18Minutes = 28,
     /** Gra's nightfall, 16 7/8 minutes as degrees. */
-    kosherz_zmanim_myzmanim_MyZman_NightGra22Point5Minutes = 29,
+    kosherz_times_myzmanim_MyZman_NightGra22Point5Minutes = 29,
     /** Gra's nightfall, 18 minutes as degrees. */
-    kosherz_zmanim_myzmanim_MyZman_NightGra24Minutes = 30,
+    kosherz_times_myzmanim_MyZman_NightGra24Minutes = 30,
     /** Gra's nightfall, 24 minutes as degrees, R' Schneur Zalman. */
-    kosherz_zmanim_myzmanim_MyZman_NightZalman = 31,
+    kosherz_times_myzmanim_MyZman_NightZalman = 31,
     /** End of ordained fasts, R' Tukaccinsky. */
-    kosherz_zmanim_myzmanim_MyZman_NightFastTukaccinsky = 32,
+    kosherz_times_myzmanim_MyZman_NightFastTukaccinsky = 32,
     /** End of ordained fasts, R' Moshe Feinstein. */
-    kosherz_zmanim_myzmanim_MyZman_NightFastFeinstein = 33,
+    kosherz_times_myzmanim_MyZman_NightFastFeinstein = 33,
     /** 3 stars emerge, Sefer Moed Moadim. */
-    kosherz_zmanim_myzmanim_MyZman_NightMoed = 34,
+    kosherz_times_myzmanim_MyZman_NightMoed = 34,
     /** 3 stars emerge, end of Shabbos and Yom Tov. */
-    kosherz_zmanim_myzmanim_MyZman_NightShabbos = 35,
+    kosherz_times_myzmanim_MyZman_NightShabbos = 35,
     /** 3 stars emerge, Chazon Ish. */
-    kosherz_zmanim_myzmanim_MyZman_NightChazonIsh = 36,
+    kosherz_times_myzmanim_MyZman_NightChazonIsh = 36,
     /** R' Tam's nightfall, fixed 72 minutes. */
-    kosherz_zmanim_myzmanim_MyZman_NightRTam72Fixed = 37,
+    kosherz_times_myzmanim_MyZman_NightRTam72Fixed = 37,
     /** R' Tam's nightfall, 72 minutes as 16.1 degrees. */
-    kosherz_zmanim_myzmanim_MyZman_NightRTam72Degrees = 38,
+    kosherz_times_myzmanim_MyZman_NightRTam72Degrees = 38,
     /** Midnight. */
-    kosherz_zmanim_myzmanim_MyZman_Midnight = 39
-} kosherz_zmanim_myzmanim_MyZman;
+    kosherz_times_myzmanim_MyZman_Midnight = 39
+} kosherz_times_myzmanim_MyZman;
 typedef struct kosherz_calendar_HebrewDate kosherz_calendar_HebrewDate;
-typedef struct kosherz_zmanim_Zmanim kosherz_zmanim_Zmanim;
-typedef struct kosherz_zmanim_myzmanim_MyZmanim kosherz_zmanim_myzmanim_MyZmanim;
+typedef struct kosherz_times_Zmanim kosherz_times_Zmanim;
+typedef struct kosherz_times_myzmanim_MyZmanim kosherz_times_myzmanim_MyZmanim;
 /**
  * The time zone. You supply it as a callback that gives the offset from UTC at an instant.
  *
@@ -1403,7 +1403,7 @@ typedef struct kosherz_zmanim_myzmanim_MyZmanim kosherz_zmanim_myzmanim_MyZmanim
  *
  * Consumer-implemented callback interface. The consumer passes a context pointer plus a pointer to a static instance of this vtable, with `size` set to `sizeof` the vtable and `flags` to 0 (the producer rejects a smaller vtable). The producer may call any entry from any thread until it calls `free(ctx)` exactly once, also from any thread. A method reports failure with `error_set(out_err, ...)`; a string, bytes, or buffer return is a run the consumer allocates with `alloc` and writes to `out_ptr` and `out_len`, which the producer adopts.
  */
-typedef struct kosherz_zmanim_TimeZoneOffset_vtable {
+typedef struct kosherz_times_TimeZoneOffset_vtable {
     uint32_t size;
     uint32_t flags;
     void (*free)(void* ctx);
@@ -1416,7 +1416,7 @@ typedef struct kosherz_zmanim_TimeZoneOffset_vtable {
      * `ZmanimError::TimeZoneCallbackFailed`.
      */
     int32_t (*offset_seconds)(void* ctx, int64_t unix_seconds, kosherz_error* out_err);
-} kosherz_zmanim_TimeZoneOffset_vtable;
+} kosherz_times_TimeZoneOffset_vtable;
 
 // Module: calendar
 /**
@@ -1599,7 +1599,7 @@ KOSHERZ_API const uint8_t* kosherz_calendar_limudim_tehillim_monthly(const koshe
 /** Pirkei Avos: a chapter each Shabbos afternoon from Pesach to Rosh Hashana. */
 KOSHERZ_API const uint8_t* kosherz_calendar_limudim_pirkei_avos(const kosherz_calendar_HebrewDate* date, kosherz_calendar_Region region, size_t* out_len, kosherz_error* out_err);
 
-// Module: zmanim
+// Module: times
 /** The *zmanim* for one place on one day. */
 /**
  * The *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
@@ -1617,7 +1617,7 @@ KOSHERZ_API const uint8_t* kosherz_calendar_limudim_pirkei_avos(const kosherz_ca
  * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
  *   there is no time zone and the location is more than 150 degrees from Greenwich.
  */
-KOSHERZ_API kosherz_zmanim_Zmanim* kosherz_zmanim_Zmanim_new(const uint8_t* location_ptr, size_t location_len, const uint8_t* date_ptr, size_t date_len, const uint8_t* config_ptr, size_t config_len, void* time_zone_ctx, const kosherz_zmanim_TimeZoneOffset_vtable* time_zone_vtable, kosherz_error* out_err);
+KOSHERZ_API kosherz_times_Zmanim* kosherz_times_Zmanim_new(const uint8_t* location_ptr, size_t location_len, const uint8_t* date_ptr, size_t date_len, const uint8_t* config_ptr, size_t config_len, void* time_zone_ctx, const kosherz_times_TimeZoneOffset_vtable* time_zone_vtable, kosherz_error* out_err);
 /**
  * The time of `zman`, in Unix milliseconds.
  *
@@ -1628,9 +1628,9 @@ KOSHERZ_API kosherz_zmanim_Zmanim* kosherz_zmanim_Zmanim_new(const uint8_t* loca
  * on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
  * a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
  */
-KOSHERZ_API int64_t kosherz_zmanim_Zmanim_get(const kosherz_zmanim_Zmanim* self, kosherz_zmanim_Zman zman, kosherz_error* out_err);
+KOSHERZ_API int64_t kosherz_times_Zmanim_get(const kosherz_times_Zmanim* self, kosherz_times_Zman zman, kosherz_error* out_err);
 /** Every zman, with its time or why it has none. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_Zmanim_all(const kosherz_zmanim_Zmanim* self, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_Zmanim_all(const kosherz_times_Zmanim* self, size_t* out_len, kosherz_error* out_err);
 /**
  * When the sun is `degrees` below the geometric horizon before sunrise, in Unix
  * milliseconds.
@@ -1640,7 +1640,7 @@ KOSHERZ_API const uint8_t* kosherz_zmanim_Zmanim_all(const kosherz_zmanim_Zmanim
  * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
  * same as `get`.
  */
-KOSHERZ_API int64_t kosherz_zmanim_Zmanim_sunrise_offset_by_degrees(const kosherz_zmanim_Zmanim* self, double degrees, kosherz_error* out_err);
+KOSHERZ_API int64_t kosherz_times_Zmanim_sunrise_offset_by_degrees(const kosherz_times_Zmanim* self, double degrees, kosherz_error* out_err);
 /**
  * When the sun is `degrees` below the geometric horizon after sunset, in Unix
  * milliseconds.
@@ -1650,20 +1650,20 @@ KOSHERZ_API int64_t kosherz_zmanim_Zmanim_sunrise_offset_by_degrees(const kosher
  * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
  * same as `get`.
  */
-KOSHERZ_API int64_t kosherz_zmanim_Zmanim_sunset_offset_by_degrees(const kosherz_zmanim_Zmanim* self, double degrees, kosherz_error* out_err);
+KOSHERZ_API int64_t kosherz_times_Zmanim_sunset_offset_by_degrees(const kosherz_times_Zmanim* self, double degrees, kosherz_error* out_err);
 /** The location. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_Zmanim_location(const kosherz_zmanim_Zmanim* self, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_Zmanim_location(const kosherz_times_Zmanim* self, size_t* out_len, kosherz_error* out_err);
 /** The date. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_Zmanim_date(const kosherz_zmanim_Zmanim* self, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_Zmanim_date(const kosherz_times_Zmanim* self, size_t* out_len, kosherz_error* out_err);
 /** The configuration, as given to `new`. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_Zmanim_config(const kosherz_zmanim_Zmanim* self, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_Zmanim_config(const kosherz_times_Zmanim* self, size_t* out_len, kosherz_error* out_err);
 /** Returns a new strong reference to the same object (the pointer value is unchanged). Null is a no-op returning null. */
-KOSHERZ_API kosherz_zmanim_Zmanim* kosherz_zmanim_Zmanim_clone(const kosherz_zmanim_Zmanim* self);
+KOSHERZ_API kosherz_times_Zmanim* kosherz_times_Zmanim_clone(const kosherz_times_Zmanim* self);
 /** Releases one strong reference; the object is dropped when the last reference is released. Null is a no-op. */
-KOSHERZ_API void kosherz_zmanim_Zmanim_destroy(kosherz_zmanim_Zmanim* self);
+KOSHERZ_API void kosherz_times_Zmanim_destroy(kosherz_times_Zmanim* self);
 
 /** A location at sea level, with flat horizons. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_sea_level_location(double latitude, double longitude, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_sea_level_location(double latitude, double longitude, size_t* out_len, kosherz_error* out_err);
 /**
  * Checks a location the way `Zmanim` will.
  *
@@ -1673,35 +1673,35 @@ KOSHERZ_API const uint8_t* kosherz_zmanim_sea_level_location(double latitude, do
  * `ZmanimError::InvalidElevation`; `ZmanimError::TimeZoneRequired` beyond 150 degrees
  * from Greenwich when `has_time_zone` is false.
  */
-KOSHERZ_API void kosherz_zmanim_validate_location(const uint8_t* location_ptr, size_t location_len, bool has_time_zone, kosherz_error* out_err);
+KOSHERZ_API void kosherz_times_validate_location(const uint8_t* location_ptr, size_t location_len, bool has_time_zone, kosherz_error* out_err);
 /** KosherJava's default configuration. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_default_config(size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_default_config(size_t* out_len, kosherz_error* out_err);
 /** Every zman, grouped by `Category`. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_all_zmanim(size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_all_zmanim(size_t* out_len, kosherz_error* out_err);
 /** The zman's display name, for example "Sof Zman Shma (GR'A)". */
-KOSHERZ_API const uint8_t* kosherz_zmanim_zman_name(kosherz_zmanim_Zman zman, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_zman_name(kosherz_times_Zman zman, size_t* out_len, kosherz_error* out_err);
 /** The KosherJava method that calculates the zman, for example "getSofZmanShmaGRA". */
-KOSHERZ_API const uint8_t* kosherz_zmanim_zman_java_name(kosherz_zmanim_Zman zman, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_zman_java_name(kosherz_times_Zman zman, size_t* out_len, kosherz_error* out_err);
 /** The zman named by its KosherJava method, for example "getSofZmanShmaGRA". */
-KOSHERZ_API const uint8_t* kosherz_zmanim_zman_from_java_name(const uint8_t* java_name_ptr, size_t java_name_len, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_zman_from_java_name(const uint8_t* java_name_ptr, size_t java_name_len, size_t* out_len, kosherz_error* out_err);
 /** What kind of time the zman is. */
-KOSHERZ_API kosherz_zmanim_Category kosherz_zmanim_zman_category(kosherz_zmanim_Zman zman, kosherz_error* out_err);
+KOSHERZ_API kosherz_times_Category kosherz_times_zman_category(kosherz_times_Zman zman, kosherz_error* out_err);
 /** Whether KosherJava deprecates the zman. */
-KOSHERZ_API bool kosherz_zmanim_zman_is_deprecated(kosherz_zmanim_Zman zman, kosherz_error* out_err);
+KOSHERZ_API bool kosherz_times_zman_is_deprecated(kosherz_times_Zman zman, kosherz_error* out_err);
 /**
  * A paragraph or two explaining the zman to users, with the offsets from `config` filled
  * in. May contain Markdown links.
  */
-KOSHERZ_API const uint8_t* kosherz_zmanim_zman_description(kosherz_zmanim_Zman zman, const uint8_t* config_ptr, size_t config_len, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_zman_description(kosherz_times_Zman zman, const uint8_t* config_ptr, size_t config_len, size_t* out_len, kosherz_error* out_err);
 /** The algorithm's descriptive name, as KosherJava's `getCalculatorName` gives it. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_calculator_name(kosherz_zmanim_Calculator calculator, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_calculator_name(kosherz_times_Calculator calculator, size_t* out_len, kosherz_error* out_err);
 /**
  * A *shaah zmanis*: a twelfth of the day from `start` to `end` (Unix milliseconds), in
  * milliseconds.
  */
-KOSHERZ_API int64_t kosherz_zmanim_shaah_zmanis(int64_t start, int64_t end, kosherz_error* out_err);
+KOSHERZ_API int64_t kosherz_times_shaah_zmanis(int64_t start, int64_t end, kosherz_error* out_err);
 
-// Module: zmanim_myzmanim
+// Module: times_myzmanim
 /**
  * MyZmanim's *zmanim* for one place on one day. The location's elevation and horizons
  * matter: MyZmanim gives both "level" and "elevated" sunrise and sunset.
@@ -1723,7 +1723,7 @@ KOSHERZ_API int64_t kosherz_zmanim_shaah_zmanis(int64_t start, int64_t end, kosh
  *   when there is no time zone and the location is more than 150 degrees from
  *   Greenwich.
  */
-KOSHERZ_API kosherz_zmanim_myzmanim_MyZmanim* kosherz_zmanim_myzmanim_MyZmanim_new(const uint8_t* location_ptr, size_t location_len, const uint8_t* date_ptr, size_t date_len, double candle_lighting_minutes, void* time_zone_ctx, const kosherz_zmanim_TimeZoneOffset_vtable* time_zone_vtable, kosherz_error* out_err);
+KOSHERZ_API kosherz_times_myzmanim_MyZmanim* kosherz_times_myzmanim_MyZmanim_new(const uint8_t* location_ptr, size_t location_len, const uint8_t* date_ptr, size_t date_len, double candle_lighting_minutes, void* time_zone_ctx, const kosherz_times_TimeZoneOffset_vtable* time_zone_vtable, kosherz_error* out_err);
 /**
  * The time of `zman`, in Unix milliseconds.
  *
@@ -1732,9 +1732,9 @@ KOSHERZ_API kosherz_zmanim_myzmanim_MyZmanim* kosherz_zmanim_myzmanim_MyZmanim_n
  * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
  * time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
  */
-KOSHERZ_API int64_t kosherz_zmanim_myzmanim_MyZmanim_get(const kosherz_zmanim_myzmanim_MyZmanim* self, kosherz_zmanim_myzmanim_MyZman zman, kosherz_error* out_err);
+KOSHERZ_API int64_t kosherz_times_myzmanim_MyZmanim_get(const kosherz_times_myzmanim_MyZmanim* self, kosherz_times_myzmanim_MyZman zman, kosherz_error* out_err);
 /** Every row, with its time or why it has none. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_myzmanim_MyZmanim_all(const kosherz_zmanim_myzmanim_MyZmanim* self, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_myzmanim_MyZmanim_all(const kosherz_times_myzmanim_MyZmanim* self, size_t* out_len, kosherz_error* out_err);
 /**
  * A twelfth of the day from sea-level sunrise to sea-level sunset, in milliseconds.
  *
@@ -1742,32 +1742,32 @@ KOSHERZ_API const uint8_t* kosherz_zmanim_myzmanim_MyZmanim_all(const kosherz_zm
  *
  * The same as `get`.
  */
-KOSHERZ_API int64_t kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra(const kosherz_zmanim_myzmanim_MyZmanim* self, kosherz_error* out_err);
+KOSHERZ_API int64_t kosherz_times_myzmanim_MyZmanim_proportional_hour_gra(const kosherz_times_myzmanim_MyZmanim* self, kosherz_error* out_err);
 /** The location. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_myzmanim_MyZmanim_location(const kosherz_zmanim_myzmanim_MyZmanim* self, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_myzmanim_MyZmanim_location(const kosherz_times_myzmanim_MyZmanim* self, size_t* out_len, kosherz_error* out_err);
 /** The date. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_myzmanim_MyZmanim_date(const kosherz_zmanim_myzmanim_MyZmanim* self, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_myzmanim_MyZmanim_date(const kosherz_times_myzmanim_MyZmanim* self, size_t* out_len, kosherz_error* out_err);
 /** The minutes before sunset of candle lighting. */
-KOSHERZ_API double kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes(const kosherz_zmanim_myzmanim_MyZmanim* self, kosherz_error* out_err);
+KOSHERZ_API double kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes(const kosherz_times_myzmanim_MyZmanim* self, kosherz_error* out_err);
 /** Returns a new strong reference to the same object (the pointer value is unchanged). Null is a no-op returning null. */
-KOSHERZ_API kosherz_zmanim_myzmanim_MyZmanim* kosherz_zmanim_myzmanim_MyZmanim_clone(const kosherz_zmanim_myzmanim_MyZmanim* self);
+KOSHERZ_API kosherz_times_myzmanim_MyZmanim* kosherz_times_myzmanim_MyZmanim_clone(const kosherz_times_myzmanim_MyZmanim* self);
 /** Releases one strong reference; the object is dropped when the last reference is released. Null is a no-op. */
-KOSHERZ_API void kosherz_zmanim_myzmanim_MyZmanim_destroy(kosherz_zmanim_myzmanim_MyZmanim* self);
+KOSHERZ_API void kosherz_times_myzmanim_MyZmanim_destroy(kosherz_times_myzmanim_MyZmanim* self);
 
 /** The row's name as the website shows it. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_myzmanim_my_zman_name(kosherz_zmanim_myzmanim_MyZman zman, size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_myzmanim_my_zman_name(kosherz_times_myzmanim_MyZman zman, size_t* out_len, kosherz_error* out_err);
 /** Every row, in the website's order. */
-KOSHERZ_API const uint8_t* kosherz_zmanim_myzmanim_all_my_zmanim(size_t* out_len, kosherz_error* out_err);
+KOSHERZ_API const uint8_t* kosherz_times_myzmanim_all_my_zmanim(size_t* out_len, kosherz_error* out_err);
 /** The sun's depression for "90 minutes as degrees": 19.75 degrees. */
-KOSHERZ_API double kosherz_zmanim_myzmanim_dawn_90_degrees(kosherz_error* out_err);
+KOSHERZ_API double kosherz_times_myzmanim_dawn_90_degrees(kosherz_error* out_err);
 /** The sun's depression for "72 minutes as 16.1 degrees". */
-KOSHERZ_API double kosherz_zmanim_myzmanim_dawn_72_degrees(kosherz_error* out_err);
+KOSHERZ_API double kosherz_times_myzmanim_dawn_72_degrees(kosherz_error* out_err);
 /** Refraction at a sea-level horizon, in arcminutes. */
-KOSHERZ_API double kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(kosherz_error* out_err);
+KOSHERZ_API double kosherz_times_myzmanim_sea_level_refraction_arcminutes(kosherz_error* out_err);
 /** The dip of the horizon per square root of a meter of height, in degrees. */
-KOSHERZ_API double kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(kosherz_error* out_err);
+KOSHERZ_API double kosherz_times_myzmanim_dip_degrees_per_root_meter(kosherz_error* out_err);
 /** The website's default minutes before sunset for candle lighting. */
-KOSHERZ_API double kosherz_zmanim_myzmanim_default_candle_lighting_minutes(kosherz_error* out_err);
+KOSHERZ_API double kosherz_times_myzmanim_default_candle_lighting_minutes(kosherz_error* out_err);
 
 
 #ifdef __cplusplus

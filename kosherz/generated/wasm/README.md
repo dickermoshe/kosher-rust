@@ -9,7 +9,7 @@ C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI.
 WebAssembly bindings for a `wasm32-unknown-unknown` build of the `kosherz` library, linked with `--export-table --growable-table` (for example `RUSTFLAGS="-C link-arg=--export-table -C link-arg=--growable-table"`). `init()` loads `kosherz.wasm` from next to this package, or from the path in `KOSHERZ_LIBRARY` on Node.js; pass a URL, bytes, or a compiled module to load it from elsewhere:
 
 ```js
-import { init, calendar, zmanim } from 'kosherz';
+import { init, calendar, times } from 'kosherz';
 
 await init();
 ```

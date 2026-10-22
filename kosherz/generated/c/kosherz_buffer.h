@@ -371,16 +371,16 @@ typedef struct kosherz_calendar_limudim_Mishna kosherz_calendar_limudim_Mishna;
 typedef struct kosherz_calendar_limudim_MishnaPair kosherz_calendar_limudim_MishnaPair;
 typedef struct kosherz_calendar_limudim_TehillimUnit kosherz_calendar_limudim_TehillimUnit;
 typedef struct kosherz_calendar_limudim_PirkeiAvosUnit kosherz_calendar_limudim_PirkeiAvosUnit;
-typedef struct kosherz_zmanim_Location kosherz_zmanim_Location;
-typedef struct kosherz_zmanim_Config kosherz_zmanim_Config;
-typedef struct kosherz_zmanim_ZmanTime kosherz_zmanim_ZmanTime;
-typedef struct kosherz_zmanim_myzmanim_MyZmanTime kosherz_zmanim_myzmanim_MyZmanTime;
+typedef struct kosherz_times_Location kosherz_times_Location;
+typedef struct kosherz_times_Config kosherz_times_Config;
+typedef struct kosherz_times_ZmanTime kosherz_times_ZmanTime;
+typedef struct kosherz_times_myzmanim_MyZmanTime kosherz_times_myzmanim_MyZmanTime;
 typedef struct kosherz_list_calendar_HebrewMonth kosherz_list_calendar_HebrewMonth;
 typedef struct kosherz_list_calendar_Holiday kosherz_list_calendar_Holiday;
-typedef struct kosherz_list_zmanim_Zman kosherz_list_zmanim_Zman;
-typedef struct kosherz_list_zmanim_ZmanTime kosherz_list_zmanim_ZmanTime;
-typedef struct kosherz_list_zmanim_myzmanim_MyZman kosherz_list_zmanim_myzmanim_MyZman;
-typedef struct kosherz_list_zmanim_myzmanim_MyZmanTime kosherz_list_zmanim_myzmanim_MyZmanTime;
+typedef struct kosherz_list_times_Zman kosherz_list_times_Zman;
+typedef struct kosherz_list_times_ZmanTime kosherz_list_times_ZmanTime;
+typedef struct kosherz_list_times_myzmanim_MyZman kosherz_list_times_myzmanim_MyZman;
+typedef struct kosherz_list_times_myzmanim_MyZmanTime kosherz_list_times_myzmanim_MyZmanTime;
 
 /** `[HebrewMonth]` */
 struct kosherz_list_calendar_HebrewMonth {
@@ -395,26 +395,26 @@ struct kosherz_list_calendar_Holiday {
 };
 
 /** `[Zman]` */
-struct kosherz_list_zmanim_Zman {
-    kosherz_zmanim_Zman* items;
+struct kosherz_list_times_Zman {
+    kosherz_times_Zman* items;
     size_t len;
 };
 
 /** `[ZmanTime]` */
-struct kosherz_list_zmanim_ZmanTime {
-    kosherz_zmanim_ZmanTime* items;
+struct kosherz_list_times_ZmanTime {
+    kosherz_times_ZmanTime* items;
     size_t len;
 };
 
 /** `[MyZman]` */
-struct kosherz_list_zmanim_myzmanim_MyZman {
-    kosherz_zmanim_myzmanim_MyZman* items;
+struct kosherz_list_times_myzmanim_MyZman {
+    kosherz_times_myzmanim_MyZman* items;
     size_t len;
 };
 
 /** `[MyZmanTime]` */
-struct kosherz_list_zmanim_myzmanim_MyZmanTime {
-    kosherz_zmanim_myzmanim_MyZmanTime* items;
+struct kosherz_list_times_myzmanim_MyZmanTime {
+    kosherz_times_myzmanim_MyZmanTime* items;
     size_t len;
 };
 
@@ -472,7 +472,7 @@ struct kosherz_calendar_limudim_Daf {
     /** The tractate. */
     kosherz_calendar_limudim_Tractate tractate;
     /** The page number. The Bavli starts at 2, the Yerushalmi at 1. */
-    int32_t daf;
+    int32_t number;
     /** As text, for example "Bava Metzia 55". */
     kosherz_str display;
 };
@@ -482,7 +482,7 @@ struct kosherz_calendar_limudim_Amud {
     /** The tractate. */
     kosherz_calendar_limudim_Tractate tractate;
     /** The page number. */
-    int32_t daf;
+    int32_t number;
     /** Which side of the page. */
     kosherz_calendar_limudim_Side side;
     /** As text, for example "Bava Metzia 55b". */
@@ -496,7 +496,7 @@ struct kosherz_calendar_limudim_Mishna {
     /** The chapter (*perek*), from 1. */
     int32_t chapter;
     /** The *mishnah* within the chapter, from 1. */
-    int32_t mishna;
+    int32_t number;
     /** As text, for example "Nazir 5:5". */
     kosherz_str display;
 };
@@ -560,7 +560,7 @@ struct kosherz_calendar_limudim_PirkeiAvosUnit {
  * The time zone is not part of the location. You pass a `TimeZoneOffset` to `Zmanim` and
  * `MyZmanim` when you create them.
  */
-struct kosherz_zmanim_Location {
+struct kosherz_times_Location {
     /** Latitude in degrees, north positive. */
     double latitude;
     /** Longitude in degrees, east positive. */
@@ -574,7 +574,7 @@ struct kosherz_zmanim_Location {
 };
 
 /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
-struct kosherz_zmanim_Config {
+struct kosherz_times_Config {
     /**
      * How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
      * way. Default 18.
@@ -598,29 +598,29 @@ struct kosherz_zmanim_Config {
      */
     bool use_astronomical_chatzos;
     /** The solar position algorithm. Default NOAA. */
-    kosherz_zmanim_Calculator calculator;
+    kosherz_times_Calculator calculator;
     /** For Meeus and SPA: whether to apply the delta-T (TT - UT) correction. Default true. */
     bool apply_delta_t;
 };
 
 /** One zman's time, or why it has none. */
-struct kosherz_zmanim_ZmanTime {
+struct kosherz_times_ZmanTime {
     /** The zman. */
-    kosherz_zmanim_Zman zman;
+    kosherz_times_Zman zman;
     /** The time in Unix milliseconds, when it could be calculated. */
     int64_t* time;
     /** Why it could not, when it could not. */
-    kosherz_zmanim_ZmanFailure* failure;
+    kosherz_times_ZmanFailure* failure;
 };
 
 /** One MyZmanim time, or why it has none. */
-struct kosherz_zmanim_myzmanim_MyZmanTime {
+struct kosherz_times_myzmanim_MyZmanTime {
     /** The row. */
-    kosherz_zmanim_myzmanim_MyZman zman;
+    kosherz_times_myzmanim_MyZman zman;
     /** The time in Unix milliseconds, when it could be calculated. */
     int64_t* time;
     /** Why it could not, when it could not. */
-    kosherz_zmanim_ZmanFailure* failure;
+    kosherz_times_ZmanFailure* failure;
 };
 
 /* ---------------------------------------------------------------------------
@@ -677,22 +677,22 @@ static inline void kosherz_calendar_limudim_PirkeiAvosUnit_write(kosherz_writer*
 static inline void kosherz_calendar_limudim_PirkeiAvosUnit_read(kosherz_reader* r, kosherz_calendar_limudim_PirkeiAvosUnit* out);
 static inline bool kosherz_calendar_limudim_PirkeiAvosUnit_decode(const uint8_t* ptr, size_t len, kosherz_calendar_limudim_PirkeiAvosUnit* out);
 static inline void kosherz_calendar_limudim_PirkeiAvosUnit_free(kosherz_calendar_limudim_PirkeiAvosUnit* v);
-static inline void kosherz_zmanim_Location_write(kosherz_writer* w, const kosherz_zmanim_Location* v);
-static inline void kosherz_zmanim_Location_read(kosherz_reader* r, kosherz_zmanim_Location* out);
-static inline bool kosherz_zmanim_Location_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_Location* out);
-static inline void kosherz_zmanim_Location_free(kosherz_zmanim_Location* v);
-static inline void kosherz_zmanim_Config_write(kosherz_writer* w, const kosherz_zmanim_Config* v);
-static inline void kosherz_zmanim_Config_read(kosherz_reader* r, kosherz_zmanim_Config* out);
-static inline bool kosherz_zmanim_Config_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_Config* out);
-static inline void kosherz_zmanim_Config_free(kosherz_zmanim_Config* v);
-static inline void kosherz_zmanim_ZmanTime_write(kosherz_writer* w, const kosherz_zmanim_ZmanTime* v);
-static inline void kosherz_zmanim_ZmanTime_read(kosherz_reader* r, kosherz_zmanim_ZmanTime* out);
-static inline bool kosherz_zmanim_ZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_ZmanTime* out);
-static inline void kosherz_zmanim_ZmanTime_free(kosherz_zmanim_ZmanTime* v);
-static inline void kosherz_zmanim_myzmanim_MyZmanTime_write(kosherz_writer* w, const kosherz_zmanim_myzmanim_MyZmanTime* v);
-static inline void kosherz_zmanim_myzmanim_MyZmanTime_read(kosherz_reader* r, kosherz_zmanim_myzmanim_MyZmanTime* out);
-static inline bool kosherz_zmanim_myzmanim_MyZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_myzmanim_MyZmanTime* out);
-static inline void kosherz_zmanim_myzmanim_MyZmanTime_free(kosherz_zmanim_myzmanim_MyZmanTime* v);
+static inline void kosherz_times_Location_write(kosherz_writer* w, const kosherz_times_Location* v);
+static inline void kosherz_times_Location_read(kosherz_reader* r, kosherz_times_Location* out);
+static inline bool kosherz_times_Location_decode(const uint8_t* ptr, size_t len, kosherz_times_Location* out);
+static inline void kosherz_times_Location_free(kosherz_times_Location* v);
+static inline void kosherz_times_Config_write(kosherz_writer* w, const kosherz_times_Config* v);
+static inline void kosherz_times_Config_read(kosherz_reader* r, kosherz_times_Config* out);
+static inline bool kosherz_times_Config_decode(const uint8_t* ptr, size_t len, kosherz_times_Config* out);
+static inline void kosherz_times_Config_free(kosherz_times_Config* v);
+static inline void kosherz_times_ZmanTime_write(kosherz_writer* w, const kosherz_times_ZmanTime* v);
+static inline void kosherz_times_ZmanTime_read(kosherz_reader* r, kosherz_times_ZmanTime* out);
+static inline bool kosherz_times_ZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_times_ZmanTime* out);
+static inline void kosherz_times_ZmanTime_free(kosherz_times_ZmanTime* v);
+static inline void kosherz_times_myzmanim_MyZmanTime_write(kosherz_writer* w, const kosherz_times_myzmanim_MyZmanTime* v);
+static inline void kosherz_times_myzmanim_MyZmanTime_read(kosherz_reader* r, kosherz_times_myzmanim_MyZmanTime* out);
+static inline bool kosherz_times_myzmanim_MyZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_times_myzmanim_MyZmanTime* out);
+static inline void kosherz_times_myzmanim_MyZmanTime_free(kosherz_times_myzmanim_MyZmanTime* v);
 static inline void kosherz_list_calendar_HebrewMonth_write(kosherz_writer* w, const kosherz_list_calendar_HebrewMonth* v);
 static inline void kosherz_list_calendar_HebrewMonth_read(kosherz_reader* r, kosherz_list_calendar_HebrewMonth* out);
 static inline bool kosherz_list_calendar_HebrewMonth_decode(const uint8_t* ptr, size_t len, kosherz_list_calendar_HebrewMonth* out);
@@ -701,10 +701,10 @@ static inline void kosherz_opt_i64_write(kosherz_writer* w, const int64_t* v);
 static inline void kosherz_opt_i64_read(kosherz_reader* r, int64_t** out);
 static inline bool kosherz_opt_i64_decode(const uint8_t* ptr, size_t len, int64_t** out);
 static inline void kosherz_opt_i64_free(int64_t** v);
-static inline void kosherz_opt_zmanim_ZmanFailure_write(kosherz_writer* w, const kosherz_zmanim_ZmanFailure* v);
-static inline void kosherz_opt_zmanim_ZmanFailure_read(kosherz_reader* r, kosherz_zmanim_ZmanFailure** out);
-static inline bool kosherz_opt_zmanim_ZmanFailure_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_ZmanFailure** out);
-static inline void kosherz_opt_zmanim_ZmanFailure_free(kosherz_zmanim_ZmanFailure** v);
+static inline void kosherz_opt_times_ZmanFailure_write(kosherz_writer* w, const kosherz_times_ZmanFailure* v);
+static inline void kosherz_opt_times_ZmanFailure_read(kosherz_reader* r, kosherz_times_ZmanFailure** out);
+static inline bool kosherz_opt_times_ZmanFailure_decode(const uint8_t* ptr, size_t len, kosherz_times_ZmanFailure** out);
+static inline void kosherz_opt_times_ZmanFailure_free(kosherz_times_ZmanFailure** v);
 static inline void kosherz_opt_i32_write(kosherz_writer* w, const int32_t* v);
 static inline void kosherz_opt_i32_read(kosherz_reader* r, int32_t** out);
 static inline bool kosherz_opt_i32_decode(const uint8_t* ptr, size_t len, int32_t** out);
@@ -741,26 +741,26 @@ static inline void kosherz_opt_calendar_limudim_PirkeiAvosUnit_write(kosherz_wri
 static inline void kosherz_opt_calendar_limudim_PirkeiAvosUnit_read(kosherz_reader* r, kosherz_calendar_limudim_PirkeiAvosUnit** out);
 static inline bool kosherz_opt_calendar_limudim_PirkeiAvosUnit_decode(const uint8_t* ptr, size_t len, kosherz_calendar_limudim_PirkeiAvosUnit** out);
 static inline void kosherz_opt_calendar_limudim_PirkeiAvosUnit_free(kosherz_calendar_limudim_PirkeiAvosUnit** v);
-static inline void kosherz_list_zmanim_Zman_write(kosherz_writer* w, const kosherz_list_zmanim_Zman* v);
-static inline void kosherz_list_zmanim_Zman_read(kosherz_reader* r, kosherz_list_zmanim_Zman* out);
-static inline bool kosherz_list_zmanim_Zman_decode(const uint8_t* ptr, size_t len, kosherz_list_zmanim_Zman* out);
-static inline void kosherz_list_zmanim_Zman_free(kosherz_list_zmanim_Zman* v);
-static inline void kosherz_opt_zmanim_Zman_write(kosherz_writer* w, const kosherz_zmanim_Zman* v);
-static inline void kosherz_opt_zmanim_Zman_read(kosherz_reader* r, kosherz_zmanim_Zman** out);
-static inline bool kosherz_opt_zmanim_Zman_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_Zman** out);
-static inline void kosherz_opt_zmanim_Zman_free(kosherz_zmanim_Zman** v);
-static inline void kosherz_list_zmanim_ZmanTime_write(kosherz_writer* w, const kosherz_list_zmanim_ZmanTime* v);
-static inline void kosherz_list_zmanim_ZmanTime_read(kosherz_reader* r, kosherz_list_zmanim_ZmanTime* out);
-static inline bool kosherz_list_zmanim_ZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_list_zmanim_ZmanTime* out);
-static inline void kosherz_list_zmanim_ZmanTime_free(kosherz_list_zmanim_ZmanTime* v);
-static inline void kosherz_list_zmanim_myzmanim_MyZman_write(kosherz_writer* w, const kosherz_list_zmanim_myzmanim_MyZman* v);
-static inline void kosherz_list_zmanim_myzmanim_MyZman_read(kosherz_reader* r, kosherz_list_zmanim_myzmanim_MyZman* out);
-static inline bool kosherz_list_zmanim_myzmanim_MyZman_decode(const uint8_t* ptr, size_t len, kosherz_list_zmanim_myzmanim_MyZman* out);
-static inline void kosherz_list_zmanim_myzmanim_MyZman_free(kosherz_list_zmanim_myzmanim_MyZman* v);
-static inline void kosherz_list_zmanim_myzmanim_MyZmanTime_write(kosherz_writer* w, const kosherz_list_zmanim_myzmanim_MyZmanTime* v);
-static inline void kosherz_list_zmanim_myzmanim_MyZmanTime_read(kosherz_reader* r, kosherz_list_zmanim_myzmanim_MyZmanTime* out);
-static inline bool kosherz_list_zmanim_myzmanim_MyZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_list_zmanim_myzmanim_MyZmanTime* out);
-static inline void kosherz_list_zmanim_myzmanim_MyZmanTime_free(kosherz_list_zmanim_myzmanim_MyZmanTime* v);
+static inline void kosherz_list_times_Zman_write(kosherz_writer* w, const kosherz_list_times_Zman* v);
+static inline void kosherz_list_times_Zman_read(kosherz_reader* r, kosherz_list_times_Zman* out);
+static inline bool kosherz_list_times_Zman_decode(const uint8_t* ptr, size_t len, kosherz_list_times_Zman* out);
+static inline void kosherz_list_times_Zman_free(kosherz_list_times_Zman* v);
+static inline void kosherz_opt_times_Zman_write(kosherz_writer* w, const kosherz_times_Zman* v);
+static inline void kosherz_opt_times_Zman_read(kosherz_reader* r, kosherz_times_Zman** out);
+static inline bool kosherz_opt_times_Zman_decode(const uint8_t* ptr, size_t len, kosherz_times_Zman** out);
+static inline void kosherz_opt_times_Zman_free(kosherz_times_Zman** v);
+static inline void kosherz_list_times_ZmanTime_write(kosherz_writer* w, const kosherz_list_times_ZmanTime* v);
+static inline void kosherz_list_times_ZmanTime_read(kosherz_reader* r, kosherz_list_times_ZmanTime* out);
+static inline bool kosherz_list_times_ZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_list_times_ZmanTime* out);
+static inline void kosherz_list_times_ZmanTime_free(kosherz_list_times_ZmanTime* v);
+static inline void kosherz_list_times_myzmanim_MyZman_write(kosherz_writer* w, const kosherz_list_times_myzmanim_MyZman* v);
+static inline void kosherz_list_times_myzmanim_MyZman_read(kosherz_reader* r, kosherz_list_times_myzmanim_MyZman* out);
+static inline bool kosherz_list_times_myzmanim_MyZman_decode(const uint8_t* ptr, size_t len, kosherz_list_times_myzmanim_MyZman* out);
+static inline void kosherz_list_times_myzmanim_MyZman_free(kosherz_list_times_myzmanim_MyZman* v);
+static inline void kosherz_list_times_myzmanim_MyZmanTime_write(kosherz_writer* w, const kosherz_list_times_myzmanim_MyZmanTime* v);
+static inline void kosherz_list_times_myzmanim_MyZmanTime_read(kosherz_reader* r, kosherz_list_times_myzmanim_MyZmanTime* out);
+static inline bool kosherz_list_times_myzmanim_MyZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_list_times_myzmanim_MyZmanTime* out);
+static inline void kosherz_list_times_myzmanim_MyZmanTime_free(kosherz_list_times_myzmanim_MyZmanTime* v);
 
 static inline void kosherz_calendar_GregorianDate_write(kosherz_writer* w, const kosherz_calendar_GregorianDate* v) {
     kosherz_writer_put_i32(w, v->year);
@@ -1074,14 +1074,14 @@ static inline void kosherz_calendar_Holiday_free(kosherz_calendar_Holiday* v) {
 
 static inline void kosherz_calendar_limudim_Daf_write(kosherz_writer* w, const kosherz_calendar_limudim_Daf* v) {
     kosherz_writer_put_i32(w, (int32_t)v->tractate);
-    kosherz_writer_put_i32(w, v->daf);
+    kosherz_writer_put_i32(w, v->number);
     kosherz_writer_put_string(w, v->display);
 }
 
 static inline void kosherz_calendar_limudim_Daf_read(kosherz_reader* r, kosherz_calendar_limudim_Daf* out) {
     memset(out, 0, sizeof *out);
     out->tractate = (kosherz_calendar_limudim_Tractate)kosherz_reader_get_i32(r);
-    out->daf = kosherz_reader_get_i32(r);
+    out->number = kosherz_reader_get_i32(r);
     out->display = kosherz_reader_get_string(r);
 }
 
@@ -1102,7 +1102,7 @@ static inline void kosherz_calendar_limudim_Daf_free(kosherz_calendar_limudim_Da
 
 static inline void kosherz_calendar_limudim_Amud_write(kosherz_writer* w, const kosherz_calendar_limudim_Amud* v) {
     kosherz_writer_put_i32(w, (int32_t)v->tractate);
-    kosherz_writer_put_i32(w, v->daf);
+    kosherz_writer_put_i32(w, v->number);
     kosherz_writer_put_i32(w, (int32_t)v->side);
     kosherz_writer_put_string(w, v->display);
 }
@@ -1110,7 +1110,7 @@ static inline void kosherz_calendar_limudim_Amud_write(kosherz_writer* w, const 
 static inline void kosherz_calendar_limudim_Amud_read(kosherz_reader* r, kosherz_calendar_limudim_Amud* out) {
     memset(out, 0, sizeof *out);
     out->tractate = (kosherz_calendar_limudim_Tractate)kosherz_reader_get_i32(r);
-    out->daf = kosherz_reader_get_i32(r);
+    out->number = kosherz_reader_get_i32(r);
     out->side = (kosherz_calendar_limudim_Side)kosherz_reader_get_i32(r);
     out->display = kosherz_reader_get_string(r);
 }
@@ -1133,7 +1133,7 @@ static inline void kosherz_calendar_limudim_Amud_free(kosherz_calendar_limudim_A
 static inline void kosherz_calendar_limudim_Mishna_write(kosherz_writer* w, const kosherz_calendar_limudim_Mishna* v) {
     kosherz_writer_put_i32(w, (int32_t)v->tractate);
     kosherz_writer_put_i32(w, v->chapter);
-    kosherz_writer_put_i32(w, v->mishna);
+    kosherz_writer_put_i32(w, v->number);
     kosherz_writer_put_string(w, v->display);
 }
 
@@ -1141,7 +1141,7 @@ static inline void kosherz_calendar_limudim_Mishna_read(kosherz_reader* r, koshe
     memset(out, 0, sizeof *out);
     out->tractate = (kosherz_calendar_limudim_Tractate)kosherz_reader_get_i32(r);
     out->chapter = kosherz_reader_get_i32(r);
-    out->mishna = kosherz_reader_get_i32(r);
+    out->number = kosherz_reader_get_i32(r);
     out->display = kosherz_reader_get_string(r);
 }
 
@@ -1292,7 +1292,7 @@ static inline void kosherz_calendar_limudim_PirkeiAvosUnit_free(kosherz_calendar
     memset(v, 0, sizeof *v);
 }
 
-static inline void kosherz_zmanim_Location_write(kosherz_writer* w, const kosherz_zmanim_Location* v) {
+static inline void kosherz_times_Location_write(kosherz_writer* w, const kosherz_times_Location* v) {
     kosherz_writer_put_f64(w, v->latitude);
     kosherz_writer_put_f64(w, v->longitude);
     kosherz_writer_put_f64(w, v->elevation);
@@ -1300,7 +1300,7 @@ static inline void kosherz_zmanim_Location_write(kosherz_writer* w, const kosher
     kosherz_writer_put_f64(w, v->western_horizon_elevation);
 }
 
-static inline void kosherz_zmanim_Location_read(kosherz_reader* r, kosherz_zmanim_Location* out) {
+static inline void kosherz_times_Location_read(kosherz_reader* r, kosherz_times_Location* out) {
     memset(out, 0, sizeof *out);
     out->latitude = kosherz_reader_get_f64(r);
     out->longitude = kosherz_reader_get_f64(r);
@@ -1309,21 +1309,21 @@ static inline void kosherz_zmanim_Location_read(kosherz_reader* r, kosherz_zmani
     out->western_horizon_elevation = kosherz_reader_get_f64(r);
 }
 
-static inline bool kosherz_zmanim_Location_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_Location* out) {
+static inline bool kosherz_times_Location_decode(const uint8_t* ptr, size_t len, kosherz_times_Location* out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_zmanim_Location_read(&r, out);
+    kosherz_times_Location_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_zmanim_Location_free(out);
+        kosherz_times_Location_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_zmanim_Location_free(kosherz_zmanim_Location* v) {
+static inline void kosherz_times_Location_free(kosherz_times_Location* v) {
     memset(v, 0, sizeof *v);
 }
 
-static inline void kosherz_zmanim_Config_write(kosherz_writer* w, const kosherz_zmanim_Config* v) {
+static inline void kosherz_times_Config_write(kosherz_writer* w, const kosherz_times_Config* v) {
     kosherz_writer_put_i32(w, v->candle_lighting_minutes);
     kosherz_writer_put_bool(w, v->use_astronomical_chatzos_for_other_zmanim);
     kosherz_writer_put_bool(w, v->use_elevation);
@@ -1333,86 +1333,86 @@ static inline void kosherz_zmanim_Config_write(kosherz_writer* w, const kosherz_
     kosherz_writer_put_bool(w, v->apply_delta_t);
 }
 
-static inline void kosherz_zmanim_Config_read(kosherz_reader* r, kosherz_zmanim_Config* out) {
+static inline void kosherz_times_Config_read(kosherz_reader* r, kosherz_times_Config* out) {
     memset(out, 0, sizeof *out);
     out->candle_lighting_minutes = kosherz_reader_get_i32(r);
     out->use_astronomical_chatzos_for_other_zmanim = kosherz_reader_get_bool(r);
     out->use_elevation = kosherz_reader_get_bool(r);
     out->ateret_torah_sunset_minutes = kosherz_reader_get_i32(r);
     out->use_astronomical_chatzos = kosherz_reader_get_bool(r);
-    out->calculator = (kosherz_zmanim_Calculator)kosherz_reader_get_i32(r);
+    out->calculator = (kosherz_times_Calculator)kosherz_reader_get_i32(r);
     out->apply_delta_t = kosherz_reader_get_bool(r);
 }
 
-static inline bool kosherz_zmanim_Config_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_Config* out) {
+static inline bool kosherz_times_Config_decode(const uint8_t* ptr, size_t len, kosherz_times_Config* out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_zmanim_Config_read(&r, out);
+    kosherz_times_Config_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_zmanim_Config_free(out);
+        kosherz_times_Config_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_zmanim_Config_free(kosherz_zmanim_Config* v) {
+static inline void kosherz_times_Config_free(kosherz_times_Config* v) {
     memset(v, 0, sizeof *v);
 }
 
-static inline void kosherz_zmanim_ZmanTime_write(kosherz_writer* w, const kosherz_zmanim_ZmanTime* v) {
+static inline void kosherz_times_ZmanTime_write(kosherz_writer* w, const kosherz_times_ZmanTime* v) {
     kosherz_writer_put_i32(w, (int32_t)v->zman);
     kosherz_opt_i64_write(w, v->time);
-    kosherz_opt_zmanim_ZmanFailure_write(w, v->failure);
+    kosherz_opt_times_ZmanFailure_write(w, v->failure);
 }
 
-static inline void kosherz_zmanim_ZmanTime_read(kosherz_reader* r, kosherz_zmanim_ZmanTime* out) {
+static inline void kosherz_times_ZmanTime_read(kosherz_reader* r, kosherz_times_ZmanTime* out) {
     memset(out, 0, sizeof *out);
-    out->zman = (kosherz_zmanim_Zman)kosherz_reader_get_i32(r);
+    out->zman = (kosherz_times_Zman)kosherz_reader_get_i32(r);
     kosherz_opt_i64_read(r, &out->time);
-    kosherz_opt_zmanim_ZmanFailure_read(r, &out->failure);
+    kosherz_opt_times_ZmanFailure_read(r, &out->failure);
 }
 
-static inline bool kosherz_zmanim_ZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_ZmanTime* out) {
+static inline bool kosherz_times_ZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_times_ZmanTime* out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_zmanim_ZmanTime_read(&r, out);
+    kosherz_times_ZmanTime_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_zmanim_ZmanTime_free(out);
+        kosherz_times_ZmanTime_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_zmanim_ZmanTime_free(kosherz_zmanim_ZmanTime* v) {
+static inline void kosherz_times_ZmanTime_free(kosherz_times_ZmanTime* v) {
     kosherz_opt_i64_free(&v->time);
-    kosherz_opt_zmanim_ZmanFailure_free(&v->failure);
+    kosherz_opt_times_ZmanFailure_free(&v->failure);
     memset(v, 0, sizeof *v);
 }
 
-static inline void kosherz_zmanim_myzmanim_MyZmanTime_write(kosherz_writer* w, const kosherz_zmanim_myzmanim_MyZmanTime* v) {
+static inline void kosherz_times_myzmanim_MyZmanTime_write(kosherz_writer* w, const kosherz_times_myzmanim_MyZmanTime* v) {
     kosherz_writer_put_i32(w, (int32_t)v->zman);
     kosherz_opt_i64_write(w, v->time);
-    kosherz_opt_zmanim_ZmanFailure_write(w, v->failure);
+    kosherz_opt_times_ZmanFailure_write(w, v->failure);
 }
 
-static inline void kosherz_zmanim_myzmanim_MyZmanTime_read(kosherz_reader* r, kosherz_zmanim_myzmanim_MyZmanTime* out) {
+static inline void kosherz_times_myzmanim_MyZmanTime_read(kosherz_reader* r, kosherz_times_myzmanim_MyZmanTime* out) {
     memset(out, 0, sizeof *out);
-    out->zman = (kosherz_zmanim_myzmanim_MyZman)kosherz_reader_get_i32(r);
+    out->zman = (kosherz_times_myzmanim_MyZman)kosherz_reader_get_i32(r);
     kosherz_opt_i64_read(r, &out->time);
-    kosherz_opt_zmanim_ZmanFailure_read(r, &out->failure);
+    kosherz_opt_times_ZmanFailure_read(r, &out->failure);
 }
 
-static inline bool kosherz_zmanim_myzmanim_MyZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_myzmanim_MyZmanTime* out) {
+static inline bool kosherz_times_myzmanim_MyZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_times_myzmanim_MyZmanTime* out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_zmanim_myzmanim_MyZmanTime_read(&r, out);
+    kosherz_times_myzmanim_MyZmanTime_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_zmanim_myzmanim_MyZmanTime_free(out);
+        kosherz_times_myzmanim_MyZmanTime_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_zmanim_myzmanim_MyZmanTime_free(kosherz_zmanim_myzmanim_MyZmanTime* v) {
+static inline void kosherz_times_myzmanim_MyZmanTime_free(kosherz_times_myzmanim_MyZmanTime* v) {
     kosherz_opt_i64_free(&v->time);
-    kosherz_opt_zmanim_ZmanFailure_free(&v->failure);
+    kosherz_opt_times_ZmanFailure_free(&v->failure);
     memset(v, 0, sizeof *v);
 }
 
@@ -1490,38 +1490,38 @@ static inline void kosherz_opt_i64_free(int64_t** v) {
     *v = NULL;
 }
 
-static inline void kosherz_opt_zmanim_ZmanFailure_write(kosherz_writer* w, const kosherz_zmanim_ZmanFailure* v) {
+static inline void kosherz_opt_times_ZmanFailure_write(kosherz_writer* w, const kosherz_times_ZmanFailure* v) {
     kosherz_writer_put_bool(w, v != NULL);
     if (v != NULL) {
         kosherz_writer_put_i32(w, (int32_t)(*v));
     }
 }
 
-static inline void kosherz_opt_zmanim_ZmanFailure_read(kosherz_reader* r, kosherz_zmanim_ZmanFailure** out) {
+static inline void kosherz_opt_times_ZmanFailure_read(kosherz_reader* r, kosherz_times_ZmanFailure** out) {
     *out = NULL;
     if (!kosherz_reader_get_bool(r)) {
         return;
     }
-    kosherz_zmanim_ZmanFailure* value = (kosherz_zmanim_ZmanFailure*)calloc(1, sizeof(kosherz_zmanim_ZmanFailure));
+    kosherz_times_ZmanFailure* value = (kosherz_times_ZmanFailure*)calloc(1, sizeof(kosherz_times_ZmanFailure));
     if (value == NULL) {
         r->failed = true;
         return;
     }
-    (*value) = (kosherz_zmanim_ZmanFailure)kosherz_reader_get_i32(r);
+    (*value) = (kosherz_times_ZmanFailure)kosherz_reader_get_i32(r);
     *out = value;
 }
 
-static inline bool kosherz_opt_zmanim_ZmanFailure_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_ZmanFailure** out) {
+static inline bool kosherz_opt_times_ZmanFailure_decode(const uint8_t* ptr, size_t len, kosherz_times_ZmanFailure** out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_opt_zmanim_ZmanFailure_read(&r, out);
+    kosherz_opt_times_ZmanFailure_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_opt_zmanim_ZmanFailure_free(out);
+        kosherz_opt_times_ZmanFailure_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_opt_zmanim_ZmanFailure_free(kosherz_zmanim_ZmanFailure** v) {
+static inline void kosherz_opt_times_ZmanFailure_free(kosherz_times_ZmanFailure** v) {
     if (*v == NULL) {
         return;
     }
@@ -1879,73 +1879,73 @@ static inline void kosherz_opt_calendar_limudim_PirkeiAvosUnit_free(kosherz_cale
     *v = NULL;
 }
 
-static inline void kosherz_list_zmanim_Zman_write(kosherz_writer* w, const kosherz_list_zmanim_Zman* v) {
+static inline void kosherz_list_times_Zman_write(kosherz_writer* w, const kosherz_list_times_Zman* v) {
     kosherz_writer_put_len(w, v->len);
     for (size_t i = 0; i < v->len; i++) {
         kosherz_writer_put_i32(w, (int32_t)v->items[i]);
     }
 }
 
-static inline void kosherz_list_zmanim_Zman_read(kosherz_reader* r, kosherz_list_zmanim_Zman* out) {
+static inline void kosherz_list_times_Zman_read(kosherz_reader* r, kosherz_list_times_Zman* out) {
     memset(out, 0, sizeof *out);
     size_t n = kosherz_reader_get_u32(r);
-    out->items = (kosherz_zmanim_Zman*)kosherz_reader_alloc(r, n, sizeof(kosherz_zmanim_Zman), 4);
+    out->items = (kosherz_times_Zman*)kosherz_reader_alloc(r, n, sizeof(kosherz_times_Zman), 4);
     if (out->items == NULL) {
         return;
     }
     out->len = n;
     for (size_t i = 0; i < n; i++) {
-        out->items[i] = (kosherz_zmanim_Zman)kosherz_reader_get_i32(r);
+        out->items[i] = (kosherz_times_Zman)kosherz_reader_get_i32(r);
     }
 }
 
-static inline bool kosherz_list_zmanim_Zman_decode(const uint8_t* ptr, size_t len, kosherz_list_zmanim_Zman* out) {
+static inline bool kosherz_list_times_Zman_decode(const uint8_t* ptr, size_t len, kosherz_list_times_Zman* out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_list_zmanim_Zman_read(&r, out);
+    kosherz_list_times_Zman_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_list_zmanim_Zman_free(out);
+        kosherz_list_times_Zman_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_list_zmanim_Zman_free(kosherz_list_zmanim_Zman* v) {
+static inline void kosherz_list_times_Zman_free(kosherz_list_times_Zman* v) {
     free(v->items);
     memset(v, 0, sizeof *v);
 }
 
-static inline void kosherz_opt_zmanim_Zman_write(kosherz_writer* w, const kosherz_zmanim_Zman* v) {
+static inline void kosherz_opt_times_Zman_write(kosherz_writer* w, const kosherz_times_Zman* v) {
     kosherz_writer_put_bool(w, v != NULL);
     if (v != NULL) {
         kosherz_writer_put_i32(w, (int32_t)(*v));
     }
 }
 
-static inline void kosherz_opt_zmanim_Zman_read(kosherz_reader* r, kosherz_zmanim_Zman** out) {
+static inline void kosherz_opt_times_Zman_read(kosherz_reader* r, kosherz_times_Zman** out) {
     *out = NULL;
     if (!kosherz_reader_get_bool(r)) {
         return;
     }
-    kosherz_zmanim_Zman* value = (kosherz_zmanim_Zman*)calloc(1, sizeof(kosherz_zmanim_Zman));
+    kosherz_times_Zman* value = (kosherz_times_Zman*)calloc(1, sizeof(kosherz_times_Zman));
     if (value == NULL) {
         r->failed = true;
         return;
     }
-    (*value) = (kosherz_zmanim_Zman)kosherz_reader_get_i32(r);
+    (*value) = (kosherz_times_Zman)kosherz_reader_get_i32(r);
     *out = value;
 }
 
-static inline bool kosherz_opt_zmanim_Zman_decode(const uint8_t* ptr, size_t len, kosherz_zmanim_Zman** out) {
+static inline bool kosherz_opt_times_Zman_decode(const uint8_t* ptr, size_t len, kosherz_times_Zman** out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_opt_zmanim_Zman_read(&r, out);
+    kosherz_opt_times_Zman_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_opt_zmanim_Zman_free(out);
+        kosherz_opt_times_Zman_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_opt_zmanim_Zman_free(kosherz_zmanim_Zman** v) {
+static inline void kosherz_opt_times_Zman_free(kosherz_times_Zman** v) {
     if (*v == NULL) {
         return;
     }
@@ -1953,112 +1953,112 @@ static inline void kosherz_opt_zmanim_Zman_free(kosherz_zmanim_Zman** v) {
     *v = NULL;
 }
 
-static inline void kosherz_list_zmanim_ZmanTime_write(kosherz_writer* w, const kosherz_list_zmanim_ZmanTime* v) {
+static inline void kosherz_list_times_ZmanTime_write(kosherz_writer* w, const kosherz_list_times_ZmanTime* v) {
     kosherz_writer_put_len(w, v->len);
     for (size_t i = 0; i < v->len; i++) {
-        kosherz_zmanim_ZmanTime_write(w, &v->items[i]);
+        kosherz_times_ZmanTime_write(w, &v->items[i]);
     }
 }
 
-static inline void kosherz_list_zmanim_ZmanTime_read(kosherz_reader* r, kosherz_list_zmanim_ZmanTime* out) {
+static inline void kosherz_list_times_ZmanTime_read(kosherz_reader* r, kosherz_list_times_ZmanTime* out) {
     memset(out, 0, sizeof *out);
     size_t n = kosherz_reader_get_u32(r);
-    out->items = (kosherz_zmanim_ZmanTime*)kosherz_reader_alloc(r, n, sizeof(kosherz_zmanim_ZmanTime), 6);
+    out->items = (kosherz_times_ZmanTime*)kosherz_reader_alloc(r, n, sizeof(kosherz_times_ZmanTime), 6);
     if (out->items == NULL) {
         return;
     }
     out->len = n;
     for (size_t i = 0; i < n; i++) {
-        kosherz_zmanim_ZmanTime_read(r, &out->items[i]);
+        kosherz_times_ZmanTime_read(r, &out->items[i]);
     }
 }
 
-static inline bool kosherz_list_zmanim_ZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_list_zmanim_ZmanTime* out) {
+static inline bool kosherz_list_times_ZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_list_times_ZmanTime* out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_list_zmanim_ZmanTime_read(&r, out);
+    kosherz_list_times_ZmanTime_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_list_zmanim_ZmanTime_free(out);
+        kosherz_list_times_ZmanTime_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_list_zmanim_ZmanTime_free(kosherz_list_zmanim_ZmanTime* v) {
+static inline void kosherz_list_times_ZmanTime_free(kosherz_list_times_ZmanTime* v) {
     for (size_t i = 0; i < v->len; i++) {
-        kosherz_zmanim_ZmanTime_free(&v->items[i]);
+        kosherz_times_ZmanTime_free(&v->items[i]);
     }
     free(v->items);
     memset(v, 0, sizeof *v);
 }
 
-static inline void kosherz_list_zmanim_myzmanim_MyZman_write(kosherz_writer* w, const kosherz_list_zmanim_myzmanim_MyZman* v) {
+static inline void kosherz_list_times_myzmanim_MyZman_write(kosherz_writer* w, const kosherz_list_times_myzmanim_MyZman* v) {
     kosherz_writer_put_len(w, v->len);
     for (size_t i = 0; i < v->len; i++) {
         kosherz_writer_put_i32(w, (int32_t)v->items[i]);
     }
 }
 
-static inline void kosherz_list_zmanim_myzmanim_MyZman_read(kosherz_reader* r, kosherz_list_zmanim_myzmanim_MyZman* out) {
+static inline void kosherz_list_times_myzmanim_MyZman_read(kosherz_reader* r, kosherz_list_times_myzmanim_MyZman* out) {
     memset(out, 0, sizeof *out);
     size_t n = kosherz_reader_get_u32(r);
-    out->items = (kosherz_zmanim_myzmanim_MyZman*)kosherz_reader_alloc(r, n, sizeof(kosherz_zmanim_myzmanim_MyZman), 4);
+    out->items = (kosherz_times_myzmanim_MyZman*)kosherz_reader_alloc(r, n, sizeof(kosherz_times_myzmanim_MyZman), 4);
     if (out->items == NULL) {
         return;
     }
     out->len = n;
     for (size_t i = 0; i < n; i++) {
-        out->items[i] = (kosherz_zmanim_myzmanim_MyZman)kosherz_reader_get_i32(r);
+        out->items[i] = (kosherz_times_myzmanim_MyZman)kosherz_reader_get_i32(r);
     }
 }
 
-static inline bool kosherz_list_zmanim_myzmanim_MyZman_decode(const uint8_t* ptr, size_t len, kosherz_list_zmanim_myzmanim_MyZman* out) {
+static inline bool kosherz_list_times_myzmanim_MyZman_decode(const uint8_t* ptr, size_t len, kosherz_list_times_myzmanim_MyZman* out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_list_zmanim_myzmanim_MyZman_read(&r, out);
+    kosherz_list_times_myzmanim_MyZman_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_list_zmanim_myzmanim_MyZman_free(out);
+        kosherz_list_times_myzmanim_MyZman_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_list_zmanim_myzmanim_MyZman_free(kosherz_list_zmanim_myzmanim_MyZman* v) {
+static inline void kosherz_list_times_myzmanim_MyZman_free(kosherz_list_times_myzmanim_MyZman* v) {
     free(v->items);
     memset(v, 0, sizeof *v);
 }
 
-static inline void kosherz_list_zmanim_myzmanim_MyZmanTime_write(kosherz_writer* w, const kosherz_list_zmanim_myzmanim_MyZmanTime* v) {
+static inline void kosherz_list_times_myzmanim_MyZmanTime_write(kosherz_writer* w, const kosherz_list_times_myzmanim_MyZmanTime* v) {
     kosherz_writer_put_len(w, v->len);
     for (size_t i = 0; i < v->len; i++) {
-        kosherz_zmanim_myzmanim_MyZmanTime_write(w, &v->items[i]);
+        kosherz_times_myzmanim_MyZmanTime_write(w, &v->items[i]);
     }
 }
 
-static inline void kosherz_list_zmanim_myzmanim_MyZmanTime_read(kosherz_reader* r, kosherz_list_zmanim_myzmanim_MyZmanTime* out) {
+static inline void kosherz_list_times_myzmanim_MyZmanTime_read(kosherz_reader* r, kosherz_list_times_myzmanim_MyZmanTime* out) {
     memset(out, 0, sizeof *out);
     size_t n = kosherz_reader_get_u32(r);
-    out->items = (kosherz_zmanim_myzmanim_MyZmanTime*)kosherz_reader_alloc(r, n, sizeof(kosherz_zmanim_myzmanim_MyZmanTime), 6);
+    out->items = (kosherz_times_myzmanim_MyZmanTime*)kosherz_reader_alloc(r, n, sizeof(kosherz_times_myzmanim_MyZmanTime), 6);
     if (out->items == NULL) {
         return;
     }
     out->len = n;
     for (size_t i = 0; i < n; i++) {
-        kosherz_zmanim_myzmanim_MyZmanTime_read(r, &out->items[i]);
+        kosherz_times_myzmanim_MyZmanTime_read(r, &out->items[i]);
     }
 }
 
-static inline bool kosherz_list_zmanim_myzmanim_MyZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_list_zmanim_myzmanim_MyZmanTime* out) {
+static inline bool kosherz_list_times_myzmanim_MyZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_list_times_myzmanim_MyZmanTime* out) {
     kosherz_reader r = kosherz_reader_of(ptr, len);
-    kosherz_list_zmanim_myzmanim_MyZmanTime_read(&r, out);
+    kosherz_list_times_myzmanim_MyZmanTime_read(&r, out);
     if (!kosherz_reader_finish(&r)) {
-        kosherz_list_zmanim_myzmanim_MyZmanTime_free(out);
+        kosherz_list_times_myzmanim_MyZmanTime_free(out);
         return false;
     }
     return true;
 }
 
-static inline void kosherz_list_zmanim_myzmanim_MyZmanTime_free(kosherz_list_zmanim_myzmanim_MyZmanTime* v) {
+static inline void kosherz_list_times_myzmanim_MyZmanTime_free(kosherz_list_times_myzmanim_MyZmanTime* v) {
     for (size_t i = 0; i < v->len; i++) {
-        kosherz_zmanim_myzmanim_MyZmanTime_free(&v->items[i]);
+        kosherz_times_myzmanim_MyZmanTime_free(&v->items[i]);
     }
     free(v->items);
     memset(v, 0, sizeof *v);

@@ -48,7 +48,7 @@ const $contract = [
     [0x1c33df579fac36d8n, 0x1175c871bc023b86n, 'calendar.HebrewDate.day_of_year'],
     [0x235fd1db8b7dd5f5n, 0x399eab22141dffd3n, 'calendar.GregorianDate'],
     [0x2b066dc65c460024n, 0xf4f23e6586bd1dd7n, 'calendar.HebrewDate'],
-    [0x2c8e60589f58d792n, 0x57c83a0f8bc36c6cn, 'calendar.limudim.Mishna'],
+    [0x2c8e60589f58d792n, 0xa0608634cb2f46cbn, 'calendar.limudim.Mishna'],
     [0x2da09ea1403b727en, 0x4d5e82347ae7a3fcn, 'calendar.HebrewMonth'],
     [0x2e1645ba38a77559n, 0x1c81765c98ab54f9n, 'calendar.HebrewDate.parsha'],
     [0x2e561d4c25bf877dn, 0x47ff51d038dbe0d8n, 'calendar.limudim.tehillim_display'],
@@ -83,9 +83,9 @@ const $contract = [
     [0x98cc81d52e65776bn, 0x2bf1569214921669n, 'calendar.month_hebrew'],
     [0x9b48ba34fb52812dn, 0xff11e092dce92ed7n, 'calendar.limudim.Side'],
     [0x9e20ba757aee97c2n, 0x9328a81ac256b477n, 'calendar.parsha_hebrew'],
-    [0xa1e3409cebf37881n, 0x1b7e37005bd2f8e9n, 'calendar.limudim.Daf'],
+    [0xa1e3409cebf37881n, 0xfeebfaab6c533e17n, 'calendar.limudim.Daf'],
     [0xa5864219850af272n, 0xf8a4981ca376ff28n, 'calendar.HebrewDate.is_assur_bemelacha'],
-    [0xaeb433ce589b7931n, 0xe1e8d4dad467e3e7n, 'calendar.limudim.Amud'],
+    [0xaeb433ce589b7931n, 0x364d4d0b6a770631n, 'calendar.limudim.Amud'],
     [0xaf5dd6acc2e8ba71n, 0xa2fdd5f43f90f755n, 'calendar.holiday_hebrew'],
     [0xbd8865ae2177f9ffn, 0x6bc5f7eea096d080n, 'calendar.year_info'],
     [0xc3fd51b677226babn, 0x684e92fa36717939n, 'calendar.month_name'],
@@ -104,54 +104,54 @@ const $contract = [
     [0xf56c124b8ec1c493n, 0xf35981f09fb986dfn, 'calendar.HebrewDate.year'],
     [0xfb59656a30b3c76fn, 0x263b2a60d4b349b3n, 'calendar.Weekday'],
   ]],
-  ['zmanim', [
-    [0x022d265126fcbd47n, 0xf70eea6f6621717fn, 'zmanim.validate_location'],
-    [0x02e0caa49b3a204bn, 0x5962ffa89080c41bn, 'zmanim.shaah_zmanis'],
-    [0x04493862e57a4cdfn, 0x258faa23773bfcaen, 'zmanim.myzmanim.MyZmanim.candle_lighting_minutes'],
-    [0x0709c5af4b818c01n, 0xf2a52228396d8635n, 'zmanim.myzmanim.sea_level_refraction_arcminutes'],
-    [0x10234c837e5331b1n, 0xcc6eb9ea8c42ca79n, 'zmanim.myzmanim.MyZmanim.new'],
-    [0x1d3f31835b116405n, 0x3278f3a62bb6e469n, 'zmanim.myzmanim.dawn_72_degrees'],
-    [0x1fd629eb299bc703n, 0xcddd8b18c602be76n, 'zmanim.myzmanim.MyZman'],
-    [0x2550c75ec58dae49n, 0xc3cb9f9d3b5b28ban, 'zmanim.Zmanim.date'],
-    [0x2791137b8945b8ddn, 0x9169cc1ef07d2488n, 'zmanim.ZmanimError'],
-    [0x27ff9dab340588fcn, 0x4b1d4aaf11dfd132n, 'zmanim.zman_category'],
-    [0x29795294927af42dn, 0xffb3d691737a4f38n, 'zmanim.Category'],
-    [0x30cabeb665248a1dn, 0xfa44bbb1fab132e5n, 'zmanim.sea_level_location'],
-    [0x334bc497c2e1b7f6n, 0xa82a63cd8b5c9bc8n, 'zmanim.myzmanim.all_my_zmanim'],
-    [0x406a9d72e9cc44d8n, 0x689307845875e63en, 'zmanim.zman_is_deprecated'],
-    [0x4118dd5a26e15851n, 0x549f4e736961b812n, 'zmanim.calculator_name'],
-    [0x484846a2e9ee0a81n, 0xdf4697e13848d687n, 'zmanim.zman_from_java_name'],
-    [0x484f114766abb5e2n, 0xc5f954c475f4dc9dn, 'zmanim.zman_java_name'],
-    [0x5f3ebb1c37c66ab9n, 0xc3cb9f9d3b5b28ban, 'zmanim.myzmanim.MyZmanim.date'],
-    [0x631f48e27eef2376n, 0x63856359341062een, 'zmanim.Zmanim.location'],
-    [0x65058d455e954e8en, 0x4a23e822039987a7n, 'zmanim.zman_description'],
-    [0x66df597381790f0bn, 0x4c30c7a90dcabaa5n, 'zmanim.Zmanim.sunset_offset_by_degrees'],
-    [0x6c14e7ba35220983n, 0x7d00a18dba45f065n, 'zmanim.ZmanFailure'],
-    [0x7b6a0d0953f70457n, 0x6614e227c469c232n, 'zmanim.Zmanim.config'],
-    [0x7bda2eefee3cd432n, 0x4af5df9a96d3f535n, 'zmanim.myzmanim.MyZmanim.proportional_hour_gra'],
-    [0x84cfd0af1981e364n, 0x93ef9500cb5f1cfcn, 'zmanim.Zmanim.sunrise_offset_by_degrees'],
-    [0x852e1ce68e6270fan, 0xdec9155329278f29n, 'zmanim.myzmanim.my_zman_name'],
-    [0x972d8aa47e75b0ean, 0x017ce9984014d3c1n, 'zmanim.ZmanTime'],
-    [0x988396c1a4000b66n, 0x63856359341062een, 'zmanim.myzmanim.MyZmanim.location'],
-    [0x9e23e59cc6d2b627n, 0xbea68784cf687a1an, 'zmanim.Zmanim.get'],
-    [0xa7022817cb0f3781n, 0x11babf7c30a11935n, 'zmanim.myzmanim.dip_degrees_per_root_meter'],
-    [0xa7e497ece825babfn, 0x459375a830f8b5a0n, 'zmanim.zman_name'],
-    [0xb0323d9cd1424d34n, 0x669e3d4d3e9d42ccn, 'zmanim.Zmanim.all'],
-    [0xb668f699c44a8b25n, 0x0577fa34d1dea8c3n, 'zmanim.default_config'],
-    [0xbc0120c65a9a7e69n, 0xe3c7eb49f063a0cen, 'zmanim.myzmanim.MyZmanim'],
-    [0xc3ccda83538bf477n, 0x93dc654d560a63b8n, 'zmanim.myzmanim.MyZmanim.get'],
-    [0xc80294024eefae95n, 0x52972cadc08c13efn, 'zmanim.all_zmanim'],
-    [0xcdc06faffaf38ffan, 0x551064f95ab5110dn, 'zmanim.myzmanim.MyZmanTime'],
-    [0xcfe843f87495c18an, 0x7110b3413cfd8e83n, 'zmanim.Location'],
-    [0xd12031217533824bn, 0x2b82d4d65ec59dd7n, 'zmanim.myzmanim.default_candle_lighting_minutes'],
-    [0xd5db12835dfb5524n, 0x975c3a96549104d2n, 'zmanim.myzmanim.MyZmanim.all'],
-    [0xd904b56e2a7d27f9n, 0x2d4c4ce495502494n, 'zmanim.Zmanim'],
-    [0xd90e158541be4971n, 0xf13823120f5b4c46n, 'zmanim.Calculator'],
-    [0xe178a9bb3808bfb3n, 0x685412d4d80250ean, 'zmanim.Config'],
-    [0xea9baabba2ea9789n, 0x174890db5e5166c8n, 'zmanim.TimeZoneOffset'],
-    [0xed07579cf3c52ba1n, 0x99d014ada9906437n, 'zmanim.Zmanim.new'],
-    [0xf9ebba0666552393n, 0x0486761191984fd0n, 'zmanim.Zman'],
-    [0xfa3f9e72b3e59929n, 0x735499ab0a625d6dn, 'zmanim.myzmanim.dawn_90_degrees'],
+  ['times', [
+    [0x01ce427485afb43an, 0x017ce9984014d3c1n, 'times.ZmanTime'],
+    [0x0643c19407762211n, 0x11babf7c30a11935n, 'times.myzmanim.dip_degrees_per_root_meter'],
+    [0x091fabaf00184561n, 0xf13823120f5b4c46n, 'times.Calculator'],
+    [0x0a21d46001720019n, 0x174890db5e5166c8n, 'times.TimeZoneOffset'],
+    [0x0a86c54f2d84238cn, 0x4b1d4aaf11dfd132n, 'times.zman_category'],
+    [0x0d3bc9cd549a7137n, 0xbea68784cf687a1an, 'times.Zmanim.get'],
+    [0x0e595d82f4b54aden, 0x4a23e822039987a7n, 'times.zman_description'],
+    [0x1164ca1d22579c8dn, 0xfa44bbb1fab132e5n, 'times.sea_level_location'],
+    [0x196240a5b18bd7a9n, 0x2d4c4ce495502494n, 'times.Zmanim'],
+    [0x1f4901cd5f081ee4n, 0x669e3d4d3e9d42ccn, 'times.Zmanim.all'],
+    [0x2eabf209e8de2867n, 0x6614e227c469c232n, 'times.Zmanim.config'],
+    [0x38596a351e356743n, 0x685412d4d80250ean, 'times.Config'],
+    [0x39389f0e68d3cc22n, 0x4af5df9a96d3f535n, 'times.myzmanim.MyZmanim.proportional_hour_gra'],
+    [0x3c92cd49c8b4515bn, 0x5962ffa89080c41bn, 'times.shaah_zmanis'],
+    [0x4048d3ca4b000831n, 0xdf4697e13848d687n, 'times.zman_from_java_name'],
+    [0x44a0809dedbd4a4dn, 0x9169cc1ef07d2488n, 'times.ZmanimError'],
+    [0x4d259836d7137c43n, 0x0486761191984fd0n, 'times.Zman'],
+    [0x57d7a9c5a715b9fan, 0x7110b3413cfd8e83n, 'times.Location'],
+    [0x5cf83bcd8244d771n, 0x99d014ada9906437n, 'times.Zmanim.new'],
+    [0x65aa216d77a78308n, 0x689307845875e63en, 'times.zman_is_deprecated'],
+    [0x68ffad4e5539ca69n, 0xc3cb9f9d3b5b28ban, 'times.myzmanim.MyZmanim.date'],
+    [0x6b5635f618146d65n, 0x52972cadc08c13efn, 'times.all_zmanim'],
+    [0x7438d1e6d2e55275n, 0x3278f3a62bb6e469n, 'times.myzmanim.dawn_72_degrees'],
+    [0x743c832eb2e19415n, 0x0577fa34d1dea8c3n, 'times.default_config'],
+    [0x77857568cbec63b3n, 0xcddd8b18c602be76n, 'times.myzmanim.MyZman'],
+    [0x79dc07bc571a3ab7n, 0xf70eea6f6621717fn, 'times.validate_location'],
+    [0x80d913d2e48601c7n, 0x93dc654d560a63b8n, 'times.myzmanim.MyZmanim.get'],
+    [0x8a9dcfc50ecf7193n, 0x7d00a18dba45f065n, 'times.ZmanFailure'],
+    [0x8f816bd2ec126fd4n, 0x975c3a96549104d2n, 'times.myzmanim.MyZmanim.all'],
+    [0x94ec9f2dd31dd154n, 0x93ef9500cb5f1cfcn, 'times.Zmanim.sunrise_offset_by_degrees'],
+    [0x968059cb1e92252an, 0xdec9155329278f29n, 'times.myzmanim.my_zman_name'],
+    [0x97a962b59a32c7dbn, 0x4c30c7a90dcabaa5n, 'times.Zmanim.sunset_offset_by_degrees'],
+    [0x9b8cdf454932d1afn, 0x459375a830f8b5a0n, 'times.zman_name'],
+    [0x9d5bd45067baa0fbn, 0x2b82d4d65ec59dd7n, 'times.myzmanim.default_candle_lighting_minutes'],
+    [0x9d85f89bf54e8206n, 0xa82a63cd8b5c9bc8n, 'times.myzmanim.all_my_zmanim'],
+    [0x9e749626c03b8981n, 0x549f4e736961b812n, 'times.calculator_name'],
+    [0xbb0373c362e8a226n, 0x63856359341062een, 'times.Zmanim.location'],
+    [0xc1a3c3740d199619n, 0xe3c7eb49f063a0cen, 'times.myzmanim.MyZmanim'],
+    [0xc29ca29cb7cd2999n, 0x735499ab0a625d6dn, 'times.myzmanim.dawn_90_degrees'],
+    [0xcc5685d30e954e41n, 0xcc6eb9ea8c42ca79n, 'times.myzmanim.MyZmanim.new'],
+    [0xce8ce7ef4ad0db32n, 0xc5f954c475f4dc9dn, 'times.zman_java_name'],
+    [0xdb5095e0e87f0d79n, 0xc3cb9f9d3b5b28ban, 'times.Zmanim.date'],
+    [0xdda7b795bf202896n, 0x63856359341062een, 'times.myzmanim.MyZmanim.location'],
+    [0xe05ccdd3147e3c9dn, 0xffb3d691737a4f38n, 'times.Category'],
+    [0xe46d58cfab0684cfn, 0x258faa23773bfcaen, 'times.myzmanim.MyZmanim.candle_lighting_minutes'],
+    [0xf0a3c8d75d8fb1can, 0x551064f95ab5110dn, 'times.myzmanim.MyZmanTime'],
+    [0xf577b8fb530d1ad1n, 0xf2a52228396d8635n, 'times.myzmanim.sea_level_refraction_arcminutes'],
   ]],
 ];
 
@@ -179,7 +179,7 @@ export function init(source) {
   return $loading;
 }
 
-function $vt_kosherz_zmanim_TimeZoneOffset(m) {
+function $vt_kosherz_times_TimeZoneOffset(m) {
   return [
     [['i32', 'i64', 'i32'], ['i32'], 'iiji', (ctx, p0, err) => {
       try {
@@ -202,7 +202,7 @@ function $bind(m) {
     kosherz_cancel_token_cancel: (t) => x.kosherz_cancel_token_cancel(m.handle(t)),
     kosherz_cancel_token_destroy: (t) => x.kosherz_cancel_token_destroy(m.handle(t)),
     kosherz_calendar_contract: () => m.contract(x.kosherz_calendar_contract),
-    kosherz_zmanim_contract: () => m.contract(x.kosherz_zmanim_contract),
+    kosherz_times_contract: () => m.contract(x.kosherz_times_contract),
     kosherz_calendar_HebrewDate_clone: (h) => x.kosherz_calendar_HebrewDate_clone(m.handle(h)),
     kosherz_calendar_HebrewDate_destroy: (h) => x.kosherz_calendar_HebrewDate_destroy(m.handle(h)),
     kosherz_calendar_year_info: (a0) => {
@@ -468,92 +468,92 @@ function $bind(m) {
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_Zmanim_clone: (h) => x.kosherz_zmanim_Zmanim_clone(m.handle(h)),
-    kosherz_zmanim_Zmanim_destroy: (h) => x.kosherz_zmanim_Zmanim_destroy(m.handle(h)),
-    kosherz_zmanim_sea_level_location: (a0, a1) => {
-      const r = x.kosherz_zmanim_sea_level_location(m.num(a0), m.num(a1), m.len, m.err);
+    kosherz_times_Zmanim_clone: (h) => x.kosherz_times_Zmanim_clone(m.handle(h)),
+    kosherz_times_Zmanim_destroy: (h) => x.kosherz_times_Zmanim_destroy(m.handle(h)),
+    kosherz_times_sea_level_location: (a0, a1) => {
+      const r = x.kosherz_times_sea_level_location(m.num(a0), m.num(a1), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_validate_location: (a0, a1) => {
+    kosherz_times_validate_location: (a0, a1) => {
       let s0 = null;
       try {
         s0 = m.data(a0);
-        x.kosherz_zmanim_validate_location(s0[0], s0[1], m.bool(a1), m.err);
+        x.kosherz_times_validate_location(s0[0], s0[1], m.bool(a1), m.err);
         m.check();
       } finally {
         m.unstage(s0);
       }
     },
-    kosherz_zmanim_default_config: () => {
-      const r = x.kosherz_zmanim_default_config(m.len, m.err);
+    kosherz_times_default_config: () => {
+      const r = x.kosherz_times_default_config(m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_all_zmanim: () => {
-      const r = x.kosherz_zmanim_all_zmanim(m.len, m.err);
+    kosherz_times_all_zmanim: () => {
+      const r = x.kosherz_times_all_zmanim(m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_zman_name: (a0) => {
-      const r = x.kosherz_zmanim_zman_name(m.num(a0), m.len, m.err);
+    kosherz_times_zman_name: (a0) => {
+      const r = x.kosherz_times_zman_name(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosherz_zmanim_zman_java_name: (a0) => {
-      const r = x.kosherz_zmanim_zman_java_name(m.num(a0), m.len, m.err);
+    kosherz_times_zman_java_name: (a0) => {
+      const r = x.kosherz_times_zman_java_name(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosherz_zmanim_zman_from_java_name: (a0) => {
+    kosherz_times_zman_from_java_name: (a0) => {
       let s0 = null;
       try {
         s0 = m.str(a0);
-        const r = x.kosherz_zmanim_zman_from_java_name(s0[0], s0[1], m.len, m.err);
+        const r = x.kosherz_times_zman_from_java_name(s0[0], s0[1], m.len, m.err);
         m.check();
         return m.takeData(r, m.outLen());
       } finally {
         m.unstage(s0);
       }
     },
-    kosherz_zmanim_zman_category: (a0) => {
-      const r = x.kosherz_zmanim_zman_category(m.num(a0), m.err);
+    kosherz_times_zman_category: (a0) => {
+      const r = x.kosherz_times_zman_category(m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_zman_is_deprecated: (a0) => {
-      const r = x.kosherz_zmanim_zman_is_deprecated(m.num(a0), m.err);
+    kosherz_times_zman_is_deprecated: (a0) => {
+      const r = x.kosherz_times_zman_is_deprecated(m.num(a0), m.err);
       m.check();
       return r !== 0;
     },
-    kosherz_zmanim_zman_description: (a0, a1) => {
+    kosherz_times_zman_description: (a0, a1) => {
       let s1 = null;
       try {
         s1 = m.data(a1);
-        const r = x.kosherz_zmanim_zman_description(m.num(a0), s1[0], s1[1], m.len, m.err);
+        const r = x.kosherz_times_zman_description(m.num(a0), s1[0], s1[1], m.len, m.err);
         m.check();
         return m.takeStr(r, m.outLen());
       } finally {
         m.unstage(s1);
       }
     },
-    kosherz_zmanim_calculator_name: (a0) => {
-      const r = x.kosherz_zmanim_calculator_name(m.num(a0), m.len, m.err);
+    kosherz_times_calculator_name: (a0) => {
+      const r = x.kosherz_times_calculator_name(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosherz_zmanim_shaah_zmanis: (a0, a1) => {
-      const r = x.kosherz_zmanim_shaah_zmanis(m.i64(a0), m.i64(a1), m.err);
+    kosherz_times_shaah_zmanis: (a0, a1) => {
+      const r = x.kosherz_times_shaah_zmanis(m.i64(a0), m.i64(a1), m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_Zmanim_new: (a0, a1, a2, a3) => {
+    kosherz_times_Zmanim_new: (a0, a1, a2, a3) => {
       let s0 = null, s1 = null, s2 = null;
       try {
         s0 = m.data(a0);
         s1 = m.data(a1);
         s2 = m.data(a2);
-        const r = x.kosherz_zmanim_Zmanim_new(s0[0], s0[1], s1[0], s1[1], s2[0], s2[1], m.register(a3), m.vtableOpt(a3, 'kosherz_zmanim_TimeZoneOffset', () => $vt_kosherz_zmanim_TimeZoneOffset(m)), m.err);
+        const r = x.kosherz_times_Zmanim_new(s0[0], s0[1], s1[0], s1[1], s2[0], s2[1], m.register(a3), m.vtableOpt(a3, 'kosherz_times_TimeZoneOffset', () => $vt_kosherz_times_TimeZoneOffset(m)), m.err);
         m.check();
         return r;
       } finally {
@@ -562,84 +562,84 @@ function $bind(m) {
         m.unstage(s2);
       }
     },
-    kosherz_zmanim_Zmanim_get: (self, a0) => {
-      const r = x.kosherz_zmanim_Zmanim_get(m.handle(self), m.num(a0), m.err);
+    kosherz_times_Zmanim_get: (self, a0) => {
+      const r = x.kosherz_times_Zmanim_get(m.handle(self), m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_Zmanim_all: (self) => {
-      const r = x.kosherz_zmanim_Zmanim_all(m.handle(self), m.len, m.err);
+    kosherz_times_Zmanim_all: (self) => {
+      const r = x.kosherz_times_Zmanim_all(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_Zmanim_sunrise_offset_by_degrees: (self, a0) => {
-      const r = x.kosherz_zmanim_Zmanim_sunrise_offset_by_degrees(m.handle(self), m.num(a0), m.err);
+    kosherz_times_Zmanim_sunrise_offset_by_degrees: (self, a0) => {
+      const r = x.kosherz_times_Zmanim_sunrise_offset_by_degrees(m.handle(self), m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_Zmanim_sunset_offset_by_degrees: (self, a0) => {
-      const r = x.kosherz_zmanim_Zmanim_sunset_offset_by_degrees(m.handle(self), m.num(a0), m.err);
+    kosherz_times_Zmanim_sunset_offset_by_degrees: (self, a0) => {
+      const r = x.kosherz_times_Zmanim_sunset_offset_by_degrees(m.handle(self), m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_Zmanim_location: (self) => {
-      const r = x.kosherz_zmanim_Zmanim_location(m.handle(self), m.len, m.err);
+    kosherz_times_Zmanim_location: (self) => {
+      const r = x.kosherz_times_Zmanim_location(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_Zmanim_date: (self) => {
-      const r = x.kosherz_zmanim_Zmanim_date(m.handle(self), m.len, m.err);
+    kosherz_times_Zmanim_date: (self) => {
+      const r = x.kosherz_times_Zmanim_date(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_Zmanim_config: (self) => {
-      const r = x.kosherz_zmanim_Zmanim_config(m.handle(self), m.len, m.err);
+    kosherz_times_Zmanim_config: (self) => {
+      const r = x.kosherz_times_Zmanim_config(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_myzmanim_MyZmanim_clone: (h) => x.kosherz_zmanim_myzmanim_MyZmanim_clone(m.handle(h)),
-    kosherz_zmanim_myzmanim_MyZmanim_destroy: (h) => x.kosherz_zmanim_myzmanim_MyZmanim_destroy(m.handle(h)),
-    kosherz_zmanim_myzmanim_my_zman_name: (a0) => {
-      const r = x.kosherz_zmanim_myzmanim_my_zman_name(m.num(a0), m.len, m.err);
+    kosherz_times_myzmanim_MyZmanim_clone: (h) => x.kosherz_times_myzmanim_MyZmanim_clone(m.handle(h)),
+    kosherz_times_myzmanim_MyZmanim_destroy: (h) => x.kosherz_times_myzmanim_MyZmanim_destroy(m.handle(h)),
+    kosherz_times_myzmanim_my_zman_name: (a0) => {
+      const r = x.kosherz_times_myzmanim_my_zman_name(m.num(a0), m.len, m.err);
       m.check();
       return m.takeStr(r, m.outLen());
     },
-    kosherz_zmanim_myzmanim_all_my_zmanim: () => {
-      const r = x.kosherz_zmanim_myzmanim_all_my_zmanim(m.len, m.err);
+    kosherz_times_myzmanim_all_my_zmanim: () => {
+      const r = x.kosherz_times_myzmanim_all_my_zmanim(m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_myzmanim_dawn_90_degrees: () => {
-      const r = x.kosherz_zmanim_myzmanim_dawn_90_degrees(m.err);
+    kosherz_times_myzmanim_dawn_90_degrees: () => {
+      const r = x.kosherz_times_myzmanim_dawn_90_degrees(m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_myzmanim_dawn_72_degrees: () => {
-      const r = x.kosherz_zmanim_myzmanim_dawn_72_degrees(m.err);
+    kosherz_times_myzmanim_dawn_72_degrees: () => {
+      const r = x.kosherz_times_myzmanim_dawn_72_degrees(m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes: () => {
-      const r = x.kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(m.err);
+    kosherz_times_myzmanim_sea_level_refraction_arcminutes: () => {
+      const r = x.kosherz_times_myzmanim_sea_level_refraction_arcminutes(m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_myzmanim_dip_degrees_per_root_meter: () => {
-      const r = x.kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(m.err);
+    kosherz_times_myzmanim_dip_degrees_per_root_meter: () => {
+      const r = x.kosherz_times_myzmanim_dip_degrees_per_root_meter(m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_myzmanim_default_candle_lighting_minutes: () => {
-      const r = x.kosherz_zmanim_myzmanim_default_candle_lighting_minutes(m.err);
+    kosherz_times_myzmanim_default_candle_lighting_minutes: () => {
+      const r = x.kosherz_times_myzmanim_default_candle_lighting_minutes(m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_myzmanim_MyZmanim_new: (a0, a1, a2, a3) => {
+    kosherz_times_myzmanim_MyZmanim_new: (a0, a1, a2, a3) => {
       let s0 = null, s1 = null;
       try {
         s0 = m.data(a0);
         s1 = m.data(a1);
-        const r = x.kosherz_zmanim_myzmanim_MyZmanim_new(s0[0], s0[1], s1[0], s1[1], m.num(a2), m.register(a3), m.vtableOpt(a3, 'kosherz_zmanim_TimeZoneOffset', () => $vt_kosherz_zmanim_TimeZoneOffset(m)), m.err);
+        const r = x.kosherz_times_myzmanim_MyZmanim_new(s0[0], s0[1], s1[0], s1[1], m.num(a2), m.register(a3), m.vtableOpt(a3, 'kosherz_times_TimeZoneOffset', () => $vt_kosherz_times_TimeZoneOffset(m)), m.err);
         m.check();
         return r;
       } finally {
@@ -647,33 +647,33 @@ function $bind(m) {
         m.unstage(s1);
       }
     },
-    kosherz_zmanim_myzmanim_MyZmanim_get: (self, a0) => {
-      const r = x.kosherz_zmanim_myzmanim_MyZmanim_get(m.handle(self), m.num(a0), m.err);
+    kosherz_times_myzmanim_MyZmanim_get: (self, a0) => {
+      const r = x.kosherz_times_myzmanim_MyZmanim_get(m.handle(self), m.num(a0), m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_myzmanim_MyZmanim_all: (self) => {
-      const r = x.kosherz_zmanim_myzmanim_MyZmanim_all(m.handle(self), m.len, m.err);
+    kosherz_times_myzmanim_MyZmanim_all: (self) => {
+      const r = x.kosherz_times_myzmanim_MyZmanim_all(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra: (self) => {
-      const r = x.kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra(m.handle(self), m.err);
+    kosherz_times_myzmanim_MyZmanim_proportional_hour_gra: (self) => {
+      const r = x.kosherz_times_myzmanim_MyZmanim_proportional_hour_gra(m.handle(self), m.err);
       m.check();
       return r;
     },
-    kosherz_zmanim_myzmanim_MyZmanim_location: (self) => {
-      const r = x.kosherz_zmanim_myzmanim_MyZmanim_location(m.handle(self), m.len, m.err);
+    kosherz_times_myzmanim_MyZmanim_location: (self) => {
+      const r = x.kosherz_times_myzmanim_MyZmanim_location(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_myzmanim_MyZmanim_date: (self) => {
-      const r = x.kosherz_zmanim_myzmanim_MyZmanim_date(m.handle(self), m.len, m.err);
+    kosherz_times_myzmanim_MyZmanim_date: (self) => {
+      const r = x.kosherz_times_myzmanim_MyZmanim_date(m.handle(self), m.len, m.err);
       m.check();
       return m.takeData(r, m.outLen());
     },
-    kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes: (self) => {
-      const r = x.kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes(m.handle(self), m.err);
+    kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes: (self) => {
+      const r = x.kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes(m.handle(self), m.err);
       m.check();
       return r;
     },
@@ -1068,99 +1068,99 @@ const calendar$limudim$Side = Object.freeze({
   1: 'Bet',
 });
 
-const zmanim$ZmanimError = class ZmanimError extends $Error {};
-const zmanim$InvalidLatitudeError = class InvalidLatitudeError extends zmanim$ZmanimError {
+const times$ZmanimError = class ZmanimError extends $Error {};
+const times$InvalidLatitudeError = class InvalidLatitudeError extends times$ZmanimError {
   static CODE = 1;
   constructor(message = 'The latitude is not between -90 and 90 degrees.') {
     super(1, message);
   }
 };
-const zmanim$InvalidLongitudeError = class InvalidLongitudeError extends zmanim$ZmanimError {
+const times$InvalidLongitudeError = class InvalidLongitudeError extends times$ZmanimError {
   static CODE = 2;
   constructor(message = 'The longitude is not between -180 and 180 degrees.') {
     super(2, message);
   }
 };
-const zmanim$InvalidElevationError = class InvalidElevationError extends zmanim$ZmanimError {
+const times$InvalidElevationError = class InvalidElevationError extends times$ZmanimError {
   static CODE = 3;
   constructor(message = 'An elevation is negative or not a finite number.') {
     super(3, message);
   }
 };
-const zmanim$InvalidGregorianDateError = class InvalidGregorianDateError extends zmanim$ZmanimError {
+const times$InvalidGregorianDateError = class InvalidGregorianDateError extends times$ZmanimError {
   static CODE = 4;
   constructor(message = 'The Gregorian date does not exist, or is outside the supported range.') {
     super(4, message);
   }
 };
-const zmanim$TimeZoneRequiredError = class TimeZoneRequiredError extends zmanim$ZmanimError {
+const times$TimeZoneRequiredError = class TimeZoneRequiredError extends times$ZmanimError {
   static CODE = 5;
   constructor(message = 'A time zone is needed and none was given. The four Kiddush Levana times need one.') {
     super(5, message);
   }
 };
-const zmanim$TimeZoneCallbackFailedError = class TimeZoneCallbackFailedError extends zmanim$ZmanimError {
+const times$TimeZoneCallbackFailedError = class TimeZoneCallbackFailedError extends times$ZmanimError {
   static CODE = 6;
   constructor(message = 'The time zone callback failed, or gave an offset of a day or more.') {
     super(6, message);
   }
 };
-const zmanim$InvalidMinutesError = class InvalidMinutesError extends zmanim$ZmanimError {
+const times$InvalidMinutesError = class InvalidMinutesError extends times$ZmanimError {
   static CODE = 7;
   constructor(message = 'A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number') {
     super(7, message);
   }
 };
-const zmanim$InvalidDegreesError = class InvalidDegreesError extends zmanim$ZmanimError {
+const times$InvalidDegreesError = class InvalidDegreesError extends times$ZmanimError {
   static CODE = 8;
   constructor(message = 'An angle in degrees is not a finite number.') {
     super(8, message);
   }
 };
-const zmanim$AllDayError = class AllDayError extends zmanim$ZmanimError {
+const times$AllDayError = class AllDayError extends times$ZmanimError {
   static CODE = 10;
   constructor(message = 'The sun stays above the angle the time needs all day, as in the far north in summer.') {
     super(10, message);
   }
 };
-const zmanim$AllNightError = class AllNightError extends zmanim$ZmanimError {
+const times$AllNightError = class AllNightError extends times$ZmanimError {
   static CODE = 11;
   constructor(message = 'The sun stays below the angle the time needs all day, as in the far north in winter.') {
     super(11, message);
   }
 };
-const zmanim$NotApplicableError = class NotApplicableError extends zmanim$ZmanimError {
+const times$NotApplicableError = class NotApplicableError extends times$ZmanimError {
   static CODE = 12;
   constructor(message = 'The time only exists on certain dates, and this is not one.') {
     super(12, message);
   }
 };
-const zmanim$UnexpectedError = class UnexpectedError extends zmanim$ZmanimError {
+const times$UnexpectedError = class UnexpectedError extends times$ZmanimError {
   static CODE = 13;
   constructor(message = 'A calculation failed in a way that should not happen; please report the location and') {
     super(13, message);
   }
 };
-const $codes$zmanim$ZmanimError = new Map([
-  [1, zmanim$InvalidLatitudeError],
-  [2, zmanim$InvalidLongitudeError],
-  [3, zmanim$InvalidElevationError],
-  [4, zmanim$InvalidGregorianDateError],
-  [5, zmanim$TimeZoneRequiredError],
-  [6, zmanim$TimeZoneCallbackFailedError],
-  [7, zmanim$InvalidMinutesError],
-  [8, zmanim$InvalidDegreesError],
-  [10, zmanim$AllDayError],
-  [11, zmanim$AllNightError],
-  [12, zmanim$NotApplicableError],
-  [13, zmanim$UnexpectedError],
+const $codes$times$ZmanimError = new Map([
+  [1, times$InvalidLatitudeError],
+  [2, times$InvalidLongitudeError],
+  [3, times$InvalidElevationError],
+  [4, times$InvalidGregorianDateError],
+  [5, times$TimeZoneRequiredError],
+  [6, times$TimeZoneCallbackFailedError],
+  [7, times$InvalidMinutesError],
+  [8, times$InvalidDegreesError],
+  [10, times$AllDayError],
+  [11, times$AllNightError],
+  [12, times$NotApplicableError],
+  [13, times$UnexpectedError],
 ]);
-const $payloads$zmanim$ZmanimError = new Map();
-function $from$zmanim$ZmanimError(e) {
-  return $domain(e, $codes$zmanim$ZmanimError, $payloads$zmanim$ZmanimError);
+const $payloads$times$ZmanimError = new Map();
+function $from$times$ZmanimError(e) {
+  return $domain(e, $codes$times$ZmanimError, $payloads$times$ZmanimError);
 }
 
-const zmanim$Zman = Object.freeze({
+const times$Zman = Object.freeze({
   BeginCivilTwilight: 0,
   EndCivilTwilight: 1,
   BeginNauticalTwilight: 2,
@@ -1497,7 +1497,7 @@ const zmanim$Zman = Object.freeze({
   166: 'ChatzosHalayla',
 });
 
-const zmanim$Category = Object.freeze({
+const times$Category = Object.freeze({
   Twilight: 0,
   Alos: 1,
   Misheyakir: 2,
@@ -1538,7 +1538,7 @@ const zmanim$Category = Object.freeze({
   18: 'ChatzosHalayla',
 });
 
-const zmanim$Calculator = Object.freeze({
+const times$Calculator = Object.freeze({
   Noaa: 0,
   Meeus: 1,
   Spa: 2,
@@ -1547,7 +1547,7 @@ const zmanim$Calculator = Object.freeze({
   2: 'Spa',
 });
 
-const zmanim$ZmanFailure = Object.freeze({
+const times$ZmanFailure = Object.freeze({
   AllDay: 0,
   AllNight: 1,
   NotApplicable: 2,
@@ -1562,7 +1562,7 @@ const zmanim$ZmanFailure = Object.freeze({
   5: 'Unexpected',
 });
 
-const zmanim$myzmanim$MyZman = Object.freeze({
+const times$myzmanim$MyZman = Object.freeze({
   Dawn90Degrees: 0,
   Dawn72Fixed: 1,
   Dawn72Degrees: 2,
@@ -1862,26 +1862,26 @@ function $r$calendar$Holiday(r) {
 }
 function $w$calendar$limudim$Daf(w, v) {
   w.writeI32(v.tractate);
-  w.writeI32(v.daf);
+  w.writeI32(v.number);
   w.writeString(v.display);
 }
 function $r$calendar$limudim$Daf(r) {
   return {
     tractate: r.readI32(),
-    daf: r.readI32(),
+    number: r.readI32(),
     display: r.readString(),
   };
 }
 function $w$calendar$limudim$Amud(w, v) {
   w.writeI32(v.tractate);
-  w.writeI32(v.daf);
+  w.writeI32(v.number);
   w.writeI32(v.side);
   w.writeString(v.display);
 }
 function $r$calendar$limudim$Amud(r) {
   return {
     tractate: r.readI32(),
-    daf: r.readI32(),
+    number: r.readI32(),
     side: r.readI32(),
     display: r.readString(),
   };
@@ -1889,14 +1889,14 @@ function $r$calendar$limudim$Amud(r) {
 function $w$calendar$limudim$Mishna(w, v) {
   w.writeI32(v.tractate);
   w.writeI32(v.chapter);
-  w.writeI32(v.mishna);
+  w.writeI32(v.number);
   w.writeString(v.display);
 }
 function $r$calendar$limudim$Mishna(r) {
   return {
     tractate: r.readI32(),
     chapter: r.readI32(),
-    mishna: r.readI32(),
+    number: r.readI32(),
     display: r.readString(),
   };
 }
@@ -1962,14 +1962,14 @@ function $r$calendar$limudim$PirkeiAvosUnit(r) {
       throw new $Error(-3, 'unknown PirkeiAvosUnit tag: ' + tag);
   }
 }
-function $w$zmanim$Location(w, v) {
+function $w$times$Location(w, v) {
   w.writeF64(v.latitude);
   w.writeF64(v.longitude);
   w.writeF64(v.elevation);
   w.writeF64(v.eastern_horizon_elevation);
   w.writeF64(v.western_horizon_elevation);
 }
-function $r$zmanim$Location(r) {
+function $r$times$Location(r) {
   return {
     latitude: r.readF64(),
     longitude: r.readF64(),
@@ -1978,7 +1978,7 @@ function $r$zmanim$Location(r) {
     western_horizon_elevation: r.readF64(),
   };
 }
-function $w$zmanim$Config(w, v) {
+function $w$times$Config(w, v) {
   w.writeI32(v.candle_lighting_minutes);
   w.writeBool(v.use_astronomical_chatzos_for_other_zmanim);
   w.writeBool(v.use_elevation);
@@ -1987,7 +1987,7 @@ function $w$zmanim$Config(w, v) {
   w.writeI32(v.calculator);
   w.writeBool(v.apply_delta_t);
 }
-function $r$zmanim$Config(r) {
+function $r$times$Config(r) {
   return {
     candle_lighting_minutes: r.readI32(),
     use_astronomical_chatzos_for_other_zmanim: r.readBool(),
@@ -1998,24 +1998,24 @@ function $r$zmanim$Config(r) {
     apply_delta_t: r.readBool(),
   };
 }
-function $w$zmanim$ZmanTime(w, v) {
+function $w$times$ZmanTime(w, v) {
   w.writeI32(v.zman);
   $w_opt_i64(w, v.time);
   $w_opt_ZmanFailure(w, v.failure);
 }
-function $r$zmanim$ZmanTime(r) {
+function $r$times$ZmanTime(r) {
   return {
     zman: r.readI32(),
     time: $r_opt_i64(r),
     failure: $r_opt_ZmanFailure(r),
   };
 }
-function $w$zmanim$myzmanim$MyZmanTime(w, v) {
+function $w$times$myzmanim$MyZmanTime(w, v) {
   w.writeI32(v.zman);
   $w_opt_i64(w, v.time);
   $w_opt_ZmanFailure(w, v.failure);
 }
-function $r$zmanim$myzmanim$MyZmanTime(r) {
+function $r$times$myzmanim$MyZmanTime(r) {
   return {
     zman: r.readI32(),
     time: $r_opt_i64(r),
@@ -2045,10 +2045,10 @@ function $r_list_MyZman(r) {
 }
 /** `[MyZmanTime]` */
 function $w_list_MyZmanTime(w, v) {
-  w.writeList(v, $w$zmanim$myzmanim$MyZmanTime);
+  w.writeList(v, $w$times$myzmanim$MyZmanTime);
 }
 function $r_list_MyZmanTime(r) {
-  return r.readList($r$zmanim$myzmanim$MyZmanTime);
+  return r.readList($r$times$myzmanim$MyZmanTime);
 }
 /** `[Zman]` */
 function $w_list_Zman(w, v) {
@@ -2059,10 +2059,10 @@ function $r_list_Zman(r) {
 }
 /** `[ZmanTime]` */
 function $w_list_ZmanTime(w, v) {
-  w.writeList(v, $w$zmanim$ZmanTime);
+  w.writeList(v, $w$times$ZmanTime);
 }
 function $r_list_ZmanTime(r) {
-  return r.readList($r$zmanim$ZmanTime);
+  return r.readList($r$times$ZmanTime);
 }
 /** `Amud?` */
 function $w_opt_Amud(w, v) {
@@ -2561,7 +2561,7 @@ const calendar$limudim$pirkeiAvos = function pirkeiAvos(date, region) {
   }
 };
 
-function $adapt$zmanim$TimeZoneOffset(impl) {
+function $adapt$times$TimeZoneOffset(impl) {
   $impl(impl, 'TimeZoneOffset');
   return {
     offset_seconds($a0) {
@@ -2570,35 +2570,35 @@ function $adapt$zmanim$TimeZoneOffset(impl) {
   };
 }
 
-const zmanim$Zmanim = class Zmanim extends $Object {
+const times$Zmanim = class Zmanim extends $Object {
   constructor(location, date, config, timeZone) {
     super();
     try {
-      $own(this, $raw.kosherz_zmanim_Zmanim_new($encode(location, $w$zmanim$Location), $encode(date, $w$calendar$GregorianDate), $encode(config, $w$zmanim$Config), timeZone == null ? null : $adapt$zmanim$TimeZoneOffset(timeZone)));
+      $own(this, $raw.kosherz_times_Zmanim_new($encode(location, $w$times$Location), $encode(date, $w$calendar$GregorianDate), $encode(config, $w$times$Config), timeZone == null ? null : $adapt$times$TimeZoneOffset(timeZone)));
     } catch ($e) {
-      throw $from$zmanim$ZmanimError($e);
+      throw $from$times$ZmanimError($e);
     }
   }
   static $destroy(h) {
-    $raw.kosherz_zmanim_Zmanim_destroy(h);
+    $raw.kosherz_times_Zmanim_destroy(h);
   }
   static $clone(h) {
-    return $raw.kosherz_zmanim_Zmanim_clone(h);
+    return $raw.kosherz_times_Zmanim_clone(h);
   }
   get(zman) {
-    const $self = $lend(this, zmanim$Zmanim);
+    const $self = $lend(this, times$Zmanim);
     try {
-      return $raw.kosherz_zmanim_Zmanim_get($self, zman);
+      return $raw.kosherz_times_Zmanim_get($self, zman);
     } catch ($e) {
-      throw $from$zmanim$ZmanimError($e);
+      throw $from$times$ZmanimError($e);
     } finally {
       $unlend(this);
     }
   }
   all() {
-    const $self = $lend(this, zmanim$Zmanim);
+    const $self = $lend(this, times$Zmanim);
     try {
-      return $decode($raw.kosherz_zmanim_Zmanim_all($self), $r_list_ZmanTime);
+      return $decode($raw.kosherz_times_Zmanim_all($self), $r_list_ZmanTime);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2606,29 +2606,29 @@ const zmanim$Zmanim = class Zmanim extends $Object {
     }
   }
   sunriseOffsetByDegrees(degrees) {
-    const $self = $lend(this, zmanim$Zmanim);
+    const $self = $lend(this, times$Zmanim);
     try {
-      return $raw.kosherz_zmanim_Zmanim_sunrise_offset_by_degrees($self, degrees);
+      return $raw.kosherz_times_Zmanim_sunrise_offset_by_degrees($self, degrees);
     } catch ($e) {
-      throw $from$zmanim$ZmanimError($e);
+      throw $from$times$ZmanimError($e);
     } finally {
       $unlend(this);
     }
   }
   sunsetOffsetByDegrees(degrees) {
-    const $self = $lend(this, zmanim$Zmanim);
+    const $self = $lend(this, times$Zmanim);
     try {
-      return $raw.kosherz_zmanim_Zmanim_sunset_offset_by_degrees($self, degrees);
+      return $raw.kosherz_times_Zmanim_sunset_offset_by_degrees($self, degrees);
     } catch ($e) {
-      throw $from$zmanim$ZmanimError($e);
+      throw $from$times$ZmanimError($e);
     } finally {
       $unlend(this);
     }
   }
   location() {
-    const $self = $lend(this, zmanim$Zmanim);
+    const $self = $lend(this, times$Zmanim);
     try {
-      return $decode($raw.kosherz_zmanim_Zmanim_location($self), $r$zmanim$Location);
+      return $decode($raw.kosherz_times_Zmanim_location($self), $r$times$Location);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2636,9 +2636,9 @@ const zmanim$Zmanim = class Zmanim extends $Object {
     }
   }
   date() {
-    const $self = $lend(this, zmanim$Zmanim);
+    const $self = $lend(this, times$Zmanim);
     try {
-      return $decode($raw.kosherz_zmanim_Zmanim_date($self), $r$calendar$GregorianDate);
+      return $decode($raw.kosherz_times_Zmanim_date($self), $r$calendar$GregorianDate);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2646,9 +2646,9 @@ const zmanim$Zmanim = class Zmanim extends $Object {
     }
   }
   config() {
-    const $self = $lend(this, zmanim$Zmanim);
+    const $self = $lend(this, times$Zmanim);
     try {
-      return $decode($raw.kosherz_zmanim_Zmanim_config($self), $r$zmanim$Config);
+      return $decode($raw.kosherz_times_Zmanim_config($self), $r$times$Config);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2657,131 +2657,131 @@ const zmanim$Zmanim = class Zmanim extends $Object {
   }
 };
 
-const zmanim$seaLevelLocation = function seaLevelLocation(latitude, longitude) {
+const times$seaLevelLocation = function seaLevelLocation(latitude, longitude) {
   try {
-    return $decode($raw.kosherz_zmanim_sea_level_location(latitude, longitude), $r$zmanim$Location);
+    return $decode($raw.kosherz_times_sea_level_location(latitude, longitude), $r$times$Location);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$validateLocation = function validateLocation(location, hasTimeZone) {
+const times$validateLocation = function validateLocation(location, hasTimeZone) {
   try {
-    $raw.kosherz_zmanim_validate_location($encode(location, $w$zmanim$Location), hasTimeZone);
+    $raw.kosherz_times_validate_location($encode(location, $w$times$Location), hasTimeZone);
   } catch ($e) {
-    throw $from$zmanim$ZmanimError($e);
+    throw $from$times$ZmanimError($e);
   }
 };
 
-const zmanim$defaultConfig = function defaultConfig() {
+const times$defaultConfig = function defaultConfig() {
   try {
-    return $decode($raw.kosherz_zmanim_default_config(), $r$zmanim$Config);
-  } catch ($e) {
-    throw $fault($e);
-  }
-};
-
-const zmanim$allZmanim = function allZmanim() {
-  try {
-    return $decode($raw.kosherz_zmanim_all_zmanim(), $r_list_Zman);
+    return $decode($raw.kosherz_times_default_config(), $r$times$Config);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$zmanName = function zmanName(zman) {
+const times$allZmanim = function allZmanim() {
   try {
-    return $raw.kosherz_zmanim_zman_name(zman);
+    return $decode($raw.kosherz_times_all_zmanim(), $r_list_Zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$zmanJavaName = function zmanJavaName(zman) {
+const times$zmanName = function zmanName(zman) {
   try {
-    return $raw.kosherz_zmanim_zman_java_name(zman);
+    return $raw.kosherz_times_zman_name(zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$zmanFromJavaName = function zmanFromJavaName(javaName) {
+const times$zmanJavaName = function zmanJavaName(zman) {
   try {
-    return $decode($raw.kosherz_zmanim_zman_from_java_name(javaName), $r_opt_Zman);
+    return $raw.kosherz_times_zman_java_name(zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$zmanCategory = function zmanCategory(zman) {
+const times$zmanFromJavaName = function zmanFromJavaName(javaName) {
   try {
-    return $raw.kosherz_zmanim_zman_category(zman);
+    return $decode($raw.kosherz_times_zman_from_java_name(javaName), $r_opt_Zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$zmanIsDeprecated = function zmanIsDeprecated(zman) {
+const times$zmanCategory = function zmanCategory(zman) {
   try {
-    return $raw.kosherz_zmanim_zman_is_deprecated(zman);
+    return $raw.kosherz_times_zman_category(zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$zmanDescription = function zmanDescription(zman, config) {
+const times$zmanIsDeprecated = function zmanIsDeprecated(zman) {
   try {
-    return $raw.kosherz_zmanim_zman_description(zman, $encode(config, $w$zmanim$Config));
+    return $raw.kosherz_times_zman_is_deprecated(zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$calculatorName = function calculatorName(calculator) {
+const times$zmanDescription = function zmanDescription(zman, config) {
   try {
-    return $raw.kosherz_zmanim_calculator_name(calculator);
+    return $raw.kosherz_times_zman_description(zman, $encode(config, $w$times$Config));
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$shaahZmanis = function shaahZmanis(start, end) {
+const times$calculatorName = function calculatorName(calculator) {
   try {
-    return $raw.kosherz_zmanim_shaah_zmanis(start, end);
+    return $raw.kosherz_times_calculator_name(calculator);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$myzmanim$MyZmanim = class MyZmanim extends $Object {
+const times$shaahZmanis = function shaahZmanis(start, end) {
+  try {
+    return $raw.kosherz_times_shaah_zmanis(start, end);
+  } catch ($e) {
+    throw $fault($e);
+  }
+};
+
+const times$myzmanim$MyZmanim = class MyZmanim extends $Object {
   constructor(location, date, candleLightingMinutes, timeZone) {
     super();
     try {
-      $own(this, $raw.kosherz_zmanim_myzmanim_MyZmanim_new($encode(location, $w$zmanim$Location), $encode(date, $w$calendar$GregorianDate), candleLightingMinutes, timeZone == null ? null : $adapt$zmanim$TimeZoneOffset(timeZone)));
+      $own(this, $raw.kosherz_times_myzmanim_MyZmanim_new($encode(location, $w$times$Location), $encode(date, $w$calendar$GregorianDate), candleLightingMinutes, timeZone == null ? null : $adapt$times$TimeZoneOffset(timeZone)));
     } catch ($e) {
-      throw $from$zmanim$ZmanimError($e);
+      throw $from$times$ZmanimError($e);
     }
   }
   static $destroy(h) {
-    $raw.kosherz_zmanim_myzmanim_MyZmanim_destroy(h);
+    $raw.kosherz_times_myzmanim_MyZmanim_destroy(h);
   }
   static $clone(h) {
-    return $raw.kosherz_zmanim_myzmanim_MyZmanim_clone(h);
+    return $raw.kosherz_times_myzmanim_MyZmanim_clone(h);
   }
   get(zman) {
-    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
+    const $self = $lend(this, times$myzmanim$MyZmanim);
     try {
-      return $raw.kosherz_zmanim_myzmanim_MyZmanim_get($self, zman);
+      return $raw.kosherz_times_myzmanim_MyZmanim_get($self, zman);
     } catch ($e) {
-      throw $from$zmanim$ZmanimError($e);
+      throw $from$times$ZmanimError($e);
     } finally {
       $unlend(this);
     }
   }
   all() {
-    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
+    const $self = $lend(this, times$myzmanim$MyZmanim);
     try {
-      return $decode($raw.kosherz_zmanim_myzmanim_MyZmanim_all($self), $r_list_MyZmanTime);
+      return $decode($raw.kosherz_times_myzmanim_MyZmanim_all($self), $r_list_MyZmanTime);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2789,19 +2789,19 @@ const zmanim$myzmanim$MyZmanim = class MyZmanim extends $Object {
     }
   }
   proportionalHourGra() {
-    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
+    const $self = $lend(this, times$myzmanim$MyZmanim);
     try {
-      return $raw.kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra($self);
+      return $raw.kosherz_times_myzmanim_MyZmanim_proportional_hour_gra($self);
     } catch ($e) {
-      throw $from$zmanim$ZmanimError($e);
+      throw $from$times$ZmanimError($e);
     } finally {
       $unlend(this);
     }
   }
   location() {
-    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
+    const $self = $lend(this, times$myzmanim$MyZmanim);
     try {
-      return $decode($raw.kosherz_zmanim_myzmanim_MyZmanim_location($self), $r$zmanim$Location);
+      return $decode($raw.kosherz_times_myzmanim_MyZmanim_location($self), $r$times$Location);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2809,9 +2809,9 @@ const zmanim$myzmanim$MyZmanim = class MyZmanim extends $Object {
     }
   }
   date() {
-    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
+    const $self = $lend(this, times$myzmanim$MyZmanim);
     try {
-      return $decode($raw.kosherz_zmanim_myzmanim_MyZmanim_date($self), $r$calendar$GregorianDate);
+      return $decode($raw.kosherz_times_myzmanim_MyZmanim_date($self), $r$calendar$GregorianDate);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2819,9 +2819,9 @@ const zmanim$myzmanim$MyZmanim = class MyZmanim extends $Object {
     }
   }
   candleLightingMinutes() {
-    const $self = $lend(this, zmanim$myzmanim$MyZmanim);
+    const $self = $lend(this, times$myzmanim$MyZmanim);
     try {
-      return $raw.kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes($self);
+      return $raw.kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes($self);
     } catch ($e) {
       throw $fault($e);
     } finally {
@@ -2830,57 +2830,57 @@ const zmanim$myzmanim$MyZmanim = class MyZmanim extends $Object {
   }
 };
 
-const zmanim$myzmanim$myZmanName = function myZmanName(zman) {
+const times$myzmanim$myZmanName = function myZmanName(zman) {
   try {
-    return $raw.kosherz_zmanim_myzmanim_my_zman_name(zman);
+    return $raw.kosherz_times_myzmanim_my_zman_name(zman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$myzmanim$allMyZmanim = function allMyZmanim() {
+const times$myzmanim$allMyZmanim = function allMyZmanim() {
   try {
-    return $decode($raw.kosherz_zmanim_myzmanim_all_my_zmanim(), $r_list_MyZman);
+    return $decode($raw.kosherz_times_myzmanim_all_my_zmanim(), $r_list_MyZman);
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$myzmanim$dawn90Degrees = function dawn90Degrees() {
+const times$myzmanim$dawn90Degrees = function dawn90Degrees() {
   try {
-    return $raw.kosherz_zmanim_myzmanim_dawn_90_degrees();
+    return $raw.kosherz_times_myzmanim_dawn_90_degrees();
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$myzmanim$dawn72Degrees = function dawn72Degrees() {
+const times$myzmanim$dawn72Degrees = function dawn72Degrees() {
   try {
-    return $raw.kosherz_zmanim_myzmanim_dawn_72_degrees();
+    return $raw.kosherz_times_myzmanim_dawn_72_degrees();
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$myzmanim$seaLevelRefractionArcminutes = function seaLevelRefractionArcminutes() {
+const times$myzmanim$seaLevelRefractionArcminutes = function seaLevelRefractionArcminutes() {
   try {
-    return $raw.kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes();
+    return $raw.kosherz_times_myzmanim_sea_level_refraction_arcminutes();
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$myzmanim$dipDegreesPerRootMeter = function dipDegreesPerRootMeter() {
+const times$myzmanim$dipDegreesPerRootMeter = function dipDegreesPerRootMeter() {
   try {
-    return $raw.kosherz_zmanim_myzmanim_dip_degrees_per_root_meter();
+    return $raw.kosherz_times_myzmanim_dip_degrees_per_root_meter();
   } catch ($e) {
     throw $fault($e);
   }
 };
 
-const zmanim$myzmanim$defaultCandleLightingMinutes = function defaultCandleLightingMinutes() {
+const times$myzmanim$defaultCandleLightingMinutes = function defaultCandleLightingMinutes() {
   try {
-    return $raw.kosherz_zmanim_myzmanim_default_candle_lighting_minutes();
+    return $raw.kosherz_times_myzmanim_default_candle_lighting_minutes();
   } catch ($e) {
     throw $fault($e);
   }
@@ -2927,47 +2927,47 @@ export const calendar = Object.freeze({
   }),
 });
 
-export const zmanim = Object.freeze({
-  ZmanimError: zmanim$ZmanimError,
-  InvalidLatitudeError: zmanim$InvalidLatitudeError,
-  InvalidLongitudeError: zmanim$InvalidLongitudeError,
-  InvalidElevationError: zmanim$InvalidElevationError,
-  InvalidGregorianDateError: zmanim$InvalidGregorianDateError,
-  TimeZoneRequiredError: zmanim$TimeZoneRequiredError,
-  TimeZoneCallbackFailedError: zmanim$TimeZoneCallbackFailedError,
-  InvalidMinutesError: zmanim$InvalidMinutesError,
-  InvalidDegreesError: zmanim$InvalidDegreesError,
-  AllDayError: zmanim$AllDayError,
-  AllNightError: zmanim$AllNightError,
-  NotApplicableError: zmanim$NotApplicableError,
-  UnexpectedError: zmanim$UnexpectedError,
-  Zman: zmanim$Zman,
-  Category: zmanim$Category,
-  Calculator: zmanim$Calculator,
-  ZmanFailure: zmanim$ZmanFailure,
-  Zmanim: zmanim$Zmanim,
-  seaLevelLocation: zmanim$seaLevelLocation,
-  validateLocation: zmanim$validateLocation,
-  defaultConfig: zmanim$defaultConfig,
-  allZmanim: zmanim$allZmanim,
-  zmanName: zmanim$zmanName,
-  zmanJavaName: zmanim$zmanJavaName,
-  zmanFromJavaName: zmanim$zmanFromJavaName,
-  zmanCategory: zmanim$zmanCategory,
-  zmanIsDeprecated: zmanim$zmanIsDeprecated,
-  zmanDescription: zmanim$zmanDescription,
-  calculatorName: zmanim$calculatorName,
-  shaahZmanis: zmanim$shaahZmanis,
+export const times = Object.freeze({
+  ZmanimError: times$ZmanimError,
+  InvalidLatitudeError: times$InvalidLatitudeError,
+  InvalidLongitudeError: times$InvalidLongitudeError,
+  InvalidElevationError: times$InvalidElevationError,
+  InvalidGregorianDateError: times$InvalidGregorianDateError,
+  TimeZoneRequiredError: times$TimeZoneRequiredError,
+  TimeZoneCallbackFailedError: times$TimeZoneCallbackFailedError,
+  InvalidMinutesError: times$InvalidMinutesError,
+  InvalidDegreesError: times$InvalidDegreesError,
+  AllDayError: times$AllDayError,
+  AllNightError: times$AllNightError,
+  NotApplicableError: times$NotApplicableError,
+  UnexpectedError: times$UnexpectedError,
+  Zman: times$Zman,
+  Category: times$Category,
+  Calculator: times$Calculator,
+  ZmanFailure: times$ZmanFailure,
+  Zmanim: times$Zmanim,
+  seaLevelLocation: times$seaLevelLocation,
+  validateLocation: times$validateLocation,
+  defaultConfig: times$defaultConfig,
+  allZmanim: times$allZmanim,
+  zmanName: times$zmanName,
+  zmanJavaName: times$zmanJavaName,
+  zmanFromJavaName: times$zmanFromJavaName,
+  zmanCategory: times$zmanCategory,
+  zmanIsDeprecated: times$zmanIsDeprecated,
+  zmanDescription: times$zmanDescription,
+  calculatorName: times$calculatorName,
+  shaahZmanis: times$shaahZmanis,
   myzmanim: Object.freeze({
-    MyZman: zmanim$myzmanim$MyZman,
-    MyZmanim: zmanim$myzmanim$MyZmanim,
-    myZmanName: zmanim$myzmanim$myZmanName,
-    allMyZmanim: zmanim$myzmanim$allMyZmanim,
-    dawn90Degrees: zmanim$myzmanim$dawn90Degrees,
-    dawn72Degrees: zmanim$myzmanim$dawn72Degrees,
-    seaLevelRefractionArcminutes: zmanim$myzmanim$seaLevelRefractionArcminutes,
-    dipDegreesPerRootMeter: zmanim$myzmanim$dipDegreesPerRootMeter,
-    defaultCandleLightingMinutes: zmanim$myzmanim$defaultCandleLightingMinutes,
+    MyZman: times$myzmanim$MyZman,
+    MyZmanim: times$myzmanim$MyZmanim,
+    myZmanName: times$myzmanim$myZmanName,
+    allMyZmanim: times$myzmanim$allMyZmanim,
+    dawn90Degrees: times$myzmanim$dawn90Degrees,
+    dawn72Degrees: times$myzmanim$dawn72Degrees,
+    seaLevelRefractionArcminutes: times$myzmanim$seaLevelRefractionArcminutes,
+    dipDegreesPerRootMeter: times$myzmanim$dipDegreesPerRootMeter,
+    defaultCandleLightingMinutes: times$myzmanim$defaultCandleLightingMinutes,
   }),
 });
 

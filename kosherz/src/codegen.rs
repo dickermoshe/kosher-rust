@@ -64,7 +64,7 @@ pub fn regions() -> Vec<Region> {
         Region {
             file: "src/convert/zmanim.rs",
             name: "Zman",
-            body: render_conversions("zmanim::Zman", "kosher_rust::Zman", &zmanim),
+            body: render_conversions("times::Zman", "kosher_rust::Zman", &zmanim),
         },
         Region {
             file: "src/api.rs",
@@ -79,7 +79,7 @@ pub fn regions() -> Vec<Region> {
         Region {
             file: "src/convert/myzmanim.rs",
             name: "MyZman",
-            body: render_conversions("zmanim::myzmanim::MyZman", "kosher_rust::myzmanim::MyZman", &my_zmanim),
+            body: render_conversions("times::myzmanim::MyZman", "kosher_rust::myzmanim::MyZman", &my_zmanim),
         },
     ]
 }

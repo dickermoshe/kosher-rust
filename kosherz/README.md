@@ -14,8 +14,8 @@ Two top-level modules, each with a module inside it:
 |---|---|
 | `calendar` | `GregorianDate`, `HebrewDate` (holidays, parsha, molad, ...), `year_info`, holiday/parsha/month names |
 | `calendar.limudim` | Daf Yomi (Bavli and Yerushalmi), Daf Hashavua, Amud Yomi, Mishna Yomis, Tehillim, Pirkei Avos |
-| `zmanim` | `Location`, `Zmanim`, the `Zman` enum (all 167 KosherJava times), `Config`, zman names and descriptions |
-| `zmanim.myzmanim` | `MyZmanim` and the `MyZman` enum: the MyZmanim website's times |
+| `times` | `Location`, `Zmanim`, the `Zman` enum (all 167 KosherJava times), `Config`, zman names and descriptions |
+| `times.myzmanim` | `MyZmanim` and the `MyZman` enum: the MyZmanim website's times |
 
 Conventions:
 
@@ -56,17 +56,17 @@ the static library, instead of the DLL's import library `kosherz.dll.lib`. Linux
 as shown.
 
 ```js
-import { calendar, zmanim } from 'kosherz';
+import { calendar, times } from 'kosherz';
 const { limudim } = calendar;
 
 const newYork = { offsetSeconds: (unixSeconds) => /* seconds east of UTC at that instant */ -4 * 3600 };
-const day = new zmanim.Zmanim(
-  zmanim.seaLevelLocation(40.09, -74.22),
+const day = new times.Zmanim(
+  times.seaLevelLocation(40.09, -74.22),
   { year: 2024, month: 4, day: 23 },
-  zmanim.defaultConfig(),
+  times.defaultConfig(),
   newYork,
 );
-new Date(Number(day.get(zmanim.Zman.SofZmanShmaGra)));
+new Date(Number(day.get(times.Zman.SofZmanShmaGra)));
 
 const date = calendar.HebrewDate.fromGregorian({ year: 2024, month: 4, day: 23 });
 date.holidays(calendar.Region.Diaspora); // [{ tag: 'Pesach' }]

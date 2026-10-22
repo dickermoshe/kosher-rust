@@ -661,7 +661,7 @@ let wvContract: Void = {
         (0x1c33df579fac36d8, 0x1175c871bc023b86, "calendar.HebrewDate.day_of_year"),
         (0x235fd1db8b7dd5f5, 0x399eab22141dffd3, "calendar.GregorianDate"),
         (0x2b066dc65c460024, 0xf4f23e6586bd1dd7, "calendar.HebrewDate"),
-        (0x2c8e60589f58d792, 0x57c83a0f8bc36c6c, "calendar.limudim.Mishna"),
+        (0x2c8e60589f58d792, 0xa0608634cb2f46cb, "calendar.limudim.Mishna"),
         (0x2da09ea1403b727e, 0x4d5e82347ae7a3fc, "calendar.HebrewMonth"),
         (0x2e1645ba38a77559, 0x1c81765c98ab54f9, "calendar.HebrewDate.parsha"),
         (0x2e561d4c25bf877d, 0x47ff51d038dbe0d8, "calendar.limudim.tehillim_display"),
@@ -696,9 +696,9 @@ let wvContract: Void = {
         (0x98cc81d52e65776b, 0x2bf1569214921669, "calendar.month_hebrew"),
         (0x9b48ba34fb52812d, 0xff11e092dce92ed7, "calendar.limudim.Side"),
         (0x9e20ba757aee97c2, 0x9328a81ac256b477, "calendar.parsha_hebrew"),
-        (0xa1e3409cebf37881, 0x1b7e37005bd2f8e9, "calendar.limudim.Daf"),
+        (0xa1e3409cebf37881, 0xfeebfaab6c533e17, "calendar.limudim.Daf"),
         (0xa5864219850af272, 0xf8a4981ca376ff28, "calendar.HebrewDate.is_assur_bemelacha"),
-        (0xaeb433ce589b7931, 0xe1e8d4dad467e3e7, "calendar.limudim.Amud"),
+        (0xaeb433ce589b7931, 0x364d4d0b6a770631, "calendar.limudim.Amud"),
         (0xaf5dd6acc2e8ba71, 0xa2fdd5f43f90f755, "calendar.holiday_hebrew"),
         (0xbd8865ae2177f9ff, 0x6bc5f7eea096d080, "calendar.year_info"),
         (0xc3fd51b677226bab, 0x684e92fa36717939, "calendar.month_name"),
@@ -717,54 +717,54 @@ let wvContract: Void = {
         (0xf56c124b8ec1c493, 0xf35981f09fb986df, "calendar.HebrewDate.year"),
         (0xfb59656a30b3c76f, 0x263b2a60d4b349b3, "calendar.Weekday"),
     ])
-    wvCheckContract(kosherz_zmanim_contract, [
-        (0x022d265126fcbd47, 0xf70eea6f6621717f, "zmanim.validate_location"),
-        (0x02e0caa49b3a204b, 0x5962ffa89080c41b, "zmanim.shaah_zmanis"),
-        (0x04493862e57a4cdf, 0x258faa23773bfcae, "zmanim.myzmanim.MyZmanim.candle_lighting_minutes"),
-        (0x0709c5af4b818c01, 0xf2a52228396d8635, "zmanim.myzmanim.sea_level_refraction_arcminutes"),
-        (0x10234c837e5331b1, 0xcc6eb9ea8c42ca79, "zmanim.myzmanim.MyZmanim.new"),
-        (0x1d3f31835b116405, 0x3278f3a62bb6e469, "zmanim.myzmanim.dawn_72_degrees"),
-        (0x1fd629eb299bc703, 0xcddd8b18c602be76, "zmanim.myzmanim.MyZman"),
-        (0x2550c75ec58dae49, 0xc3cb9f9d3b5b28ba, "zmanim.Zmanim.date"),
-        (0x2791137b8945b8dd, 0x9169cc1ef07d2488, "zmanim.ZmanimError"),
-        (0x27ff9dab340588fc, 0x4b1d4aaf11dfd132, "zmanim.zman_category"),
-        (0x29795294927af42d, 0xffb3d691737a4f38, "zmanim.Category"),
-        (0x30cabeb665248a1d, 0xfa44bbb1fab132e5, "zmanim.sea_level_location"),
-        (0x334bc497c2e1b7f6, 0xa82a63cd8b5c9bc8, "zmanim.myzmanim.all_my_zmanim"),
-        (0x406a9d72e9cc44d8, 0x689307845875e63e, "zmanim.zman_is_deprecated"),
-        (0x4118dd5a26e15851, 0x549f4e736961b812, "zmanim.calculator_name"),
-        (0x484846a2e9ee0a81, 0xdf4697e13848d687, "zmanim.zman_from_java_name"),
-        (0x484f114766abb5e2, 0xc5f954c475f4dc9d, "zmanim.zman_java_name"),
-        (0x5f3ebb1c37c66ab9, 0xc3cb9f9d3b5b28ba, "zmanim.myzmanim.MyZmanim.date"),
-        (0x631f48e27eef2376, 0x63856359341062ee, "zmanim.Zmanim.location"),
-        (0x65058d455e954e8e, 0x4a23e822039987a7, "zmanim.zman_description"),
-        (0x66df597381790f0b, 0x4c30c7a90dcabaa5, "zmanim.Zmanim.sunset_offset_by_degrees"),
-        (0x6c14e7ba35220983, 0x7d00a18dba45f065, "zmanim.ZmanFailure"),
-        (0x7b6a0d0953f70457, 0x6614e227c469c232, "zmanim.Zmanim.config"),
-        (0x7bda2eefee3cd432, 0x4af5df9a96d3f535, "zmanim.myzmanim.MyZmanim.proportional_hour_gra"),
-        (0x84cfd0af1981e364, 0x93ef9500cb5f1cfc, "zmanim.Zmanim.sunrise_offset_by_degrees"),
-        (0x852e1ce68e6270fa, 0xdec9155329278f29, "zmanim.myzmanim.my_zman_name"),
-        (0x972d8aa47e75b0ea, 0x017ce9984014d3c1, "zmanim.ZmanTime"),
-        (0x988396c1a4000b66, 0x63856359341062ee, "zmanim.myzmanim.MyZmanim.location"),
-        (0x9e23e59cc6d2b627, 0xbea68784cf687a1a, "zmanim.Zmanim.get"),
-        (0xa7022817cb0f3781, 0x11babf7c30a11935, "zmanim.myzmanim.dip_degrees_per_root_meter"),
-        (0xa7e497ece825babf, 0x459375a830f8b5a0, "zmanim.zman_name"),
-        (0xb0323d9cd1424d34, 0x669e3d4d3e9d42cc, "zmanim.Zmanim.all"),
-        (0xb668f699c44a8b25, 0x0577fa34d1dea8c3, "zmanim.default_config"),
-        (0xbc0120c65a9a7e69, 0xe3c7eb49f063a0ce, "zmanim.myzmanim.MyZmanim"),
-        (0xc3ccda83538bf477, 0x93dc654d560a63b8, "zmanim.myzmanim.MyZmanim.get"),
-        (0xc80294024eefae95, 0x52972cadc08c13ef, "zmanim.all_zmanim"),
-        (0xcdc06faffaf38ffa, 0x551064f95ab5110d, "zmanim.myzmanim.MyZmanTime"),
-        (0xcfe843f87495c18a, 0x7110b3413cfd8e83, "zmanim.Location"),
-        (0xd12031217533824b, 0x2b82d4d65ec59dd7, "zmanim.myzmanim.default_candle_lighting_minutes"),
-        (0xd5db12835dfb5524, 0x975c3a96549104d2, "zmanim.myzmanim.MyZmanim.all"),
-        (0xd904b56e2a7d27f9, 0x2d4c4ce495502494, "zmanim.Zmanim"),
-        (0xd90e158541be4971, 0xf13823120f5b4c46, "zmanim.Calculator"),
-        (0xe178a9bb3808bfb3, 0x685412d4d80250ea, "zmanim.Config"),
-        (0xea9baabba2ea9789, 0x174890db5e5166c8, "zmanim.TimeZoneOffset"),
-        (0xed07579cf3c52ba1, 0x99d014ada9906437, "zmanim.Zmanim.new"),
-        (0xf9ebba0666552393, 0x0486761191984fd0, "zmanim.Zman"),
-        (0xfa3f9e72b3e59929, 0x735499ab0a625d6d, "zmanim.myzmanim.dawn_90_degrees"),
+    wvCheckContract(kosherz_times_contract, [
+        (0x01ce427485afb43a, 0x017ce9984014d3c1, "times.ZmanTime"),
+        (0x0643c19407762211, 0x11babf7c30a11935, "times.myzmanim.dip_degrees_per_root_meter"),
+        (0x091fabaf00184561, 0xf13823120f5b4c46, "times.Calculator"),
+        (0x0a21d46001720019, 0x174890db5e5166c8, "times.TimeZoneOffset"),
+        (0x0a86c54f2d84238c, 0x4b1d4aaf11dfd132, "times.zman_category"),
+        (0x0d3bc9cd549a7137, 0xbea68784cf687a1a, "times.Zmanim.get"),
+        (0x0e595d82f4b54ade, 0x4a23e822039987a7, "times.zman_description"),
+        (0x1164ca1d22579c8d, 0xfa44bbb1fab132e5, "times.sea_level_location"),
+        (0x196240a5b18bd7a9, 0x2d4c4ce495502494, "times.Zmanim"),
+        (0x1f4901cd5f081ee4, 0x669e3d4d3e9d42cc, "times.Zmanim.all"),
+        (0x2eabf209e8de2867, 0x6614e227c469c232, "times.Zmanim.config"),
+        (0x38596a351e356743, 0x685412d4d80250ea, "times.Config"),
+        (0x39389f0e68d3cc22, 0x4af5df9a96d3f535, "times.myzmanim.MyZmanim.proportional_hour_gra"),
+        (0x3c92cd49c8b4515b, 0x5962ffa89080c41b, "times.shaah_zmanis"),
+        (0x4048d3ca4b000831, 0xdf4697e13848d687, "times.zman_from_java_name"),
+        (0x44a0809dedbd4a4d, 0x9169cc1ef07d2488, "times.ZmanimError"),
+        (0x4d259836d7137c43, 0x0486761191984fd0, "times.Zman"),
+        (0x57d7a9c5a715b9fa, 0x7110b3413cfd8e83, "times.Location"),
+        (0x5cf83bcd8244d771, 0x99d014ada9906437, "times.Zmanim.new"),
+        (0x65aa216d77a78308, 0x689307845875e63e, "times.zman_is_deprecated"),
+        (0x68ffad4e5539ca69, 0xc3cb9f9d3b5b28ba, "times.myzmanim.MyZmanim.date"),
+        (0x6b5635f618146d65, 0x52972cadc08c13ef, "times.all_zmanim"),
+        (0x7438d1e6d2e55275, 0x3278f3a62bb6e469, "times.myzmanim.dawn_72_degrees"),
+        (0x743c832eb2e19415, 0x0577fa34d1dea8c3, "times.default_config"),
+        (0x77857568cbec63b3, 0xcddd8b18c602be76, "times.myzmanim.MyZman"),
+        (0x79dc07bc571a3ab7, 0xf70eea6f6621717f, "times.validate_location"),
+        (0x80d913d2e48601c7, 0x93dc654d560a63b8, "times.myzmanim.MyZmanim.get"),
+        (0x8a9dcfc50ecf7193, 0x7d00a18dba45f065, "times.ZmanFailure"),
+        (0x8f816bd2ec126fd4, 0x975c3a96549104d2, "times.myzmanim.MyZmanim.all"),
+        (0x94ec9f2dd31dd154, 0x93ef9500cb5f1cfc, "times.Zmanim.sunrise_offset_by_degrees"),
+        (0x968059cb1e92252a, 0xdec9155329278f29, "times.myzmanim.my_zman_name"),
+        (0x97a962b59a32c7db, 0x4c30c7a90dcabaa5, "times.Zmanim.sunset_offset_by_degrees"),
+        (0x9b8cdf454932d1af, 0x459375a830f8b5a0, "times.zman_name"),
+        (0x9d5bd45067baa0fb, 0x2b82d4d65ec59dd7, "times.myzmanim.default_candle_lighting_minutes"),
+        (0x9d85f89bf54e8206, 0xa82a63cd8b5c9bc8, "times.myzmanim.all_my_zmanim"),
+        (0x9e749626c03b8981, 0x549f4e736961b812, "times.calculator_name"),
+        (0xbb0373c362e8a226, 0x63856359341062ee, "times.Zmanim.location"),
+        (0xc1a3c3740d199619, 0xe3c7eb49f063a0ce, "times.myzmanim.MyZmanim"),
+        (0xc29ca29cb7cd2999, 0x735499ab0a625d6d, "times.myzmanim.dawn_90_degrees"),
+        (0xcc5685d30e954e41, 0xcc6eb9ea8c42ca79, "times.myzmanim.MyZmanim.new"),
+        (0xce8ce7ef4ad0db32, 0xc5f954c475f4dc9d, "times.zman_java_name"),
+        (0xdb5095e0e87f0d79, 0xc3cb9f9d3b5b28ba, "times.Zmanim.date"),
+        (0xdda7b795bf202896, 0x63856359341062ee, "times.myzmanim.MyZmanim.location"),
+        (0xe05ccdd3147e3c9d, 0xffb3d691737a4f38, "times.Category"),
+        (0xe46d58cfab0684cf, 0x258faa23773bfcae, "times.myzmanim.MyZmanim.candle_lighting_minutes"),
+        (0xf0a3c8d75d8fb1ca, 0x551064f95ab5110d, "times.myzmanim.MyZmanTime"),
+        (0xf577b8fb530d1ad1, 0xf2a52228396d8635, "times.myzmanim.sea_level_refraction_arcminutes"),
     ])
 }()
 
@@ -1800,26 +1800,26 @@ public struct Daf: Hashable, Sendable {
     /// The tractate.
     public var tractate: Tractate
     /// The page number. The Bavli starts at 2, the Yerushalmi at 1.
-    public var daf: Int32
+    public var number: Int32
     /// As text, for example "Bava Metzia 55".
     public var display: String
 
     /// Creates a value from its fields.
-    public init(tractate: Tractate, daf: Int32, display: String) {
+    public init(tractate: Tractate, number: Int32, display: String) {
         self.tractate = tractate
-        self.daf = daf
+        self.number = number
         self.display = display
     }
 }
 
 extension Daf: WvCodable {
     static func wvRead(_ r: inout WvReader) -> Daf {
-        Daf(tractate: r.read(), daf: r.read(), display: r.read())
+        Daf(tractate: r.read(), number: r.read(), display: r.read())
     }
 
     func wvWrite(_ w: inout WvWriter) {
         w.write(self.tractate)
-        w.write(self.daf)
+        w.write(self.number)
         w.write(self.display)
     }
 }
@@ -1829,16 +1829,16 @@ public struct Amud: Hashable, Sendable {
     /// The tractate.
     public var tractate: Tractate
     /// The page number.
-    public var daf: Int32
+    public var number: Int32
     /// Which side of the page.
     public var side: Side
     /// As text, for example "Bava Metzia 55b".
     public var display: String
 
     /// Creates a value from its fields.
-    public init(tractate: Tractate, daf: Int32, side: Side, display: String) {
+    public init(tractate: Tractate, number: Int32, side: Side, display: String) {
         self.tractate = tractate
-        self.daf = daf
+        self.number = number
         self.side = side
         self.display = display
     }
@@ -1846,12 +1846,12 @@ public struct Amud: Hashable, Sendable {
 
 extension Amud: WvCodable {
     static func wvRead(_ r: inout WvReader) -> Amud {
-        Amud(tractate: r.read(), daf: r.read(), side: r.read(), display: r.read())
+        Amud(tractate: r.read(), number: r.read(), side: r.read(), display: r.read())
     }
 
     func wvWrite(_ w: inout WvWriter) {
         w.write(self.tractate)
-        w.write(self.daf)
+        w.write(self.number)
         w.write(self.side)
         w.write(self.display)
     }
@@ -1864,28 +1864,28 @@ public struct Mishna: Hashable, Sendable {
     /// The chapter (*perek*), from 1.
     public var chapter: Int32
     /// The *mishnah* within the chapter, from 1.
-    public var mishna: Int32
+    public var number: Int32
     /// As text, for example "Nazir 5:5".
     public var display: String
 
     /// Creates a value from its fields.
-    public init(tractate: Tractate, chapter: Int32, mishna: Int32, display: String) {
+    public init(tractate: Tractate, chapter: Int32, number: Int32, display: String) {
         self.tractate = tractate
         self.chapter = chapter
-        self.mishna = mishna
+        self.number = number
         self.display = display
     }
 }
 
 extension Mishna: WvCodable {
     static func wvRead(_ r: inout WvReader) -> Mishna {
-        Mishna(tractate: r.read(), chapter: r.read(), mishna: r.read(), display: r.read())
+        Mishna(tractate: r.read(), chapter: r.read(), number: r.read(), display: r.read())
     }
 
     func wvWrite(_ w: inout WvWriter) {
         w.write(self.tractate)
         w.write(self.chapter)
-        w.write(self.mishna)
+        w.write(self.number)
         w.write(self.display)
     }
 }
@@ -1919,7 +1919,7 @@ extension MishnaPair: WvCodable {
     }
 }
 
-/// Typed errors reported by the `zmanim` module.
+/// Typed errors reported by the `times` module.
 public enum ZmanimError: Error, LocalizedError, Sendable {
     /// The latitude is not between -90 and 90 degrees.
     case invalidLatitude(message: String)
@@ -1987,7 +1987,7 @@ public enum ZmanimError: Error, LocalizedError, Sendable {
     }
 }
 
-func wvMapZmanim(_ err: WvError) -> Error {
+func wvMapTimes(_ err: WvError) -> Error {
     let message = wvErrorMessage(err)
     switch err.code {
     case 1: return ZmanimError.invalidLatitude(message: message.isEmpty ? "The latitude is not between -90 and 90 degrees." : message)
@@ -2006,9 +2006,9 @@ func wvMapZmanim(_ err: WvError) -> Error {
     }
 }
 
-func wvCheckZmanim(_ err: inout WvError) throws {
+func wvCheckTimes(_ err: inout WvError) throws {
     guard err.code != 0 else { return }
-    let error = wvMapZmanim(err)
+    let error = wvMapTimes(err)
     kosherz_error_clear(&err)
     throw error
 }
@@ -2633,12 +2633,12 @@ public protocol TimeZoneOffset: AnyObject, Sendable {
 }
 
 /// The process-wide vtable the library calls `TimeZoneOffset` implementations
-/// through (`kosherz_zmanim_TimeZoneOffset_vtable`). Every entry recovers the implementation
+/// through (`kosherz_times_TimeZoneOffset_vtable`). Every entry recovers the implementation
 /// from `ctx`, copies or adopts its arguments, hands its result back, and
 /// reports a thrown error through `out_err` instead of unwinding.
 enum WvTimeZoneOffsetVtable {
-    static let shared = WvVtable(kosherz_zmanim_TimeZoneOffset_vtable(
-        size: UInt32(MemoryLayout<kosherz_zmanim_TimeZoneOffset_vtable>.stride),
+    static let shared = WvVtable(kosherz_times_TimeZoneOffset_vtable(
+        size: UInt32(MemoryLayout<kosherz_times_TimeZoneOffset_vtable>.stride),
         flags: 0,
         free: { ctx in
             wvRelease(ctx, as: (any TimeZoneOffset).self)
@@ -2660,13 +2660,13 @@ public final class Zmanim: @unchecked Sendable {
     }
 
     deinit {
-        kosherz_zmanim_Zmanim_destroy(ptr)
+        kosherz_times_Zmanim_destroy(ptr)
     }
 
     /// Returns a new strong reference to the same object, for a position that
     /// takes ownership of it.
     func clonePtr() -> OpaquePointer {
-        wvNonNull(kosherz_zmanim_Zmanim_clone(ptr))
+        wvNonNull(kosherz_times_Zmanim_clone(ptr))
     }
 
     /// The *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
@@ -2692,11 +2692,11 @@ public final class Zmanim: @unchecked Sendable {
         let rv: OpaquePointer? = wvWithEncoded(location) { location_ptr, location_len in
             wvWithEncoded(date) { date_ptr, date_len in
                 wvWithEncoded(config) { config_ptr, config_len in
-                    kosherz_zmanim_Zmanim_new(location_ptr, location_len, date_ptr, date_len, config_ptr, config_len, timeZone_ctx, timeZone == nil ? nil : WvTimeZoneOffsetVtable.shared.pointer, &err)
+                    kosherz_times_Zmanim_new(location_ptr, location_len, date_ptr, date_len, config_ptr, config_len, timeZone_ctx, timeZone == nil ? nil : WvTimeZoneOffsetVtable.shared.pointer, &err)
                 }
             }
         }
-        try wvCheckZmanim(&err)
+        try wvCheckTimes(&err)
         self.ptr = wvNonNull(rv)
     }
 
@@ -2712,8 +2712,8 @@ public final class Zmanim: @unchecked Sendable {
     /// - Throws: ``ZmanimError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
     public func get(zman: Zman) throws -> Int64 {
         var err = WvError()
-        let rv = kosherz_zmanim_Zmanim_get(ptr, kosherz_zmanim_Zman(rawValue: numericCast(zman.rawValue)), &err)
-        try wvCheckZmanim(&err)
+        let rv = kosherz_times_Zmanim_get(ptr, kosherz_times_Zman(rawValue: numericCast(zman.rawValue)), &err)
+        try wvCheckTimes(&err)
         return rv
     }
 
@@ -2721,7 +2721,7 @@ public final class Zmanim: @unchecked Sendable {
     public func all() -> [ZmanTime] {
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_Zmanim_all(ptr, &outLen, &err)
+        let rv = kosherz_times_Zmanim_all(ptr, &outLen, &err)
         wvTrap(&err)
         return wvTakeBuffer(rv, outLen, as: [ZmanTime].self)
     }
@@ -2737,8 +2737,8 @@ public final class Zmanim: @unchecked Sendable {
     /// - Throws: ``ZmanimError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
     public func sunriseOffsetByDegrees(degrees: Double) throws -> Int64 {
         var err = WvError()
-        let rv = kosherz_zmanim_Zmanim_sunrise_offset_by_degrees(ptr, degrees, &err)
-        try wvCheckZmanim(&err)
+        let rv = kosherz_times_Zmanim_sunrise_offset_by_degrees(ptr, degrees, &err)
+        try wvCheckTimes(&err)
         return rv
     }
 
@@ -2753,8 +2753,8 @@ public final class Zmanim: @unchecked Sendable {
     /// - Throws: ``ZmanimError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
     public func sunsetOffsetByDegrees(degrees: Double) throws -> Int64 {
         var err = WvError()
-        let rv = kosherz_zmanim_Zmanim_sunset_offset_by_degrees(ptr, degrees, &err)
-        try wvCheckZmanim(&err)
+        let rv = kosherz_times_Zmanim_sunset_offset_by_degrees(ptr, degrees, &err)
+        try wvCheckTimes(&err)
         return rv
     }
 
@@ -2762,7 +2762,7 @@ public final class Zmanim: @unchecked Sendable {
     public func location() -> Location {
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_Zmanim_location(ptr, &outLen, &err)
+        let rv = kosherz_times_Zmanim_location(ptr, &outLen, &err)
         wvTrap(&err)
         return wvTakeBuffer(rv, outLen, as: Location.self)
     }
@@ -2771,7 +2771,7 @@ public final class Zmanim: @unchecked Sendable {
     public func date() -> GregorianDate {
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_Zmanim_date(ptr, &outLen, &err)
+        let rv = kosherz_times_Zmanim_date(ptr, &outLen, &err)
         wvTrap(&err)
         return wvTakeBuffer(rv, outLen, as: GregorianDate.self)
     }
@@ -2780,14 +2780,14 @@ public final class Zmanim: @unchecked Sendable {
     public func config() -> Config {
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_Zmanim_config(ptr, &outLen, &err)
+        let rv = kosherz_times_Zmanim_config(ptr, &outLen, &err)
         wvTrap(&err)
         return wvTakeBuffer(rv, outLen, as: Config.self)
     }
 }
 
-extension Kosherz.Zmanim: WvCodable {
-    static func wvRead(_ r: inout WvReader) -> Kosherz.Zmanim { Kosherz.Zmanim(ptr: r.readObject()) }
+extension Zmanim: WvCodable {
+    static func wvRead(_ r: inout WvReader) -> Zmanim { Zmanim(ptr: r.readObject()) }
     func wvWrite(_ w: inout WvWriter) { w.writeObject(clonePtr()) }
 }
 
@@ -2916,13 +2916,13 @@ public final class MyZmanim: @unchecked Sendable {
     }
 
     deinit {
-        kosherz_zmanim_myzmanim_MyZmanim_destroy(ptr)
+        kosherz_times_myzmanim_MyZmanim_destroy(ptr)
     }
 
     /// Returns a new strong reference to the same object, for a position that
     /// takes ownership of it.
     func clonePtr() -> OpaquePointer {
-        wvNonNull(kosherz_zmanim_myzmanim_MyZmanim_clone(ptr))
+        wvNonNull(kosherz_times_myzmanim_MyZmanim_clone(ptr))
     }
 
     /// The *zmanim* at `location` on `date` in `time_zone`. Candles are lit
@@ -2948,10 +2948,10 @@ public final class MyZmanim: @unchecked Sendable {
         let timeZone_ctx = timeZone.map { wvRetain($0) }
         let rv: OpaquePointer? = wvWithEncoded(location) { location_ptr, location_len in
             wvWithEncoded(date) { date_ptr, date_len in
-                kosherz_zmanim_myzmanim_MyZmanim_new(location_ptr, location_len, date_ptr, date_len, candleLightingMinutes, timeZone_ctx, timeZone == nil ? nil : WvTimeZoneOffsetVtable.shared.pointer, &err)
+                kosherz_times_myzmanim_MyZmanim_new(location_ptr, location_len, date_ptr, date_len, candleLightingMinutes, timeZone_ctx, timeZone == nil ? nil : WvTimeZoneOffsetVtable.shared.pointer, &err)
             }
         }
-        try wvCheckZmanim(&err)
+        try wvCheckTimes(&err)
         self.ptr = wvNonNull(rv)
     }
 
@@ -2965,8 +2965,8 @@ public final class MyZmanim: @unchecked Sendable {
     /// - Throws: ``ZmanimError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
     public func get(zman: MyZman) throws -> Int64 {
         var err = WvError()
-        let rv = kosherz_zmanim_myzmanim_MyZmanim_get(ptr, kosherz_zmanim_myzmanim_MyZman(rawValue: numericCast(zman.rawValue)), &err)
-        try wvCheckZmanim(&err)
+        let rv = kosherz_times_myzmanim_MyZmanim_get(ptr, kosherz_times_myzmanim_MyZman(rawValue: numericCast(zman.rawValue)), &err)
+        try wvCheckTimes(&err)
         return rv
     }
 
@@ -2974,7 +2974,7 @@ public final class MyZmanim: @unchecked Sendable {
     public func all() -> [MyZmanTime] {
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_myzmanim_MyZmanim_all(ptr, &outLen, &err)
+        let rv = kosherz_times_myzmanim_MyZmanim_all(ptr, &outLen, &err)
         wvTrap(&err)
         return wvTakeBuffer(rv, outLen, as: [MyZmanTime].self)
     }
@@ -2988,8 +2988,8 @@ public final class MyZmanim: @unchecked Sendable {
     /// - Throws: ``ZmanimError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
     public func proportionalHourGra() throws -> Int64 {
         var err = WvError()
-        let rv = kosherz_zmanim_myzmanim_MyZmanim_proportional_hour_gra(ptr, &err)
-        try wvCheckZmanim(&err)
+        let rv = kosherz_times_myzmanim_MyZmanim_proportional_hour_gra(ptr, &err)
+        try wvCheckTimes(&err)
         return rv
     }
 
@@ -2997,7 +2997,7 @@ public final class MyZmanim: @unchecked Sendable {
     public func location() -> Location {
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_myzmanim_MyZmanim_location(ptr, &outLen, &err)
+        let rv = kosherz_times_myzmanim_MyZmanim_location(ptr, &outLen, &err)
         wvTrap(&err)
         return wvTakeBuffer(rv, outLen, as: Location.self)
     }
@@ -3006,7 +3006,7 @@ public final class MyZmanim: @unchecked Sendable {
     public func date() -> GregorianDate {
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_myzmanim_MyZmanim_date(ptr, &outLen, &err)
+        let rv = kosherz_times_myzmanim_MyZmanim_date(ptr, &outLen, &err)
         wvTrap(&err)
         return wvTakeBuffer(rv, outLen, as: GregorianDate.self)
     }
@@ -3014,7 +3014,7 @@ public final class MyZmanim: @unchecked Sendable {
     /// The minutes before sunset of candle lighting.
     public func candleLightingMinutes() -> Double {
         var err = WvError()
-        let rv = kosherz_zmanim_myzmanim_MyZmanim_candle_lighting_minutes(ptr, &err)
+        let rv = kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes(ptr, &err)
         wvTrap(&err)
         return rv
     }
@@ -3335,13 +3335,13 @@ public enum Calendar {
 }
 
 /// Halachic times (*zmanim*) for a place and a day.
-public enum Zmanim {
+public enum Times {
     /// A location at sea level, with flat horizons.
     public static func seaLevelLocation(latitude: Double, longitude: Double) -> Location {
         wvLoad()
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_sea_level_location(latitude, longitude, &outLen, &err)
+        let rv = kosherz_times_sea_level_location(latitude, longitude, &outLen, &err)
         wvTrap(&err)
         return wvTakeBuffer(rv, outLen, as: Location.self)
     }
@@ -3359,9 +3359,9 @@ public enum Zmanim {
         wvLoad()
         var err = WvError()
         wvWithEncoded(location) { location_ptr, location_len in
-            kosherz_zmanim_validate_location(location_ptr, location_len, hasTimeZone, &err)
+            kosherz_times_validate_location(location_ptr, location_len, hasTimeZone, &err)
         }
-        try wvCheckZmanim(&err)
+        try wvCheckTimes(&err)
     }
 
     /// KosherJava's default configuration.
@@ -3369,7 +3369,7 @@ public enum Zmanim {
         wvLoad()
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_default_config(&outLen, &err)
+        let rv = kosherz_times_default_config(&outLen, &err)
         wvTrap(&err)
         return wvTakeBuffer(rv, outLen, as: Config.self)
     }
@@ -3379,7 +3379,7 @@ public enum Zmanim {
         wvLoad()
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_all_zmanim(&outLen, &err)
+        let rv = kosherz_times_all_zmanim(&outLen, &err)
         wvTrap(&err)
         return wvTakeBuffer(rv, outLen, as: [Zman].self)
     }
@@ -3389,7 +3389,7 @@ public enum Zmanim {
         wvLoad()
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_zman_name(kosherz_zmanim_Zman(rawValue: numericCast(zman.rawValue)), &outLen, &err)
+        let rv = kosherz_times_zman_name(kosherz_times_Zman(rawValue: numericCast(zman.rawValue)), &outLen, &err)
         wvTrap(&err)
         return wvTakeString(rv, outLen)
     }
@@ -3399,7 +3399,7 @@ public enum Zmanim {
         wvLoad()
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_zman_java_name(kosherz_zmanim_Zman(rawValue: numericCast(zman.rawValue)), &outLen, &err)
+        let rv = kosherz_times_zman_java_name(kosherz_times_Zman(rawValue: numericCast(zman.rawValue)), &outLen, &err)
         wvTrap(&err)
         return wvTakeString(rv, outLen)
     }
@@ -3410,7 +3410,7 @@ public enum Zmanim {
         var err = WvError()
         var outLen = 0
         let rv: UnsafePointer<UInt8>? = wvWithUTF8(javaName) { javaName_ptr, javaName_len in
-            kosherz_zmanim_zman_from_java_name(javaName_ptr, javaName_len, &outLen, &err)
+            kosherz_times_zman_from_java_name(javaName_ptr, javaName_len, &outLen, &err)
         }
         wvTrap(&err)
         return wvTakeBuffer(rv, outLen, as: Zman?.self)
@@ -3420,7 +3420,7 @@ public enum Zmanim {
     public static func zmanCategory(zman: Zman) -> Category {
         wvLoad()
         var err = WvError()
-        let rv = kosherz_zmanim_zman_category(kosherz_zmanim_Zman(rawValue: numericCast(zman.rawValue)), &err)
+        let rv = kosherz_times_zman_category(kosherz_times_Zman(rawValue: numericCast(zman.rawValue)), &err)
         wvTrap(&err)
         return wvEnumCase(Category.self, numericCast(rv.rawValue))
     }
@@ -3429,7 +3429,7 @@ public enum Zmanim {
     public static func zmanIsDeprecated(zman: Zman) -> Bool {
         wvLoad()
         var err = WvError()
-        let rv = kosherz_zmanim_zman_is_deprecated(kosherz_zmanim_Zman(rawValue: numericCast(zman.rawValue)), &err)
+        let rv = kosherz_times_zman_is_deprecated(kosherz_times_Zman(rawValue: numericCast(zman.rawValue)), &err)
         wvTrap(&err)
         return rv
     }
@@ -3441,7 +3441,7 @@ public enum Zmanim {
         var err = WvError()
         var outLen = 0
         let rv: UnsafePointer<UInt8>? = wvWithEncoded(config) { config_ptr, config_len in
-            kosherz_zmanim_zman_description(kosherz_zmanim_Zman(rawValue: numericCast(zman.rawValue)), config_ptr, config_len, &outLen, &err)
+            kosherz_times_zman_description(kosherz_times_Zman(rawValue: numericCast(zman.rawValue)), config_ptr, config_len, &outLen, &err)
         }
         wvTrap(&err)
         return wvTakeString(rv, outLen)
@@ -3452,7 +3452,7 @@ public enum Zmanim {
         wvLoad()
         var err = WvError()
         var outLen = 0
-        let rv = kosherz_zmanim_calculator_name(kosherz_zmanim_Calculator(rawValue: numericCast(calculator.rawValue)), &outLen, &err)
+        let rv = kosherz_times_calculator_name(kosherz_times_Calculator(rawValue: numericCast(calculator.rawValue)), &outLen, &err)
         wvTrap(&err)
         return wvTakeString(rv, outLen)
     }
@@ -3462,7 +3462,7 @@ public enum Zmanim {
     public static func shaahZmanis(start: Int64, end: Int64) -> Int64 {
         wvLoad()
         var err = WvError()
-        let rv = kosherz_zmanim_shaah_zmanis(start, end, &err)
+        let rv = kosherz_times_shaah_zmanis(start, end, &err)
         wvTrap(&err)
         return rv
     }
@@ -3474,7 +3474,7 @@ public enum Zmanim {
             wvLoad()
             var err = WvError()
             var outLen = 0
-            let rv = kosherz_zmanim_myzmanim_my_zman_name(kosherz_zmanim_myzmanim_MyZman(rawValue: numericCast(zman.rawValue)), &outLen, &err)
+            let rv = kosherz_times_myzmanim_my_zman_name(kosherz_times_myzmanim_MyZman(rawValue: numericCast(zman.rawValue)), &outLen, &err)
             wvTrap(&err)
             return wvTakeString(rv, outLen)
         }
@@ -3484,7 +3484,7 @@ public enum Zmanim {
             wvLoad()
             var err = WvError()
             var outLen = 0
-            let rv = kosherz_zmanim_myzmanim_all_my_zmanim(&outLen, &err)
+            let rv = kosherz_times_myzmanim_all_my_zmanim(&outLen, &err)
             wvTrap(&err)
             return wvTakeBuffer(rv, outLen, as: [MyZman].self)
         }
@@ -3493,7 +3493,7 @@ public enum Zmanim {
         public static func dawn90Degrees() -> Double {
             wvLoad()
             var err = WvError()
-            let rv = kosherz_zmanim_myzmanim_dawn_90_degrees(&err)
+            let rv = kosherz_times_myzmanim_dawn_90_degrees(&err)
             wvTrap(&err)
             return rv
         }
@@ -3502,7 +3502,7 @@ public enum Zmanim {
         public static func dawn72Degrees() -> Double {
             wvLoad()
             var err = WvError()
-            let rv = kosherz_zmanim_myzmanim_dawn_72_degrees(&err)
+            let rv = kosherz_times_myzmanim_dawn_72_degrees(&err)
             wvTrap(&err)
             return rv
         }
@@ -3511,7 +3511,7 @@ public enum Zmanim {
         public static func seaLevelRefractionArcminutes() -> Double {
             wvLoad()
             var err = WvError()
-            let rv = kosherz_zmanim_myzmanim_sea_level_refraction_arcminutes(&err)
+            let rv = kosherz_times_myzmanim_sea_level_refraction_arcminutes(&err)
             wvTrap(&err)
             return rv
         }
@@ -3520,7 +3520,7 @@ public enum Zmanim {
         public static func dipDegreesPerRootMeter() -> Double {
             wvLoad()
             var err = WvError()
-            let rv = kosherz_zmanim_myzmanim_dip_degrees_per_root_meter(&err)
+            let rv = kosherz_times_myzmanim_dip_degrees_per_root_meter(&err)
             wvTrap(&err)
             return rv
         }
@@ -3529,7 +3529,7 @@ public enum Zmanim {
         public static func defaultCandleLightingMinutes() -> Double {
             wvLoad()
             var err = WvError()
-            let rv = kosherz_zmanim_myzmanim_default_candle_lighting_minutes(&err)
+            let rv = kosherz_times_myzmanim_default_candle_lighting_minutes(&err)
             wvTrap(&err)
             return rv
         }

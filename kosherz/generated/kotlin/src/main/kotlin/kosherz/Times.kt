@@ -744,10 +744,10 @@ interface TimeZoneOffset {
 
 /** The *zmanim* for one place on one day. */
 class Zmanim private constructor(address: Long) : AutoCloseable {
-    internal val handle: NativeHandle = NativeCleaner.register(this, NativeHandle(address, JniBridge::zmanim_Zmanim_destroy))
+    internal val handle: NativeHandle = NativeCleaner.register(this, NativeHandle(address, JniBridge::times_Zmanim_destroy))
 
     /** A new strong reference to this object, as written into a value buffer. */
-    internal fun cloneHandle(): Long = handle.borrow { JniBridge.zmanim_Zmanim_clone(it) }
+    internal fun cloneHandle(): Long = handle.borrow { JniBridge.times_Zmanim_clone(it) }
 
     /**
      * The time of `zman`, in Unix milliseconds.
@@ -760,12 +760,12 @@ class Zmanim private constructor(address: Long) : AutoCloseable {
      * a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
      */
     fun get(zman: Zman): Long = handle.borrow { _self ->
-        JniBridge.zmanim_Zmanim_get(_self, zman.value)
+        JniBridge.times_Zmanim_get(_self, zman.value)
     }
 
     /** Every zman, with its time or why it has none. */
     fun all(): List<ZmanTime> = handle.borrow { _self ->
-        decodeBuffer(JniBridge.zmanim_Zmanim_all(_self)) { _r -> unpackListOfZmanTime(_r) }
+        decodeBuffer(JniBridge.times_Zmanim_all(_self)) { _r -> unpackListOfZmanTime(_r) }
     }
 
     /**
@@ -778,7 +778,7 @@ class Zmanim private constructor(address: Long) : AutoCloseable {
      * same as `get`.
      */
     fun sunriseOffsetByDegrees(degrees: Double): Long = handle.borrow { _self ->
-        JniBridge.zmanim_Zmanim_sunrise_offset_by_degrees(_self, degrees)
+        JniBridge.times_Zmanim_sunrise_offset_by_degrees(_self, degrees)
     }
 
     /**
@@ -791,22 +791,22 @@ class Zmanim private constructor(address: Long) : AutoCloseable {
      * same as `get`.
      */
     fun sunsetOffsetByDegrees(degrees: Double): Long = handle.borrow { _self ->
-        JniBridge.zmanim_Zmanim_sunset_offset_by_degrees(_self, degrees)
+        JniBridge.times_Zmanim_sunset_offset_by_degrees(_self, degrees)
     }
 
     /** The location. */
     fun location(): Location = handle.borrow { _self ->
-        decodeBuffer(JniBridge.zmanim_Zmanim_location(_self)) { _r -> unpackLocation(_r) }
+        decodeBuffer(JniBridge.times_Zmanim_location(_self)) { _r -> unpackLocation(_r) }
     }
 
     /** The date. */
     fun date(): GregorianDate = handle.borrow { _self ->
-        decodeBuffer(JniBridge.zmanim_Zmanim_date(_self)) { _r -> unpackGregorianDate(_r) }
+        decodeBuffer(JniBridge.times_Zmanim_date(_self)) { _r -> unpackGregorianDate(_r) }
     }
 
     /** The configuration, as given to `new`. */
     fun config(): Config = handle.borrow { _self ->
-        decodeBuffer(JniBridge.zmanim_Zmanim_config(_self)) { _r -> unpackConfig(_r) }
+        decodeBuffer(JniBridge.times_Zmanim_config(_self)) { _r -> unpackConfig(_r) }
     }
 
     /** Releases this wrapper's native reference; safe to call more than once. */
@@ -835,7 +835,7 @@ class Zmanim private constructor(address: Long) : AutoCloseable {
          * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
          *   there is no time zone and the location is more than 150 degrees from Greenwich.
          */
-        operator fun invoke(location: Location, date: GregorianDate, config: Config, timeZone: TimeZoneOffset?): Zmanim = Zmanim.fromHandle(JniBridge.zmanim_Zmanim_new(encodeBuffer { _w -> packLocation(_w, location) }, encodeBuffer { _w -> packGregorianDate(_w, date) }, encodeBuffer { _w -> packConfig(_w, config) }, timeZone))
+        operator fun invoke(location: Location, date: GregorianDate, config: Config, timeZone: TimeZoneOffset?): Zmanim = Zmanim.fromHandle(JniBridge.times_Zmanim_new(encodeBuffer { _w -> packLocation(_w, location) }, encodeBuffer { _w -> packGregorianDate(_w, date) }, encodeBuffer { _w -> packConfig(_w, config) }, timeZone))
     }
 }
 
@@ -956,10 +956,10 @@ internal fun unpackMyZmanTime(_r: BufferReader): MyZmanTime = MyZmanTime(
  * matter: MyZmanim gives both "level" and "elevated" sunrise and sunset.
  */
 class MyZmanim private constructor(address: Long) : AutoCloseable {
-    internal val handle: NativeHandle = NativeCleaner.register(this, NativeHandle(address, JniBridge::zmanim_myzmanim_MyZmanim_destroy))
+    internal val handle: NativeHandle = NativeCleaner.register(this, NativeHandle(address, JniBridge::times_myzmanim_MyZmanim_destroy))
 
     /** A new strong reference to this object, as written into a value buffer. */
-    internal fun cloneHandle(): Long = handle.borrow { JniBridge.zmanim_myzmanim_MyZmanim_clone(it) }
+    internal fun cloneHandle(): Long = handle.borrow { JniBridge.times_myzmanim_MyZmanim_clone(it) }
 
     /**
      * The time of `zman`, in Unix milliseconds.
@@ -970,12 +970,12 @@ class MyZmanim private constructor(address: Long) : AutoCloseable {
      * time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
      */
     fun get(zman: MyZman): Long = handle.borrow { _self ->
-        JniBridge.zmanim_myzmanim_MyZmanim_get(_self, zman.value)
+        JniBridge.times_myzmanim_MyZmanim_get(_self, zman.value)
     }
 
     /** Every row, with its time or why it has none. */
     fun all(): List<MyZmanTime> = handle.borrow { _self ->
-        decodeBuffer(JniBridge.zmanim_myzmanim_MyZmanim_all(_self)) { _r -> unpackListOfMyZmanTime(_r) }
+        decodeBuffer(JniBridge.times_myzmanim_MyZmanim_all(_self)) { _r -> unpackListOfMyZmanTime(_r) }
     }
 
     /**
@@ -986,22 +986,22 @@ class MyZmanim private constructor(address: Long) : AutoCloseable {
      * The same as `get`.
      */
     fun proportionalHourGra(): Long = handle.borrow { _self ->
-        JniBridge.zmanim_myzmanim_MyZmanim_proportional_hour_gra(_self)
+        JniBridge.times_myzmanim_MyZmanim_proportional_hour_gra(_self)
     }
 
     /** The location. */
     fun location(): Location = handle.borrow { _self ->
-        decodeBuffer(JniBridge.zmanim_myzmanim_MyZmanim_location(_self)) { _r -> unpackLocation(_r) }
+        decodeBuffer(JniBridge.times_myzmanim_MyZmanim_location(_self)) { _r -> unpackLocation(_r) }
     }
 
     /** The date. */
     fun date(): GregorianDate = handle.borrow { _self ->
-        decodeBuffer(JniBridge.zmanim_myzmanim_MyZmanim_date(_self)) { _r -> unpackGregorianDate(_r) }
+        decodeBuffer(JniBridge.times_myzmanim_MyZmanim_date(_self)) { _r -> unpackGregorianDate(_r) }
     }
 
     /** The minutes before sunset of candle lighting. */
     fun candleLightingMinutes(): Double = handle.borrow { _self ->
-        JniBridge.zmanim_myzmanim_MyZmanim_candle_lighting_minutes(_self)
+        JniBridge.times_myzmanim_MyZmanim_candle_lighting_minutes(_self)
     }
 
     /** Releases this wrapper's native reference; safe to call more than once. */
@@ -1031,14 +1031,14 @@ class MyZmanim private constructor(address: Long) : AutoCloseable {
          *   when there is no time zone and the location is more than 150 degrees from
          *   Greenwich.
          */
-        operator fun invoke(location: Location, date: GregorianDate, candleLightingMinutes: Double, timeZone: TimeZoneOffset?): MyZmanim = MyZmanim.fromHandle(JniBridge.zmanim_myzmanim_MyZmanim_new(encodeBuffer { _w -> packLocation(_w, location) }, encodeBuffer { _w -> packGregorianDate(_w, date) }, candleLightingMinutes, timeZone))
+        operator fun invoke(location: Location, date: GregorianDate, candleLightingMinutes: Double, timeZone: TimeZoneOffset?): MyZmanim = MyZmanim.fromHandle(JniBridge.times_myzmanim_MyZmanim_new(encodeBuffer { _w -> packLocation(_w, location) }, encodeBuffer { _w -> packGregorianDate(_w, date) }, candleLightingMinutes, timeZone))
     }
 }
 
 /** Halachic times (*zmanim*) for a place and a day. */
-object ZmanimModule {
+object Times {
     /** A location at sea level, with flat horizons. */
-    fun seaLevelLocation(latitude: Double, longitude: Double): Location = decodeBuffer(JniBridge.zmanim_sea_level_location(latitude, longitude)) { _r -> unpackLocation(_r) }
+    fun seaLevelLocation(latitude: Double, longitude: Double): Location = decodeBuffer(JniBridge.times_sea_level_location(latitude, longitude)) { _r -> unpackLocation(_r) }
 
     /**
      * Checks a location the way `Zmanim` will.
@@ -1050,68 +1050,68 @@ object ZmanimModule {
      * from Greenwich when `has_time_zone` is false.
      */
     fun validateLocation(location: Location, hasTimeZone: Boolean) {
-        JniBridge.zmanim_validate_location(encodeBuffer { _w -> packLocation(_w, location) }, hasTimeZone)
+        JniBridge.times_validate_location(encodeBuffer { _w -> packLocation(_w, location) }, hasTimeZone)
     }
 
     /** KosherJava's default configuration. */
-    fun defaultConfig(): Config = decodeBuffer(JniBridge.zmanim_default_config()) { _r -> unpackConfig(_r) }
+    fun defaultConfig(): Config = decodeBuffer(JniBridge.times_default_config()) { _r -> unpackConfig(_r) }
 
     /** Every zman, grouped by `Category`. */
-    fun allZmanim(): List<Zman> = decodeBuffer(JniBridge.zmanim_all_zmanim()) { _r -> unpackListOfZman(_r) }
+    fun allZmanim(): List<Zman> = decodeBuffer(JniBridge.times_all_zmanim()) { _r -> unpackListOfZman(_r) }
 
     /** The zman's display name, for example "Sof Zman Shma (GR'A)". */
-    fun zmanName(zman: Zman): String = decodeUtf8(JniBridge.zmanim_zman_name(zman.value))
+    fun zmanName(zman: Zman): String = decodeUtf8(JniBridge.times_zman_name(zman.value))
 
     /** The KosherJava method that calculates the zman, for example "getSofZmanShmaGRA". */
-    fun zmanJavaName(zman: Zman): String = decodeUtf8(JniBridge.zmanim_zman_java_name(zman.value))
+    fun zmanJavaName(zman: Zman): String = decodeUtf8(JniBridge.times_zman_java_name(zman.value))
 
     /** The zman named by its KosherJava method, for example "getSofZmanShmaGRA". */
-    fun zmanFromJavaName(javaName: String): Zman? = decodeBuffer(JniBridge.zmanim_zman_from_java_name(encodeUtf8(javaName))) { _r -> unpackOptionalOfZman(_r) }
+    fun zmanFromJavaName(javaName: String): Zman? = decodeBuffer(JniBridge.times_zman_from_java_name(encodeUtf8(javaName))) { _r -> unpackOptionalOfZman(_r) }
 
     /** What kind of time the zman is. */
-    fun zmanCategory(zman: Zman): Category = Category.fromValue(JniBridge.zmanim_zman_category(zman.value))
+    fun zmanCategory(zman: Zman): Category = Category.fromValue(JniBridge.times_zman_category(zman.value))
 
     /** Whether KosherJava deprecates the zman. */
-    fun zmanIsDeprecated(zman: Zman): Boolean = JniBridge.zmanim_zman_is_deprecated(zman.value)
+    fun zmanIsDeprecated(zman: Zman): Boolean = JniBridge.times_zman_is_deprecated(zman.value)
 
     /**
      * A paragraph or two explaining the zman to users, with the offsets from `config` filled
      * in. May contain Markdown links.
      */
-    fun zmanDescription(zman: Zman, config: Config): String = decodeUtf8(JniBridge.zmanim_zman_description(zman.value, encodeBuffer { _w -> packConfig(_w, config) }))
+    fun zmanDescription(zman: Zman, config: Config): String = decodeUtf8(JniBridge.times_zman_description(zman.value, encodeBuffer { _w -> packConfig(_w, config) }))
 
     /** The algorithm's descriptive name, as KosherJava's `getCalculatorName` gives it. */
-    fun calculatorName(calculator: Calculator): String = decodeUtf8(JniBridge.zmanim_calculator_name(calculator.value))
+    fun calculatorName(calculator: Calculator): String = decodeUtf8(JniBridge.times_calculator_name(calculator.value))
 
     /**
      * A *shaah zmanis*: a twelfth of the day from `start` to `end` (Unix milliseconds), in
      * milliseconds.
      */
-    fun shaahZmanis(start: Long, end: Long): Long = JniBridge.zmanim_shaah_zmanis(start, end)
+    fun shaahZmanis(start: Long, end: Long): Long = JniBridge.times_shaah_zmanis(start, end)
 
     /** The *zmanim* of the MyZmanim website, reproduced to the second. */
     object Myzmanim {
         /** The row's name as the website shows it. */
-        fun myZmanName(zman: MyZman): String = decodeUtf8(JniBridge.zmanim_myzmanim_my_zman_name(zman.value))
+        fun myZmanName(zman: MyZman): String = decodeUtf8(JniBridge.times_myzmanim_my_zman_name(zman.value))
 
         /** Every row, in the website's order. */
-        fun allMyZmanim(): List<MyZman> = decodeBuffer(JniBridge.zmanim_myzmanim_all_my_zmanim()) { _r -> unpackListOfMyZman(_r) }
+        fun allMyZmanim(): List<MyZman> = decodeBuffer(JniBridge.times_myzmanim_all_my_zmanim()) { _r -> unpackListOfMyZman(_r) }
 
         /** The sun's depression for "90 minutes as degrees": 19.75 degrees. */
-        fun dawn90Degrees(): Double = JniBridge.zmanim_myzmanim_dawn_90_degrees()
+        fun dawn90Degrees(): Double = JniBridge.times_myzmanim_dawn_90_degrees()
 
         /** The sun's depression for "72 minutes as 16.1 degrees". */
-        fun dawn72Degrees(): Double = JniBridge.zmanim_myzmanim_dawn_72_degrees()
+        fun dawn72Degrees(): Double = JniBridge.times_myzmanim_dawn_72_degrees()
 
         /** Refraction at a sea-level horizon, in arcminutes. */
-        fun seaLevelRefractionArcminutes(): Double = JniBridge.zmanim_myzmanim_sea_level_refraction_arcminutes()
+        fun seaLevelRefractionArcminutes(): Double = JniBridge.times_myzmanim_sea_level_refraction_arcminutes()
 
         /** The dip of the horizon per square root of a meter of height, in degrees. */
-        fun dipDegreesPerRootMeter(): Double = JniBridge.zmanim_myzmanim_dip_degrees_per_root_meter()
+        fun dipDegreesPerRootMeter(): Double = JniBridge.times_myzmanim_dip_degrees_per_root_meter()
 
         /** The website's default minutes before sunset for candle lighting. */
-        fun defaultCandleLightingMinutes(): Double = JniBridge.zmanim_myzmanim_default_candle_lighting_minutes()
+        fun defaultCandleLightingMinutes(): Double = JniBridge.times_myzmanim_default_candle_lighting_minutes()
     }
 }
 
-// END ZmanimModule.kt
+// END Times.kt

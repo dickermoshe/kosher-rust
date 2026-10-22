@@ -92,47 +92,47 @@ internal object JniBridge {
     @JvmStatic external fun calendar_limudim_mishna_yomis(date: Long): ByteArray
     @JvmStatic external fun calendar_limudim_tehillim_monthly(date: Long): ByteArray
     @JvmStatic external fun calendar_limudim_pirkei_avos(date: Long, region: Int): ByteArray
-    @JvmStatic external fun zmanim_Zmanim_clone(_self: Long): Long
-    @JvmStatic external fun zmanim_Zmanim_destroy(_self: Long)
-    @JvmStatic external fun zmanim_sea_level_location(latitude: Double, longitude: Double): ByteArray
-    @JvmStatic external fun zmanim_validate_location(location: ByteArray, hasTimeZone: Boolean)
-    @JvmStatic external fun zmanim_default_config(): ByteArray
-    @JvmStatic external fun zmanim_all_zmanim(): ByteArray
-    @JvmStatic external fun zmanim_zman_name(zman: Int): ByteArray
-    @JvmStatic external fun zmanim_zman_java_name(zman: Int): ByteArray
-    @JvmStatic external fun zmanim_zman_from_java_name(javaName: ByteArray): ByteArray
-    @JvmStatic external fun zmanim_zman_category(zman: Int): Int
-    @JvmStatic external fun zmanim_zman_is_deprecated(zman: Int): Boolean
-    @JvmStatic external fun zmanim_zman_description(zman: Int, config: ByteArray): ByteArray
-    @JvmStatic external fun zmanim_calculator_name(calculator: Int): ByteArray
-    @JvmStatic external fun zmanim_shaah_zmanis(start: Long, end: Long): Long
-    @JvmStatic external fun zmanim_Zmanim_new(location: ByteArray, date: ByteArray, config: ByteArray, timeZone: TimeZoneOffset?): Long
-    @JvmStatic external fun zmanim_Zmanim_get(_self: Long, zman: Int): Long
-    @JvmStatic external fun zmanim_Zmanim_all(_self: Long): ByteArray
-    @JvmStatic external fun zmanim_Zmanim_sunrise_offset_by_degrees(_self: Long, degrees: Double): Long
-    @JvmStatic external fun zmanim_Zmanim_sunset_offset_by_degrees(_self: Long, degrees: Double): Long
-    @JvmStatic external fun zmanim_Zmanim_location(_self: Long): ByteArray
-    @JvmStatic external fun zmanim_Zmanim_date(_self: Long): ByteArray
-    @JvmStatic external fun zmanim_Zmanim_config(_self: Long): ByteArray
-    @JvmStatic external fun zmanim_myzmanim_MyZmanim_clone(_self: Long): Long
-    @JvmStatic external fun zmanim_myzmanim_MyZmanim_destroy(_self: Long)
-    @JvmStatic external fun zmanim_myzmanim_my_zman_name(zman: Int): ByteArray
-    @JvmStatic external fun zmanim_myzmanim_all_my_zmanim(): ByteArray
-    @JvmStatic external fun zmanim_myzmanim_dawn_90_degrees(): Double
-    @JvmStatic external fun zmanim_myzmanim_dawn_72_degrees(): Double
-    @JvmStatic external fun zmanim_myzmanim_sea_level_refraction_arcminutes(): Double
-    @JvmStatic external fun zmanim_myzmanim_dip_degrees_per_root_meter(): Double
-    @JvmStatic external fun zmanim_myzmanim_default_candle_lighting_minutes(): Double
-    @JvmStatic external fun zmanim_myzmanim_MyZmanim_new(location: ByteArray, date: ByteArray, candleLightingMinutes: Double, timeZone: TimeZoneOffset?): Long
-    @JvmStatic external fun zmanim_myzmanim_MyZmanim_get(_self: Long, zman: Int): Long
-    @JvmStatic external fun zmanim_myzmanim_MyZmanim_all(_self: Long): ByteArray
-    @JvmStatic external fun zmanim_myzmanim_MyZmanim_proportional_hour_gra(_self: Long): Long
-    @JvmStatic external fun zmanim_myzmanim_MyZmanim_location(_self: Long): ByteArray
-    @JvmStatic external fun zmanim_myzmanim_MyZmanim_date(_self: Long): ByteArray
-    @JvmStatic external fun zmanim_myzmanim_MyZmanim_candle_lighting_minutes(_self: Long): Double
+    @JvmStatic external fun times_Zmanim_clone(_self: Long): Long
+    @JvmStatic external fun times_Zmanim_destroy(_self: Long)
+    @JvmStatic external fun times_sea_level_location(latitude: Double, longitude: Double): ByteArray
+    @JvmStatic external fun times_validate_location(location: ByteArray, hasTimeZone: Boolean)
+    @JvmStatic external fun times_default_config(): ByteArray
+    @JvmStatic external fun times_all_zmanim(): ByteArray
+    @JvmStatic external fun times_zman_name(zman: Int): ByteArray
+    @JvmStatic external fun times_zman_java_name(zman: Int): ByteArray
+    @JvmStatic external fun times_zman_from_java_name(javaName: ByteArray): ByteArray
+    @JvmStatic external fun times_zman_category(zman: Int): Int
+    @JvmStatic external fun times_zman_is_deprecated(zman: Int): Boolean
+    @JvmStatic external fun times_zman_description(zman: Int, config: ByteArray): ByteArray
+    @JvmStatic external fun times_calculator_name(calculator: Int): ByteArray
+    @JvmStatic external fun times_shaah_zmanis(start: Long, end: Long): Long
+    @JvmStatic external fun times_Zmanim_new(location: ByteArray, date: ByteArray, config: ByteArray, timeZone: TimeZoneOffset?): Long
+    @JvmStatic external fun times_Zmanim_get(_self: Long, zman: Int): Long
+    @JvmStatic external fun times_Zmanim_all(_self: Long): ByteArray
+    @JvmStatic external fun times_Zmanim_sunrise_offset_by_degrees(_self: Long, degrees: Double): Long
+    @JvmStatic external fun times_Zmanim_sunset_offset_by_degrees(_self: Long, degrees: Double): Long
+    @JvmStatic external fun times_Zmanim_location(_self: Long): ByteArray
+    @JvmStatic external fun times_Zmanim_date(_self: Long): ByteArray
+    @JvmStatic external fun times_Zmanim_config(_self: Long): ByteArray
+    @JvmStatic external fun times_myzmanim_MyZmanim_clone(_self: Long): Long
+    @JvmStatic external fun times_myzmanim_MyZmanim_destroy(_self: Long)
+    @JvmStatic external fun times_myzmanim_my_zman_name(zman: Int): ByteArray
+    @JvmStatic external fun times_myzmanim_all_my_zmanim(): ByteArray
+    @JvmStatic external fun times_myzmanim_dawn_90_degrees(): Double
+    @JvmStatic external fun times_myzmanim_dawn_72_degrees(): Double
+    @JvmStatic external fun times_myzmanim_sea_level_refraction_arcminutes(): Double
+    @JvmStatic external fun times_myzmanim_dip_degrees_per_root_meter(): Double
+    @JvmStatic external fun times_myzmanim_default_candle_lighting_minutes(): Double
+    @JvmStatic external fun times_myzmanim_MyZmanim_new(location: ByteArray, date: ByteArray, candleLightingMinutes: Double, timeZone: TimeZoneOffset?): Long
+    @JvmStatic external fun times_myzmanim_MyZmanim_get(_self: Long, zman: Int): Long
+    @JvmStatic external fun times_myzmanim_MyZmanim_all(_self: Long): ByteArray
+    @JvmStatic external fun times_myzmanim_MyZmanim_proportional_hour_gra(_self: Long): Long
+    @JvmStatic external fun times_myzmanim_MyZmanim_location(_self: Long): ByteArray
+    @JvmStatic external fun times_myzmanim_MyZmanim_date(_self: Long): ByteArray
+    @JvmStatic external fun times_myzmanim_MyZmanim_candle_lighting_minutes(_self: Long): Double
 
     @JvmStatic
-    fun zmanim_TimeZoneOffset_offset_seconds(_impl: TimeZoneOffset, _err: Long, unixSeconds: Long): Int = try {
+    fun times_TimeZoneOffset_offset_seconds(_impl: TimeZoneOffset, _err: Long, unixSeconds: Long): Int = try {
         _impl.offsetSeconds(unixSeconds)
     } catch (_e: Throwable) {
         fail(_err, _e, null)

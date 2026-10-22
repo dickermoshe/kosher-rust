@@ -698,7 +698,7 @@ export declare namespace calendar {
       /** The tractate. */
       tractate: calendar.limudim.Tractate;
       /** The page number. The Bavli starts at 2, the Yerushalmi at 1. */
-      daf: number;
+      number: number;
       /** As text, for example "Bava Metzia 55". */
       display: string;
     }
@@ -707,7 +707,7 @@ export declare namespace calendar {
       /** The tractate. */
       tractate: calendar.limudim.Tractate;
       /** The page number. */
-      daf: number;
+      number: number;
       /** Which side of the page. */
       side: calendar.limudim.Side;
       /** As text, for example "Bava Metzia 55b". */
@@ -720,7 +720,7 @@ export declare namespace calendar {
       /** The chapter (*perek*), from 1. */
       chapter: number;
       /** The *mishnah* within the chapter, from 1. */
-      mishna: number;
+      number: number;
       /** As text, for example "Nazir 5:5". */
       display: string;
     }
@@ -773,28 +773,28 @@ export declare namespace calendar {
 }
 
 /** Halachic times (*zmanim*) for a place and a day. */
-export declare namespace zmanim {
-  /** The errors of the `zmanim` error domain. */
+export declare namespace times {
+  /** The errors of the `times` error domain. */
   export class ZmanimError extends $Error {
     constructor(code: number, message?: string);
   }
   /** The latitude is not between -90 and 90 degrees. */
-  export class InvalidLatitudeError extends zmanim.ZmanimError {
+  export class InvalidLatitudeError extends times.ZmanimError {
     static readonly CODE: 1;
     constructor(message?: string);
   }
   /** The longitude is not between -180 and 180 degrees. */
-  export class InvalidLongitudeError extends zmanim.ZmanimError {
+  export class InvalidLongitudeError extends times.ZmanimError {
     static readonly CODE: 2;
     constructor(message?: string);
   }
   /** An elevation is negative or not a finite number. */
-  export class InvalidElevationError extends zmanim.ZmanimError {
+  export class InvalidElevationError extends times.ZmanimError {
     static readonly CODE: 3;
     constructor(message?: string);
   }
   /** The Gregorian date does not exist, or is outside the supported range. */
-  export class InvalidGregorianDateError extends zmanim.ZmanimError {
+  export class InvalidGregorianDateError extends times.ZmanimError {
     static readonly CODE: 4;
     constructor(message?: string);
   }
@@ -803,12 +803,12 @@ export declare namespace zmanim {
    * `Zmanim` and `MyZmanim` also need one at a location more than 150 degrees from
    * Greenwich.
    */
-  export class TimeZoneRequiredError extends zmanim.ZmanimError {
+  export class TimeZoneRequiredError extends times.ZmanimError {
     static readonly CODE: 5;
     constructor(message?: string);
   }
   /** The time zone callback failed, or gave an offset of a day or more. */
-  export class TimeZoneCallbackFailedError extends zmanim.ZmanimError {
+  export class TimeZoneCallbackFailedError extends times.ZmanimError {
     static readonly CODE: 6;
     constructor(message?: string);
   }
@@ -816,27 +816,27 @@ export declare namespace zmanim {
    * A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
    * within a day (1440 minutes) either way.
    */
-  export class InvalidMinutesError extends zmanim.ZmanimError {
+  export class InvalidMinutesError extends times.ZmanimError {
     static readonly CODE: 7;
     constructor(message?: string);
   }
   /** An angle in degrees is not a finite number. */
-  export class InvalidDegreesError extends zmanim.ZmanimError {
+  export class InvalidDegreesError extends times.ZmanimError {
     static readonly CODE: 8;
     constructor(message?: string);
   }
   /** The sun stays above the angle the time needs all day, as in the far north in summer. */
-  export class AllDayError extends zmanim.ZmanimError {
+  export class AllDayError extends times.ZmanimError {
     static readonly CODE: 10;
     constructor(message?: string);
   }
   /** The sun stays below the angle the time needs all day, as in the far north in winter. */
-  export class AllNightError extends zmanim.ZmanimError {
+  export class AllNightError extends times.ZmanimError {
     static readonly CODE: 11;
     constructor(message?: string);
   }
   /** The time only exists on certain dates, and this is not one. */
-  export class NotApplicableError extends zmanim.ZmanimError {
+  export class NotApplicableError extends times.ZmanimError {
     static readonly CODE: 12;
     constructor(message?: string);
   }
@@ -844,7 +844,7 @@ export declare namespace zmanim {
    * A calculation failed in a way that should not happen; please report the location and
    * date.
    */
-  export class UnexpectedError extends zmanim.ZmanimError {
+  export class UnexpectedError extends times.ZmanimError {
     static readonly CODE: 13;
     constructor(message?: string);
   }
@@ -1412,18 +1412,18 @@ export declare namespace zmanim {
      */
     use_astronomical_chatzos: boolean;
     /** The solar position algorithm. Default NOAA. */
-    calculator: zmanim.Calculator;
+    calculator: times.Calculator;
     /** For Meeus and SPA: whether to apply the delta-T (TT - UT) correction. Default true. */
     apply_delta_t: boolean;
   }
   /** One zman's time, or why it has none. */
   export interface ZmanTime {
     /** The zman. */
-    zman: zmanim.Zman;
+    zman: times.Zman;
     /** The time in Unix milliseconds, when it could be calculated. */
     time: bigint | null;
     /** Why it could not, when it could not. */
-    failure: zmanim.ZmanFailure | null;
+    failure: times.ZmanFailure | null;
   }
   /**
    * The time zone. You supply it as a callback that gives the offset from UTC at an instant.
@@ -1466,9 +1466,9 @@ export declare namespace zmanim {
      *   than a day.
      * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
      *   there is no time zone and the location is more than 150 degrees from Greenwich.
-     * @throws {zmanim.ZmanimError}
+     * @throws {times.ZmanimError}
      */
-    constructor(location: zmanim.Location, date: calendar.GregorianDate, config: zmanim.Config, timeZone: zmanim.TimeZoneOffset | null);
+    constructor(location: times.Location, date: calendar.GregorianDate, config: times.Config, timeZone: times.TimeZoneOffset | null);
     /**
      * The time of `zman`, in Unix milliseconds.
      *
@@ -1478,11 +1478,11 @@ export declare namespace zmanim {
      * the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
      * on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
      * a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
-     * @throws {zmanim.ZmanimError}
+     * @throws {times.ZmanimError}
      */
-    get(zman: zmanim.Zman): bigint;
+    get(zman: times.Zman): bigint;
     /** Every zman, with its time or why it has none. */
-    all(): zmanim.ZmanTime[];
+    all(): times.ZmanTime[];
     /**
      * When the sun is `degrees` below the geometric horizon before sunrise, in Unix
      * milliseconds.
@@ -1491,7 +1491,7 @@ export declare namespace zmanim {
      *
      * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
      * same as `get`.
-     * @throws {zmanim.ZmanimError}
+     * @throws {times.ZmanimError}
      */
     sunriseOffsetByDegrees(degrees: number): bigint;
     /**
@@ -1502,15 +1502,15 @@ export declare namespace zmanim {
      *
      * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
      * same as `get`.
-     * @throws {zmanim.ZmanimError}
+     * @throws {times.ZmanimError}
      */
     sunsetOffsetByDegrees(degrees: number): bigint;
     /** The location. */
-    location(): zmanim.Location;
+    location(): times.Location;
     /** The date. */
     date(): calendar.GregorianDate;
     /** The configuration, as given to `new`. */
-    config(): zmanim.Config;
+    config(): times.Config;
     /**
      * Release this wrapper's reference to the native object. Safe to call
      * more than once; a wrapper that is never closed is released when it is
@@ -1521,7 +1521,7 @@ export declare namespace zmanim {
     [Symbol.dispose](): void;
   }
   /** A location at sea level, with flat horizons. */
-  export function seaLevelLocation(latitude: number, longitude: number): zmanim.Location;
+  export function seaLevelLocation(latitude: number, longitude: number): times.Location;
   /**
    * Checks a location the way `Zmanim` will.
    *
@@ -1530,30 +1530,30 @@ export declare namespace zmanim {
    * `ZmanimError::InvalidLatitude`, `ZmanimError::InvalidLongitude` or
    * `ZmanimError::InvalidElevation`; `ZmanimError::TimeZoneRequired` beyond 150 degrees
    * from Greenwich when `has_time_zone` is false.
-   * @throws {zmanim.ZmanimError}
+   * @throws {times.ZmanimError}
    */
-  export function validateLocation(location: zmanim.Location, hasTimeZone: boolean): void;
+  export function validateLocation(location: times.Location, hasTimeZone: boolean): void;
   /** KosherJava's default configuration. */
-  export function defaultConfig(): zmanim.Config;
+  export function defaultConfig(): times.Config;
   /** Every zman, grouped by `Category`. */
-  export function allZmanim(): zmanim.Zman[];
+  export function allZmanim(): times.Zman[];
   /** The zman's display name, for example "Sof Zman Shma (GR'A)". */
-  export function zmanName(zman: zmanim.Zman): string;
+  export function zmanName(zman: times.Zman): string;
   /** The KosherJava method that calculates the zman, for example "getSofZmanShmaGRA". */
-  export function zmanJavaName(zman: zmanim.Zman): string;
+  export function zmanJavaName(zman: times.Zman): string;
   /** The zman named by its KosherJava method, for example "getSofZmanShmaGRA". */
-  export function zmanFromJavaName(javaName: string): zmanim.Zman | null;
+  export function zmanFromJavaName(javaName: string): times.Zman | null;
   /** What kind of time the zman is. */
-  export function zmanCategory(zman: zmanim.Zman): zmanim.Category;
+  export function zmanCategory(zman: times.Zman): times.Category;
   /** Whether KosherJava deprecates the zman. */
-  export function zmanIsDeprecated(zman: zmanim.Zman): boolean;
+  export function zmanIsDeprecated(zman: times.Zman): boolean;
   /**
    * A paragraph or two explaining the zman to users, with the offsets from `config` filled
    * in. May contain Markdown links.
    */
-  export function zmanDescription(zman: zmanim.Zman, config: zmanim.Config): string;
+  export function zmanDescription(zman: times.Zman, config: times.Config): string;
   /** The algorithm's descriptive name, as KosherJava's `getCalculatorName` gives it. */
-  export function calculatorName(calculator: zmanim.Calculator): string;
+  export function calculatorName(calculator: times.Calculator): string;
   /**
    * A *shaah zmanis*: a twelfth of the day from `start` to `end` (Unix milliseconds), in
    * milliseconds.
@@ -1647,11 +1647,11 @@ export declare namespace zmanim {
     /** One MyZmanim time, or why it has none. */
     export interface MyZmanTime {
       /** The row. */
-      zman: zmanim.myzmanim.MyZman;
+      zman: times.myzmanim.MyZman;
       /** The time in Unix milliseconds, when it could be calculated. */
       time: bigint | null;
       /** Why it could not, when it could not. */
-      failure: zmanim.ZmanFailure | null;
+      failure: times.ZmanFailure | null;
     }
     /**
      * MyZmanim's *zmanim* for one place on one day. The location's elevation and horizons
@@ -1674,9 +1674,9 @@ export declare namespace zmanim {
        * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
        *   when there is no time zone and the location is more than 150 degrees from
        *   Greenwich.
-       * @throws {zmanim.ZmanimError}
+       * @throws {times.ZmanimError}
        */
-      constructor(location: zmanim.Location, date: calendar.GregorianDate, candleLightingMinutes: number, timeZone: zmanim.TimeZoneOffset | null);
+      constructor(location: times.Location, date: calendar.GregorianDate, candleLightingMinutes: number, timeZone: times.TimeZoneOffset | null);
       /**
        * The time of `zman`, in Unix milliseconds.
        *
@@ -1684,22 +1684,22 @@ export declare namespace zmanim {
        *
        * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
        * time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
-       * @throws {zmanim.ZmanimError}
+       * @throws {times.ZmanimError}
        */
-      get(zman: zmanim.myzmanim.MyZman): bigint;
+      get(zman: times.myzmanim.MyZman): bigint;
       /** Every row, with its time or why it has none. */
-      all(): zmanim.myzmanim.MyZmanTime[];
+      all(): times.myzmanim.MyZmanTime[];
       /**
        * A twelfth of the day from sea-level sunrise to sea-level sunset, in milliseconds.
        *
        * # Errors
        *
        * The same as `get`.
-       * @throws {zmanim.ZmanimError}
+       * @throws {times.ZmanimError}
        */
       proportionalHourGra(): bigint;
       /** The location. */
-      location(): zmanim.Location;
+      location(): times.Location;
       /** The date. */
       date(): calendar.GregorianDate;
       /** The minutes before sunset of candle lighting. */
@@ -1714,9 +1714,9 @@ export declare namespace zmanim {
       [Symbol.dispose](): void;
     }
     /** The row's name as the website shows it. */
-    export function myZmanName(zman: zmanim.myzmanim.MyZman): string;
+    export function myZmanName(zman: times.myzmanim.MyZman): string;
     /** Every row, in the website's order. */
-    export function allMyZmanim(): zmanim.myzmanim.MyZman[];
+    export function allMyZmanim(): times.myzmanim.MyZman[];
     /** The sun's depression for "90 minutes as degrees": 19.75 degrees. */
     export function dawn90Degrees(): number;
     /** The sun's depression for "72 minutes as 16.1 degrees". */

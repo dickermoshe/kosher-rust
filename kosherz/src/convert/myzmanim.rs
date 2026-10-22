@@ -6,7 +6,7 @@ use kosher_rust::myzmanim::MyZman;
 use super::{CallbackTimeZone, watching_callbacks};
 use crate::api::{
     calendar::GregorianDate,
-    zmanim::{Location, TimeZoneOffset, ZmanimError, myzmanim::MyZmanTime},
+    times::{Location, TimeZoneOffset, ZmanimError, myzmanim::MyZmanTime},
 };
 
 pub(crate) type Inner = kosher_rust::myzmanim::MyZmanim<CallbackTimeZone>;
@@ -64,9 +64,9 @@ pub(crate) fn all(inner: &Inner) -> Vec<MyZmanTime> {
 // BEGIN GENERATED: MyZman
 #[allow(deprecated)]
 #[rustfmt::skip]
-impl From<crate::api::zmanim::myzmanim::MyZman> for kosher_rust::myzmanim::MyZman {
-    fn from(value: crate::api::zmanim::myzmanim::MyZman) -> Self {
-        use crate::api::zmanim::myzmanim::MyZman as F;
+impl From<crate::api::times::myzmanim::MyZman> for kosher_rust::myzmanim::MyZman {
+    fn from(value: crate::api::times::myzmanim::MyZman) -> Self {
+        use crate::api::times::myzmanim::MyZman as F;
         match value {
             F::Dawn90Degrees => Self::Dawn90Degrees,
             F::Dawn72Fixed => Self::Dawn72Fixed,
@@ -113,7 +113,7 @@ impl From<crate::api::zmanim::myzmanim::MyZman> for kosher_rust::myzmanim::MyZma
 }
 #[allow(deprecated)]
 #[rustfmt::skip]
-impl From<kosher_rust::myzmanim::MyZman> for crate::api::zmanim::myzmanim::MyZman {
+impl From<kosher_rust::myzmanim::MyZman> for crate::api::times::myzmanim::MyZman {
     fn from(value: kosher_rust::myzmanim::MyZman) -> Self {
         use kosher_rust::myzmanim::MyZman as F;
         match value {

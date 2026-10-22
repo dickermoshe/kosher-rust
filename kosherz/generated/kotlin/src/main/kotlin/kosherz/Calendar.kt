@@ -913,14 +913,14 @@ data class Daf(
     /** The tractate. */
     val tractate: Tractate,
     /** The page number. The Bavli starts at 2, the Yerushalmi at 1. */
-    val daf: Int,
+    val number: Int,
     /** As text, for example "Bava Metzia 55". */
     val display: String,
 )
 
 internal fun packDaf(_w: BufferWriter, _v: Daf) {
     _w.writeI32(_v.tractate.value)
-    _w.writeI32(_v.daf)
+    _w.writeI32(_v.number)
     _w.writeString(_v.display)
 }
 
@@ -935,7 +935,7 @@ data class Amud(
     /** The tractate. */
     val tractate: Tractate,
     /** The page number. */
-    val daf: Int,
+    val number: Int,
     /** Which side of the page. */
     val side: Side,
     /** As text, for example "Bava Metzia 55b". */
@@ -944,7 +944,7 @@ data class Amud(
 
 internal fun packAmud(_w: BufferWriter, _v: Amud) {
     _w.writeI32(_v.tractate.value)
-    _w.writeI32(_v.daf)
+    _w.writeI32(_v.number)
     _w.writeI32(_v.side.value)
     _w.writeString(_v.display)
 }
@@ -963,7 +963,7 @@ data class Mishna(
     /** The chapter (*perek*), from 1. */
     val chapter: Int,
     /** The *mishnah* within the chapter, from 1. */
-    val mishna: Int,
+    val number: Int,
     /** As text, for example "Nazir 5:5". */
     val display: String,
 )
@@ -971,7 +971,7 @@ data class Mishna(
 internal fun packMishna(_w: BufferWriter, _v: Mishna) {
     _w.writeI32(_v.tractate.value)
     _w.writeI32(_v.chapter)
-    _w.writeI32(_v.mishna)
+    _w.writeI32(_v.number)
     _w.writeString(_v.display)
 }
 
