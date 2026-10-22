@@ -1,0 +1,180 @@
+//! Writes the binding enums that mirror kosher-rust's large, frequently extended enums, `Zman` and
+//! `MyZman`, together with their conversions.
+//!
+//! WeaveFFI reads the exported module's source tokens, so these enums have to be written out in
+//! `src/api.rs` rather than built by a macro. They live between `// BEGIN GENERATED: <name>` and
+//! `// END GENERATED: <name>` markers. The test fails when a region is out of date; run
+//! `UPDATE_GENERATED=1 cargo test -p kosher-rust-bindings codegen` to rewrite them.
+//!
+//! The conversions are exhaustive matches both ways, so a variant added to kosher-rust without
+//! regenerating fails to compile rather than going missing.
+
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
+use std::{fmt::Write as _, fs, path::Path};
+
+use kosher_rust::{Zman, myzmanim::MyZman};
+
+/// One generated region: the file it is in, its marker name and its contents.
+pub struct Region {
+    /// Path relative to the crate root.
+    pub file: &'static str,
+    /// The name after `BEGIN GENERATED:`.
+    pub name: &'static str,
+    /// The lines between the markers.
+    pub body: String,
+}
+
+/// Every generated region.
+#[allow(deprecated)]
+pub fn regions() -> Vec<Region> {
+    let zmanim: Vec<Variant> = Zman::ALL
+        .into_iter()
+        .map(|zman| Variant {
+            ident: format!("{zman:?}"),
+            doc: format!("{} (KosherJava `{}`).", zman.name(), zman.java_name()),
+            deprecated: zman.is_deprecated(),
+        })
+        .collect();
+    let my_zmanim: Vec<Variant> = MyZman::ALL
+        .into_iter()
+        .map(|zman| Variant {
+            ident: format!("{zman:?}"),
+            doc: format!("{}.", zman.name()),
+            deprecated: false,
+        })
+        .collect();
+
+    vec![
+        Region {
+            file: "src/api.rs",
+            name: "Zman",
+            body: render_enum(
+                "Zman",
+                &[
+                    "A halachic time this library can calculate, named after the KosherJava getter that",
+                    "calculates it, without `get`. Its value is its position in `all_zmanim`.",
+                ],
+                &zmanim,
+            ),
+        },
+        Region {
+            file: "src/convert/zmanim.rs",
+            name: "Zman",
+            body: render_conversions("zmanim::Zman", "kosher_rust::Zman", &zmanim),
+        },
+        Region {
+            file: "src/api.rs",
+            name: "MyZman",
+            body: render_enum(
+                "MyZman",
+                &["One row of the MyZmanim website's \"All zmanim\" table, in the table's order."],
+                &my_zmanim,
+            ),
+        },
+        Region {
+            file: "src/convert/myzmanim.rs",
+            name: "MyZman",
+            body: render_conversions("myzmanim::MyZman", "kosher_rust::myzmanim::MyZman", &my_zmanim),
+        },
+    ]
+}
+
+struct Variant {
+    ident: String,
+    doc: String,
+    deprecated: bool,
+}
+
+/// The enum, indented to sit in a module nested in the root module.
+fn render_enum(name: &str, doc: &[&str], variants: &[Variant]) -> String {
+    let mut out = String::new();
+    for line in doc {
+        writeln!(out, "        /// {line}").unwrap();
+    }
+    writeln!(out, "        #[weaveffi::enumeration]").unwrap();
+    writeln!(out, "        #[repr(i32)]").unwrap();
+    writeln!(out, "        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]").unwrap();
+    writeln!(out, "        pub enum {name} {{").unwrap();
+    for (value, variant) in variants.iter().enumerate() {
+        writeln!(out, "            /// {}", variant.doc).unwrap();
+        if variant.deprecated {
+            writeln!(out, "            ///").unwrap();
+            writeln!(out, "            /// Deprecated in KosherJava.").unwrap();
+        }
+        writeln!(out, "            {} = {value},", variant.ident).unwrap();
+    }
+    writeln!(out, "        }}").unwrap();
+    out
+}
+
+/// `From` both ways between the binding enum (`ours`, a path under `crate::api::kosher`) and
+/// kosher-rust's (`theirs`).
+fn render_conversions(ours: &str, theirs: &str, variants: &[Variant]) -> String {
+    let mut out = String::new();
+    let ours = format!("crate::api::kosher::{ours}");
+    for (from_path, to_path) in [(ours.as_str(), theirs), (theirs, ours.as_str())] {
+        writeln!(out, "#[allow(deprecated)]").unwrap();
+        writeln!(out, "#[rustfmt::skip]").unwrap();
+        writeln!(out, "impl From<{from_path}> for {to_path} {{").unwrap();
+        writeln!(out, "    fn from(value: {from_path}) -> Self {{").unwrap();
+        writeln!(out, "        use {from_path} as F;").unwrap();
+        writeln!(out, "        match value {{").unwrap();
+        for variant in variants {
+            writeln!(out, "            F::{0} => Self::{0},", variant.ident).unwrap();
+        }
+        writeln!(out, "        }}").unwrap();
+        writeln!(out, "    }}").unwrap();
+        writeln!(out, "}}").unwrap();
+    }
+    out
+}
+
+/// `source` with the region named `name` replaced by `body`.
+pub fn splice(source: &str, name: &str, body: &str) -> String {
+    let begin = format!("// BEGIN GENERATED: {name}\n");
+    let end = format!("// END GENERATED: {name}");
+    let start = source.find(&begin).unwrap_or_else(|| panic!("no `{begin}` marker")) + begin.len();
+    let stop = start
+        + source[start..]
+            .find(&end)
+            .unwrap_or_else(|| panic!("no `{end}` marker"));
+    // Keep the end marker's indentation.
+    let stop = source[..stop].rfind('\n').map_or(stop, |newline| newline + 1);
+    format!("{}{body}{}", &source[..start], &source[stop..])
+}
+
+/// Rewrites every region under `crate_root`, returning the files that changed.
+pub fn update(crate_root: &Path) -> Vec<&'static str> {
+    let mut changed = Vec::new();
+    for region in regions() {
+        let path = crate_root.join(region.file);
+        let source = fs::read_to_string(&path).unwrap().replace("\r\n", "\n");
+        let updated = splice(&source, region.name, &region.body);
+        if updated != source {
+            fs::write(&path, updated).unwrap();
+            changed.push(region.file);
+        }
+    }
+    changed
+}
+
+#[test]
+fn generated_regions_are_current() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    if std::env::var_os("UPDATE_GENERATED").is_some() {
+        update(root);
+        return;
+    }
+    for region in regions() {
+        let source = fs::read_to_string(root.join(region.file))
+            .unwrap()
+            .replace("\r\n", "\n");
+        assert!(
+            splice(&source, region.name, &region.body) == source,
+            "{} region `{}` is out of date: run `UPDATE_GENERATED=1 cargo test -p kosher-rust-bindings codegen`",
+            region.file,
+            region.name,
+        );
+    }
+}

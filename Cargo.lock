@@ -930,15 +930,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kosher-ffi"
-version = "0.0.0"
-dependencies = [
- "jiff",
- "kosher-rust",
- "weaveffi",
-]
-
-[[package]]
 name = "kosher-rust"
 version = "0.3.0"
 dependencies = [
@@ -953,6 +944,15 @@ dependencies = [
  "postcard",
  "serde",
  "thiserror 2.0.18",
+]
+
+[[package]]
+name = "kosher-rust-bindings"
+version = "0.0.0"
+dependencies = [
+ "jiff",
+ "kosher-rust",
+ "weaveffi",
 ]
 
 [[package]]

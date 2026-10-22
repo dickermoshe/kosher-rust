@@ -1,5 +1,5 @@
 [package]
-name = "kosher-ffi"
+name = "kosher-rust-bindings"
 version = "0.0.0"
 edition = "2024"
 publish = false
@@ -11,5 +11,11 @@ crate-type = ["cdylib", "staticlib", "rlib"]
 
 [dependencies]
 kosher-rust = { path = "../.." }
-jiff = { version = "0.2.0", default-features = false, features = ["std", "alloc", "tzdb-bundle-always"] }
+jiff = { version = "0.2.0", default-features = false, features = ["std", "alloc"] }
 weaveffi = "0.25"
+
+[dev-dependencies]
+jiff = { version = "0.2.0", default-features = false, features = ["std", "alloc", "tzdb-bundle-always"] }
+
+[lints]
+workspace = true

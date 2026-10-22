@@ -1,0 +1,10 @@
+{
+  "files": [
+    "go/README.md",
+    "go/bindings.go",
+    "go/codec.go",
+    "go/go.mod",
+    "go/kosher_rust_bindings.h",
+    "go/runtime.go"
+  ]
+}

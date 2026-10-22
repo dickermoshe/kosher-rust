@@ -72,7 +72,7 @@ workspace = true
 
 [workspace]
 resolver = "2"
-members = ["interop-tests/java_interop_tests", "interop-tests/js_interop_tests", "bindings/kosher-ffi"]
+members = ["interop-tests/java_interop_tests", "interop-tests/js_interop_tests", "bindings/kosher-rust-bindings"]
 
 [workspace.lints.rust]
 missing_docs = "deny"
