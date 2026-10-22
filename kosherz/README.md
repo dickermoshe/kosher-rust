@@ -106,5 +106,6 @@ python examples/smoke.py
 - `generated/` is committed. After changing the API (or upgrading WeaveFFI or kosher-rust), run
   `weaveffi generate` here and commit the result: CI regenerates every language and fails if
   anything in `generated/` changed, appeared or disappeared.
-- CI (the `bindings` job) runs those tests, checks `generated/` is up to date, and runs the Node
-  tests against it.
+- The `Bindings` workflow runs those tests, checks `generated/` is up to date, and runs a smoke
+  test in every language from `tests/<language>/`. It runs on pull requests and on `main`, not on
+  pushes to other branches. You can also start it by hand from the Actions tab.
