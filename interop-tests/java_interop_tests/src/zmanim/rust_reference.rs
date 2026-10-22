@@ -2,28 +2,29 @@
 
 use jiff::{SignedDuration as Duration, civil::Date, tz::TimeZone};
 
-use kosher_rust::prelude::*;
+use kosher_rust::{Location, zmanim::*};
 
 use super::types::{TestCase, ZmanResult};
 
 /// Calculates one case with the Rust implementation.
-pub(super) fn calculate_rust_zman(
-    case: TestCase,
-    preset: &'static ZmanPreset,
-) -> Result<Option<ZmanResult>, ZmanimError> {
+pub(super) fn calculate_rust_zman(case: TestCase, preset: Zman) -> Result<Option<ZmanResult>, ZmanimError> {
     let timezone = TimeZone::get(case.timezone).unwrap();
-    let location = Location::new(case.latitude, case.longitude, case.elevation, Some(timezone.clone()))?;
+    let location = Location::new(case.latitude, case.longitude, Some(timezone.clone()))
+        .and_then(|l| l.with_elevation(case.elevation))
+        .and_then(|l| l.with_horizons(case.eastern_horizon_elevation, case.western_horizon_elevation))
+        .expect("generated test locations are valid");
     let date = Date::new(case.year as i16, case.month as i8, case.day as i8).unwrap();
-    let config = CalculatorConfig {
+    let config = Config {
         candle_lighting_offset: Duration::from_mins(case.candle_lighting_offset_minutes),
         use_astronomical_chatzos_for_other_zmanim: case.use_astronomical_chatzos_for_other_zmanim,
         use_elevation: case.use_elevation,
         ateret_torah_sunset_offset: Duration::from_mins(case.ateret_torah_sunset_offset_minutes),
         use_astronomical_chatzos: case.use_astronomical_chatzos,
+        astronomical_calculator: case.calculator,
     };
-    let mut calculator = ZmanimCalculator::new(location, date, config);
+    let zmanim = Zmanim::with_config(location, date, config);
 
-    let dt = match preset.calculate(&mut calculator) {
+    let dt = match zmanim.get(preset) {
         Ok(dt) => dt,
         Err(_) => return Ok(None),
     };

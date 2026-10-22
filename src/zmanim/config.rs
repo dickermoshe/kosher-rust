@@ -1,0 +1,124 @@
+use jiff::SignedDuration;
+
+/// The solar position algorithm used for sunrise, sunset, solar noon / midnight and every
+/// degree-based zman.
+///
+/// Mirrors the `AstronomicalCalculator` implementations in KosherJava. All three agree to
+/// within a few seconds for ordinary sunrise and sunset; the differences grow at high
+/// latitudes and for solar noon. Set it through
+/// [`Config::astronomical_calculator`].
+///
+/// ```
+/// use kosher_rust::zmanim::{AstronomicalCalculator, Config};
+///
+/// let config = Config {
+///     astronomical_calculator: AstronomicalCalculator::Meeus { apply_delta_t: true },
+///     ..Default::default()
+/// };
+/// ```
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum AstronomicalCalculator {
+    /// The US National Oceanic and Atmospheric Administration algorithm (KosherJava's
+    /// `NOAACalculator`, its default). Uses the low-accuracy Meeus formulas, good to
+    /// roughly one minute of time, with no ΔT correction.
+    #[default]
+    Noaa,
+    /// The Jean Meeus higher-accuracy VSOP87 algorithm (KosherJava's `MeeusCalculator`).
+    /// Solar position good to roughly an arc-second. Positions are evaluated in
+    /// Terrestrial Time, so an estimate of ΔT (TT − UT, currently about a minute) is
+    /// applied when `apply_delta_t` is `true`; KosherJava defaults it to `true`, and
+    /// `false` reproduces NOAA-style UT = TT behaviour for direct comparison.
+    Meeus {
+        /// Whether to apply the ΔT (TT − UT) correction.
+        apply_delta_t: bool,
+    },
+    /// The NREL Solar Position Algorithm (KosherJava's `SPACalculator`, Reda and
+    /// Andreas). Like [`Self::Meeus`] it is VSOP87-based, but sunrise and sunset are
+    /// solved on the full topocentric zenith, so the observer's
+    /// [`elevation`](crate::Location::with_elevation) feeds a
+    /// parallax term even when elevation adjustment is disabled. ΔT is applied when
+    /// `apply_delta_t` is `true` (KosherJava's default).
+    Spa {
+        /// Whether to apply the ΔT (TT − UT) correction.
+        apply_delta_t: bool,
+    },
+}
+
+impl AstronomicalCalculator {
+    /// The algorithm's descriptive name, matching KosherJava's `getCalculatorName`.
+    #[must_use]
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::Noaa => "US National Oceanic and Atmospheric Administration Algorithm",
+            Self::Meeus { .. } => "Jean Meeus Higher-Accuracy (VSOP87) Algorithm",
+            Self::Spa { .. } => "NREL Solar Position Algorithm",
+        }
+    }
+}
+
+/// How [`Zmanim`](super::Zmanim) calculates: the solar algorithm, elevation, *chatzos*, and the
+/// offsets some zmanim use. [`Config::default`] matches KosherJava's defaults.
+///
+/// ```
+/// use jiff::SignedDuration;
+/// use kosher_rust::zmanim::Config;
+///
+/// let config = Config {
+///     candle_lighting_offset: SignedDuration::from_mins(40), // Jerusalem custom
+///     ..Config::default()
+/// };
+/// ```
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub struct Config {
+    /// How long before sea-level sunset [`Zman::CandleLighting`](super::Zman::CandleLighting)
+    /// is. Default: 18 minutes.
+    pub candle_lighting_offset: SignedDuration,
+    /// Whether proportional zmanim divide the day at astronomical *chatzos*: morning times as a
+    /// fraction of sunrise to *chatzos*, afternoon times of *chatzos* to sunset, instead of a
+    /// fraction of sunrise to sunset. Only affects zmanim whose day is symmetric around
+    /// *chatzos*. Default: `false`.
+    pub use_astronomical_chatzos_for_other_zmanim: bool,
+    /// Whether the observer's elevation adjusts sunrise and sunset in every zman built on them.
+    /// When `false`, only [`Zman::Sunrise`](super::Zman::Sunrise) and
+    /// [`Zman::Sunset`](super::Zman::Sunset) use it, as in KosherJava. Default: `false`.
+    pub use_elevation: bool,
+    /// How long after sunset [`Zman::TzaisAteretTorah`](super::Zman::TzaisAteretTorah) is,
+    /// which also ends the day for the other Ateret Torah zmanim. Default: 40 minutes.
+    pub ateret_torah_sunset_offset: SignedDuration,
+    /// Whether *chatzos* is the sun's transit (`true`) or the midpoint of sunrise and sunset
+    /// (`false`). Default: `true`.
+    pub use_astronomical_chatzos: bool,
+    /// The solar position algorithm. Default: [`AstronomicalCalculator::Noaa`].
+    pub astronomical_calculator: AstronomicalCalculator,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            candle_lighting_offset: SignedDuration::from_mins(18),
+            use_astronomical_chatzos_for_other_zmanim: false,
+            use_elevation: false,
+            ateret_torah_sunset_offset: SignedDuration::from_mins(40),
+            use_astronomical_chatzos: true,
+            astronomical_calculator: AstronomicalCalculator::Noaa,
+        }
+    }
+}
+
+// Written by hand because jiff's SignedDuration has no defmt support.
+#[cfg(feature = "defmt")]
+impl defmt::Format for Config {
+    fn format(&self, fmt: defmt::Formatter) {
+        defmt::write!(
+            fmt,
+            "Config {{ candle_lighting_offset: {}, use_astronomical_chatzos_for_other_zmanim: {}, ateret_torah_sunset_offset: {}, use_astronomical_chatzos: {}, use_elevation: {}, astronomical_calculator: {} }}",
+            self.candle_lighting_offset.as_secs_f64(),
+            self.use_astronomical_chatzos_for_other_zmanim,
+            self.ateret_torah_sunset_offset.as_secs_f64(),
+            self.use_astronomical_chatzos,
+            self.use_elevation,
+            self.astronomical_calculator
+        )
+    }
+}

@@ -3,8 +3,7 @@
  * Copyright © 2004-2026 Eliyahu Hershfeld
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
- * Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * Public License as published by the Free Software Foundation; version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
@@ -352,7 +351,7 @@ public class AstronomicalCalendar implements Cloneable {
 	 *         not set, {@link Double#NaN} will be returned. See detailed explanation on top of the page.
 	 */
 	public double getUTCSunrise(double zenith) {
-		return getAstronomicalCalculator().getUTCSunrise(getAdjustedLocalDate(), getGeoLocation(), zenith, true);
+		return getAstronomicalCalculator().getCachedUTCSunrise(getAdjustedLocalDate(), getGeoLocation(), zenith, true);
 	}
 
 	/**
@@ -369,7 +368,7 @@ public class AstronomicalCalendar implements Cloneable {
 	 * @see #getUTCSeaLevelSunset(double)
 	 */
 	public double getUTCSeaLevelSunrise(double zenith) {
-		return getAstronomicalCalculator().getUTCSunrise(getAdjustedLocalDate(), getGeoLocation(), zenith, false);
+		return getAstronomicalCalculator().getCachedUTCSunrise(getAdjustedLocalDate(), getGeoLocation(), zenith, false);
 	}
 
 	/**
@@ -383,7 +382,7 @@ public class AstronomicalCalendar implements Cloneable {
 	 * @see #getUTCSeaLevelSunset(double)
 	 */
 	public double getUTCSunset(double zenith) {
-		return getAstronomicalCalculator().getUTCSunset(getAdjustedLocalDate(), getGeoLocation(), zenith, true);
+		return getAstronomicalCalculator().getCachedUTCSunset(getAdjustedLocalDate(), getGeoLocation(), zenith, true);
 	}
 
 	/**
@@ -400,7 +399,7 @@ public class AstronomicalCalendar implements Cloneable {
 	 * @see #getUTCSeaLevelSunrise(double)
 	 */
 	public double getUTCSeaLevelSunset(double zenith) {
-		return getAstronomicalCalculator().getUTCSunset(getAdjustedLocalDate(), getGeoLocation(), zenith, false);
+		return getAstronomicalCalculator().getCachedUTCSunset(getAdjustedLocalDate(), getGeoLocation(), zenith, false);
 	}
 
 	/**
@@ -458,7 +457,7 @@ public class AstronomicalCalendar implements Cloneable {
 	 * @see com.kosherjava.zmanim.util.SunTimesCalculator#getUTCNoon(LocalDate, GeoLocation)
 	 */
 	public Instant getSunTransit() {
-		double noon = getAstronomicalCalculator().getUTCNoon(getAdjustedLocalDate(), getGeoLocation());
+		double noon = getAstronomicalCalculator().getCachedUTCNoon(getAdjustedLocalDate(), getGeoLocation());
 		return getInstantFromTime(noon, SolarEvent.NOON);
 	}
 	
@@ -487,7 +486,7 @@ public class AstronomicalCalendar implements Cloneable {
 	 * @see com.kosherjava.zmanim.util.SunTimesCalculator#getUTCNoon(LocalDate, GeoLocation)
 	 */
 	public Instant getSolarMidnight() {
-		double noon = getAstronomicalCalculator().getUTCMidnight(getAdjustedLocalDate(), getGeoLocation());
+		double noon = getAstronomicalCalculator().getCachedUTCMidnight(getAdjustedLocalDate(), getGeoLocation());
 		return getInstantFromTime(noon, SolarEvent.MIDNIGHT);
 	}
 

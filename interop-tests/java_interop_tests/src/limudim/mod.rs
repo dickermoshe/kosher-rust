@@ -13,7 +13,7 @@ use crate::{init_bindings, java_vm};
 use crate::java_bindings::com::kosherjava::zmanim::hebrewcalendar::{
     Daf as JavaDaf, JewishCalendar, YerushalmiYomiCalculator, YomiCalculator,
 };
-use kosher_rust::limudim::prelude::*;
+use kosher_rust::limudim::*;
 
 #[derive(Clone, Copy)]
 enum Talmud {
@@ -73,7 +73,7 @@ fn random_supported_date(rng: &mut StdRng, min_date: Date, max_year: i16) -> Dat
 #[test]
 fn test_daf_yomi_bavli_against_kosher_java() -> Result<(), Box<dyn Error>> {
     let before_start = date(1923, 9, 10);
-    let rust = hebrew_date(before_start).limud(DafYomiBavli::default());
+    let rust = DafYomiBavli.on(hebrew_date(before_start));
     assert!(
         rust.is_none(),
         "Daf Yomi Bavli should not exist before the first cycle for {before_start:?}: rust={rust:?}"
@@ -123,7 +123,7 @@ fn test_random_daf_yomi_bavli_against_kosher_java() -> Result<(), Box<dyn Error>
 #[test]
 fn test_daf_yomi_yerushalmi_against_kosher_java() -> Result<(), Box<dyn Error>> {
     let before_start = date(1980, 2, 1);
-    let rust = hebrew_date(before_start).limud(DafYomiYerushalmiVilna::default());
+    let rust = DafYomiYerushalmi.on(hebrew_date(before_start));
     assert!(
         rust.is_none(),
         "Daf Yomi Yerushalmi should not exist before the first cycle for {before_start:?}: rust={rust:?}"
@@ -171,7 +171,7 @@ fn test_random_daf_yomi_yerushalmi_against_kosher_java() -> Result<(), Box<dyn E
 }
 
 fn assert_bavli_matches(date: Date, random_case: Option<(u64, u64)>) -> Result<(), Box<dyn Error>> {
-    let rust = hebrew_date(date).limud(DafYomiBavli::default());
+    let rust = DafYomiBavli.on(hebrew_date(date));
     let context = random_case
         .map(|(seed, iteration)| format!(" seed={seed} iteration={iteration}"))
         .unwrap_or_default();
@@ -185,7 +185,7 @@ fn assert_bavli_matches(date: Date, random_case: Option<(u64, u64)>) -> Result<(
 }
 
 fn assert_yerushalmi_matches(date: Date, random_case: Option<(u64, u64)>) -> Result<(), Box<dyn Error>> {
-    let rust = hebrew_date(date).limud(DafYomiYerushalmiVilna::default());
+    let rust = DafYomiYerushalmi.on(hebrew_date(date));
     let context = random_case
         .map(|(seed, iteration)| format!(" seed={seed} iteration={iteration}"))
         .unwrap_or_default();
@@ -295,7 +295,7 @@ fn java_daf_to_rust(env: &mut jni::Env<'_>, daf: &JavaDaf<'_>, talmud: Talmud) -
     let name = env.cast_local::<JString>(name)?;
     let tractate = tractate_from_java_name(&name.to_string())?;
 
-    Ok(Daf { tractate, page })
+    Ok(Daf { tractate, daf: page })
 }
 
 fn tractate_from_java_name(name: &str) -> Result<Tractate, Box<dyn Error>> {

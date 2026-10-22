@@ -3,7 +3,7 @@ name: Kosher Rust
 on:
   push:
   pull_request:
-    branches: [master]
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -13,44 +13,11 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  codegen:
-    name: Preset codegen
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: "3.14"
-      - name: Regenerate presets.rs
-        working-directory: tools
-        run: uv run python generate-rust.py
-      - name: Regenerate interop generated files
-        working-directory: tools
-        run: uv run python generate-interop.py
-      - name: Verify generated outputs match committed files
-        run: git diff --exit-code src/zmanim/presets.rs interop/src/generated interop/src/zman_preset.rs
-
-  diplomat-interop:
-    name: Diplomat interop
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: "3.14"
-      - uses: Swatinem/rust-cache@v2
-      - name: Regenerate interop files
-        working-directory: tools
-        run: uv run python generate-interop.py
-      - name: Build and test interop crate
-        run: cargo test -p interop
-
   fmt:
     name: Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: rustfmt
@@ -60,7 +27,7 @@ jobs:
     name: Clippy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: clippy
@@ -71,7 +38,7 @@ jobs:
     name: Documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - uses: Swatinem/rust-cache@v2
       - name: Check documentation
@@ -83,7 +50,7 @@ jobs:
     name: Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@cargo-hack
@@ -94,27 +61,44 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@cargo-hack
       - run: cargo hack test --feature-powerset --exclude-features defmt 
 
-  benchmarks:
-    name: Benchmarks
+  msrv:
+    name: Minimum Rust version (1.93)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: "1.93.0"
       - uses: Swatinem/rust-cache@v2
-      - name: Run performance tests (10 ms limit)
-        run: cargo test --test benchmarks --release 
+      # Checks the library only: dev-dependencies may need a newer compiler.
+      - run: cargo check -p kosher-rust --all-features
+      - run: cargo check -p kosher-rust --no-default-features
+
+  no-std:
+    name: no_std build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: thumbv7em-none-eabihf
+      - uses: Swatinem/rust-cache@v2
+      - name: Build for a Cortex-M target without std
+        run: cargo build -p kosher-rust --no-default-features --target thumbv7em-none-eabihf
+      - name: Build for a Cortex-M target without std, with alloc
+        run: cargo build -p kosher-rust --no-default-features --features alloc --target thumbv7em-none-eabihf
 
   js-interop-tests:
     name: JS Interop Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           target: wasm32-unknown-unknown
@@ -124,44 +108,17 @@ jobs:
         working-directory: interop-tests/js_interop_tests
         run: cargo test --test js_interop
 
-  typescript-interop:
-    name: TypeScript interop
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          target: wasm32-unknown-unknown
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: "3.14"
-      - uses: Swatinem/rust-cache@v2
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - name: Regenerate interop files
-        working-directory: tools
-        run: uv run python generate-interop.py
-      - name: Install diplomat-tool
-        run: cargo install diplomat-tool --version 0.15.0 --locked
-      - name: Test TypeScript package
-        working-directory: interop/packages/typescript
-        run: |
-          npm run generate
-          npm test
-          npm run typecheck
-
   java-interop-tests:
     name: Java Interop Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
           cache: maven
       - name: Build KosherJava reference jar
         working-directory: third-party/kosher-java

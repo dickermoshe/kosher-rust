@@ -3,8 +3,7 @@
  * Copyright © 2004-2026 Eliyahu Hershfeld
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
- * Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * Public License as published by the Free Software Foundation; either version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
@@ -383,7 +382,7 @@ public class ZmanimCalendar extends AstronomicalCalendar {
 	 * A method that returns <em>chatzos halayla</em> at the <b>end of the day</b> (the last <em>zman</em> of the day
 	 * returned by the calendar, that may actually be after midnight of the day it is being calculated for). For example, if
 	 * calculating it for the date of <em>Erev Pesach</em>, the calculation will be for <em>Lail Pesach</em> to allow you to use the
-	 * <em>zman</em> as <em>sof zman achilas chametz</em>. {@link #getSolarMidnight() Astronomical <em>chatzos halayla</em>} will be
+	 * <em>zman</em> as <em>sof zman achilas afikoman</em>. {@link #getSolarMidnight() Astronomical <em>chatzos halayla</em>} will be
 	 * returned if the {@link com.kosherjava.zmanim.util.AstronomicalCalculator calculator} class used supports it and {@link
 	 * isUseAstronomicalChatzos() isUseAstronomicalChatzos()} is set to <em>true</em>. Otherwise the {@link #getChatzos(Instant,
 	 * Instant) halfway point} between sunset and the following day's sunrise, if it does not support it, or it is not configured to

@@ -3,8 +3,7 @@
  * Copyright © 2004-2026 Eliyahu Hershfeld
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
- * Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * Public License as published by the Free Software Foundation; version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
@@ -66,6 +65,14 @@ import java.util.Objects;
 public class MeeusCalculator extends AstronomicalCalculator {
 
 	/**
+	 * {@inheritDoc} This calculator's results depend only on the arguments and on settings whose setters clear the cache.
+	 */
+	@Override
+	protected boolean isResultCacheable() {
+		return true;
+	}
+
+	/**
 	 * The <a href="https://en.wikipedia.org/wiki/Julian_day">Julian day</a> of January 1, 2000, known as
 	 * <a href="https://en.wikipedia.org/wiki/Epoch_(astronomy)#J2000">J2000.0</a>.
 	 */
@@ -113,6 +120,7 @@ public class MeeusCalculator extends AstronomicalCalculator {
 	 */
 	public void setApplyDeltaT(boolean applyDeltaT) {
 		this.applyDeltaT = applyDeltaT;
+		clearResultCache();
 	}
 
 	/**
@@ -151,7 +159,14 @@ public class MeeusCalculator extends AstronomicalCalculator {
 	 */
 	private double getUTCSunRiseSet(LocalDate localDate, GeoLocation geoLocation, double zenith,
 			boolean adjustForElevation, SolarEvent solarEvent) {
-		double elevation = adjustForElevation ? geoLocation.getElevation() : 0;
+		double elevation = 0;
+		if (adjustForElevation) {
+			if (solarEvent == SolarEvent.SUNRISE) {
+				elevation = geoLocation.getSunriseElevation();
+			} else {
+				elevation = geoLocation.getSunsetElevation();
+			}
+		}
 		double adjustedZenith = adjustZenith(zenith, elevation, localDate);
 		double riseSet = getSunRiseSetUTC(localDate, geoLocation.getLatitude(), -geoLocation.getLongitude(),
 				adjustedZenith, solarEvent);
@@ -221,16 +236,79 @@ public class MeeusCalculator extends AstronomicalCalculator {
 	 * @return The UTC time of sunrise or sunset in minutes. {@link Double#NaN} if the event does not occur (e.g. polar day
 	 *         / night).
 	 */
+	/**
+	 * The part of a rise / set solution that does not depend on the zenith: the equation of time and the declination at solar noon.
+	 * Every zman of a day needs the same values, so the last ones calculated are kept in {@link #lastNoonSolution} and reused. The
+	 * key is every input they depend on (the Julian day, the longitude and {@link #isApplyDeltaT()}), so a cached value is only ever
+	 * returned for identical inputs, and the results are bit-for-bit identical to calculating them each time. Immutable, so it can be
+	 * shared between threads and clones.
+	 */
+	private static final class NoonSolution {
+		final double julianDay;
+		final double longitude;
+		final boolean applyDeltaT;
+		final double equationOfTime;
+		final double solarDeclination;
+
+		NoonSolution(double julianDay, double longitude, boolean applyDeltaT, double equationOfTime, double solarDeclination) {
+			this.julianDay = julianDay;
+			this.longitude = longitude;
+			this.applyDeltaT = applyDeltaT;
+			this.equationOfTime = equationOfTime;
+			this.solarDeclination = solarDeclination;
+		}
+	}
+
+	/**
+	 * The last {@link NoonSolution} calculated. A single entry (callers almost always move one day at a time), so memory use is fixed
+	 * and nothing accumulates. Swapped atomically as one immutable object, so concurrent callers at most recalculate, and can never see a
+	 * partial or mismatched entry. Not part of {@link #equals(Object)} or {@link #hashCode()}.
+	 */
+	private volatile NoonSolution lastNoonSolution;
+
+	/**
+	 * Returns the noon solution for the day and longitude, reusing the last one when every input matches.
+	 * @param julianDay the Julian day
+	 * @param longitude the longitude
+	 * @return the noon solution
+	 */
+	private NoonSolution getNoonSolution(double julianDay, double longitude) {
+		boolean applyDeltaTNow = applyDeltaT; // read the setting once, so the key and the calculation use the same value
+		NoonSolution cached = lastNoonSolution;
+		if (cached != null && cached.julianDay == julianDay && cached.longitude == longitude && cached.applyDeltaT == applyDeltaTNow) {
+			return cached;
+		}
+		double noonmin = getSolarNoonMidnightUTC(julianDay, longitude, SolarEvent.NOON);
+		double tnoon = getJulianCenturiesFromJulianDay(julianDay + noonmin / 1440.0);
+		double[] sun = getSunApparentEclipticCoordinates(tnoon); // shared by the equation of time and the declination
+		NoonSolution solution = new NoonSolution(julianDay, longitude, applyDeltaTNow, getEquationOfTime(tnoon, sun), getSunDeclination(tnoon, sun));
+		if (applyDeltaT == applyDeltaTNow) { // only cache if the setting did not change mid calculation
+			lastNoonSolution = solution;
+		}
+		return solution;
+	}
+
 	private double getSunRiseSetUTC(LocalDate localDate, double latitude, double longitude, double zenith,
 			SolarEvent solarEvent) {
 		double julianDay = getJulianDay(localDate);
 
 		// Use the declination at local solar noon as the starting point, then iterate.
-		double noonmin = getSolarNoonMidnightUTC(julianDay, longitude, SolarEvent.NOON);
-		double tnoon = getJulianCenturiesFromJulianDay(julianDay + noonmin / 1440.0);
-		double equationOfTime = getEquationOfTime(tnoon);
-		double solarDeclination = getSunDeclination(tnoon);
+		NoonSolution noon = getNoonSolution(julianDay, longitude); // independent of the zenith, so shared by every zman of the day
+		double equationOfTime = noon.equationOfTime;
+		double solarDeclination = noon.solarDeclination;
 		double hourAngle = getSunHourAngle(latitude, solarDeclination, zenith, solarEvent);
+		if (Double.isNaN(hourAngle)) {
+			// Using the Sun's declination at noon, the Sun never reaches this zenith today. But the declination changes
+			// during the day (by up to about 0.2° in 12 hours), so the Sun may still just reach it around midnight, when it
+			// is at its lowest. Before reporting that there is no event, try again with the declination and equation of time
+			// at that solar midnight: the one before sunrise, or the one after sunset.
+			double noonmin = getSolarNoonMidnightUTC(julianDay, longitude, SolarEvent.NOON);
+			double midnight = noonmin + (solarEvent == SolarEvent.SUNRISE ? -720 : 720);
+			double tmidnight = getJulianCenturiesFromJulianDay(julianDay + midnight / 1440.0);
+			equationOfTime = getEquationOfTime(tmidnight);
+			solarDeclination = getSunDeclination(tmidnight);
+			hourAngle = getSunHourAngle(latitude, solarDeclination, zenith, solarEvent);
+		}
 		double delta = longitude - Math.toDegrees(hourAngle);
 		double timeUTC = 720 + (4 * delta) - equationOfTime;
 
@@ -238,8 +316,9 @@ public class MeeusCalculator extends AstronomicalCalculator {
 		// implementation's two helps convergence at high latitudes).
 		for (int i = 0; i < 2; i++) {
 			double newt = getJulianCenturiesFromJulianDay(julianDay + timeUTC / 1440.0);
-			equationOfTime = getEquationOfTime(newt);
-			solarDeclination = getSunDeclination(newt);
+			double[] sun = getSunApparentEclipticCoordinates(newt); // shared by the equation of time and the declination
+			equationOfTime = getEquationOfTime(newt, sun);
+			solarDeclination = getSunDeclination(newt, sun);
 			hourAngle = getSunHourAngle(latitude, solarDeclination, zenith, solarEvent);
 			if (Double.isNaN(hourAngle)) {
 				return Double.NaN;
@@ -455,7 +534,16 @@ public class MeeusCalculator extends AstronomicalCalculator {
 	 * @return the sun's apparent declination in degrees.
 	 */
 	private static double getSunDeclination(double julianCenturies) {
-		double[] sun = getSunApparentEclipticCoordinates(julianCenturies); // {lambda, beta} in degrees
+		return getSunDeclination(julianCenturies, getSunApparentEclipticCoordinates(julianCenturies));
+	}
+
+	/**
+	 * {@link #getSunDeclination(double)} from already calculated apparent ecliptic coordinates.
+	 * @param julianCenturies the Julian centuries (TT)
+	 * @param sun {@link #getSunApparentEclipticCoordinates(double)} for the same time
+	 * @return the declination in degrees
+	 */
+	private static double getSunDeclination(double julianCenturies, double[] sun) { // {lambda, beta} in degrees
 		double lambda = sun[0];
 		double beta = sun[1];
 		double epsilon = getTrueObliquity(julianCenturies);
@@ -464,13 +552,12 @@ public class MeeusCalculator extends AstronomicalCalculator {
 	}
 
 	/**
-	 * Return the apparent geocentric <a href="https://en.wikipedia.org/wiki/Right_ascension">right ascension</a> of the
-	 * sun in degrees (0-360).
-	 * @param julianCenturies Terrestrial-Time centuries since J2000.0.
-	 * @return the sun's apparent right ascension in degrees.
+	 * {@link #getSunRightAscension(double)} from already calculated apparent ecliptic coordinates.
+	 * @param julianCenturies the Julian centuries (TT)
+	 * @param sun {@link #getSunApparentEclipticCoordinates(double)} for the same time
+	 * @return the right ascension in degrees
 	 */
-	private static double getSunRightAscension(double julianCenturies) {
-		double[] sun = getSunApparentEclipticCoordinates(julianCenturies);
+	private static double getSunRightAscension(double julianCenturies, double[] sun) {
 		double lambda = sun[0];
 		double beta = sun[1];
 		double epsilon = getTrueObliquity(julianCenturies);
@@ -555,12 +642,22 @@ public class MeeusCalculator extends AstronomicalCalculator {
 	 * @return the equation of time in minutes of time.
 	 */
 	private static double getEquationOfTime(double julianCenturies) {
+		return getEquationOfTime(julianCenturies, getSunApparentEclipticCoordinates(julianCenturies));
+	}
+
+	/**
+	 * {@link #getEquationOfTime(double)} from already calculated apparent ecliptic coordinates.
+	 * @param julianCenturies the Julian centuries (TT)
+	 * @param sun {@link #getSunApparentEclipticCoordinates(double)} for the same time
+	 * @return the equation of time in minutes
+	 */
+	private static double getEquationOfTime(double julianCenturies, double[] sun) {
 		double tau = julianCenturies / 10.0;
 		// Mean longitude of the sun (Meeus 28.1), in degrees.
 		double l0 = 280.4664567 + tau * (360007.6982779 + tau * (0.03032028
 				+ tau * (1.0 / 49931.0 - tau * (1.0 / 15300.0 + tau / 2000000.0))));
 		l0 = (l0 % 360 + 360) % 360;
-		double alpha = getSunRightAscension(julianCenturies);
+		double alpha = getSunRightAscension(julianCenturies, sun);
 		double[] nut = getNutation(julianCenturies);
 		double epsilon = getTrueObliquity(julianCenturies);
 		double e = l0 - 0.0057183 - alpha + (nut[0] / 3600.0) * cosDegrees(epsilon); // degrees

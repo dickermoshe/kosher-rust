@@ -13,7 +13,7 @@ use crate::java_bindings::com::kosherjava::zmanim::{ComprehensiveZmanimCalendar,
 
 use crate::{init_bindings, java_vm};
 
-use kosher_rust::prelude::*;
+use kosher_rust::{Location, zmanim::*};
 
 use super::types::{TestCase, ZmanResult};
 
@@ -62,11 +62,7 @@ pub(super) fn java_supported_timezones() -> &'static HashSet<String> {
 
 /// Calculates one preset with KosherJava for a parity [`TestCase`].
 
-pub(super) fn calculate_java_zman(
-    case: TestCase,
-
-    zman: &'static ZmanPreset,
-) -> Result<Option<ZmanResult>, Box<dyn Error>> {
+pub(super) fn calculate_java_zman(case: TestCase, zman: Zman) -> Result<Option<ZmanResult>, Box<dyn Error>> {
     java_vm().attach_current_thread(|env: &mut jni::Env<'_>| -> Result<Option<ZmanResult>, Box<dyn Error>> {
         init_bindings(env)?;
 
@@ -83,16 +79,27 @@ pub(super) fn calculate_java_zman(
 
         let location_name = env.new_string("")?;
 
-        let location = GeoLocation::new5(
+        let location = GeoLocation::new7(
             env,
             location_name,
             case.latitude,
             case.longitude,
             case.elevation,
+            case.eastern_horizon_elevation,
+            case.western_horizon_elevation,
             &timezone,
         )?;
 
         let calendar = ComprehensiveZmanimCalendar::new_geo_location(env, location)?;
+
+        let astronomical_calculator = new_java_calculator(env, case.calculator)?;
+
+        env.call_method(
+            &calendar,
+            jni_str!("setAstronomicalCalculator"),
+            jni_sig!("(Lcom/kosherjava/zmanim/util/AstronomicalCalculator;)V"),
+            &[JValue::Object(&astronomical_calculator)],
+        )?;
 
         let local_date = new_local_date(env, case.year, case.month as i32, case.day as i32)?;
 
@@ -143,7 +150,7 @@ pub(super) fn calculate_java_zman(
         let instant = env
             .call_method(
                 &calendar,
-                JNIString::from(zman.method_name),
+                JNIString::from(zman.java_name()),
                 jni_sig!("()Ljava/time/Instant;"),
                 &[],
             )?
@@ -165,6 +172,37 @@ pub(super) fn calculate_java_zman(
             timestamp_ms,
         }))
     })
+}
+
+/// Instantiates the KosherJava `AstronomicalCalculator` matching a Rust [`AstronomicalCalculator`].
+fn new_java_calculator<'local>(
+    env: &mut jni::Env<'local>,
+    calculator: AstronomicalCalculator,
+) -> jni::errors::Result<JObject<'local>> {
+    let (class, apply_delta_t) = match calculator {
+        AstronomicalCalculator::Noaa => (jni_str!("com/kosherjava/zmanim/util/NOAACalculator"), None),
+        AstronomicalCalculator::Meeus { apply_delta_t } => (
+            jni_str!("com/kosherjava/zmanim/util/MeeusCalculator"),
+            Some(apply_delta_t),
+        ),
+        AstronomicalCalculator::Spa { apply_delta_t } => (
+            jni_str!("com/kosherjava/zmanim/util/SPACalculator"),
+            Some(apply_delta_t),
+        ),
+    };
+
+    let object = env.new_object(class, jni_sig!("()V"), &[])?;
+
+    if let Some(apply_delta_t) = apply_delta_t {
+        env.call_method(
+            &object,
+            jni_str!("setApplyDeltaT"),
+            jni_sig!("(Z)V"),
+            &[JValue::Bool(bool_to_jboolean(apply_delta_t))],
+        )?;
+    }
+
+    Ok(object)
 }
 
 pub(crate) fn new_local_date<'local>(

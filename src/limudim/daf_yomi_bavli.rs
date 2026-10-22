@@ -1,12 +1,18 @@
 use icu_calendar::{Date, cal::Hebrew};
 
 use crate::limudim::{
-    BAVLI_DAF_COUNT_EARLY, BAVLI_DAF_COUNT_MODERN, HebrewDateExt, Limud, SHEKALIM_EXPANSION_CYCLE,
-    cycle::Cycle,
-    interval::Interval,
-    limud::{CycleFinder, InternalLimud},
+    engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
     units::{BAVLI_TRACTATES, Daf, Tractate},
 };
+
+/// Dafim in Daf Yomi Bavli cycles 1-7, before Shekalim was expanded.
+const BAVLI_DAF_COUNT_EARLY: i32 = 2702;
+
+/// Dafim in Daf Yomi Bavli cycles 8 onward, with the Vilna Shekalim.
+pub(super) const BAVLI_DAF_COUNT_MODERN: i32 = 2711;
+
+/// The cycle in which Shekalim grew from 13 to 22 dafim (Vilna pagination).
+const SHEKALIM_EXPANSION_CYCLE: i32 = 8;
 
 fn initial_cycle_date() -> Date<Hebrew> {
     #[allow(clippy::expect_used)]
@@ -16,7 +22,7 @@ fn initial_cycle_date() -> Date<Hebrew> {
     date
 }
 
-pub const fn start_daf(tractate: Tractate) -> u16 {
+pub(crate) const fn start_daf(tractate: Tractate) -> u16 {
     match tractate {
         Tractate::Kinnim => 23,
         Tractate::Tamid => 26,
@@ -26,7 +32,7 @@ pub const fn start_daf(tractate: Tractate) -> u16 {
 }
 
 /// Last daf number (Berachos ends at 64)
-pub const fn end_daf(tractate: Tractate, iteration: i32) -> Option<u16> {
+pub(crate) const fn end_daf(tractate: Tractate, iteration: i32) -> Option<u16> {
     let daf = match tractate {
         Tractate::Berachos => 64,
         Tractate::Shabbos => 157,
@@ -79,9 +85,9 @@ pub const fn end_daf(tractate: Tractate, iteration: i32) -> Option<u16> {
     if daf == 0 { None } else { Some(daf) }
 }
 
-#[derive(Default)]
-/// Calculates the Daf Yomi Bavli schedule.
-pub struct DafYomiBavli {}
+/// Daf Yomi: one page of the Bavli a day, from 11 September 1923.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
+pub struct DafYomiBavli;
 
 fn daf_yomi_bavli_for_date(limud_date: Date<Hebrew>) -> Option<Daf> {
     let cycle = Cycle::from_cycle_initiation(initial_cycle_date(), DafYomiBavli::cycle_end_calculation, limud_date)?;
@@ -118,7 +124,7 @@ impl InternalLimud<Daf> for DafYomiBavli {
     }
 }
 
-impl Limud<Daf> for DafYomiBavli {}
+super::schedule!(DafYomiBavli => Daf);
 
 fn daf_at_offset(cycle_iteration: i32, offset: usize) -> Option<Daf> {
     let mut remaining = offset;
@@ -129,7 +135,7 @@ fn daf_at_offset(cycle_iteration: i32, offset: usize) -> Option<Daf> {
         if remaining < count {
             return Some(Daf {
                 tractate,
-                page: start + remaining as u16,
+                daf: start + remaining as u16,
             });
         }
         remaining -= count;
@@ -139,78 +145,78 @@ fn daf_at_offset(cycle_iteration: i32, offset: usize) -> Option<Daf> {
 #[cfg(test)]
 #[allow(clippy::expect_used)]
 mod tests {
-    use crate::limudim::from_gregorian_date;
+    use crate::limudim::engine::from_gregorian_date;
 
     use super::*;
 
     #[test]
     fn daf_yomi_bavli_simple_date() {
         let test_date = from_gregorian_date(2017, 12, 28);
-        let limud = DafYomiBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 30);
+        let limud = DafYomiBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 30);
         assert_eq!(limud.tractate, Tractate::Shevuos);
     }
 
     #[test]
     fn daf_yomi_bavli_before_cycle_began() {
         let test_date = from_gregorian_date(1920, 1, 1);
-        let limud = DafYomiBavli::default().limud(test_date);
+        let limud = DafYomiBavli.limud(test_date);
         assert!(limud.is_none());
     }
 
     #[test]
     fn daf_yomi_bavli_first_day_of_cycle() {
         let test_date = from_gregorian_date(2012, 8, 3);
-        let limud = DafYomiBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 2);
+        let limud = DafYomiBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 2);
         assert_eq!(limud.tractate, Tractate::Berachos);
     }
 
     #[test]
     fn daf_yomi_bavli_last_day_of_cycle() {
         let test_date = from_gregorian_date(2020, 1, 4);
-        let limud = DafYomiBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 73);
+        let limud = DafYomiBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 73);
         assert_eq!(limud.tractate, Tractate::Niddah);
     }
 
     #[test]
     fn daf_yomi_bavli_before_shekalim_transition_end_of_shekalim() {
         let test_date = from_gregorian_date(1969, 4, 28);
-        let limud = DafYomiBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 13);
+        let limud = DafYomiBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 13);
         assert_eq!(limud.tractate, Tractate::Shekalim);
     }
 
     #[test]
     fn daf_yomi_bavli_before_shekalim_transition_beginning_of_yoma() {
         let test_date = from_gregorian_date(1969, 4, 29);
-        let limud = DafYomiBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 2);
+        let limud = DafYomiBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 2);
         assert_eq!(limud.tractate, Tractate::Yoma);
     }
 
     #[test]
     fn daf_yomi_bavli_end_of_meilah() {
         let test_date = from_gregorian_date(2019, 10, 9);
-        let limud = DafYomiBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 22);
+        let limud = DafYomiBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 22);
         assert_eq!(limud.tractate, Tractate::Meilah);
     }
 
     #[test]
     fn daf_yomi_bavli_beginning_of_kinnim() {
         let test_date = from_gregorian_date(2019, 10, 10);
-        let limud = DafYomiBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 23);
+        let limud = DafYomiBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 23);
         assert_eq!(limud.tractate, Tractate::Kinnim);
     }
 
     #[test]
     fn daf_yomi_bavli_beginning_of_tamid() {
         let test_date = from_gregorian_date(2019, 10, 13);
-        let limud = DafYomiBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 26);
+        let limud = DafYomiBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 26);
         assert_eq!(limud.tractate, Tractate::Tamid);
     }
 
@@ -218,16 +224,16 @@ mod tests {
     fn daf_yomi_bavli_second_day_of_midos() {
         // Note: Midos starts at page 34 on 2019-10-21. This tests the second day.
         let test_date = from_gregorian_date(2019, 10, 22);
-        let limud = DafYomiBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 35);
+        let limud = DafYomiBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 35);
         assert_eq!(limud.tractate, Tractate::Midos);
     }
 
     #[test]
     fn daf_yomi_bavli_after_midos() {
         let test_date = from_gregorian_date(2019, 10, 25);
-        let limud = DafYomiBavli::default().limud(test_date).expect("limud exists");
-        assert_eq!(limud.page, 2);
+        let limud = DafYomiBavli.limud(test_date).expect("limud exists");
+        assert_eq!(limud.daf, 2);
         assert_eq!(limud.tractate, Tractate::Niddah);
     }
 }

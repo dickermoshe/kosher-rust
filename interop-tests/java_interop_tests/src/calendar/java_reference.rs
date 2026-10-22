@@ -10,9 +10,11 @@ use jni::{
 
 use crate::{init_bindings, java_vm};
 
-use kosher_rust::calendar::prelude::*;
+use kosher_rust::calendar::Holiday;
 
-use crate::java_bindings::com::kosherjava::zmanim::hebrewcalendar::{JewishCalendar, JewishCalendarParsha, JewishDate};
+use crate::java_bindings::com::kosherjava::zmanim::hebrewcalendar::{
+    JewishCalendar, JewishCalendarParshah, JewishDate,
+};
 
 use super::types::{DateTuple, JewishCalendarSnapshot, JewishDateSnapshot, JewishYearSnapshot};
 
@@ -335,7 +337,7 @@ fn local_date_int_method(
     env.call_method(local_date, method_name, jni_sig!("()I"), &[])?.i()
 }
 
-fn java_parsha_index(env: &mut jni::Env<'_>, parsha: JewishCalendarParsha<'_>) -> jni::errors::Result<Option<i32>> {
+fn java_parsha_index(env: &mut jni::Env<'_>, parsha: JewishCalendarParshah<'_>) -> jni::errors::Result<Option<i32>> {
     let ordinal = env
         .call_method(&parsha, jni_str!("ordinal"), jni_sig!("()I"), &[])?
         .i()?;

@@ -1,111 +1,187 @@
-//! Hebrew month constants and helpers for ICU [`Month`] values.
-//!
-//! Each month is a stable [`Month`] constant (for example [`NISAN`] or [`ADARI`])
-//! that can be passed to ICU date constructors and calendar logic throughout this
-//! crate. Use [`HebrewMonthExt::he`] for the Hebrew month name in a given year.
+use core::fmt;
 
-use icu_calendar::cal::Hebrew;
 use icu_calendar::types::Month;
 
-use super::HebrewCalendar;
+use super::year::HebrewYear;
 
-/// Tishrei (month 1).
-pub const TISHREI: Month = Month::new(1);
-/// Cheshvan (month 2).
-pub const ḤESHVAN: Month = Month::new(2);
-/// Kislev (month 3).
-pub const KISLEV: Month = Month::new(3);
-/// Tevet (month 4).
-pub const TEVET: Month = Month::new(4);
-/// Shevat (month 5).
-pub const SHEVAT: Month = Month::new(5);
-/// Adar I — present only in leap years (month 5, leap variant).
-pub const ADARI: Month = Month::leap(5);
-/// Adar — Adar II in leap years, plain Adar otherwise (month 6).
-pub const ADAR: Month = Month::new(6);
-/// Nisan (month 7).
-pub const NISAN: Month = Month::new(7);
-/// Iyyar (month 8).
-pub const IYYAR: Month = Month::new(8);
-/// Sivan (month 9).
-pub const SIVAN: Month = Month::new(9);
-/// Tammuz (month 10).
-pub const TAMMUZ: Month = Month::new(10);
-/// Av (month 11).
-pub const AV: Month = Month::new(11);
-/// Elul (month 12).
-pub const ELUL: Month = Month::new(12);
+/// A month of the Hebrew calendar, in order from Tishrei.
+///
+/// A leap year has two Adars. [`AdarI`](Self::AdarI) is the added month and exists only in leap
+/// years; [`Adar`](Self::Adar) is Adar in a common year and Adar II in a leap year. Purim is
+/// always in `Adar`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum HebrewMonth {
+    /// Tishrei (תשרי), the month of Rosh Hashana, Yom Kippur and Succos.
+    Tishrei,
+    /// Cheshvan (חשון), 29 or 30 days depending on the year.
+    Cheshvan,
+    /// Kislev (כסלו), 29 or 30 days depending on the year. Chanukah begins on the 25th.
+    Kislev,
+    /// Teves (טבת).
+    Teves,
+    /// Shevat (שבט).
+    Shevat,
+    /// Adar I (אדר א), the month added in a leap year.
+    AdarI,
+    /// Adar (אדר) in a common year, Adar II (אדר ב) in a leap year.
+    Adar,
+    /// Nisan (ניסן), the month of Pesach.
+    Nisan,
+    /// Iyar (אייר).
+    Iyar,
+    /// Sivan (סיון), the month of Shavuos.
+    Sivan,
+    /// Tammuz (תמוז).
+    Tammuz,
+    /// Av (אב).
+    Av,
+    /// Elul (אלול).
+    Elul,
+}
 
-const COMMON_HEBREW_MONTHS: [Month; 12] = [
-    TISHREI, ḤESHVAN, KISLEV, TEVET, SHEVAT, ADAR, NISAN, IYYAR, SIVAN, TAMMUZ, AV, ELUL,
-];
+impl HebrewMonth {
+    /// The months of a common year, from Tishrei.
+    pub const COMMON_YEAR: [HebrewMonth; 12] = [
+        Self::Tishrei,
+        Self::Cheshvan,
+        Self::Kislev,
+        Self::Teves,
+        Self::Shevat,
+        Self::Adar,
+        Self::Nisan,
+        Self::Iyar,
+        Self::Sivan,
+        Self::Tammuz,
+        Self::Av,
+        Self::Elul,
+    ];
 
-const LEAP_HEBREW_MONTHS: [Month; 13] = [
-    TISHREI, ḤESHVAN, KISLEV, TEVET, SHEVAT, ADARI, ADAR, NISAN, IYYAR, SIVAN, TAMMUZ, AV, ELUL,
-];
+    /// The months of a leap year, from Tishrei.
+    pub const LEAP_YEAR: [HebrewMonth; 13] = [
+        Self::Tishrei,
+        Self::Cheshvan,
+        Self::Kislev,
+        Self::Teves,
+        Self::Shevat,
+        Self::AdarI,
+        Self::Adar,
+        Self::Nisan,
+        Self::Iyar,
+        Self::Sivan,
+        Self::Tammuz,
+        Self::Av,
+        Self::Elul,
+    ];
 
-/// Hebrew names and year-relative validity for ICU [`Month`] values.
-pub trait HebrewMonthExt {
-    /// Returns the Hebrew name of this month in `year`.
+    /// The month's name in Hebrew, for example `"ניסן"`.
     ///
-    /// Returns `None` if `self` is not a Hebrew month or is not valid for `year`
-    /// (for example [`ADARI`] in a non-leap year).
-    fn he(&self, year: i32) -> Option<&'static str>;
-}
-
-impl HebrewMonthExt for Month {
-    fn he(&self, year: i32) -> Option<&'static str> {
-        if !Self::hebrew_months_in_year(year).contains(self) {
-            return None;
+    /// [`Adar`](Self::Adar) is `"אדר"` whatever the year; [`HebrewDate`](super::HebrewDate)'s
+    /// formatting says Adar II when it needs to.
+    pub const fn hebrew(self) -> &'static str {
+        match self {
+            Self::Tishrei => "תשרי",
+            Self::Cheshvan => "חשון",
+            Self::Kislev => "כסלו",
+            Self::Teves => "טבת",
+            Self::Shevat => "שבט",
+            Self::AdarI => "אדר א",
+            Self::Adar => "אדר",
+            Self::Nisan => "ניסן",
+            Self::Iyar => "אייר",
+            Self::Sivan => "סיון",
+            Self::Tammuz => "תמוז",
+            Self::Av => "אב",
+            Self::Elul => "אלול",
         }
-
-        let result = match *self {
-            NISAN => "ניסן",
-            IYYAR => "אייר",
-            SIVAN => "סיון",
-            TAMMUZ => "תמוז",
-            AV => "אב",
-            ELUL => "אלול",
-            TISHREI => "תשרי",
-            ḤESHVAN => "חשון",
-            KISLEV => "כסלו",
-            TEVET => "טבת",
-            SHEVAT => "שבט",
-            ADARI => "אדר א",
-            ADAR => {
-                if Hebrew::is_hebrew_leap_year(year) {
-                    "אדר ב"
-                } else {
-                    "אדר"
-                }
-            }
-            _ => return None,
-        };
-        Some(result)
     }
-}
 
-pub(crate) trait HebrewMonthHelpers {
-    /// Returns the ordered list of months in `year`, starting from Tishrei.
-    fn hebrew_months_in_year(year: i32) -> &'static [Month];
+    const fn english(self) -> &'static str {
+        match self {
+            Self::Tishrei => "Tishrei",
+            Self::Cheshvan => "Cheshvan",
+            Self::Kislev => "Kislev",
+            Self::Teves => "Teves",
+            Self::Shevat => "Shevat",
+            Self::AdarI => "Adar I",
+            Self::Adar => "Adar",
+            Self::Nisan => "Nisan",
+            Self::Iyar => "Iyar",
+            Self::Sivan => "Sivan",
+            Self::Tammuz => "Tammuz",
+            Self::Av => "Av",
+            Self::Elul => "Elul",
+        }
+    }
 
-    /// Returns this month's 1-based index within `year`, counting from Tishrei.
-    fn hebrew_month_of_year(self, year: i32) -> Option<u8>;
-}
-
-impl HebrewMonthHelpers for Month {
-    fn hebrew_months_in_year(year: i32) -> &'static [Month] {
-        if Hebrew::is_hebrew_leap_year(year) {
-            &LEAP_HEBREW_MONTHS
+    /// The month's English name in `year`: "Adar II" for [`Adar`](Self::Adar) in a leap year.
+    pub(crate) fn english_in(self, year: HebrewYear) -> &'static str {
+        if self == Self::Adar && year.is_leap() {
+            "Adar II"
         } else {
-            &COMMON_HEBREW_MONTHS
+            self.english()
         }
     }
 
-    fn hebrew_month_of_year(self, year: i32) -> Option<u8> {
-        Self::hebrew_months_in_year(year)
-            .iter()
-            .position(|candidate| *candidate == self)
-            .map(|index| index as u8 + 1)
+    pub(crate) const fn to_icu(self) -> Month {
+        match self {
+            Self::Tishrei => TISHREI,
+            Self::Cheshvan => CHESHVAN,
+            Self::Kislev => KISLEV,
+            Self::Teves => TEVET,
+            Self::Shevat => SHEVAT,
+            Self::AdarI => ADARI,
+            Self::Adar => ADAR,
+            Self::Nisan => NISAN,
+            Self::Iyar => IYYAR,
+            Self::Sivan => SIVAN,
+            Self::Tammuz => TAMMUZ,
+            Self::Av => AV,
+            Self::Elul => ELUL,
+        }
     }
+
+    pub(crate) fn from_icu(month: Month) -> Option<Self> {
+        Self::LEAP_YEAR
+            .into_iter()
+            .find(|candidate| candidate.to_icu() == month)
+    }
+}
+
+/// The English name, for example "Nisan". [`Adar`](HebrewMonth::Adar) prints as "Adar"; format a
+/// [`HebrewDate`](super::HebrewDate) to get "Adar II" in a leap year.
+impl fmt::Display for HebrewMonth {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.english())
+    }
+}
+
+// ICU's codes for the Hebrew months. The calendar internals work in these; the public API uses
+// `HebrewMonth`.
+pub(crate) const TISHREI: Month = Month::new(1);
+pub(crate) const CHESHVAN: Month = Month::new(2);
+pub(crate) const KISLEV: Month = Month::new(3);
+pub(crate) const TEVET: Month = Month::new(4);
+pub(crate) const SHEVAT: Month = Month::new(5);
+pub(crate) const ADARI: Month = Month::leap(5);
+pub(crate) const ADAR: Month = Month::new(6);
+pub(crate) const NISAN: Month = Month::new(7);
+pub(crate) const IYYAR: Month = Month::new(8);
+pub(crate) const SIVAN: Month = Month::new(9);
+pub(crate) const TAMMUZ: Month = Month::new(10);
+pub(crate) const AV: Month = Month::new(11);
+pub(crate) const ELUL: Month = Month::new(12);
+
+/// This month's 1-based position in `year`, counting from Tishrei, or `None` if `month` is not
+/// in that year (Adar I in a common year).
+pub(crate) fn month_of_year(month: Month, year: i32) -> Option<u8> {
+    let months: &[HebrewMonth] = if HebrewYear::new(year).is_leap() {
+        &HebrewMonth::LEAP_YEAR
+    } else {
+        &HebrewMonth::COMMON_YEAR
+    };
+    months
+        .iter()
+        .position(|candidate| candidate.to_icu() == month)
+        .map(|index| index as u8 + 1)
 }

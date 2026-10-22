@@ -6,6 +6,8 @@ use jiff::{civil::Date, tz::TimeZone};
 use rand::{RngExt, rngs::StdRng};
 use tzf_rs::DefaultFinder;
 
+use kosher_rust::{Location, zmanim::*};
+
 use super::{java_reference::java_supported_timezones, policy, types::TestCase};
 
 static TIMEZONE_FINDER: OnceLock<DefaultFinder> = OnceLock::new();
@@ -34,6 +36,8 @@ pub(super) fn random_test_case(rng: &mut StdRng, preset_name: &'static str) -> T
             latitude,
             longitude,
             elevation: rng.random_range(0.0..=policy::MAX_RANDOM_ELEVATION_METERS),
+            eastern_horizon_elevation: random_horizon_elevation(rng),
+            western_horizon_elevation: random_horizon_elevation(rng),
             timezone,
             preset_name,
             ateret_torah_sunset_offset_minutes: rng.random_range(0..60),
@@ -41,6 +45,7 @@ pub(super) fn random_test_case(rng: &mut StdRng, preset_name: &'static str) -> T
             use_astronomical_chatzos_for_other_zmanim: rng.random_bool(0.5),
             use_elevation: rng.random_bool(0.5),
             use_astronomical_chatzos: rng.random_bool(0.5),
+            calculator: random_calculator(rng),
         };
     }
 
@@ -48,6 +53,30 @@ pub(super) fn random_test_case(rng: &mut StdRng, preset_name: &'static str) -> T
         "failed to find a supported timezone after {} attempts",
         policy::MAX_TIMEZONE_ATTEMPTS
     )
+}
+
+/// Picks one of the three KosherJava solar algorithms with equal probability, and a random
+/// ΔT setting for the two that support it.
+fn random_calculator(rng: &mut StdRng) -> AstronomicalCalculator {
+    match rng.random_range(0..3) {
+        0 => AstronomicalCalculator::Noaa,
+        1 => AstronomicalCalculator::Meeus {
+            apply_delta_t: rng.random_bool(0.5),
+        },
+        _ => AstronomicalCalculator::Spa {
+            apply_delta_t: rng.random_bool(0.5),
+        },
+    }
+}
+
+/// Picks a horizon elevation: sea level half the time, otherwise anywhere up to the
+/// maximum random observer elevation so horizons above the observer are exercised too.
+fn random_horizon_elevation(rng: &mut StdRng) -> f64 {
+    if rng.random_bool(0.5) {
+        0.0
+    } else {
+        rng.random_range(0.0..=policy::MAX_RANDOM_ELEVATION_METERS)
+    }
 }
 
 /// Returns a shared Java/Rust timezone for the given coordinates.

@@ -3,8 +3,7 @@
  * Copyright © 2004-2026 Eliyahu Hershfeld
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
- * Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * Public License as published by the Free Software Foundation; version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
@@ -34,6 +33,14 @@ import java.time.ZonedDateTime;
  * @author © Eliyahu Hershfeld 2011 - 2026
  */
 public class NOAACalculator extends AstronomicalCalculator {
+
+	/**
+	 * {@inheritDoc} This calculator's results depend only on the arguments and on settings whose setters clear the cache.
+	 */
+	@Override
+	protected boolean isResultCacheable() {
+		return true;
+	}
 	
 	/**
 	 * The <a href="https://en.wikipedia.org/wiki/Julian_day">Julian day</a> of January 1, 2000, known as
@@ -98,7 +105,14 @@ public class NOAACalculator extends AstronomicalCalculator {
 	 */
 	private double getUTCSunRiseSet(LocalDate localDate, GeoLocation geoLocation, double zenith, boolean adjustForElevation, 
 			SolarEvent solarEvent) {
-		double elevation = adjustForElevation ? geoLocation.getElevation() : 0;
+		double elevation = 0;
+		if (adjustForElevation) {
+			if (solarEvent == SolarEvent.SUNRISE) {
+				elevation = geoLocation.getSunriseElevation();
+			} else {
+				elevation = geoLocation.getSunsetElevation();
+			}
+		}
 		double adjustedZenith = adjustZenith(zenith, elevation, localDate);
 		double riseSet = getSunRiseSetUTC(localDate, geoLocation.getLatitude(), -geoLocation.getLongitude(),
 				adjustedZenith, solarEvent);
@@ -401,9 +415,9 @@ public class NOAACalculator extends AstronomicalCalculator {
 	}
 
 	/**
-	 * Return the <a href="https://en.wikipedia.org/wiki/Universal_Coordinated_Time">Universal Coordinated Time</a> (UTC)
-	 * of the current day <a href="http://en.wikipedia.org/wiki/Noon#Solar_noon">solar noon</a> or the the upcoming
-	 * midnight (about 12 hours after solar noon) of the given day at the given location on earth.
+	 * Return the <a href="https://en.wikipedia.org/wiki/Universal_Coordinated_Time">Universal Coordinated Time</a> (UTC) of the
+	 * current day <a href="http://en.wikipedia.org/wiki/Noon#Solar_noon">solar noon</a> or the upcoming midnight (about 12 hours
+	 * after solar noon) of the given day at the given location on earth.
 	 * 
 	 * @param julianDay The Julian day since <a href="https://en.wikipedia.org/wiki/Epoch_(astronomy)#J2000">J2000.0</a>.
 	 * @param longitude The longitude of observer in degrees
@@ -461,6 +475,17 @@ public class NOAACalculator extends AstronomicalCalculator {
 		double equationOfTime = getEquationOfTime(tnoon);
 		double solarDeclination = getSunDeclination(tnoon);
 		double hourAngle = getSunHourAngle(latitude, solarDeclination, zenith, solarEvent);
+		if (Double.isNaN(hourAngle)) {
+			// Using the Sun's declination at noon, the Sun never reaches this zenith today. But the declination changes
+			// during the day (by up to about 0.2° in 12 hours), so the Sun may still just reach it around midnight, when it
+			// is at its lowest. Before reporting that there is no event, try again with the declination and equation of time
+			// at that solar midnight: the one before sunrise, or the one after sunset.
+			double midnight = noonmin + (solarEvent == SolarEvent.SUNRISE ? -720 : 720);
+			double tmidnight = getJulianCenturiesFromJulianDay(julianDay + midnight / 1440.0);
+			equationOfTime = getEquationOfTime(tmidnight);
+			solarDeclination = getSunDeclination(tmidnight);
+			hourAngle = getSunHourAngle(latitude, solarDeclination, zenith, solarEvent);
+		}
 		double delta = longitude - Math.toDegrees(hourAngle);
 		double timeDiff = 4 * delta;
 		double timeUTC = 720 + timeDiff - equationOfTime;
@@ -478,9 +503,8 @@ public class NOAACalculator extends AstronomicalCalculator {
 	/**
 	 * {@inheritDoc}
 	 * The current implementation in this class only supports azimuth values of 90° (directly east) or 270° (directly west) that are
-	 * directly needed in this library for the
-	 * {@link com.kosherjava.zmanim.ComprehensiveZmanimCalendar#getPolarSunsetBenIshChai()} and
-	 * {@link com.kosherjava.zmanim.ComprehensiveZmanimCalendar#getPolarSunriseBenIshChai()}.
+	 * directly needed in this library for the {@link com.kosherjava.zmanim.ComprehensiveZmanimCalendar#getPolarSunsetBenIshChai()}
+	 * and {@link com.kosherjava.zmanim.ComprehensiveZmanimCalendar#getPolarSunriseBenIshChai()}.
 	 * @throws IllegalArgumentException if the azimuth is not 90° or 270°.
 	 * @todo complete the implementation for other azimuths. While not needed by this library, they may be of value to some projects.
 	 *         There will be edge cases where the azimuth will occur more than once a day when based on the equation of time, the day

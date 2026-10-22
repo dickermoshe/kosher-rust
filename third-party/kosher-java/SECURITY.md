@@ -14,7 +14,8 @@ Thank you for improving the security of `KosherJava Zmanim`. We appreciate your 
 responsible disclosure and will make every effort to acknowledge your
 contributions.
 
-Report security bugs by emailing the lead maintainer via the contact information at the  [KosherJava.com contact page](https://kosherjava.com/contact/).
+Report security bugs in either this project's code, or the [KosherJava](https://kosherjava.com) or [Zmanim Map](https://zmanimmap.com) websites
+by emailing the lead maintainer via the contact information at the  [KosherJava.com contact page](https://kosherjava.com/contact/).
 
 The lead maintainer will attempt to acknowledge your email within 48 hours, and will try to send a
 more detailed response within 48 hours indicating the next steps in handling

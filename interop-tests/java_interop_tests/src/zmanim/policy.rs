@@ -7,7 +7,8 @@ pub(super) const DEFAULT_RANDOM_PARITY_ITERATIONS: u64 = 1_000;
 pub(super) const MAX_TIMEZONE_ATTEMPTS: u32 = 1_000;
 pub(super) const MAX_RANDOM_ELEVATION_METERS: f64 = 4000.0;
 
-// Rust uses the same KosherJava NOAA equations as the Java reference. The
+// Rust ports the same KosherJava NOAA, Meeus and SPA equations as the Java
+// reference, and each random case runs both sides on the same algorithm. The
 // tolerance leaves room for Java/Rust floating-point and timestamp formatting
 // differences, not for a different astronomy model.
 const DEFAULT_MAX_DIFF_MS: i64 = 1_000;

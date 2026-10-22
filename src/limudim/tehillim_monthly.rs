@@ -1,13 +1,8 @@
+use core::fmt;
+
 use icu_calendar::{Date, cal::Hebrew};
 
-use crate::{
-    calendar::HebrewHolidayCalendar,
-    limudim::{
-        Limud,
-        interval::Interval,
-        limud::{CycleFinder, InternalLimud},
-    },
-};
+use crate::limudim::engine::{CycleFinder, InternalLimud, Interval};
 
 /// Cumulative ending psalm for each day of the month (0-indexed by day-1)
 /// Day 1: psalms 1-9, Day 2: psalms 10-17, etc.
@@ -16,29 +11,52 @@ const DEFAULT_UNITS: [u8; 30] = [
     139, 144, 150,
 ];
 
-/// Represents a Tehillim (Psalms) reading unit
+/// A day's portion of Tehillim. Prints as "Tehillim 1-9" or "Tehillim 119:1-96".
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
-#[allow(missing_docs)]
 pub enum TehillimUnit {
-    /// A range of complete psalms (e.g., psalms 1-9)
-    Psalms { start: u8, end: u8 },
-    /// A range of verses within a single psalm (for Psalm 119)
+    /// Whole chapters, `start` to `end` inclusive.
+    Psalms {
+        /// The first chapter.
+        start: u8,
+        /// The last chapter.
+        end: u8,
+    },
+    /// Part of one long chapter (119, split over two days).
     PsalmVerses {
+        /// The chapter.
         psalm: u8,
+        /// The first verse.
         start_verse: u16,
+        /// The last verse.
         end_verse: u16,
     },
 }
 
-#[derive(Default)]
-/// Calculates the Tehillim (Psalms) monthly schedule.
+impl fmt::Display for TehillimUnit {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TehillimUnit::Psalms { start, end } if start == end => write!(f, "Tehillim {start}"),
+            TehillimUnit::Psalms { start, end } => write!(f, "Tehillim {start}-{end}"),
+            TehillimUnit::PsalmVerses {
+                psalm,
+                start_verse,
+                end_verse,
+            } => {
+                write!(f, "Tehillim {psalm}:{start_verse}-{end_verse}")
+            }
+        }
+    }
+}
+
+/// The book of Tehillim divided over the days of the Hebrew month.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct TehillimMonthly;
 
 /// Find the 1st of the current Hebrew month and the last day of the month
 fn find_monthly_cycle(date: Date<Hebrew>) -> Option<(Date<Hebrew>, Date<Hebrew>)> {
     let year = date.year().extended_year();
-    let month = date.input_month();
+    let month = date.month().to_input();
 
     // Start of cycle: 1st of current month
     let start = Date::try_new_hebrew_v2(year, month, 1).ok()?;
@@ -94,7 +112,7 @@ impl InternalLimud<TehillimUnit> for TehillimMonthly {
         Some(TehillimUnit::Psalms { start, end: stop })
     }
 }
-impl Limud<TehillimUnit> for TehillimMonthly {}
+super::schedule!(TehillimMonthly => TehillimUnit);
 
 #[cfg(test)]
 #[allow(clippy::expect_used, clippy::unwrap_used)]

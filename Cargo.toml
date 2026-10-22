@@ -1,24 +1,27 @@
 [package]
 name = "kosher-rust"
-version = "0.1.0"
+version = "0.3.0"
 edition = "2024"
 rust-version = "1.93.0"
 authors = ["Moshe Dicker <dickermoshe@gmail.com>"]
 license = "LGPL-2.1-or-later"
-description = "Rust port of KosherJava: Jewish holidays, halachic times (zmanim), and daily learning schedules. no_std-friendly."
+description = "Jewish calendar, halachic times (zmanim) and daily learning schedules. A no_std port of KosherJava."
 readme = "README.md"
-repository = "https://github.com/dickermoshe/rust-zmanim-project"
-homepage = "https://github.com/dickermoshe/rust-zmanim-project"
+repository = "https://github.com/dickermoshe/kosher-rust"
+homepage = "https://github.com/dickermoshe/kosher-rust"
 documentation = "https://docs.rs/kosher-rust"
 keywords = ["zmanim", "hebrew-calendar", "jewish", "daf-yomi", "halacha"]
 categories = ["date-and-time", "no-std", "internationalization"]
 exclude = [
     "/interop-tests/",
     "/third-party/",
-    "/tools/",
-    "/crates/",
+    # About 1 MB of conformance data; the tests that read it stay in the repository.
+    "/tests/fixtures/",
+    "/tests/myzmanim_site.rs",
+    "/.vscode/",
+    "/rust-toolchain.toml",
     "/.github/",
-    "/REVIEW.md",
+    "/PLAN.md",
 ]
 
 [package.metadata.docs.rs]
@@ -27,10 +30,10 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 default = ["alloc"]
-# Human-readable zman preset descriptions (uses the allocator).
+# Zman::description, a paragraph explaining each zman to end users.
 alloc = []
-# `defmt::Format` on calculator, config, location, and error types.
-defmt = ["dep:defmt"] # TODO: jiff/defmt integration when available upstream
+# `defmt::Format` on the public types, for embedded logging.
+defmt = ["dep:defmt"]
 
 
 [dependencies]
@@ -57,18 +60,32 @@ jiff = { version = "0.2.0", default-features = false, features = [
     "alloc",
     "tzdb-bundle-always",
 ] }
+# MyZmanim site fixture (tests/fixtures/myzmanim-site.bin): postcard-encoded, deflated.
+serde = { version = "1.0", features = ["derive"] }
+postcard = { version = "1.1", features = ["use-std"] }
+flate2 = "1.1"
+divan = "0.1"
 
 [lints]
 workspace = true
 
 [workspace]
 resolver = "2"
-members = ["interop","interop-tests/java_interop_tests", "interop-tests/js_interop_tests"]
+members = ["interop-tests/java_interop_tests", "interop-tests/js_interop_tests"]
 
 [workspace.lints.rust]
-missing_docs = "warn"
+missing_docs = "deny"
+
+[workspace.lints.rustdoc]
+broken_intra_doc_links = "deny"
 
 [workspace.lints.clippy]
 unwrap_used = "warn"
 expect_used = "warn"
 panic = "warn"
+missing_errors_doc = "warn"
+missing_panics_doc = "warn"
+
+[[bench]]
+name = "kosher"
+harness = false

@@ -1,51 +1,25 @@
-//! Rust port of [KosherJava](https://github.com/KosherJava/zmanim) for Jewish holidays,
-//! halachic times (*zmanim*), and Torah/Talmud learning schedules (e.g. Daf Yomi,
-//! Pirkei Avos). A `no_std` crate (optional `alloc`) for Hebrew calendar extensions,
-//! location-based *zmanim*, and *limudim* calculators.
+#![doc = include_str!("../README.md")]
 //!
-//! # Modules
+//! ## Modules
 //!
-//! | Module | Purpose |
-//! |--------|---------|
-//! | [`calendar`] | Hebrew dates, holidays, *parshiyot*, month constants, and calendar traits |
-//! | [`zmanim`] | Sunrise, candle lighting, *alos*, *tzeis*, and other halachic times |
-//! | [`limudim`] | Daf Yomi, Mishna Yomis, Tehillim, Pirkei Avos, and related daily units |
-//!
-//! Each module has its own [`calendar::prelude`], [`zmanim::prelude`], or
-//! [`limudim::prelude`]. Use [`prelude`] at the crate root when an application
-//! needs more than one area.
-//!
-//!
-//! See each module's documentation for focused examples: [`calendar`] for holidays
-//! and parsha, [`zmanim`] for location-based times, [`limudim`] for learning schedules.
-//!
-//! # Features
-//!
-//! | Feature | Default | Effect |
-//! |---------|---------|--------|
-//! | `alloc` | yes | Zman preset descriptions; without it the crate stays `no_std` and calculation APIs are unchanged |
-//! | `defmt` | no | `defmt::Format` on calculator, config, location, and error types |
-//!
-//! Disable default features in `Cargo.toml` when targeting embedded platforms that
-//! cannot use the allocator:
-//!
+//! | Module | For |
+//! |---|---|
+//! | [`calendar`] | [`HebrewDate`]: holidays, the weekly *parsha*, year and month lengths, the molad |
+//! | [`zmanim`] | [`Zmanim`] and [`Zman`]: halachic times for a [`Location`] |
+//! | [`limudim`] | Daf Yomi and the other learning schedules, through [`limudim::Schedule`] |
+//! | [`myzmanim`] | The times of the MyZmanim website, reproduced to the second |
 #![cfg_attr(not(test), no_std)]
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
+mod astronomy;
 pub mod calendar;
 pub mod limudim;
+mod location;
+pub mod myzmanim;
 pub mod zmanim;
 
-/// Common imports across [`calendar`], [`zmanim`], and [`limudim`].
-///
-/// Re-exports each submodule's prelude. Prefer a submodule prelude when you only
-/// need one area — for example [`zmanim::prelude`] alone avoids pulling limudim
-/// names into scope.
-///
-/// ```
-/// use kosher_rust::prelude::*;
-/// ```
-pub mod prelude {
-    pub use crate::calendar::prelude::*;
-    pub use crate::limudim::prelude::*;
-    pub use crate::zmanim::prelude::*;
-}
+pub use calendar::{HebrewDate, Region};
+pub use location::{Location, LocationError};
+pub use zmanim::{Zman, Zmanim};
