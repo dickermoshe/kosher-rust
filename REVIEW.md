@@ -683,7 +683,9 @@ These were checked and found correct, so they don't need another look.
   don't match each other, but not stored data. Document "store `java_name`, not the number", or
   number the variants append-only.
 
-- [ ] **F9. Python edge cases in WeaveFFI's generated code.** Low. Confirmed.
+- [x] **F9. Python edge cases in WeaveFFI's generated code.** Low. Confirmed.
+
+  **Won't fix.**
 
   An argument outside the `i32` range raises `struct.error` instead of a typed error. A callback
   that returns `2**32 + 3600` is silently truncated to 3600. Both come from the generator, so
@@ -815,8 +817,12 @@ These were checked and found correct, so they don't need another look.
 
 ## 6. CI and tooling
 
-- [ ] **I1. `rust-toolchain.toml` downloads 12 cross-compilation targets for everyone.** Low.
+- [x] **I1. `rust-toolchain.toml` downloads 12 cross-compilation targets for everyone.** Low.
   From reading.
+
+  **Resolved.** The toolchain file keeps the channel and components and no longer lists targets. CI has no
+  release jobs that cross-compile, and the kosherz README says to add a target with `rustup target
+  add` before building for another platform.
 
   [rust-toolchain.toml](rust-toolchain.toml) pins 1.99.1 and lists Android, iOS, Windows, Linux
   and macOS targets. rustup installs all of them on the first build, for every contributor and
@@ -824,8 +830,10 @@ These were checked and found correct, so they don't need another look.
   channel pin, and add targets in the jobs that cross-compile, for example with the setup action's
   `target` input.
 
-- [ ] **I2. CI never lints or documents with all features.** Low. Reproduced locally that both
+- [x] **I2. CI never lints or documents with all features.** Low. Reproduced locally that both
   pass today.
+
+  **Resolved.** CI runs clippy and `cargo doc` a second time with `--all-features`. Both pass locally.
 
   The clippy job ([.github/workflows/tests.yaml:37](.github/workflows/tests.yaml#L37)) runs
   without `--all-features`, and the docs job ([line 47](.github/workflows/tests.yaml#L47)) uses
@@ -833,14 +841,19 @@ These were checked and found correct, so they don't need another look.
   link that only shows up with `defmt` wouldn't fail CI. `cargo hack check --feature-powerset`
   does compile every combination. Add `--all-features` runs of both.
 
-- [ ] **I3. The bindings only run on Linux.** Low. From reading.
+- [x] **I3. The bindings only run on Linux.** Low. From reading.
+
+  **Resolved.** CI has a Swift job on macOS and a .NET job on Windows, and each builds the library on its own
+  runner. Neither could be run locally.
 
   Every job in [.github/workflows/bindings.yaml](.github/workflows/bindings.yaml) runs on
   `ubuntu-latest`. Library loading, paths and calling conventions differ on Windows and macOS,
   which are where the Swift, .NET and Kotlin bindings are most used. Add at least a macOS Swift
   job and a Windows .NET job.
 
-- [ ] **I4. The MyZmanim site test takes about 100 seconds in a debug build.** Low. Reproduced.
+- [x] **I4. The MyZmanim site test takes about 100 seconds in a debug build.** Low. Reproduced.
+
+  **Resolved.** `[profile.test]` sets `opt-level = 2`, and the site test now takes about 27 seconds.
 
   `tests/myzmanim_site.rs` compares 944,603 cells. It is the slowest part of
   `cargo test -p kosher-rust`, which [CONTRIBUTING.md](CONTRIBUTING.md) calls "what you run while
@@ -859,10 +872,14 @@ These were checked and found correct, so they don't need another look.
 
 ## 7. Housekeeping
 
-- [ ] **H1. `PLAN.md` is deleted in the working tree but not in git.** It was readable at the start
+- [x] **H1. `PLAN.md` is deleted in the working tree but not in git.** It was readable at the start
   of the review and showed as deleted (`D PLAN.md`) partway through. None of the reviewers
   touched repo files. If that wasn't on purpose, `git checkout -- PLAN.md` restores it. If it was,
   commit the deletion and remove `/PLAN.md` from `exclude` in `Cargo.toml`.
 
-- [ ] **H2. Remove or exclude this file before publishing.** `REVIEW.md` sits in the crate root and
+  **Resolved.** The deletion is committed and `/PLAN.md` is out of `exclude`.
+
+- [x] **H2. Remove or exclude this file before publishing.** `REVIEW.md` sits in the crate root and
   isn't in `exclude` in `Cargo.toml`, so `cargo package` would ship it.
+
+  **Resolved.** `/REVIEW.md` is in `exclude`, and `cargo package --list` no longer shows it.

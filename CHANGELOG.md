@@ -36,6 +36,9 @@ are unchanged, and they are still checked against KosherJava and hebcal.
   gave wrong leap years, parshiyos and moladot, or a panic in `molad`. The times that need a
   Hebrew date (Kiddush Levana and the chametz times) return `ZmanimError::Internal` outside it,
   and the schedules return `None`.
+- **Pirkei Avos in the week after Pesach.** On the weekdays of Pesach whose week ends in a
+  Shabbos with a reading, `PirkeiAvos` returned nothing. It now gives that Shabbos's chapter, as
+  it does for every other week, and agrees with hebcal.
 - **`PirkeiAvos` past Hebrew year 9999.** It panicked for every date from the summer of 9999
   (Gregorian 6239) on. That summer now has its portions, and from 10000 on there are none.
 - **`PirkeiAvos` on the weekdays of Pesach.** A weekday of Pesach week returned `None`, even when
@@ -72,6 +75,7 @@ are unchanged, and they are still checked against KosherJava and hebcal.
 | `month.he(year)` (`HebrewMonthExt`) | `HebrewMonth::hebrew()` |
 | `Holiday::he()`, `Parsha::he()` | `hebrew()` |
 | `Holiday::is_modern_holiday()` | `SpecialDay::is_modern()` |
+| `Holiday::YomHazikaron`, `YomHaatzmaut`, `MacharHachodesh` | `SpecialDay::YomHaZikaron`, `YomHaAtzmaut`, `MacharChodesh` |
 | `zmanim::molad::MoladCalendar::molad(tz)` | `HebrewDate::molad()` → `Molad`, the molad of the date's month |
 
 `Display` on `SpecialDay` and `Parsha` now prints the English name ("Pesach", "Bereshis"); use
@@ -129,6 +133,7 @@ warning where you name them.
 | `Mishnas(first, second)` | `MishnaPair { first, second }` |
 | `Daf::page`, `Amud::page` | `Daf::daf`, `Amud::daf` |
 | `Amud::amudim_to`, `Amud::at_offset` | removed |
+| `Mishna::chapter` as a `usize` | a `u16`, like `Mishna::mishna` |
 
 `Daf`, `Amud`, `Mishna`, `MishnaPair`, `TehillimUnit`, `PirkeiAvosUnit` and `Tractate` implement
 `Display` ("Bava Metzia 55", "Nazir 5:5-6", "Tehillim 119:1-96"); `Tractate::hebrew()` gives the
@@ -151,12 +156,18 @@ Hebrew name.
 - **Time zones belong to the *zmanim*.** `Location` no longer holds a time zone. Pass it to
   `Zmanim::new`, `Zmanim::with_config` or `MyZmanim::new`, or pass `None`. The README lists the
   times that need one.
-- **`get_zoned`.** `Zmanim` and `MyZmanim` give a time in their time zone, ready to show to
-  someone.
+- **`get_zoned`.** `Zmanim` and `MyZmanim` give a time as a `Zoned` in their time zone, with
+  any time zone.
 - **Custom time zones.** `Zmanim::with_custom_timezone` and `MyZmanim::with_custom_timezone` take
-  any `TimeZoneLike`. A `TimeZoneLike` gives the UTC offset at an instant and the instant of a
-  local date and time, resolved the way Java's `ZonedDateTime.of` resolves it.
-  `jiff::tz::TimeZone` implements it.
+  any `TimeZoneLike`. `jiff::tz::TimeZone` implements it. To implement it yourself, you give the
+  UTC offset at an instant.
+- **Lists and names.** `SpecialDay`, `Parsha`, `Tractate` and `HebrewMonth` have `ALL` and
+  `name()`, as `Zman` and `MyZman` do. `Zman`, `MyZman`, `Parsha`, `Tractate` and `HebrewMonth`
+  also have `from_name`, which returns the variant with that name or `None`.
+- **The molad as it is announced.** `Molad` has `weekday()`, `hours()`, `minutes()` and
+  `chalakim()`, in Jerusalem mean time.
+- **Sorting.** `Mishna` and `MishnaPair` sort in the order of the Mishnah, as `Daf` and `Amud`
+  do. `Zmanim` implements `PartialEq`.
 - **Room to grow.** `Zman`, `MyZman`, `Category`, `SpecialDay` and `AstronomicalCalculator` are
   `#[non_exhaustive]`, so later releases can add to them without breaking your code. A `match` on
   one needs a `_` arm. The error types stay exhaustive.

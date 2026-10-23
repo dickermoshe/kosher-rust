@@ -115,8 +115,19 @@ println!("{}", MishnaYomis.on(day).unwrap());    // Nazir 5:5-6
 
 ## MyZmanim
 
-`kosher_rust::myzmanim` reproduces the times on [MyZmanim](https://www.myzmanim.com/) to the
-second. Use it when your users compare against that site.
+`kosher_rust::myzmanim` calculates zmanim the way [MyZmanim](https://www.myzmanim.com/) does.
+Use it when your users compare your times with that site.
+
+To match the site, you need the same inputs MyZmanim uses for the location. These are its
+latitude and longitude, the observer's elevation, and the elevations of the eastern and western
+horizons. MyZmanim doesn't publish these values, but you can usually get them from its API, app or
+website. With them, 92% of times match the site to within one second and 99.8% to within two.
+
+Keep in mind when doing a comparison, MyZmanim.com does not calculate times for the exact point you search for.
+It groups places into areas, finds the area your point is in, and shows the times for that area. 
+For example, two points on opposite ends of Lakewood have slightly different sunrises, but the website
+shows the same sunrise for both, to the second. If you use the coordinates you searched with, your times will
+differ slightly from the site. Use MyZmanim's coordinates for the area instead.
 
 ```rust
 use std::time::Duration;

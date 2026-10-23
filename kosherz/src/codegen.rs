@@ -213,7 +213,9 @@ fn generated_regions_are_current() {
 #[test]
 fn packages_have_the_license() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let license = fs::read_to_string(root.join("../LICENSE")).unwrap().replace("\r\n", "\n");
+    let license = fs::read_to_string(root.join("../LICENSE"))
+        .unwrap()
+        .replace("\r\n", "\n");
     for package in fs::read_dir(root.join("generated")).unwrap() {
         let package = package.unwrap();
         if !package.file_type().unwrap().is_dir() || package.file_name().to_string_lossy().starts_with('.') {

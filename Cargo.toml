@@ -24,7 +24,6 @@ exclude = [
     "/.vscode/",
     "/rust-toolchain.toml",
     "/.github/",
-    "/PLAN.md",
 ]
 
 [package.metadata.docs.rs]
@@ -71,6 +70,10 @@ divan = "0.1"
 
 [lints]
 workspace = true
+
+# Optimised test builds. The MyZmanim site test compares close to a million values.
+[profile.test]
+opt-level = 2
 
 [workspace]
 resolver = "2"

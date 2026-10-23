@@ -159,6 +159,25 @@ jobs:
           KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug/libkosherz.so
         run: dotnet run
 
+  dotnet-windows:
+    name: .NET (Windows)
+    needs: generate
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
+      - name: Build the native library
+        run: cargo build -p kosherz
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: .NET smoke test
+        working-directory: kosherz/tests/dotnet
+        env:
+          KOSHERZ_LIBRARY: ${{ github.workspace }}/target/debug/kosherz.dll
+        run: dotnet run
+
   kotlin:
     name: Kotlin (JVM)
     needs: generate
@@ -200,6 +219,23 @@ jobs:
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/target/debug
         run: swift run -Xlinker -L${{ github.workspace }}/target/debug
+
+  swift-macos:
+    name: Swift (macOS)
+    needs: generate
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
+      - name: Build the native library
+        run: cargo build -p kosherz
+      # The dylib's install name is `@rpath/libkosherz.dylib`, so the executable needs an rpath.
+      - name: Swift smoke test
+        working-directory: kosherz/tests/swift/KosherzSmoke
+        run: |
+          lib=${{ github.workspace }}/target/debug
+          swift run -Xlinker -L"$lib" -Xlinker -rpath -Xlinker "$lib"
 
   dart:
     name: Dart
