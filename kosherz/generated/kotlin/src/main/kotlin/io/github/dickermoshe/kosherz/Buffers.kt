@@ -2,7 +2,7 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-package kosherz
+package io.github.dickermoshe.kosherz
 
 /**
  * Growable little-endian writer for the value-buffer wire format that

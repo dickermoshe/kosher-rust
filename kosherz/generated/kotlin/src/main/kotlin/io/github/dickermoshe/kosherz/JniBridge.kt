@@ -2,7 +2,7 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-package kosherz
+package io.github.dickermoshe.kosherz
 
 /**
  * The JNI entry points of `libkosherz_jni`: one native per C symbol, named after

@@ -14,9 +14,9 @@
 //! - The sun's position is Jean Meeus's VSOP87 algorithm with ΔT, but with nutation off and
 //!   the Earth's monthly motion around the Earth–Moon barycenter left out.
 //! - Refraction at the horizon is [`SEA_LEVEL_REFRACTION_ARCMINUTES`] (not 34′), scaled by
-//!   the air pressure at the height of the horizon the sun is seen over: the observer's own
-//!   height for the "level region" times, the eastern or western horizon's height for the
-//!   "elevated" times.
+//!   the air pressure at the height of the horizon the sun is seen over. That is the observer's
+//!   own height for the "level region" times, and the eastern or western horizon's height for
+//!   the "elevated" times.
 //! - The dip of the horizon for a raised observer is [`DIP_DEGREES_PER_ROOT_METER`]·√h
 //!   (*Ma'aglay Tzedek*), not the geometric `acos(R / (R + h))`.
 //! - "90 minutes as degrees" is [`DAWN_90_DEGREES`] (19.75°, not 19.8°); the Gra's nightfalls

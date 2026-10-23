@@ -2,7 +2,7 @@ use core::fmt;
 
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
-/// A Torah reading for Shabbos: one of the 54 weekly *parshiyos*, a pair read together in a
+/// A Torah reading for Shabbos. It is one of the 54 weekly *parshiyos*, a pair read together in a
 /// common year, or a special Shabbos.
 ///
 /// Get one from [`HebrewDate::parsha`](super::HebrewDate::parsha),

@@ -1,5 +1,5 @@
-//! Learning schedules (*limudim*): what Daf Yomi, Mishna Yomis, Tehillim and the others assign
-//! on a given day.
+//! Learning schedules (*limudim*). They give what Daf Yomi, Mishna Yomis, Tehillim and the
+//! others assign on a given day.
 //!
 //! Every schedule implements [`Schedule`]. Call [`on`](Schedule::on) with a date to get that
 //! day's portion, or `None` when nothing is scheduled, such as before the program began.
@@ -48,11 +48,11 @@ pub use units::{Amud, Daf, Mishna, Side, Tractate};
 
 use crate::calendar::HebrewDate;
 
-/// A learning program: maps a date to that day's portion.
+/// A learning program. It maps a date to that day's portion.
 ///
 /// Implemented by the schedules in this module, and only by them.
 pub trait Schedule: sealed::Sealed {
-    /// What one day's portion is: a [`Daf`], an [`Amud`], a [`MishnaPair`], and so on.
+    /// What one day's portion is, such as a [`Daf`], an [`Amud`] or a [`MishnaPair`].
     type Unit;
 
     /// The portion scheduled for `date`, which may be a [`jiff::civil::Date`], an ICU date or a

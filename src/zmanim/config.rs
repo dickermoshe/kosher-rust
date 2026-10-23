@@ -60,8 +60,8 @@ impl AstronomicalCalculator {
     }
 }
 
-/// How [`Zmanim`](super::Zmanim) calculates: the solar algorithm, elevation, *chatzos*, and the
-/// offsets some zmanim use. [`Config::default`] matches KosherJava's defaults.
+/// How [`Zmanim`](super::Zmanim) calculates. It sets the solar algorithm, elevation, *chatzos*,
+/// and the offsets some zmanim use. [`Config::default`] matches KosherJava's defaults.
 ///
 /// ```
 /// use core::time::Duration;
@@ -75,24 +75,24 @@ impl AstronomicalCalculator {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Config {
     /// How long before sea-level sunset [`Zman::CandleLighting`](super::Zman::CandleLighting)
-    /// is. Default: 18 minutes.
+    /// is. The default is 18 minutes.
     pub candle_lighting_offset: Duration,
-    /// Whether proportional zmanim divide the day at astronomical *chatzos*: morning times as a
-    /// fraction of sunrise to *chatzos*, afternoon times of *chatzos* to sunset, instead of a
-    /// fraction of sunrise to sunset. Only affects zmanim whose day is symmetric around
-    /// *chatzos*. Default: `false`.
+    /// Whether proportional zmanim divide the day at astronomical *chatzos*. When `true`, morning
+    /// times are a fraction of sunrise to *chatzos* and afternoon times a fraction of *chatzos* to
+    /// sunset, instead of a fraction of sunrise to sunset. It only affects zmanim whose day is
+    /// symmetric around *chatzos*. The default is `false`.
     pub use_astronomical_chatzos_for_other_zmanim: bool,
     /// Whether the observer's elevation adjusts sunrise and sunset in every zman built on them.
     /// When `false`, only [`Zman::Sunrise`](super::Zman::Sunrise) and
-    /// [`Zman::Sunset`](super::Zman::Sunset) use it, as in KosherJava. Default: `false`.
+    /// [`Zman::Sunset`](super::Zman::Sunset) use it. The default is `false`.
     pub use_elevation: bool,
     /// How long after sunset [`Zman::TzaisAteretTorah`](super::Zman::TzaisAteretTorah) is,
-    /// which also ends the day for the other Ateret Torah zmanim. Default: 40 minutes.
+    /// which also ends the day for the other Ateret Torah zmanim. The default is 40 minutes.
     pub ateret_torah_sunset_offset: SignedDuration,
     /// Whether *chatzos* is the sun's transit (`true`) or the midpoint of sunrise and sunset
-    /// (`false`). Default: `true`.
+    /// (`false`). The default is `true`.
     pub use_astronomical_chatzos: bool,
-    /// The solar position algorithm. Default: [`AstronomicalCalculator::Noaa`].
+    /// The solar position algorithm. The default is [`AstronomicalCalculator::Noaa`].
     pub astronomical_calculator: AstronomicalCalculator,
 }
 

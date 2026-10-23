@@ -83,7 +83,7 @@ const fn end_daf(tractate: Tractate) -> Option<u16> {
     if daf == 0 { None } else { Some(daf) }
 }
 
-/// Daf HaShavua: one page of the Bavli a week, Sunday to Shabbos, from 6 March 2005.
+/// Daf HaShavua, one page of the Bavli a week, Sunday to Shabbos, from 6 March 2005.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct DafHashavuaBavli;
 

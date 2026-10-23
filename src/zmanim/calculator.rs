@@ -155,9 +155,9 @@ impl<Tz: TimeZoneLike> Zmanim<Tz> {
     }
 }
 
-/// A *shaah zmanis*: a twelfth of the day from `start` to `end`.
+/// A *shaah zmanis*, a twelfth of the day from `start` to `end`.
 ///
-/// Combine it with any two times to build a proportional *zman*: the latest time for Shema by a
+/// Combine it with any two times to build a proportional *zman*. The latest time for Shema by a
 /// day from dawn to nightfall is `start + shaah_zmanis(start, end) * 3`.
 pub fn shaah_zmanis(start: Timestamp, end: Timestamp) -> SignedDuration {
     end.duration_since(start) / 12

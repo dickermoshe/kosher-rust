@@ -6,7 +6,7 @@ use alloc::{format, string::String};
 #[cfg(feature = "alloc")]
 use super::Config;
 
-/// What kind of time a [`Zman`] is: dawn, sunrise, the latest time for Shema, and so on.
+/// What kind of time a [`Zman`] is, such as dawn, sunrise or the latest time for Shema.
 ///
 /// Use it to group or filter [`Zman::ALL`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -177,8 +177,9 @@ impl Zman {
         Zman::ALL.into_iter().find(|zman| zman.java_name() == name)
     }
 
-    /// A paragraph or two explaining this time to your users: what it is, its source, and where
-    /// it may be unavailable, with the offsets and options from `config` filled in.
+    /// A paragraph or two explaining this time to your users. It says what the time is, its
+    /// source, and where it may be unavailable, with the offsets and options from `config` filled
+    /// in.
     ///
     /// Needs the `alloc` feature.
     #[cfg(feature = "alloc")]

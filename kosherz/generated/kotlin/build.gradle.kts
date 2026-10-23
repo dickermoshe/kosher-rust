@@ -8,7 +8,7 @@ plugins {
     `maven-publish`
 }
 
-group = "kosherz"
+group = "io.github.dickermoshe.kosherz"
 version = "0.3.0"
 
 // A packaged build ships a prebuilt libkosherz_jni.so next to the producer
@@ -16,7 +16,7 @@ version = "0.3.0"
 val prebuiltJni = fileTree("src/main/jniLibs") { include("**/libkosherz_jni.so") }.files.isNotEmpty()
 
 android {
-    namespace = "kosherz"
+    namespace = "io.github.dickermoshe.kosherz"
     compileSdk = 35
     defaultConfig {
         minSdk = 21

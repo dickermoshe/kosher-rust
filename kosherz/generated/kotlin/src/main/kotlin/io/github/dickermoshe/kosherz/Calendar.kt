@@ -2,7 +2,7 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-package kosherz
+package io.github.dickermoshe.kosherz
 
 /** Errors of the `CalendarError` domain. */
 sealed class CalendarException(code: Int, message: String) : FfiException(code, message) {

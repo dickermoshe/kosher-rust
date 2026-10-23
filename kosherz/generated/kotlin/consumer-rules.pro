@@ -3,6 +3,6 @@
 # To regenerate: weaveffi generate
 
 # The JNI shim looks classes and methods up by name.
--keep class kosherz.** { *; }
+-keep class io.github.dickermoshe.kosherz.** { *; }
 
 # END consumer-rules.pro

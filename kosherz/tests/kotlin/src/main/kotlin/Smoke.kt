@@ -7,14 +7,14 @@
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
-import kosherz.Calendar
-import kosherz.GregorianDate
-import kosherz.HebrewDate
-import kosherz.LocalDay
-import kosherz.Times
-import kosherz.Zman
-import kosherz.Zmanim
-import kosherz.ZmanimException
+import io.github.dickermoshe.kosherz.Calendar
+import io.github.dickermoshe.kosherz.GregorianDate
+import io.github.dickermoshe.kosherz.HebrewDate
+import io.github.dickermoshe.kosherz.LocalDay
+import io.github.dickermoshe.kosherz.Times
+import io.github.dickermoshe.kosherz.Zman
+import io.github.dickermoshe.kosherz.Zmanim
+import io.github.dickermoshe.kosherz.ZmanimException
 import kotlin.system.exitProcess
 
 /** [date] in [zone]: its two local midnights and the offsets at them. */

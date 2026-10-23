@@ -100,7 +100,7 @@ pub enum SpecialDay {
     ShushanPurim,
     /// Purim Katan, 14 Adar I in a leap year.
     PurimKatan,
-    /// Rosh Chodesh: the 1st of every month but Tishrei, and the 30th of a 30-day month.
+    /// Rosh Chodesh, the 1st of every month but Tishrei, and the 30th of a 30-day month.
     RoshChodesh,
     /// Yom HaShoah, around 27 Nisan. Modern.
     YomHaShoah,
@@ -517,7 +517,7 @@ impl SpecialDay {
         SpecialDay::ShabbosMevarchim,
     ];
 
-    /// Whether work is forbidden: the days of Yom Tov, Rosh Hashana and Yom Kippur.
+    /// Whether work is forbidden. It is on the days of Yom Tov, Rosh Hashana and Yom Kippur.
     pub const fn is_assur_bemelacha(self) -> bool {
         matches!(
             self,
@@ -541,8 +541,8 @@ impl SpecialDay {
         )
     }
 
-    /// Whether this is a public fast day. The Fast of the Firstborn is not: it binds only
-    /// firstborn sons.
+    /// Whether this is a public fast day. The Fast of the Firstborn is not one, because it binds
+    /// only firstborn sons.
     pub const fn is_fast_day(self) -> bool {
         matches!(
             self,

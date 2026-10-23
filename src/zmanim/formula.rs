@@ -89,15 +89,15 @@ pub(crate) enum Formula {
     /// The earliest time of _Kiddush Levana_ according to the opinions that it should
     /// not be said until 7 days after the molad.
     TchilasZmanKidushLevana7Days,
-    /// Bain hashmashos (Rabbeinu Tam, 2-stars): `sunset + (sunrise - alos19.8°) * 5/18`.
+    /// Bain hashmashos (Rabbeinu Tam, 2-stars) is `sunset + (sunrise - alos19.8°) * 5/18`.
     BainHashmashosRt2Stars,
-    /// Mincha gedola (Ahavat Shalom): later of `chatzos + 30m` and `chatzos + 1/2 shaah`.
+    /// Mincha gedola (Ahavat Shalom) is the later of `chatzos + 30m` and `chatzos + 1/2 shaah`.
     MinchaGedolaAhavatShalom,
     /// Mincha gedola GRA, but no earlier than 30 minutes after chatzos.
     MinchaGedolaGraGreaterThan30,
-    /// Mincha ketana (Ahavat Shalom): `2.5` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
+    /// Mincha ketana (Ahavat Shalom) is `2.5` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
     MinchaKetanaAhavatShalom,
-    /// Plag hamincha (Ahavat Shalom): `1.25` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
+    /// Plag hamincha (Ahavat Shalom) is `1.25` shaos zmaniyos before tzais `3.8°` (day = alos16.1° → tzais3.8°).
     PlagAhavatShalom,
     /// The beginning of civil twilight (dawn), when the sun is 6° below the geometric horizon (96° zenith).
     BeginCivilTwilight,
@@ -111,13 +111,13 @@ pub(crate) enum Formula {
     BeginAstronomicalTwilight,
     /// The end of astronomical twilight, when the sun is 18° below the geometric horizon (108° zenith).
     EndAstronomicalTwilight,
-    /// Polar sunset (Ben Ish Chai): due west azimuth on polar no-sunset days only.
+    /// Polar sunset (Ben Ish Chai) is due west azimuth on polar no-sunset days only.
     PolarSunsetBenIshChai,
-    /// Polar sunrise (Ben Ish Chai): due east azimuth on polar no-sunrise days only.
+    /// Polar sunrise (Ben Ish Chai) is due east azimuth on polar no-sunrise days only.
     PolarSunriseBenIshChai,
 }
 
-/// Whether `time` falls on `date` in `timezone`: from the local midnight starting `date` through
+/// Whether `time` falls on `date` in `timezone`, from the local midnight starting `date` through
 /// the local midnight ending it. This is the check KosherJava's `getMoladBasedTime` makes.
 fn is_on_date(time: Timestamp, date: jiff::civil::Date, timezone: &impl TimeZoneLike) -> Result<bool, ZmanimError> {
     let midnight = |date: jiff::civil::Date| {

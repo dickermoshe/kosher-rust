@@ -156,7 +156,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
     if (kosherz_abi_version() != 4u) {
         return Jni_load_error(env, "kosherz: the native library implements a different C ABI revision than these bindings (expected 4)");
     }
-    jclass bridge = (*env)->FindClass(env, "kosherz/JniBridge");
+    jclass bridge = (*env)->FindClass(env, "io/github/dickermoshe/kosherz/JniBridge");
     if (bridge == NULL) {
         return JNI_ERR;
     }
@@ -171,7 +171,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
     return JNI_VERSION_1_6;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_debug_1live(JNIEnv* env, jclass cls, jint kind) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_debug_1live(JNIEnv* env, jclass cls, jint kind) {
     (void)env;
     (void)cls;
     return (jlong)kosherz_debug_live((int32_t)kind);
@@ -302,19 +302,19 @@ static jint Jni_load(JNIEnv* env) {
     return JNI_OK;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1clone(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1clone(JNIEnv* env, jclass cls, jlong self) {
     (void)env;
     (void)cls;
     return (jlong)(intptr_t)kosherz_calendar_HebrewDate_clone((const kosherz_calendar_HebrewDate*)(intptr_t)self);
 }
 
-JNIEXPORT void JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1destroy(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT void JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1destroy(JNIEnv* env, jclass cls, jlong self) {
     (void)env;
     (void)cls;
     kosherz_calendar_HebrewDate_destroy((kosherz_calendar_HebrewDate*)(intptr_t)self);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1year_1info(JNIEnv* env, jclass cls, jint p_year) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1year_1info(JNIEnv* env, jclass cls, jint p_year) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -326,7 +326,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1year_1info(JNIEnv*
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1days_1in_1month(JNIEnv* env, jclass cls, jint p_year, jint p_month) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1days_1in_1month(JNIEnv* env, jclass cls, jint p_year, jint p_month) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -338,7 +338,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1days_1in_1month(JN
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_calendar_1rosh_1hashana(JNIEnv* env, jclass cls, jint p_year) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1rosh_1hashana(JNIEnv* env, jclass cls, jint p_year) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     kosherz_calendar_HebrewDate* rv = kosherz_calendar_rosh_hashana((int32_t)p_year, &err);
@@ -349,7 +349,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_calendar_1rosh_1hashana(JNIEnv* e
     return (jlong)(intptr_t)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1name(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1special_1day_1name(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_special_day_b = Jni_borrow_bytes(env, p_special_day);
@@ -363,7 +363,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1name
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1hebrew(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1special_1day_1hebrew(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_special_day_b = Jni_borrow_bytes(env, p_special_day);
@@ -377,7 +377,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1hebr
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1is_1assur_1bemelacha(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
+JNIEXPORT jboolean JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1special_1day_1is_1assur_1bemelacha(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_special_day_b = Jni_borrow_bytes(env, p_special_day);
@@ -390,7 +390,7 @@ JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1is_1as
     return rv ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1is_1modern(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
+JNIEXPORT jboolean JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1special_1day_1is_1modern(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_special_day_b = Jni_borrow_bytes(env, p_special_day);
@@ -403,7 +403,7 @@ JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1is_1mo
     return rv ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1is_1fast_1day(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
+JNIEXPORT jboolean JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1special_1day_1is_1fast_1day(JNIEnv* env, jclass cls, jbyteArray p_special_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_special_day_b = Jni_borrow_bytes(env, p_special_day);
@@ -416,7 +416,7 @@ JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1special_1day_1is_1fa
     return rv ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1parsha_1name(JNIEnv* env, jclass cls, jint p_parsha) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1parsha_1name(JNIEnv* env, jclass cls, jint p_parsha) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -428,7 +428,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1parsha_1name(JNIEn
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1parsha_1hebrew(JNIEnv* env, jclass cls, jint p_parsha) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1parsha_1hebrew(JNIEnv* env, jclass cls, jint p_parsha) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -440,7 +440,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1parsha_1hebrew(JNI
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1month_1name(JNIEnv* env, jclass cls, jint p_month) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1month_1name(JNIEnv* env, jclass cls, jint p_month) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -452,7 +452,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1month_1name(JNIEnv
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1month_1hebrew(JNIEnv* env, jclass cls, jint p_month) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1month_1hebrew(JNIEnv* env, jclass cls, jint p_month) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -464,7 +464,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1month_1hebrew(JNIE
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1new(JNIEnv* env, jclass cls, jint p_year, jint p_month, jint p_day) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1new(JNIEnv* env, jclass cls, jint p_year, jint p_month, jint p_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     kosherz_calendar_HebrewDate* rv = kosherz_calendar_HebrewDate_new((int32_t)p_year, (kosherz_calendar_HebrewMonth)p_month, (int32_t)p_day, &err);
@@ -475,7 +475,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1new(JNIEnv*
     return (jlong)(intptr_t)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1from_1gregorian(JNIEnv* env, jclass cls, jbyteArray p_date) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1from_1gregorian(JNIEnv* env, jclass cls, jbyteArray p_date) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_date_b = Jni_borrow_bytes(env, p_date);
@@ -488,7 +488,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1from_1grego
     return (jlong)(intptr_t)rv;
 }
 
-JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1year(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jint JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1year(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     int32_t rv = kosherz_calendar_HebrewDate_year((const kosherz_calendar_HebrewDate*)(intptr_t)self, &err);
@@ -499,7 +499,7 @@ JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1year(JNIEnv*
     return (jint)rv;
 }
 
-JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1month(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jint JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1month(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     kosherz_calendar_HebrewMonth rv = kosherz_calendar_HebrewDate_month((const kosherz_calendar_HebrewDate*)(intptr_t)self, &err);
@@ -510,7 +510,7 @@ JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1month(JNIEnv
     return (jint)rv;
 }
 
-JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1day(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jint JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1day(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     int32_t rv = kosherz_calendar_HebrewDate_day((const kosherz_calendar_HebrewDate*)(intptr_t)self, &err);
@@ -521,7 +521,7 @@ JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1day(JNIEnv* 
     return (jint)rv;
 }
 
-JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1day_1of_1year(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jint JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1day_1of_1year(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     int32_t rv = kosherz_calendar_HebrewDate_day_of_year((const kosherz_calendar_HebrewDate*)(intptr_t)self, &err);
@@ -532,7 +532,7 @@ JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1day_1of_1yea
     return (jint)rv;
 }
 
-JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1weekday(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jint JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1weekday(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     kosherz_calendar_Weekday rv = kosherz_calendar_HebrewDate_weekday((const kosherz_calendar_HebrewDate*)(intptr_t)self, &err);
@@ -543,7 +543,7 @@ JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1weekday(JNIE
     return (jint)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1to_1gregorian(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1to_1gregorian(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -555,7 +555,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1to_1gr
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1add_1days(JNIEnv* env, jclass cls, jlong self, jint p_days) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1add_1days(JNIEnv* env, jclass cls, jlong self, jint p_days) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     kosherz_calendar_HebrewDate* rv = kosherz_calendar_HebrewDate_add_days((const kosherz_calendar_HebrewDate*)(intptr_t)self, (int32_t)p_days, &err);
@@ -566,7 +566,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1add_1days(J
     return (jlong)(intptr_t)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1special_1days(JNIEnv* env, jclass cls, jlong self, jint p_region) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1special_1days(JNIEnv* env, jclass cls, jlong self, jint p_region) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -578,7 +578,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1specia
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1is_1assur_1bemelacha(JNIEnv* env, jclass cls, jlong self, jint p_region) {
+JNIEXPORT jboolean JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1is_1assur_1bemelacha(JNIEnv* env, jclass cls, jlong self, jint p_region) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     bool rv = kosherz_calendar_HebrewDate_is_assur_bemelacha((const kosherz_calendar_HebrewDate*)(intptr_t)self, (kosherz_calendar_Region)p_region, &err);
@@ -589,7 +589,7 @@ JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1is_1assu
     return rv ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1has_1candle_1lighting(JNIEnv* env, jclass cls, jlong self, jint p_region) {
+JNIEXPORT jboolean JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1has_1candle_1lighting(JNIEnv* env, jclass cls, jlong self, jint p_region) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     bool rv = kosherz_calendar_HebrewDate_has_candle_lighting((const kosherz_calendar_HebrewDate*)(intptr_t)self, (kosherz_calendar_Region)p_region, &err);
@@ -600,7 +600,7 @@ JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1has_1can
     return rv ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1is_1aseres_1yemei_1teshuva(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jboolean JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1is_1aseres_1yemei_1teshuva(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     bool rv = kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva((const kosherz_calendar_HebrewDate*)(intptr_t)self, &err);
@@ -611,7 +611,7 @@ JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1is_1aser
     return rv ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1parsha(JNIEnv* env, jclass cls, jlong self, jint p_region) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1parsha(JNIEnv* env, jclass cls, jlong self, jint p_region) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -623,7 +623,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1parsha
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1special_1parsha(JNIEnv* env, jclass cls, jlong self, jint p_region) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1special_1parsha(JNIEnv* env, jclass cls, jlong self, jint p_region) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -635,7 +635,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1specia
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1next_1parsha(JNIEnv* env, jclass cls, jlong self, jint p_region) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1next_1parsha(JNIEnv* env, jclass cls, jlong self, jint p_region) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -647,7 +647,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1next_1
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1molad(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1molad(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -659,7 +659,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1molad(
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1display(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1display(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -671,7 +671,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1displa
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1equals(JNIEnv* env, jclass cls, jlong self, jlong p_other) {
+JNIEXPORT jboolean JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1equals(JNIEnv* env, jclass cls, jlong self, jlong p_other) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     bool rv = kosherz_calendar_HebrewDate_equals((const kosherz_calendar_HebrewDate*)(intptr_t)self, (const kosherz_calendar_HebrewDate*)(intptr_t)p_other, &err);
@@ -682,7 +682,7 @@ JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1equals(J
     return rv ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1compare(JNIEnv* env, jclass cls, jlong self, jlong p_other) {
+JNIEXPORT jint JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1HebrewDate_1compare(JNIEnv* env, jclass cls, jlong self, jlong p_other) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     int32_t rv = kosherz_calendar_HebrewDate_compare((const kosherz_calendar_HebrewDate*)(intptr_t)self, (const kosherz_calendar_HebrewDate*)(intptr_t)p_other, &err);
@@ -693,7 +693,7 @@ JNIEXPORT jint JNICALL Java_kosherz_JniBridge_calendar_1HebrewDate_1compare(JNIE
     return (jint)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1tractate_1name(JNIEnv* env, jclass cls, jint p_tractate) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1limudim_1tractate_1name(JNIEnv* env, jclass cls, jint p_tractate) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -705,7 +705,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1tractate_
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1tractate_1hebrew(JNIEnv* env, jclass cls, jint p_tractate) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1limudim_1tractate_1hebrew(JNIEnv* env, jclass cls, jint p_tractate) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -717,7 +717,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1tractate_
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1tehillim_1display(JNIEnv* env, jclass cls, jbyteArray p_unit) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1limudim_1tehillim_1display(JNIEnv* env, jclass cls, jbyteArray p_unit) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_unit_b = Jni_borrow_bytes(env, p_unit);
@@ -731,7 +731,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1tehillim_
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1pirkei_1avos_1display(JNIEnv* env, jclass cls, jbyteArray p_unit) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1limudim_1pirkei_1avos_1display(JNIEnv* env, jclass cls, jbyteArray p_unit) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_unit_b = Jni_borrow_bytes(env, p_unit);
@@ -745,7 +745,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1pirkei_1a
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1daf_1yomi_1bavli(JNIEnv* env, jclass cls, jlong p_date) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1limudim_1daf_1yomi_1bavli(JNIEnv* env, jclass cls, jlong p_date) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -757,7 +757,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1daf_1yomi
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1daf_1hashavua_1bavli(JNIEnv* env, jclass cls, jlong p_date) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1limudim_1daf_1hashavua_1bavli(JNIEnv* env, jclass cls, jlong p_date) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -769,7 +769,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1daf_1hash
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1daf_1yomi_1yerushalmi(JNIEnv* env, jclass cls, jlong p_date) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1limudim_1daf_1yomi_1yerushalmi(JNIEnv* env, jclass cls, jlong p_date) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -781,7 +781,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1daf_1yomi
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1amud_1yomi_1dirshu(JNIEnv* env, jclass cls, jlong p_date) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1limudim_1amud_1yomi_1dirshu(JNIEnv* env, jclass cls, jlong p_date) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -793,7 +793,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1amud_1yom
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1mishna_1yomis(JNIEnv* env, jclass cls, jlong p_date) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1limudim_1mishna_1yomis(JNIEnv* env, jclass cls, jlong p_date) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -805,7 +805,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1mishna_1y
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1tehillim_1monthly(JNIEnv* env, jclass cls, jlong p_date) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1limudim_1tehillim_1monthly(JNIEnv* env, jclass cls, jlong p_date) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -817,7 +817,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1tehillim_
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1pirkei_1avos(JNIEnv* env, jclass cls, jlong p_date, jint p_region) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_calendar_1limudim_1pirkei_1avos(JNIEnv* env, jclass cls, jlong p_date, jint p_region) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -829,19 +829,19 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_calendar_1limudim_1pirkei_1a
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1clone(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1Zmanim_1clone(JNIEnv* env, jclass cls, jlong self) {
     (void)env;
     (void)cls;
     return (jlong)(intptr_t)kosherz_times_Zmanim_clone((const kosherz_times_Zmanim*)(intptr_t)self);
 }
 
-JNIEXPORT void JNICALL Java_kosherz_JniBridge_times_1Zmanim_1destroy(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT void JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1Zmanim_1destroy(JNIEnv* env, jclass cls, jlong self) {
     (void)env;
     (void)cls;
     kosherz_times_Zmanim_destroy((kosherz_times_Zmanim*)(intptr_t)self);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1sea_1level_1location(JNIEnv* env, jclass cls, jdouble p_latitude, jdouble p_longitude) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1sea_1level_1location(JNIEnv* env, jclass cls, jdouble p_latitude, jdouble p_longitude) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -853,7 +853,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1sea_1level_1location(
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT void JNICALL Java_kosherz_JniBridge_times_1validate_1location(JNIEnv* env, jclass cls, jbyteArray p_location, jboolean p_has_time_zone) {
+JNIEXPORT void JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1validate_1location(JNIEnv* env, jclass cls, jbyteArray p_location, jboolean p_has_time_zone) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_location_b = Jni_borrow_bytes(env, p_location);
@@ -865,7 +865,7 @@ JNIEXPORT void JNICALL Java_kosherz_JniBridge_times_1validate_1location(JNIEnv* 
     }
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1default_1config(JNIEnv* env, jclass cls) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1default_1config(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -877,7 +877,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1default_1config(JNIEn
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1all_1zmanim(JNIEnv* env, jclass cls) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1all_1zmanim(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -889,7 +889,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1all_1zmanim(JNIEnv* e
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1name(JNIEnv* env, jclass cls, jint p_zman) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1zman_1name(JNIEnv* env, jclass cls, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -901,7 +901,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1name(JNIEnv* en
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1java_1name(JNIEnv* env, jclass cls, jint p_zman) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1zman_1java_1name(JNIEnv* env, jclass cls, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -913,7 +913,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1java_1name(JNIE
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jint JNICALL Java_kosherz_JniBridge_times_1zman_1category(JNIEnv* env, jclass cls, jint p_zman) {
+JNIEXPORT jint JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1zman_1category(JNIEnv* env, jclass cls, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     kosherz_times_Category rv = kosherz_times_zman_category((kosherz_times_Zman)p_zman, &err);
@@ -924,7 +924,7 @@ JNIEXPORT jint JNICALL Java_kosherz_JniBridge_times_1zman_1category(JNIEnv* env,
     return (jint)rv;
 }
 
-JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_times_1zman_1is_1deprecated(JNIEnv* env, jclass cls, jint p_zman) {
+JNIEXPORT jboolean JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1zman_1is_1deprecated(JNIEnv* env, jclass cls, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     bool rv = kosherz_times_zman_is_deprecated((kosherz_times_Zman)p_zman, &err);
@@ -935,7 +935,7 @@ JNIEXPORT jboolean JNICALL Java_kosherz_JniBridge_times_1zman_1is_1deprecated(JN
     return rv ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1description(JNIEnv* env, jclass cls, jint p_zman, jbyteArray p_config) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1zman_1description(JNIEnv* env, jclass cls, jint p_zman, jbyteArray p_config) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_config_b = Jni_borrow_bytes(env, p_config);
@@ -949,7 +949,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1zman_1description(JNI
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1calculator_1name(JNIEnv* env, jclass cls, jint p_calculator) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1calculator_1name(JNIEnv* env, jclass cls, jint p_calculator) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -961,7 +961,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1calculator_1name(JNIE
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1shaah_1zmanis(JNIEnv* env, jclass cls, jlong p_start, jlong p_end) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1shaah_1zmanis(JNIEnv* env, jclass cls, jlong p_start, jlong p_end) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     int64_t rv = kosherz_times_shaah_zmanis((int64_t)p_start, (int64_t)p_end, &err);
@@ -972,7 +972,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1shaah_1zmanis(JNIEnv* env,
     return (jlong)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jbyteArray p_config, jbyteArray p_local_day) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1Zmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jbyteArray p_config, jbyteArray p_local_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_location_b = Jni_borrow_bytes(env, p_location);
@@ -991,7 +991,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1new(JNIEnv* env, j
     return (jlong)(intptr_t)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1get(JNIEnv* env, jclass cls, jlong self, jint p_zman) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1Zmanim_1get(JNIEnv* env, jclass cls, jlong self, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     int64_t rv = kosherz_times_Zmanim_get((const kosherz_times_Zmanim*)(intptr_t)self, (kosherz_times_Zman)p_zman, &err);
@@ -1002,7 +1002,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1get(JNIEnv* env, j
     return (jlong)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1all(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1Zmanim_1all(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -1014,7 +1014,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1all(JNIEnv* e
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1sunrise_1offset_1by_1degrees(JNIEnv* env, jclass cls, jlong self, jdouble p_degrees) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1Zmanim_1sunrise_1offset_1by_1degrees(JNIEnv* env, jclass cls, jlong self, jdouble p_degrees) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     int64_t rv = kosherz_times_Zmanim_sunrise_offset_by_degrees((const kosherz_times_Zmanim*)(intptr_t)self, (double)p_degrees, &err);
@@ -1025,7 +1025,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1sunrise_1offset_1b
     return (jlong)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1sunset_1offset_1by_1degrees(JNIEnv* env, jclass cls, jlong self, jdouble p_degrees) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1Zmanim_1sunset_1offset_1by_1degrees(JNIEnv* env, jclass cls, jlong self, jdouble p_degrees) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     int64_t rv = kosherz_times_Zmanim_sunset_offset_by_degrees((const kosherz_times_Zmanim*)(intptr_t)self, (double)p_degrees, &err);
@@ -1036,7 +1036,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1sunset_1offset_1by
     return (jlong)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1location(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1Zmanim_1location(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -1048,7 +1048,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1location(JNIE
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1date(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1Zmanim_1date(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -1060,7 +1060,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1date(JNIEnv* 
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1config(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1Zmanim_1config(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -1072,19 +1072,19 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1Zmanim_1config(JNIEnv
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1clone(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1clone(JNIEnv* env, jclass cls, jlong self) {
     (void)env;
     (void)cls;
     return (jlong)(intptr_t)kosherz_times_myzmanim_MyZmanim_clone((const kosherz_times_myzmanim_MyZmanim*)(intptr_t)self);
 }
 
-JNIEXPORT void JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1destroy(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT void JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1destroy(JNIEnv* env, jclass cls, jlong self) {
     (void)env;
     (void)cls;
     kosherz_times_myzmanim_MyZmanim_destroy((kosherz_times_myzmanim_MyZmanim*)(intptr_t)self);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1my_1zman_1name(JNIEnv* env, jclass cls, jint p_zman) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1my_1zman_1name(JNIEnv* env, jclass cls, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -1096,7 +1096,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1my_1zman_1n
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1all_1my_1zmanim(JNIEnv* env, jclass cls) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1all_1my_1zmanim(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -1108,7 +1108,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1all_1my_1zm
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1dawn_190_1degrees(JNIEnv* env, jclass cls) {
+JNIEXPORT jdouble JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1dawn_190_1degrees(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     double rv = kosherz_times_myzmanim_dawn_90_degrees(&err);
@@ -1119,7 +1119,7 @@ JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1dawn_190_1degr
     return (jdouble)rv;
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1dawn_172_1degrees(JNIEnv* env, jclass cls) {
+JNIEXPORT jdouble JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1dawn_172_1degrees(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     double rv = kosherz_times_myzmanim_dawn_72_degrees(&err);
@@ -1130,7 +1130,7 @@ JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1dawn_172_1degr
     return (jdouble)rv;
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1sea_1level_1refraction_1arcminutes(JNIEnv* env, jclass cls) {
+JNIEXPORT jdouble JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1sea_1level_1refraction_1arcminutes(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     double rv = kosherz_times_myzmanim_sea_level_refraction_arcminutes(&err);
@@ -1141,7 +1141,7 @@ JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1sea_1level_1re
     return (jdouble)rv;
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1dip_1degrees_1per_1root_1meter(JNIEnv* env, jclass cls) {
+JNIEXPORT jdouble JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1dip_1degrees_1per_1root_1meter(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     double rv = kosherz_times_myzmanim_dip_degrees_per_root_meter(&err);
@@ -1152,7 +1152,7 @@ JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1dip_1degrees_1
     return (jdouble)rv;
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1default_1candle_1lighting_1minutes(JNIEnv* env, jclass cls) {
+JNIEXPORT jdouble JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1default_1candle_1lighting_1minutes(JNIEnv* env, jclass cls) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     double rv = kosherz_times_myzmanim_default_candle_lighting_minutes(&err);
@@ -1163,7 +1163,7 @@ JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1default_1candl
     return (jdouble)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jdouble p_candle_lighting_minutes, jbyteArray p_local_day) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jdouble p_candle_lighting_minutes, jbyteArray p_local_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_location_b = Jni_borrow_bytes(env, p_location);
@@ -1180,7 +1180,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1new(JN
     return (jlong)(intptr_t)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1get(JNIEnv* env, jclass cls, jlong self, jint p_zman) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1get(JNIEnv* env, jclass cls, jlong self, jint p_zman) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     int64_t rv = kosherz_times_myzmanim_MyZmanim_get((const kosherz_times_myzmanim_MyZmanim*)(intptr_t)self, (kosherz_times_myzmanim_MyZman)p_zman, &err);
@@ -1191,7 +1191,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1get(JN
     return (jlong)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1all(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1all(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -1203,7 +1203,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1a
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1proportional_1hour_1gra(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jlong JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1proportional_1hour_1gra(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     int64_t rv = kosherz_times_myzmanim_MyZmanim_proportional_hour_gra((const kosherz_times_myzmanim_MyZmanim*)(intptr_t)self, &err);
@@ -1214,7 +1214,7 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1propor
     return (jlong)rv;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1location(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1location(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -1226,7 +1226,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1l
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1date(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jbyteArray JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1date(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     size_t out_len = 0;
@@ -1238,7 +1238,7 @@ JNIEXPORT jbyteArray JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1d
     return Jni_take_bytes(env, rv, out_len);
 }
 
-JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1candle_1lighting_1minutes(JNIEnv* env, jclass cls, jlong self) {
+JNIEXPORT jdouble JNICALL Java_io_github_dickermoshe_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1candle_1lighting_1minutes(JNIEnv* env, jclass cls, jlong self) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     double rv = kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes((const kosherz_times_myzmanim_MyZmanim*)(intptr_t)self, &err);

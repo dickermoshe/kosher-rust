@@ -209,6 +209,14 @@ pub(super) fn rust_jewish_calendar_snapshot(
         molad_ms: day
             .molad()
             .map(|molad| molad.timestamp().as_nanosecond().div_euclid(1_000_000) as i64),
+        molad_parts: day.molad().map(|molad| {
+            (
+                i32::from(molad.weekday().to_sunday_one_offset()),
+                i32::from(molad.hours()),
+                i32::from(molad.minutes()),
+                i32::from(molad.chalakim()),
+            )
+        }),
     })
 }
 

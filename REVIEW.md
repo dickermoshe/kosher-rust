@@ -403,7 +403,7 @@ These were checked and found correct, so they don't need another look.
   for those two formulas. Pick the morning or afternoon wording from the formula. Then
   regenerate `tests/fixtures/zman_catalog.snap` with `UPDATE_SNAPSHOT=1`.
 
-- [ ] **C8. Smaller astronomy issues.** Low. Confirmed (a, c) and from reading (b, d).
+- [x] **C8. Smaller astronomy issues.** Low. Confirmed (a, c) and from reading (b, d).
 
   **(a) SPA's sunset window has the boundary on the wrong side.**
   [src/astronomy/spa/mod.rs:414](src/astronomy/spa/mod.rs#L414) accepts a sunset when
@@ -423,6 +423,11 @@ These were checked and found correct, so they don't need another look.
   kind. At latitude -90 on 2025-05-04, NOAA returns `AllDay` for a 16.1° rise and `AllNight` for
   a 16.1° set, while SPA finds a real setting at 09:58 UTC. Consider documenting that SPA is the
   algorithm to use near the poles.
+
+  **Won't fix.** The two fixed passes are NOAA's published algorithm, and other libraries keep
+  them. NOAA's own calculator and astral make two passes, and suncalc refines twice. NOAA states
+  its results are within a minute only between ±72° latitude. SPA is the accurate choice near the
+  poles, and the `AstronomicalCalculator` docs now say so.
 
   **(d) The barycenter option is described as doing more than it does.**
   [src/astronomy/vsop87.rs:19-27](src/astronomy/vsop87.rs#L19) and
@@ -581,7 +586,14 @@ These were checked and found correct, so they don't need another look.
   Until then, say "always call `dispose()`" in [kosherz/README.md](kosherz/README.md) (the Dart
   README is generated), and add a test like the program above.
 
-- [ ] **F2. The generated packages can't be published as they are.** Medium. Confirmed.
+- [x] **F2. The generated packages can't be published as they are.** Medium. Confirmed.
+
+  **Resolved.** `kosherz/Cargo.toml` now has version 0.3.0, the author, the repository and the
+  homepage, and every generated manifest picks them up. `kosherz/weaveffi.toml` names the packages.
+  Node is `kosherz`, WebAssembly is `kosherz-wasm`, the Go module is
+  `github.com/dickermoshe/kosher-rust/kosherz/generated/go`, and the Kotlin package and group are
+  `io.github.dickermoshe.kosherz`. Every package directory has a copy of `LICENSE`, which the
+  codegen test keeps in sync. `dart pub publish --dry-run` now only asks for a `CHANGELOG.md`.
 
   **What is wrong.**
 
@@ -621,34 +633,49 @@ These were checked and found correct, so they don't need another look.
   **Fix.** Document how to handle `IsInvalidTime` and `IsAmbiguousTime` in .NET, and the Go
   caveat, or give a correct example for each.
 
-- [ ] **F4. The drift-test message gives a command that fails.** Low. Reproduced.
+- [x] **F4. The drift-test message gives a command that fails.** Low. Reproduced.
+
+  **Resolved.** Both places in `codegen.rs` now say `cargo test -p kosherz codegen`.
 
   [kosherz/src/codegen.rs:7](kosherz/src/codegen.rs#L7) and
   [line 188](kosherz/src/codegen.rs#L188) say to run
   `UPDATE_GENERATED=1 cargo test -p kosher-rust-bindings codegen`. The package is called
   `kosherz`. The README has the right command.
 
-- [ ] **F5. The `kosherz` crate docs are out of date.** Low. Reproduced.
+- [x] **F5. The `kosherz` crate docs are out of date.** Low. Reproduced.
+
+  **Resolved.** The crate docs list WebAssembly and describe the `LocalDay` record, which replaced
+  the callback.
 
   [kosherz/src/lib.rs:1-3](kosherz/src/lib.rs#L1) lists the languages but leaves out
   WebAssembly. [Lines 10-12](kosherz/src/lib.rs#L10) describe the time-zone callback as only
   giving the UTC offset. Since db9e53b it also resolves local times.
 
-- [ ] **F6. A bad location with no time zone reports the wrong error first.** Low. Reproduced.
+- [x] **F6. A bad location with no time zone reports the wrong error first.** Low. Reproduced.
+
+  **Resolved.** The coordinates are validated first, so longitude 200 with no local day reports
+  `InvalidLongitude`. `parity.rs` checks it.
 
   [kosherz/src/convert/mod.rs:91](kosherz/src/convert/mod.rs#L91) checks "more than 150° and no
   time zone" before validating the coordinates. Longitude 200 with no time zone reports
   `TimeZoneRequired`. Add a time zone and you then get `InvalidLongitude`. Validate first.
 
-- [ ] **F7. The Tehillim and Pirkei Avos display helpers accept impossible ranges.** Low.
+- [x] **F7. The Tehillim and Pirkei Avos display helpers accept impossible ranges.** Low.
   Confirmed.
+
+  **Resolved.** A range that ends before it starts is `InvalidUnit`, and a combined Pirkei Avos
+  portion needs its second chapter after its first. Verses are still checked against 176, not
+  against each psalm's length, and the docs say so.
 
   They only range-check each number. `tehillim_display(Psalms { 5, 2 })` gives "Tehillim 5-2",
   `PsalmVerses { 1, 170, 2 }` gives "Tehillim 1:170-2", and
   `pirkei_avos_display(Combined { 6, 1 })` gives "Pirkei Avos 6-1". Require start ≤ end and check
   verse counts per psalm, or document that the input is trusted.
 
-- [ ] **F8. A `Zman`'s number in the bindings changes when a zman is added.** Low. From reading.
+- [x] **F8. A `Zman`'s number in the bindings changes when a zman is added.** Low. From reading.
+
+  **Resolved.** The `Zman` docs in every binding now say to store `zman_java_name` rather than the
+  number.
 
   A `Zman`'s integer value is its position in `Zman::ALL`, which is grouped by category. Adding a
   zman in the core (B4) renumbers every zman after it. An app that stored the integer would read
@@ -680,7 +707,7 @@ These were checked and found correct, so they don't need another look.
 
 ## 5. Docs and API
 
-- [ ] **D1. The limudim docs are wrong about when schedules return `None`.** Low. Confirmed.
+- [x] **D1. The limudim docs are wrong about when schedules return `None`.** Low. Confirmed.
 
   [src/limudim/mod.rs:4-6](src/limudim/mod.rs#L4) says `on()` returns `None` "on Shabbos for a
   weekly program". That isn't true.
@@ -696,7 +723,7 @@ These were checked and found correct, so they don't need another look.
   chapter each Shabbos afternoon" and doesn't mention any of the weekday behaviour. Rewrite both
   to say what each schedule returns on a weekday and on Shabbos.
 
-- [ ] **D2. The `Parsha` numbering doc is off by one.** Low. Confirmed by reading both sides.
+- [x] **D2. The `Parsha` numbering doc is off by one.** Low. Confirmed by reading both sides.
 
   [src/calendar/parsha.rs:10-11](src/calendar/parsha.rs#L10) says "The numbering matches
   KosherJava's `JewishCalendar.Parsha`." Java's enum is named `Parshah`, and it starts with
@@ -704,7 +731,7 @@ These were checked and found correct, so they don't need another look.
   from the Java ordinal to make them line up. The `u8` conversions are public, so anyone porting
   Java ordinals gets the wrong parsha. Fix the doc, or renumber from 1.
 
-- [ ] **D3. "Reproduced to the second" overstates MyZmanim.** Low. Confirmed.
+- [x] **D3. "Reproduced to the second" overstates MyZmanim.** Low. Confirmed.
 
   [README.md:114-115](README.md#L114), [src/lib.rs:10](src/lib.rs#L10) and
   [src/myzmanim/mod.rs:1](src/myzmanim/mod.rs#L1) say the times are reproduced "to the second".
@@ -712,7 +739,7 @@ These were checked and found correct, so they don't need another look.
   is 13.6 seconds. The module body already says this
   ([src/myzmanim/mod.rs:9-11](src/myzmanim/mod.rs#L9)). Make the summary lines match it.
 
-- [ ] **D4. The "more than 150° needs a time zone" rule has an unstated assumption.** Low.
+- [x] **D4. The "more than 150° needs a time zone" rule has an unstated assumption.** Low.
   Confirmed.
 
   The rule assumes the time zone is less than about 10 hours from local solar time on the far
@@ -720,14 +747,14 @@ These were checked and found correct, so they don't need another look.
   2024-05-31T16:19Z with the zone and 2024-06-01T16:19Z without it, with no error. No real zone
   does this today. A sentence in the docs on the time-zone section would cover it.
 
-- [ ] **D5. `Zmanim` and `MyZmanim` take candle lighting differently.** Low. From reading.
+- [x] **D5. `Zmanim` and `MyZmanim` take candle lighting differently.** Low. From reading.
 
   `Zmanim` takes it as `Config::candle_lighting_offset`, a `SignedDuration`. `MyZmanim` takes it
   as `f64` minutes through the `candle_lighting` builder
   ([src/myzmanim/myzman.rs:286](src/myzmanim/myzman.rs#L286)), which also lets NaN through (C6).
   `MyZmanim` derives `PartialEq` and `Zmanim` doesn't. Pick one shape for both.
 
-- [ ] **D6. Custom time zones are second-class.** Low. Confirmed.
+- [x] **D6. Custom time zones are second-class.** Low. Confirmed.
 
   - `get_zoned` exists only on `Zmanim<TimeZone>` and `MyZmanim<TimeZone>`
     ([src/zmanim/calculator.rs:76](src/zmanim/calculator.rs#L76)). With a custom `TimeZoneLike`,
@@ -740,7 +767,7 @@ These were checked and found correct, so they don't need another look.
     custom zone that returns `None` makes every zman return `Internal` ("please report"), when the
     cause is the caller's time zone.
 
-- [ ] **D7. The closed sets don't all have the same shape.** Low. From reading.
+- [x] **D7. The closed sets don't all have the same shape.** Low. From reading.
 
   `Zman` and `MyZman` have `ALL` and `name()`. `SpecialDay`, `Parsha` and `Tractate` have neither,
   so an app can't list them for a settings screen. `Tractate` already has a crate-private
@@ -751,14 +778,14 @@ These were checked and found correct, so they don't need another look.
   ([src/calendar/special_day.rs:475](src/calendar/special_day.rs#L475) and lines 490, 499 and 513), while
   `HebrewMonth::hebrew`, `Parsha::hebrew` and `Tractate::hebrew` take `self`.
 
-- [ ] **D8. `Molad` only gives a `Timestamp`.** Low. From reading.
+- [x] **D8. `Molad` only gives a `Timestamp`.** Low. From reading.
 
   [src/calendar/molad.rs:16-25](src/calendar/molad.rs#L16) exposes only `timestamp()`. The
   traditional announcement ("Friday, 5:49 and 3 *chalakim*") needs the weekday, hours, minutes
   and *chalakim*, which Java's `getMolad` gives. Right now the *chalakim* pass through an `f64`
   and can't be recovered. Consider accessors for them.
 
-- [ ] **D9. Small inconsistencies in the limudim and holiday types.** Low. From reading.
+- [x] **D9. Small inconsistencies in the limudim and holiday types.** Low. From reading.
 
   - `Tractate` sorts in Mishnah order (Tamid, Midos, Kinnim), so the derived ordering of `Daf`
     and `Amud` doesn't follow the Bavli Daf Yomi order (Kinnim, Tamid, Midos).
@@ -770,7 +797,7 @@ These were checked and found correct, so they don't need another look.
   - Modern Israeli holidays are returned for any year, for example Yom HaAtzmaut in 5000. This
     matches Java, but the docs could say so.
 
-- [ ] **D10. Many public docs break your own docs rule against mid-sentence colons.** Low.
+- [x] **D10. Many public docs break your own docs rule against mid-sentence colons.** Low.
   Reproduced.
 
   About 50 public doc lines outside `src/astronomy` use a colon mid-sentence, which your docs

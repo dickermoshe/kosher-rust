@@ -25,7 +25,7 @@ const YERUSHALMI_BLATT_PER_MASECHTA: [u16; 39] = [
     48, 44, 37, 34, 44, 9, 57, 37, 19, 13,
 ];
 
-/// Daf Yomi Yerushalmi: one page of the Vilna Yerushalmi a day, from 2 February 1980. No page is
+/// Daf Yomi Yerushalmi, one page of the Vilna Yerushalmi a day, from 2 February 1980. No page is
 /// learned on Yom Kippur or Tishah B'Av.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct DafYomiYerushalmi;

@@ -26,10 +26,10 @@ Add `-Wl,-rpath,/path/to/lib` to `CGO_LDFLAGS` to record the directory in the
 binary instead of setting the loader path.
 
 Depend on the module from your own project with a `require` (and, for a
-local checkout, a `replace`) of `kosherz`, then import it:
+local checkout, a `replace`) of `github.com/dickermoshe/kosher-rust/kosherz/generated/go`, then import it:
 
 ```go
-import "kosherz"
+import "github.com/dickermoshe/kosher-rust/kosherz/generated/go"
 ```
 
 Go 1.23 or newer is required.

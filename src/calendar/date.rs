@@ -22,9 +22,9 @@ use super::year::{HebrewYear, LAST_YEAR, elapsed_days};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Region {
-    /// Eretz Yisrael: one day of Yom Tov.
+    /// Eretz Yisrael, with one day of Yom Tov.
     Israel,
-    /// Everywhere else: two days of Yom Tov.
+    /// Everywhere else, with two days of Yom Tov.
     Diaspora,
 }
 
@@ -68,8 +68,8 @@ pub struct DateOutOfRange;
 impl HebrewDate {
     /// The date `day` `month` `year`, for example `HebrewDate::new(5785, HebrewMonth::Nisan, 15)`.
     ///
-    /// Returns `None` when there is no such day: day 0, day 30 of a 29-day month, Adar I in a
-    /// common year, or a date outside the range a `HebrewDate` covers.
+    /// Returns `None` when there is no such day. Day 0, day 30 of a 29-day month, Adar I in a
+    /// common year and dates outside the range a `HebrewDate` covers have none.
     pub fn new(year: i32, month: HebrewMonth, day: u8) -> Option<Self> {
         Self::checked(Date::try_new_hebrew_v2(year, month.to_icu(), day).ok()?)
     }
@@ -141,7 +141,7 @@ impl HebrewDate {
     /// use jiff::civil::date;
     /// use kosher_rust::calendar::{SpecialDay, HebrewDate, Region};
     ///
-    /// // 16 Nisan: the second day of Pesach in the diaspora, Chol Hamoed in Israel.
+    /// // 16 Nisan is the second day of Pesach in the diaspora and Chol Hamoed in Israel.
     /// let day = HebrewDate::try_from(date(2024, 4, 24))?;
     /// assert!(day.special_days(Region::Diaspora).any(|h| h == SpecialDay::Pesach));
     /// assert!(day.special_days(Region::Israel).any(|h| h == SpecialDay::CholHamoedPesach));

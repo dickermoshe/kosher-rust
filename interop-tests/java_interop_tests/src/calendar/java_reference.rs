@@ -187,6 +187,26 @@ pub(super) fn java_jewish_calendar_snapshot(
             )
         };
 
+        let molad_parts = if molad_ms.is_none() {
+            None
+        } else {
+            let molad = env
+                .call_method(
+                    &calendar,
+                    jni_str!("getMolad"),
+                    jni_sig!("()Lcom/kosherjava/zmanim/hebrewcalendar/JewishDate;"),
+                    &[],
+                )?
+                .l()?;
+            let mut part = |name| -> jni::errors::Result<i32> { env.call_method(&molad, name, jni_sig!("()I"), &[])?.i() };
+            Some((
+                part(jni_str!("getDayOfWeek"))?,
+                part(jni_str!("getMoladHours"))?,
+                part(jni_str!("getMoladMinutes"))?,
+                part(jni_str!("getMoladChalakim"))?,
+            ))
+        };
+
         Ok(Some(JewishCalendarSnapshot {
             is_yom_tov: calendar.is_yom_tov(env)?,
             is_yom_tov_assur_bemelacha: calendar.is_yom_tov_assur_bemelacha(env)?,
@@ -227,6 +247,7 @@ pub(super) fn java_jewish_calendar_snapshot(
             is_shabbos_mevorchim: calendar.is_shabbos_mevorchim(env)?,
             day_of_omer,
             molad_ms,
+            molad_parts,
         }))
     })
 }

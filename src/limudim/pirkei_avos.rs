@@ -138,7 +138,7 @@ impl PirkeiAvos {
     /// Nissan 23 outside), so the weekdays of Pesach give the first Shabbos's chapter. It ends
     /// on the last Shabbos before Rosh Hashanah.
     ///
-    /// `None` from the year 10000 on: the calendar builds dates by year only up to 9999.
+    /// `None` from the year 10000 on. The calendar builds dates by year only up to 9999.
     fn find_yearly_cycle(in_israel: bool, date: Date<Hebrew>) -> Option<(Date<Hebrew>, Date<Hebrew>)> {
         let year = date.year().extended_year();
 

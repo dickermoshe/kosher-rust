@@ -86,6 +86,11 @@ cd kosherz
 weaveffi generate          # builds the library, rewrites generated/<language>/
 ```
 
+The packages are named in `weaveffi.toml`. Node is `kosherz` and WebAssembly is `kosherz-wasm` on
+npm. The Go module is `github.com/dickermoshe/kosher-rust/kosherz/generated/go`, and the Kotlin
+package and Maven group are `io.github.dickermoshe.kosherz`. The other languages use `kosherz`.
+Every package directory has a copy of the repository's `LICENSE`.
+
 ### Node
 
 ```bash

@@ -54,6 +54,8 @@ pub(super) struct JewishCalendarSnapshot {
     pub(super) day_of_omer: Option<u8>,
     /// The molad of the month, in Unix milliseconds.
     pub(super) molad_ms: Option<i64>,
+    /// The molad's day of the week (1 is Sunday), hours, minutes and chalakim.
+    pub(super) molad_parts: Option<(i32, i32, i32, i32)>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

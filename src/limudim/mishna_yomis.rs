@@ -216,7 +216,7 @@ impl fmt::Display for MishnaPair {
     }
 }
 
-/// Mishna Yomis: two *mishnayos* a day, from 20 May 1947.
+/// Mishna Yomis, two *mishnayos* a day, from 20 May 1947.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct MishnaYomis;
 fn mishna_yomis_for_date(limud_date: Date<Hebrew>) -> Option<MishnaPair> {

@@ -90,7 +90,7 @@ impl<T: TimeZoneLike + ?Sized> TimeZoneLike for &T {
     }
 }
 
-/// A place on earth: where to calculate *zmanim* for.
+/// A place on earth to calculate *zmanim* for.
 ///
 /// Start with [`Location::new`], then add the observer's height with
 /// [`with_elevation`](Self::with_elevation) and, in hilly terrain, the heights of the horizons with

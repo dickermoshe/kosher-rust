@@ -30,8 +30,8 @@ const NANOS_PER_SECOND: i128 = 1_000_000_000;
 /// One row of MyZmanim's "All zmanim" table, in the table's order.
 ///
 /// Calculate one with [`MyZmanim::get`]. Every variant returns an error where
-/// the website shows no time: [`ZmanimError::AllDay`] or [`ZmanimError::AllNight`] where the
-/// sun never reaches the angle that time, or a time it is built from, needs.
+/// the website shows no time. The error is [`ZmanimError::AllDay`] or [`ZmanimError::AllNight`]
+/// where the sun never reaches the angle that time, or a time it is built from, needs.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[non_exhaustive]
@@ -421,8 +421,9 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
     // ---- The sun ----
 
     /// True sunrise or sunset, with MyZmanim's refraction and dip. Refraction happens where
-    /// the light grazes the horizon, so it is scaled for the air at that horizon's height: the
-    /// observer's own for the level times, the eastern or western horizon's for the elevated.
+    /// the light grazes the horizon, so it is scaled for the air at that horizon's height. That is
+    /// the observer's own for the level times, and the eastern or western horizon's for the
+    /// elevated.
     fn rise_set(&self, event: SolarEvent, elevated: bool) -> Result<Timestamp, ZmanimError> {
         self.rise_set_on(self.date, event, elevated)
     }
@@ -446,7 +447,8 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
         rise_set_on_adjusted_date(&calculator(), adjusted_date, &self.location, zenith, event)
     }
 
-    /// The time the sun is `degrees` below the geometric horizon: no refraction, radius or dip.
+    /// The time the sun is `degrees` below the geometric horizon, with no refraction, radius or
+    /// dip.
     fn rise_set_by_degrees(&self, event: SolarEvent, degrees: f64) -> Result<Timestamp, ZmanimError> {
         let adjusted_date = adjusted_local_date(self.date, &self.location, self.timezone.as_ref())?;
         rise_set_on_adjusted_date(
@@ -459,7 +461,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
     }
 }
 
-/// A start or end of a proportional day: a table row, or one of the two ends the website
+/// A start or end of a proportional day. It is a table row, or one of the two ends the website
 /// uses but does not show.
 #[derive(Clone, Copy)]
 enum DayBound {
@@ -488,8 +490,8 @@ const fn calculator() -> Meeus {
     }
 }
 
-/// Refraction at a horizon `horizon_elevation` meters above sea level, in degrees: the sea-level
-/// value scaled by the barometric pressure ratio at that height.
+/// Refraction at a horizon `horizon_elevation` meters above sea level, in degrees. It is the
+/// sea-level value scaled by the barometric pressure ratio at that height.
 fn refraction(horizon_elevation: f64) -> f64 {
     // Above about 44 km the formula's pressure ratio would go negative; there is no air to bend light.
     SEA_LEVEL_REFRACTION_ARCMINUTES / 60.0 * CoreFloat::powf((1.0 - 2.25577e-5 * horizon_elevation).max(0.0), 5.25588)

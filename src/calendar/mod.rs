@@ -1,4 +1,4 @@
-//! The Hebrew calendar: dates, holidays, the weekly *parsha* and the molad.
+//! The Hebrew calendar, with its dates, holidays, weekly *parsha* and molad.
 //!
 //! Convert a date to a [`HebrewDate`] and ask it questions. Methods that depend on whether Yom Tov
 //! has one day or two take a [`Region`]. A `HebrewDate` covers 1 January of year 1 through the end

@@ -2,7 +2,7 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-module kosherz
+module github.com/dickermoshe/kosher-rust/kosherz/generated/go
 
 go 1.23
 

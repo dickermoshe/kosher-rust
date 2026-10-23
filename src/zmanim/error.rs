@@ -12,9 +12,9 @@ pub enum ZmanimError {
     /// The sun stays below the angle the time needs all day, as in the far north in winter.
     #[error("the sun does not rise high enough for this time on this date")]
     AllNight,
-    /// The time only exists on certain dates, and this is not one: the latest time to eat
-    /// chametz outside Erev Pesach, Kiddush Levana outside its window, the polar times on a day
-    /// with a normal sunrise.
+    /// The time only exists on certain dates, and this is not one. Examples are the latest time
+    /// to eat chametz outside Erev Pesach, Kiddush Levana outside its window, and the polar times
+    /// on a day with a normal sunrise.
     #[error("this time does not apply on this date")]
     NotApplicable,
     /// An angle passed to [`Zmanim::sunrise_offset_by_degrees`] or

@@ -186,7 +186,7 @@ pub(crate) trait InternalLimud<T> {
     }
     /// Returns the learning unit for `limud_date` within `interval`.
     ///
-    /// Must not call `self.limud()` here: the default [`Self::limud`] routes through
+    /// Must not call `self.limud()` here. The default [`Self::limud`] routes through
     /// `unit_for_interval` and would recurse infinitely.
     fn unit_for_interval(&self, interval: &Interval, limud_date: &Date<Hebrew>) -> Option<T>;
 }

@@ -146,8 +146,8 @@ impl fmt::Display for HebrewYear {
     }
 }
 
-/// Days from the epoch to Rosh Hashana of `year`: the day of the molad of Tishrei, postponed by
-/// the four *dechiyos*.
+/// Days from the epoch to Rosh Hashana of `year`. Rosh Hashana is the day of the molad of
+/// Tishrei, postponed by the four *dechiyos*.
 pub(crate) fn elapsed_days(year: i64) -> i64 {
     let chalakim_since = chalakim_at_month_index(year, 1);
     let molad_day = chalakim_since / CHALAKIM_PER_DAY;

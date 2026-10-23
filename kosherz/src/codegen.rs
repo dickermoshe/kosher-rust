@@ -6,6 +6,9 @@
 //! `// END GENERATED: <name>` markers. The test fails when a region is out of date; run
 //! `UPDATE_GENERATED=1 cargo test -p kosherz codegen` to rewrite them.
 //!
+//! The same test checks that every package under `generated/` has a copy of the repository's
+//! `LICENSE`, and the same command copies it.
+//!
 //! kosher-rust's enums are `#[non_exhaustive]`, so the conversion from kosher-rust is a `TryFrom`
 //! that fails for a variant the bindings don't have yet. This test fails until they are
 //! regenerated.
@@ -203,6 +206,29 @@ fn generated_regions_are_current() {
             "{} region `{}` is out of date: run `UPDATE_GENERATED=1 cargo test -p kosherz codegen`",
             region.file,
             region.name,
+        );
+    }
+}
+
+#[test]
+fn packages_have_the_license() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let license = fs::read_to_string(root.join("../LICENSE")).unwrap().replace("\r\n", "\n");
+    for package in fs::read_dir(root.join("generated")).unwrap() {
+        let package = package.unwrap();
+        if !package.file_type().unwrap().is_dir() || package.file_name().to_string_lossy().starts_with('.') {
+            continue;
+        }
+        let path = package.path().join("LICENSE");
+        if std::env::var_os("UPDATE_GENERATED").is_some() {
+            fs::write(&path, &license).unwrap();
+            continue;
+        }
+        let copy = fs::read_to_string(&path).unwrap_or_default().replace("\r\n", "\n");
+        assert!(
+            copy == license,
+            "{} is missing or out of date: run `UPDATE_GENERATED=1 cargo test -p kosherz codegen`",
+            path.display(),
         );
     }
 }

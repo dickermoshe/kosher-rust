@@ -2030,7 +2030,7 @@ zman_catalog! {
     /// The beginning of Rabbeinu Tam's bain hashmashos.
     ///
     /// When the sun is 13.24 degrees below the western geometric horizon after sunset. This is the degree-based
-    /// equivalent of bain hashmashos 58.5 minutes after sunset: in Jerusalem [around the equinox or
+    /// equivalent of bain hashmashos 58.5 minutes after sunset. In Jerusalem [around the equinox or
     /// equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), the sun is 13.24 degrees
     /// below geometric zenith about 58.5 minutes after sunset. The source cited in the original documentation says
     /// that the proper dip should be slightly less than 13 degrees; this project's recalculation gives about 13.2456

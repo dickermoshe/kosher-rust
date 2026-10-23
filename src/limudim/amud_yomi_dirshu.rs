@@ -5,7 +5,7 @@ use crate::limudim::{
     units::*,
 };
 
-/// Amudim in the Bavli as Dirshu divides it: the length of one cycle in days.
+/// Amudim in the Bavli as Dirshu divides it, which is the length of one cycle in days.
 const BAVLI_TOTAL_AMUDIM: i32 = 5407;
 
 fn initial_cycle_date() -> Date<Hebrew> {
@@ -72,7 +72,7 @@ pub(crate) const fn end_daf(tractate: Tractate) -> Option<Amud> {
     if amud.daf == 0 { None } else { Some(amud) }
 }
 
-/// Dirshu's Amud Yomi: one side of a page of the Bavli a day, from 16 October 2023.
+/// Dirshu's Amud Yomi, one side of a page of the Bavli a day, from 16 October 2023.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct AmudYomiDirshu;
 

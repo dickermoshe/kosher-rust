@@ -85,7 +85,7 @@ pub(crate) const fn end_daf(tractate: Tractate, iteration: i32) -> Option<u16> {
     if daf == 0 { None } else { Some(daf) }
 }
 
-/// Daf Yomi: one page of the Bavli a day, from 11 September 1923.
+/// Daf Yomi, one page of the Bavli a day, from 11 September 1923.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct DafYomiBavli;
 

@@ -1,5 +1,5 @@
-//! Halachic times (*zmanim*) for a place and a day: sunrise, the latest time for Shema, candle
-//! lighting, nightfall, and the rest of KosherJava's catalog.
+//! Halachic times (*zmanim*) for a place and a day, such as sunrise, the latest time for Shema,
+//! candle lighting, nightfall, and the rest of KosherJava's catalog.
 //!
 //! ```
 //! use jiff::{civil::date, tz::TimeZone};

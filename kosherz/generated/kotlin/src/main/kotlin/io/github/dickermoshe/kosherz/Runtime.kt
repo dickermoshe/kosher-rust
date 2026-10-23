@@ -2,7 +2,7 @@
 // DO NOT EDIT. Your changes will be overwritten.
 // To regenerate: weaveffi generate
 
-package kosherz
+package io.github.dickermoshe.kosherz
 
 import java.lang.ref.PhantomReference
 import java.lang.ref.ReferenceQueue
@@ -194,7 +194,7 @@ internal object NativeCleaner {
         PhantomReference<Any>(owner, queue)
 
     init {
-        val thread = Thread({ drain() }, "kosherz-cleaner")
+        val thread = Thread({ drain() }, "io.github.dickermoshe.kosherz-cleaner")
         thread.isDaemon = true
         thread.start()
     }

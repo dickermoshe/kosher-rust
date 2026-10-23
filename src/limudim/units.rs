@@ -456,7 +456,7 @@ impl fmt::Display for Daf {
     }
 }
 
-/// A side of a page: *amud aleph* (a) or *amud beis* (b).
+/// A side of a page, either *amud aleph* (a) or *amud beis* (b).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Side {

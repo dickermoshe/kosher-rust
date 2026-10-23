@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"kosherz"
+	kosherz "github.com/dickermoshe/kosher-rust/kosherz/generated/go"
 )
 
 // localDay is date in zone: its two local midnights and the offsets at them. time.Date does not

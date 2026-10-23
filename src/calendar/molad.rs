@@ -14,7 +14,7 @@ use jiff_icu::ConvertTryFrom;
 
 use super::month::month_of_year;
 
-/// The molad: the mean new moon that begins a Hebrew month, as the calendar reckons it.
+/// The molad, the mean new moon that begins a Hebrew month, as the calendar reckons it.
 ///
 /// Get one from [`HebrewDate::molad`](super::HebrewDate::molad). The weekday, hours, minutes
 /// and *chalakim* are in Jerusalem mean time, the way the molad is announced in shul.

@@ -6,11 +6,11 @@
     "kotlin/src/main/cpp/CMakeLists.txt",
     "kotlin/src/main/cpp/kosherz.h",
     "kotlin/src/main/cpp/kosherz_jni.c",
-    "kotlin/src/main/kotlin/kosherz/Buffers.kt",
-    "kotlin/src/main/kotlin/kosherz/Calendar.kt",
-    "kotlin/src/main/kotlin/kosherz/Codecs.kt",
-    "kotlin/src/main/kotlin/kosherz/JniBridge.kt",
-    "kotlin/src/main/kotlin/kosherz/Runtime.kt",
-    "kotlin/src/main/kotlin/kosherz/Times.kt"
+    "kotlin/src/main/kotlin/io/github/dickermoshe/kosherz/Buffers.kt",
+    "kotlin/src/main/kotlin/io/github/dickermoshe/kosherz/Calendar.kt",
+    "kotlin/src/main/kotlin/io/github/dickermoshe/kosherz/Codecs.kt",
+    "kotlin/src/main/kotlin/io/github/dickermoshe/kosherz/JniBridge.kt",
+    "kotlin/src/main/kotlin/io/github/dickermoshe/kosherz/Runtime.kt",
+    "kotlin/src/main/kotlin/io/github/dickermoshe/kosherz/Times.kt"
   ]
 }
