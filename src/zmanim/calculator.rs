@@ -70,6 +70,8 @@ impl Zmanim {
     ///   angle the time needs, as in the far north or south.
     /// - [`ZmanimError::NotApplicable`] for a time that only exists on some days, such as the
     ///   latest time to eat chametz outside Erev Pesach.
+    /// - [`ZmanimError::DateOutOfRange`] for the chametz and Kiddush Levana times on a date after
+    ///   29 Elul 9999 or before 1 January of year 1, where there is no Hebrew date.
     /// - [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone and the time
     ///   needs one. The section on [time zones](Zmanim#time-zones) lists those times.
     pub fn get(&self, zman: Zman) -> Result<Timestamp, ZmanimError> {

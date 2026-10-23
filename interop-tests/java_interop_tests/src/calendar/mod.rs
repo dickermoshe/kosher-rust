@@ -15,7 +15,10 @@ use rand::{SeedableRng, rngs::StdRng};
 use crate::calendar::random::test_random_add_months_to_jewish_date;
 
 use self::{
-    assertions::{assert_date_results_match, assert_jewish_date_operations, assert_jewish_year_snapshot_matches},
+    assertions::{
+        assert_calendar_snapshots_match, assert_date_results_match, assert_jewish_date_operations,
+        assert_jewish_year_snapshot_matches,
+    },
     fixtures::{
         CALENDAR_EDGE_FIXTURE_DATES, GREGORIAN_REGRESSION_DATES, INVALID_JEWISH_REGRESSION_DATES,
         JEWISH_REGRESSION_DATES, JEWISH_YEAR_REGRESSION_YEARS,
@@ -30,6 +33,13 @@ use self::{
     rust_reference::{rust_gregorian_date_to_jewish_date, rust_hebrew_date},
     types::DateTuple,
 };
+
+/// The molad of Teves 3761 is on 12 December of Gregorian year 0, which is a leap year. It is the
+/// only molad in range before 1 January of year 1.
+#[test]
+fn test_molad_in_gregorian_year_0() -> Result<(), Box<dyn Error>> {
+    assert_calendar_snapshots_match(DateTuple::new(3761, 10, 20), false, false, "molad in Gregorian year 0")
+}
 
 #[test]
 pub(crate) fn test_hebrew_date_parity() -> Result<(), Box<dyn Error>> {

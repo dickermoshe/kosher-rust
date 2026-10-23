@@ -143,6 +143,15 @@ fn test_daf_yomi_yerushalmi_against_kosher_java() -> Result<(), Box<dyn Error>> 
         date(2005, 10, 3),
         date(2017, 12, 28),
         date(2025, 10, 2),
+        // A cycle extended for Tisha B'Av 5932, ending with Niddah 13 on 7 August 2172.
+        date(2172, 8, 6),
+        date(2172, 8, 7),
+        date(2172, 8, 8),
+        // A cycle with Tisha B'Av 6240 the day before its last daf, ending on 16 August 2480.
+        date(2480, 8, 14),
+        date(2480, 8, 15),
+        date(2480, 8, 16),
+        date(2480, 8, 17),
     ] {
         assert_yerushalmi_matches(date, None)?;
     }
@@ -163,7 +172,7 @@ fn test_random_daf_yomi_yerushalmi_against_kosher_java() -> Result<(), Box<dyn E
     let mut rng = StdRng::seed_from_u64(seed);
 
     for iteration in 0..iterations {
-        let date = random_supported_date(&mut rng, date(1960, 2, 2), 2100);
+        let date = random_supported_date(&mut rng, date(1960, 2, 2), 2500);
         assert_yerushalmi_matches(date, Some((seed, iteration)))?;
     }
 

@@ -203,21 +203,26 @@ impl Zman {
                 "\n\nThis zman is calculated as though the configured location were at sea level."
             });
         }
-        if formula.uses_astronomical_chatzos_from_config() {
-            text.push_str(if config.use_astronomical_chatzos {
-                "\n\nThis zman uses astronomical chatzos (solar transit) as the midpoint of the day."
+        let divides_at_chatzos = config.use_astronomical_chatzos_for_other_zmanim
+            && formula.uses_astronomical_chatzos_for_other_zmanim_from_config();
+        if formula.uses_astronomical_chatzos_for_other_zmanim_from_config() {
+            text.push_str(if !divides_at_chatzos {
+                "\n\nEach shaah zmanis is a twelfth of the whole day."
+            } else if formula.is_in_the_morning() {
+                "\n\nEach shaah zmanis is a sixth of the morning, from the start of the day to chatzos."
             } else {
-                "\n\nThis zman uses the midpoint between sunrise and sunset for chatzos."
+                "\n\nEach shaah zmanis is a sixth of the afternoon, from chatzos to the end of the day."
             });
         }
-        if formula.uses_astronomical_chatzos_for_other_zmanim_from_config() {
-            text.push_str(if !config.use_astronomical_chatzos_for_other_zmanim {
-                "\n\nThis zman uses a fixed fraction of the sunrise-to-sunset interval for shaos zmaniyos, without dividing the day at astronomical chatzos."
-            } else if formula.is_in_the_morning() {
-                "\n\nThis zman divides the morning up to astronomical chatzos when calculating shaos zmaniyos."
-            } else {
-                "\n\nThis zman divides the afternoon from astronomical chatzos when calculating shaos zmaniyos."
-            });
+        if formula.uses_astronomical_chatzos_from_config() || divides_at_chatzos {
+            text.push_str(
+                match (formula.uses_chatzos_halayla(), config.use_astronomical_chatzos) {
+                    (false, true) => "\n\nChatzos is solar noon, when the sun crosses the meridian.",
+                    (false, false) => "\n\nChatzos is the midpoint between sea level sunrise and sunset.",
+                    (true, true) => "\n\nChatzos is solar midnight, when the sun is at its lowest.",
+                    (true, false) => "\n\nChatzos is the midpoint between sea level sunset and the next sunrise.",
+                },
+            );
         }
         text
     }

@@ -6,6 +6,7 @@ use std::{string::String, string::ToString};
 
 use super::formula::Formula;
 use crate::Location;
+use crate::calendar::DateOutOfRange;
 use crate::zmanim::{AstronomicalCalculator, Config, Zman, Zmanim, ZmanimError};
 
 /// Anything these tests calculate: a catalog `Zman` or a raw `Formula`.
@@ -723,15 +724,29 @@ fn test_polar_ben_ish_chai_available_for_every_calculator() {
 #[test]
 #[allow(clippy::field_reassign_with_default)]
 fn test_preset_description_uses_chatzos_hayom_config_flag() {
-    let calc = new_calc(0.0);
-    let desc = Zman::ChatzosHayom.description(calc.config());
-    assert!(desc.contains("astronomical chatzos (solar transit)"));
+    let desc = Zman::ChatzosHayom.description(&Config::default());
+    assert!(desc.contains("Chatzos is solar noon"));
 
     let mut config = Config::default();
     config.use_astronomical_chatzos = false;
-    let calc = Zmanim::with_config(lakewood_location(0.0), lakewood_date(), Some(lakewood_tz()), config);
-    let desc = Zman::ChatzosHayom.description(calc.config());
-    assert!(desc.contains("midpoint between sunrise and sunset"));
+    let desc = Zman::ChatzosHayom.description(&config);
+    assert!(desc.contains("midpoint between sea level sunrise and sunset"));
+    let desc = Zman::MinchaGedola30Minutes.description(&config);
+    assert!(desc.contains("midpoint between sea level sunrise and sunset"));
+    assert!(!desc.contains("astronomical"));
+}
+
+#[cfg(feature = "alloc")]
+#[test]
+#[allow(clippy::field_reassign_with_default)]
+fn test_preset_description_of_chatzos_halayla_describes_midnight() {
+    let desc = Zman::ChatzosHalayla.description(&Config::default());
+    assert!(desc.contains("Chatzos is solar midnight"));
+
+    let mut config = Config::default();
+    config.use_astronomical_chatzos = false;
+    let desc = Zman::ChatzosHalayla.description(&config);
+    assert!(desc.contains("midpoint between sea level sunset and the next sunrise"));
 }
 
 #[cfg(feature = "alloc")]
@@ -740,18 +755,71 @@ fn test_preset_description_uses_chatzos_hayom_config_flag() {
 fn test_preset_description_uses_chatzos_for_other_zmanim_config_flag() {
     let mut config = Config::default();
     config.use_astronomical_chatzos_for_other_zmanim = true;
-    let calc = Zmanim::with_config(lakewood_location(0.0), lakewood_date(), Some(lakewood_tz()), config);
-    let desc = Zman::SofZmanShmaGra.description(calc.config());
-    assert!(desc.contains("divides the morning up to astronomical chatzos"));
-    assert!(!desc.contains("midpoint between sunrise and sunset"));
-    let desc = Zman::PlagHaminchaGra.description(calc.config());
-    assert!(desc.contains("divides the afternoon from astronomical chatzos"));
+    let desc = Zman::SofZmanShmaGra.description(&config);
+    assert!(desc.contains("a sixth of the morning, from the start of the day to chatzos"));
+    assert!(desc.contains("Chatzos is solar noon"));
+    let desc = Zman::PlagHaminchaGra.description(&config);
+    assert!(desc.contains("a sixth of the afternoon, from chatzos to the end of the day"));
+
+    config.use_astronomical_chatzos = false;
+    let desc = Zman::SofZmanShmaGra.description(&config);
+    assert!(desc.contains("midpoint between sea level sunrise and sunset"));
+    assert!(!desc.contains("solar noon"));
 
     config.use_astronomical_chatzos_for_other_zmanim = false;
-    let calc = Zmanim::with_config(lakewood_location(0.0), lakewood_date(), Some(lakewood_tz()), config);
-    let desc = Zman::SofZmanShmaGra.description(calc.config());
-    assert!(desc.contains("fixed fraction of the sunrise-to-sunset interval"));
-    assert!(!desc.contains("divides the morning up to astronomical chatzos"));
+    for zman in [Zman::SofZmanShmaGra, Zman::SofZmanShmaMga16Point1Degrees] {
+        let desc = zman.description(&config);
+        assert!(desc.contains("a twelfth of the whole day"), "{zman}");
+        assert!(!desc.contains("sunrise-to-sunset"), "{zman}");
+        assert!(!desc.contains("Chatzos is"), "{zman}");
+    }
+}
+
+/// Every description, under every combination of config flags, has no empty paragraphs and no
+/// KosherJava method names, and does not call a time that uses elevation a sea level time.
+#[cfg(feature = "alloc")]
+#[test]
+fn test_preset_descriptions_are_consistent() {
+    for flags in 0..8 {
+        let config = Config {
+            use_elevation: flags & 1 != 0,
+            use_astronomical_chatzos: flags & 2 != 0,
+            use_astronomical_chatzos_for_other_zmanim: flags & 4 != 0,
+            ..Config::default()
+        };
+        for zman in Zman::ALL {
+            let desc = zman.description(&config);
+            assert!(!desc.contains("\n\n\n"), "{zman}: {desc:?}");
+            assert!(!desc.contains("`get"), "{zman}: {desc:?}");
+            if desc.contains("takes the configured location's elevation into account") {
+                assert!(!desc.contains("sea level sunrise,"), "{zman}: {desc:?}");
+                assert!(!desc.contains("after sea level sun"), "{zman}: {desc:?}");
+                assert!(!desc.contains("to sea level sun"), "{zman}: {desc:?}");
+                assert!(!desc.contains("sea-level"), "{zman}: {desc:?}");
+            }
+        }
+    }
+}
+
+#[test]
+fn test_hebrew_date_zmanim_report_dates_outside_the_hebrew_calendar_range() {
+    let date = Date::new(6300, 4, 1).unwrap();
+    let calc = Zmanim::new(lakewood_location(0.0), date, Some(lakewood_tz()));
+    for zman in [
+        Zman::SofZmanBiurChametzGra,
+        Zman::SofZmanAchilasChametzGra,
+        Zman::TchilasZmanKidushLevana3Days,
+        Zman::TchilasZmanKidushLevana7Days,
+        Zman::SofZmanKidushLevanaBetweenMoldos,
+        Zman::SofZmanKidushLevana15Days,
+    ] {
+        assert_eq!(
+            calc.get(zman),
+            Err(ZmanimError::DateOutOfRange(DateOutOfRange)),
+            "{zman}"
+        );
+    }
+    assert!(calc.get(Zman::Sunrise).is_ok());
 }
 
 /// On the first and last days a `Timestamp` holds, with any offsets, every zman is a time or an

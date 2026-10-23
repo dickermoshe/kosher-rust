@@ -17,6 +17,11 @@ pub enum ZmanimError {
     /// on a day with a normal sunrise.
     #[error("this time does not apply on this date")]
     NotApplicable,
+    /// The time depends on the Hebrew date, and the date is outside the range a
+    /// [`HebrewDate`](crate::HebrewDate) covers, 1 January of year 1 through 29 Elul 9999. The
+    /// chametz and Kiddush Levana times depend on the Hebrew date.
+    #[error(transparent)]
+    DateOutOfRange(#[from] DateOutOfRange),
     /// An angle passed to [`Zmanim::sunrise_offset_by_degrees`] or
     /// [`Zmanim::sunset_offset_by_degrees`] is not a number from -90 to 90.
     ///
@@ -34,15 +39,6 @@ pub enum ZmanimError {
     /// and date.
     #[error("internal calculation error; please report the location and date")]
     Internal,
-}
-
-/// A date outside the range a [`HebrewDate`] covers, which a calculation should not reach.
-///
-/// [`HebrewDate`]: crate::HebrewDate
-impl From<DateOutOfRange> for ZmanimError {
-    fn from(_: DateOutOfRange) -> Self {
-        Self::Internal
-    }
 }
 
 /// Date and time arithmetic fails only past the ends of the range jiff holds, which a calculation

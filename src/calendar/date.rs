@@ -158,8 +158,10 @@ impl HebrewDate {
 
     /// Whether candles are lit this evening, because tomorrow is Shabbos or Yom Tov.
     pub fn has_candle_lighting(self, region: Region) -> bool {
-        self.add_days(1)
-            .is_some_and(|tomorrow| tomorrow.is_assur_bemelacha(region))
+        // Not `add_days`, so that the last day of the range still sees Rosh Hashana after it.
+        self.0
+            .try_added_with_options(DateDuration::for_days(1), DateAddOptions::default())
+            .is_ok_and(|tomorrow| Self::from_icu(tomorrow).is_assur_bemelacha(region))
     }
 
     /// Whether this is one of the Ten Days of Repentance, 1 to 10 Tishrei.
@@ -279,7 +281,7 @@ impl HebrewDate {
 
     /// The molad of this date's month.
     ///
-    /// Returns `None` near the ends of the range a `HebrewDate` covers.
+    /// Every `HebrewDate` has one, so this always returns `Some`.
     pub fn molad(self) -> Option<Molad> {
         molad_of_month(&self.0)
     }

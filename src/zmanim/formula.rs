@@ -591,6 +591,15 @@ impl Formula {
         )
     }
 
+    /// Whether the chatzos the config chooses is chatzos halayla rather than chatzos hayom.
+    pub(crate) fn uses_chatzos_halayla(&self) -> bool {
+        match self {
+            Formula::ChatzosHalayla => true,
+            Formula::Offset(event, _) => event.uses_chatzos_halayla(),
+            _ => false,
+        }
+    }
+
     pub(crate) fn uses_astronomical_chatzos_for_other_zmanim_from_config(&self) -> bool {
         match self {
             Formula::Shema(_, _, synchronous)

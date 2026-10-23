@@ -181,6 +181,14 @@ fn candle_lighting_on_erev_shabbos_and_yom_tov() {
 }
 
 #[test]
+fn candle_lighting_on_the_last_day_of_the_range() {
+    // 29 Elul 9999 is Erev Rosh Hashana, though Rosh Hashana is past the range.
+    let last_day = hebrew(9999, HebrewMonth::Elul, 29);
+    assert_eq!(last_day.add_days(1), None);
+    assert!(last_day.has_candle_lighting(Region::Israel));
+}
+
+#[test]
 fn weekly_parsha() {
     let bo = hebrew(5784, HebrewMonth::Shevat, 10);
     assert_eq!(bo.weekday(), Weekday::Saturday);
@@ -243,6 +251,25 @@ fn molad_of_tishrei_5784_was_friday_morning() {
     assert_eq!((jerusalem.hour(), jerusalem.minute()), (6, 28));
     assert_eq!(molad.weekday(), Weekday::Friday);
     assert_eq!((molad.hours(), molad.minutes(), molad.chalakim()), (5, 49, 0));
+}
+
+#[test]
+fn molad_of_teves_3761_is_in_gregorian_year_0() {
+    // Tuesday 20:07 and 2 chalakim, Jerusalem mean time, on 12 December of year 0, a leap year.
+    let molad = hebrew(3761, HebrewMonth::Teves, 20).molad().unwrap();
+    assert_eq!(molad.weekday(), Weekday::Tuesday);
+    assert_eq!((molad.hours(), molad.minutes(), molad.chalakim()), (20, 7, 2));
+    assert_eq!(molad.timestamp().to_zoned(TimeZone::UTC).date(), date(0, 12, 12));
+}
+
+#[test]
+fn every_date_has_a_molad() {
+    let mut day = HebrewDate::try_from(date(1, 1, 1)).unwrap();
+    while let Some(next) = day.add_days(29) {
+        assert!(day.molad().is_some(), "{day}");
+        day = next;
+    }
+    assert!(hebrew(9999, HebrewMonth::Elul, 29).molad().is_some());
 }
 
 #[test]

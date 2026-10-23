@@ -30,7 +30,7 @@ pub(crate) mod month;
 mod parsha;
 mod parsha_tables;
 mod special_day;
-mod year;
+pub(crate) mod year;
 
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]

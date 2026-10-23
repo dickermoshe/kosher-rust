@@ -77,14 +77,17 @@ pub struct Config {
     /// How long before sea-level sunset [`Zman::CandleLighting`](super::Zman::CandleLighting)
     /// is. The default is 18 minutes.
     pub candle_lighting_offset: Duration,
-    /// Whether proportional zmanim divide the day at astronomical *chatzos*. When `true`, morning
-    /// times are a fraction of sunrise to *chatzos* and afternoon times a fraction of *chatzos* to
-    /// sunset, instead of a fraction of sunrise to sunset. It only affects zmanim whose day is
-    /// symmetric around *chatzos*. The default is `false`.
+    /// Whether proportional zmanim divide the day at *chatzos*. When `true`, morning times are a
+    /// fraction of the start of the day to *chatzos* and afternoon times a fraction of *chatzos* to
+    /// the end of the day, instead of a fraction of the whole day. Which *chatzos* is set by
+    /// [`use_astronomical_chatzos`](Self::use_astronomical_chatzos). It only affects zmanim whose
+    /// day is symmetric around *chatzos*. The default is `false`.
     pub use_astronomical_chatzos_for_other_zmanim: bool,
-    /// Whether the observer's elevation adjusts sunrise and sunset in every zman built on them.
+    /// Whether the observer's elevation adjusts sunrise and sunset in the zmanim built on them.
     /// When `false`, only [`Zman::Sunrise`](super::Zman::Sunrise) and
-    /// [`Zman::Sunset`](super::Zman::Sunset) use it. The default is `false`.
+    /// [`Zman::Sunset`](super::Zman::Sunset) use it. Either way
+    /// [`Zman::CandleLighting`](super::Zman::CandleLighting) counts from sea level sunset. The
+    /// default is `false`.
     pub use_elevation: bool,
     /// How long after sunset [`Zman::TzaisAteretTorah`](super::Zman::TzaisAteretTorah) is,
     /// which also ends the day for the other Ateret Torah zmanim. The default is 40 minutes.

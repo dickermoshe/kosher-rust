@@ -1,7 +1,7 @@
 use icu_calendar::{Date, cal::Hebrew, types::Weekday};
 
 use crate::{
-    calendar::{HebrewDate, Region, SpecialDay, month},
+    calendar::{HebrewDate, Region, SpecialDay, month, year::LAST_YEAR},
     limudim::{
         engine::{CycleFinder, HebrewDateExt, InternalLimud, Interval},
         units::{Daf, YERUSHALMI_TRACTATES},
@@ -113,19 +113,22 @@ fn tisha_bav_date(year: i32) -> Option<Date<Hebrew>> {
     }
 }
 
+/// The number of days from `start` through `end`, both included, on which no daf is learned.
+///
+/// Years past [`LAST_YEAR`] are not counted. Only the end of the last cycle reaches them, and no
+/// `HebrewDate` falls after it.
 fn count_special_days(start: Date<Hebrew>, end: Date<Hebrew>) -> Option<u32> {
     let start_year = start.year().extended_year();
-    let end_year = end.year().extended_year();
+    let end_year = end.year().extended_year().min(LAST_YEAR);
     let mut special_days = 0;
 
     for year in start_year..=end_year {
         let yom_kippur = Date::try_new_hebrew_v2(year, month::TISHREI, 10).ok()?;
-        if start < yom_kippur && yom_kippur <= end {
+        if (start..=end).contains(&yom_kippur) {
             special_days += 1;
         }
 
-        let tisha_bav = tisha_bav_date(year);
-        if start < tisha_bav? && tisha_bav? <= end {
+        if (start..=end).contains(&tisha_bav_date(year)?) {
             special_days += 1;
         }
     }

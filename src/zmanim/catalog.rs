@@ -459,7 +459,7 @@ zman_catalog! {
     /// If sunrise occurs that day, this zman is not available. In polar regions (the Arctic or Antarctic circles),
     /// there are days with no sunrise or sunset. Some opinions hold that during these periods, sunrise is when the
     /// sun is directly due east (azimuth 90 degrees), and sunset is when the sun is directly due west (azimuth 270
-    /// degrees), returned by `getPolarSunsetBenIshChai`. This follows [Rabbi Yehosef
+    /// degrees), given by [`Zman::PolarSunsetBenIshChai`]. This follows [Rabbi Yehosef
     /// Schwarz](https://en.wikipedia.org/wiki/Joseph_Schwarz_(geographer)) in [Devarim Yosef - Derech Mevo
     /// Hashemesh](https://hebrewbooks.org/pdfpager.aspx?req=31703&pgnum=134) and [Devarim Yosef - Teshuvot, She'elah
     /// 8](https://hebrewbooks.org/pdfpager.aspx?req=159&pgnum=83), brought lehalacha by the [Ben Ish
@@ -474,7 +474,7 @@ zman_catalog! {
         formula: PolarSunriseBenIshChai,
         about: concat!(
             "Sunrise calculated as the time when the sun is directly due east (azimuth 90 degrees) in polar regions on days when there is no sunrise.\n\n",
-            "If sunrise occurs that day, this zman is not available. In polar regions (the Arctic or Antarctic circles), there are days with no sunrise or sunset. Some opinions hold that during these periods, sunrise is when the sun is directly due east (azimuth 90 degrees), and sunset is when the sun is directly due west (azimuth 270 degrees), returned by `getPolarSunsetBenIshChai`. This follows [Rabbi Yehosef Schwarz](https://en.wikipedia.org/wiki/Joseph_Schwarz_(geographer)) in [Devarim Yosef - Derech Mevo Hashemesh](https://hebrewbooks.org/pdfpager.aspx?req=31703&pgnum=134) and [Devarim Yosef - Teshuvot, She'elah 8](https://hebrewbooks.org/pdfpager.aspx?req=159&pgnum=83), brought lehalacha by the [Ben Ish Chai](https://en.wikipedia.org/wiki/Yosef_Hayyim) in [Rav Pe'alim, chelek 2, Sod Yesharim siman 4](https://hebrewbooks.org/pdfpager.aspx?req=1401&pgnum=461). This time is close to six hours before astronomical chatzos, but depending on the season and location in the Arctic or Antarctic, it can be up to 46 minutes earlier or later.\n\n",
+            "If sunrise occurs that day, this zman is not available. In polar regions (the Arctic or Antarctic circles), there are days with no sunrise or sunset. Some opinions hold that during these periods, sunrise is when the sun is directly due east (azimuth 90 degrees), and sunset is when the sun is directly due west (azimuth 270 degrees). This follows [Rabbi Yehosef Schwarz](https://en.wikipedia.org/wiki/Joseph_Schwarz_(geographer)) in [Devarim Yosef - Derech Mevo Hashemesh](https://hebrewbooks.org/pdfpager.aspx?req=31703&pgnum=134) and [Devarim Yosef - Teshuvot, She'elah 8](https://hebrewbooks.org/pdfpager.aspx?req=159&pgnum=83), brought lehalacha by the [Ben Ish Chai](https://en.wikipedia.org/wiki/Yosef_Hayyim) in [Rav Pe'alim, chelek 2, Sod Yesharim siman 4](https://hebrewbooks.org/pdfpager.aspx?req=1401&pgnum=461). This time is close to six hours before astronomical chatzos, but depending on the season and location in the Arctic or Antarctic, it can be up to 46 minutes earlier or later.\n\n",
             "If there is no sunrise that day and the sun does not reach azimuth 90 degrees, this zman may not be available or cannot be calculated.",
         ),
     },
@@ -725,7 +725,7 @@ zman_catalog! {
     /// as cited in [Yisrael Vehazmanim vol. 1, sec. 7, ch. 3 no.
     /// 16](https://hebrewbooks.org/pdfpager.aspx?req=9765&pgnum=81).
     ///
-    /// 3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to sea level
+    /// 3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to
     /// sunset. By this calculation, chatzos is not at midday.
     SofZmanShmaAlos16Point1ToSunset {
         java: "getSofZmanShmaAlos16Point1ToSunset",
@@ -734,7 +734,7 @@ zman_catalog! {
         formula: Shema(&SunriseOffsetByDegrees(16.1), &ConfiguredSunset, false),
         about: concat!(
             "Sof zman krias shema - the latest time to recite morning Shema according to the opinion of the [Chidushei V'Chlalot HaRazah](https://hebrewbooks.org/40357) and the [Menorah HaTehorah](https://hebrewbooks.org/14799), as cited in [Yisrael Vehazmanim vol. 1, sec. 7, ch. 3 no. 16](https://hebrewbooks.org/pdfpager.aspx?req=9765&pgnum=81).\n\n",
-            "3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to sea level sunset. By this calculation, chatzos is not at midday.\n\n",
+            "3 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to sunset. By this calculation, chatzos is not at midday.\n\n",
             "At some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.",
         ),
     },
@@ -1144,7 +1144,7 @@ zman_catalog! {
     /// Sof zman achilas chametz - the latest time to eat chametz on Erev Pesach according to the
     /// [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon). Same as sof zman tfila GRA.
     ///
-    /// 4 shaos zmaniyos after sea level sunrise, with the day measured from sunrise to sunset.
+    /// 4 shaos zmaniyos after sunrise, with the day measured from sunrise to sunset.
     SofZmanAchilasChametzGra {
         java: "getSofZmanAchilasChametzGRA",
         name: "Sof Zman Achilas Chametz (GR'A)",
@@ -1152,7 +1152,7 @@ zman_catalog! {
         formula: SofZmanAchilasChametz(&ConfiguredSunrise, &ConfiguredSunset, true),
         about: concat!(
             "Sof zman achilas chametz - the latest time to eat chametz on Erev Pesach according to the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon). Same as sof zman tfila GRA.\n\n",
-            "4 shaos zmaniyos after sea level sunrise, with the day measured from sunrise to sunset.",
+            "4 shaos zmaniyos after sunrise, with the day measured from sunrise to sunset.",
         ),
     },
 
@@ -1226,7 +1226,7 @@ zman_catalog! {
     /// Sof zman biur chametz - the latest time to burn chametz on Erev Pesach according to the
     /// [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon).
     ///
-    /// 5 shaos zmaniyos after sea level sunrise, with the day measured from sunrise to sunset.
+    /// 5 shaos zmaniyos after sunrise, with the day measured from sunrise to sunset.
     SofZmanBiurChametzGra {
         java: "getSofZmanBiurChametzGRA",
         name: "Sof Zman Biur Chametz (GR'A)",
@@ -1234,7 +1234,7 @@ zman_catalog! {
         formula: SofZmanBiurChametz(&ConfiguredSunrise, &ConfiguredSunset, true),
         about: concat!(
             "Sof zman biur chametz - the latest time to burn chametz on Erev Pesach according to the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon).\n\n",
-            "5 shaos zmaniyos after sea level sunrise, with the day measured from sunrise to sunset.",
+            "5 shaos zmaniyos after sunrise, with the day measured from sunrise to sunset.",
         ),
     },
 
@@ -1330,8 +1330,7 @@ zman_catalog! {
         formula: ChatzosHayom,
         about: concat!(
             "Chatzos hayom.\n\n",
-            "For how chatzos can be defined and calculated, see [The Definition of Chatzos](https://kosherjava.com/2020/07/02/definition-of-chatzos/) on the KosherJava blog.\n\n",
-            "",
+            "For how chatzos can be defined and calculated, see [The Definition of Chatzos](https://kosherjava.com/2020/07/02/definition-of-chatzos/) on the KosherJava blog.",
         ),
     },
 
@@ -1405,7 +1404,7 @@ zman_catalog! {
         ),
     },
 
-    /// Mincha gedola calculated as 30 minutes after astronomical chatzos hayom.
+    /// Mincha gedola calculated as 30 minutes after chatzos hayom.
     ///
     /// Some use this in winter when half a shaah zmanis is less than 30 minutes, to delay the start of mincha.
     MinchaGedola30Minutes {
@@ -1414,7 +1413,7 @@ zman_catalog! {
         category: MinchaGedola,
         formula: Offset(&ChatzosHayom, Duration::from_mins(30)),
         about: concat!(
-            "Mincha gedola calculated as 30 minutes after astronomical chatzos hayom.\n\n",
+            "Mincha gedola calculated as 30 minutes after chatzos hayom.\n\n",
             "Some use this in winter when half a shaah zmanis is less than 30 minutes, to delay the start of mincha.\n\n",
             "Do not use this time to begin mincha before standard mincha gedola GRA.\n\n",
             "In places where chatzos cannot be calculated, this zman may not be available.",
@@ -1453,7 +1452,7 @@ zman_catalog! {
         ),
     },
 
-    /// Mincha gedola calculated as the later of mincha gedola GRA and 30 minutes after astronomical chatzos hayom.
+    /// Mincha gedola calculated as the later of mincha gedola GRA and 30 minutes after chatzos hayom.
     ///
     /// In the winter, when half a shaah zmanis is less than 30 minutes, the 30-minutes-after-chatzos time is used.
     /// Otherwise, mincha gedola GRA is used.
@@ -1463,7 +1462,7 @@ zman_catalog! {
         category: MinchaGedola,
         formula: MinchaGedolaGraGreaterThan30,
         about: concat!(
-            "Mincha gedola calculated as the later of mincha gedola GRA and 30 minutes after astronomical chatzos hayom.\n\n",
+            "Mincha gedola calculated as the later of mincha gedola GRA and 30 minutes after chatzos hayom.\n\n",
             "In the winter, when half a shaah zmanis is less than 30 minutes, the 30-minutes-after-chatzos time is used. Otherwise, mincha gedola GRA is used.\n\n",
             "In places where sunrise, sunset, or chatzos cannot be calculated, this zman may not be available.",
         ),
@@ -1565,7 +1564,7 @@ zman_catalog! {
         ),
     },
 
-    /// Plag hamincha based on a day from alos 16.1 degrees to sea-level sunset.
+    /// Plag hamincha based on a day from alos 16.1 degrees to sunset.
     ///
     /// 10.75 shaos zmaniyos after alos 16.1 degrees.
     #[deprecated(note = "KosherJava deprecates this zman")]
@@ -1575,7 +1574,7 @@ zman_catalog! {
         category: PlagHamincha,
         formula: PlagHamincha(&SunriseOffsetByDegrees(16.1), &ConfiguredSunset, false),
         about: concat!(
-            "Plag hamincha based on a day from alos 16.1 degrees to sea-level sunset.\n\n",
+            "Plag hamincha based on a day from alos 16.1 degrees to sunset.\n\n",
             "10.75 shaos zmaniyos after alos 16.1 degrees.\n\n",
             "This zman should be used lechumra only. It can be a very late time, often after shkiah, and using it leniently can lead to chillul Shabbos.\n\n",
             "At some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon.",
@@ -2235,7 +2234,7 @@ zman_catalog! {
     /// If sunset occurs that day, this zman is not available. In polar regions (the Arctic or Antarctic circles),
     /// there are days with no sunrise or sunset. Some opinions hold that during these periods, sunset (the day-night
     /// boundary) is when the sun is directly due west (azimuth 270 degrees), and sunrise is when the sun is directly
-    /// due east (azimuth 90 degrees), returned by `getPolarSunriseBenIshChai`. This follows [Rabbi Yehosef
+    /// due east (azimuth 90 degrees), given by [`Zman::PolarSunriseBenIshChai`]. This follows [Rabbi Yehosef
     /// Schwarz](https://en.wikipedia.org/wiki/Joseph_Schwarz_(geographer)) in [Devarim Yosef - Derech Mevo
     /// Hashemesh](https://hebrewbooks.org/pdfpager.aspx?req=31703&pgnum=134) and [Devarim Yosef - Teshuvot, She'elah
     /// 8](https://hebrewbooks.org/pdfpager.aspx?req=159&pgnum=83), brought lehalacha by the [Ben Ish
@@ -2250,7 +2249,7 @@ zman_catalog! {
         formula: PolarSunsetBenIshChai,
         about: concat!(
             "Sunset calculated as the time when the sun is directly due west (azimuth 270 degrees) in polar regions on days when there is no sunset.\n\n",
-            "If sunset occurs that day, this zman is not available. In polar regions (the Arctic or Antarctic circles), there are days with no sunrise or sunset. Some opinions hold that during these periods, sunset (the day-night boundary) is when the sun is directly due west (azimuth 270 degrees), and sunrise is when the sun is directly due east (azimuth 90 degrees), returned by `getPolarSunriseBenIshChai`. This follows [Rabbi Yehosef Schwarz](https://en.wikipedia.org/wiki/Joseph_Schwarz_(geographer)) in [Devarim Yosef - Derech Mevo Hashemesh](https://hebrewbooks.org/pdfpager.aspx?req=31703&pgnum=134) and [Devarim Yosef - Teshuvot, She'elah 8](https://hebrewbooks.org/pdfpager.aspx?req=159&pgnum=83), brought lehalacha by the [Ben Ish Chai](https://en.wikipedia.org/wiki/Yosef_Hayyim) in [Rav Pe'alim, chelek 2, Sod Yesharim siman 4](https://hebrewbooks.org/pdfpager.aspx?req=1401&pgnum=461). This time is close to six hours after astronomical chatzos, but depending on the season and location in the Arctic or Antarctic, it can be up to 46 minutes earlier or later.\n\n",
+            "If sunset occurs that day, this zman is not available. In polar regions (the Arctic or Antarctic circles), there are days with no sunrise or sunset. Some opinions hold that during these periods, sunset (the day-night boundary) is when the sun is directly due west (azimuth 270 degrees), and sunrise is when the sun is directly due east (azimuth 90 degrees). This follows [Rabbi Yehosef Schwarz](https://en.wikipedia.org/wiki/Joseph_Schwarz_(geographer)) in [Devarim Yosef - Derech Mevo Hashemesh](https://hebrewbooks.org/pdfpager.aspx?req=31703&pgnum=134) and [Devarim Yosef - Teshuvot, She'elah 8](https://hebrewbooks.org/pdfpager.aspx?req=159&pgnum=83), brought lehalacha by the [Ben Ish Chai](https://en.wikipedia.org/wiki/Yosef_Hayyim) in [Rav Pe'alim, chelek 2, Sod Yesharim siman 4](https://hebrewbooks.org/pdfpager.aspx?req=1401&pgnum=461). This time is close to six hours after astronomical chatzos, but depending on the season and location in the Arctic or Antarctic, it can be up to 46 minutes earlier or later.\n\n",
             "If there is no sunset that day and the sun does not reach azimuth 270 degrees, this zman may not be available or cannot be calculated.",
         ),
     },
@@ -2359,7 +2358,7 @@ zman_catalog! {
     },
 
     /// Tzais (nightfall) according to the [Minchas Cohen](https://en.wikipedia.org/wiki/Abraham_Cohen_Pimentel) - 72
-    /// zmaniyos minutes (1/10 of the day) after sea level sunset.
+    /// zmaniyos minutes (1/10 of the day) after sunset.
     ///
     /// This is the Minchas Cohen's calculation of Rabbeinu Tam's tzais. Note that twilight does not vary in direct
     /// proportion to the length of the day, so this zman does not match astronomical reality.
@@ -2369,7 +2368,7 @@ zman_catalog! {
         category: Tzais,
         formula: ZmanisOffset(&ConfiguredSunset, 1.2),
         about: concat!(
-            "Tzais (nightfall) according to the [Minchas Cohen](https://en.wikipedia.org/wiki/Abraham_Cohen_Pimentel) - 72 zmaniyos minutes (1/10 of the day) after sea level sunset.\n\n",
+            "Tzais (nightfall) according to the [Minchas Cohen](https://en.wikipedia.org/wiki/Abraham_Cohen_Pimentel) - 72 zmaniyos minutes (1/10 of the day) after sunset.\n\n",
             "This is the Minchas Cohen's calculation of Rabbeinu Tam's tzais. Note that twilight does not vary in direct proportion to the length of the day, so this zman does not match astronomical reality.\n\n",
             "In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.",
         ),
@@ -2390,7 +2389,7 @@ zman_catalog! {
         ),
     },
 
-    /// Tzais (nightfall) - 90 zmaniyos minutes (1/8 of the day) after sea level sunset.
+    /// Tzais (nightfall) - 90 zmaniyos minutes (1/8 of the day) after sunset.
     ///
     /// Known in Yiddish as the achtel zman, used in various kehilos.
     Tzais90Zmanis {
@@ -2399,7 +2398,7 @@ zman_catalog! {
         category: Tzais,
         formula: ZmanisOffset(&ConfiguredSunset, 1.5),
         about: concat!(
-            "Tzais (nightfall) - 90 zmaniyos minutes (1/8 of the day) after sea level sunset.\n\n",
+            "Tzais (nightfall) - 90 zmaniyos minutes (1/8 of the day) after sunset.\n\n",
             "Known in Yiddish as the achtel zman, used in various kehilos.\n\n",
             "In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.",
         ),
@@ -2420,7 +2419,7 @@ zman_catalog! {
         ),
     },
 
-    /// Tzais (nightfall) - 96 zmaniyos minutes (1/7.5 of the day) after sea level sunset.
+    /// Tzais (nightfall) - 96 zmaniyos minutes (1/7.5 of the day) after sunset.
     ///
     /// In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one
     /// when it does not set, this zman may not be available or cannot be calculated.
@@ -2430,7 +2429,7 @@ zman_catalog! {
         category: Tzais,
         formula: ZmanisOffset(&ConfiguredSunset, 1.6),
         about: concat!(
-            "Tzais (nightfall) - 96 zmaniyos minutes (1/7.5 of the day) after sea level sunset.\n\n",
+            "Tzais (nightfall) - 96 zmaniyos minutes (1/7.5 of the day) after sunset.\n\n",
             "In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.",
         ),
     },
@@ -2453,7 +2452,7 @@ zman_catalog! {
         ),
     },
 
-    /// Tzais (nightfall) - 120 zmaniyos minutes after sea level sunset.
+    /// Tzais (nightfall) - 120 zmaniyos minutes after sunset.
     ///
     /// This zman should be used lechumra only, such as delaying the start of nighttime mitzvos. The sun is well below
     /// the 18-degree point in most places. Using it leniently can lead to chillul Shabbos and similar serious errors.
@@ -2464,7 +2463,7 @@ zman_catalog! {
         category: Tzais,
         formula: ZmanisOffset(&ConfiguredSunset, 2.0),
         about: concat!(
-            "Tzais (nightfall) - 120 zmaniyos minutes after sea level sunset.\n\n",
+            "Tzais (nightfall) - 120 zmaniyos minutes after sunset.\n\n",
             "This zman should be used lechumra only, such as delaying the start of nighttime mitzvos. The sun is well below the 18-degree point in most places. Using it leniently can lead to chillul Shabbos and similar serious errors.\n\n",
             "In places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.",
         ),
@@ -2815,7 +2814,7 @@ zman_catalog! {
     /// next.
     ///
     /// Half of the 29 days, 12 hours, and 793 chalakim interval between molad and molad (14 days, 18 hours, 22
-    /// minutes, and 666 milliseconds) after the month's molad.
+    /// minutes, and 1.666 seconds) after the month's molad.
     ///
     /// This time needs a time zone. Without one it returns
     /// [`ZmanimError::TimeZoneRequired`](super::ZmanimError).
@@ -2826,7 +2825,7 @@ zman_catalog! {
         formula: SofZmanKidushLevanaBetweenMoldos,
         about: concat!(
             "The latest time for Kiddush Levana according to the [Maharil](https://en.wikipedia.org/wiki/Yaakov_ben_Moshe_Levi_Moelin) - halfway between this molad and the next.\n\n",
-            "Half of the 29 days, 12 hours, and 793 chalakim interval between molad and molad (14 days, 18 hours, 22 minutes, and 666 milliseconds) after the month's molad.\n\n",
+            "Half of the 29 days, 12 hours, and 793 chalakim interval between molad and molad (14 days, 18 hours, 22 minutes, and 1.666 seconds) after the month's molad.\n\n",
             "Note that although this time may be during the daytime, Kiddush Levana cannot be said during the daytime.",
         ),
     },
@@ -2898,8 +2897,7 @@ zman_catalog! {
         formula: ChatzosHalayla,
         about: concat!(
             "Chatzos halayla.\n\n",
-            "For how chatzos can be defined and calculated, see [The Definition of Chatzos](https://kosherjava.com/2020/07/02/definition-of-chatzos/) on the KosherJava blog.\n\n",
-            "",
+            "For how chatzos can be defined and calculated, see [The Definition of Chatzos](https://kosherjava.com/2020/07/02/definition-of-chatzos/) on the KosherJava blog.",
         ),
     },
 }

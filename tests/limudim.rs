@@ -65,6 +65,36 @@ fn units_print_like_a_calendar() {
 }
 
 #[test]
+fn yerushalmi_cycles_ending_on_a_skip_day_keep_every_daf() {
+    // Tishah B'Av 5932 falls in the days this cycle is extended by. It still ends with Niddah 13.
+    let daf = |day| DafYomiYerushalmi.on(day).map(|daf| daf.to_string());
+    assert_eq!(daf(date(2172, 8, 6)).as_deref(), Some("Niddah 12"));
+    assert_eq!(daf(date(2172, 8, 7)).as_deref(), Some("Niddah 13"));
+    assert_eq!(daf(date(2172, 8, 8)).as_deref(), Some("Berachos 1"));
+}
+
+#[test]
+fn yerushalmi_cycle_with_tishah_bav_before_its_last_daf_keeps_every_daf() {
+    // Tishah B'Av 6240 falls the day before the last daf of the cycle.
+    let daf = |day| DafYomiYerushalmi.on(day).map(|daf| daf.to_string());
+    assert_eq!(daf(date(2480, 8, 14)).as_deref(), Some("Niddah 12"));
+    assert_eq!(daf(date(2480, 8, 15)), None);
+    assert_eq!(daf(date(2480, 8, 16)).as_deref(), Some("Niddah 13"));
+    assert_eq!(daf(date(2480, 8, 17)).as_deref(), Some("Berachos 1"));
+}
+
+#[test]
+fn yerushalmi_runs_to_the_end_of_the_range() {
+    // The last cycle starts on 21 Tishrei 9997 and ends after the range.
+    assert!(DafYomiYerushalmi.on(date(6238, 10, 1)).is_some());
+    assert!(
+        DafYomiYerushalmi
+            .on(HebrewDate::new(9999, HebrewMonth::Elul, 29).unwrap())
+            .is_some()
+    );
+}
+
+#[test]
 fn mishna_pairs_across_chapters_and_tractates() {
     let mishna = |tractate, chapter, mishna| Mishna {
         tractate,

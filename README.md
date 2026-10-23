@@ -140,13 +140,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ## Port status
 
 This port is tracked against KosherJava commit
-[ffb0fef](https://github.com/KosherJava/zmanim/commit/ffb0fefdbc6c70fd1b4e708444da7967f5f95bef),
-which is master shortly after the 3.0.0 release. CI compares it with that version on every
-commit, using random dates and locations for every zman, the Hebrew calendar and Daf Yomi.
-
-It also includes a fix that KosherJava hasn't merged yet,
-[KosherJava/zmanim#296](https://github.com/KosherJava/zmanim/pull/296), which keeps a sunrise or
-sunset near the date line on its own date.
+[6d9026d](https://github.com/KosherJava/zmanim/commit/6d9026d2a4e6172858ec0ed6cf169804ed2c44c6),
+which is master after the 3.0.0 release. CI compares it with that version on every commit,
+using random dates and locations for every zman, the Hebrew calendar and Daf Yomi.
 
 The zmanim, the three astronomical calculators, the Hebrew calendar and both Daf Yomi
 calculators are ported. Not ported yet:

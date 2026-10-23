@@ -88,10 +88,49 @@ function randomDate(from: string, to: string): Date {
   return faker.date.between({ from, to });
 }
 
+/** The daf on a Gregorian date from this crate and from hebcal, as "Tractate:page", or null. */
+function dafimOn(y: number, m: number, d: number): { ours: string | null; hebcal: string | null } {
+  let ours: DafResult | null = null;
+  let hebcal: any = null;
+  try {
+    ours = daf_yomi_yerushalmi(y, m, d);
+  } catch (e) {
+    ours = null;
+  }
+  try {
+    hebcal = yerushalmiYomi(new HDate(new Date(Date.UTC(y, m - 1, d))), vilna);
+  } catch (e) {
+    hebcal = null;
+  }
+  return {
+    ours: ours ? `${mapTractate(ours.tractate)}:${ours.page}` : null,
+    hebcal: hebcal ? `${mapTractate(hebcal.name)}:${hebcal.blatt}` : null,
+  };
+}
+
 describe("Daf Yomi Yerushalmi", () => {
+  // Every day from the first cycle through 7 August 2172. This crosses every cycle boundary in
+  // that span, including the cycle that ends on 7 August 2172 with Niddah 13. From 8 August 2172
+  // hebcal's own cycle runs one day too long, so it is no reference after that.
+  test("matches @hebcal/learning on every day from 1980 through 7 August 2172", () => {
+    const end = Date.UTC(2172, 7, 7);
+    const day = 24 * 60 * 60 * 1000;
+    for (let time = Date.UTC(1980, 1, 2); time <= end; time += day) {
+      const date = new Date(time);
+      const y = date.getUTCFullYear();
+      const m = date.getUTCMonth() + 1;
+      const d = date.getUTCDate();
+      const { ours, hebcal } = dafimOn(y, m, d);
+      if (ours !== hebcal) {
+        expect({ date: date.toISOString().slice(0, 10), daf: ours }).toEqual({
+          date: date.toISOString().slice(0, 10),
+          daf: hebcal,
+        });
+      }
+    }
+  });
+
   test("matches @hebcal/learning for random dates 1980-2060", () => {
-    // Skip day postponement logic doesn't match hebcal yet
-    // When Tisha B'Av falls on Shabbat, hebcal's handling differs from ours
     for (let i = 0; i < ITERATIONS; i++) {
       const date = randomDate("1900-01-01", "2060-12-31");
 

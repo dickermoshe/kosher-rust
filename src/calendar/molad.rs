@@ -150,7 +150,7 @@ pub(crate) fn molad_of_month(date: &Date<Hebrew>) -> Option<Molad> {
 }
 
 fn abs_date_to_gregorian_date(abs_date: i64) -> Option<Date<Gregorian>> {
-    let mut year = (abs_date / 366) as i32;
+    let mut year = abs_date.div_euclid(366) as i32;
     while abs_date >= gregorian_date_to_abs_date(year + 1, 1, 1)? {
         year += 1;
     }
@@ -168,11 +168,16 @@ fn abs_date_to_gregorian_date(abs_date: i64) -> Option<Date<Gregorian>> {
     Date::try_new_gregorian(year, month, day_of_month).ok()
 }
 
+/// Days from 31 December of year 0 to the date, so 1 January of year 1 is day 1. The leap days
+/// before `year` are counted with floor division, which also holds for year 0 and earlier.
 fn gregorian_date_to_abs_date(year: i32, month: u8, day_of_month: u8) -> Option<i64> {
     let mut abs_date = day_of_month as i64;
     for m in (1..month).rev() {
         abs_date += Date::try_new_gregorian(year, m, 1).ok()?.days_in_month() as i64;
     }
     let year: i64 = year as i64;
-    Some(abs_date + 365 * (year - 1) + (year - 1) / 4 - (year - 1) / 100 + (year - 1) / 400)
+    Some(
+        abs_date + 365 * (year - 1) + (year - 1).div_euclid(4) - (year - 1).div_euclid(100)
+            + (year - 1).div_euclid(400),
+    )
 }

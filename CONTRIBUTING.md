@@ -49,11 +49,6 @@ UPDATE_SNAPSHOT=1 cargo test -p kosher-rust catalog_snapshot
 Java conformance suite compares against. The tracked commit is listed under "Port status" in the
 [README](README.md).
 
-The vendored copy also carries a fix that is not upstream yet. It is in
-`AstronomicalCalendar.getInstantFromTime` and puts a sunrise or sunset near the date line back on
-its own date, with a test in `AstronomicalCalendarTest`. Keep it when pulling until upstream merges
-[KosherJava/zmanim#296](https://github.com/KosherJava/zmanim/pull/296).
-
 ```bash
 git subtree pull --prefix=third-party/kosher-java https://github.com/KosherJava/zmanim <tag-or-branch> --squash
 ```

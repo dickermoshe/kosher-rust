@@ -34,8 +34,17 @@ are unchanged, and they are still checked against KosherJava and hebcal.
 - **`HebrewDate` has a range.** It covers 1 January of year 1, which is 18 Teves 3761, through
   29 Elul 9999. Converting a date outside that range fails with `DateOutOfRange`, where before it
   gave wrong leap years, parshiyos and moladot, or a panic in `molad`. The times that need a
-  Hebrew date (Kiddush Levana and the chametz times) return `ZmanimError::Internal` outside it,
-  and the schedules return `None`.
+  Hebrew date (Kiddush Levana and the chametz times) return the new
+  `ZmanimError::DateOutOfRange` outside it, and the schedules return `None`.
+- **Daf Yomi Yerushalmi at the end of a cycle.** When a cycle started on, or was extended to
+  end on, Yom Kippur or Tishah B'Av, that day was not counted as a skip day, so the cycle lost a
+  daf. The first such cycle ends in 2172, which went from Niddah 12 straight to Berachos 1. Every
+  cycle now has all 1554 dafim. The schedule also gave `None` from 21 Tishrei 9997 to the end of
+  the range, and now gives the daf.
+- **The molad of Teves 3761** was a day early, on Monday 11 December of year 0 instead of
+  Tuesday 12 December.
+- **Candle lighting on 29 Elul 9999.** `has_candle_lighting` returned `false` on the last day of
+  the range, which is Erev Rosh Hashana.
 - **Pirkei Avos in the week after Pesach.** On the weekdays of Pesach whose week ends in a
   Shabbos with a reading, `PirkeiAvos` returned nothing. It now gives that Shabbos's chapter, as
   it does for every other week, and agrees with hebcal.
