@@ -46,9 +46,8 @@ UPDATE_SNAPSHOT=1 cargo test -p kosher-rust catalog_snapshot
 ## Updating the vendored KosherJava
 
 `third-party/kosher-java` is a git subtree of upstream KosherJava. It is the reference the
-Java conformance suite compares against. Currently tracked: commit
-[ffb0fef](https://github.com/KosherJava/zmanim/commit/ffb0fefdbc6c70fd1b4e708444da7967f5f95bef)
-(post-3.0.0 master).
+Java conformance suite compares against. The tracked commit is listed under "Port status" in the
+[README](README.md).
 
 The vendored copy also carries a fix that is not upstream yet. It is in
 `AstronomicalCalendar.getInstantFromTime` and puts a sunrise or sunset near the date line back on
@@ -59,7 +58,7 @@ its own date, with a test in `AstronomicalCalendarTest`. Keep it when pulling un
 git subtree pull --prefix=third-party/kosher-java https://github.com/KosherJava/zmanim <tag-or-branch> --squash
 ```
 
-Then port any new or changed zmanim (see below), update the tracked commit above, and run the
+Then port any new or changed zmanim (see below), update the tracked commit in the README, and run the
 Java conformance suite.
 
 ## Adding a zman

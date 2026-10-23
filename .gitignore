@@ -8,6 +8,7 @@ rustc-ice-*.txt
 
 # Editors and OS
 .idea/
+.vscode/settings.json
 .DS_Store
 
 # Local scripts

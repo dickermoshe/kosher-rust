@@ -14,6 +14,12 @@ Jewish calendar, *zmanim* and daily learning schedules for Rust. A port of
 cargo add kosher-rust jiff
 ```
 
+## Other languages
+
+If you're looking for this library in another language, see
+[kosherz](https://github.com/dickermoshe/kosher-rust/tree/main/kosherz), its bindings for Node,
+WebAssembly, Python, Swift, Kotlin, Dart, .NET, Go, Ruby, C and C++.
+
 ## The Hebrew calendar
 
 A `jiff::civil::Date` (or ICU date) converts to a `HebrewDate`, which answers questions about
@@ -147,25 +153,32 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-## Coming from KosherJava
+## Port status
 
-| KosherJava | kosher-rust |
-|---|---|
-| `JewishCalendar` | `HebrewDate` |
-| `GeoLocation` | `Location` |
-| `ComprehensiveZmanimCalendar.getSofZmanShmaGRA()` | `zmanim.get(Zman::SofZmanShmaGra)` |
-| `NOAACalculator`, `MeeusCalculator`, `SPACalculator` | `zmanim::Config::astronomical_calculator` |
-| `YomiCalculator.getDafYomiBavli(cal)` | `DafYomiBavli.on(date)` |
-| `YerushalmiYomiCalculator.getDafYomiYerushalmi(cal)` | `DafYomiYerushalmi.on(date)` |
+This port is tracked against KosherJava commit
+[ffb0fef](https://github.com/KosherJava/zmanim/commit/ffb0fefdbc6c70fd1b4e708444da7967f5f95bef),
+which is master shortly after the 3.0.0 release. CI compares it with that version on every
+commit, using random dates and locations for every zman, the Hebrew calendar and Daf Yomi.
 
-Every zman getter is a `Zman` variant with the same name minus `get`, except the four listed
-below.  
+It also includes a fix that KosherJava hasn't merged yet,
+[KosherJava/zmanim#296](https://github.com/KosherJava/zmanim/pull/296), which keeps a sunrise or
+sunset near the date line on its own date.
 
-Not ported yet:
+The zmanim, the three astronomical calculators, the Hebrew calendar and both Daf Yomi
+calculators are ported. Not ported yet:
 
-- `HebrewDateFormatter`, `ZmanimFormatter`, `TefilaRules` and the *tekufos*.
-- Four zmanim, which are `getZmanMolad`, `getPolarPlagHaminchaBenIshChai`,
-  `getPolarStartOfDayTeshuvosVehanhagos` and `getPolarPlagHaminchaTeshuvosVehanhagos`.
+- `HebrewDateFormatter`
+- `ZmanimFormatter`
+- `TefilaRules`
+- The *tekufos*
+- `SunTimesCalculator`
+- `getZmanMolad`, `getPolarPlagHaminchaBenIshChai`, `getPolarStartOfDayTeshuvosVehanhagos` and
+  `getPolarPlagHaminchaTeshuvosVehanhagos`
+- `getLocalMeanTime`, `getTimeAtAzimuth90Or270`, `getSunriseSolarDipFromOffset`,
+  `getSunsetSolarDipFromOffset` and `getPercentOfShaahZmanisFromDegrees`
+- The distance and bearing methods of `GeoLocation`
+- `isErevRoshChodesh`, `isErevYomTovSheni`, `isTomorrowShabbosOrYomTov` and
+  `isTonightMutarBemelacha`
 
 Open an issue if you need one.
 
