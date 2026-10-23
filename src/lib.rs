@@ -9,6 +9,8 @@
 //! | [`limudim`] | Daf Yomi and the other learning schedules, through [`limudim::Schedule`] |
 //! | [`myzmanim`] | The times of the MyZmanim website, reproduced to the second |
 #![cfg_attr(not(test), no_std)]
+// Float functions are called as `CoreFloat::sin(x)`, not `x.sin()`. Where std is linked, as in
+// unit tests, `x.sin()` resolves to std's version instead of the one the crate ships with.
 
 #[cfg(feature = "alloc")]
 extern crate alloc;

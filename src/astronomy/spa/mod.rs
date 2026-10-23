@@ -34,7 +34,6 @@ mod coefficients;
 mod delta_t;
 mod search;
 
-#[allow(unused_imports)]
 use core_maths::*;
 use jiff::civil::Date;
 
@@ -145,37 +144,40 @@ fn time_dependent(jd: JulianDate) -> TimeDependent {
 /// (positive east) and `height` metres, and its geocentric hour angle.
 fn event_position_at_height(time: JulianDate, latitude: f64, longitude: f64, height: f64) -> EventPosition {
     let phi = latitude.to_radians();
-    let u = (0.99664719 * phi.tan()).atan();
-    let sin_phi = phi.sin();
-    let cos_phi = phi.cos();
-    let x = u.cos() + (height * cos_phi) / 6378140.0;
-    let z = 0.99664719 * u.sin() + (height * sin_phi) / 6378140.0;
+    let u = CoreFloat::atan(0.99664719 * CoreFloat::tan(phi));
+    let sin_phi = CoreFloat::sin(phi);
+    let cos_phi = CoreFloat::cos(phi);
+    let x = CoreFloat::cos(u) + (height * cos_phi) / 6378140.0;
+    let z = 0.99664719 * CoreFloat::sin(u) + (height * sin_phi) / 6378140.0;
     let parts = time_dependent(time);
     let delta = parts.delta_degrees.to_radians();
     let hour_angle = parts.nu_degrees + longitude - parts.alpha_degrees;
-    let parallax = (8.794 / (3600.0 * parts.r)).to_radians().sin();
+    let parallax = CoreFloat::sin((8.794 / (3600.0 * parts.r)).to_radians());
     // The parallax correction in vector form, which stays stable at the zenith.
-    let vx = delta.cos() * hour_angle.to_radians().cos() - x * parallax;
-    let vy = delta.cos() * hour_angle.to_radians().sin();
-    let vz = delta.sin() - z * parallax;
+    let vx = CoreFloat::cos(delta) * CoreFloat::cos(hour_angle.to_radians()) - x * parallax;
+    let vy = CoreFloat::cos(delta) * CoreFloat::sin(hour_angle.to_radians());
+    let vz = CoreFloat::sin(delta) - z * parallax;
     let projection = (cos_phi * vx + sin_phi * vz) / (vx * vx + vy * vy + vz * vz).sqrt();
     EventPosition {
-        elevation: projection.clamp(-1.0, 1.0).asin().to_degrees(),
+        elevation: CoreFloat::asin(projection.clamp(-1.0, 1.0)).to_degrees(),
         hour_angle,
     }
 }
 
 /// The sun's geocentric right ascension (0 to 360) and declination, in degrees.
 fn geocentric_sun_coordinates(beta: f64, epsilon: f64, lambda: f64) -> (f64, f64) {
-    let sin_lambda = lambda.sin();
-    let cos_lambda = lambda.cos();
-    let sin_epsilon = epsilon.sin();
-    let cos_epsilon = epsilon.cos();
-    let sin_beta = beta.sin();
-    let cos_beta = beta.cos();
+    let sin_lambda = CoreFloat::sin(lambda);
+    let cos_lambda = CoreFloat::cos(lambda);
+    let sin_epsilon = CoreFloat::sin(epsilon);
+    let cos_epsilon = CoreFloat::cos(epsilon);
+    let sin_beta = CoreFloat::sin(beta);
+    let cos_beta = CoreFloat::cos(beta);
 
-    let alpha = (sin_lambda * cos_epsilon - (sin_beta / cos_beta) * sin_epsilon).atan2(cos_lambda);
-    let delta = (sin_beta * cos_epsilon + cos_beta * sin_epsilon * sin_lambda).asin();
+    let alpha = CoreFloat::atan2(
+        sin_lambda * cos_epsilon - (sin_beta / cos_beta) * sin_epsilon,
+        cos_lambda,
+    );
+    let delta = CoreFloat::asin(sin_beta * cos_epsilon + cos_beta * sin_epsilon * sin_lambda);
 
     (limit_to(alpha.to_degrees(), 360.0), delta.to_degrees())
 }
@@ -193,7 +195,7 @@ fn apparent_sidereal_time_at_greenwich(jd: JulianDate, delta_psi: f64, epsilon_d
         280.46061837 + 360.98564736629 * (jd.julian_date - 2451545.0) + (jc * jc) * (0.000387933 - jc / 38710000.0),
         360.0,
     );
-    nu0_degrees + delta_psi * epsilon_degrees.to_radians().cos()
+    nu0_degrees + delta_psi * CoreFloat::cos(epsilon_degrees.to_radians())
 }
 
 /// The nutation in longitude and in obliquity, in degrees.
@@ -203,8 +205,8 @@ fn delta_psi_epsilon(jce: f64, x: &[f64; 5]) -> (f64, f64) {
 
     for (terms_pe, terms_y) in TERMS_PE.iter().zip(TERMS_Y.iter()) {
         let xj_yterm_sum = xj_yterm_sum(terms_y, x).to_radians();
-        delta_psi += (terms_pe[1] * jce + terms_pe[0]) * xj_yterm_sum.sin();
-        delta_epsilon += (terms_pe[3] * jce + terms_pe[2]) * xj_yterm_sum.cos();
+        delta_psi += (terms_pe[1] * jce + terms_pe[0]) * CoreFloat::sin(xj_yterm_sum);
+        delta_epsilon += (terms_pe[3] * jce + terms_pe[2]) * CoreFloat::cos(xj_yterm_sum);
     }
 
     (delta_psi / 36_000_000.0, delta_epsilon / 36_000_000.0)
@@ -238,7 +240,7 @@ fn lbr_polynomial(jme: f64, term_coeffs: &[&[[f64; 3]]]) -> f64 {
     for (sum_i, terms) in per_power_sums.iter_mut().zip(term_coeffs.iter()) {
         let mut sum = 0.0;
         for coeffs in terms.iter() {
-            sum += coeffs[0] * (coeffs[1] + coeffs[2] * jme).cos();
+            sum += coeffs[0] * CoreFloat::cos(coeffs[1] + coeffs[2] * jme);
         }
         *sum_i = sum;
     }
@@ -314,10 +316,11 @@ impl Spa {
                 julian_date: jd_day + minutes / 1440.0,
                 delta_t,
             };
-            sign * event_position_at_height(time, 0.0, longitude, 0.0)
-                .hour_angle
-                .to_radians()
-                .sin()
+            sign * CoreFloat::sin(
+                event_position_at_height(time, 0.0, longitude, 0.0)
+                    .hour_angle
+                    .to_radians(),
+            )
         };
         let found = search::search(
             hours,
@@ -340,7 +343,7 @@ impl Spa {
 /// NOAA sign convention.
 fn equation_of_time(time: JulianDate, parts: &TimeDependent) -> f64 {
     let l0 = sun_mean_longitude(time.julian_ephemeris_millennium());
-    let e = l0 - 0.0057183 - parts.alpha_degrees + parts.delta_psi * parts.epsilon_degrees.to_radians().cos();
+    let e = l0 - 0.0057183 - parts.alpha_degrees + parts.delta_psi * CoreFloat::cos(parts.epsilon_degrees.to_radians());
     (((e + 180.0) % 360.0 + 360.0) % 360.0 - 180.0) * 4.0
 }
 
@@ -383,12 +386,13 @@ fn secant_rise_set(
     let noon = time_dependent(noon_time);
     let declination = noon.delta_degrees.to_radians();
     let phi = latitude.to_radians();
-    let cos_hour_angle =
-        (adjusted_zenith.to_radians().cos() - phi.sin() * declination.sin()) / (phi.cos() * declination.cos());
+    let cos_hour_angle = (CoreFloat::cos(adjusted_zenith.to_radians())
+        - CoreFloat::sin(phi) * CoreFloat::sin(declination))
+        / (CoreFloat::cos(phi) * CoreFloat::cos(declination));
     if !(-1.0..=1.0).contains(&cos_hour_angle) {
         return None;
     }
-    let hour_angle = cos_hour_angle.acos().to_degrees();
+    let hour_angle = CoreFloat::acos(cos_hour_angle).to_degrees();
     let signed = if event == SolarEvent::Sunrise {
         hour_angle
     } else {
@@ -448,23 +452,23 @@ impl SolarAlgorithm for Spa {
         let hours = (end - start) / 60.0;
 
         // sin(elevation) − sin(target), which rises through zero at sunrise; negated for sunset.
-        let horizon = elevation_angle.to_radians().sin();
+        let horizon = CoreFloat::sin(elevation_angle.to_radians());
         let direction = if event == SolarEvent::Sunrise { 1.0 } else { -1.0 };
         // Engineering estimate for |f''| in hours: daily rotation contributes about
         // (2*pi/24)^2 * cos(latitude) = 0.069 * cos(latitude). Round up to 0.1 and
         // retain a floor for slower solar motion and parallax, including at the poles.
-        let curvature = 0.1 * latitude.to_radians().cos().abs() + 0.0001;
+        let curvature = 0.1 * CoreFloat::cos(latitude.to_radians()).abs() + 0.0001;
         let value = |minutes: f64| {
             let time = JulianDate {
                 julian_date: jd_day + minutes / 1440.0,
                 delta_t,
             };
             direction
-                * (event_position_at_height(time, latitude, longitude, height)
-                    .elevation
-                    .to_radians()
-                    .sin()
-                    - horizon)
+                * (CoreFloat::sin(
+                    event_position_at_height(time, latitude, longitude, height)
+                        .elevation
+                        .to_radians(),
+                ) - horizon)
         };
 
         match search::search(

@@ -16,7 +16,14 @@ use super::{
 /// Calculates one case with both implementations and asserts policy-compliant parity.
 pub(super) fn run_test_case(case: TestCase, preset: Zman, random_run: Option<CaseRun>) -> Result<(), Box<dyn Error>> {
     let java = calculate_java_zman(case, preset)?;
-    let rust = calculate_rust_zman(case, preset)?;
+    let rust = calculate_rust_zman(case, preset).map_err(|error| {
+        format!(
+            "rust returned {error:?} for {}:
+{},",
+            case.preset_name,
+            case.code_literal()
+        )
+    })?;
 
     assert_results_match(case, java, rust, random_run)
 }

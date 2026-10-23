@@ -13,7 +13,6 @@
 //! conversion from UTC hours to a [`Timestamp`] — lives in this module so the
 //! backends only differ in their solar-position mathematics.
 
-#[allow(unused_imports)]
 use core_maths::*;
 use jiff::{SignedDuration, Timestamp, civil::Date, tz::TimeZone};
 
@@ -326,14 +325,14 @@ pub(super) fn time_at_azimuth_iterative(
 
     for _ in 0..iterations {
         let (declination, equation_of_time) = declination_and_eot(julian_day + date_time);
-        let ratio = declination.to_radians().tan() / location.latitude.to_radians().tan();
+        let ratio = CoreFloat::tan(declination.to_radians()) / CoreFloat::tan(location.latitude.to_radians());
 
         if ratio.is_nan() || !(-1.0..=1.0).contains(&ratio) {
             return Err(ZmanimError::NotApplicable);
         }
 
         let direction = if target_azimuth == 90.0 { -1.0 } else { 1.0 };
-        let offset = direction * ratio.acos().to_degrees() / 360.0;
+        let offset = direction * CoreFloat::acos(ratio).to_degrees() / 360.0;
         date_time = solar_noon_base + offset - equation_of_time / 1440.0;
     }
 
@@ -432,9 +431,7 @@ fn adjust_zenith(zenith: f64, elevation: f64, date: Date) -> f64 {
 }
 
 fn elevation_adjustment(elevation_m: f64) -> f64 {
-    (EARTH_RADIUS_KM / (EARTH_RADIUS_KM + elevation_m / 1000.0))
-        .acos()
-        .to_degrees()
+    CoreFloat::acos(EARTH_RADIUS_KM / (EARTH_RADIUS_KM + elevation_m / 1000.0)).to_degrees()
 }
 
 /// Julian day for 0h UT of the date (Meeus chapter 7).
@@ -472,7 +469,8 @@ pub(super) fn sun_hour_angle(
 ) -> Result<f64, ZmanimError> {
     let lat_rad = latitude.to_radians();
     let sd_rad = solar_declination.to_radians();
-    let cos_hour_angle = zenith.to_radians().cos() / (lat_rad.cos() * sd_rad.cos()) - lat_rad.tan() * sd_rad.tan();
+    let cos_hour_angle = CoreFloat::cos(zenith.to_radians()) / (CoreFloat::cos(lat_rad) * CoreFloat::cos(sd_rad))
+        - CoreFloat::tan(lat_rad) * CoreFloat::tan(sd_rad);
     hour_angle_from_cos(cos_hour_angle, event)
 }
 
@@ -486,7 +484,7 @@ pub(super) fn hour_angle_from_cos(cos_hour_angle: f64, event: SolarEvent) -> Res
         return Err(ZmanimError::AllDay);
     }
 
-    let mut hour_angle = cos_hour_angle.acos();
+    let mut hour_angle = CoreFloat::acos(cos_hour_angle);
     if event == SolarEvent::Sunset {
         hour_angle = -hour_angle;
     }

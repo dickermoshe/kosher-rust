@@ -895,3 +895,39 @@ fn descriptions_show_offsets_with_seconds_and_direction() {
     let text = Zman::CandleLighting.description(&config(core::time::Duration::from_mins(1)));
     assert!(text.contains("1 minute before sea level sunset"), "{text}");
 }
+
+/// Without a time zone, every time that doesn't need one is the same instant as with one.
+#[test]
+fn times_without_a_time_zone_match_times_with_one() {
+    let dates = [
+        (2024, 1, 15),
+        (2024, 3, 10),
+        (2024, 6, 21),
+        (2024, 11, 3),
+        (1950, 7, 4),
+        (2150, 12, 31),
+    ];
+    for latitude in [-60.0, -33.9, 0.0, 31.778, 40.09, 55.75, 66.0] {
+        for longitude in [-150.0, -122.4, -74.22, 0.0, 35.235, 139.7, 150.0] {
+            let location = Location::new(latitude, longitude).unwrap();
+            let offset = jiff::tz::Offset::from_seconds((longitude * 240.0) as i32).unwrap();
+            for (year, month, day) in dates {
+                let date = Date::new(year, month, day).unwrap();
+                let without = Zmanim::new(location.clone(), date, None);
+                for zone in [TimeZone::fixed(offset), TimeZone::fixed(jiff::tz::Offset::UTC)] {
+                    let with = Zmanim::new(location.clone(), date, Some(zone));
+                    for zman in Zman::ALL {
+                        if zman.category() == crate::zmanim::Category::KidushLevana {
+                            continue;
+                        }
+                        assert_eq!(
+                            without.get(zman),
+                            with.get(zman),
+                            "{zman:?} {latitude} {longitude} {date}"
+                        );
+                    }
+                }
+            }
+        }
+    }
+}

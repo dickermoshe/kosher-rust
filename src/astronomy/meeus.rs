@@ -7,7 +7,6 @@
 //! Meeus chapter 28. Positions are evaluated in Terrestrial Time, so an estimate of ΔT is
 //! applied unless [`Meeus::apply_delta_t`] is `false`.
 
-#[allow(unused_imports)]
 use core_maths::*;
 use jiff::civil::Date;
 
@@ -147,7 +146,7 @@ impl Meeus {
         let epsilon = self.true_obliquity(julian_centuries);
         let y = sin_degrees(lambda) * cos_degrees(epsilon) - tan_degrees(beta) * sin_degrees(epsilon);
         let x = cos_degrees(lambda);
-        let ra = y.atan2(x).to_degrees();
+        let ra = CoreFloat::atan2(y, x).to_degrees();
         (ra % 360.0 + 360.0) % 360.0
     }
 

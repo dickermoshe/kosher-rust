@@ -3,7 +3,6 @@
 //! Uses the low-accuracy Meeus formulas (three-term equation of center, truncated
 //! equation of time) without a ΔT correction. This is KosherJava's default algorithm.
 
-#[allow(unused_imports)]
 use core_maths::*;
 use jiff::civil::Date;
 
@@ -98,9 +97,9 @@ fn earth_orbit_eccentricity(julian_centuries: f64) -> f64 {
 fn sun_equation_of_center(julian_centuries: f64) -> f64 {
     let m = sun_geometric_mean_anomaly(julian_centuries);
     let mrad = m.to_radians();
-    let sinm = mrad.sin();
-    let sin2m = (mrad + mrad).sin();
-    let sin3m = (mrad + mrad + mrad).sin();
+    let sinm = CoreFloat::sin(mrad);
+    let sin2m = CoreFloat::sin(mrad + mrad);
+    let sin3m = CoreFloat::sin(mrad + mrad + mrad);
     sinm * (1.914602 - julian_centuries * (0.004817 + 0.000014 * julian_centuries))
         + sin2m * (0.019993 - 0.000101 * julian_centuries)
         + sin3m * 0.000289
@@ -112,7 +111,7 @@ fn sun_true_longitude(julian_centuries: f64) -> f64 {
 
 fn sun_apparent_longitude(julian_centuries: f64) -> f64 {
     let omega = 125.04 - 1934.136 * julian_centuries;
-    sun_true_longitude(julian_centuries) - 0.00569 - 0.00478 * omega.to_radians().sin()
+    sun_true_longitude(julian_centuries) - 0.00569 - 0.00478 * CoreFloat::sin(omega.to_radians())
 }
 
 fn mean_obliquity_of_ecliptic(julian_centuries: f64) -> f64 {
@@ -122,14 +121,14 @@ fn mean_obliquity_of_ecliptic(julian_centuries: f64) -> f64 {
 
 fn obliquity_correction(julian_centuries: f64) -> f64 {
     let omega = 125.04 - 1934.136 * julian_centuries;
-    mean_obliquity_of_ecliptic(julian_centuries) + 0.00256 * omega.to_radians().cos()
+    mean_obliquity_of_ecliptic(julian_centuries) + 0.00256 * CoreFloat::cos(omega.to_radians())
 }
 
 fn sun_declination(julian_centuries: f64) -> f64 {
     let obliquity_correction = obliquity_correction(julian_centuries);
     let lambda = sun_apparent_longitude(julian_centuries);
-    let sint = obliquity_correction.to_radians().sin() * lambda.to_radians().sin();
-    sint.asin().to_degrees()
+    let sint = CoreFloat::sin(obliquity_correction.to_radians()) * CoreFloat::sin(lambda.to_radians());
+    CoreFloat::asin(sint).to_degrees()
 }
 
 fn equation_of_time(julian_centuries: f64) -> f64 {
@@ -137,14 +136,14 @@ fn equation_of_time(julian_centuries: f64) -> f64 {
     let geom_mean_long_sun = sun_geometric_mean_longitude(julian_centuries);
     let eccentricity_earth_orbit = earth_orbit_eccentricity(julian_centuries);
     let geom_mean_anomaly_sun = sun_geometric_mean_anomaly(julian_centuries);
-    let mut y = (epsilon.to_radians() / 2.0).tan();
+    let mut y = CoreFloat::tan(epsilon.to_radians() / 2.0);
     y *= y;
 
-    let sin2l0 = (2.0 * geom_mean_long_sun.to_radians()).sin();
-    let sinm = geom_mean_anomaly_sun.to_radians().sin();
-    let cos2l0 = (2.0 * geom_mean_long_sun.to_radians()).cos();
-    let sin4l0 = (4.0 * geom_mean_long_sun.to_radians()).sin();
-    let sin2m = (2.0 * geom_mean_anomaly_sun.to_radians()).sin();
+    let sin2l0 = CoreFloat::sin(2.0 * geom_mean_long_sun.to_radians());
+    let sinm = CoreFloat::sin(geom_mean_anomaly_sun.to_radians());
+    let cos2l0 = CoreFloat::cos(2.0 * geom_mean_long_sun.to_radians());
+    let sin4l0 = CoreFloat::sin(4.0 * geom_mean_long_sun.to_radians());
+    let sin2m = CoreFloat::sin(2.0 * geom_mean_anomaly_sun.to_radians());
     let equation_of_time = y * sin2l0 - 2.0 * eccentricity_earth_orbit * sinm
         + 4.0 * eccentricity_earth_orbit * y * sinm * cos2l0
         - 0.5 * y * y * sin4l0

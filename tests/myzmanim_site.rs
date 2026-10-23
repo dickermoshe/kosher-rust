@@ -13,8 +13,9 @@
 //! ```
 //!
 //! The data has no time-zone names: times are local wall-clock at the place's standard UTC
-//! offset, and MyZmanim's daylight-saving shift is taken as the whole hour nearest the
-//! difference, as the Java comparison does. Set `MYZMANIM_SITE_DIFFS` to the Java
+//! offset. Each place-day's daylight-saving shift, 0 or -1 hours, is the one most of its cells
+//! show, and any other whole-hour difference fails the test apart from the website's known AM/PM
+//! mistakes, which are counted. Set `MYZMANIM_SITE_DIFFS` to the Java
 //! comparison's `diffs.csv` to also check every row against the Java port's own difference.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
@@ -350,6 +351,9 @@ fn encode_fixture() {
 // The comparison
 // ---------------------------------------------------------------------------------------
 
+/// Cells the website shows exactly 12 hours off.
+const AM_PM_CELLS: usize = 10_261;
+
 struct Diff {
     place: String,
     date: Date,
@@ -357,10 +361,25 @@ struct Diff {
     seconds: f64,
 }
 
-/// Every difference, ours minus the website's, in seconds, after removing MyZmanim's
-/// daylight-saving hour; rows more than half an hour apart are reported separately.
-fn site_diffs() -> (Vec<Diff>, Vec<String>) {
+/// The comparison of every cell: the differences, and the cells that could not be explained.
+struct SiteDiffs {
+    /// Ours minus the website's, in seconds, after the whole hours explained below.
+    diffs: Vec<Diff>,
+    /// Cells the website shows 12 hours off, which look like AM/PM mistakes in the scraped data.
+    am_pm: usize,
+    /// Cells off by any other whole number of hours, and days whose hour is neither 0 nor -1.
+    far_off: Vec<String>,
+}
+
+/// Every difference, ours minus the website's.
+///
+/// The website shows some places an hour late all year, as if daylight saving never ended, so each
+/// place-day has one hour correction, 0 or -1, taken from most of its cells. A cell may differ
+/// from that by exactly 12 hours, an AM/PM mistake in the scraped data. Any other whole-hour
+/// difference is a real error and lands in `far_off`.
+fn site_diffs() -> SiteDiffs {
     let mut diffs = Vec::new();
+    let mut am_pm = 0;
     let mut far_off = Vec::new();
     for day in decode(FIXTURE) {
         let timezone = TimeZone::fixed(Offset::from_seconds(day.place.offset_seconds).unwrap());
@@ -372,26 +391,53 @@ fn site_diffs() -> (Vec<Diff>, Vec<String>) {
             std::time::Duration::from_secs(u64::from(day.place.candle_tenths.unsigned_abs()) * 6),
         );
 
+        // (column, whole hours, seconds left over) for every cell with a time on both sides.
+        let mut cells = Vec::new();
         for (column, theirs) in &day.times {
             let zman = COLUMNS.iter().find(|(name, _)| name == column).unwrap().1;
             let Ok(ours) = calendar.get(zman) else { continue };
             let theirs: Timestamp = theirs.to_zoned(timezone.clone()).unwrap().timestamp();
-            let mut seconds = (ours.as_millisecond() - theirs.as_millisecond()) as f64 / 1000.0;
-            seconds -= (seconds / 3600.0).round() * 3600.0; // MyZmanim's daylight-saving hour
-            seconds = (seconds * 10.0).round() / 10.0; // the Java comparison's tenth of a second
-            if seconds.abs() > 1800.0 {
-                far_off.push(format!("{} {} {column}: {seconds:.1} s", day.place.id, day.date));
+            let seconds = (ours.as_millisecond() - theirs.as_millisecond()) as f64 / 1000.0;
+            let hours = (seconds / 3600.0).round() as i64;
+            cells.push((*column, hours, seconds - hours as f64 * 3600.0));
+        }
+        let mut counts = HashMap::new();
+        for &(_, hours, _) in &cells {
+            *counts.entry(hours).or_insert(0) += 1;
+        }
+        let Some((&day_hours, _)) = counts.iter().max_by_key(|&(&hours, &count)| (count, -hours.abs())) else {
+            continue;
+        };
+        if day_hours != 0 && day_hours != -1 {
+            far_off.push(format!(
+                "{} {}: most cells are {day_hours} h off",
+                day.place.id, day.date
+            ));
+            continue;
+        }
+
+        for (column, hours, seconds) in cells {
+            if (hours - day_hours).abs() == 12 {
+                am_pm += 1;
+            } else if hours != day_hours {
+                far_off.push(format!(
+                    "{} {} {column}: {} h {seconds:+.1} s off",
+                    day.place.id,
+                    day.date,
+                    hours - day_hours
+                ));
                 continue;
             }
             diffs.push(Diff {
                 place: day.place.id.clone(),
                 date: day.date,
                 column,
-                seconds,
+                // The Java comparison's tenth of a second.
+                seconds: (seconds * 10.0).round() / 10.0,
             });
         }
     }
-    (diffs, far_off)
+    SiteDiffs { diffs, am_pm, far_off }
 }
 
 #[test]
@@ -431,13 +477,16 @@ fn fixture_decodes_to_the_whole_data_set() {
 
 #[test]
 fn reproduces_the_website_to_the_second() {
-    let (diffs, far_off) = site_diffs();
+    let SiteDiffs { diffs, am_pm, far_off } = site_diffs();
     assert!(
         far_off.is_empty(),
-        "rows more than half an hour off:\n{}",
-        far_off.join("\n")
+        "{} cells off by whole hours:\n{}",
+        far_off.len(),
+        far_off.iter().take(40).cloned().collect::<Vec<_>>().join("\n")
     );
     assert_eq!(diffs.len(), 944_603, "every comparison the Java port makes");
+    // Pinned so that a real 12-hour error can't hide among the website's AM/PM mistakes.
+    assert_eq!(am_pm, AM_PM_CELLS, "cells 12 hours off");
 
     let total = diffs.len() as f64;
     let within = |limit: f64| diffs.iter().filter(|d| d.seconds.abs() <= limit).count() as f64 / total;
@@ -513,7 +562,7 @@ fn matches_the_java_port_row_for_row() {
         })
         .collect();
 
-    let (diffs, _) = site_diffs();
+    let diffs = site_diffs().diffs;
     let mut compared = 0usize;
     let mut mismatches = Vec::new();
     for diff in &diffs {

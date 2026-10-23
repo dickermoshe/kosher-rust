@@ -3,7 +3,6 @@ use core::time::Duration;
 
 use jiff::{SignedDuration, Timestamp, Zoned, civil::Date, tz::TimeZone};
 
-#[allow(unused_imports)]
 use core_maths::*;
 
 use crate::{
@@ -485,7 +484,7 @@ const fn calculator() -> Meeus {
 /// value scaled by the barometric pressure ratio at that height.
 fn refraction(horizon_elevation: f64) -> f64 {
     // Above about 44 km the formula's pressure ratio would go negative; there is no air to bend light.
-    SEA_LEVEL_REFRACTION_ARCMINUTES / 60.0 * (1.0 - 2.25577e-5 * horizon_elevation).max(0.0).powf(5.25588)
+    SEA_LEVEL_REFRACTION_ARCMINUTES / 60.0 * CoreFloat::powf((1.0 - 2.25577e-5 * horizon_elevation).max(0.0), 5.25588)
 }
 
 /// The dip of the horizon below an observer `height` meters above it, in degrees.

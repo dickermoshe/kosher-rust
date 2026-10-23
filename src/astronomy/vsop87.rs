@@ -8,7 +8,6 @@
 // The published VSOP87 phase coefficients happen to round to π; they are table data, not π.
 #![allow(clippy::approx_constant)]
 
-#[allow(unused_imports)]
 use core_maths::*;
 
 use super::JULIAN_DAY_JAN_1_2000;
@@ -35,7 +34,7 @@ pub(super) fn sum_series(series: &[&[Term]], tau: f64, barycenter: bool) -> f64 
             if barycenter && (term[2] - SYNODIC_MONTH_FREQUENCY).abs() <= 0.1 {
                 continue;
             }
-            sum += term[0] * (term[1] + term[2] * tau).cos();
+            sum += term[0] * CoreFloat::cos(term[1] + term[2] * tau);
         }
         total += sum * tau_pow;
         tau_pow *= tau;
@@ -90,13 +89,13 @@ pub(super) fn delta_t_seconds(julian_day: f64) -> f64 {
         let t = year - 2000.0;
         63.86 + 0.3345 * t - 0.060374 * t * t
             + 0.0017275 * t * t * t
-            + 0.000651814 * t.powf(4.0)
-            + 0.00002373599 * t.powf(5.0)
+            + 0.000651814 * CoreFloat::powf(t, 4.0)
+            + 0.00002373599 * CoreFloat::powf(t, 5.0)
     } else if (1961.0..1986.0).contains(&year) {
         let t = year - 1975.0;
         45.45 + 1.067 * t - t * t / 260.0 - t * t * t / 718.0
     } else if (2050.0..2150.0).contains(&year) {
-        -20.0 + 32.0 * ((year - 1820.0) / 100.0).powf(2.0) - 0.5628 * (2150.0 - year)
+        -20.0 + 32.0 * CoreFloat::powf((year - 1820.0) / 100.0, 2.0) - 0.5628 * (2150.0 - year)
     } else {
         let u = (year - 1820.0) / 100.0;
         -20.0 + 32.0 * u * u
@@ -105,22 +104,22 @@ pub(super) fn delta_t_seconds(julian_day: f64) -> f64 {
 
 /// Sine of an angle given in degrees.
 pub(super) fn sin_degrees(angle: f64) -> f64 {
-    angle.to_radians().sin()
+    CoreFloat::sin(angle.to_radians())
 }
 
 /// Cosine of an angle given in degrees.
 pub(super) fn cos_degrees(angle: f64) -> f64 {
-    angle.to_radians().cos()
+    CoreFloat::cos(angle.to_radians())
 }
 
 /// Tangent of an angle given in degrees.
 pub(super) fn tan_degrees(angle: f64) -> f64 {
-    angle.to_radians().tan()
+    CoreFloat::tan(angle.to_radians())
 }
 
 /// Arc sine in degrees.
 pub(super) fn asin_degrees(value: f64) -> f64 {
-    value.asin().to_degrees()
+    CoreFloat::asin(value).to_degrees()
 }
 
 /// Earth heliocentric longitude series L0..L5 (abridged VSOP87, Meeus Appendix III).

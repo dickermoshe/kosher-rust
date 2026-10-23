@@ -243,3 +243,30 @@ describe("Pirkei Avos - Israel", () => {
     }
   });
 });
+
+// On a weekday the schedule gives the portion of the coming Shabbos, or none when that Shabbos has
+// none.
+describe("Pirkei Avos - weekdays", () => {
+  for (const inIsrael of [false, true]) {
+    test(`a weekday gives the coming Shabbos's portion (${inIsrael ? "Israel" : "diaspora"})`, () => {
+      for (let i = 0; i < ITERATIONS; i++) {
+        const weekday = faker.date.between({ from: "1900-01-01", to: "2099-12-24" });
+        const daysUntilShabbat = (6 - new HDate(weekday).getDay() + 7) % 7;
+        if (daysUntilShabbat === 0) continue;
+        const shabbat = new Date(weekday);
+        shabbat.setDate(shabbat.getDate() + daysUntilShabbat);
+
+        let wasmResult: PirkeiAvosResult | null = null;
+        try {
+          wasmResult = pirkei_avos(weekday.getFullYear(), weekday.getMonth() + 1, weekday.getDate(), inIsrael);
+        } catch (e) {
+          wasmResult = null;
+        }
+        const hebcalMapped = hebcalToOurFormat(pirkeiAvot(new HDate(shabbat), inIsrael));
+
+        const context = `${weekday.toDateString()} (Hebrew: ${new HDate(weekday).toString()}), Shabbos ${shabbat.toDateString()}`;
+        expect({ context, result: wasmResult ?? null }).toEqual({ context, result: hebcalMapped });
+      }
+    });
+  }
+});

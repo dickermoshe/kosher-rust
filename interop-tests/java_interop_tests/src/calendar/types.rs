@@ -52,6 +52,8 @@ pub(super) struct JewishCalendarSnapshot {
     pub(super) is_machar_chodesh: bool,
     pub(super) is_shabbos_mevorchim: bool,
     pub(super) day_of_omer: Option<u8>,
+    /// The molad of the month, in Unix milliseconds.
+    pub(super) molad_ms: Option<i64>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

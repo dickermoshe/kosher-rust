@@ -430,7 +430,7 @@ These were checked and found correct, so they don't need another look.
 
 ## 3. Tests that check less than they seem to
 
-- [ ] **T1. The MyZmanim site test can't catch an error of whole hours, and ~10k fixture cells are
+- [x] **T1. The MyZmanim site test can't catch an error of whole hours, and ~10k fixture cells are
   11 to 12 hours off.** Medium. Confirmed, and I checked the logic by reading.
 
   **What is wrong.** At [tests/myzmanim_site.rs:379](tests/myzmanim_site.rs#L379) the test
@@ -466,7 +466,7 @@ These were checked and found correct, so they don't need another look.
   for every column. Fix or drop the cells that are 11 to 12 hours off in the fixture, or handle
   them explicitly. Then compare the raw difference, so that `far_off` can actually fail.
 
-- [ ] **T2. Java parity only compares "has a time" with "has no time".** Medium. From reading.
+- [x] **T2. Java parity only compares "has a time" with "has no time".** Medium. From reading.
 
   **What is wrong.** On the Rust side of the parity harness,
   [interop-tests/java_interop_tests/src/zmanim/rust_reference.rs:29](interop-tests/java_interop_tests/src/zmanim/rust_reference.rs#L29)
@@ -479,7 +479,7 @@ These were checked and found correct, so they don't need another look.
   given. Add a check that, for the zmanim the docs say work without a time zone, `None` and
   `Some(tz)` give the same instant (for |longitude| ≤ 150°).
 
-- [ ] **T3. The conformance suites cover narrow date ranges, and the molad isn't compared
+- [x] **T3. The conformance suites cover narrow date ranges, and the molad isn't compared
   directly.** Low. From reading.
 
   **What is wrong.**
@@ -500,7 +500,7 @@ These were checked and found correct, so they don't need another look.
   where the time zone databases disagree. Add a direct molad comparison, and Pirkei Avos on
   weekdays.
 
-- [ ] **T4. Binding smoke tests in 9 of 11 languages can't catch a wrong time-zone offset, and the
+- [x] **T4. Binding smoke tests in 9 of 11 languages can't catch a wrong time-zone offset, and the
   Python example checks nothing.** Medium. Reproduced (Python) and confirmed (the rest).
 
   **What is wrong.** The C, C++, Go, .NET, Kotlin, Swift, Dart, Ruby and wasm smoke tests in
@@ -516,7 +516,7 @@ These were checked and found correct, so they don't need another look.
   **Fix.** Port the Node Kiddush Levana case and the throwing-callback case to every language.
   Turn `smoke.py` into assertions.
 
-- [ ] **T5. Unit tests use different float math from the shipped crate.** Low. From reading.
+- [x] **T5. Unit tests use different float math from the shipped crate.** Low. From reading.
 
   **What is wrong.** `#![cfg_attr(not(test), no_std)]` in [src/lib.rs:11](src/lib.rs#L11) means
   unit tests are built with std and call std's `f64::sin` and friends. Every real build, even

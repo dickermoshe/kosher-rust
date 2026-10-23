@@ -24,9 +24,12 @@ pub(super) fn calculate_rust_zman(case: TestCase, preset: Zman) -> Result<Option
     };
     let zmanim = Zmanim::with_config(location, date, Some(timezone.clone()), config);
 
+    // Java has only "no time", which is AllDay, AllNight or NotApplicable here. Every case has a
+    // time zone, so the other errors are failures.
     let dt = match zmanim.get(preset) {
         Ok(dt) => dt,
-        Err(_) => return Ok(None),
+        Err(ZmanimError::AllDay | ZmanimError::AllNight | ZmanimError::NotApplicable) => return Ok(None),
+        Err(error) => return Err(error),
     };
     let formatted = dt.to_zoned(timezone).to_string();
     Ok(Some(ZmanResult {

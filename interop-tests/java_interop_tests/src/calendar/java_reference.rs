@@ -170,6 +170,22 @@ pub(super) fn java_jewish_calendar_snapshot(
         let parshah = calendar.get_parshah(env)?;
         let upcoming_parshah = calendar.get_upcoming_parshah(env)?;
         let special_shabbos = calendar.get_special_shabbos(env)?;
+        let molad = env
+            .call_method(
+                &calendar,
+                jni_str!("getMoladAsInstant"),
+                jni_sig!("()Ljava/time/Instant;"),
+                &[],
+            )?
+            .l()?;
+        let molad_ms = if molad.is_null() {
+            None
+        } else {
+            Some(
+                env.call_method(&molad, jni_str!("toEpochMilli"), jni_sig!("()J"), &[])?
+                    .j()?,
+            )
+        };
 
         Ok(Some(JewishCalendarSnapshot {
             is_yom_tov: calendar.is_yom_tov(env)?,
@@ -210,6 +226,7 @@ pub(super) fn java_jewish_calendar_snapshot(
             is_machar_chodesh: calendar.is_machar_chodesh(env)?,
             is_shabbos_mevorchim: calendar.is_shabbos_mevorchim(env)?,
             day_of_omer,
+            molad_ms,
         }))
     })
 }
