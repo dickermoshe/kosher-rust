@@ -67,7 +67,7 @@ const $contract = [
     [0x53798234777e19ean, 0x6c389ed6ad08dbe3n, 'calendar.rosh_hashana'],
     [0x58fc9af210a33bddn, 0xc3e1903a4dc8359dn, 'calendar.HebrewDate.is_aseres_yemei_teshuva'],
     [0x5c2a6a6f333ead35n, 0x74c7180edff5c022n, 'calendar.HebrewDate.from_gregorian'],
-    [0x6089a64539b542a8n, 0x404904f4331718c5n, 'calendar.SpecialDay'],
+    [0x6089a64539b542a8n, 0xc406e171c1c8c82an, 'calendar.SpecialDay'],
     [0x65535c1ad3d9f893n, 0x55884ddb65b50739n, 'calendar.HebrewDate.has_candle_lighting'],
     [0x6a0735856dec8d1an, 0xdc1addb4a7ab46efn, 'calendar.parsha_name'],
     [0x734de195723c4becn, 0xc7f3965b813050f5n, 'calendar.HebrewDate.display'],
@@ -899,7 +899,7 @@ const calendar$Parsha = Object.freeze({
 const calendar$limudim$LimudimError = class LimudimError extends $Error {};
 const calendar$limudim$InvalidUnitError = class InvalidUnitError extends calendar$limudim$LimudimError {
   static CODE = 1;
-  constructor(message = 'A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1') {
+  constructor(message = 'A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1') {
     super(1, message);
   }
 };
@@ -1744,10 +1744,10 @@ function $w$calendar$SpecialDay(w, v) {
     case 'YomHaShoah':
       w.writeI32(28);
       return;
-    case 'YomHazikaron':
+    case 'YomHaZikaron':
       w.writeI32(29);
       return;
-    case 'YomHaatzmaut':
+    case 'YomHaAtzmaut':
       w.writeI32(30);
       return;
     case 'YomYerushalayim':
@@ -1778,7 +1778,7 @@ function $w$calendar$SpecialDay(w, v) {
     case 'BirchasHachamah':
       w.writeI32(39);
       return;
-    case 'MacharHachodesh':
+    case 'MacharChodesh':
       w.writeI32(40);
       return;
     case 'ShabbosMevarchim':
@@ -1820,8 +1820,8 @@ function $r$calendar$SpecialDay(r) {
     case 26: return { tag: 'PurimKatan' };
     case 27: return { tag: 'RoshChodesh' };
     case 28: return { tag: 'YomHaShoah' };
-    case 29: return { tag: 'YomHazikaron' };
-    case 30: return { tag: 'YomHaatzmaut' };
+    case 29: return { tag: 'YomHaZikaron' };
+    case 30: return { tag: 'YomHaAtzmaut' };
     case 31: return { tag: 'YomYerushalayim' };
     case 32: return { tag: 'LagBomer' };
     case 33: return { tag: 'ShushanPurimKatan' };
@@ -1831,7 +1831,7 @@ function $r$calendar$SpecialDay(r) {
     case 37: return { tag: 'FastOfTheFirstborn' };
     case 38: return { tag: 'CountOfTheOmer', day: r.readI32() };
     case 39: return { tag: 'BirchasHachamah' };
-    case 40: return { tag: 'MacharHachodesh' };
+    case 40: return { tag: 'MacharChodesh' };
     case 41: return { tag: 'ShabbosMevarchim' };
     default:
       throw new $Error(-3, 'unknown SpecialDay tag: ' + tag);

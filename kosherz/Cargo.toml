@@ -1,10 +1,13 @@
 [package]
 name = "kosherz"
-version = "0.0.0"
+version = "0.3.0"
 edition = "2024"
 publish = false
+authors = ["Moshe Dicker <dickermoshe@gmail.com>"]
 description = "C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI."
 license = "LGPL-2.1-or-later"
+repository = "https://github.com/dickermoshe/kosher-rust"
+homepage = "https://github.com/dickermoshe/kosher-rust"
 
 [lib]
 crate-type = ["cdylib", "staticlib", "rlib"]

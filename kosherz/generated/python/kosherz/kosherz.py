@@ -145,7 +145,7 @@ _CONTRACTS: Dict[str, List[Tuple[int, int, str]]] = {
         (0x53798234777e19ea, 0x6c389ed6ad08dbe3, "calendar.rosh_hashana"),
         (0x58fc9af210a33bdd, 0xc3e1903a4dc8359d, "calendar.HebrewDate.is_aseres_yemei_teshuva"),
         (0x5c2a6a6f333ead35, 0x74c7180edff5c022, "calendar.HebrewDate.from_gregorian"),
-        (0x6089a64539b542a8, 0x404904f4331718c5, "calendar.SpecialDay"),
+        (0x6089a64539b542a8, 0xc406e171c1c8c82a, "calendar.SpecialDay"),
         (0x65535c1ad3d9f893, 0x55884ddb65b50739, "calendar.HebrewDate.has_candle_lighting"),
         (0x6a0735856dec8d1a, 0xdc1addb4a7ab46ef, "calendar.parsha_name"),
         (0x734de195723c4bec, 0xc7f3965b813050f5, "calendar.HebrewDate.display"),
@@ -1007,10 +1007,10 @@ class SpecialDay:
         RoshChodesh = 27
         # Yom HaShoah.
         YomHaShoah = 28
-        # Yom Hazikaron.
-        YomHazikaron = 29
-        # Yom Ha'atzmaut.
-        YomHaatzmaut = 30
+        # Yom HaZikaron.
+        YomHaZikaron = 29
+        # Yom HaAtzmaut.
+        YomHaAtzmaut = 30
         # Yom Yerushalayim.
         YomYerushalayim = 31
         # Lag B'Omer, 18 Iyar.
@@ -1029,8 +1029,8 @@ class SpecialDay:
         CountOfTheOmer = 38
         # Birchas Hachamah, every 28 years.
         BirchasHachamah = 39
-        # Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.
-        MacharHachodesh = 40
+        # Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh.
+        MacharChodesh = 40
         # Shabbos Mevarchim, the Shabbos when the coming month is announced.
         ShabbosMevarchim = 41
 
@@ -1063,8 +1063,8 @@ class SpecialDay:
     PurimKatan: Type[SpecialDayPurimKatan]
     RoshChodesh: Type[SpecialDayRoshChodesh]
     YomHaShoah: Type[SpecialDayYomHaShoah]
-    YomHazikaron: Type[SpecialDayYomHazikaron]
-    YomHaatzmaut: Type[SpecialDayYomHaatzmaut]
+    YomHaZikaron: Type[SpecialDayYomHaZikaron]
+    YomHaAtzmaut: Type[SpecialDayYomHaAtzmaut]
     YomYerushalayim: Type[SpecialDayYomYerushalayim]
     LagBomer: Type[SpecialDayLagBomer]
     ShushanPurimKatan: Type[SpecialDayShushanPurimKatan]
@@ -1074,7 +1074,7 @@ class SpecialDay:
     FastOfTheFirstborn: Type[SpecialDayFastOfTheFirstborn]
     CountOfTheOmer: Type[SpecialDayCountOfTheOmer]
     BirchasHachamah: Type[SpecialDayBirchasHachamah]
-    MacharHachodesh: Type[SpecialDayMacharHachodesh]
+    MacharChodesh: Type[SpecialDayMacharChodesh]
     ShabbosMevarchim: Type[SpecialDayShabbosMevarchim]
     TAG: SpecialDay.Tag
 
@@ -1291,17 +1291,17 @@ class SpecialDayYomHaShoah(SpecialDay):
 
 
 @dataclass
-class SpecialDayYomHazikaron(SpecialDay):
-    """Yom Hazikaron."""
+class SpecialDayYomHaZikaron(SpecialDay):
+    """Yom HaZikaron."""
 
-    TAG = SpecialDay.Tag.YomHazikaron
+    TAG = SpecialDay.Tag.YomHaZikaron
 
 
 @dataclass
-class SpecialDayYomHaatzmaut(SpecialDay):
-    """Yom Ha'atzmaut."""
+class SpecialDayYomHaAtzmaut(SpecialDay):
+    """Yom HaAtzmaut."""
 
-    TAG = SpecialDay.Tag.YomHaatzmaut
+    TAG = SpecialDay.Tag.YomHaAtzmaut
 
 
 @dataclass
@@ -1371,10 +1371,10 @@ class SpecialDayBirchasHachamah(SpecialDay):
 
 
 @dataclass
-class SpecialDayMacharHachodesh(SpecialDay):
-    """Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh."""
+class SpecialDayMacharChodesh(SpecialDay):
+    """Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh."""
 
-    TAG = SpecialDay.Tag.MacharHachodesh
+    TAG = SpecialDay.Tag.MacharChodesh
 
 
 @dataclass
@@ -1413,8 +1413,8 @@ SpecialDay.ShushanPurim = SpecialDayShushanPurim
 SpecialDay.PurimKatan = SpecialDayPurimKatan
 SpecialDay.RoshChodesh = SpecialDayRoshChodesh
 SpecialDay.YomHaShoah = SpecialDayYomHaShoah
-SpecialDay.YomHazikaron = SpecialDayYomHazikaron
-SpecialDay.YomHaatzmaut = SpecialDayYomHaatzmaut
+SpecialDay.YomHaZikaron = SpecialDayYomHaZikaron
+SpecialDay.YomHaAtzmaut = SpecialDayYomHaAtzmaut
 SpecialDay.YomYerushalayim = SpecialDayYomYerushalayim
 SpecialDay.LagBomer = SpecialDayLagBomer
 SpecialDay.ShushanPurimKatan = SpecialDayShushanPurimKatan
@@ -1424,7 +1424,7 @@ SpecialDay.Behab = SpecialDayBehab
 SpecialDay.FastOfTheFirstborn = SpecialDayFastOfTheFirstborn
 SpecialDay.CountOfTheOmer = SpecialDayCountOfTheOmer
 SpecialDay.BirchasHachamah = SpecialDayBirchasHachamah
-SpecialDay.MacharHachodesh = SpecialDayMacharHachodesh
+SpecialDay.MacharChodesh = SpecialDayMacharChodesh
 SpecialDay.ShabbosMevarchim = SpecialDayShabbosMevarchim
 
 
@@ -1517,10 +1517,10 @@ def _write_SpecialDay(_w: _Writer, value: SpecialDay) -> None:
     if isinstance(value, SpecialDayYomHaShoah):
         _w.write_i32(28)
         return
-    if isinstance(value, SpecialDayYomHazikaron):
+    if isinstance(value, SpecialDayYomHaZikaron):
         _w.write_i32(29)
         return
-    if isinstance(value, SpecialDayYomHaatzmaut):
+    if isinstance(value, SpecialDayYomHaAtzmaut):
         _w.write_i32(30)
         return
     if isinstance(value, SpecialDayYomYerushalayim):
@@ -1551,7 +1551,7 @@ def _write_SpecialDay(_w: _Writer, value: SpecialDay) -> None:
     if isinstance(value, SpecialDayBirchasHachamah):
         _w.write_i32(39)
         return
-    if isinstance(value, SpecialDayMacharHachodesh):
+    if isinstance(value, SpecialDayMacharChodesh):
         _w.write_i32(40)
         return
     if isinstance(value, SpecialDayShabbosMevarchim):
@@ -1623,9 +1623,9 @@ def _read_SpecialDay(_r: _Reader) -> SpecialDay:
     if tag == 28:
         return SpecialDayYomHaShoah()
     if tag == 29:
-        return SpecialDayYomHazikaron()
+        return SpecialDayYomHaZikaron()
     if tag == 30:
-        return SpecialDayYomHaatzmaut()
+        return SpecialDayYomHaAtzmaut()
     if tag == 31:
         return SpecialDayYomYerushalayim()
     if tag == 32:
@@ -1647,7 +1647,7 @@ def _read_SpecialDay(_r: _Reader) -> SpecialDay:
     if tag == 39:
         return SpecialDayBirchasHachamah()
     if tag == 40:
-        return SpecialDayMacharHachodesh()
+        return SpecialDayMacharChodesh()
     if tag == 41:
         return SpecialDayShabbosMevarchim()
     raise _malformed(f"unknown SpecialDay tag {tag}")
@@ -2291,13 +2291,13 @@ class LimudimError(Error):
 
 
 class InvalidUnit(LimudimError):
-    """A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
-    to 6.
+    """A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1
+    to 6, or a range that ends before it starts.
     """
 
     CODE = 1
 
-    def __init__(self, message: str = "A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1") -> None:
+    def __init__(self, message: str = "A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1") -> None:
         super().__init__(1, message)
 
 
@@ -2751,7 +2751,8 @@ def tehillim_display(unit: TehillimUnit) -> str:
 
     # Errors
 
-    `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+    `LimudimError::InvalidUnit` for a psalm outside 1 to 150, a verse outside 1 to 176, or a
+    range that ends before it starts. Verses are not checked against the length of the psalm.
 
     Raises
     ------
@@ -2777,7 +2778,8 @@ def pirkei_avos_display(unit: PirkeiAvosUnit) -> str:
 
     # Errors
 
-    `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+    `LimudimError::InvalidUnit` for a chapter outside 1 to 6, or a combined portion whose second
+    chapter doesn't come after its first.
 
     Raises
     ------
@@ -3099,7 +3101,8 @@ def _zmanim_error_from(code: int, message: str, payload: bytes = b"") -> Error:
 
 class Zman(IntEnum):
     """A halachic time this library can calculate, named after the KosherJava getter that
-    calculates it, without `get`. Its value is its position in `all_zmanim`.
+    calculates it, without `get`. Its value is its position in `all_zmanim`, which changes
+    when a zman is added, so store `zman_java_name` rather than the number.
     """
 
     # Begin Civil Twilight (KosherJava `getBeginCivilTwilight`).
@@ -4631,8 +4634,8 @@ __all__ = [
     "SpecialDayPurimKatan",
     "SpecialDayRoshChodesh",
     "SpecialDayYomHaShoah",
-    "SpecialDayYomHazikaron",
-    "SpecialDayYomHaatzmaut",
+    "SpecialDayYomHaZikaron",
+    "SpecialDayYomHaAtzmaut",
     "SpecialDayYomYerushalayim",
     "SpecialDayLagBomer",
     "SpecialDayShushanPurimKatan",
@@ -4642,7 +4645,7 @@ __all__ = [
     "SpecialDayFastOfTheFirstborn",
     "SpecialDayCountOfTheOmer",
     "SpecialDayBirchasHachamah",
-    "SpecialDayMacharHachodesh",
+    "SpecialDayMacharChodesh",
     "SpecialDayShabbosMevarchim",
     "GregorianDate",
     "YearInfo",

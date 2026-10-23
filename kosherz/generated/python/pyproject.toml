@@ -8,10 +8,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kosherz"
-version = "0.0.0"
+version = "0.3.0"
 description = "C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI."
 requires-python = ">=3.9"
 license = { text = "LGPL-2.1-or-later" }
+authors = [{ name = "Moshe Dicker <dickermoshe@gmail.com>" }]
+
+[project.urls]
+Homepage = "https://github.com/dickermoshe/kosher-rust"
+Repository = "https://github.com/dickermoshe/kosher-rust"
 
 [tool.setuptools]
 packages = ["kosherz"]

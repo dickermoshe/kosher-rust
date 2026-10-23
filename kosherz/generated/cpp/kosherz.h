@@ -138,7 +138,7 @@ KOSHERZ_API const kosherz_contract_entry* kosherz_calendar_contract(size_t* out_
     {0x53798234777e19eaull, 0x6c389ed6ad08dbe3ull}, /* calendar.rosh_hashana */ \
     {0x58fc9af210a33bddull, 0xc3e1903a4dc8359dull}, /* calendar.HebrewDate.is_aseres_yemei_teshuva */ \
     {0x5c2a6a6f333ead35ull, 0x74c7180edff5c022ull}, /* calendar.HebrewDate.from_gregorian */ \
-    {0x6089a64539b542a8ull, 0x404904f4331718c5ull}, /* calendar.SpecialDay */ \
+    {0x6089a64539b542a8ull, 0xc406e171c1c8c82aull}, /* calendar.SpecialDay */ \
     {0x65535c1ad3d9f893ull, 0x55884ddb65b50739ull}, /* calendar.HebrewDate.has_candle_lighting */ \
     {0x6a0735856dec8d1aull, 0xdc1addb4a7ab46efull}, /* calendar.parsha_name */ \
     {0x734de195723c4becull, 0xc7f3965b813050f5ull}, /* calendar.HebrewDate.display */ \
@@ -552,10 +552,10 @@ typedef enum {
     kosherz_calendar_SpecialDay_RoshChodesh = 27,
     /** Yom HaShoah. */
     kosherz_calendar_SpecialDay_YomHaShoah = 28,
-    /** Yom Hazikaron. */
-    kosherz_calendar_SpecialDay_YomHazikaron = 29,
-    /** Yom Ha'atzmaut. */
-    kosherz_calendar_SpecialDay_YomHaatzmaut = 30,
+    /** Yom HaZikaron. */
+    kosherz_calendar_SpecialDay_YomHaZikaron = 29,
+    /** Yom HaAtzmaut. */
+    kosherz_calendar_SpecialDay_YomHaAtzmaut = 30,
     /** Yom Yerushalayim. */
     kosherz_calendar_SpecialDay_YomYerushalayim = 31,
     /** Lag B'Omer, 18 Iyar. */
@@ -574,8 +574,8 @@ typedef enum {
     kosherz_calendar_SpecialDay_CountOfTheOmer = 38,
     /** Birchas Hachamah, every 28 years. */
     kosherz_calendar_SpecialDay_BirchasHachamah = 39,
-    /** Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh. */
-    kosherz_calendar_SpecialDay_MacharHachodesh = 40,
+    /** Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh. */
+    kosherz_calendar_SpecialDay_MacharChodesh = 40,
     /** Shabbos Mevarchim, the Shabbos when the coming month is announced. */
     kosherz_calendar_SpecialDay_ShabbosMevarchim = 41
 } kosherz_calendar_SpecialDay_Tag;
@@ -739,14 +739,15 @@ typedef enum {
 /** Error codes reported by throwing functions in the `calendar.limudim` module tree. */
 typedef enum {
     /**
-     * A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
-     * to 6.
+     * A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1
+     * to 6, or a range that ends before it starts.
      */
     kosherz_calendar_limudim_LimudimError_InvalidUnit = 1
 } kosherz_calendar_limudim_LimudimError;
 /**
  * A halachic time this library can calculate, named after the KosherJava getter that
- * calculates it, without `get`. Its value is its position in `all_zmanim`.
+ * calculates it, without `get`. Its value is its position in `all_zmanim`, which changes
+ * when a zman is added, so store `zman_java_name` rather than the number.
  */
 typedef enum {
     /** Begin Civil Twilight (KosherJava `getBeginCivilTwilight`). */
@@ -1545,7 +1546,8 @@ KOSHERZ_API const uint8_t* kosherz_calendar_limudim_tractate_hebrew(kosherz_cale
  *
  * # Errors
  *
- * `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+ * `LimudimError::InvalidUnit` for a psalm outside 1 to 150, a verse outside 1 to 176, or a
+ * range that ends before it starts. Verses are not checked against the length of the psalm.
  */
 KOSHERZ_API const uint8_t* kosherz_calendar_limudim_tehillim_display(const uint8_t* unit_ptr, size_t unit_len, size_t* out_len, kosherz_error* out_err);
 /**
@@ -1553,7 +1555,8 @@ KOSHERZ_API const uint8_t* kosherz_calendar_limudim_tehillim_display(const uint8
  *
  * # Errors
  *
- * `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+ * `LimudimError::InvalidUnit` for a chapter outside 1 to 6, or a combined portion whose second
+ * chapter doesn't come after its first.
  */
 KOSHERZ_API const uint8_t* kosherz_calendar_limudim_pirkei_avos_display(const uint8_t* unit_ptr, size_t unit_len, size_t* out_len, kosherz_error* out_err);
 /** Daf Yomi: a page of the Babylonian Talmud a day, from 11 September 1923. */

@@ -333,10 +333,10 @@ pub mod calendar {
         RoshChodesh,
         /// Yom HaShoah.
         YomHaShoah,
-        /// Yom Hazikaron.
-        YomHazikaron,
-        /// Yom Ha'atzmaut.
-        YomHaatzmaut,
+        /// Yom HaZikaron.
+        YomHaZikaron,
+        /// Yom HaAtzmaut.
+        YomHaAtzmaut,
         /// Yom Yerushalayim.
         YomYerushalayim,
         /// Lag B'Omer, 18 Iyar.
@@ -358,8 +358,8 @@ pub mod calendar {
         },
         /// Birchas Hachamah, every 28 years.
         BirchasHachamah,
-        /// Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.
-        MacharHachodesh,
+        /// Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh.
+        MacharChodesh,
         /// Shabbos Mevarchim, the Shabbos when the coming month is announced.
         ShabbosMevarchim,
     }
@@ -630,8 +630,8 @@ pub mod calendar {
         #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         #[repr(i32)]
         pub enum LimudimError {
-            /// A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
-            /// to 6.
+            /// A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1
+            /// to 6, or a range that ends before it starts.
             InvalidUnit = 1,
         }
 
@@ -893,7 +893,8 @@ pub mod calendar {
         ///
         /// # Errors
         ///
-        /// `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+        /// `LimudimError::InvalidUnit` for a psalm outside 1 to 150, a verse outside 1 to 176, or a
+        /// range that ends before it starts. Verses are not checked against the length of the psalm.
         #[weaveffi::export]
         pub fn tehillim_display(unit: TehillimUnit) -> Result<String, LimudimError> {
             kosher_rust::limudim::TehillimUnit::try_from(unit).map(|unit| unit.to_string())
@@ -903,7 +904,8 @@ pub mod calendar {
         ///
         /// # Errors
         ///
-        /// `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+        /// `LimudimError::InvalidUnit` for a chapter outside 1 to 6, or a combined portion whose second
+        /// chapter doesn't come after its first.
         #[weaveffi::export]
         pub fn pirkei_avos_display(unit: PirkeiAvosUnit) -> Result<String, LimudimError> {
             kosher_rust::limudim::PirkeiAvosUnit::try_from(unit).map(|unit| unit.to_string())
@@ -1075,7 +1077,8 @@ pub mod times {
 
     // BEGIN GENERATED: Zman
     /// A halachic time this library can calculate, named after the KosherJava getter that
-    /// calculates it, without `get`. Its value is its position in `all_zmanim`.
+    /// calculates it, without `get`. Its value is its position in `all_zmanim`, which changes
+    /// when a zman is added, so store `zman_java_name` rather than the number.
     #[weaveffi::enumeration]
     #[repr(i32)]
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

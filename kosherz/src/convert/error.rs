@@ -26,7 +26,7 @@ impl Message for CalendarError {
 impl Message for LimudimError {
     fn message(self) -> &'static str {
         match self {
-            Self::InvalidUnit => "a psalm, verse or chapter number is out of range",
+            Self::InvalidUnit => "a psalm, verse or chapter number is out of range, or a range ends before it starts",
         }
     }
 }

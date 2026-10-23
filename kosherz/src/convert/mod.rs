@@ -86,12 +86,13 @@ pub(crate) fn time_zone(date: civil::Date, day: Option<&LocalDay>) -> Result<Opt
 /// The kosher-rust location, if it is valid and, more than 150 degrees from Greenwich, has a time
 /// zone.
 pub(crate) fn location(location: &Location, has_time_zone: bool) -> Result<kosher_rust::Location, ZmanimError> {
+    let valid = kosher_rust::Location::new(location.latitude, location.longitude)?
+        .with_elevation(location.elevation)?
+        .with_horizons(location.eastern_horizon_elevation, location.western_horizon_elevation)?;
     if !has_time_zone && location.longitude.abs() > 150.0 {
         return Err(ZmanimError::TimeZoneRequired);
     }
-    Ok(kosher_rust::Location::new(location.latitude, location.longitude)?
-        .with_elevation(location.elevation)?
-        .with_horizons(location.eastern_horizon_elevation, location.western_horizon_elevation)?)
+    Ok(valid)
 }
 
 pub(crate) fn validate_location(location: &Location, has_time_zone: bool) -> Result<(), ZmanimError> {

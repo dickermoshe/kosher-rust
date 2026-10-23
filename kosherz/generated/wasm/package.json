@@ -3,9 +3,15 @@
   "//warning": "DO NOT EDIT. Your changes will be overwritten.",
   "//regenerate": "To regenerate: weaveffi generate",
   "name": "kosherz",
-  "version": "0.0.0",
+  "version": "0.3.0",
   "description": "C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI.",
   "license": "LGPL-2.1-or-later",
+  "author": "Moshe Dicker <dickermoshe@gmail.com>",
+  "homepage": "https://github.com/dickermoshe/kosher-rust",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dickermoshe/kosher-rust"
+  },
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",

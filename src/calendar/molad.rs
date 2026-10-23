@@ -4,23 +4,65 @@ use icu_calendar::{
     options::DateAddOptions,
     types::{DateDuration, Month},
 };
-use jiff::{SignedDuration, Timestamp, civil::Date as JiffDate, tz, tz::TimeZone};
+use jiff::{
+    SignedDuration, Timestamp,
+    civil::{Date as JiffDate, Weekday},
+    tz,
+    tz::TimeZone,
+};
 use jiff_icu::ConvertTryFrom;
 
 use super::month::month_of_year;
 
 /// The molad: the mean new moon that begins a Hebrew month, as the calendar reckons it.
 ///
-/// Get one from [`HebrewDate::molad`](super::HebrewDate::molad).
+/// Get one from [`HebrewDate::molad`](super::HebrewDate::molad). The weekday, hours, minutes
+/// and *chalakim* are in Jerusalem mean time, the way the molad is announced in shul.
+///
+/// ```
+/// use jiff::civil::{Weekday, date};
+/// use kosher_rust::HebrewDate;
+///
+/// // The molad of Iyar 5784.
+/// let molad = HebrewDate::try_from(date(2024, 5, 9))?.molad().unwrap();
+/// assert_eq!(molad.weekday(), Weekday::Wednesday);
+/// assert_eq!((molad.hours(), molad.minutes(), molad.chalakim()), (11, 41, 8));
+/// # Ok::<(), kosher_rust::calendar::DateOutOfRange>(())
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Molad {
     timestamp: Timestamp,
+    weekday: Weekday,
+    hours: u8,
+    minutes: u8,
+    chalakim: u8,
 }
 
 impl Molad {
     /// The moment of the molad, converted from Jerusalem mean time.
     pub const fn timestamp(self) -> Timestamp {
         self.timestamp
+    }
+
+    /// The day of the week, counting from midnight.
+    pub const fn weekday(self) -> Weekday {
+        self.weekday
+    }
+
+    /// The hour, from 0 to 23.
+    pub const fn hours(self) -> u8 {
+        self.hours
+    }
+
+    /// The minutes past the hour, from 0 to 59.
+    pub const fn minutes(self) -> u8 {
+        self.minutes
+    }
+
+    /// The *chalakim* past the minute, from 0 to 17. A *chelek* is 1/1080 of an hour, or 3⅓
+    /// seconds.
+    pub const fn chalakim(self) -> u8 {
+        self.chalakim
     }
 }
 
@@ -52,12 +94,13 @@ pub(crate) fn chalakim_since_molad_tohu(year: i32, month: Month) -> Option<i64> 
     Some(chalakim_at_month_index(year as i64, month_of_year(month, year)?))
 }
 
-/// The molad of `date`'s month.
-pub(crate) fn molad_of_month(date: &Date<Hebrew>) -> Option<Molad> {
-    months_molad(date).map(|timestamp| Molad { timestamp })
+/// The moment of the molad of `date`'s month.
+pub(crate) fn months_molad(date: &Date<Hebrew>) -> Option<Timestamp> {
+    molad_of_month(date).map(Molad::timestamp)
 }
 
-pub(crate) fn months_molad(date: &Date<Hebrew>) -> Option<Timestamp> {
+/// The molad of `date`'s month.
+pub(crate) fn molad_of_month(date: &Date<Hebrew>) -> Option<Molad> {
     // The arithmetic below assumes a positive count of chalakim since the molad tohu.
     if date.year().extended_year() < 1 {
         return None;
@@ -82,9 +125,8 @@ pub(crate) fn months_molad(date: &Date<Hebrew>) -> Option<Timestamp> {
     let seconds = molad_seconds as i8;
     let nanos = ((molad_seconds - seconds as f64) * 1_000_000_000.0) as i32;
 
-    let datetime = JiffDate::convert_try_from(gregorian_date)
-        .ok()?
-        .at(hours as i8, minutes as i8, seconds, nanos);
+    let civil_date = JiffDate::convert_try_from(gregorian_date).ok()?;
+    let datetime = civil_date.at(hours as i8, minutes as i8, seconds, nanos);
 
     // Molad is in Jerusalem standard time (GMT+2)
     let jerusalem_offset = TimeZone::fixed(tz::offset(2));
@@ -94,10 +136,17 @@ pub(crate) fn months_molad(date: &Date<Hebrew>) -> Option<Timestamp> {
     // Longitude of Har Habayis: 35.2354°
     // 35.2354° away from 35° (GMT+2 +  20 minutes) = 0.2354° = ~0.94 minutes
     // Total: 20 minutes 56.496 seconds ≈ 1256.496 seconds
-    datetime_jerusalem
+    let timestamp = datetime_jerusalem
         .timestamp()
         .checked_sub(SignedDuration::from_millis(1_256_496))
-        .ok()
+        .ok()?;
+    Some(Molad {
+        timestamp,
+        weekday: civil_date.weekday(),
+        hours: hours as u8,
+        minutes: minutes as u8,
+        chalakim: chalakim as u8,
+    })
 }
 
 fn abs_date_to_gregorian_date(abs_date: i64) -> Option<Date<Gregorian>> {

@@ -204,7 +204,7 @@ static const Jni_contract_entry Jni_contract_calendar[] = {
     {UINT64_C(0x53798234777e19ea), UINT64_C(0x6c389ed6ad08dbe3), "calendar.rosh_hashana"},
     {UINT64_C(0x58fc9af210a33bdd), UINT64_C(0xc3e1903a4dc8359d), "calendar.HebrewDate.is_aseres_yemei_teshuva"},
     {UINT64_C(0x5c2a6a6f333ead35), UINT64_C(0x74c7180edff5c022), "calendar.HebrewDate.from_gregorian"},
-    {UINT64_C(0x6089a64539b542a8), UINT64_C(0x404904f4331718c5), "calendar.SpecialDay"},
+    {UINT64_C(0x6089a64539b542a8), UINT64_C(0xc406e171c1c8c82a), "calendar.SpecialDay"},
     {UINT64_C(0x65535c1ad3d9f893), UINT64_C(0x55884ddb65b50739), "calendar.HebrewDate.has_candle_lighting"},
     {UINT64_C(0x6a0735856dec8d1a), UINT64_C(0xdc1addb4a7ab46ef), "calendar.parsha_name"},
     {UINT64_C(0x734de195723c4bec), UINT64_C(0xc7f3965b813050f5), "calendar.HebrewDate.display"},

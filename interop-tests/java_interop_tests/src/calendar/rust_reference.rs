@@ -202,7 +202,7 @@ pub(super) fn rust_jewish_calendar_snapshot(
         is_taanis_bechoros: rust_special_days.contains(&SpecialDay::FastOfTheFirstborn),
         day_of_chanukah: day_of_chanukah,
         is_rosh_chodesh: rust_special_days.contains(&SpecialDay::RoshChodesh),
-        is_machar_chodesh: rust_special_days.contains(&SpecialDay::MacharHachodesh),
+        is_machar_chodesh: rust_special_days.contains(&SpecialDay::MacharChodesh),
         is_shabbos_mevorchim: rust_special_days.contains(&SpecialDay::ShabbosMevarchim),
         day_of_omer: day_of_omer,
         // Rounded down, as Java's `toEpochMilli` rounds, so instants before 1970 agree.
@@ -348,8 +348,8 @@ fn rust_is_yom_tov(special_days: &[SpecialDay]) -> bool {
                 | SpecialDay::ShushanPurim
                 | SpecialDay::PurimKatan
                 | SpecialDay::YomHaShoah
-                | SpecialDay::YomHazikaron
-                | SpecialDay::YomHaatzmaut
+                | SpecialDay::YomHaZikaron
+                | SpecialDay::YomHaAtzmaut
                 | SpecialDay::YomYerushalayim
                 | SpecialDay::LagBomer
                 | SpecialDay::ShushanPurimKatan

@@ -84,8 +84,8 @@ public abstract class LimudimException : NativeException
     }
 
     /// <summary>
-    /// A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
-    /// to 6.
+    /// A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1
+    /// to 6, or a range that ends before it starts.
     /// </summary>
     public sealed class InvalidUnit : LimudimException
     {
@@ -93,8 +93,8 @@ public abstract class LimudimException : NativeException
         public const int ErrorCode = 1;
 
         /// <summary>Creates the error with <paramref name="message"/>, or the
-        /// default message "A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1" when it's null.</summary>
-        public InvalidUnit(string? message = null) : base(ErrorCode, message ?? "A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1")
+        /// default message "A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1" when it's null.</summary>
+        public InvalidUnit(string? message = null) : base(ErrorCode, message ?? "A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1")
         {
         }
     }
@@ -715,13 +715,13 @@ public abstract class SpecialDay
     {
     }
 
-    /// <summary>Yom Hazikaron.</summary>
-    public sealed class YomHazikaron : SpecialDay
+    /// <summary>Yom HaZikaron.</summary>
+    public sealed class YomHaZikaron : SpecialDay
     {
     }
 
-    /// <summary>Yom Ha'atzmaut.</summary>
-    public sealed class YomHaatzmaut : SpecialDay
+    /// <summary>Yom HaAtzmaut.</summary>
+    public sealed class YomHaAtzmaut : SpecialDay
     {
     }
 
@@ -778,8 +778,8 @@ public abstract class SpecialDay
     {
     }
 
-    /// <summary>Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.</summary>
-    public sealed class MacharHachodesh : SpecialDay
+    /// <summary>Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh.</summary>
+    public sealed class MacharChodesh : SpecialDay
     {
     }
 
@@ -880,10 +880,10 @@ public abstract class SpecialDay
             case YomHaShoah _:
                 writer.WriteI32(28);
                 break;
-            case YomHazikaron _:
+            case YomHaZikaron _:
                 writer.WriteI32(29);
                 break;
-            case YomHaatzmaut _:
+            case YomHaAtzmaut _:
                 writer.WriteI32(30);
                 break;
             case YomYerushalayim _:
@@ -914,7 +914,7 @@ public abstract class SpecialDay
             case BirchasHachamah _:
                 writer.WriteI32(39);
                 break;
-            case MacharHachodesh _:
+            case MacharChodesh _:
                 writer.WriteI32(40);
                 break;
             case ShabbosMevarchim _:
@@ -1049,11 +1049,11 @@ public abstract class SpecialDay
             }
             case 29:
             {
-                return new YomHazikaron();
+                return new YomHaZikaron();
             }
             case 30:
             {
-                return new YomHaatzmaut();
+                return new YomHaAtzmaut();
             }
             case 31:
             {
@@ -1094,7 +1094,7 @@ public abstract class SpecialDay
             }
             case 40:
             {
-                return new MacharHachodesh();
+                return new MacharChodesh();
             }
             case 41:
             {
@@ -1960,7 +1960,8 @@ public sealed class MishnaPair
 
 /// <summary>
 /// A halachic time this library can calculate, named after the KosherJava getter that
-/// calculates it, without `get`. Its value is its position in `all_zmanim`.
+/// calculates it, without `get`. Its value is its position in `all_zmanim`, which changes
+/// when a zman is added, so store `zman_java_name` rather than the number.
 /// </summary>
 public enum Zman
 {
@@ -3454,7 +3455,8 @@ public static unsafe class CalendarLimudim
     ///
     /// # Errors
     ///
-    /// `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+    /// `LimudimError::InvalidUnit` for a psalm outside 1 to 150, a verse outside 1 to 176, or a
+    /// range that ends before it starts. Verses are not checked against the length of the psalm.
     /// </summary>
     /// <exception cref="LimudimException">The call reported a LimudimError code.</exception>
     public static string TehillimDisplay(TehillimUnit unit)
@@ -3476,7 +3478,8 @@ public static unsafe class CalendarLimudim
     ///
     /// # Errors
     ///
-    /// `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+    /// `LimudimError::InvalidUnit` for a chapter outside 1 to 6, or a combined portion whose second
+    /// chapter doesn't come after its first.
     /// </summary>
     /// <exception cref="LimudimException">The call reported a LimudimError code.</exception>
     public static string PirkeiAvosDisplay(PirkeiAvosUnit unit)
@@ -4086,7 +4089,7 @@ internal static unsafe partial class NativeMethods
             (0x53798234777e19eaUL, 0x6c389ed6ad08dbe3UL, "calendar.rosh_hashana"),
             (0x58fc9af210a33bddUL, 0xc3e1903a4dc8359dUL, "calendar.HebrewDate.is_aseres_yemei_teshuva"),
             (0x5c2a6a6f333ead35UL, 0x74c7180edff5c022UL, "calendar.HebrewDate.from_gregorian"),
-            (0x6089a64539b542a8UL, 0x404904f4331718c5UL, "calendar.SpecialDay"),
+            (0x6089a64539b542a8UL, 0xc406e171c1c8c82aUL, "calendar.SpecialDay"),
             (0x65535c1ad3d9f893UL, 0x55884ddb65b50739UL, "calendar.HebrewDate.has_candle_lighting"),
             (0x6a0735856dec8d1aUL, 0xdc1addb4a7ab46efUL, "calendar.parsha_name"),
             (0x734de195723c4becUL, 0xc7f3965b813050f5UL, "calendar.HebrewDate.display"),

@@ -90,3 +90,27 @@ fn tractate_names() {
     assert_eq!(Tractate::BavaMetzia.hebrew(), "בבא מציעא");
     assert_eq!(Tractate::RoshHashanah.hebrew(), "ראש השנה");
 }
+
+#[test]
+fn tractate_names_parse_back() {
+    for tractate in Tractate::ALL {
+        assert_eq!(Tractate::from_name(tractate.name()), Some(tractate));
+    }
+    assert_eq!(Tractate::from_name(""), None);
+}
+
+#[test]
+fn pirkei_avos_weekdays_of_pesach_give_the_first_chapter() {
+    let diaspora = PirkeiAvos(Region::Diaspora);
+    // 21 Nisan 5671, before the Shabbos of 24 Nisan.
+    assert_eq!(diaspora.on(date(1911, 4, 19)), Some(PirkeiAvosUnit::Single(1)));
+    // 18 Nisan 5846, before the Shabbos of 22 Nisan. That Shabbos is after Pesach in Israel, and
+    // the last day of Pesach in the diaspora, where it has no reading.
+    assert_eq!(PirkeiAvos(Region::Israel).on(date(2086, 4, 2)), Some(PirkeiAvosUnit::Single(1)));
+    assert_eq!(diaspora.on(date(2086, 4, 2)), None);
+    // In 2024 the Shabbos of 19 Nisan is Chol Hamoed, so its week has no reading. The next
+    // week starts on Sunday, 20 Nisan.
+    assert_eq!(diaspora.on(date(2024, 4, 24)), None);
+    assert_eq!(diaspora.on(date(2024, 4, 27)), None);
+    assert_eq!(diaspora.on(date(2024, 4, 28)), Some(PirkeiAvosUnit::Single(1)));
+}

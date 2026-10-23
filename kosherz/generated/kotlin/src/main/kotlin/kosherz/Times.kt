@@ -67,7 +67,8 @@ sealed class ZmanimException(code: Int, message: String) : FfiException(code, me
 
 /**
  * A halachic time this library can calculate, named after the KosherJava getter that
- * calculates it, without `get`. Its value is its position in `all_zmanim`.
+ * calculates it, without `get`. Its value is its position in `all_zmanim`, which changes
+ * when a zman is added, so store `zman_java_name` rather than the number.
  */
 enum class Zman(val value: Int) {
     /** Begin Civil Twilight (KosherJava `getBeginCivilTwilight`). */

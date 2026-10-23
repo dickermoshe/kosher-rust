@@ -7,8 +7,7 @@ use num_enum::{IntoPrimitive, TryFromPrimitive};
 ///
 /// Get one from [`HebrewDate::parsha`](super::HebrewDate::parsha),
 /// [`next_parsha`](super::HebrewDate::next_parsha) or
-/// [`special_parsha`](super::HebrewDate::special_parsha). The numbering matches KosherJava's
-/// `JewishCalendar.Parsha`.
+/// [`special_parsha`](super::HebrewDate::special_parsha).
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, IntoPrimitive, TryFromPrimitive)]
 #[repr(u8)]
@@ -156,6 +155,81 @@ pub enum Parsha {
 }
 
 impl Parsha {
+    /// Every *parsha*, in order. The weekly *parshiyos* come first, then the pairs, then the
+    /// special Shabbosos.
+    pub const ALL: [Parsha; 70] = [
+        Parsha::Bereshis,
+        Parsha::Noach,
+        Parsha::LechLecha,
+        Parsha::Vayera,
+        Parsha::ChayeiSara,
+        Parsha::Toldos,
+        Parsha::Vayetzei,
+        Parsha::Vayishlach,
+        Parsha::Vayeshev,
+        Parsha::Miketz,
+        Parsha::Vayigash,
+        Parsha::Vayechi,
+        Parsha::Shemos,
+        Parsha::Vaera,
+        Parsha::Bo,
+        Parsha::Beshalach,
+        Parsha::Yisro,
+        Parsha::Mishpatim,
+        Parsha::Terumah,
+        Parsha::Tetzaveh,
+        Parsha::KiSisa,
+        Parsha::Vayakhel,
+        Parsha::Pekudei,
+        Parsha::Vayikra,
+        Parsha::Tzav,
+        Parsha::Shmini,
+        Parsha::Tazria,
+        Parsha::Metzora,
+        Parsha::AchreiMos,
+        Parsha::Kedoshim,
+        Parsha::Emor,
+        Parsha::Behar,
+        Parsha::Bechukosai,
+        Parsha::Bamidbar,
+        Parsha::Nasso,
+        Parsha::Behaaloscha,
+        Parsha::Shlach,
+        Parsha::Korach,
+        Parsha::Chukas,
+        Parsha::Balak,
+        Parsha::Pinchas,
+        Parsha::Matos,
+        Parsha::Masei,
+        Parsha::Devarim,
+        Parsha::Vaeschanan,
+        Parsha::Eikev,
+        Parsha::Reeh,
+        Parsha::Shoftim,
+        Parsha::KiSeitzei,
+        Parsha::KiSavo,
+        Parsha::Nitzavim,
+        Parsha::Vayeilech,
+        Parsha::HaAzinu,
+        Parsha::VezosHabracha,
+        Parsha::VayakhelPekudei,
+        Parsha::TazriaMetzora,
+        Parsha::AchreiMosKedoshim,
+        Parsha::BeharBechukosai,
+        Parsha::ChukasBalak,
+        Parsha::MatosMasei,
+        Parsha::NitzavimVayeilech,
+        Parsha::Shekalim,
+        Parsha::Zachor,
+        Parsha::Parah,
+        Parsha::Hachodesh,
+        Parsha::Shuva,
+        Parsha::Shira,
+        Parsha::Hagadol,
+        Parsha::Chazon,
+        Parsha::Nachamu,
+    ];
+
     /// The name in Hebrew, for example `"בראשית"`.
     pub const fn hebrew(self) -> &'static str {
         match self {
@@ -233,10 +307,16 @@ impl Parsha {
     }
 }
 
-/// The name in English, for example "Bereshis" or "Vayakhel-Pekudei".
-impl fmt::Display for Parsha {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(match self {
+impl Parsha {
+    /// The variant whose [`name`](Self::name) is exactly `name`. Returns `None` when no
+    /// variant has that name.
+    pub fn from_name(name: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|candidate| candidate.name() == name)
+    }
+
+    /// The name in English, for example `"Bereshis"` or `"Vayakhel-Pekudei"`.
+    pub const fn name(self) -> &'static str {
+        match self {
             Parsha::Bereshis => "Bereshis",
             Parsha::Noach => "Noach",
             Parsha::LechLecha => "Lech Lecha",
@@ -307,6 +387,13 @@ impl fmt::Display for Parsha {
             Parsha::Hagadol => "Hagadol",
             Parsha::Chazon => "Chazon",
             Parsha::Nachamu => "Nachamu",
-        })
+        }
+    }
+}
+
+/// The name in English, for example "Bereshis" or "Vayakhel-Pekudei".
+impl fmt::Display for Parsha {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.name())
     }
 }

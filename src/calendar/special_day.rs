@@ -105,9 +105,9 @@ pub enum SpecialDay {
     /// Yom HaShoah, around 27 Nisan. Modern.
     YomHaShoah,
     /// Yom HaZikaron, around 4 Iyar. Modern.
-    YomHazikaron,
+    YomHaZikaron,
     /// Yom HaAtzmaut, around 5 Iyar. Modern.
-    YomHaatzmaut,
+    YomHaAtzmaut,
     /// Yom Yerushalayim, 28 Iyar. Modern.
     YomYerushalayim,
     /// Lag B'Omer, 18 Iyar.
@@ -128,7 +128,7 @@ pub enum SpecialDay {
     /// Birchas Hachamah, the blessing of the sun, once every 28 years.
     BirchasHachamah,
     /// Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh.
-    MacharHachodesh,
+    MacharChodesh,
     /// Shabbos Mevarchim, the Shabbos when the coming month is announced (not before Tishrei).
     ShabbosMevarchim,
 }
@@ -344,7 +344,7 @@ static HOLIDAY_RULES: [SpecialDayRule; 42] = [
             || ((day == 3 || day == 2) && day_of_week == Weekday::Wednesday)
             || (day == 5 && day_of_week == Weekday::Monday)
         {
-            Some(SpecialDay::YomHazikaron)
+            Some(SpecialDay::YomHaZikaron)
         } else {
             None
         }
@@ -359,7 +359,7 @@ static HOLIDAY_RULES: [SpecialDayRule; 42] = [
             || ((day == 4 || day == 3) && day_of_week == Weekday::Thursday)
             || (day == 6 && day_of_week == Weekday::Tuesday)
         {
-            Some(SpecialDay::YomHaatzmaut)
+            Some(SpecialDay::YomHaAtzmaut)
         } else {
             None
         }
@@ -452,7 +452,7 @@ static HOLIDAY_RULES: [SpecialDayRule; 42] = [
     }),
     SpecialDayRule::Custom(|date, _in_israel| {
         if date.weekday() == Weekday::Saturday && (date.day_of_month().0 == 30 || date.day_of_month().0 == 29) {
-            Some(SpecialDay::MacharHachodesh)
+            Some(SpecialDay::MacharChodesh)
         } else {
             None
         }
@@ -471,8 +471,54 @@ static HOLIDAY_RULES: [SpecialDayRule; 42] = [
 ];
 
 impl SpecialDay {
+    /// Every kind of day. Chanukah and the Omer are listed once, as their first day.
+    pub const ALL: [SpecialDay; 42] = [
+        SpecialDay::ErevPesach,
+        SpecialDay::Pesach,
+        SpecialDay::CholHamoedPesach,
+        SpecialDay::PesachSheni,
+        SpecialDay::ErevShavuos,
+        SpecialDay::Shavuos,
+        SpecialDay::SeventeenthOfTammuz,
+        SpecialDay::TishahBav,
+        SpecialDay::TuBav,
+        SpecialDay::ErevRoshHashana,
+        SpecialDay::RoshHashana,
+        SpecialDay::FastOfGedalyah,
+        SpecialDay::ErevYomKippur,
+        SpecialDay::YomKippur,
+        SpecialDay::ErevSuccos,
+        SpecialDay::Succos,
+        SpecialDay::CholHamoedSuccos,
+        SpecialDay::HoshanaRabbah,
+        SpecialDay::SheminiAtzeres,
+        SpecialDay::SimchasTorah,
+        SpecialDay::Chanukah(1),
+        SpecialDay::TenthOfTeves,
+        SpecialDay::TuBshvat,
+        SpecialDay::FastOfEsther,
+        SpecialDay::Purim,
+        SpecialDay::ShushanPurim,
+        SpecialDay::PurimKatan,
+        SpecialDay::RoshChodesh,
+        SpecialDay::YomHaShoah,
+        SpecialDay::YomHaZikaron,
+        SpecialDay::YomHaAtzmaut,
+        SpecialDay::YomYerushalayim,
+        SpecialDay::LagBomer,
+        SpecialDay::ShushanPurimKatan,
+        SpecialDay::IsruChag,
+        SpecialDay::YomKippurKatan,
+        SpecialDay::Behab,
+        SpecialDay::FastOfTheFirstborn,
+        SpecialDay::CountOfTheOmer(1),
+        SpecialDay::BirchasHachamah,
+        SpecialDay::MacharChodesh,
+        SpecialDay::ShabbosMevarchim,
+    ];
+
     /// Whether work is forbidden: the days of Yom Tov, Rosh Hashana and Yom Kippur.
-    pub fn is_assur_bemelacha(&self) -> bool {
+    pub const fn is_assur_bemelacha(self) -> bool {
         matches!(
             self,
             SpecialDay::Pesach
@@ -485,18 +531,19 @@ impl SpecialDay {
         )
     }
 
-    /// Whether this is one of the modern Israeli days: Yom HaShoah, Yom HaZikaron, Yom HaAtzmaut
-    /// and Yom Yerushalayim.
-    pub fn is_modern(&self) -> bool {
+    /// Whether this is one of the modern Israeli days, which are Yom HaShoah, Yom HaZikaron, Yom
+    /// HaAtzmaut and Yom Yerushalayim. They are marked in every year, including the years before
+    /// they were established.
+    pub const fn is_modern(self) -> bool {
         matches!(
             self,
-            SpecialDay::YomHaShoah | SpecialDay::YomHazikaron | SpecialDay::YomHaatzmaut | SpecialDay::YomYerushalayim
+            SpecialDay::YomHaShoah | SpecialDay::YomHaZikaron | SpecialDay::YomHaAtzmaut | SpecialDay::YomYerushalayim
         )
     }
 
     /// Whether this is a public fast day. The Fast of the Firstborn is not: it binds only
     /// firstborn sons.
-    pub fn is_fast_day(&self) -> bool {
+    pub const fn is_fast_day(self) -> bool {
         matches!(
             self,
             SpecialDay::FastOfGedalyah
@@ -510,7 +557,7 @@ impl SpecialDay {
 
     /// The name in Hebrew, for example `"פסח"`. The day of Chanukah or of the Omer is not
     /// included.
-    pub const fn hebrew(&self) -> &'static str {
+    pub const fn hebrew(self) -> &'static str {
         match self {
             SpecialDay::ErevPesach => "ערב פסח",
             SpecialDay::Pesach => "פסח",
@@ -541,8 +588,8 @@ impl SpecialDay {
             SpecialDay::PurimKatan => "פורים קטן",
             SpecialDay::RoshChodesh => "ראש חודש",
             SpecialDay::YomHaShoah => "יום השואה",
-            SpecialDay::YomHazikaron => "יום הזיכרון",
-            SpecialDay::YomHaatzmaut => "יום העצמאות",
+            SpecialDay::YomHaZikaron => "יום הזיכרון",
+            SpecialDay::YomHaAtzmaut => "יום העצמאות",
             SpecialDay::YomYerushalayim => "יום ירושלים",
             SpecialDay::LagBomer => "ל\"ג בעומר",
             SpecialDay::ShushanPurimKatan => "שושן פורים קטן",
@@ -552,17 +599,17 @@ impl SpecialDay {
             SpecialDay::FastOfTheFirstborn => "תענית בכורות",
             SpecialDay::CountOfTheOmer(_) => "ספירת העומר",
             SpecialDay::BirchasHachamah => "ברכת החמה",
-            SpecialDay::MacharHachodesh => "מחר החדש",
+            SpecialDay::MacharChodesh => "מחר החדש",
             SpecialDay::ShabbosMevarchim => "שבת מברכים",
         }
     }
 }
 
-/// The name in English, for example "Pesach". The day of Chanukah or of the Omer is not
-/// included.
-impl fmt::Display for SpecialDay {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(match self {
+impl SpecialDay {
+    /// The name in English, for example `"Pesach"`. The day of Chanukah or of the Omer is not
+    /// included.
+    pub const fn name(self) -> &'static str {
+        match self {
             SpecialDay::ErevPesach => "Erev Pesach",
             SpecialDay::Pesach => "Pesach",
             SpecialDay::CholHamoedPesach => "Chol Hamoed Pesach",
@@ -592,8 +639,8 @@ impl fmt::Display for SpecialDay {
             SpecialDay::PurimKatan => "Purim Katan",
             SpecialDay::RoshChodesh => "Rosh Chodesh",
             SpecialDay::YomHaShoah => "Yom HaShoah",
-            SpecialDay::YomHazikaron => "Yom HaZikaron",
-            SpecialDay::YomHaatzmaut => "Yom HaAtzmaut",
+            SpecialDay::YomHaZikaron => "Yom HaZikaron",
+            SpecialDay::YomHaAtzmaut => "Yom HaAtzmaut",
             SpecialDay::YomYerushalayim => "Yom Yerushalayim",
             SpecialDay::LagBomer => "Lag B'Omer",
             SpecialDay::ShushanPurimKatan => "Shushan Purim Katan",
@@ -603,8 +650,16 @@ impl fmt::Display for SpecialDay {
             SpecialDay::FastOfTheFirstborn => "Fast of the Firstborn",
             SpecialDay::CountOfTheOmer(_) => "Count of the Omer",
             SpecialDay::BirchasHachamah => "Birchas Hachamah",
-            SpecialDay::MacharHachodesh => "Machar Chodesh",
+            SpecialDay::MacharChodesh => "Machar Chodesh",
             SpecialDay::ShabbosMevarchim => "Shabbos Mevarchim",
-        })
+        }
+    }
+}
+
+/// The name in English, for example "Pesach". The day of Chanukah or of the Omer is not
+/// included.
+impl fmt::Display for SpecialDay {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.name())
     }
 }

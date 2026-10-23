@@ -329,6 +329,10 @@ fn errors() {
     );
     assert_eq!(validate_location(sea_level_location(0.0, 179.0), true), Ok(()));
     assert_eq!(
+        validate_location(sea_level_location(0.0, 200.0), false),
+        Err(ZmanimError::InvalidLongitude)
+    );
+    assert_eq!(
         Zmanim::new(lakewood, GregorianDate { day: 31, ..date }, config, None).err(),
         Some(ZmanimError::InvalidGregorianDate)
     );
@@ -443,6 +447,133 @@ fn inputs_at_their_limits() {
     }
     for minutes in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 1440.5, -0.5, -1440.0, -1e15] {
         assert_eq!(candle_lighting(minutes), Err(ZmanimError::InvalidMinutes), "{minutes}");
+    }
+}
+
+/// The cases that check each date adjustment when an event's UTC hour becomes an instant, the same
+/// ones the Java and kosher-rust tests use, given only a `LocalDay`. A result on the wrong day is 24
+/// hours off.
+#[test]
+fn each_date_adjustment_works_through_a_local_day() {
+    let cases = [
+        // A sunrise at -6 hours local mean time or earlier moves forward a day: Cape Schmidt, in
+        // a zone across the date line, with every calculator.
+        (
+            "Asia/Anadyr",
+            Calculator::Noaa,
+            times::Zman::SeaLevelSunrise,
+            68.88,
+            -179.37,
+            (2021, 1, 10),
+            None,
+        ),
+        (
+            "Asia/Anadyr",
+            Calculator::Meeus,
+            times::Zman::SeaLevelSunrise,
+            68.88,
+            -179.37,
+            (2021, 1, 10),
+            None,
+        ),
+        (
+            "Asia/Anadyr",
+            Calculator::Spa,
+            times::Zman::SeaLevelSunrise,
+            68.88,
+            -179.37,
+            (2021, 1, 10),
+            None,
+        ),
+        // A sunrise after 18:00 local mean time of the day before moves back a day.
+        (
+            "UTC+2",
+            Calculator::Noaa,
+            times::Zman::SeaLevelSunrise,
+            -70.0,
+            35.235,
+            (2021, 1, 25),
+            Some(1_611_527_037_358),
+        ),
+        // A sunset before 06:00 local mean time moves forward a day.
+        (
+            "UTC-12",
+            Calculator::Noaa,
+            times::Zman::SeaLevelSunset,
+            -70.0,
+            -179.37,
+            (2021, 1, 23),
+            Some(1_611_488_915_349),
+        ),
+        // A sunset at +30 hours local mean time or later moves back a day.
+        (
+            "UTC+12",
+            Calculator::Noaa,
+            times::Zman::SeaLevelSunset,
+            68.88,
+            179.0,
+            (2021, 12, 2),
+            Some(1_638_403_159_563),
+        ),
+        // Solar midnight before noon local mean time moves forward a day.
+        (
+            "UTC-12",
+            Calculator::Noaa,
+            times::Zman::SolarMidnight,
+            -70.0,
+            -179.37,
+            (2021, 1, 1),
+            Some(1_609_588_897_446),
+        ),
+        // Solar noon before 0 hours local mean time moves forward a day.
+        (
+            "UTC-12",
+            Calculator::Noaa,
+            times::Zman::SunTransit,
+            -70.0,
+            -179.37,
+            (2021, 1, 1),
+            Some(1_609_545_683_526),
+        ),
+        // Solar noon after 24 hours local mean time moves back a day.
+        (
+            "UTC+12",
+            Calculator::Noaa,
+            times::Zman::SunTransit,
+            -70.0,
+            179.0,
+            (2021, 9, 14),
+            Some(1_631_577_581_205),
+        ),
+    ];
+    for (zone_name, calculator, zman, latitude, longitude, (year, month, day), expected) in cases {
+        let zone = match zone_name.strip_prefix("UTC") {
+            Some(hours) => TimeZone::fixed(jiff::tz::Offset::constant(hours.parse().unwrap())),
+            None => TimeZone::get(zone_name).unwrap(),
+        };
+        let date = civil::date(year, month, day);
+        let config = times::Config {
+            calculator,
+            ..times::default_config()
+        };
+        let day = Zmanim::new(
+            sea_level_location(latitude, longitude),
+            date.into_gregorian(),
+            config,
+            Some(local_day(&zone, date)),
+        )
+        .unwrap();
+        let ours = day.get(zman).unwrap();
+        let label = format!("{zone_name} {calculator:?} {zman:?} on {date}");
+        match expected {
+            Some(expected) => assert!((ours - expected).abs() < 1000, "{label}: {ours}, expected {expected}"),
+            // Cape Schmidt: the sunrise must be on its own local date, before that day's sunset.
+            None => {
+                let sunrise = jiff::Timestamp::from_millisecond(ours).unwrap().to_zoned(zone.clone());
+                assert_eq!(sunrise.date(), date, "{label}: {sunrise}");
+                assert!(ours < day.get(times::Zman::SeaLevelSunset).unwrap(), "{label}");
+            }
+        }
     }
 }
 
@@ -711,7 +842,7 @@ fn enums_round_trip() {
         Ok(true)
     );
     assert_eq!(
-        calendar::special_day_is_modern(calendar::SpecialDay::YomHaatzmaut),
+        calendar::special_day_is_modern(calendar::SpecialDay::YomHaAtzmaut),
         Ok(true)
     );
 }
@@ -764,6 +895,12 @@ fn out_of_range_values_are_rejected() {
             start_verse: 1,
             end_verse: 177,
         },
+        TehillimUnit::Psalms { start: 5, end: 2 },
+        TehillimUnit::PsalmVerses {
+            psalm: 1,
+            start_verse: 170,
+            end_verse: 2,
+        },
     ] {
         assert_eq!(
             limudim::tehillim_display(unit),
@@ -778,6 +915,8 @@ fn out_of_range_values_are_rejected() {
     for unit in [
         PirkeiAvosUnit::Single { chapter: 0 },
         PirkeiAvosUnit::Combined { first: 6, second: 7 },
+        PirkeiAvosUnit::Combined { first: 6, second: 1 },
+        PirkeiAvosUnit::Combined { first: 3, second: 3 },
     ] {
         assert_eq!(
             limudim::pirkei_avos_display(unit),

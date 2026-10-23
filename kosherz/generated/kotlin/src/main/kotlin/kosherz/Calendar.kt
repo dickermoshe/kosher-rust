@@ -331,10 +331,10 @@ sealed class SpecialDay {
     object RoshChodesh : SpecialDay()
     /** Yom HaShoah. */
     object YomHaShoah : SpecialDay()
-    /** Yom Hazikaron. */
-    object YomHazikaron : SpecialDay()
-    /** Yom Ha'atzmaut. */
-    object YomHaatzmaut : SpecialDay()
+    /** Yom HaZikaron. */
+    object YomHaZikaron : SpecialDay()
+    /** Yom HaAtzmaut. */
+    object YomHaAtzmaut : SpecialDay()
     /** Yom Yerushalayim. */
     object YomYerushalayim : SpecialDay()
     /** Lag B'Omer, 18 Iyar. */
@@ -356,8 +356,8 @@ sealed class SpecialDay {
     ) : SpecialDay()
     /** Birchas Hachamah, every 28 years. */
     object BirchasHachamah : SpecialDay()
-    /** Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh. */
-    object MacharHachodesh : SpecialDay()
+    /** Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh. */
+    object MacharChodesh : SpecialDay()
     /** Shabbos Mevarchim, the Shabbos when the coming month is announced. */
     object ShabbosMevarchim : SpecialDay()
 }
@@ -396,8 +396,8 @@ internal fun packSpecialDay(_w: BufferWriter, _v: SpecialDay) {
         is SpecialDay.PurimKatan -> _w.writeI32(26)
         is SpecialDay.RoshChodesh -> _w.writeI32(27)
         is SpecialDay.YomHaShoah -> _w.writeI32(28)
-        is SpecialDay.YomHazikaron -> _w.writeI32(29)
-        is SpecialDay.YomHaatzmaut -> _w.writeI32(30)
+        is SpecialDay.YomHaZikaron -> _w.writeI32(29)
+        is SpecialDay.YomHaAtzmaut -> _w.writeI32(30)
         is SpecialDay.YomYerushalayim -> _w.writeI32(31)
         is SpecialDay.LagBomer -> _w.writeI32(32)
         is SpecialDay.ShushanPurimKatan -> _w.writeI32(33)
@@ -410,7 +410,7 @@ internal fun packSpecialDay(_w: BufferWriter, _v: SpecialDay) {
             _w.writeI32(_v.day)
         }
         is SpecialDay.BirchasHachamah -> _w.writeI32(39)
-        is SpecialDay.MacharHachodesh -> _w.writeI32(40)
+        is SpecialDay.MacharChodesh -> _w.writeI32(40)
         is SpecialDay.ShabbosMevarchim -> _w.writeI32(41)
     }
 }
@@ -445,8 +445,8 @@ internal fun unpackSpecialDay(_r: BufferReader): SpecialDay = when (val _tag = _
     26 -> SpecialDay.PurimKatan
     27 -> SpecialDay.RoshChodesh
     28 -> SpecialDay.YomHaShoah
-    29 -> SpecialDay.YomHazikaron
-    30 -> SpecialDay.YomHaatzmaut
+    29 -> SpecialDay.YomHaZikaron
+    30 -> SpecialDay.YomHaAtzmaut
     31 -> SpecialDay.YomYerushalayim
     32 -> SpecialDay.LagBomer
     33 -> SpecialDay.ShushanPurimKatan
@@ -456,7 +456,7 @@ internal fun unpackSpecialDay(_r: BufferReader): SpecialDay = when (val _tag = _
     37 -> SpecialDay.FastOfTheFirstborn
     38 -> SpecialDay.CountOfTheOmer(_r.readI32())
     39 -> SpecialDay.BirchasHachamah
-    40 -> SpecialDay.MacharHachodesh
+    40 -> SpecialDay.MacharChodesh
     41 -> SpecialDay.ShabbosMevarchim
     else -> throw NativeBugException(-3, "malformed value buffer: unknown SpecialDay tag $_tag")
 }
@@ -666,10 +666,10 @@ class HebrewDate private constructor(address: Long) : AutoCloseable {
 /** Errors of the `LimudimError` domain. */
 sealed class LimudimException(code: Int, message: String) : FfiException(code, message) {
     /**
-     * A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
-     * to 6.
+     * A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1
+     * to 6, or a range that ends before it starts.
      */
-    class InvalidUnit(message: String = "A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1") : LimudimException(1, message)
+    class InvalidUnit(message: String = "A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1") : LimudimException(1, message)
 
     internal companion object {
         /** The exception for a raw code and its serialized payload. */
@@ -1110,7 +1110,8 @@ object Calendar {
          *
          * # Errors
          *
-         * `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+         * `LimudimError::InvalidUnit` for a psalm outside 1 to 150, a verse outside 1 to 176, or a
+         * range that ends before it starts. Verses are not checked against the length of the psalm.
          */
         fun tehillimDisplay(unit: TehillimUnit): String = decodeUtf8(JniBridge.calendar_limudim_tehillim_display(encodeBuffer { _w -> packTehillimUnit(_w, unit) }))
 
@@ -1119,7 +1120,8 @@ object Calendar {
          *
          * # Errors
          *
-         * `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+         * `LimudimError::InvalidUnit` for a chapter outside 1 to 6, or a combined portion whose second
+         * chapter doesn't come after its first.
          */
         fun pirkeiAvosDisplay(unit: PirkeiAvosUnit): String = decodeUtf8(JniBridge.calendar_limudim_pirkei_avos_display(encodeBuffer { _w -> packPirkeiAvosUnit(_w, unit) }))
 

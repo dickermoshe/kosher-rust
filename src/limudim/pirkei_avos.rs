@@ -41,9 +41,14 @@ impl fmt::Display for PirkeiAvosUnit {
     }
 }
 
-/// Pirkei Avos: a chapter each Shabbos afternoon from Pesach to Rosh Hashana, doubled up at the
+/// Pirkei Avos, a chapter each Shabbos afternoon from Pesach to Rosh Hashana, doubled up at the
 /// end of the summer. The [`Region`] matters because the second day of Yom Tov in the diaspora
 /// can fall on Shabbos.
+///
+/// Each day of the week, from Sunday to Shabbos, gives the chapter that is read on that week's
+/// Shabbos.
+///
+/// [`on`](super::Schedule::on) returns `None` for a week whose Shabbos has no reading.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct PirkeiAvos(pub Region);
 
@@ -129,8 +134,9 @@ impl PirkeiAvos {
     }
 
     /// Find the Pirkei Avos cycle for a given date.
-    /// Cycle starts the day after Pesach (Nissan 22 in Israel, Nissan 23 outside)
-    /// and ends on the last Shabbos before Rosh Hashanah.
+    /// Cycle starts on the Sunday of the week of the day after Pesach (Nissan 22 in Israel,
+    /// Nissan 23 outside), so the weekdays of Pesach give the first Shabbos's chapter. It ends
+    /// on the last Shabbos before Rosh Hashanah.
     ///
     /// `None` from the year 10000 on: the calendar builds dates by year only up to 9999.
     fn find_yearly_cycle(in_israel: bool, date: Date<Hebrew>) -> Option<(Date<Hebrew>, Date<Hebrew>)> {
@@ -138,15 +144,18 @@ impl PirkeiAvos {
 
         // Day after Pesach: Nissan 22 in Israel, Nissan 23 outside
         let anchor_day = if in_israel { 22 } else { 23 };
-        let cycle_start_this_year = Date::try_new_hebrew_v2(year, NISAN, anchor_day).ok()?;
+        let cycle_start = |year: i32| {
+            let day_after_pesach = Date::try_new_hebrew_v2(year, NISAN, anchor_day).ok()?;
+            day_after_pesach.add_days(1 - day_of_week_number(day_after_pesach))
+        };
+        let cycle_start_this_year = cycle_start(year)?;
 
         // Determine which year's cycle we're in
         let (start_date, cycle_year) = if date >= cycle_start_this_year {
             (cycle_start_this_year, year)
         } else {
             // We're before this year's cycle starts, use previous year's cycle
-            let prev_year_start = Date::try_new_hebrew_v2(year - 1, NISAN, anchor_day).ok()?;
-            (prev_year_start, year - 1)
+            (cycle_start(year - 1)?, year - 1)
         };
 
         // End date: last Shabbos before Rosh Hashanah of the following year, the day after 29 Elul.

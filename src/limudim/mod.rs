@@ -1,9 +1,12 @@
 //! Learning schedules (*limudim*): what Daf Yomi, Mishna Yomis, Tehillim and the others assign
 //! on a given day.
 //!
-//! Every schedule implements [`Schedule`]: call [`on`](Schedule::on) with a date and get that
-//! day's portion, or `None` when nothing is scheduled (before the program began, on Shabbos for a
-//! weekly program, outside the Pirkei Avos season).
+//! Every schedule implements [`Schedule`]. Call [`on`](Schedule::on) with a date to get that
+//! day's portion, or `None` when nothing is scheduled, such as before the program began.
+//!
+//! The weekly schedules give every day of the week the same portion. [`DafHashavuaBavli`] runs
+//! from Sunday to Shabbos, and [`PirkeiAvos`] gives each day the chapter read on the coming
+//! Shabbos.
 //!
 //! ```
 //! use jiff::civil::date;

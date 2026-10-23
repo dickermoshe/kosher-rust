@@ -39,7 +39,7 @@ module Kosherz
       [0x53798234777e19ea, 0x6c389ed6ad08dbe3, 'calendar.rosh_hashana'],
       [0x58fc9af210a33bdd, 0xc3e1903a4dc8359d, 'calendar.HebrewDate.is_aseres_yemei_teshuva'],
       [0x5c2a6a6f333ead35, 0x74c7180edff5c022, 'calendar.HebrewDate.from_gregorian'],
-      [0x6089a64539b542a8, 0x404904f4331718c5, 'calendar.SpecialDay'],
+      [0x6089a64539b542a8, 0xc406e171c1c8c82a, 'calendar.SpecialDay'],
       [0x65535c1ad3d9f893, 0x55884ddb65b50739, 'calendar.HebrewDate.has_candle_lighting'],
       [0x6a0735856dec8d1a, 0xdc1addb4a7ab46ef, 'calendar.parsha_name'],
       [0x734de195723c4bec, 0xc7f3965b813050f5, 'calendar.HebrewDate.display'],
@@ -693,23 +693,23 @@ module Kosherz
       end
     end
 
-    # Yom Hazikaron.
-    class YomHazikaron < SpecialDay
+    # Yom HaZikaron.
+    class YomHaZikaron < SpecialDay
       TAG = 29
 
       # Structural equality over every field.
       def ==(other)
-        other.is_a?(YomHazikaron)
+        other.is_a?(YomHaZikaron)
       end
     end
 
-    # Yom Ha'atzmaut.
-    class YomHaatzmaut < SpecialDay
+    # Yom HaAtzmaut.
+    class YomHaAtzmaut < SpecialDay
       TAG = 30
 
       # Structural equality over every field.
       def ==(other)
-        other.is_a?(YomHaatzmaut)
+        other.is_a?(YomHaAtzmaut)
       end
     end
 
@@ -811,13 +811,13 @@ module Kosherz
       end
     end
 
-    # Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.
-    class MacharHachodesh < SpecialDay
+    # Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh.
+    class MacharChodesh < SpecialDay
       TAG = 40
 
       # Structural equality over every field.
       def ==(other)
-        other.is_a?(MacharHachodesh)
+        other.is_a?(MacharChodesh)
       end
     end
 
@@ -1007,9 +1007,9 @@ module Kosherz
       w.write_i32(27)
     when SpecialDay::YomHaShoah
       w.write_i32(28)
-    when SpecialDay::YomHazikaron
+    when SpecialDay::YomHaZikaron
       w.write_i32(29)
-    when SpecialDay::YomHaatzmaut
+    when SpecialDay::YomHaAtzmaut
       w.write_i32(30)
     when SpecialDay::YomYerushalayim
       w.write_i32(31)
@@ -1030,7 +1030,7 @@ module Kosherz
       w.write_i32(v.day)
     when SpecialDay::BirchasHachamah
       w.write_i32(39)
-    when SpecialDay::MacharHachodesh
+    when SpecialDay::MacharChodesh
       w.write_i32(40)
     when SpecialDay::ShabbosMevarchim
       w.write_i32(41)
@@ -1103,9 +1103,9 @@ module Kosherz
     when 28
       SpecialDay::YomHaShoah.new
     when 29
-      SpecialDay::YomHazikaron.new
+      SpecialDay::YomHaZikaron.new
     when 30
-      SpecialDay::YomHaatzmaut.new
+      SpecialDay::YomHaAtzmaut.new
     when 31
       SpecialDay::YomYerushalayim.new
     when 32
@@ -1125,7 +1125,7 @@ module Kosherz
     when 39
       SpecialDay::BirchasHachamah.new
     when 40
-      SpecialDay::MacharHachodesh.new
+      SpecialDay::MacharChodesh.new
     when 41
       SpecialDay::ShabbosMevarchim.new
     else
@@ -1585,13 +1585,13 @@ module Kosherz
 
   # Base error for the `calendar.limudim` module's error domain.
   class LimudimError < Error
-    # A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
-    # to 6.
+    # A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1
+    # to 6, or a range that ends before it starts.
     class InvalidUnit < LimudimError
       CODE = 1
 
       def initialize(message = nil)
-        super(CODE, message || 'A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1')
+        super(CODE, message || 'A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1')
       end
     end
   end
@@ -2145,7 +2145,8 @@ module Kosherz
   #
   # # Errors
   #
-  # `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+  # `LimudimError::InvalidUnit` for a psalm outside 1 to 150, a verse outside 1 to 176, or a
+  # range that ends before it starts. Verses are not checked against the length of the psalm.
   # @return [String]
   def self.tehillim_display(unit)
     unit_s = _wv_encode { |w| _wv_write_tehillim_unit(w, unit) }
@@ -2160,7 +2161,8 @@ module Kosherz
   #
   # # Errors
   #
-  # `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+  # `LimudimError::InvalidUnit` for a chapter outside 1 to 6, or a combined portion whose second
+  # chapter doesn't come after its first.
   # @return [String]
   def self.pirkei_avos_display(unit)
     unit_s = _wv_encode { |w| _wv_write_pirkei_avos_unit(w, unit) }
@@ -2428,7 +2430,8 @@ module Kosherz
   end
 
   # A halachic time this library can calculate, named after the KosherJava getter that
-  # calculates it, without `get`. Its value is its position in `all_zmanim`.
+  # calculates it, without `get`. Its value is its position in `all_zmanim`, which changes
+  # when a zman is added, so store `zman_java_name` rather than the number.
   module Zman
     # Begin Civil Twilight (KosherJava `getBeginCivilTwilight`).
     BEGIN_CIVIL_TWILIGHT = 0

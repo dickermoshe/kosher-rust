@@ -6,7 +6,7 @@ use jiff::SignedDuration;
 /// degree-based zman.
 ///
 /// Mirrors the `AstronomicalCalculator` implementations in KosherJava. All three agree to
-/// within a few seconds for ordinary sunrise and sunset; the differences grow at high
+/// within a few seconds for ordinary sunrise and sunset, and the differences grow at high
 /// latitudes and for solar noon. Set it through
 /// [`Config::astronomical_calculator`].
 ///

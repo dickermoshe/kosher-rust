@@ -62,7 +62,7 @@ impl From<Amud> for SerializableAmud {
 #[derive(Serialize)]
 pub struct SerializableMishna {
     tractate: SerializableTractate,
-    chapter: usize,
+    chapter: u16,
     mishna: u16,
 }
 

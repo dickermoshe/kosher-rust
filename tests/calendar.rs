@@ -227,7 +227,7 @@ fn names_in_english_and_hebrew() {
     assert_eq!(SpecialDay::RoshHashana.hebrew(), "ראש השנה");
     assert_eq!(SpecialDay::YomKippurKatan.hebrew(), "יום כיפור קטן");
     assert_eq!(SpecialDay::Behab.hebrew(), "בה'ב");
-    assert_eq!(SpecialDay::YomHaatzmaut.hebrew(), "יום העצמאות");
+    assert_eq!(SpecialDay::YomHaAtzmaut.hebrew(), "יום העצמאות");
 
     assert_eq!(Parsha::Bereshis.to_string(), "Bereshis");
     assert_eq!(Parsha::Bereshis.hebrew(), "בראשית");
@@ -236,11 +236,36 @@ fn names_in_english_and_hebrew() {
 
 #[test]
 fn molad_of_tishrei_5784_was_friday_morning() {
-    // Published as Friday 5:49 and 3 chalakim, Jerusalem mean time (about 6:28 Israel daylight time).
+    // Announced as Friday 5:49 and 0 chalakim, Jerusalem mean time (about 6:28 Israel daylight time).
     let molad = hebrew(5784, HebrewMonth::Tishrei, 1).molad().unwrap();
     let jerusalem = molad.timestamp().to_zoned(TimeZone::get("Asia/Jerusalem").unwrap());
     assert_eq!(jerusalem.date(), date(2023, 9, 15));
     assert_eq!((jerusalem.hour(), jerusalem.minute()), (6, 28));
+    assert_eq!(molad.weekday(), Weekday::Friday);
+    assert_eq!((molad.hours(), molad.minutes(), molad.chalakim()), (5, 49, 0));
+}
+
+#[test]
+fn molad_parts_agree_with_its_timestamp() {
+    // Jerusalem mean time is 2 hours, 20 minutes and 56.496 seconds ahead of UTC.
+    let mean_time = jiff::tz::TimeZone::fixed(jiff::tz::offset(2));
+    let ahead = jiff::SignedDuration::from_millis(20 * 60_000 + 56_496);
+    for year in [3762, 5000, 5784, 9999] {
+        let months = if HebrewYear::new(year).unwrap().is_leap() {
+            HebrewMonth::LEAP_YEAR.as_slice()
+        } else {
+            HebrewMonth::COMMON_YEAR.as_slice()
+        };
+        for &month in months {
+            let molad = hebrew(year, month, 1).molad().unwrap();
+            let local = (molad.timestamp() + ahead).to_zoned(mean_time.clone());
+            let chalakim = (local.second() as f64 + local.subsec_nanosecond() as f64 / 1e9) * 0.3;
+            assert_eq!(molad.weekday(), local.weekday(), "{year} {month}");
+            assert_eq!(i8::try_from(molad.hours()).unwrap(), local.hour(), "{year} {month}");
+            assert_eq!(i8::try_from(molad.minutes()).unwrap(), local.minute(), "{year} {month}");
+            assert_eq!(f64::from(molad.chalakim()), chalakim.round(), "{year} {month}");
+        }
+    }
 }
 
 #[test]
@@ -304,4 +329,16 @@ fn exercise(day: HebrewDate) {
         day.to_gregorian(),
         day.to_string(),
     );
+}
+
+#[test]
+fn names_parse_back() {
+    for parsha in Parsha::ALL {
+        assert_eq!(Parsha::from_name(parsha.name()), Some(parsha));
+    }
+    for month in HebrewMonth::ALL {
+        assert_eq!(HebrewMonth::from_name(month.name()), Some(month));
+    }
+    assert_eq!(Parsha::from_name("bereshis"), None);
+    assert_eq!(HebrewMonth::from_name("Adar II"), None);
 }

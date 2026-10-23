@@ -4,7 +4,7 @@ use icu_calendar::{Date, cal::Hebrew};
 
 use crate::limudim::{
     engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
-    units::{Mishna, TRACTATES, Tractate},
+    units::{Mishna, Tractate},
 };
 
 /// Days from the first to the last day of a cycle (4,192 mishnayos at two a day is 2,096 days).
@@ -168,7 +168,7 @@ const fn mishna_count_in_tractate(tractate: Tractate) -> usize {
 
 fn mishna_at_offset(offset: usize) -> Option<Mishna> {
     let mut remaining = offset;
-    for tractate in TRACTATES {
+    for tractate in Tractate::ALL {
         let count = mishna_count_in_tractate(tractate);
         if remaining < count {
             let mut index = remaining;
@@ -178,7 +178,7 @@ fn mishna_at_offset(offset: usize) -> Option<Mishna> {
                 if index < len {
                     return Some(Mishna {
                         tractate,
-                        chapter,
+                        chapter: chapter as u16,
                         mishna: (index + 1) as u16,
                     });
                 }

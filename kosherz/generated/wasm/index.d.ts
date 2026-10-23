@@ -323,10 +323,10 @@ export declare namespace calendar {
     | { tag: 'RoshChodesh' }
     /** Yom HaShoah. */
     | { tag: 'YomHaShoah' }
-    /** Yom Hazikaron. */
-    | { tag: 'YomHazikaron' }
-    /** Yom Ha'atzmaut. */
-    | { tag: 'YomHaatzmaut' }
+    /** Yom HaZikaron. */
+    | { tag: 'YomHaZikaron' }
+    /** Yom HaAtzmaut. */
+    | { tag: 'YomHaAtzmaut' }
     /** Yom Yerushalayim. */
     | { tag: 'YomYerushalayim' }
     /** Lag B'Omer, 18 Iyar. */
@@ -345,8 +345,8 @@ export declare namespace calendar {
     | { tag: 'CountOfTheOmer'; day: number }
     /** Birchas Hachamah, every 28 years. */
     | { tag: 'BirchasHachamah' }
-    /** Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh. */
-    | { tag: 'MacharHachodesh' }
+    /** Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh. */
+    | { tag: 'MacharChodesh' }
     /** Shabbos Mevarchim, the Shabbos when the coming month is announced. */
     | { tag: 'ShabbosMevarchim' };
   /** A day on the Gregorian calendar. */
@@ -545,8 +545,8 @@ export declare namespace calendar {
       constructor(code: number, message?: string);
     }
     /**
-     * A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
-     * to 6.
+     * A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1
+     * to 6, or a range that ends before it starts.
      */
     export class InvalidUnitError extends calendar.limudim.LimudimError {
       static readonly CODE: 1;
@@ -749,7 +749,8 @@ export declare namespace calendar {
      *
      * # Errors
      *
-     * `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+     * `LimudimError::InvalidUnit` for a psalm outside 1 to 150, a verse outside 1 to 176, or a
+     * range that ends before it starts. Verses are not checked against the length of the psalm.
      * @throws {calendar.limudim.LimudimError}
      */
     export function tehillimDisplay(unit: calendar.limudim.TehillimUnit): string;
@@ -758,7 +759,8 @@ export declare namespace calendar {
      *
      * # Errors
      *
-     * `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+     * `LimudimError::InvalidUnit` for a chapter outside 1 to 6, or a combined portion whose second
+     * chapter doesn't come after its first.
      * @throws {calendar.limudim.LimudimError}
      */
     export function pirkeiAvosDisplay(unit: calendar.limudim.PirkeiAvosUnit): string;
@@ -861,7 +863,8 @@ export declare namespace times {
   }
   /**
    * A halachic time this library can calculate, named after the KosherJava getter that
-   * calculates it, without `get`. Its value is its position in `all_zmanim`.
+   * calculates it, without `get`. Its value is its position in `all_zmanim`, which changes
+   * when a zman is added, so store `zman_java_name` rather than the number.
    */
   export enum Zman {
     /** Begin Civil Twilight (KosherJava `getBeginCivilTwilight`). */

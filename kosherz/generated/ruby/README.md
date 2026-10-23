@@ -16,7 +16,7 @@ Ruby bindings for `kosherz` using the [ffi](https://github.com/ffi/ffi) gem.
 
 ```bash
 gem build kosherz.gemspec
-gem install kosherz-0.0.0.gem
+gem install kosherz-0.3.0.gem
 ```
 
 ## Usage

@@ -4,10 +4,11 @@
 
 Gem::Specification.new do |s|
   s.name        = 'kosherz'
-  s.version     = '0.0.0'
+  s.version     = '0.3.0'
   s.summary     = 'C ABI and foreign-language bindings for kosher-rust, generated with WeaveFFI.'
-  s.authors     = ['kosherz']
+  s.authors     = ['Moshe Dicker <dickermoshe@gmail.com>']
   s.license     = 'LGPL-2.1-or-later'
+  s.homepage    = 'https://github.com/dickermoshe/kosher-rust'
   s.files       = Dir['lib/**/*.rb']
   s.require_paths = ['lib']
   s.required_ruby_version = '>= 2.7'

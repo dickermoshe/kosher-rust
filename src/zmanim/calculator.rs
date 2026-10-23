@@ -40,7 +40,7 @@ use crate::{Location, TimeZoneLike};
 ///   read the time as a [`Timestamp`] with [`get`](Self::get).
 /// - A location more than 150° from Greenwich needs a time zone for every time. Without one
 ///   every time returns [`ZmanimError::TimeZoneRequired`].
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Zmanim<Tz = TimeZone> {
     pub(crate) location: Location,
     pub(crate) date: Date,
@@ -65,17 +65,6 @@ impl Zmanim {
     /// times do not work. The section on [time zones](Zmanim#time-zones) lists them.
     pub fn with_config(location: Location, date: Date, timezone: Option<TimeZone>, config: Config) -> Self {
         Self::with_custom_timezone(location, date, timezone, config)
-    }
-
-    /// The time of `zman` in the time zone of these *zmanim*. Use it to show the time to someone.
-    ///
-    /// # Errors
-    ///
-    /// It returns the same errors as [`get`](Self::get). It also returns
-    /// [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone.
-    pub fn get_zoned(&self, zman: Zman) -> Result<Zoned, ZmanimError> {
-        let timezone = self.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
-        Ok(self.get(zman)?.to_zoned(timezone.clone()))
     }
 }
 
@@ -103,6 +92,18 @@ impl<Tz: TimeZoneLike> Zmanim<Tz> {
     ///   needs one. The section on [time zones](Zmanim#time-zones) lists those times.
     pub fn get(&self, zman: Zman) -> Result<Timestamp, ZmanimError> {
         zman.formula().evaluate(self)
+    }
+
+    /// The time of `zman` in the time zone of these *zmanim*. With a [`TimeZone`] the result is in
+    /// that zone. With another [`TimeZoneLike`] it has the fixed offset in effect at that time.
+    ///
+    /// # Errors
+    ///
+    /// It returns the same errors as [`get`](Self::get). It also returns
+    /// [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone.
+    pub fn get_zoned(&self, zman: Zman) -> Result<Zoned, ZmanimError> {
+        let timezone = self.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
+        Ok(timezone.to_zoned(self.get(zman)?))
     }
 
     /// When the sun is `degrees` below the eastern horizon before sunrise, for an opinion the

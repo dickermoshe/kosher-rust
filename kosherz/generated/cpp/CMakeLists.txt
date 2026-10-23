@@ -3,7 +3,7 @@
 # To regenerate: weaveffi generate
 
 cmake_minimum_required(VERSION 3.14)
-project(kosherz_cpp VERSION 0.0.0 LANGUAGES CXX)
+project(kosherz_cpp VERSION 0.3.0 LANGUAGES CXX)
 
 # The producer library to link: a full path from the KOSHERZ_LIBRARY cache or
 # environment variable, or else the library name `kosherz` (a CMake target

@@ -272,8 +272,8 @@ pub(super) fn java_holiday_index_for(special_day: SpecialDay) -> Option<i32> {
         SpecialDay::PurimKatan => Some(27),
         SpecialDay::RoshChodesh => None,
         SpecialDay::YomHaShoah => Some(29),
-        SpecialDay::YomHazikaron => Some(30),
-        SpecialDay::YomHaatzmaut => Some(31),
+        SpecialDay::YomHaZikaron => Some(30),
+        SpecialDay::YomHaAtzmaut => Some(31),
         SpecialDay::YomYerushalayim => Some(32),
         SpecialDay::LagBomer => Some(33),
         SpecialDay::ShushanPurimKatan => Some(34),
@@ -281,7 +281,7 @@ pub(super) fn java_holiday_index_for(special_day: SpecialDay) -> Option<i32> {
         SpecialDay::YomKippurKatan => None,
         SpecialDay::Behab => None,
         SpecialDay::BirchasHachamah
-        | SpecialDay::MacharHachodesh
+        | SpecialDay::MacharChodesh
         | SpecialDay::ShabbosMevarchim
         | SpecialDay::FastOfTheFirstborn
         | SpecialDay::CountOfTheOmer(_) => None,

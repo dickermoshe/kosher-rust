@@ -1011,3 +1011,11 @@ fn each_date_adjustment_keeps_the_event_on_its_date() {
         );
     }
 }
+
+#[test]
+fn names_parse_back() {
+    for zman in Zman::ALL {
+        assert_eq!(Zman::from_name(zman.name()), Some(zman));
+    }
+    assert_eq!(Zman::from_name("sunrise"), None);
+}

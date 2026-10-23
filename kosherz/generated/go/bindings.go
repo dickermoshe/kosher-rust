@@ -47,7 +47,7 @@ func init() {
 		{0x53798234777e19ea, 0x6c389ed6ad08dbe3, "calendar.rosh_hashana"},
 		{0x58fc9af210a33bdd, 0xc3e1903a4dc8359d, "calendar.HebrewDate.is_aseres_yemei_teshuva"},
 		{0x5c2a6a6f333ead35, 0x74c7180edff5c022, "calendar.HebrewDate.from_gregorian"},
-		{0x6089a64539b542a8, 0x404904f4331718c5, "calendar.SpecialDay"},
+		{0x6089a64539b542a8, 0xc406e171c1c8c82a, "calendar.SpecialDay"},
 		{0x65535c1ad3d9f893, 0x55884ddb65b50739, "calendar.HebrewDate.has_candle_lighting"},
 		{0x6a0735856dec8d1a, 0xdc1addb4a7ab46ef, "calendar.parsha_name"},
 		{0x734de195723c4bec, 0xc7f3965b813050f5, "calendar.HebrewDate.display"},
@@ -615,15 +615,15 @@ type SpecialDayYomHaShoah struct{}
 
 func (SpecialDayYomHaShoah) isSpecialDay() {}
 
-// SpecialDayYomHazikaron: Yom Hazikaron.
-type SpecialDayYomHazikaron struct{}
+// SpecialDayYomHaZikaron: Yom HaZikaron.
+type SpecialDayYomHaZikaron struct{}
 
-func (SpecialDayYomHazikaron) isSpecialDay() {}
+func (SpecialDayYomHaZikaron) isSpecialDay() {}
 
-// SpecialDayYomHaatzmaut: Yom Ha'atzmaut.
-type SpecialDayYomHaatzmaut struct{}
+// SpecialDayYomHaAtzmaut: Yom HaAtzmaut.
+type SpecialDayYomHaAtzmaut struct{}
 
-func (SpecialDayYomHaatzmaut) isSpecialDay() {}
+func (SpecialDayYomHaAtzmaut) isSpecialDay() {}
 
 // SpecialDayYomYerushalayim: Yom Yerushalayim.
 type SpecialDayYomYerushalayim struct{}
@@ -673,10 +673,10 @@ type SpecialDayBirchasHachamah struct{}
 
 func (SpecialDayBirchasHachamah) isSpecialDay() {}
 
-// SpecialDayMacharHachodesh: Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.
-type SpecialDayMacharHachodesh struct{}
+// SpecialDayMacharChodesh: Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh.
+type SpecialDayMacharChodesh struct{}
 
-func (SpecialDayMacharHachodesh) isSpecialDay() {}
+func (SpecialDayMacharChodesh) isSpecialDay() {}
 
 // SpecialDayShabbosMevarchim: Shabbos Mevarchim, the Shabbos when the coming month is announced.
 type SpecialDayShabbosMevarchim struct{}
@@ -744,9 +744,9 @@ func wvWriteSpecialDay(w *wvWriter, v SpecialDay) {
 		w.writeI32(27)
 	case SpecialDayYomHaShoah:
 		w.writeI32(28)
-	case SpecialDayYomHazikaron:
+	case SpecialDayYomHaZikaron:
 		w.writeI32(29)
-	case SpecialDayYomHaatzmaut:
+	case SpecialDayYomHaAtzmaut:
 		w.writeI32(30)
 	case SpecialDayYomYerushalayim:
 		w.writeI32(31)
@@ -767,7 +767,7 @@ func wvWriteSpecialDay(w *wvWriter, v SpecialDay) {
 		w.writeI32(x.Day)
 	case SpecialDayBirchasHachamah:
 		w.writeI32(39)
-	case SpecialDayMacharHachodesh:
+	case SpecialDayMacharChodesh:
 		w.writeI32(40)
 	case SpecialDayShabbosMevarchim:
 		w.writeI32(41)
@@ -839,9 +839,9 @@ func wvReadSpecialDay(r *wvReader) SpecialDay {
 	case 28:
 		return SpecialDayYomHaShoah{}
 	case 29:
-		return SpecialDayYomHazikaron{}
+		return SpecialDayYomHaZikaron{}
 	case 30:
-		return SpecialDayYomHaatzmaut{}
+		return SpecialDayYomHaAtzmaut{}
 	case 31:
 		return SpecialDayYomYerushalayim{}
 	case 32:
@@ -863,7 +863,7 @@ func wvReadSpecialDay(r *wvReader) SpecialDay {
 	case 39:
 		return SpecialDayBirchasHachamah{}
 	case 40:
-		return SpecialDayMacharHachodesh{}
+		return SpecialDayMacharChodesh{}
 	case 41:
 		return SpecialDayShabbosMevarchim{}
 	}
@@ -1387,18 +1387,18 @@ type LimudimError interface {
 	isLimudimError()
 }
 
-// InvalidUnitError: A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
-// to 6.
+// InvalidUnitError: A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1
+// to 6, or a range that ends before it starts.
 type InvalidUnitError struct {
 	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1".
+	// code's default message, "A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1".
 	Message string
 }
 
 // Error returns the error's message.
 func (e *InvalidUnitError) Error() string {
 	if e.Message == "" {
-		return "A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1"
+		return "A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1"
 	}
 	return e.Message
 }
@@ -1826,7 +1826,8 @@ func TractateHebrew(tractate Tractate) string {
 //
 // # Errors
 //
-// `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+// `LimudimError::InvalidUnit` for a psalm outside 1 to 150, a verse outside 1 to 176, or a
+// range that ends before it starts. Verses are not checked against the length of the psalm.
 func TehillimDisplay(unit TehillimUnit) (string, error) {
 	cUnitPtr, cUnitLen := wvBytes(wvEncode(unit, wvWriteTehillimUnit))
 	var cRetLen C.size_t
@@ -1842,7 +1843,8 @@ func TehillimDisplay(unit TehillimUnit) (string, error) {
 //
 // # Errors
 //
-// `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+// `LimudimError::InvalidUnit` for a chapter outside 1 to 6, or a combined portion whose second
+// chapter doesn't come after its first.
 func PirkeiAvosDisplay(unit PirkeiAvosUnit) (string, error) {
 	cUnitPtr, cUnitLen := wvBytes(wvEncode(unit, wvWritePirkeiAvosUnit))
 	var cRetLen C.size_t
@@ -2303,7 +2305,8 @@ func wvZmanimError(f wvFailure) error {
 }
 
 // Zman is a halachic time this library can calculate, named after the KosherJava getter that
-// calculates it, without `get`. Its value is its position in `all_zmanim`.
+// calculates it, without `get`. Its value is its position in `all_zmanim`, which changes
+// when a zman is added, so store `zman_java_name` rather than the number.
 type Zman int32
 
 const (

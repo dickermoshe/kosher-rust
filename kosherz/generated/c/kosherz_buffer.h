@@ -919,9 +919,9 @@ static inline void kosherz_calendar_SpecialDay_write(kosherz_writer* w, const ko
         break;
     case kosherz_calendar_SpecialDay_YomHaShoah:
         break;
-    case kosherz_calendar_SpecialDay_YomHazikaron:
+    case kosherz_calendar_SpecialDay_YomHaZikaron:
         break;
-    case kosherz_calendar_SpecialDay_YomHaatzmaut:
+    case kosherz_calendar_SpecialDay_YomHaAtzmaut:
         break;
     case kosherz_calendar_SpecialDay_YomYerushalayim:
         break;
@@ -942,7 +942,7 @@ static inline void kosherz_calendar_SpecialDay_write(kosherz_writer* w, const ko
         break;
     case kosherz_calendar_SpecialDay_BirchasHachamah:
         break;
-    case kosherz_calendar_SpecialDay_MacharHachodesh:
+    case kosherz_calendar_SpecialDay_MacharChodesh:
         break;
     case kosherz_calendar_SpecialDay_ShabbosMevarchim:
         break;
@@ -1044,11 +1044,11 @@ static inline void kosherz_calendar_SpecialDay_read(kosherz_reader* r, kosherz_c
     case kosherz_calendar_SpecialDay_YomHaShoah:
         out->tag = kosherz_calendar_SpecialDay_YomHaShoah;
         break;
-    case kosherz_calendar_SpecialDay_YomHazikaron:
-        out->tag = kosherz_calendar_SpecialDay_YomHazikaron;
+    case kosherz_calendar_SpecialDay_YomHaZikaron:
+        out->tag = kosherz_calendar_SpecialDay_YomHaZikaron;
         break;
-    case kosherz_calendar_SpecialDay_YomHaatzmaut:
-        out->tag = kosherz_calendar_SpecialDay_YomHaatzmaut;
+    case kosherz_calendar_SpecialDay_YomHaAtzmaut:
+        out->tag = kosherz_calendar_SpecialDay_YomHaAtzmaut;
         break;
     case kosherz_calendar_SpecialDay_YomYerushalayim:
         out->tag = kosherz_calendar_SpecialDay_YomYerushalayim;
@@ -1078,8 +1078,8 @@ static inline void kosherz_calendar_SpecialDay_read(kosherz_reader* r, kosherz_c
     case kosherz_calendar_SpecialDay_BirchasHachamah:
         out->tag = kosherz_calendar_SpecialDay_BirchasHachamah;
         break;
-    case kosherz_calendar_SpecialDay_MacharHachodesh:
-        out->tag = kosherz_calendar_SpecialDay_MacharHachodesh;
+    case kosherz_calendar_SpecialDay_MacharChodesh:
+        out->tag = kosherz_calendar_SpecialDay_MacharChodesh;
         break;
     case kosherz_calendar_SpecialDay_ShabbosMevarchim:
         out->tag = kosherz_calendar_SpecialDay_ShabbosMevarchim;

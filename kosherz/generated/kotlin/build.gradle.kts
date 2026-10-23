@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "kosherz"
-version = "0.0.0"
+version = "0.3.0"
 
 // A packaged build ships a prebuilt libkosherz_jni.so next to the producer
 // library in src/main/jniLibs/<abi>/; without one, CMake builds it.

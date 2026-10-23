@@ -163,7 +163,7 @@ const List<(String, List<(int, int, String)>)> _contracts = [
     (0x53798234777e19ea, 0x6c389ed6ad08dbe3, 'calendar.rosh_hashana'),
     (0x58fc9af210a33bdd, 0xc3e1903a4dc8359d, 'calendar.HebrewDate.is_aseres_yemei_teshuva'),
     (0x5c2a6a6f333ead35, 0x74c7180edff5c022, 'calendar.HebrewDate.from_gregorian'),
-    (0x6089a64539b542a8, 0x404904f4331718c5, 'calendar.SpecialDay'),
+    (0x6089a64539b542a8, 0xc406e171c1c8c82a, 'calendar.SpecialDay'),
     (0x65535c1ad3d9f893, 0x55884ddb65b50739, 'calendar.HebrewDate.has_candle_lighting'),
     (0x6a0735856dec8d1a, 0xdc1addb4a7ab46ef, 'calendar.parsha_name'),
     (0x734de195723c4bec, 0xc7f3965b813050f5, 'calendar.HebrewDate.display'),
@@ -1555,34 +1555,34 @@ final class SpecialDayYomHaShoah extends SpecialDay {
   String toString() => 'SpecialDayYomHaShoah()';
 }
 
-/// Yom Hazikaron.
-final class SpecialDayYomHazikaron extends SpecialDay {
-  /// Creates a [SpecialDayYomHazikaron].
-  const SpecialDayYomHazikaron();
+/// Yom HaZikaron.
+final class SpecialDayYomHaZikaron extends SpecialDay {
+  /// Creates a [SpecialDayYomHaZikaron].
+  const SpecialDayYomHaZikaron();
 
   @override
-  bool operator ==(Object other) => other is SpecialDayYomHazikaron;
+  bool operator ==(Object other) => other is SpecialDayYomHaZikaron;
 
   @override
-  int get hashCode => (SpecialDayYomHazikaron).hashCode;
+  int get hashCode => (SpecialDayYomHaZikaron).hashCode;
 
   @override
-  String toString() => 'SpecialDayYomHazikaron()';
+  String toString() => 'SpecialDayYomHaZikaron()';
 }
 
-/// Yom Ha'atzmaut.
-final class SpecialDayYomHaatzmaut extends SpecialDay {
-  /// Creates a [SpecialDayYomHaatzmaut].
-  const SpecialDayYomHaatzmaut();
+/// Yom HaAtzmaut.
+final class SpecialDayYomHaAtzmaut extends SpecialDay {
+  /// Creates a [SpecialDayYomHaAtzmaut].
+  const SpecialDayYomHaAtzmaut();
 
   @override
-  bool operator ==(Object other) => other is SpecialDayYomHaatzmaut;
+  bool operator ==(Object other) => other is SpecialDayYomHaAtzmaut;
 
   @override
-  int get hashCode => (SpecialDayYomHaatzmaut).hashCode;
+  int get hashCode => (SpecialDayYomHaAtzmaut).hashCode;
 
   @override
-  String toString() => 'SpecialDayYomHaatzmaut()';
+  String toString() => 'SpecialDayYomHaAtzmaut()';
 }
 
 /// Yom Yerushalayim.
@@ -1726,19 +1726,19 @@ final class SpecialDayBirchasHachamah extends SpecialDay {
   String toString() => 'SpecialDayBirchasHachamah()';
 }
 
-/// Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.
-final class SpecialDayMacharHachodesh extends SpecialDay {
-  /// Creates a [SpecialDayMacharHachodesh].
-  const SpecialDayMacharHachodesh();
+/// Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh.
+final class SpecialDayMacharChodesh extends SpecialDay {
+  /// Creates a [SpecialDayMacharChodesh].
+  const SpecialDayMacharChodesh();
 
   @override
-  bool operator ==(Object other) => other is SpecialDayMacharHachodesh;
+  bool operator ==(Object other) => other is SpecialDayMacharChodesh;
 
   @override
-  int get hashCode => (SpecialDayMacharHachodesh).hashCode;
+  int get hashCode => (SpecialDayMacharChodesh).hashCode;
 
   @override
-  String toString() => 'SpecialDayMacharHachodesh()';
+  String toString() => 'SpecialDayMacharChodesh()';
 }
 
 /// Shabbos Mevarchim, the Shabbos when the coming month is announced.
@@ -1817,9 +1817,9 @@ void _packSpecialDay(_BufferWriter w, SpecialDay v) {
       w.writeI32(27);
     case SpecialDayYomHaShoah():
       w.writeI32(28);
-    case SpecialDayYomHazikaron():
+    case SpecialDayYomHaZikaron():
       w.writeI32(29);
-    case SpecialDayYomHaatzmaut():
+    case SpecialDayYomHaAtzmaut():
       w.writeI32(30);
     case SpecialDayYomYerushalayim():
       w.writeI32(31);
@@ -1840,7 +1840,7 @@ void _packSpecialDay(_BufferWriter w, SpecialDay v) {
       w.writeI32(v.day);
     case SpecialDayBirchasHachamah():
       w.writeI32(39);
-    case SpecialDayMacharHachodesh():
+    case SpecialDayMacharChodesh():
       w.writeI32(40);
     case SpecialDayShabbosMevarchim():
       w.writeI32(41);
@@ -1909,9 +1909,9 @@ SpecialDay _unpackSpecialDay(_BufferReader r) {
     case 28:
       return const SpecialDayYomHaShoah();
     case 29:
-      return const SpecialDayYomHazikaron();
+      return const SpecialDayYomHaZikaron();
     case 30:
-      return const SpecialDayYomHaatzmaut();
+      return const SpecialDayYomHaAtzmaut();
     case 31:
       return const SpecialDayYomYerushalayim();
     case 32:
@@ -1931,7 +1931,7 @@ SpecialDay _unpackSpecialDay(_BufferReader r) {
     case 39:
       return const SpecialDayBirchasHachamah();
     case 40:
-      return const SpecialDayMacharHachodesh();
+      return const SpecialDayMacharChodesh();
     case 41:
       return const SpecialDayShabbosMevarchim();
     default:
@@ -2637,11 +2637,11 @@ sealed class LimudimException extends NativeException {
   LimudimException(super.code, super.message);
 }
 
-/// A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
-/// to 6.
+/// A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1
+/// to 6, or a range that ends before it starts.
 final class InvalidUnitException extends LimudimException {
   /// Creates an [InvalidUnitException] (code 1).
-  InvalidUnitException([String message = 'A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1']) : super(1, message);
+  InvalidUnitException([String message = 'A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1']) : super(1, message);
 }
 
 NativeException _mapLimudimException(int code, String message, Uint8List payload) {
@@ -3163,7 +3163,8 @@ final _kosherzCalendarLimudimTehillimDisplay = _lib.lookupFunction<
 ///
 /// # Errors
 ///
-/// `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+/// `LimudimError::InvalidUnit` for a psalm outside 1 to 150, a verse outside 1 to 176, or a
+/// range that ends before it starts. Verses are not checked against the length of the psalm.
 ///
 /// Throws [LimudimException] on domain errors.
 String tehillimDisplay(TehillimUnit unit) {
@@ -3186,7 +3187,8 @@ final _kosherzCalendarLimudimPirkeiAvosDisplay = _lib.lookupFunction<
 ///
 /// # Errors
 ///
-/// `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+/// `LimudimError::InvalidUnit` for a chapter outside 1 to 6, or a combined portion whose second
+/// chapter doesn't come after its first.
 ///
 /// Throws [LimudimException] on domain errors.
 String pirkeiAvosDisplay(PirkeiAvosUnit unit) {
@@ -3437,7 +3439,8 @@ NativeException _mapZmanimException(int code, String message, Uint8List payload)
 }
 
 /// A halachic time this library can calculate, named after the KosherJava getter that
-/// calculates it, without `get`. Its value is its position in `all_zmanim`.
+/// calculates it, without `get`. Its value is its position in `all_zmanim`, which changes
+/// when a zman is added, so store `zman_java_name` rather than the number.
 enum Zman {
   /// Begin Civil Twilight (KosherJava `getBeginCivilTwilight`).
   beginCivilTwilight(0),

@@ -1,7 +1,7 @@
 use core::fmt;
 
-/// A tractate of the Mishnah and Talmud, in the order of the Mishnah.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
+/// A tractate of the Mishnah and Talmud.
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Tractate {
     /// Berachos (ברכות).
@@ -133,6 +133,73 @@ pub enum Tractate {
 }
 
 impl Tractate {
+    /// Every tractate, in the order of the Mishnah.
+    pub const ALL: [Tractate; 63] = [
+        Tractate::Berachos,
+        Tractate::Peah,
+        Tractate::Demai,
+        Tractate::Kilayim,
+        Tractate::Sheviis,
+        Tractate::Terumos,
+        Tractate::Maasros,
+        Tractate::MaaserSheni,
+        Tractate::Chalah,
+        Tractate::Orlah,
+        Tractate::Bikurim,
+        Tractate::Shabbos,
+        Tractate::Eruvin,
+        Tractate::Pesachim,
+        Tractate::Shekalim,
+        Tractate::Yoma,
+        Tractate::Sukkah,
+        Tractate::Beitzah,
+        Tractate::RoshHashanah,
+        Tractate::Taanis,
+        Tractate::Megillah,
+        Tractate::MoedKatan,
+        Tractate::Chagigah,
+        Tractate::Yevamos,
+        Tractate::Kesubos,
+        Tractate::Nedarim,
+        Tractate::Nazir,
+        Tractate::Sotah,
+        Tractate::Gitin,
+        Tractate::Kiddushin,
+        Tractate::BavaKamma,
+        Tractate::BavaMetzia,
+        Tractate::BavaBasra,
+        Tractate::Sanhedrin,
+        Tractate::Makkos,
+        Tractate::Shevuos,
+        Tractate::Eduyos,
+        Tractate::AvodahZarah,
+        Tractate::Avos,
+        Tractate::Horiyos,
+        Tractate::Zevachim,
+        Tractate::Menachos,
+        Tractate::Chullin,
+        Tractate::Bechoros,
+        Tractate::Arachin,
+        Tractate::Temurah,
+        Tractate::Kerisos,
+        Tractate::Meilah,
+        Tractate::Tamid,
+        Tractate::Midos,
+        Tractate::Kinnim,
+        Tractate::Keilim,
+        Tractate::Ohalos,
+        Tractate::Negaim,
+        Tractate::Parah,
+        Tractate::Taharos,
+        Tractate::Mikvaos,
+        Tractate::Niddah,
+        Tractate::Machshirin,
+        Tractate::Zavim,
+        Tractate::TevulYom,
+        Tractate::Yadayim,
+        Tractate::Uktzin,
+    ];
+
     /// The name in Hebrew, for example `"בבא מציעא"`.
     pub const fn hebrew(self) -> &'static str {
         match self {
@@ -203,10 +270,16 @@ impl Tractate {
     }
 }
 
-/// The name in English, for example "Bava Metzia".
-impl fmt::Display for Tractate {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(match self {
+impl Tractate {
+    /// The variant whose [`name`](Self::name) is exactly `name`. Returns `None` when no
+    /// variant has that name.
+    pub fn from_name(name: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|candidate| candidate.name() == name)
+    }
+
+    /// The name in English, for example `"Bava Metzia"`.
+    pub const fn name(self) -> &'static str {
+        match self {
             Tractate::Berachos => "Berachos",
             Tractate::Peah => "Peah",
             Tractate::Demai => "Demai",
@@ -270,76 +343,16 @@ impl fmt::Display for Tractate {
             Tractate::TevulYom => "Tevul Yom",
             Tractate::Yadayim => "Yadayim",
             Tractate::Uktzin => "Uktzin",
-        })
+        }
     }
 }
-/// Every tractate, in the order of the Mishnah.
-#[allow(dead_code)]
-pub(crate) const TRACTATES: [Tractate; 63] = [
-    Tractate::Berachos,
-    Tractate::Peah,
-    Tractate::Demai,
-    Tractate::Kilayim,
-    Tractate::Sheviis,
-    Tractate::Terumos,
-    Tractate::Maasros,
-    Tractate::MaaserSheni,
-    Tractate::Chalah,
-    Tractate::Orlah,
-    Tractate::Bikurim,
-    Tractate::Shabbos,
-    Tractate::Eruvin,
-    Tractate::Pesachim,
-    Tractate::Shekalim,
-    Tractate::Yoma,
-    Tractate::Sukkah,
-    Tractate::Beitzah,
-    Tractate::RoshHashanah,
-    Tractate::Taanis,
-    Tractate::Megillah,
-    Tractate::MoedKatan,
-    Tractate::Chagigah,
-    Tractate::Yevamos,
-    Tractate::Kesubos,
-    Tractate::Nedarim,
-    Tractate::Nazir,
-    Tractate::Sotah,
-    Tractate::Gitin,
-    Tractate::Kiddushin,
-    Tractate::BavaKamma,
-    Tractate::BavaMetzia,
-    Tractate::BavaBasra,
-    Tractate::Sanhedrin,
-    Tractate::Makkos,
-    Tractate::Shevuos,
-    Tractate::Eduyos,
-    Tractate::AvodahZarah,
-    Tractate::Avos,
-    Tractate::Horiyos,
-    Tractate::Zevachim,
-    Tractate::Menachos,
-    Tractate::Chullin,
-    Tractate::Bechoros,
-    Tractate::Arachin,
-    Tractate::Temurah,
-    Tractate::Kerisos,
-    Tractate::Meilah,
-    Tractate::Tamid,
-    Tractate::Midos,
-    Tractate::Kinnim,
-    Tractate::Keilim,
-    Tractate::Ohalos,
-    Tractate::Negaim,
-    Tractate::Parah,
-    Tractate::Taharos,
-    Tractate::Mikvaos,
-    Tractate::Niddah,
-    Tractate::Machshirin,
-    Tractate::Zavim,
-    Tractate::TevulYom,
-    Tractate::Yadayim,
-    Tractate::Uktzin,
-];
+
+/// The name in English, for example "Bava Metzia".
+impl fmt::Display for Tractate {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.name())
+    }
+}
 /// A list of all the tractates in Talmud Bavli.
 pub(crate) const BAVLI_TRACTATES: [Tractate; 40] = [
     Tractate::Berachos,
@@ -427,8 +440,8 @@ pub(crate) const YERUSHALMI_TRACTATES: [Tractate; 39] = [
     Tractate::Niddah,
 ];
 
-/// A page (*daf*) of the Talmud: both sides of one leaf. Prints as "Bava Metzia 55".
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+/// A page (*daf*) of the Talmud, both sides of one leaf. Prints as "Bava Metzia 55".
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Daf {
     /// The tractate.
@@ -444,7 +457,7 @@ impl fmt::Display for Daf {
 }
 
 /// A side of a page: *amud aleph* (a) or *amud beis* (b).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Side {
     /// The front of the page, "a".
@@ -454,7 +467,7 @@ pub enum Side {
 }
 
 /// One side of a page (*amud*). Prints as "Bava Metzia 55b".
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Amud {
     /// The tractate.
@@ -529,7 +542,7 @@ pub struct Mishna {
     /// The tractate.
     pub tractate: Tractate,
     /// The chapter (*perek*), from 1.
-    pub chapter: usize,
+    pub chapter: u16,
     /// The *mishnah* within the chapter, from 1.
     pub mishna: u16,
 }

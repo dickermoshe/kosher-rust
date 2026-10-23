@@ -101,6 +101,12 @@ macro_rules! zman_catalog {
             /// Every zman, grouped by [`Category`].
             pub const ALL: [Zman; [$(stringify!($variant)),*].len()] = [$(Zman::$variant),*];
 
+            /// The variant whose [`name`](Self::name) is exactly `name`. Returns `None` when no
+            /// variant has that name.
+            pub fn from_name(name: &str) -> Option<Self> {
+                Self::ALL.into_iter().find(|candidate| candidate.name() == name)
+            }
+
             /// The display name, for example "Sof Zman Shma (GR'A)".
             pub const fn name(self) -> &'static str {
                 match self {

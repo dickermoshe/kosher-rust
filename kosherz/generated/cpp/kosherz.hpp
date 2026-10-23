@@ -305,7 +305,7 @@ inline constexpr ContractEntry calendar_contract[] = {
     {0x53798234777e19eaull, 0x6c389ed6ad08dbe3ull, "calendar.rosh_hashana"},
     {0x58fc9af210a33bddull, 0xc3e1903a4dc8359dull, "calendar.HebrewDate.is_aseres_yemei_teshuva"},
     {0x5c2a6a6f333ead35ull, 0x74c7180edff5c022ull, "calendar.HebrewDate.from_gregorian"},
-    {0x6089a64539b542a8ull, 0x404904f4331718c5ull, "calendar.SpecialDay"},
+    {0x6089a64539b542a8ull, 0xc406e171c1c8c82aull, "calendar.SpecialDay"},
     {0x65535c1ad3d9f893ull, 0x55884ddb65b50739ull, "calendar.HebrewDate.has_candle_lighting"},
     {0x6a0735856dec8d1aull, 0xdc1addb4a7ab46efull, "calendar.parsha_name"},
     {0x734de195723c4becull, 0xc7f3965b813050f5ull, "calendar.HebrewDate.display"},
@@ -1000,7 +1000,8 @@ enum class Side : int32_t {
 
 /**
  * A halachic time this library can calculate, named after the KosherJava getter that
- * calculates it, without `get`. Its value is its position in `all_zmanim`.
+ * calculates it, without `get`. Its value is its position in `all_zmanim`, which changes
+ * when a zman is added, so store `zman_java_name` rather than the number.
  */
 enum class Zman : int32_t {
     /** Begin Civil Twilight (KosherJava `getBeginCivilTwilight`). */
@@ -2059,8 +2060,8 @@ struct SpecialDay {
         PurimKatan = 26,
         RoshChodesh = 27,
         YomHaShoah = 28,
-        YomHazikaron = 29,
-        YomHaatzmaut = 30,
+        YomHaZikaron = 29,
+        YomHaAtzmaut = 30,
         YomYerushalayim = 31,
         LagBomer = 32,
         ShushanPurimKatan = 33,
@@ -2070,7 +2071,7 @@ struct SpecialDay {
         FastOfTheFirstborn = 37,
         CountOfTheOmer = 38,
         BirchasHachamah = 39,
-        MacharHachodesh = 40,
+        MacharChodesh = 40,
         ShabbosMevarchim = 41,
     };
 
@@ -2192,12 +2193,12 @@ struct SpecialDay {
     struct YomHaShoah {
     };
 
-    /** Yom Hazikaron. */
-    struct YomHazikaron {
+    /** Yom HaZikaron. */
+    struct YomHaZikaron {
     };
 
-    /** Yom Ha'atzmaut. */
-    struct YomHaatzmaut {
+    /** Yom HaAtzmaut. */
+    struct YomHaAtzmaut {
     };
 
     /** Yom Yerushalayim. */
@@ -2238,8 +2239,8 @@ struct SpecialDay {
     struct BirchasHachamah {
     };
 
-    /** Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh. */
-    struct MacharHachodesh {
+    /** Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh. */
+    struct MacharChodesh {
     };
 
     /** Shabbos Mevarchim, the Shabbos when the coming month is announced. */
@@ -2247,11 +2248,11 @@ struct SpecialDay {
     };
 
     /** The active variant's payload. */
-    std::variant<ErevPesach, Pesach, CholHamoedPesach, PesachSheni, ErevShavuos, Shavuos, SeventeenthOfTammuz, TishahBav, TuBav, ErevRoshHashana, RoshHashana, FastOfGedalyah, ErevYomKippur, YomKippur, ErevSuccos, Succos, CholHamoedSuccos, HoshanaRabbah, SheminiAtzeres, SimchasTorah, Chanukah, TenthOfTeves, TuBshvat, FastOfEsther, Purim, ShushanPurim, PurimKatan, RoshChodesh, YomHaShoah, YomHazikaron, YomHaatzmaut, YomYerushalayim, LagBomer, ShushanPurimKatan, IsruChag, YomKippurKatan, Behab, FastOfTheFirstborn, CountOfTheOmer, BirchasHachamah, MacharHachodesh, ShabbosMevarchim> value;
+    std::variant<ErevPesach, Pesach, CholHamoedPesach, PesachSheni, ErevShavuos, Shavuos, SeventeenthOfTammuz, TishahBav, TuBav, ErevRoshHashana, RoshHashana, FastOfGedalyah, ErevYomKippur, YomKippur, ErevSuccos, Succos, CholHamoedSuccos, HoshanaRabbah, SheminiAtzeres, SimchasTorah, Chanukah, TenthOfTeves, TuBshvat, FastOfEsther, Purim, ShushanPurim, PurimKatan, RoshChodesh, YomHaShoah, YomHaZikaron, YomHaAtzmaut, YomYerushalayim, LagBomer, ShushanPurimKatan, IsruChag, YomKippurKatan, Behab, FastOfTheFirstborn, CountOfTheOmer, BirchasHachamah, MacharChodesh, ShabbosMevarchim> value;
 
     /** The tag of the active variant. */
     Tag tag() const noexcept {
-        static constexpr Tag tags[] = {Tag::ErevPesach, Tag::Pesach, Tag::CholHamoedPesach, Tag::PesachSheni, Tag::ErevShavuos, Tag::Shavuos, Tag::SeventeenthOfTammuz, Tag::TishahBav, Tag::TuBav, Tag::ErevRoshHashana, Tag::RoshHashana, Tag::FastOfGedalyah, Tag::ErevYomKippur, Tag::YomKippur, Tag::ErevSuccos, Tag::Succos, Tag::CholHamoedSuccos, Tag::HoshanaRabbah, Tag::SheminiAtzeres, Tag::SimchasTorah, Tag::Chanukah, Tag::TenthOfTeves, Tag::TuBshvat, Tag::FastOfEsther, Tag::Purim, Tag::ShushanPurim, Tag::PurimKatan, Tag::RoshChodesh, Tag::YomHaShoah, Tag::YomHazikaron, Tag::YomHaatzmaut, Tag::YomYerushalayim, Tag::LagBomer, Tag::ShushanPurimKatan, Tag::IsruChag, Tag::YomKippurKatan, Tag::Behab, Tag::FastOfTheFirstborn, Tag::CountOfTheOmer, Tag::BirchasHachamah, Tag::MacharHachodesh, Tag::ShabbosMevarchim};
+        static constexpr Tag tags[] = {Tag::ErevPesach, Tag::Pesach, Tag::CholHamoedPesach, Tag::PesachSheni, Tag::ErevShavuos, Tag::Shavuos, Tag::SeventeenthOfTammuz, Tag::TishahBav, Tag::TuBav, Tag::ErevRoshHashana, Tag::RoshHashana, Tag::FastOfGedalyah, Tag::ErevYomKippur, Tag::YomKippur, Tag::ErevSuccos, Tag::Succos, Tag::CholHamoedSuccos, Tag::HoshanaRabbah, Tag::SheminiAtzeres, Tag::SimchasTorah, Tag::Chanukah, Tag::TenthOfTeves, Tag::TuBshvat, Tag::FastOfEsther, Tag::Purim, Tag::ShushanPurim, Tag::PurimKatan, Tag::RoshChodesh, Tag::YomHaShoah, Tag::YomHaZikaron, Tag::YomHaAtzmaut, Tag::YomYerushalayim, Tag::LagBomer, Tag::ShushanPurimKatan, Tag::IsruChag, Tag::YomKippurKatan, Tag::Behab, Tag::FastOfTheFirstborn, Tag::CountOfTheOmer, Tag::BirchasHachamah, Tag::MacharChodesh, Tag::ShabbosMevarchim};
         return tags[value.index()];
     }
 };
@@ -2784,8 +2785,8 @@ inline SpecialDay read_SpecialDay(BufferReader& r) {
         case 26: return SpecialDay{SpecialDay::PurimKatan{}};
         case 27: return SpecialDay{SpecialDay::RoshChodesh{}};
         case 28: return SpecialDay{SpecialDay::YomHaShoah{}};
-        case 29: return SpecialDay{SpecialDay::YomHazikaron{}};
-        case 30: return SpecialDay{SpecialDay::YomHaatzmaut{}};
+        case 29: return SpecialDay{SpecialDay::YomHaZikaron{}};
+        case 30: return SpecialDay{SpecialDay::YomHaAtzmaut{}};
         case 31: return SpecialDay{SpecialDay::YomYerushalayim{}};
         case 32: return SpecialDay{SpecialDay::LagBomer{}};
         case 33: return SpecialDay{SpecialDay::ShushanPurimKatan{}};
@@ -2798,7 +2799,7 @@ inline SpecialDay read_SpecialDay(BufferReader& r) {
                 r.read_i32(),
             }};
         case 39: return SpecialDay{SpecialDay::BirchasHachamah{}};
-        case 40: return SpecialDay{SpecialDay::MacharHachodesh{}};
+        case 40: return SpecialDay{SpecialDay::MacharChodesh{}};
         case 41: return SpecialDay{SpecialDay::ShabbosMevarchim{}};
         default: break;
     }
@@ -3331,8 +3332,8 @@ public:
 };
 
 /**
- * A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
- * to 6.
+ * A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1
+ * to 6, or a range that ends before it starts.
  *
  * Code 1.
  */
@@ -4046,7 +4047,8 @@ inline std::string tractate_hebrew(Tractate tractate) {
  *
  * # Errors
  *
- * `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+ * `LimudimError::InvalidUnit` for a psalm outside 1 to 150, a verse outside 1 to 176, or a
+ * range that ends before it starts. Verses are not checked against the length of the psalm.
  *
  * @throws LimudimError when the call fails with one of the domain's codes.
  */
@@ -4066,7 +4068,8 @@ inline std::string tehillim_display(const TehillimUnit& unit) {
  *
  * # Errors
  *
- * `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+ * `LimudimError::InvalidUnit` for a chapter outside 1 to 6, or a combined portion whose second
+ * chapter doesn't come after its first.
  *
  * @throws LimudimError when the call fails with one of the domain's codes.
  */

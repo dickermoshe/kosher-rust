@@ -57,6 +57,9 @@ impl HebrewMonth {
         Self::Elul,
     ];
 
+    /// Every month, from Tishrei. These are the months of a leap year.
+    pub const ALL: [HebrewMonth; 13] = Self::LEAP_YEAR;
+
     /// The months of a leap year, from Tishrei.
     pub const LEAP_YEAR: [HebrewMonth; 13] = [
         Self::Tishrei,
@@ -96,7 +99,16 @@ impl HebrewMonth {
         }
     }
 
-    const fn english(self) -> &'static str {
+    /// The variant whose [`name`](Self::name) is exactly `name`. Returns `None` when no
+    /// variant has that name.
+    pub fn from_name(name: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|candidate| candidate.name() == name)
+    }
+
+    /// The month's name in English, for example `"Nisan"`. [`Adar`](Self::Adar) is `"Adar"`
+    /// whatever the year. [`HebrewDate`](super::HebrewDate)'s formatting says Adar II when it
+    /// needs to.
+    pub const fn name(self) -> &'static str {
         match self {
             Self::Tishrei => "Tishrei",
             Self::Cheshvan => "Cheshvan",
@@ -119,7 +131,7 @@ impl HebrewMonth {
         if self == Self::Adar && year.is_leap() {
             "Adar II"
         } else {
-            self.english()
+            self.name()
         }
     }
 
@@ -152,7 +164,7 @@ impl HebrewMonth {
 /// [`HebrewDate`](super::HebrewDate) to get "Adar II" in a leap year.
 impl fmt::Display for HebrewMonth {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.english())
+        f.write_str(self.name())
     }
 }
 

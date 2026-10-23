@@ -273,3 +273,11 @@ fn horizons_above_the_air_have_no_refraction() {
         assert_ne!(times.get(zman), Err(ZmanimError::Internal), "{zman:?}");
     }
 }
+
+#[test]
+fn names_parse_back() {
+    for zman in MyZman::ALL {
+        assert_eq!(MyZman::from_name(zman.name()), Some(zman));
+    }
+    assert_eq!(MyZman::from_name(""), None);
+}

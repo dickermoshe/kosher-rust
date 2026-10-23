@@ -1,4 +1,5 @@
-//! The *zmanim* of [MyZmanim](https://www.myzmanim.com/)'s website, reproduced to the second.
+//! The *zmanim* shown on [MyZmanim](https://www.myzmanim.com/)'s website. Almost all of the
+//! calculated times are within one second of the times on the site.
 //!
 //! Use it when your users compare your times with that site. It is separate from
 //! [`zmanim`](crate::zmanim) and differs from it slightly, because the site uses its own

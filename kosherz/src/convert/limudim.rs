@@ -110,8 +110,7 @@ impl From<k::Mishna> for Mishna {
     fn from(mishna: k::Mishna) -> Self {
         Self {
             tractate: mishna.tractate.into(),
-            // Chapters number at most 30.
-            chapter: i32::try_from(mishna.chapter).unwrap_or(i32::MAX),
+            chapter: i32::from(mishna.chapter),
             number: i32::from(mishna.mishna),
             display: mishna.to_string(),
         }
@@ -131,6 +130,18 @@ impl From<k::MishnaPair> for MishnaPair {
 const PSALMS: RangeInclusive<i32> = 1..=150;
 const VERSES: RangeInclusive<i32> = 1..=176;
 const CHAPTERS_OF_AVOS: RangeInclusive<i32> = 1..=6;
+
+/// `first` and `last` as kosher-rust's narrower type, if both are in `range` and `first` comes no
+/// later than `last`.
+fn valid_span<T: TryFrom<i32>>(first: i32, last: i32, range: RangeInclusive<i32>) -> Result<(T, T), LimudimError> {
+    if first > last {
+        return Err(LimudimError::InvalidUnit);
+    }
+    Ok((
+        valid_number(first, range.clone()).ok_or(LimudimError::InvalidUnit)?,
+        valid_number(last, range).ok_or(LimudimError::InvalidUnit)?,
+    ))
+}
 
 impl From<k::TehillimUnit> for TehillimUnit {
     fn from(unit: k::TehillimUnit) -> Self {
@@ -157,19 +168,22 @@ impl TryFrom<TehillimUnit> for k::TehillimUnit {
 
     fn try_from(unit: TehillimUnit) -> Result<Self, LimudimError> {
         Ok(match unit {
-            TehillimUnit::Psalms { start, end } => Self::Psalms {
-                start: valid_number(start, PSALMS).ok_or(LimudimError::InvalidUnit)?,
-                end: valid_number(end, PSALMS).ok_or(LimudimError::InvalidUnit)?,
-            },
+            TehillimUnit::Psalms { start, end } => {
+                let (start, end) = valid_span(start, end, PSALMS)?;
+                Self::Psalms { start, end }
+            }
             TehillimUnit::PsalmVerses {
                 psalm,
                 start_verse,
                 end_verse,
-            } => Self::PsalmVerses {
-                psalm: valid_number(psalm, PSALMS).ok_or(LimudimError::InvalidUnit)?,
-                start_verse: valid_number(start_verse, VERSES).ok_or(LimudimError::InvalidUnit)?,
-                end_verse: valid_number(end_verse, VERSES).ok_or(LimudimError::InvalidUnit)?,
-            },
+            } => {
+                let (start_verse, end_verse) = valid_span(start_verse, end_verse, VERSES)?;
+                Self::PsalmVerses {
+                    psalm: valid_number(psalm, PSALMS).ok_or(LimudimError::InvalidUnit)?,
+                    start_verse,
+                    end_verse,
+                }
+            }
         })
     }
 }
@@ -196,10 +210,11 @@ impl TryFrom<PirkeiAvosUnit> for k::PirkeiAvosUnit {
             PirkeiAvosUnit::Single { chapter } => {
                 Self::Single(valid_number(chapter, CHAPTERS_OF_AVOS).ok_or(LimudimError::InvalidUnit)?)
             }
-            PirkeiAvosUnit::Combined { first, second } => Self::Combined(
-                valid_number(first, CHAPTERS_OF_AVOS).ok_or(LimudimError::InvalidUnit)?,
-                valid_number(second, CHAPTERS_OF_AVOS).ok_or(LimudimError::InvalidUnit)?,
-            ),
+            PirkeiAvosUnit::Combined { first, second } if first < second => {
+                let (first, second) = valid_span(first, second, CHAPTERS_OF_AVOS)?;
+                Self::Combined(first, second)
+            }
+            PirkeiAvosUnit::Combined { .. } => return Err(LimudimError::InvalidUnit),
         })
     }
 }

@@ -165,6 +165,13 @@ impl MyZman {
         Self::Midnight,
     ];
 
+    /// The variant whose [`name`](Self::name) is exactly `name`. Returns `None` when no
+    /// variant has that name.
+    #[must_use]
+    pub fn from_name(name: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|candidate| candidate.name() == name)
+    }
+
     /// The row's label on the website.
     #[must_use]
     pub const fn name(self) -> &'static str {
@@ -256,17 +263,6 @@ impl MyZmanim {
     pub fn new(location: Location, date: Date, timezone: Option<TimeZone>) -> Self {
         Self::with_custom_timezone(location, date, timezone)
     }
-
-    /// The time of `zman` in the time zone of these *zmanim*. Use it to show the time to someone.
-    ///
-    /// # Errors
-    ///
-    /// It returns the same errors as [`get`](Self::get). It also returns
-    /// [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone.
-    pub fn get_zoned(&self, zman: MyZman) -> Result<Zoned, ZmanimError> {
-        let timezone = self.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
-        Ok(self.get(zman)?.to_zoned(timezone.clone()))
-    }
 }
 
 impl<Tz: TimeZoneLike> MyZmanim<Tz> {
@@ -311,6 +307,18 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
     #[must_use]
     pub fn candle_lighting_offset(&self) -> Duration {
         self.candle_lighting
+    }
+
+    /// The time of `zman` in the time zone of these *zmanim*. With a [`TimeZone`] the result is in
+    /// that zone. With another [`TimeZoneLike`] it has the fixed offset in effect at that time.
+    ///
+    /// # Errors
+    ///
+    /// It returns the same errors as [`get`](Self::get). It also returns
+    /// [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone.
+    pub fn get_zoned(&self, zman: MyZman) -> Result<Zoned, ZmanimError> {
+        let timezone = self.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
+        Ok(timezone.to_zoned(self.get(zman)?))
     }
 
     /// The time of `zman` on this day.

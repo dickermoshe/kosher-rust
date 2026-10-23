@@ -4,7 +4,7 @@
 //! WeaveFFI reads the exported module's source tokens, so these enums have to be written out in
 //! `src/api.rs` rather than built by a macro. They live between `// BEGIN GENERATED: <name>` and
 //! `// END GENERATED: <name>` markers. The test fails when a region is out of date; run
-//! `UPDATE_GENERATED=1 cargo test -p kosher-rust-bindings codegen` to rewrite them.
+//! `UPDATE_GENERATED=1 cargo test -p kosherz codegen` to rewrite them.
 //!
 //! kosher-rust's enums are `#[non_exhaustive]`, so the conversion from kosher-rust is a `TryFrom`
 //! that fails for a variant the bindings don't have yet. This test fails until they are
@@ -57,7 +57,8 @@ pub fn regions() -> Vec<Region> {
                 "    ",
                 &[
                     "A halachic time this library can calculate, named after the KosherJava getter that",
-                    "calculates it, without `get`. Its value is its position in `all_zmanim`.",
+                    "calculates it, without `get`. Its value is its position in `all_zmanim`, which changes",
+                    "when a zman is added, so store `zman_java_name` rather than the number.",
                 ],
                 &zmanim,
             ),
@@ -199,7 +200,7 @@ fn generated_regions_are_current() {
             .replace("\r\n", "\n");
         assert!(
             splice(&source, region.name, &region.body) == source,
-            "{} region `{}` is out of date: run `UPDATE_GENERATED=1 cargo test -p kosher-rust-bindings codegen`",
+            "{} region `{}` is out of date: run `UPDATE_GENERATED=1 cargo test -p kosherz codegen`",
             region.file,
             region.name,
         );

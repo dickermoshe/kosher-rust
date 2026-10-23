@@ -680,7 +680,7 @@ let wvContract: Void = {
         (0x53798234777e19ea, 0x6c389ed6ad08dbe3, "calendar.rosh_hashana"),
         (0x58fc9af210a33bdd, 0xc3e1903a4dc8359d, "calendar.HebrewDate.is_aseres_yemei_teshuva"),
         (0x5c2a6a6f333ead35, 0x74c7180edff5c022, "calendar.HebrewDate.from_gregorian"),
-        (0x6089a64539b542a8, 0x404904f4331718c5, "calendar.SpecialDay"),
+        (0x6089a64539b542a8, 0xc406e171c1c8c82a, "calendar.SpecialDay"),
         (0x65535c1ad3d9f893, 0x55884ddb65b50739, "calendar.HebrewDate.has_candle_lighting"),
         (0x6a0735856dec8d1a, 0xdc1addb4a7ab46ef, "calendar.parsha_name"),
         (0x734de195723c4bec, 0xc7f3965b813050f5, "calendar.HebrewDate.display"),
@@ -1092,10 +1092,10 @@ public enum SpecialDay: Hashable, Sendable {
     case roshChodesh
     /// Yom HaShoah.
     case yomHaShoah
-    /// Yom Hazikaron.
-    case yomHazikaron
-    /// Yom Ha'atzmaut.
-    case yomHaatzmaut
+    /// Yom HaZikaron.
+    case yomHaZikaron
+    /// Yom HaAtzmaut.
+    case yomHaAtzmaut
     /// Yom Yerushalayim.
     case yomYerushalayim
     /// Lag B'Omer, 18 Iyar.
@@ -1114,8 +1114,8 @@ public enum SpecialDay: Hashable, Sendable {
     case countOfTheOmer(day: Int32)
     /// Birchas Hachamah, every 28 years.
     case birchasHachamah
-    /// Shabbos Machar Hachodesh, the Shabbos before Rosh Chodesh.
-    case macharHachodesh
+    /// Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh.
+    case macharChodesh
     /// Shabbos Mevarchim, the Shabbos when the coming month is announced.
     case shabbosMevarchim
 }
@@ -1153,8 +1153,8 @@ extension SpecialDay: WvCodable {
         case 26: return .purimKatan
         case 27: return .roshChodesh
         case 28: return .yomHaShoah
-        case 29: return .yomHazikaron
-        case 30: return .yomHaatzmaut
+        case 29: return .yomHaZikaron
+        case 30: return .yomHaAtzmaut
         case 31: return .yomYerushalayim
         case 32: return .lagBomer
         case 33: return .shushanPurimKatan
@@ -1164,7 +1164,7 @@ extension SpecialDay: WvCodable {
         case 37: return .fastOfTheFirstborn
         case 38: return .countOfTheOmer(day: r.read())
         case 39: return .birchasHachamah
-        case 40: return .macharHachodesh
+        case 40: return .macharChodesh
         case 41: return .shabbosMevarchim
         default: wvDecodeFailure("unknown SpecialDay tag \(tag)")
         }
@@ -1231,9 +1231,9 @@ extension SpecialDay: WvCodable {
             w.writeI32(27)
         case .yomHaShoah:
             w.writeI32(28)
-        case .yomHazikaron:
+        case .yomHaZikaron:
             w.writeI32(29)
-        case .yomHaatzmaut:
+        case .yomHaAtzmaut:
             w.writeI32(30)
         case .yomYerushalayim:
             w.writeI32(31)
@@ -1254,7 +1254,7 @@ extension SpecialDay: WvCodable {
             w.write(v0)
         case .birchasHachamah:
             w.writeI32(39)
-        case .macharHachodesh:
+        case .macharChodesh:
             w.writeI32(40)
         case .shabbosMevarchim:
             w.writeI32(41)
@@ -1554,8 +1554,8 @@ extension HebrewDate: WvCodable {
 
 /// Typed errors reported by the `calendar.limudim` module.
 public enum LimudimError: Error, LocalizedError, Sendable {
-    /// A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1
-    /// to 6.
+    /// A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1
+    /// to 6, or a range that ends before it starts.
     case invalidUnit(message: String)
 
     /// The message the library reported, or the code's documented default.
@@ -1576,7 +1576,7 @@ public enum LimudimError: Error, LocalizedError, Sendable {
 func wvMapCalendarLimudim(_ err: WvError) -> Error {
     let message = wvErrorMessage(err)
     switch err.code {
-    case 1: return LimudimError.invalidUnit(message: message.isEmpty ? "A psalm outside 1 to 150, a verse outside 1 to 176, or a chapter of Pirkei Avos outside 1" : message)
+    case 1: return LimudimError.invalidUnit(message: message.isEmpty ? "A psalm outside 1 to 150, a verse outside 1 to 176, a chapter of Pirkei Avos outside 1" : message)
     default: return wvRuntimeError(err)
     }
 }
@@ -2015,7 +2015,8 @@ func wvCheckTimes(_ err: inout WvError) throws {
 }
 
 /// A halachic time this library can calculate, named after the KosherJava getter that
-/// calculates it, without `get`. Its value is its position in `all_zmanim`.
+/// calculates it, without `get`. Its value is its position in `all_zmanim`, which changes
+/// when a zman is added, so store `zman_java_name` rather than the number.
 public enum Zman: Int32, Sendable {
     /// Begin Civil Twilight (KosherJava `getBeginCivilTwilight`).
     case beginCivilTwilight = 0
@@ -3232,7 +3233,8 @@ public enum Calendar {
         ///
         /// # Errors
         ///
-        /// `LimudimError::InvalidUnit` for a psalm outside 1 to 150 or a verse outside 1 to 176.
+        /// `LimudimError::InvalidUnit` for a psalm outside 1 to 150, a verse outside 1 to 176, or a
+        /// range that ends before it starts. Verses are not checked against the length of the psalm.
         ///
         /// - Throws: ``LimudimError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
         public static func tehillimDisplay(unit: TehillimUnit) throws -> String {
@@ -3250,7 +3252,8 @@ public enum Calendar {
         ///
         /// # Errors
         ///
-        /// `LimudimError::InvalidUnit` for a chapter outside 1 to 6.
+        /// `LimudimError::InvalidUnit` for a chapter outside 1 to 6, or a combined portion whose second
+        /// chapter doesn't come after its first.
         ///
         /// - Throws: ``LimudimError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
         public static func pirkeiAvosDisplay(unit: PirkeiAvosUnit) throws -> String {
