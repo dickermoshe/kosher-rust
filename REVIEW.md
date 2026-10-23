@@ -864,7 +864,12 @@ These were checked and found correct, so they don't need another look.
   opt-level = 2
   ```
 
-- [ ] **I5. `--all-features` builds print a future-incompatibility warning.** Low. Reproduced.
+- [x] **I5. `--all-features` builds print a future-incompatibility warning.** Low. Reproduced.
+
+  **Resolved.** `defmt` 1.2.0 no longer depends on `proc-macro-error2`, and the lockfile now has it.
+  `Cargo.toml` keeps `version = "1"`, as the defmt FAQ for library authors recommends, and
+  `--future-incompat-report` finds nothing. The `no_std` CI job also builds with `defmt` for
+  Cortex-M.
 
   `defmt-macros` depends on `proc-macro-error2` 2.0.1, which Rust will reject in a future
   version. It comes from `defmt` and only appears with the `defmt` feature. Update `defmt` when a
