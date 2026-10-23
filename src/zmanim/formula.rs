@@ -11,7 +11,6 @@ use icu_calendar::{
 use jiff::{SignedDuration as Duration, Timestamp, ToSpan, tz::TimeZone};
 
 use crate::{
-    TimeZoneLike,
     calendar::{HebrewDate, Region, SpecialDay, molad::months_molad},
     zmanim::{Zmanim, ZmanimError, minus, plus},
 };
@@ -119,14 +118,9 @@ pub(crate) enum Formula {
 
 /// Whether `time` falls on `date` in `timezone`, from the local midnight starting `date` through
 /// the local midnight ending it. This is the check KosherJava's `getMoladBasedTime` makes.
-fn is_on_date(time: Timestamp, date: jiff::civil::Date, timezone: &impl TimeZoneLike) -> Result<bool, ZmanimError> {
-    let midnight = |date: jiff::civil::Date| {
-        timezone
-            .local_to_timestamp(date.at(0, 0, 0, 0))
-            .ok_or(ZmanimError::Internal)
-    };
-    let tomorrow = date.tomorrow()?;
-    Ok(time >= midnight(date)? && time <= midnight(tomorrow)?)
+fn is_on_date(time: Timestamp, date: jiff::civil::Date, timezone: &TimeZone) -> Result<bool, ZmanimError> {
+    let midnight = |date: jiff::civil::Date| date.to_zoned(timezone.clone()).map(|zoned| zoned.timestamp());
+    Ok(time >= midnight(date)? && time <= midnight(date.tomorrow()?)?)
 }
 
 /// The molad of `date`'s month.
@@ -135,7 +129,7 @@ fn molad_of(date: &icu_calendar::Date<icu_calendar::cal::Hebrew>) -> Result<Time
 }
 
 impl Formula {
-    pub(crate) fn evaluate<Tz: TimeZoneLike>(&self, calculator: &Zmanim<Tz>) -> Result<Timestamp, ZmanimError> {
+    pub(crate) fn evaluate(&self, calculator: &Zmanim) -> Result<Timestamp, ZmanimError> {
         match *self {
             Formula::ConfiguredSunrise => {
                 if calculator.config.use_elevation {

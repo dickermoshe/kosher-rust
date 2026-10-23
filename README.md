@@ -74,21 +74,11 @@ candle-lighting offset, build the calculator with `Zmanim::with_config` and a `z
 
 ### Time zones
 
-You can give `Zmanim` and `MyZmanim` a time zone when you create them. With a time zone every
-time works. You can also read every time in that time zone with `get_zoned`.
-
-You can also leave the time zone out by passing `None`. Most times still work without one. These
-do not work without a time zone:
-
-- The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`. These are the four times:
-  - `TchilasZmanKidushLevana3Days`
-  - `TchilasZmanKidushLevana7Days`
-  - `SofZmanKidushLevanaBetweenMoldos`
-  - `SofZmanKidushLevana15Days`
-- `get_zoned` returns `ZmanimError::TimeZoneRequired`. You can still read the time as a
-  `Timestamp` with `get`.
-- A location more than 150° from Greenwich needs a time zone for every time. Without one every
-  time returns `ZmanimError::TimeZoneRequired`.
+When calculating *zmanim*, pass a time zone to `Zmanim::new` or `MyZmanim::new`. If you pass
+`None`, you will get `ZmanimError::TimeZoneRequired` when you call `get_zoned`, for any *zman* if
+the location is more than 150° east or west of Greenwich, and when you calculate one of the four
+Kiddush Levana *zmanim* (`TchilasZmanKidushLevana3Days`, `TchilasZmanKidushLevana7Days`,
+`SofZmanKidushLevanaBetweenMoldos` or `SofZmanKidushLevana15Days`).
 
 ## Learning schedules
 

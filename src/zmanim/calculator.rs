@@ -1,7 +1,7 @@
 use jiff::{SignedDuration, Timestamp, Zoned, civil::Date, tz::TimeZone};
 
 use super::{Config, Zman, ZmanimError, formula::Formula};
-use crate::{Location, TimeZoneLike};
+use crate::Location;
 
 /// The *zmanim* for one place on one day.
 ///
@@ -24,28 +24,18 @@ use crate::{Location, TimeZoneLike};
 ///
 /// # Time zones
 ///
-/// You can give the *zmanim* a time zone when you create them. With a time zone every time
-/// works. You can also read every time in that time zone with [`get_zoned`](Self::get_zoned).
-///
-/// You can also leave the time zone out by passing `None`. Most times still work without one.
-/// These do not work without a time zone:
-///
-/// - The four Kiddush Levana times return [`ZmanimError::TimeZoneRequired`]. These are the four
-///   times:
-///   - [`Zman::TchilasZmanKidushLevana3Days`]
-///   - [`Zman::TchilasZmanKidushLevana7Days`]
-///   - [`Zman::SofZmanKidushLevanaBetweenMoldos`]
-///   - [`Zman::SofZmanKidushLevana15Days`]
-/// - [`get_zoned`](Self::get_zoned) returns [`ZmanimError::TimeZoneRequired`]. You can still
-///   read the time as a [`Timestamp`] with [`get`](Self::get).
-/// - A location more than 150° from Greenwich needs a time zone for every time. Without one
-///   every time returns [`ZmanimError::TimeZoneRequired`].
+/// When calculating *zmanim*, pass a time zone to [`Zmanim::new`]. If you pass `None`, you will
+/// get [`ZmanimError::TimeZoneRequired`] when you call [`get_zoned`](Self::get_zoned), for any
+/// *zman* if the location is more than 150° east or west of Greenwich, and when you calculate one
+/// of the four Kiddush Levana *zmanim* ([`Zman::TchilasZmanKidushLevana3Days`],
+/// [`Zman::TchilasZmanKidushLevana7Days`], [`Zman::SofZmanKidushLevanaBetweenMoldos`] or
+/// [`Zman::SofZmanKidushLevana15Days`]).
 #[derive(Clone, Debug, PartialEq)]
-pub struct Zmanim<Tz = TimeZone> {
+pub struct Zmanim {
     pub(crate) location: Location,
     pub(crate) date: Date,
     pub(crate) config: Config,
-    pub(crate) timezone: Option<Tz>,
+    pub(crate) timezone: Option<TimeZone>,
 }
 
 impl Zmanim {
@@ -64,14 +54,6 @@ impl Zmanim {
     /// Pass a time zone if you have one. Every time works with a time zone. Without one a few
     /// times do not work. The section on [time zones](Zmanim#time-zones) lists them.
     pub fn with_config(location: Location, date: Date, timezone: Option<TimeZone>, config: Config) -> Self {
-        Self::with_custom_timezone(location, date, timezone, config)
-    }
-}
-
-impl<Tz: TimeZoneLike> Zmanim<Tz> {
-    /// The same as [`Zmanim::with_config`] with any [`TimeZoneLike`] as the time zone. The
-    /// section on [time zones](Zmanim#time-zones) lists the times that need one.
-    pub fn with_custom_timezone(location: Location, date: Date, timezone: Option<Tz>, config: Config) -> Self {
         Self {
             location,
             date,
@@ -94,8 +76,7 @@ impl<Tz: TimeZoneLike> Zmanim<Tz> {
         zman.formula().evaluate(self)
     }
 
-    /// The time of `zman` in the time zone of these *zmanim*. With a [`TimeZone`] the result is in
-    /// that zone. With another [`TimeZoneLike`] it has the fixed offset in effect at that time.
+    /// The time of `zman` in the time zone of these *zmanim*.
     ///
     /// # Errors
     ///
@@ -103,7 +84,7 @@ impl<Tz: TimeZoneLike> Zmanim<Tz> {
     /// [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone.
     pub fn get_zoned(&self, zman: Zman) -> Result<Zoned, ZmanimError> {
         let timezone = self.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
-        Ok(timezone.to_zoned(self.get(zman)?))
+        Ok(self.get(zman)?.to_zoned(timezone.clone()))
     }
 
     /// When the sun is `degrees` below the eastern horizon before sunrise, for an opinion the
@@ -140,7 +121,7 @@ impl<Tz: TimeZoneLike> Zmanim<Tz> {
     }
 
     /// The time zone, if one was given.
-    pub fn timezone(&self) -> Option<&Tz> {
+    pub fn timezone(&self) -> Option<&TimeZone> {
         self.timezone.as_ref()
     }
 
@@ -185,7 +166,7 @@ pub(crate) fn minus(time: Timestamp, duration: SignedDuration) -> Result<Timesta
 }
 
 #[cfg(feature = "defmt")]
-impl<Tz> defmt::Format for Zmanim<Tz> {
+impl defmt::Format for Zmanim {
     fn format(&self, fmt: defmt::Formatter) {
         defmt::write!(
             fmt,

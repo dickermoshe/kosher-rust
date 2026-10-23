@@ -6,7 +6,7 @@ use jiff::{SignedDuration, Timestamp, Zoned, civil::Date, tz::TimeZone};
 use core_maths::*;
 
 use crate::{
-    Location, TimeZoneLike,
+    Location,
     astronomy::{
         GEOMETRIC_ZENITH, SolarEvent, adjusted_local_date, apparent_solar_radius, meeus::Meeus,
         rise_set_on_adjusted_date,
@@ -235,22 +235,15 @@ impl fmt::Display for MyZman {
 ///
 /// # Time zones
 ///
-/// You can give these *zmanim* a time zone when you create them. With a time zone every time
-/// works. You can also read every time in that time zone with [`get_zoned`](Self::get_zoned).
-///
-/// You can also leave the time zone out by passing `None`. Most times still work without one.
-/// These do not work without a time zone:
-///
-/// - [`get_zoned`](Self::get_zoned) returns [`ZmanimError::TimeZoneRequired`]. You can still
-///   read the time as a [`Timestamp`] with [`get`](Self::get).
-/// - A location more than 150° from Greenwich needs a time zone for every time. Without one
-///   every time returns [`ZmanimError::TimeZoneRequired`].
+/// When calculating *zmanim*, pass a time zone to [`MyZmanim::new`]. If you pass `None`, you will
+/// get [`ZmanimError::TimeZoneRequired`] when you call [`get_zoned`](Self::get_zoned) and for any
+/// *zman* if the location is more than 150° east or west of Greenwich.
 #[derive(Debug, Clone, PartialEq)]
-pub struct MyZmanim<Tz = TimeZone> {
+pub struct MyZmanim {
     location: Location,
     date: Date,
     candle_lighting: Duration,
-    timezone: Option<Tz>,
+    timezone: Option<TimeZone>,
 }
 
 impl MyZmanim {
@@ -261,15 +254,6 @@ impl MyZmanim {
     /// things do not work. The section on [time zones](MyZmanim#time-zones) lists them.
     #[must_use]
     pub fn new(location: Location, date: Date, timezone: Option<TimeZone>) -> Self {
-        Self::with_custom_timezone(location, date, timezone)
-    }
-}
-
-impl<Tz: TimeZoneLike> MyZmanim<Tz> {
-    /// The same as [`MyZmanim::new`] with any [`TimeZoneLike`] as the time zone. The section on
-    /// [time zones](MyZmanim#time-zones) lists what needs one.
-    #[must_use]
-    pub fn with_custom_timezone(location: Location, date: Date, timezone: Option<Tz>) -> Self {
         Self {
             location,
             date,
@@ -293,7 +277,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
 
     /// The time zone, if one was given.
     #[must_use]
-    pub fn timezone(&self) -> Option<&Tz> {
+    pub fn timezone(&self) -> Option<&TimeZone> {
         self.timezone.as_ref()
     }
 
@@ -309,8 +293,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
         self.candle_lighting
     }
 
-    /// The time of `zman` in the time zone of these *zmanim*. With a [`TimeZone`] the result is in
-    /// that zone. With another [`TimeZoneLike`] it has the fixed offset in effect at that time.
+    /// The time of `zman` in the time zone of these *zmanim*.
     ///
     /// # Errors
     ///
@@ -318,7 +301,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
     /// [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone.
     pub fn get_zoned(&self, zman: MyZman) -> Result<Zoned, ZmanimError> {
         let timezone = self.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
-        Ok(timezone.to_zoned(self.get(zman)?))
+        Ok(self.get(zman)?.to_zoned(timezone.clone()))
     }
 
     /// The time of `zman` on this day.

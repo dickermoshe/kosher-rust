@@ -158,9 +158,6 @@ Hebrew name.
   times that need one.
 - **`get_zoned`.** `Zmanim` and `MyZmanim` give a time as a `Zoned` in their time zone, with
   any time zone.
-- **Custom time zones.** `Zmanim::with_custom_timezone` and `MyZmanim::with_custom_timezone` take
-  any `TimeZoneLike`. `jiff::tz::TimeZone` implements it. To implement it yourself, you give the
-  UTC offset at an instant.
 - **Lists and names.** `SpecialDay`, `Parsha`, `Tractate` and `HebrewMonth` have `ALL` and
   `name()`, as `Zman` and `MyZman` do. `Zman`, `MyZman`, `Parsha`, `Tractate` and `HebrewMonth`
   also have `from_name`, which returns the variant with that name or `None`.
