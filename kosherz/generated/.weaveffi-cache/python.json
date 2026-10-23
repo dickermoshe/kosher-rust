@@ -1,9 +1,0 @@
-{
-  "files": [
-    "python/README.md",
-    "python/kosherz/__init__.py",
-    "python/kosherz/kosherz.py",
-    "python/kosherz/py.typed",
-    "python/pyproject.toml"
-  ]
-}

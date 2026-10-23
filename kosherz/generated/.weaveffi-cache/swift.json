@@ -1,8 +1,0 @@
-{
-  "files": [
-    "swift/Package.swift",
-    "swift/Sources/CKosherz/kosherz.h",
-    "swift/Sources/CKosherz/module.modulemap",
-    "swift/Sources/Kosherz/Kosherz.swift"
-  ]
-}

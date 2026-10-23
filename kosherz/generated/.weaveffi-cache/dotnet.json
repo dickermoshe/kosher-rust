@@ -1,8 +1,0 @@
-{
-  "files": [
-    "dotnet/Kosherz.cs",
-    "dotnet/Kosherz.csproj",
-    "dotnet/README.md",
-    "dotnet/Runtime.cs"
-  ]
-}

@@ -1,8 +1,0 @@
-{
-  "files": [
-    "ruby/README.md",
-    "ruby/kosherz.gemspec",
-    "ruby/lib/kosherz.rb",
-    "ruby/lib/kosherz/runtime.rb"
-  ]
-}

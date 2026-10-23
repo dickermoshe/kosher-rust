@@ -1,8 +1,0 @@
-{
-  "name": "kosherz-node-tests",
-  "private": true,
-  "type": "module",
-  "devDependencies": {
-    "@js-temporal/polyfill": "0.5.1"
-  }
-}

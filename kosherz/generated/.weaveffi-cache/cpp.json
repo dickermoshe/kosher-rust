@@ -1,8 +1,0 @@
-{
-  "files": [
-    "cpp/CMakeLists.txt",
-    "cpp/README.md",
-    "cpp/kosherz.h",
-    "cpp/kosherz.hpp"
-  ]
-}
