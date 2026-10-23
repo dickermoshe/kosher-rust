@@ -100,7 +100,7 @@ pub(super) fn test_random_add_months_to_jewish_date(rng: &mut StdRng, context: &
 
 pub(super) fn test_random_add_years_to_jewish_date(rng: &mut StdRng, context: &str) -> Result<(), Box<dyn Error>> {
     let date = random_valid_jewish_date(rng);
-    let years_to_add = rng.random_range(1..=60);
+    let years_to_add = rng.random_range(1..=policy::MAX_RANDOM_YEARS_TO_ADD);
     assert_date_results_match(
         date,
         &format!("Jewish after adding {years_to_add} years"),

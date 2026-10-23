@@ -8,11 +8,14 @@ use std::{env, sync::OnceLock};
 /// than the per-preset zmanim default while still covering many calendar edges.
 pub(super) const DEFAULT_HEBREW_DATE_PARITY_ITERATIONS: u64 = 1_000;
 
+/// The most years the random add-years test adds to a date.
+pub(super) const MAX_RANDOM_YEARS_TO_ADD: i32 = 60;
+
 /// Inclusive Gregorian year range used for randomized Hebrew-date parity cases: nearly the whole
-/// range a `HebrewDate` covers (1 January of year 1 to 29 Elul 9999, in 6239), leaving room for
-/// the offsets below.
+/// range a `HebrewDate` covers (1 January of year 1 to 29 Elul 9999, in 6239). The last Hebrew
+/// year it gives plus [`MAX_RANDOM_YEARS_TO_ADD`] is 9999, so every result is still a `HebrewDate`.
 pub(super) const MIN_GREGORIAN_YEAR: i32 = 10;
-pub(super) const MAX_GREGORIAN_YEAR: i32 = 6200;
+pub(super) const MAX_GREGORIAN_YEAR: i32 = 9999 - 3760 - MAX_RANDOM_YEARS_TO_ADD;
 
 /// Day offsets applied to random and regression Jewish dates.
 pub(super) const DAY_OFFSETS: &[i32] = &[0, 1, -1, 29, -29, 365, -365];
