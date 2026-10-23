@@ -205,7 +205,10 @@ pub(super) fn rust_jewish_calendar_snapshot(
         is_machar_chodesh: rust_special_days.contains(&SpecialDay::MacharHachodesh),
         is_shabbos_mevorchim: rust_special_days.contains(&SpecialDay::ShabbosMevarchim),
         day_of_omer: day_of_omer,
-        molad_ms: day.molad().map(|molad| molad.timestamp().as_millisecond()),
+        // Rounded down, as Java's `toEpochMilli` rounds, so instants before 1970 agree.
+        molad_ms: day
+            .molad()
+            .map(|molad| molad.timestamp().as_nanosecond().div_euclid(1_000_000) as i64),
     })
 }
 

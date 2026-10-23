@@ -931,3 +931,83 @@ fn times_without_a_time_zone_match_times_with_one() {
         }
     }
 }
+
+/// Near the date line a sunrise close to local noon has a UTC hour just past 24. It still lands
+/// on its own date, with every calculator: Cape Schmidt, Chukotka, on 10 January 2021.
+#[test]
+fn polar_sunrise_near_the_date_line_is_on_its_own_date() {
+    let anadyr = TimeZone::get("Asia/Anadyr").unwrap();
+    let cape_schmidt = Location::new(68.88, -179.37).unwrap();
+    let date = Date::new(2021, 1, 10).unwrap();
+    for calculator in [
+        AstronomicalCalculator::Noaa,
+        AstronomicalCalculator::Meeus { apply_delta_t: true },
+        AstronomicalCalculator::Spa { apply_delta_t: true },
+    ] {
+        let config = Config {
+            astronomical_calculator: calculator,
+            ..Config::default()
+        };
+        let zmanim = Zmanim::with_config(cape_schmidt.clone(), date, Some(anadyr.clone()), config);
+        let sunrise = zmanim.get_zoned(Zman::SeaLevelSunrise).unwrap();
+        let sunset = zmanim.get_zoned(Zman::SeaLevelSunset).unwrap();
+        assert_eq!(sunrise.date(), date, "{calculator:?}");
+        assert!(sunrise < sunset, "{calculator:?}: {sunrise} {sunset}");
+    }
+}
+
+/// One case for each date adjustment when an event's UTC hour becomes an instant, with the
+/// default calculator in a fixed zone. A result on the wrong day is 24 hours off.
+/// `polar_sunrise_near_the_date_line_is_on_its_own_date` covers a sunrise at -6 hours local mean
+/// time or earlier.
+#[test]
+fn each_date_adjustment_keeps_the_event_on_its_date() {
+    let cases = [
+        // A sunrise after 18:00 local mean time of the day before moves back a day.
+        (
+            Zman::SeaLevelSunrise,
+            -70.0,
+            35.235,
+            2,
+            (2021, 1, 25),
+            1_611_527_037_358_i64,
+        ),
+        // A sunset before 06:00 local mean time moves forward a day.
+        (
+            Zman::SeaLevelSunset,
+            -70.0,
+            -179.37,
+            -12,
+            (2021, 1, 23),
+            1_611_488_915_349,
+        ),
+        // A sunset at +30 hours local mean time or later moves back a day.
+        (Zman::SeaLevelSunset, 68.88, 179.0, 12, (2021, 12, 2), 1_638_403_159_563),
+        // Solar midnight before noon local mean time moves forward a day.
+        (
+            Zman::SolarMidnight,
+            -70.0,
+            -179.37,
+            -12,
+            (2021, 1, 1),
+            1_609_588_897_446,
+        ),
+        // Solar noon before 0 hours local mean time moves forward a day.
+        (Zman::SunTransit, -70.0, -179.37, -12, (2021, 1, 1), 1_609_545_683_526),
+        // Solar noon after 24 hours local mean time moves back a day.
+        (Zman::SunTransit, -70.0, 179.0, 12, (2021, 9, 14), 1_631_577_581_205),
+    ];
+    for (zman, latitude, longitude, hours, (year, month, day), expected) in cases {
+        let zone = TimeZone::fixed(jiff::tz::Offset::constant(hours));
+        let zmanim = Zmanim::new(
+            Location::new(latitude, longitude).unwrap(),
+            Date::new(year, month, day).unwrap(),
+            Some(zone),
+        );
+        let actual = zmanim.get(zman).unwrap().as_millisecond();
+        assert!(
+            (actual - expected).abs() < 1000,
+            "{zman:?} at {latitude}, {longitude}: {actual}"
+        );
+    }
+}

@@ -38,6 +38,9 @@ are unchanged, and they are still checked against KosherJava and hebcal.
   and the schedules return `None`.
 - **`PirkeiAvos` past Hebrew year 9999.** It panicked for every date from the summer of 9999
   (Gregorian 6239) on. That summer now has its portions, and from 10000 on there are none.
+- **Sunrise and sunset near the date line.** Within a few degrees of 180°, in polar winter or
+  summer, a sunrise or sunset near local noon could be reported a day early or late, and the times
+  built on it with it. They now fall on their own date.
 - **Custom angles are checked.** `Zmanim::sunrise_offset_by_degrees` and
   `sunset_offset_by_degrees` return the new `ZmanimError::InvalidDegrees` for an angle that is not
   a number from -90 to 90. Before, NaN gave `ZmanimError::Internal` and a huge angle gave a

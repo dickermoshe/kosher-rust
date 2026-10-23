@@ -50,6 +50,11 @@ Java conformance suite compares against. Currently tracked: commit
 [ffb0fef](https://github.com/KosherJava/zmanim/commit/ffb0fefdbc6c70fd1b4e708444da7967f5f95bef)
 (post-3.0.0 master).
 
+The vendored copy also carries a fix that is not upstream yet. It is in
+`AstronomicalCalendar.getInstantFromTime` and puts a sunrise or sunset near the date line back on
+its own date, with a test in `AstronomicalCalendarTest`. Keep it when pulling until upstream merges
+[KosherJava/zmanim#296](https://github.com/KosherJava/zmanim/pull/296).
+
 ```bash
 git subtree pull --prefix=third-party/kosher-java https://github.com/KosherJava/zmanim <tag-or-branch> --squash
 ```

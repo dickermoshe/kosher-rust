@@ -221,8 +221,10 @@ These were checked and found correct, so they don't need another look.
 
 ## 2. Wrong results in the library
 
-- [ ] **C1. Near the date line, some sunrises and sunsets land on the wrong day.** Medium.
+- [x] **C1. Near the date line, some sunrises and sunsets land on the wrong day.** Medium.
   Reproduced.
+
+  **Fixed in both.** The vendored KosherJava and the Rust port now add the two missing wraps: a sunrise at -6 hours local mean time or earlier moves forward a day, and a sunset at +30 hours or later moves back a day. A sweep of 759,577 sunrises and sunsets near the date line above 60° found 10 out of their windows before and none after. The Java change is proposed upstream as [KosherJava/zmanim#296](https://github.com/KosherJava/zmanim/pull/296).
 
   **What happens.** At Cape Schmidt (68.88, -179.37) in the `Asia/Anadyr` time zone, with the
   default config, on 2021-01-10 these come back.
@@ -530,8 +532,10 @@ These were checked and found correct, so they don't need another look.
 
 ## 4. Bindings (`kosherz`)
 
-- [ ] **F1. Dart crashes the process when a `Zmanim` or `MyZmanim` with a time zone is
+- [x] **F1. Dart crashes the process when a `Zmanim` or `MyZmanim` with a time zone is
   garbage-collected instead of disposed.** High for Dart users. Confirmed with Dart 3.13.4.
+
+  **Resolved.** The bindings no longer take a time zone callback. Callers pass a `LocalDay` record instead, so no Dart code runs when a `Zmanim` or `MyZmanim` is freed. The underlying WeaveFFI bug still affects any other callback interface.
 
   **What happens.** The Dart wrapper registers a `NativeFinalizer` that calls
   `kosherz_times_Zmanim_destroy`
@@ -599,8 +603,10 @@ These were checked and found correct, so they don't need another look.
   generator options (`[generators.go] module_path`, and the `name` options for node, wasm and
   kotlin). Copy `LICENSE` into each package when packaging.
 
-- [ ] **F3. The docs say .NET's `TimeZoneInfo` can answer the time-zone callback the way Java
+- [x] **F3. The docs say .NET's `TimeZoneInfo` can answer the time-zone callback the way Java
   does.** Low. From reading (no .NET SDK was available).
+
+  **Resolved.** The callback is gone. The kosherz README now says how to fill in a `LocalDay` in each language, including .NET's `IsInvalidTime` check and Go's open choice for a skipped midnight.
 
   **What is wrong.** The callback's docs at
   [kosherz/src/api.rs:1046-1048](kosherz/src/api.rs#L1046), copied into every binding, say

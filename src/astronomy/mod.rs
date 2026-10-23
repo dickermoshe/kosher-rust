@@ -380,10 +380,31 @@ pub(crate) fn instant_from_utc_hours(
         return Err(ZmanimError::Internal);
     }
 
+    // `time` is only the UTC time of day, a number from 0 to 24. It doesn't say which UTC day the event
+    // is on, so start from `date` and correct it.
+    //
+    // `local_time_hours` is that time in local mean time, which is UTC plus the longitude's hours. It can
+    // come out below 0 or above 24, which means the event is really on the day before or the day after
+    // `date`. Each event has a window of local mean time that belongs to the date, and these arms move
+    // the date by a day when the event falls outside it.
+    //
+    // - Sunrise belongs to the date from 18:00 the evening before through 18:00 of the date. After 18:00
+    //   it is really the evening before (an Arctic sunrise just after midnight, say), so go back a day.
+    //   At -6:00 or earlier the UTC time wrapped around midnight, so go forward a day. For example, just
+    //   west of the date line local mean time is about 12 hours behind UTC. A sunrise at noon local mean
+    //   time is then 24:00 UTC, which arrives as 0:00 and reads as -12:00 local mean time.
+    // - Sunset belongs from 06:00 of the date through 06:00 the next morning. Before 06:00 go forward a
+    //   day. At 30:00, which is 06:00 the next morning, or later the UTC time wrapped the other way, so go
+    //   back a day.
+    // - Solar midnight is the one after the date's noon, so one before 12:00 moves forward a day.
+    // - Solar noon belongs between 0:00 and 24:00. Before 0:00 go forward a day, and after 24:00 go back a
+    //   day.
     let local_time_hours = location.longitude / 15.0 + time;
     match event {
         SolarEvent::Sunrise if local_time_hours > 18.0 => date = add_days(date, -1)?,
+        SolarEvent::Sunrise if local_time_hours <= -6.0 => date = add_days(date, 1)?,
         SolarEvent::Sunset if local_time_hours < 6.0 => date = add_days(date, 1)?,
+        SolarEvent::Sunset if local_time_hours >= 30.0 => date = add_days(date, -1)?,
         SolarEvent::Midnight if local_time_hours < 12.0 => date = add_days(date, 1)?,
         SolarEvent::Noon if local_time_hours < 0.0 => date = add_days(date, 1)?,
         SolarEvent::Noon if local_time_hours > 24.0 => date = add_days(date, -1)?,
