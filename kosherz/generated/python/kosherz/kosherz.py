@@ -5,7 +5,6 @@
 """ctypes bindings for the kosherz native library."""
 from __future__ import annotations
 
-import abc
 import builtins
 import ctypes
 import os
@@ -187,7 +186,6 @@ _CONTRACTS: Dict[str, List[Tuple[int, int, str]]] = {
         (0x01ce427485afb43a, 0x017ce9984014d3c1, "times.ZmanTime"),
         (0x0643c19407762211, 0x11babf7c30a11935, "times.myzmanim.dip_degrees_per_root_meter"),
         (0x091fabaf00184561, 0xf13823120f5b4c46, "times.Calculator"),
-        (0x0a21d46001720019, 0x5cf262e1982cf8f7, "times.TimeZoneOffset"),
         (0x0a86c54f2d84238c, 0x4b1d4aaf11dfd132, "times.zman_category"),
         (0x0d3bc9cd549a7137, 0xbea68784cf687a1a, "times.Zmanim.get"),
         (0x0e595d82f4b54ade, 0x4a23e822039987a7, "times.zman_description"),
@@ -195,13 +193,14 @@ _CONTRACTS: Dict[str, List[Tuple[int, int, str]]] = {
         (0x196240a5b18bd7a9, 0x2d4c4ce495502494, "times.Zmanim"),
         (0x1f4901cd5f081ee4, 0x669e3d4d3e9d42cc, "times.Zmanim.all"),
         (0x2eabf209e8de2867, 0x6614e227c469c232, "times.Zmanim.config"),
+        (0x32d6c48bf4c035ce, 0x34a4cdb9918ec167, "times.LocalDay"),
         (0x38596a351e356743, 0x685412d4d80250ea, "times.Config"),
         (0x39389f0e68d3cc22, 0x4af5df9a96d3f535, "times.myzmanim.MyZmanim.proportional_hour_gra"),
         (0x3c92cd49c8b4515b, 0x5962ffa89080c41b, "times.shaah_zmanis"),
-        (0x44a0809dedbd4a4d, 0x9169cc1ef07d2488, "times.ZmanimError"),
+        (0x44a0809dedbd4a4d, 0xd12210ce98caa417, "times.ZmanimError"),
         (0x4d259836d7137c43, 0x0486761191984fd0, "times.Zman"),
         (0x57d7a9c5a715b9fa, 0x7110b3413cfd8e83, "times.Location"),
-        (0x5cf83bcd8244d771, 0x99d014ada9906437, "times.Zmanim.new"),
+        (0x5cf83bcd8244d771, 0x05a3622be2d0b290, "times.Zmanim.new"),
         (0x65aa216d77a78308, 0x689307845875e63e, "times.zman_is_deprecated"),
         (0x68ffad4e5539ca69, 0xc3cb9f9d3b5b28ba, "times.myzmanim.MyZmanim.date"),
         (0x6b5635f618146d65, 0x52972cadc08c13ef, "times.all_zmanim"),
@@ -210,7 +209,7 @@ _CONTRACTS: Dict[str, List[Tuple[int, int, str]]] = {
         (0x77857568cbec63b3, 0xcddd8b18c602be76, "times.myzmanim.MyZman"),
         (0x79dc07bc571a3ab7, 0xf70eea6f6621717f, "times.validate_location"),
         (0x80d913d2e48601c7, 0x93dc654d560a63b8, "times.myzmanim.MyZmanim.get"),
-        (0x8a9dcfc50ecf7193, 0x7d00a18dba45f065, "times.ZmanFailure"),
+        (0x8a9dcfc50ecf7193, 0x6590c939314307c3, "times.ZmanFailure"),
         (0x8f816bd2ec126fd4, 0x975c3a96549104d2, "times.myzmanim.MyZmanim.all"),
         (0x94ec9f2dd31dd154, 0x93ef9500cb5f1cfc, "times.Zmanim.sunrise_offset_by_degrees"),
         (0x968059cb1e92252a, 0xdec9155329278f29, "times.myzmanim.my_zman_name"),
@@ -222,7 +221,7 @@ _CONTRACTS: Dict[str, List[Tuple[int, int, str]]] = {
         (0xbb0373c362e8a226, 0x63856359341062ee, "times.Zmanim.location"),
         (0xc1a3c3740d199619, 0xe3c7eb49f063a0ce, "times.myzmanim.MyZmanim"),
         (0xc29ca29cb7cd2999, 0x735499ab0a625d6d, "times.myzmanim.dawn_90_degrees"),
-        (0xcc5685d30e954e41, 0xcc6eb9ea8c42ca79, "times.myzmanim.MyZmanim.new"),
+        (0xcc5685d30e954e41, 0xfc5049b6220741f6, "times.myzmanim.MyZmanim.new"),
         (0xce8ce7ef4ad0db32, 0xc5f954c475f4dc9d, "times.zman_java_name"),
         (0xdb5095e0e87f0d79, 0xc3cb9f9d3b5b28ba, "times.Zmanim.date"),
         (0xdda7b795bf202896, 0x63856359341062ee, "times.myzmanim.MyZmanim.location"),
@@ -681,107 +680,6 @@ def _decode(data: bytes, read: Callable[[_Reader], _T]) -> _T:
     value = read(r)
     r.expect_end()
     return value
-
-
-# Callback-interface implementations the producer holds, keyed by the integer
-# it receives as `ctx`. An entry is added when an implementation is passed to
-# a call and removed when the producer calls the vtable's `free(ctx)`, so the
-# implementation lives exactly as long as the producer may call it and the
-# producer never holds a raw reference to a Python object. ctypes acquires
-# the GIL on entry to a trampoline, so the producer may call (and free) from
-# any thread.
-_callbacks: Dict[int, Any] = {}
-_callbacks_lock = threading.Lock()
-_callbacks_next = 0
-
-_alloc = _bind("kosherz_alloc", ctypes.c_void_p, ctypes.c_size_t)
-_error_set = _bind(
-    "kosherz_error_set", None, ctypes.POINTER(_ErrorStruct), ctypes.c_int32, ctypes.c_char_p
-)
-_error_set_payload = _bind(
-    "kosherz_error_set_payload",
-    None,
-    ctypes.POINTER(_ErrorStruct),
-    ctypes.c_char_p,
-    ctypes.c_size_t,
-)
-
-
-def _callback_register(impl: Any, cls: type) -> int:
-    """Register an implementation for one call; returns its `ctx` key."""
-    global _callbacks_next
-    if not isinstance(impl, cls):
-        raise TypeError(f"expected {cls.__name__}, got {type(impl).__name__}")
-    with _callbacks_lock:
-        _callbacks_next += 1
-        ctx = _callbacks_next
-        _callbacks[ctx] = impl
-    return ctx
-
-
-def _callback_register_opt(impl: Any, cls: type) -> Optional[int]:
-    """`_callback_register` for an optional callback: None passes none."""
-    return None if impl is None else _callback_register(impl, cls)
-
-
-def _callback_get(ctx: Optional[int]) -> Any:
-    return _callbacks[ctx or 0]
-
-
-def _callback_free(ctx: Optional[int]) -> None:
-    # The producer's last reference is gone; it never passes `ctx` again.
-    with _callbacks_lock:
-        _callbacks.pop(ctx or 0, None)
-
-
-# Every vtable's `free` entry: one function object for the process lifetime.
-_CallbackFree = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
-_callback_free_fn = _CallbackFree(_callback_free)
-
-
-def _callback_return_bytes(out_ptr: Any, out_len: Any, data: bytes) -> None:
-    """Hand a string, bytes, or value-buffer return to the producer: a run
-    allocated with kosherz_alloc, which the producer adopts and frees."""
-    n = len(data)
-    ptr = _alloc(n) if n else None
-    if n:
-        if not ptr:
-            raise MemoryError(f"kosherz_alloc({n}) failed")
-        ctypes.memmove(ptr, data, n)
-    out_ptr[0] = ptr
-    out_len[0] = n
-
-
-def _callback_return_object(obj: Any, cls: Type[_Object]) -> int:
-    """Hand an object return to the producer: one fresh strong reference it
-    adopts."""
-    if not isinstance(obj, cls):
-        raise TypeError(f"expected {cls.__name__}, got {type(obj).__name__}")
-    return obj._clone_ref()
-
-
-def _callback_return_object_opt(obj: Any, cls: Type[_Object]) -> Optional[int]:
-    """`_callback_return_object` for an optional object: None returns null."""
-    return None if obj is None else _callback_return_object(obj, cls)
-
-
-def _callback_fail(out_err: Any, exc: BaseException, domain: Optional[Type[Error]] = None) -> None:
-    """Report an implementation's exception to the producer. A method that
-    declares errors passes its module's error domain, and an exception of
-    that domain carrying a declared code travels as that code with its
-    fields; every other exception reaches the producer as the foreign error
-    code (-4). Nothing unwinds through C."""
-    if domain is not None and isinstance(exc, domain) and exc.code > 0:
-        _error_set(out_err, exc.code, exc.message.encode("utf-8", "replace"))
-        payload = exc._payload()
-        if payload:
-            _error_set_payload(out_err, payload, len(payload))
-        return
-    if isinstance(exc, (Error, InternalError)):
-        message = exc.message
-    else:
-        message = str(exc) or type(exc).__name__
-    _error_set(out_err, Error.FOREIGN_ERROR_CODE, message.encode("utf-8", "replace"))
 
 
 # === Module: calendar ===
@@ -3027,7 +2925,7 @@ class ZmanimError(Error):
     InvalidElevation: Type[InvalidElevation]
     InvalidGregorianDate: Type[InvalidGregorianDate]
     TimeZoneRequired: Type[TimeZoneRequired]
-    TimeZoneCallbackFailed: Type[TimeZoneCallbackFailed]
+    InvalidLocalDay: Type[InvalidLocalDay]
     InvalidMinutes: Type[InvalidMinutes]
     InvalidDegrees: Type[InvalidDegrees]
     AllDay: Type[AllDay]
@@ -3073,23 +2971,26 @@ class InvalidGregorianDate(ZmanimError):
 
 
 class TimeZoneRequired(ZmanimError):
-    """A time zone is needed and none was given. The four Kiddush Levana times need one.
+    """A local day is needed and none was given. The four Kiddush Levana times need one.
     `Zmanim` and `MyZmanim` also need one at a location more than 150 degrees from
     Greenwich.
     """
 
     CODE = 5
 
-    def __init__(self, message: str = "A time zone is needed and none was given. The four Kiddush Levana times need one.") -> None:
+    def __init__(self, message: str = "A local day is needed and none was given. The four Kiddush Levana times need one.") -> None:
         super().__init__(5, message)
 
 
-class TimeZoneCallbackFailed(ZmanimError):
-    """The time zone callback failed, or gave an offset of a day or more."""
+class InvalidLocalDay(ZmanimError):
+    """The local day is impossible.
+
+    It ends before it starts or more than 48 hours after, or an offset is a day or more.
+    """
 
     CODE = 6
 
-    def __init__(self, message: str = "The time zone callback failed, or gave an offset of a day or more.") -> None:
+    def __init__(self, message: str = "The local day is impossible.") -> None:
         super().__init__(6, message)
 
 
@@ -3156,7 +3057,7 @@ ZmanimError.InvalidLongitude = InvalidLongitude
 ZmanimError.InvalidElevation = InvalidElevation
 ZmanimError.InvalidGregorianDate = InvalidGregorianDate
 ZmanimError.TimeZoneRequired = TimeZoneRequired
-ZmanimError.TimeZoneCallbackFailed = TimeZoneCallbackFailed
+ZmanimError.InvalidLocalDay = InvalidLocalDay
 ZmanimError.InvalidMinutes = InvalidMinutes
 ZmanimError.InvalidDegrees = InvalidDegrees
 ZmanimError.AllDay = AllDay
@@ -3180,7 +3081,7 @@ def _zmanim_error_from(code: int, message: str, payload: bytes = b"") -> Error:
     if code == 5:
         return TimeZoneRequired(message)
     if code == 6:
-        return TimeZoneCallbackFailed(message)
+        return InvalidLocalDay(message)
     if code == 7:
         return InvalidMinutes(message)
     if code == 8:
@@ -3656,11 +3557,9 @@ class ZmanFailure(IntEnum):
     AllNight = 1
     # The time does not apply on this date.
     NotApplicable = 2
-    # The time needs a time zone and none was given. Only the four Kiddush Levana times need
+    # The time needs a local day and none was given. Only the four Kiddush Levana times need
     # one.
     TimeZoneRequired = 3
-    # The time zone callback failed.
-    TimeZoneCallbackFailed = 4
     # An internal calculation error.
     Unexpected = 5
 
@@ -3670,7 +3569,7 @@ class Location:
     """A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
     leave them 0 for sea level.
 
-    The time zone is not part of the location. You pass a `TimeZoneOffset` to `Zmanim` and
+    The time zone is not part of the location. You pass a `LocalDay` to `Zmanim` and
     `MyZmanim` when you create them.
     """
 
@@ -3701,6 +3600,50 @@ def _read_Location(_r: _Reader) -> Location:
         elevation=_r.read_f64(),
         eastern_horizon_elevation=_r.read_f64(),
         western_horizon_elevation=_r.read_f64(),
+    )
+
+
+@dataclass
+class LocalDay:
+    """The date in the caller's time zone: when local midnight starts it, when local midnight
+    starts the next date, and the offset from UTC at each. Compute it with your platform's
+    time zone support, for example `date.atStartOfDay(zone)` and
+    `date.plusDays(1).atStartOfDay(zone)` in Java.
+
+    When the clocks skip midnight, the day starts at the first instant the clocks show that
+    day, such as 01:00. A day the clocks skip entirely starts and ends at the same instant.
+
+    The local day is optional. With one every time works. You can also leave it out. These do
+    not work without one:
+
+    - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
+    - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
+      Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
+    """
+
+    # When local midnight starts the date, in Unix milliseconds.
+    start_ms: int
+    # The offset from UTC at `start_ms`, in seconds east.
+    start_offset_seconds: int
+    # When local midnight starts the next date, in Unix milliseconds.
+    end_ms: int
+    # The offset from UTC at `end_ms`, in seconds east.
+    end_offset_seconds: int
+
+
+def _write_LocalDay(_w: _Writer, value: LocalDay) -> None:
+    _w.write_i64(value.start_ms)
+    _w.write_i32(value.start_offset_seconds)
+    _w.write_i64(value.end_ms)
+    _w.write_i32(value.end_offset_seconds)
+
+
+def _read_LocalDay(_r: _Reader) -> LocalDay:
+    return LocalDay(
+        start_ms=_r.read_i64(),
+        start_offset_seconds=_r.read_i32(),
+        end_ms=_r.read_i64(),
+        end_offset_seconds=_r.read_i32(),
     )
 
 
@@ -3776,97 +3719,7 @@ def _read_ZmanTime(_r: _Reader) -> ZmanTime:
     )
 
 
-class TimeZoneOffset(abc.ABC):
-    """The time zone. You supply it as a callback with two methods. One gives the offset from UTC
-    at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
-    `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
-
-    The time zone is optional. With a time zone every time works. You can also leave it out.
-    These do not work without a time zone:
-
-    - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
-    - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
-      Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
-
-    The callback is called synchronously, once for each sunrise, sunset or other event that a
-    time is built from.
-
-    Subclass it and implement every method to pass an instance where the
-    API takes a `TimeZoneOffset`. The producer may call the methods from any
-    thread until it releases the instance. An exception a method raises
-    reaches the producer as Error.FOREIGN_ERROR_CODE (-4).
-    """
-
-    @abc.abstractmethod
-    def offset_seconds(self, unix_seconds: int) -> int:
-        """The offset from UTC, in seconds east, in effect at `unix_seconds`.
-
-        # Errors
-
-        Fail when the offset is unknown. The calculation then reports
-        `ZmanimError::TimeZoneCallbackFailed`.
-        """
-
-    @abc.abstractmethod
-    def local_to_unix_seconds(self, year: int, month: int, day: int, hour: int, minute: int, second: int) -> int:
-        """The Unix time, in seconds, at which the clocks in this time zone show the local date
-        and time given.
-
-        Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
-        return the instant one gap length later. When the clocks show the time twice, return
-        the earlier instant. JavaScript's `Temporal` calls this the `compatible`
-        disambiguation, and it is Temporal's default.
-
-        # Errors
-
-        Fail when the instant is unknown. The calculation then reports
-        `ZmanimError::TimeZoneCallbackFailed`.
-        """
-
-
-_TimeZoneOffset_offset_seconds_t = ctypes.CFUNCTYPE(ctypes.c_int32, ctypes.c_void_p, ctypes.c_int64, ctypes.POINTER(_ErrorStruct))
-_TimeZoneOffset_local_to_unix_seconds_t = ctypes.CFUNCTYPE(ctypes.c_int64, ctypes.c_void_p, ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, ctypes.POINTER(_ErrorStruct))
-
-
-class _TimeZoneOffsetVtable(ctypes.Structure):
-    """The C vtable `kosherz_times_TimeZoneOffset_vtable`."""
-
-    _fields_ = [
-        ("size", ctypes.c_uint32),
-        ("flags", ctypes.c_uint32),
-        ("free", _CallbackFree),
-        ("offset_seconds", _TimeZoneOffset_offset_seconds_t),
-        ("local_to_unix_seconds", _TimeZoneOffset_local_to_unix_seconds_t),
-    ]
-
-
-def _TimeZoneOffset_offset_seconds(ctx: Optional[int], unix_seconds: int, out_err: Any) -> int:
-    try:
-        return int(_callback_get(ctx).offset_seconds(unix_seconds))
-    except BaseException as exc:
-        _callback_fail(out_err, exc)
-        return 0
-
-
-def _TimeZoneOffset_local_to_unix_seconds(ctx: Optional[int], year: int, month: int, day: int, hour: int, minute: int, second: int, out_err: Any) -> int:
-    try:
-        return int(_callback_get(ctx).local_to_unix_seconds(year, month, day, hour, minute, second))
-    except BaseException as exc:
-        _callback_fail(out_err, exc)
-        return 0
-
-
-_TimeZoneOffset_vtable = _TimeZoneOffsetVtable(
-    ctypes.sizeof(_TimeZoneOffsetVtable),
-    0,
-    _callback_free_fn,
-    _TimeZoneOffset_offset_seconds_t(_TimeZoneOffset_offset_seconds),
-    _TimeZoneOffset_local_to_unix_seconds_t(_TimeZoneOffset_local_to_unix_seconds),
-)
-_TimeZoneOffset_vtable_ptr = ctypes.addressof(_TimeZoneOffset_vtable)
-
-
-_c_times_Zmanim_new = _bind("kosherz_times_Zmanim_new", ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t, ctypes.c_void_p, ctypes.c_void_p, ctypes.POINTER(_ErrorStruct))
+_c_times_Zmanim_new = _bind("kosherz_times_Zmanim_new", ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(_ErrorStruct))
 _c_times_Zmanim_get = _bind("kosherz_times_Zmanim_get", ctypes.c_int64, ctypes.c_void_p, ctypes.c_int32, ctypes.POINTER(_ErrorStruct))
 _c_times_Zmanim_all = _bind("kosherz_times_Zmanim_all", ctypes.c_void_p, ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(_ErrorStruct))
 _c_times_Zmanim_sunrise_offset_by_degrees = _bind("kosherz_times_Zmanim_sunrise_offset_by_degrees", ctypes.c_int64, ctypes.c_void_p, ctypes.c_double, ctypes.POINTER(_ErrorStruct))
@@ -3884,21 +3737,22 @@ class Zmanim(_Object):
     _destroy = staticmethod(_c_times_Zmanim_destroy)
     _clone = staticmethod(_c_times_Zmanim_clone)
 
-    def __init__(self, location: Location, date: GregorianDate, config: Config, time_zone: Optional[TimeZoneOffset]) -> None:
-        """The *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
+    def __init__(self, location: Location, date: GregorianDate, config: Config, local_day: Optional[LocalDay]) -> None:
+        """The *zmanim* at `location` on `date`, whose local day is `local_day`, calculated with
+        `config`.
 
-        The time zone is optional. With a time zone every time works. Without one the four
-        Kiddush Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150
-        degrees from Greenwich needs a time zone. Without one this returns
-        `ZmanimError::TimeZoneRequired`.
+        The local day is optional. With one every time works. Without one the four Kiddush
+        Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150 degrees
+        from Greenwich needs one. Without one this returns `ZmanimError::TimeZoneRequired`.
 
         # Errors
 
         - `ZmanimError::InvalidGregorianDate` when the date does not exist.
         - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
           Ateret Torah offset is more than a day.
+        - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
         - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
-          there is no time zone and the location is more than 150 degrees from Greenwich.
+          there is no local day and the location is more than 150 degrees from Greenwich.
 
         Raises
         ------
@@ -3911,12 +3765,14 @@ class Zmanim(_Object):
         _write_GregorianDate(_date_w, date)
         _config_w = _Writer()
         _write_Config(_config_w, config)
+        _local_day_w = _Writer()
+        _write_opt_LocalDay(_local_day_w, local_day)
         _err = _ErrorStruct()
         _location_b = _location_w.finish()
         _date_b = _date_w.finish()
         _config_b = _config_w.finish()
-        _time_zone_ctx = _callback_register_opt(time_zone, TimeZoneOffset)
-        _ret = _c_times_Zmanim_new(_location_b, len(_location_b), _date_b, len(_date_b), _config_b, len(_config_b), _time_zone_ctx, _TimeZoneOffset_vtable_ptr if time_zone is not None else None, ctypes.byref(_err))
+        _local_day_b = _local_day_w.finish()
+        _ret = _c_times_Zmanim_new(_location_b, len(_location_b), _date_b, len(_date_b), _config_b, len(_config_b), _local_day_b, len(_local_day_b), ctypes.byref(_err))
         if _err.code:
             raise _zmanim_error_from(*_read_error(_err))
         self._init_handle(_required(_ret))
@@ -3929,7 +3785,7 @@ class Zmanim(_Object):
         `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
         the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
         on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
-        a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+        a local day.
 
         Raises
         ------
@@ -4321,7 +4177,7 @@ def _read_MyZmanTime(_r: _Reader) -> MyZmanTime:
     )
 
 
-_c_times_myzmanim_MyZmanim_new = _bind("kosherz_times_myzmanim_MyZmanim_new", ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t, ctypes.c_double, ctypes.c_void_p, ctypes.c_void_p, ctypes.POINTER(_ErrorStruct))
+_c_times_myzmanim_MyZmanim_new = _bind("kosherz_times_myzmanim_MyZmanim_new", ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t, ctypes.c_double, ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(_ErrorStruct))
 _c_times_myzmanim_MyZmanim_get = _bind("kosherz_times_myzmanim_MyZmanim_get", ctypes.c_int64, ctypes.c_void_p, ctypes.c_int32, ctypes.POINTER(_ErrorStruct))
 _c_times_myzmanim_MyZmanim_all = _bind("kosherz_times_myzmanim_MyZmanim_all", ctypes.c_void_p, ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(_ErrorStruct))
 _c_times_myzmanim_MyZmanim_proportional_hour_gra = _bind("kosherz_times_myzmanim_MyZmanim_proportional_hour_gra", ctypes.c_int64, ctypes.c_void_p, ctypes.POINTER(_ErrorStruct))
@@ -4340,12 +4196,12 @@ class MyZmanim(_Object):
     _destroy = staticmethod(_c_times_myzmanim_MyZmanim_destroy)
     _clone = staticmethod(_c_times_myzmanim_MyZmanim_clone)
 
-    def __init__(self, location: Location, date: GregorianDate, candle_lighting_minutes: float, time_zone: Optional[TimeZoneOffset]) -> None:
-        """The *zmanim* at `location` on `date` in `time_zone`. Candles are lit
+    def __init__(self, location: Location, date: GregorianDate, candle_lighting_minutes: float, local_day: Optional[LocalDay]) -> None:
+        """The *zmanim* at `location` on `date`, whose local day is `local_day`. Candles are lit
         `candle_lighting_minutes` before sunset. The website uses 18 minutes by default.
 
-        The time zone is optional. With a time zone every time works. A location more than
-        150 degrees from Greenwich needs a time zone. Without one this returns
+        The local day is optional. With one every time works. A location more than 150
+        degrees from Greenwich needs one. Without one this returns
         `ZmanimError::TimeZoneRequired`.
 
         # Errors
@@ -4353,8 +4209,9 @@ class MyZmanim(_Object):
         - `ZmanimError::InvalidGregorianDate` when the date does not exist.
         - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
           0 to 1440.
+        - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
         - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
-          when there is no time zone and the location is more than 150 degrees from
+          when there is no local day and the location is more than 150 degrees from
           Greenwich.
 
         Raises
@@ -4366,11 +4223,13 @@ class MyZmanim(_Object):
         _write_Location(_location_w, location)
         _date_w = _Writer()
         _write_GregorianDate(_date_w, date)
+        _local_day_w = _Writer()
+        _write_opt_LocalDay(_local_day_w, local_day)
         _err = _ErrorStruct()
         _location_b = _location_w.finish()
         _date_b = _date_w.finish()
-        _time_zone_ctx = _callback_register_opt(time_zone, TimeZoneOffset)
-        _ret = _c_times_myzmanim_MyZmanim_new(_location_b, len(_location_b), _date_b, len(_date_b), candle_lighting_minutes, _time_zone_ctx, _TimeZoneOffset_vtable_ptr if time_zone is not None else None, ctypes.byref(_err))
+        _local_day_b = _local_day_w.finish()
+        _ret = _c_times_myzmanim_MyZmanim_new(_location_b, len(_location_b), _date_b, len(_date_b), candle_lighting_minutes, _local_day_b, len(_local_day_b), ctypes.byref(_err))
         if _err.code:
             raise _zmanim_error_from(*_read_error(_err))
         self._init_handle(_required(_ret))
@@ -4381,7 +4240,7 @@ class MyZmanim(_Object):
         # Errors
 
         `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
-        time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+        time.
 
         Raises
         ------
@@ -4691,6 +4550,16 @@ def _read_list_Zman(_r: _Reader) -> List[Zman]:
     return [_r.read_enum(Zman) for _ in range(_r.read_count())]
 
 
+def _write_opt_LocalDay(_w: _Writer, value: Optional[LocalDay]) -> None:
+    _w.write_flag(value is not None)
+    if value is not None:
+        _write_LocalDay(_w, value)
+
+
+def _read_opt_LocalDay(_r: _Reader) -> Optional[LocalDay]:
+    return _read_LocalDay(_r) if _r.read_flag() else None
+
+
 def _write_list_ZmanTime(_w: _Writer, value: List[ZmanTime]) -> None:
     _w.write_count(len(value))
     for item in value:
@@ -4821,7 +4690,7 @@ __all__ = [
     "InvalidElevation",
     "InvalidGregorianDate",
     "TimeZoneRequired",
-    "TimeZoneCallbackFailed",
+    "InvalidLocalDay",
     "InvalidMinutes",
     "InvalidDegrees",
     "AllDay",
@@ -4833,9 +4702,9 @@ __all__ = [
     "Calculator",
     "ZmanFailure",
     "Location",
+    "LocalDay",
     "Config",
     "ZmanTime",
-    "TimeZoneOffset",
     "Zmanim",
     "sea_level_location",
     "validate_location",

@@ -1,14 +1,13 @@
-// Calls the generated C++ bindings: sunrise in Lakewood through a time zone callback, Kiddush
-// Levana, which needs the right offset, a failing callback, the daf yomi, and the typed error for an
-// invalid latitude. Build after `cargo build -p kosherz`,
+// Calls the generated C++ bindings: sunrise in Lakewood on a local day, Kiddush Levana, which
+// needs the right offset, an impossible local day, the daf yomi, and the typed error for an invalid
+// latitude. Build after `cargo build -p kosherz`,
 // from the repository root:
 //
 //     c++ -std=c++17 -Wall -I kosherz/generated/cpp kosherz/tests/cpp/smoke.cpp \
 //         -L target/debug -lkosherz -Wl,-rpath,"$PWD/target/debug" -o target/smoke-cpp
 //     ./target/smoke-cpp
 #include <cstdio>
-#include <memory>
-#include <stdexcept>
+#include <optional>
 #include <string>
 
 #include "kosherz.hpp"
@@ -34,64 +33,47 @@ static int64_t days_from_civil(int64_t year, int64_t month, int64_t day) {
     return era * 146097 + day_of_era - 719468;
 }
 
-// UTC plus `hours`, every day of the year.
-class Fixed : public kosherz::TimeZoneOffset {
-public:
-    explicit Fixed(int hours) : hours_(hours) {}
-    int32_t offset_seconds(int64_t) override { return hours_ * 3600; }
-    int64_t local_to_unix_seconds(int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute,
-                                  int32_t second) override {
-        return days_from_civil(year, month, day) * 86400 + hour * 3600 + minute * 60 + second - hours_ * 3600;
-    }
-
-private:
-    int hours_;
-};
-
-// A time zone whose callbacks fail.
-class Broken : public kosherz::TimeZoneOffset {
-public:
-    int32_t offset_seconds(int64_t) override { throw std::runtime_error("no time zone data"); }
-    int64_t local_to_unix_seconds(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t) override {
-        throw std::runtime_error("no time zone data");
-    }
-};
+// `date` at UTC plus `hours` all year: its two local midnights and the offsets at them.
+kosherz::LocalDay fixed_day(int hours, const kosherz::GregorianDate& date) {
+    int64_t start = (days_from_civil(date.year, date.month, date.day) * 86400 - hours * 3600) * 1000;
+    return kosherz::LocalDay{start, hours * 3600, start + 86400 * 1000, hours * 3600};
+}
 
 const kosherz::GregorianDate april_23{2024, 4, 23};
 const kosherz::GregorianDate december_3{2024, 12, 3};
 
 kosherz::Zmanim new_zmanim(double latitude, double longitude) {
     return kosherz::Zmanim(kosherz::times::sea_level_location(latitude, longitude), april_23,
-                           kosherz::times::default_config(), std::make_shared<Fixed>(-4));
+                           kosherz::times::default_config(), fixed_day(-4, april_23));
 }
 
-kosherz::Zmanim lakewood_on(const kosherz::GregorianDate& date, std::shared_ptr<kosherz::TimeZoneOffset> zone) {
+kosherz::Zmanim lakewood_on(const kosherz::GregorianDate& date, const std::optional<kosherz::LocalDay>& local_day) {
     return kosherz::Zmanim(kosherz::times::sea_level_location(40.09, -74.22), date, kosherz::times::default_config(),
-                           std::move(zone));
+                           local_day);
 }
 
 // Kiddush Levana is the one time whose day depends on the offset: with UTC-4 it falls on
 // 3 December 2024, and with UTC+4 it does not.
 void check_kiddush_levana() {
-    int64_t ms = lakewood_on(december_3, std::make_shared<Fixed>(-4)).get(kosherz::Zman::TchilasZmanKidushLevana3Days);
+    int64_t ms = lakewood_on(december_3, fixed_day(-4, december_3)).get(kosherz::Zman::TchilasZmanKidushLevana3Days);
     check(ms == 1733279333504LL, "UTC-4: kiddush levana is " + std::to_string(ms) + ", want 1733279333504");
     try {
-        lakewood_on(december_3, std::make_shared<Fixed>(4)).get(kosherz::Zman::TchilasZmanKidushLevana3Days);
+        lakewood_on(december_3, fixed_day(4, december_3)).get(kosherz::Zman::TchilasZmanKidushLevana3Days);
         check(false, "UTC+4 gave a kiddush levana time");
     } catch (const kosherz::NotApplicableError&) {
     }
     try {
-        lakewood_on(december_3, nullptr).get(kosherz::Zman::TchilasZmanKidushLevana3Days);
-        check(false, "no time zone gave a kiddush levana time");
+        lakewood_on(december_3, std::nullopt).get(kosherz::Zman::TchilasZmanKidushLevana3Days);
+        check(false, "no local day gave a kiddush levana time");
     } catch (const kosherz::TimeZoneRequiredError&) {
     }
 }
 
-void check_failing_callback() {
+void check_impossible_local_day() {
     try {
-        lakewood_on(april_23, std::make_shared<Broken>()).get(kosherz::Zman::Sunrise);
-        check(false, "a throwing callback gave a sunrise");
-    } catch (const kosherz::TimeZoneCallbackFailedError&) {
+        lakewood_on(april_23, kosherz::LocalDay{1, 0, 0, 0});
+        check(false, "Zmanim accepted a local day that ends before it starts");
+    } catch (const kosherz::InvalidLocalDayError&) {
     }
 }
 
@@ -121,7 +103,7 @@ int main() {
     try {
         check_sunrise();
         check_kiddush_levana();
-        check_failing_callback();
+        check_impossible_local_day();
         check_daf_yomi();
         check_invalid_latitude();
     } catch (const std::exception& e) {

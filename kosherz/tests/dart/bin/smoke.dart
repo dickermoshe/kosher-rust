@@ -7,31 +7,16 @@ import 'dart:io';
 
 import 'package:kosherz/kosherz.dart';
 
-/// UTC plus [hours], every day of the year.
-class Fixed implements TimeZoneOffset {
-  Fixed(this.hours);
-
-  final int hours;
-
-  @override
-  int offsetSeconds(int unixSeconds) => hours * 3600;
-
-  @override
-  int localToUnixSeconds(int year, int month, int day, int hour, int minute, int second) =>
-      DateTime.utc(year, month, day, hour, minute, second).millisecondsSinceEpoch ~/ 1000 - hours * 3600;
-}
-
-/// Eastern daylight time, every day of the year.
-final edt = Fixed(-4);
-
-/// A time zone whose callbacks fail.
-class Broken implements TimeZoneOffset {
-  @override
-  int offsetSeconds(int unixSeconds) => throw StateError('no time zone data');
-
-  @override
-  int localToUnixSeconds(int year, int month, int day, int hour, int minute, int second) =>
-      throw StateError('no time zone data');
+/// [date] at UTC plus [hours] all year: its two local midnights and the offsets at them. Dart has
+/// no time zone database of its own, so the tests use fixed offsets.
+LocalDay fixedDay(int hours, GregorianDate date) {
+  final start = DateTime.utc(date.year, date.month, date.day).millisecondsSinceEpoch - hours * 3600 * 1000;
+  return LocalDay(
+    startMs: start,
+    startOffsetSeconds: hours * 3600,
+    endMs: start + 24 * 3600 * 1000,
+    endOffsetSeconds: hours * 3600,
+  );
 }
 
 var failures = 0;
@@ -49,9 +34,10 @@ void check(String name, void Function() body) {
 
 void main() {
   final date = GregorianDate(year: 2024, month: 4, day: 23);
+  final lakewood = seaLevelLocation(40.09, -74.22);
 
   check('sunrise in Lakewood on 2024-04-23 is 06:06:35 EDT', () {
-    final day = Zmanim(seaLevelLocation(40.09, -74.22), date, defaultConfig(), edt);
+    final day = Zmanim(lakewood, date, defaultConfig(), fixedDay(-4, date));
     try {
       final seconds = day.get(Zman.sunrise) ~/ 1000;
       if (seconds != 1713866795) throw 'got $seconds, expected 1713866795';
@@ -72,7 +58,7 @@ void main() {
 
   check('latitude 91 throws InvalidLatitudeException', () {
     try {
-      Zmanim(seaLevelLocation(91, 0), date, defaultConfig(), edt).dispose();
+      Zmanim(seaLevelLocation(91, 0), date, defaultConfig(), fixedDay(-4, date)).dispose();
     } on InvalidLatitudeException {
       return;
     }
@@ -83,8 +69,8 @@ void main() {
   // 3 December 2024, and with UTC+4 it does not.
   final december = GregorianDate(year: 2024, month: 12, day: 3);
   check('kiddush levana in Lakewood on 2024-12-03 needs the right offset', () {
-    final day = Zmanim(seaLevelLocation(40.09, -74.22), december, defaultConfig(), edt);
-    final wrongSign = Zmanim(seaLevelLocation(40.09, -74.22), december, defaultConfig(), Fixed(4));
+    final day = Zmanim(lakewood, december, defaultConfig(), fixedDay(-4, december));
+    final wrongSign = Zmanim(lakewood, december, defaultConfig(), fixedDay(4, december));
     try {
       final ms = day.get(Zman.tchilasZmanKidushLevana3Days);
       if (ms != 1733279333504) throw 'got $ms, expected 1733279333504';
@@ -100,8 +86,8 @@ void main() {
     }
   });
 
-  check('kiddush levana without a time zone throws TimeZoneRequiredException', () {
-    final day = Zmanim(seaLevelLocation(40.09, -74.22), december, defaultConfig(), null);
+  check('kiddush levana without a local day throws TimeZoneRequiredException', () {
+    final day = Zmanim(lakewood, december, defaultConfig(), null);
     try {
       day.get(Zman.tchilasZmanKidushLevana3Days);
     } on TimeZoneRequiredException {
@@ -112,14 +98,12 @@ void main() {
     throw 'no exception';
   });
 
-  check('a throwing time zone callback throws TimeZoneCallbackFailedException', () {
-    final day = Zmanim(seaLevelLocation(40.09, -74.22), date, defaultConfig(), Broken());
+  check('a local day that ends before it starts throws InvalidLocalDayException', () {
+    final backwards = LocalDay(startMs: 1, startOffsetSeconds: 0, endMs: 0, endOffsetSeconds: 0);
     try {
-      day.get(Zman.sunrise);
-    } on TimeZoneCallbackFailedException {
+      Zmanim(lakewood, date, defaultConfig(), backwards).dispose();
+    } on InvalidLocalDayException {
       return;
-    } finally {
-      day.dispose();
     }
     throw 'no exception';
   });

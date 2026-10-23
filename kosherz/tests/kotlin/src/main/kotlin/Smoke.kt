@@ -4,34 +4,39 @@
 //     cmake -S ../../generated/kotlin/src/main/cpp -B build/jni -DKOSHERZ_LIBRARY_DIR=$PWD/../../../target/debug
 //     cmake --build build/jni
 //     gradle run -PlibraryPath=$PWD/../../../target/debug:$PWD/build/jni
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZoneOffset
 import kosherz.Calendar
 import kosherz.GregorianDate
 import kosherz.HebrewDate
-import kosherz.TimeZoneOffset
+import kosherz.LocalDay
 import kosherz.Times
 import kosherz.Zman
 import kosherz.Zmanim
 import kosherz.ZmanimException
 import kotlin.system.exitProcess
 
-/** UTC plus [hours], at every instant. */
-class FixedOffset(private val hours: Int) : TimeZoneOffset {
-    override fun offsetSeconds(unixSeconds: Long): Int = hours * 3600
-
-    override fun localToUnixSeconds(year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int): Long =
-        java.time.LocalDateTime.of(year, month, day, hour, minute, second)
-            .toEpochSecond(java.time.ZoneOffset.ofHours(hours))
+/** [date] in [zone]: its two local midnights and the offsets at them. */
+fun localDay(zone: ZoneId, date: GregorianDate): LocalDay {
+    val day = LocalDate.of(date.year, date.month, date.day)
+    val start = day.atStartOfDay(zone)
+    val end = day.plusDays(1).atStartOfDay(zone)
+    return LocalDay(
+        start.toInstant().toEpochMilli(),
+        start.offset.totalSeconds,
+        end.toInstant().toEpochMilli(),
+        end.offset.totalSeconds,
+    )
 }
 
-/** Eastern Daylight Time, UTC-4, at every instant. */
-val edt = FixedOffset(-4)
+/** [date] at UTC plus [hours] all year. */
+fun fixedDay(hours: Int, date: GregorianDate): LocalDay = localDay(ZoneOffset.ofHours(hours), date)
 
-/** A time zone whose callbacks fail. */
-object BrokenOffset : TimeZoneOffset {
-    override fun offsetSeconds(unixSeconds: Long): Int = throw IllegalStateException("no time zone data")
-
-    override fun localToUnixSeconds(year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int): Long =
-        throw IllegalStateException("no time zone data")
+fun verify(condition: Boolean, message: String) {
+    if (condition) return
+    System.err.println("FAIL: $message")
+    exitProcess(1)
 }
 
 /** Fails unless [block] throws a [T]. */
@@ -45,17 +50,11 @@ inline fun <reified T : Throwable> verifyThrows(name: String, block: () -> Unit)
     verify(false, "$name did not throw ${T::class.simpleName}")
 }
 
-fun verify(condition: Boolean, message: String) {
-    if (condition) return
-    System.err.println("FAIL: $message")
-    exitProcess(1)
-}
-
 fun main() {
     val lakewood = Times.seaLevelLocation(40.09, -74.22)
     val date = GregorianDate(2024, 4, 23)
 
-    Zmanim(lakewood, date, Times.defaultConfig(), edt).use { day ->
+    Zmanim(lakewood, date, Times.defaultConfig(), localDay(ZoneId.of("America/New_York"), date)).use { day ->
         val seconds = Math.floorDiv(day.get(Zman.Sunrise), 1000L)
         verify(seconds == 1713866795L, "sunrise is $seconds, expected 1713866795 (06:06:35 EDT)")
     }
@@ -65,27 +64,25 @@ fun main() {
         verify(daf?.display == "Bava Metzia 55", "daf yomi is ${daf?.display}, expected Bava Metzia 55")
     }
 
-    try {
-        Zmanim(Times.seaLevelLocation(91.0, 0.0), date, Times.defaultConfig(), edt).close()
-        verify(false, "latitude 91 did not throw")
-    } catch (expected: ZmanimException.InvalidLatitude) {
+    verifyThrows<ZmanimException.InvalidLatitude>("latitude 91") {
+        Zmanim(Times.seaLevelLocation(91.0, 0.0), date, Times.defaultConfig(), fixedDay(-4, date)).close()
     }
 
     // Kiddush Levana is the one time whose day depends on the offset: with UTC-4 it falls on
     // 3 December 2024, and with UTC+4 it does not.
     val december = GregorianDate(2024, 12, 3)
-    Zmanim(lakewood, december, Times.defaultConfig(), edt).use { day ->
+    Zmanim(lakewood, december, Times.defaultConfig(), fixedDay(-4, december)).use { day ->
         val ms = day.get(Zman.TchilasZmanKidushLevana3Days)
         verify(ms == 1733279333504L, "UTC-4: kiddush levana is $ms, expected 1733279333504")
     }
     verifyThrows<ZmanimException.NotApplicable>("UTC+4") {
-        Zmanim(lakewood, december, Times.defaultConfig(), FixedOffset(4)).use { it.get(Zman.TchilasZmanKidushLevana3Days) }
+        Zmanim(lakewood, december, Times.defaultConfig(), fixedDay(4, december)).use { it.get(Zman.TchilasZmanKidushLevana3Days) }
     }
-    verifyThrows<ZmanimException.TimeZoneRequired>("no time zone") {
+    verifyThrows<ZmanimException.TimeZoneRequired>("no local day") {
         Zmanim(lakewood, december, Times.defaultConfig(), null).use { it.get(Zman.TchilasZmanKidushLevana3Days) }
     }
-    verifyThrows<ZmanimException.TimeZoneCallbackFailed>("a throwing callback") {
-        Zmanim(lakewood, date, Times.defaultConfig(), BrokenOffset).use { it.get(Zman.Sunrise) }
+    verifyThrows<ZmanimException.InvalidLocalDay>("a local day that ends before it starts") {
+        Zmanim(lakewood, date, Times.defaultConfig(), LocalDay(1, 0, 0, 0)).close()
     }
 
     println("ok")

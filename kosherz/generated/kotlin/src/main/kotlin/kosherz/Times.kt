@@ -15,13 +15,17 @@ sealed class ZmanimException(code: Int, message: String) : FfiException(code, me
     /** The Gregorian date does not exist, or is outside the supported range. */
     class InvalidGregorianDate(message: String = "The Gregorian date does not exist, or is outside the supported range.") : ZmanimException(4, message)
     /**
-     * A time zone is needed and none was given. The four Kiddush Levana times need one.
+     * A local day is needed and none was given. The four Kiddush Levana times need one.
      * `Zmanim` and `MyZmanim` also need one at a location more than 150 degrees from
      * Greenwich.
      */
-    class TimeZoneRequired(message: String = "A time zone is needed and none was given. The four Kiddush Levana times need one.") : ZmanimException(5, message)
-    /** The time zone callback failed, or gave an offset of a day or more. */
-    class TimeZoneCallbackFailed(message: String = "The time zone callback failed, or gave an offset of a day or more.") : ZmanimException(6, message)
+    class TimeZoneRequired(message: String = "A local day is needed and none was given. The four Kiddush Levana times need one.") : ZmanimException(5, message)
+    /**
+     * The local day is impossible.
+     *
+     * It ends before it starts or more than 48 hours after, or an offset is a day or more.
+     */
+    class InvalidLocalDay(message: String = "The local day is impossible.") : ZmanimException(6, message)
     /**
      * A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
      * within a day (1440 minutes) either way.
@@ -49,7 +53,7 @@ sealed class ZmanimException(code: Int, message: String) : FfiException(code, me
             3 -> InvalidElevation(message)
             4 -> InvalidGregorianDate(message)
             5 -> TimeZoneRequired(message)
-            6 -> TimeZoneCallbackFailed(message)
+            6 -> InvalidLocalDay(message)
             7 -> InvalidMinutes(message)
             8 -> InvalidDegrees(message)
             10 -> AllDay(message)
@@ -593,12 +597,10 @@ enum class ZmanFailure(val value: Int) {
     /** The time does not apply on this date. */
     NotApplicable(2),
     /**
-     * The time needs a time zone and none was given. Only the four Kiddush Levana times need
+     * The time needs a local day and none was given. Only the four Kiddush Levana times need
      * one.
      */
     TimeZoneRequired(3),
-    /** The time zone callback failed. */
-    TimeZoneCallbackFailed(4),
     /** An internal calculation error. */
     Unexpected(5);
 
@@ -613,7 +615,7 @@ enum class ZmanFailure(val value: Int) {
  * A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
  * leave them 0 for sea level.
  *
- * The time zone is not part of the location. You pass a `TimeZoneOffset` to `Zmanim` and
+ * The time zone is not part of the location. You pass a `LocalDay` to `Zmanim` and
  * `MyZmanim` when you create them.
  */
 data class Location(
@@ -643,6 +645,47 @@ internal fun unpackLocation(_r: BufferReader): Location = Location(
     _r.readF64(),
     _r.readF64(),
     _r.readF64(),
+)
+
+/**
+ * The date in the caller's time zone: when local midnight starts it, when local midnight
+ * starts the next date, and the offset from UTC at each. Compute it with your platform's
+ * time zone support, for example `date.atStartOfDay(zone)` and
+ * `date.plusDays(1).atStartOfDay(zone)` in Java.
+ *
+ * When the clocks skip midnight, the day starts at the first instant the clocks show that
+ * day, such as 01:00. A day the clocks skip entirely starts and ends at the same instant.
+ *
+ * The local day is optional. With one every time works. You can also leave it out. These do
+ * not work without one:
+ *
+ * - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
+ * - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
+ *   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
+ */
+data class LocalDay(
+    /** When local midnight starts the date, in Unix milliseconds. */
+    val start_ms: Long,
+    /** The offset from UTC at `start_ms`, in seconds east. */
+    val start_offset_seconds: Int,
+    /** When local midnight starts the next date, in Unix milliseconds. */
+    val end_ms: Long,
+    /** The offset from UTC at `end_ms`, in seconds east. */
+    val end_offset_seconds: Int,
+)
+
+internal fun packLocalDay(_w: BufferWriter, _v: LocalDay) {
+    _w.writeI64(_v.start_ms)
+    _w.writeI32(_v.start_offset_seconds)
+    _w.writeI64(_v.end_ms)
+    _w.writeI32(_v.end_offset_seconds)
+}
+
+internal fun unpackLocalDay(_r: BufferReader): LocalDay = LocalDay(
+    _r.readI64(),
+    _r.readI32(),
+    _r.readI64(),
+    _r.readI32(),
 )
 
 /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
@@ -717,49 +760,6 @@ internal fun unpackZmanTime(_r: BufferReader): ZmanTime = ZmanTime(
     unpackOptionalOfZmanFailure(_r),
 )
 
-/**
- * The time zone. You supply it as a callback with two methods. One gives the offset from UTC
- * at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
- * `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
- *
- * The time zone is optional. With a time zone every time works. You can also leave it out.
- * These do not work without a time zone:
- *
- * - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
- * - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
- *   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
- *
- * The callback is called synchronously, once for each sunrise, sunset or other event that a
- * time is built from.
- */
-interface TimeZoneOffset {
-    /**
-     * The offset from UTC, in seconds east, in effect at `unix_seconds`.
-     *
-     * # Errors
-     *
-     * Fail when the offset is unknown. The calculation then reports
-     * `ZmanimError::TimeZoneCallbackFailed`.
-     */
-    fun offsetSeconds(unixSeconds: Long): Int
-
-    /**
-     * The Unix time, in seconds, at which the clocks in this time zone show the local date
-     * and time given.
-     *
-     * Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
-     * return the instant one gap length later. When the clocks show the time twice, return
-     * the earlier instant. JavaScript's `Temporal` calls this the `compatible`
-     * disambiguation, and it is Temporal's default.
-     *
-     * # Errors
-     *
-     * Fail when the instant is unknown. The calculation then reports
-     * `ZmanimError::TimeZoneCallbackFailed`.
-     */
-    fun localToUnixSeconds(year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int): Long
-}
-
 /** The *zmanim* for one place on one day. */
 class Zmanim private constructor(address: Long) : AutoCloseable {
     internal val handle: NativeHandle = NativeCleaner.register(this, NativeHandle(address, JniBridge::times_Zmanim_destroy))
@@ -775,7 +775,7 @@ class Zmanim private constructor(address: Long) : AutoCloseable {
      * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
      * the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
      * on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
-     * a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+     * a local day.
      */
     fun get(zman: Zman): Long = handle.borrow { _self ->
         JniBridge.times_Zmanim_get(_self, zman.value)
@@ -838,22 +838,23 @@ class Zmanim private constructor(address: Long) : AutoCloseable {
         internal fun fromHandleOrNull(address: Long): Zmanim? = if (address == 0L) null else Zmanim(address)
 
         /**
-         * The *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
+         * The *zmanim* at `location` on `date`, whose local day is `local_day`, calculated with
+         * `config`.
          *
-         * The time zone is optional. With a time zone every time works. Without one the four
-         * Kiddush Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150
-         * degrees from Greenwich needs a time zone. Without one this returns
-         * `ZmanimError::TimeZoneRequired`.
+         * The local day is optional. With one every time works. Without one the four Kiddush
+         * Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150 degrees
+         * from Greenwich needs one. Without one this returns `ZmanimError::TimeZoneRequired`.
          *
          * # Errors
          *
          * - `ZmanimError::InvalidGregorianDate` when the date does not exist.
          * - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
          *   Ateret Torah offset is more than a day.
+         * - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
          * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
-         *   there is no time zone and the location is more than 150 degrees from Greenwich.
+         *   there is no local day and the location is more than 150 degrees from Greenwich.
          */
-        operator fun invoke(location: Location, date: GregorianDate, config: Config, timeZone: TimeZoneOffset?): Zmanim = Zmanim.fromHandle(JniBridge.times_Zmanim_new(encodeBuffer { _w -> packLocation(_w, location) }, encodeBuffer { _w -> packGregorianDate(_w, date) }, encodeBuffer { _w -> packConfig(_w, config) }, timeZone))
+        operator fun invoke(location: Location, date: GregorianDate, config: Config, localDay: LocalDay?): Zmanim = Zmanim.fromHandle(JniBridge.times_Zmanim_new(encodeBuffer { _w -> packLocation(_w, location) }, encodeBuffer { _w -> packGregorianDate(_w, date) }, encodeBuffer { _w -> packConfig(_w, config) }, encodeBuffer { _w -> packOptionalOfLocalDay(_w, localDay) }))
     }
 }
 
@@ -985,7 +986,7 @@ class MyZmanim private constructor(address: Long) : AutoCloseable {
      * # Errors
      *
      * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
-     * time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+     * time.
      */
     fun get(zman: MyZman): Long = handle.borrow { _self ->
         JniBridge.times_myzmanim_MyZmanim_get(_self, zman.value)
@@ -1033,11 +1034,11 @@ class MyZmanim private constructor(address: Long) : AutoCloseable {
         internal fun fromHandleOrNull(address: Long): MyZmanim? = if (address == 0L) null else MyZmanim(address)
 
         /**
-         * The *zmanim* at `location` on `date` in `time_zone`. Candles are lit
+         * The *zmanim* at `location` on `date`, whose local day is `local_day`. Candles are lit
          * `candle_lighting_minutes` before sunset. The website uses 18 minutes by default.
          *
-         * The time zone is optional. With a time zone every time works. A location more than
-         * 150 degrees from Greenwich needs a time zone. Without one this returns
+         * The local day is optional. With one every time works. A location more than 150
+         * degrees from Greenwich needs one. Without one this returns
          * `ZmanimError::TimeZoneRequired`.
          *
          * # Errors
@@ -1045,11 +1046,12 @@ class MyZmanim private constructor(address: Long) : AutoCloseable {
          * - `ZmanimError::InvalidGregorianDate` when the date does not exist.
          * - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
          *   0 to 1440.
+         * - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
          * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
-         *   when there is no time zone and the location is more than 150 degrees from
+         *   when there is no local day and the location is more than 150 degrees from
          *   Greenwich.
          */
-        operator fun invoke(location: Location, date: GregorianDate, candleLightingMinutes: Double, timeZone: TimeZoneOffset?): MyZmanim = MyZmanim.fromHandle(JniBridge.times_myzmanim_MyZmanim_new(encodeBuffer { _w -> packLocation(_w, location) }, encodeBuffer { _w -> packGregorianDate(_w, date) }, candleLightingMinutes, timeZone))
+        operator fun invoke(location: Location, date: GregorianDate, candleLightingMinutes: Double, localDay: LocalDay?): MyZmanim = MyZmanim.fromHandle(JniBridge.times_myzmanim_MyZmanim_new(encodeBuffer { _w -> packLocation(_w, location) }, encodeBuffer { _w -> packGregorianDate(_w, date) }, candleLightingMinutes, encodeBuffer { _w -> packOptionalOfLocalDay(_w, localDay) }))
     }
 }
 

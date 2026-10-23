@@ -9,80 +9,78 @@ pub(crate) mod limudim;
 pub(crate) mod myzmanim;
 pub(crate) mod zmanim;
 
-use std::{cell::Cell, ops::RangeInclusive, sync::Arc};
+use std::ops::RangeInclusive;
 
-use jiff::{
-    Timestamp, civil,
-    tz::{Offset, TimeZone},
-};
+use jiff::{SignedDuration, Timestamp, civil, tz::Offset};
 use kosher_rust::TimeZoneLike;
 
 use crate::api::{
     calendar::GregorianDate,
-    times::{Location, TimeZoneOffset, ZmanimError},
+    times::{LocalDay, Location, ZmanimError},
 };
 
-thread_local! {
-    /// Whether a time zone callback failed during the calculation running on this thread.
-    static CALLBACK_FAILED: Cell<bool> = const { Cell::new(false) };
+/// A caller's [`LocalDay`] as a kosher-rust time zone. The calculations for a date only ask when
+/// its local midnight and the next one are, and the offset at each, so that is all it answers.
+/// Any other local time has no answer, which the calculation reports as an internal error.
+pub(crate) struct DayTimeZone {
+    date: civil::Date,
+    start: Timestamp,
+    start_offset: Offset,
+    end: Timestamp,
+    end_offset: Offset,
 }
 
-/// A caller's [`TimeZoneOffset`] callback as a kosher-rust time zone. A failed call is recorded
-/// for [`watching_callbacks`] to report. A failed offset answers UTC in the meantime.
-pub(crate) struct CallbackTimeZone {
-    callback: Arc<dyn TimeZoneOffset>,
-}
-
-impl CallbackTimeZone {
-    pub(crate) fn new(callback: Arc<dyn TimeZoneOffset>) -> Self {
-        Self { callback }
+impl DayTimeZone {
+    /// The time zone for `date` that `day` describes, if its values are possible: the end at or
+    /// after the start and at most two days later, and offsets under a day.
+    pub(crate) fn new(date: civil::Date, day: &LocalDay) -> Option<Self> {
+        let start = Timestamp::from_millisecond(day.start_ms).ok()?;
+        let end = Timestamp::from_millisecond(day.end_ms).ok()?;
+        let length = end.duration_since(start);
+        if length.is_negative() || length > SignedDuration::from_hours(48) {
+            return None;
+        }
+        let offset = |seconds: i32| {
+            if seconds.unsigned_abs() < 86_400 {
+                Offset::from_seconds(seconds).ok()
+            } else {
+                None
+            }
+        };
+        Some(Self {
+            date,
+            start,
+            start_offset: offset(day.start_offset_seconds)?,
+            end,
+            end_offset: offset(day.end_offset_seconds)?,
+        })
     }
 }
 
-impl TimeZoneLike for CallbackTimeZone {
+impl TimeZoneLike for DayTimeZone {
     fn offset_at(&self, timestamp: Timestamp) -> Offset {
-        let offset = self
-            .callback
-            .offset_seconds(timestamp.as_second())
-            .ok()
-            .filter(|seconds| seconds.unsigned_abs() < 86_400)
-            .and_then(|seconds| Offset::from_seconds(seconds).ok());
-        offset.unwrap_or_else(|| {
-            CALLBACK_FAILED.set(true);
-            Offset::UTC
-        })
+        if timestamp < self.end {
+            self.start_offset
+        } else {
+            self.end_offset
+        }
     }
 
     fn local_to_timestamp(&self, datetime: civil::DateTime) -> Option<Timestamp> {
-        let as_utc = datetime.to_zoned(TimeZone::UTC).ok()?.timestamp().as_second();
-        let instant = self
-            .callback
-            .local_to_unix_seconds(
-                i32::from(datetime.year()),
-                i32::from(datetime.month()),
-                i32::from(datetime.day()),
-                i32::from(datetime.hour()),
-                i32::from(datetime.minute()),
-                i32::from(datetime.second()),
-            )
-            .ok()
-            // The instant is the local time minus an offset, and offsets are under a day.
-            .filter(|seconds| seconds.abs_diff(as_utc) < 86_400)
-            .and_then(|seconds| Timestamp::from_second(seconds).ok());
-        if instant.is_none() {
-            CALLBACK_FAILED.set(true);
+        if datetime == self.date.at(0, 0, 0, 0) {
+            Some(self.start)
+        } else if datetime == self.date.tomorrow().ok()?.at(0, 0, 0, 0) {
+            Some(self.end)
+        } else {
+            None
         }
-        instant
     }
 }
 
-/// Runs `calculate`, and says whether a time zone callback failed during it. The record is per
-/// thread, and saved and restored around `calculate`, so concurrent and nested calculations each
-/// see only their own failures.
-pub(crate) fn watching_callbacks<T>(calculate: impl FnOnce() -> T) -> (T, bool) {
-    let outer = CALLBACK_FAILED.replace(false);
-    let result = calculate();
-    (result, CALLBACK_FAILED.replace(outer))
+/// The time zone for `date` that `day` describes, or none without a `day`.
+pub(crate) fn time_zone(date: civil::Date, day: Option<&LocalDay>) -> Result<Option<DayTimeZone>, ZmanimError> {
+    day.map(|day| DayTimeZone::new(date, day).ok_or(ZmanimError::InvalidLocalDay))
+        .transpose()
 }
 
 /// The kosher-rust location, if it is valid and, more than 150 degrees from Greenwich, has a time
@@ -98,11 +96,6 @@ pub(crate) fn location(location: &Location, has_time_zone: bool) -> Result<koshe
 
 pub(crate) fn validate_location(location: &Location, has_time_zone: bool) -> Result<(), ZmanimError> {
     self::location(location, has_time_zone).map(|_| ())
-}
-
-/// The caller's time zone callback, as a kosher-rust time zone.
-pub(crate) fn time_zone(time_zone: Option<Arc<dyn TimeZoneOffset>>) -> Option<CallbackTimeZone> {
-    time_zone.map(CallbackTimeZone::new)
 }
 
 impl From<&kosher_rust::Location> for Location {

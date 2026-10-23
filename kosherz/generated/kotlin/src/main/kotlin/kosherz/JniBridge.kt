@@ -29,23 +29,6 @@ internal object JniBridge {
         }
     }
 
-    /**
-     * Reports a failed callback through its vtable entry's `out_err` ([err]):
-     * [typed], a domain error the method is declared to throw, with its code and
-     * payload fields, and anything else as code -4 with its message.
-     */
-    private fun fail(err: Long, error: Throwable, typed: FfiException?) {
-        if (typed != null) {
-            error_set(err, typed.code, encodeUtf8(typed.message ?: ""))
-            typed.encodePayload()?.let { error_set_payload(err, it) }
-        } else {
-            error_set(err, -4, encodeUtf8(error.message ?: error.toString()))
-        }
-    }
-
-    @JvmStatic external fun error_set(err: Long, code: Int, message: ByteArray)
-    @JvmStatic external fun error_set_payload(err: Long, payload: ByteArray)
-
     @JvmStatic external fun debug_live(kind: Int): Long
     @JvmStatic external fun calendar_HebrewDate_clone(_self: Long): Long
     @JvmStatic external fun calendar_HebrewDate_destroy(_self: Long)
@@ -105,7 +88,7 @@ internal object JniBridge {
     @JvmStatic external fun times_zman_description(zman: Int, config: ByteArray): ByteArray
     @JvmStatic external fun times_calculator_name(calculator: Int): ByteArray
     @JvmStatic external fun times_shaah_zmanis(start: Long, end: Long): Long
-    @JvmStatic external fun times_Zmanim_new(location: ByteArray, date: ByteArray, config: ByteArray, timeZone: TimeZoneOffset?): Long
+    @JvmStatic external fun times_Zmanim_new(location: ByteArray, date: ByteArray, config: ByteArray, localDay: ByteArray): Long
     @JvmStatic external fun times_Zmanim_get(_self: Long, zman: Int): Long
     @JvmStatic external fun times_Zmanim_all(_self: Long): ByteArray
     @JvmStatic external fun times_Zmanim_sunrise_offset_by_degrees(_self: Long, degrees: Double): Long
@@ -122,29 +105,13 @@ internal object JniBridge {
     @JvmStatic external fun times_myzmanim_sea_level_refraction_arcminutes(): Double
     @JvmStatic external fun times_myzmanim_dip_degrees_per_root_meter(): Double
     @JvmStatic external fun times_myzmanim_default_candle_lighting_minutes(): Double
-    @JvmStatic external fun times_myzmanim_MyZmanim_new(location: ByteArray, date: ByteArray, candleLightingMinutes: Double, timeZone: TimeZoneOffset?): Long
+    @JvmStatic external fun times_myzmanim_MyZmanim_new(location: ByteArray, date: ByteArray, candleLightingMinutes: Double, localDay: ByteArray): Long
     @JvmStatic external fun times_myzmanim_MyZmanim_get(_self: Long, zman: Int): Long
     @JvmStatic external fun times_myzmanim_MyZmanim_all(_self: Long): ByteArray
     @JvmStatic external fun times_myzmanim_MyZmanim_proportional_hour_gra(_self: Long): Long
     @JvmStatic external fun times_myzmanim_MyZmanim_location(_self: Long): ByteArray
     @JvmStatic external fun times_myzmanim_MyZmanim_date(_self: Long): ByteArray
     @JvmStatic external fun times_myzmanim_MyZmanim_candle_lighting_minutes(_self: Long): Double
-
-    @JvmStatic
-    fun times_TimeZoneOffset_offset_seconds(_impl: TimeZoneOffset, _err: Long, unixSeconds: Long): Int = try {
-        _impl.offsetSeconds(unixSeconds)
-    } catch (_e: Throwable) {
-        fail(_err, _e, null)
-        0
-    }
-
-    @JvmStatic
-    fun times_TimeZoneOffset_local_to_unix_seconds(_impl: TimeZoneOffset, _err: Long, year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int): Long = try {
-        _impl.localToUnixSeconds(year, month, day, hour, minute, second)
-    } catch (_e: Throwable) {
-        fail(_err, _e, null)
-        0L
-    }
 }
 
 // END JniBridge.kt

@@ -1,14 +1,9 @@
 //! The bindings give the same answers as kosher-rust.
 //!
-//! The zmanim tests run the bindings with a callback time zone and kosher-rust with jiff's, so
-//! they also check that a `TimeZoneOffset` callback is as good as a real time zone.
+//! The zmanim tests run the bindings with a `LocalDay` built from a jiff time zone and kosher-rust
+//! with the time zone itself, so they also check that the local day is all the calculations need.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
-
-use std::sync::{
-    Arc,
-    atomic::{AtomicUsize, Ordering},
-};
 
 use jiff::{civil, tz::TimeZone};
 use kosherz::api::{
@@ -17,128 +12,23 @@ use kosherz::api::{
         limudim::{self, LimudimError},
     },
     times::{
-        self, Calculator, Location, TimeZoneOffset, ZmanFailure, Zmanim, ZmanimError,
+        self, Calculator, LocalDay, Location, ZmanFailure, Zmanim, ZmanimError,
         myzmanim::{self, MyZmanim},
         sea_level_location, validate_location,
     },
 };
 
-/// A jiff time zone, seen only through the callback.
-struct Jiff(TimeZone);
-
-impl TimeZoneOffset for Jiff {
-    fn offset_seconds(&self, unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
-        let timestamp = jiff::Timestamp::from_second(unix_seconds).unwrap();
-        Ok(self.0.to_offset(timestamp).seconds())
-    }
-
-    fn local_to_unix_seconds(
-        &self,
-        year: i32,
-        month: i32,
-        day: i32,
-        hour: i32,
-        minute: i32,
-        second: i32,
-    ) -> Result<i64, weaveffi::ForeignError> {
-        let local = local(year, month, day, hour, minute, second);
-        Ok(self.0.to_ambiguous_timestamp(local).compatible().unwrap().as_second())
-    }
-}
-
-/// The local date and time a callback is asked about.
-fn local(year: i32, month: i32, day: i32, hour: i32, minute: i32, second: i32) -> civil::DateTime {
-    let part = |value: i32| i8::try_from(value).unwrap();
-    civil::datetime(
-        i16::try_from(year).unwrap(),
-        part(month),
-        part(day),
-        part(hour),
-        part(minute),
-        part(second),
-        0,
-    )
-}
-
-/// The Unix time of a local date and time read as UTC.
-fn as_utc(year: i32, month: i32, day: i32, hour: i32, minute: i32, second: i32) -> i64 {
-    local(year, month, day, hour, minute, second)
-        .to_zoned(TimeZone::UTC)
-        .unwrap()
-        .timestamp()
-        .as_second()
-}
-
-/// A callback that always fails, counting its calls.
-#[derive(Default)]
-struct Broken(AtomicUsize);
-
-impl TimeZoneOffset for Broken {
-    fn offset_seconds(&self, _unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
-        self.0.fetch_add(1, Ordering::Relaxed);
-        Err(weaveffi::ForeignError::new(1, "no offset"))
-    }
-
-    fn local_to_unix_seconds(
-        &self,
-        _year: i32,
-        _month: i32,
-        _day: i32,
-        _hour: i32,
-        _minute: i32,
-        _second: i32,
-    ) -> Result<i64, weaveffi::ForeignError> {
-        self.0.fetch_add(1, Ordering::Relaxed);
-        Err(weaveffi::ForeignError::new(1, "no instant"))
-    }
-}
-
-/// A callback that fails when asked about a local time on `bad_day` and answers like `zone`
-/// otherwise.
-struct FailsOn {
-    bad_day: civil::Date,
-    zone: TimeZone,
-}
-
-impl TimeZoneOffset for FailsOn {
-    fn offset_seconds(&self, unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
-        Jiff(self.zone.clone()).offset_seconds(unix_seconds)
-    }
-
-    fn local_to_unix_seconds(
-        &self,
-        year: i32,
-        month: i32,
-        day: i32,
-        hour: i32,
-        minute: i32,
-        second: i32,
-    ) -> Result<i64, weaveffi::ForeignError> {
-        if local(year, month, day, hour, minute, second).date() == self.bad_day {
-            return Err(weaveffi::ForeignError::new(1, "no instant"));
-        }
-        Jiff(self.zone.clone()).local_to_unix_seconds(year, month, day, hour, minute, second)
-    }
-}
-
-/// A callback giving an offset no time zone has.
-struct TooFar;
-
-impl TimeZoneOffset for TooFar {
-    fn offset_seconds(&self, _unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
-        Ok(90_000)
-    }
-
-    fn local_to_unix_seconds(
-        &self,
-        year: i32,
-        month: i32,
-        day: i32,
-        hour: i32,
-        minute: i32,
-        second: i32,
-    ) -> Result<i64, weaveffi::ForeignError> {
-        Ok(as_utc(year, month, day, hour, minute, second) - 90_000)
+/// `date` in `zone` as a `LocalDay`: its two local midnights, resolved the way Java does, and the
+/// offsets at them.
+fn local_day(zone: &TimeZone, date: civil::Date) -> LocalDay {
+    let midnight = |date: civil::Date| zone.to_ambiguous_timestamp(date.at(0, 0, 0, 0)).compatible().unwrap();
+    let start = midnight(date);
+    let end = midnight(date.tomorrow().unwrap());
+    LocalDay {
+        start_ms: start.as_millisecond(),
+        start_offset_seconds: zone.to_offset(start).seconds(),
+        end_ms: end.as_millisecond(),
+        end_offset_seconds: zone.to_offset(end).seconds(),
     }
 }
 
@@ -212,8 +102,8 @@ fn kosher_location(place: &Place) -> kosher_rust::Location {
         .unwrap()
 }
 
-fn time_zone(place: &Place) -> Option<Arc<dyn TimeZoneOffset>> {
-    Some(Arc::new(Jiff(TimeZone::get(place.zone).unwrap())))
+fn place_day(place: &Place, date: civil::Date) -> Option<LocalDay> {
+    Some(local_day(&TimeZone::get(place.zone).unwrap(), date))
 }
 
 /// Every 9th day of 2024, which lands on DST changes, the solstices, Erev Pesach and
@@ -272,7 +162,7 @@ fn zmanim_match_kosher_rust_for_every_calculator() {
                     calculator,
                     ..times::default_config()
                 };
-                let ours = Zmanim::new(location(place), date.into_gregorian(), config, time_zone(place)).unwrap();
+                let ours = Zmanim::new(location(place), date.into_gregorian(), config, place_day(place, date)).unwrap();
                 let theirs = kosher_rust::Zmanim::with_config(
                     kosher_location(place),
                     date,
@@ -305,7 +195,7 @@ fn zmanim_match_kosher_rust_for_every_calculator() {
 fn my_zmanim_match_kosher_rust() {
     for place in &PLACES {
         for date in dates() {
-            let ours = MyZmanim::new(location(place), date.into_gregorian(), 40.0, time_zone(place)).unwrap();
+            let ours = MyZmanim::new(location(place), date.into_gregorian(), 40.0, place_day(place, date)).unwrap();
             let theirs = kosher_rust::myzmanim::MyZmanim::new(
                 kosher_location(place),
                 date,
@@ -422,7 +312,7 @@ fn errors() {
     let config = times::default_config();
     let levana = times::Zman::TchilasZmanKidushLevana3Days;
 
-    let utc = || Some(Arc::new(Jiff(TimeZone::UTC)) as Arc<dyn TimeZoneOffset>);
+    let utc = || Some(local_day(&TimeZone::UTC, civil::date(2024, 11, 4)));
     let bad = |location: Location| Zmanim::new(location, date, config, utc()).err();
     assert_eq!(bad(sea_level_location(91.0, 0.0)), Some(ZmanimError::InvalidLatitude));
     assert_eq!(bad(sea_level_location(0.0, 181.0)), Some(ZmanimError::InvalidLongitude));
@@ -447,49 +337,61 @@ fn errors() {
     assert_eq!(no_zone.get(levana), Err(ZmanimError::TimeZoneRequired));
     assert!(no_zone.get(times::Zman::Sunrise).is_ok());
 
-    let broken = Arc::new(Broken::default());
-    let failing = Zmanim::new(lakewood, date, config, Some(broken.clone())).unwrap();
-    assert_eq!(failing.get(levana), Err(ZmanimError::TimeZoneCallbackFailed));
-    assert!(broken.0.load(Ordering::Relaxed) > 0);
-    // Every time asks the time zone for the date-line check, so every time reports the failure.
+    let utc_day = local_day(&TimeZone::UTC, civil::date(2024, 11, 4));
+    let impossible = |day: LocalDay| Zmanim::new(lakewood, date, config, Some(day)).err();
     assert_eq!(
-        failing.get(times::Zman::Sunrise),
-        Err(ZmanimError::TimeZoneCallbackFailed)
+        impossible(LocalDay {
+            end_ms: utc_day.start_ms - 1,
+            ..utc_day
+        }),
+        Some(ZmanimError::InvalidLocalDay)
     );
-
-    let too_far = Zmanim::new(lakewood, date, config, Some(Arc::new(TooFar))).unwrap();
-    assert_eq!(too_far.get(levana), Err(ZmanimError::TimeZoneCallbackFailed));
-    let failures: Vec<_> = too_far.all().into_iter().filter_map(|row| row.failure).collect();
-    // Only times that turn out not to apply without looking at the sun skip the callback.
-    assert!(
-        failures.iter().all(|&failure| matches!(
-            failure,
-            ZmanFailure::TimeZoneCallbackFailed | ZmanFailure::NotApplicable
-        )),
-        "{failures:?}"
+    assert_eq!(
+        impossible(LocalDay {
+            end_ms: utc_day.start_ms + 48 * 3_600_000 + 1,
+            ..utc_day
+        }),
+        Some(ZmanimError::InvalidLocalDay)
     );
-    assert!(failures.contains(&ZmanFailure::TimeZoneCallbackFailed));
-}
-
-/// A callback giving one fixed offset.
-struct Fixed(i32);
-
-impl TimeZoneOffset for Fixed {
-    fn offset_seconds(&self, _unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
-        Ok(self.0)
+    for seconds in [i32::MIN, -86_400, 86_400, i32::MAX] {
+        assert_eq!(
+            impossible(LocalDay {
+                start_offset_seconds: seconds,
+                ..utc_day
+            }),
+            Some(ZmanimError::InvalidLocalDay),
+            "{seconds}"
+        );
+        assert_eq!(
+            impossible(LocalDay {
+                end_offset_seconds: seconds,
+                ..utc_day
+            }),
+            Some(ZmanimError::InvalidLocalDay),
+            "{seconds}"
+        );
     }
-
-    fn local_to_unix_seconds(
-        &self,
-        year: i32,
-        month: i32,
-        day: i32,
-        hour: i32,
-        minute: i32,
-        second: i32,
-    ) -> Result<i64, weaveffi::ForeignError> {
-        Ok(as_utc(year, month, day, hour, minute, second) - i64::from(self.0))
-    }
+    assert_eq!(
+        MyZmanim::new(
+            lakewood,
+            date,
+            18.0,
+            Some(LocalDay {
+                end_ms: utc_day.start_ms - 1,
+                ..utc_day
+            })
+        )
+        .err(),
+        Some(ZmanimError::InvalidLocalDay)
+    );
+    // A day the clocks skip starts and ends at the same instant.
+    assert_eq!(
+        impossible(LocalDay {
+            end_ms: utc_day.start_ms,
+            ..utc_day
+        }),
+        None
+    );
 }
 
 /// Numbers at and past the limits the bindings accept.
@@ -503,18 +405,14 @@ fn inputs_at_their_limits() {
     let config = times::default_config();
     // Longitude 170 needs the time zone, so every time asks it.
     let offset = |seconds: i32| {
-        Zmanim::new(
-            sea_level_location(0.0, 170.0),
-            date,
-            config,
-            Some(Arc::new(Fixed(seconds))),
-        )
-        .unwrap()
-        .get(times::Zman::Sunrise)
+        let day = local_day(
+            &TimeZone::fixed(jiff::tz::Offset::from_seconds(seconds).unwrap()),
+            civil::date(2024, 4, 23),
+        );
+        Zmanim::new(sea_level_location(0.0, 170.0), date, config, Some(day))
+            .unwrap()
+            .get(times::Zman::Sunrise)
     };
-    for seconds in [i32::MIN, i32::MAX, -86_400, 86_400] {
-        assert_eq!(offset(seconds), Err(ZmanimError::TimeZoneCallbackFailed), "{seconds}");
-    }
     for seconds in [-86_399, 0, 86_399] {
         assert!(offset(seconds).is_ok(), "{seconds}");
     }
@@ -548,107 +446,99 @@ fn inputs_at_their_limits() {
     }
 }
 
-/// A jiff time zone through the callback, counting the calls.
-struct Counting(TimeZone, AtomicUsize);
-
-impl TimeZoneOffset for Counting {
-    fn offset_seconds(&self, unix_seconds: i64) -> Result<i32, weaveffi::ForeignError> {
-        self.1.fetch_add(1, Ordering::Relaxed);
-        Jiff(self.0.clone()).offset_seconds(unix_seconds)
-    }
-
-    fn local_to_unix_seconds(
-        &self,
-        year: i32,
-        month: i32,
-        day: i32,
-        hour: i32,
-        minute: i32,
-        second: i32,
-    ) -> Result<i64, weaveffi::ForeignError> {
-        self.1.fetch_add(1, Ordering::Relaxed);
-        Jiff(self.0.clone()).local_to_unix_seconds(year, month, day, hour, minute, second)
-    }
-}
-
-/// A time asks the callback about twice for each sunrise, sunset or other event it is built from.
+/// Days the clocks treated unusually, near the date line and on half-hour changes: the local day
+/// still gives every time kosher-rust gives with the full time zone.
 #[test]
-fn the_callback_is_asked_a_few_times_per_zman() {
-    let counting = Arc::new(Counting(
-        TimeZone::get("America/New_York").unwrap(),
-        AtomicUsize::new(0),
-    ));
-    let lakewood = sea_level_location(40.09, -74.22);
-    let date = GregorianDate {
-        year: 2024,
-        month: 11,
-        day: 4,
-    };
-    let calls = || counting.1.swap(0, Ordering::Relaxed);
-
-    let day = Zmanim::new(lakewood, date, times::default_config(), Some(counting.clone())).unwrap();
-    let most = times::all_zmanim()
-        .into_iter()
-        .map(|zman| {
-            let _ = day.get(zman);
-            calls()
-        })
-        .max()
-        .unwrap();
-    assert!(most <= 12, "{most}");
-
-    let my_day = MyZmanim::new(lakewood, date, 18.0, Some(counting.clone())).unwrap();
-    let most = myzmanim::all_my_zmanim()
-        .into_iter()
-        .map(|zman| {
-            let _ = my_day.get(zman);
-            calls()
-        })
-        .max()
-        .unwrap();
-    assert!(most <= 12, "{most}");
+fn unusual_days_match_kosher_rust() {
+    let cases = [
+        // Samoa skipped 30 December 2011, crossing the date line.
+        (
+            "Pacific/Apia",
+            -13.83,
+            -171.76,
+            [(2011, 12, 29), (2011, 12, 30), (2011, 12, 31)],
+        ),
+        // Kiritimati skipped 31 December 1994.
+        (
+            "Pacific/Kiritimati",
+            1.87,
+            -157.4,
+            [(1994, 12, 30), (1994, 12, 31), (1995, 1, 1)],
+        ),
+        // Kwajalein skipped 21 August 1993.
+        (
+            "Pacific/Kwajalein",
+            8.72,
+            167.73,
+            [(1993, 8, 20), (1993, 8, 21), (1993, 8, 22)],
+        ),
+        // Lord Howe Island moves its clocks by half an hour.
+        (
+            "Australia/Lord_Howe",
+            -31.55,
+            159.08,
+            [(2024, 4, 6), (2024, 4, 7), (2024, 10, 6)],
+        ),
+        // New York's changes, the night they happen and the day after.
+        (
+            "America/New_York",
+            40.09,
+            -74.22,
+            [(2024, 3, 10), (2024, 11, 3), (2024, 11, 4)],
+        ),
+    ];
+    for (name, latitude, longitude, dates) in cases {
+        let zone = TimeZone::get(name).unwrap();
+        for (year, month, day) in dates {
+            let date = civil::date(year, month, day);
+            let ours = Zmanim::new(
+                sea_level_location(latitude, longitude),
+                date.into_gregorian(),
+                times::default_config(),
+                Some(local_day(&zone, date)),
+            )
+            .unwrap();
+            let theirs = kosher_rust::Zmanim::new(
+                kosher_rust::Location::new(latitude, longitude).unwrap(),
+                date,
+                Some(zone.clone()),
+            );
+            for row in ours.all() {
+                let zman = kosher_rust::Zman::from(row.zman);
+                let (time, failure) = expected(theirs.get(zman));
+                assert_eq!(
+                    (row.time, row.failure),
+                    (time, failure),
+                    "{name} {date} {}",
+                    zman.java_name()
+                );
+            }
+            let my_ours = MyZmanim::new(
+                sea_level_location(latitude, longitude),
+                date.into_gregorian(),
+                18.0,
+                Some(local_day(&zone, date)),
+            )
+            .unwrap();
+            let my_theirs = kosher_rust::myzmanim::MyZmanim::new(
+                kosher_rust::Location::new(latitude, longitude).unwrap(),
+                date,
+                Some(zone.clone()),
+            );
+            for row in my_ours.all() {
+                let zman = kosher_rust::myzmanim::MyZman::from(row.zman);
+                assert_eq!(
+                    (row.time, row.failure),
+                    expected(my_theirs.get(zman)),
+                    "{name} {date} {zman:?}"
+                );
+            }
+        }
+    }
 }
 
-/// One object used from two threads at once: a callback failure during one call is reported by
-/// that call, and never by a call running beside it.
-#[test]
-fn concurrent_calls_report_only_their_own_callback_failures() {
-    let new_york = TimeZone::get("America/New_York").unwrap();
-    // Kiddush Levana on this date asks about local midnight on 5 November. Sunrise never does.
-    let shared = Arc::new(
-        Zmanim::new(
-            sea_level_location(40.09, -74.22),
-            GregorianDate {
-                year: 2024,
-                month: 11,
-                day: 4,
-            },
-            times::default_config(),
-            Some(Arc::new(FailsOn {
-                bad_day: civil::date(2024, 11, 5),
-                zone: new_york,
-            })),
-        )
-        .unwrap(),
-    );
-    let levana = times::Zman::TchilasZmanKidushLevana3Days;
-    assert_eq!(shared.get(levana), Err(ZmanimError::TimeZoneCallbackFailed));
-    let sunrise = shared.get(times::Zman::Sunrise).unwrap();
-
-    let other = Arc::clone(&shared);
-    let wrong_sunrises = std::thread::spawn(move || {
-        (0..20_000)
-            .filter(|_| other.get(times::Zman::Sunrise) != Ok(sunrise))
-            .count()
-    });
-    let wrong_levanas = (0..20_000)
-        .filter(|_| shared.get(levana) != Err(ZmanimError::TimeZoneCallbackFailed))
-        .count();
-    assert_eq!((wrong_levanas, wrong_sunrises.join().unwrap()), (0, 0));
-}
-
-/// Kiddush Levana on the day after the clocks went back, through a callback. The day check
-/// compares the time with the local midnights that start and end the day.
+/// Kiddush Levana on the day after the clocks went back. The day check compares the time with the
+/// local midnights that start and end the day.
 #[test]
 fn kiddush_levana_after_a_clock_change() {
     let lakewood = sea_level_location(40.09, -74.22);
@@ -657,8 +547,8 @@ fn kiddush_levana_after_a_clock_change() {
         month: 11,
         day: 4,
     };
-    let zone = Some(Arc::new(Jiff(TimeZone::get("America/New_York").unwrap())) as Arc<dyn TimeZoneOffset>);
-    let zmanim = Zmanim::new(lakewood, date, times::default_config(), zone).unwrap();
+    let zone = local_day(&TimeZone::get("America/New_York").unwrap(), civil::date(2024, 11, 4));
+    let zmanim = Zmanim::new(lakewood, date, times::default_config(), Some(zone)).unwrap();
     let time = zmanim.get(times::Zman::TchilasZmanKidushLevana3Days).unwrap();
     let local = jiff::Timestamp::from_millisecond(time)
         .unwrap()

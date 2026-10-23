@@ -372,6 +372,7 @@ typedef struct kosherz_calendar_limudim_MishnaPair kosherz_calendar_limudim_Mish
 typedef struct kosherz_calendar_limudim_TehillimUnit kosherz_calendar_limudim_TehillimUnit;
 typedef struct kosherz_calendar_limudim_PirkeiAvosUnit kosherz_calendar_limudim_PirkeiAvosUnit;
 typedef struct kosherz_times_Location kosherz_times_Location;
+typedef struct kosherz_times_LocalDay kosherz_times_LocalDay;
 typedef struct kosherz_times_Config kosherz_times_Config;
 typedef struct kosherz_times_ZmanTime kosherz_times_ZmanTime;
 typedef struct kosherz_times_myzmanim_MyZmanTime kosherz_times_myzmanim_MyZmanTime;
@@ -557,7 +558,7 @@ struct kosherz_calendar_limudim_PirkeiAvosUnit {
  * A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
  * leave them 0 for sea level.
  *
- * The time zone is not part of the location. You pass a `TimeZoneOffset` to `Zmanim` and
+ * The time zone is not part of the location. You pass a `LocalDay` to `Zmanim` and
  * `MyZmanim` when you create them.
  */
 struct kosherz_times_Location {
@@ -571,6 +572,33 @@ struct kosherz_times_Location {
     double eastern_horizon_elevation;
     /** The height of the western horizon, behind which the sun sets. */
     double western_horizon_elevation;
+};
+
+/**
+ * The date in the caller's time zone: when local midnight starts it, when local midnight
+ * starts the next date, and the offset from UTC at each. Compute it with your platform's
+ * time zone support, for example `date.atStartOfDay(zone)` and
+ * `date.plusDays(1).atStartOfDay(zone)` in Java.
+ *
+ * When the clocks skip midnight, the day starts at the first instant the clocks show that
+ * day, such as 01:00. A day the clocks skip entirely starts and ends at the same instant.
+ *
+ * The local day is optional. With one every time works. You can also leave it out. These do
+ * not work without one:
+ *
+ * - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
+ * - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
+ *   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
+ */
+struct kosherz_times_LocalDay {
+    /** When local midnight starts the date, in Unix milliseconds. */
+    int64_t start_ms;
+    /** The offset from UTC at `start_ms`, in seconds east. */
+    int32_t start_offset_seconds;
+    /** When local midnight starts the next date, in Unix milliseconds. */
+    int64_t end_ms;
+    /** The offset from UTC at `end_ms`, in seconds east. */
+    int32_t end_offset_seconds;
 };
 
 /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
@@ -681,6 +709,10 @@ static inline void kosherz_times_Location_write(kosherz_writer* w, const kosherz
 static inline void kosherz_times_Location_read(kosherz_reader* r, kosherz_times_Location* out);
 static inline bool kosherz_times_Location_decode(const uint8_t* ptr, size_t len, kosherz_times_Location* out);
 static inline void kosherz_times_Location_free(kosherz_times_Location* v);
+static inline void kosherz_times_LocalDay_write(kosherz_writer* w, const kosherz_times_LocalDay* v);
+static inline void kosherz_times_LocalDay_read(kosherz_reader* r, kosherz_times_LocalDay* out);
+static inline bool kosherz_times_LocalDay_decode(const uint8_t* ptr, size_t len, kosherz_times_LocalDay* out);
+static inline void kosherz_times_LocalDay_free(kosherz_times_LocalDay* v);
 static inline void kosherz_times_Config_write(kosherz_writer* w, const kosherz_times_Config* v);
 static inline void kosherz_times_Config_read(kosherz_reader* r, kosherz_times_Config* out);
 static inline bool kosherz_times_Config_decode(const uint8_t* ptr, size_t len, kosherz_times_Config* out);
@@ -745,6 +777,10 @@ static inline void kosherz_list_times_Zman_write(kosherz_writer* w, const kosher
 static inline void kosherz_list_times_Zman_read(kosherz_reader* r, kosherz_list_times_Zman* out);
 static inline bool kosherz_list_times_Zman_decode(const uint8_t* ptr, size_t len, kosherz_list_times_Zman* out);
 static inline void kosherz_list_times_Zman_free(kosherz_list_times_Zman* v);
+static inline void kosherz_opt_times_LocalDay_write(kosherz_writer* w, const kosherz_times_LocalDay* v);
+static inline void kosherz_opt_times_LocalDay_read(kosherz_reader* r, kosherz_times_LocalDay** out);
+static inline bool kosherz_opt_times_LocalDay_decode(const uint8_t* ptr, size_t len, kosherz_times_LocalDay** out);
+static inline void kosherz_opt_times_LocalDay_free(kosherz_times_LocalDay** v);
 static inline void kosherz_list_times_ZmanTime_write(kosherz_writer* w, const kosherz_list_times_ZmanTime* v);
 static inline void kosherz_list_times_ZmanTime_read(kosherz_reader* r, kosherz_list_times_ZmanTime* out);
 static inline bool kosherz_list_times_ZmanTime_decode(const uint8_t* ptr, size_t len, kosherz_list_times_ZmanTime* out);
@@ -1316,6 +1352,35 @@ static inline bool kosherz_times_Location_decode(const uint8_t* ptr, size_t len,
 }
 
 static inline void kosherz_times_Location_free(kosherz_times_Location* v) {
+    memset(v, 0, sizeof *v);
+}
+
+static inline void kosherz_times_LocalDay_write(kosherz_writer* w, const kosherz_times_LocalDay* v) {
+    kosherz_writer_put_i64(w, v->start_ms);
+    kosherz_writer_put_i32(w, v->start_offset_seconds);
+    kosherz_writer_put_i64(w, v->end_ms);
+    kosherz_writer_put_i32(w, v->end_offset_seconds);
+}
+
+static inline void kosherz_times_LocalDay_read(kosherz_reader* r, kosherz_times_LocalDay* out) {
+    memset(out, 0, sizeof *out);
+    out->start_ms = kosherz_reader_get_i64(r);
+    out->start_offset_seconds = kosherz_reader_get_i32(r);
+    out->end_ms = kosherz_reader_get_i64(r);
+    out->end_offset_seconds = kosherz_reader_get_i32(r);
+}
+
+static inline bool kosherz_times_LocalDay_decode(const uint8_t* ptr, size_t len, kosherz_times_LocalDay* out) {
+    kosherz_reader r = kosherz_reader_of(ptr, len);
+    kosherz_times_LocalDay_read(&r, out);
+    if (!kosherz_reader_finish(&r)) {
+        kosherz_times_LocalDay_free(out);
+        return false;
+    }
+    return true;
+}
+
+static inline void kosherz_times_LocalDay_free(kosherz_times_LocalDay* v) {
     memset(v, 0, sizeof *v);
 }
 
@@ -1908,6 +1973,45 @@ static inline bool kosherz_list_times_Zman_decode(const uint8_t* ptr, size_t len
 static inline void kosherz_list_times_Zman_free(kosherz_list_times_Zman* v) {
     free(v->items);
     memset(v, 0, sizeof *v);
+}
+
+static inline void kosherz_opt_times_LocalDay_write(kosherz_writer* w, const kosherz_times_LocalDay* v) {
+    kosherz_writer_put_bool(w, v != NULL);
+    if (v != NULL) {
+        kosherz_times_LocalDay_write(w, &(*v));
+    }
+}
+
+static inline void kosherz_opt_times_LocalDay_read(kosherz_reader* r, kosherz_times_LocalDay** out) {
+    *out = NULL;
+    if (!kosherz_reader_get_bool(r)) {
+        return;
+    }
+    kosherz_times_LocalDay* value = (kosherz_times_LocalDay*)calloc(1, sizeof(kosherz_times_LocalDay));
+    if (value == NULL) {
+        r->failed = true;
+        return;
+    }
+    kosherz_times_LocalDay_read(r, &(*value));
+    *out = value;
+}
+
+static inline bool kosherz_opt_times_LocalDay_decode(const uint8_t* ptr, size_t len, kosherz_times_LocalDay** out) {
+    kosherz_reader r = kosherz_reader_of(ptr, len);
+    kosherz_opt_times_LocalDay_read(&r, out);
+    if (!kosherz_reader_finish(&r)) {
+        kosherz_opt_times_LocalDay_free(out);
+        return false;
+    }
+    return true;
+}
+
+static inline void kosherz_opt_times_LocalDay_free(kosherz_times_LocalDay** v) {
+    if (*v == NULL) {
+        return;
+    }
+    free(*v);
+    *v = NULL;
 }
 
 static inline void kosherz_list_times_ZmanTime_write(kosherz_writer* w, const kosherz_list_times_ZmanTime* v) {

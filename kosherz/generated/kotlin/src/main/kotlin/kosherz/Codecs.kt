@@ -48,6 +48,10 @@ internal fun packOptionalOfI64(_w: BufferWriter, _v: Long?) = _w.writeOptional(_
 
 internal fun unpackOptionalOfI64(_r: BufferReader): Long? = _r.readOptional { _r.readI64() }
 
+internal fun packOptionalOfLocalDay(_w: BufferWriter, _v: LocalDay?) = _w.writeOptional(_v) { packLocalDay(_w, it) }
+
+internal fun unpackOptionalOfLocalDay(_r: BufferReader): LocalDay? = _r.readOptional { unpackLocalDay(_r) }
+
 internal fun packOptionalOfMishnaPair(_w: BufferWriter, _v: MishnaPair?) = _w.writeOptional(_v) { packMishnaPair(_w, it) }
 
 internal fun unpackOptionalOfMishnaPair(_r: BufferReader): MishnaPair? = _r.readOptional { unpackMishnaPair(_r) }

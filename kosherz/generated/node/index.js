@@ -137,7 +137,6 @@ const $contract = [
     [0x01ce427485afb43an, 0x017ce9984014d3c1n, 'times.ZmanTime'],
     [0x0643c19407762211n, 0x11babf7c30a11935n, 'times.myzmanim.dip_degrees_per_root_meter'],
     [0x091fabaf00184561n, 0xf13823120f5b4c46n, 'times.Calculator'],
-    [0x0a21d46001720019n, 0x5cf262e1982cf8f7n, 'times.TimeZoneOffset'],
     [0x0a86c54f2d84238cn, 0x4b1d4aaf11dfd132n, 'times.zman_category'],
     [0x0d3bc9cd549a7137n, 0xbea68784cf687a1an, 'times.Zmanim.get'],
     [0x0e595d82f4b54aden, 0x4a23e822039987a7n, 'times.zman_description'],
@@ -145,13 +144,14 @@ const $contract = [
     [0x196240a5b18bd7a9n, 0x2d4c4ce495502494n, 'times.Zmanim'],
     [0x1f4901cd5f081ee4n, 0x669e3d4d3e9d42ccn, 'times.Zmanim.all'],
     [0x2eabf209e8de2867n, 0x6614e227c469c232n, 'times.Zmanim.config'],
+    [0x32d6c48bf4c035cen, 0x34a4cdb9918ec167n, 'times.LocalDay'],
     [0x38596a351e356743n, 0x685412d4d80250ean, 'times.Config'],
     [0x39389f0e68d3cc22n, 0x4af5df9a96d3f535n, 'times.myzmanim.MyZmanim.proportional_hour_gra'],
     [0x3c92cd49c8b4515bn, 0x5962ffa89080c41bn, 'times.shaah_zmanis'],
-    [0x44a0809dedbd4a4dn, 0x9169cc1ef07d2488n, 'times.ZmanimError'],
+    [0x44a0809dedbd4a4dn, 0xd12210ce98caa417n, 'times.ZmanimError'],
     [0x4d259836d7137c43n, 0x0486761191984fd0n, 'times.Zman'],
     [0x57d7a9c5a715b9fan, 0x7110b3413cfd8e83n, 'times.Location'],
-    [0x5cf83bcd8244d771n, 0x99d014ada9906437n, 'times.Zmanim.new'],
+    [0x5cf83bcd8244d771n, 0x05a3622be2d0b290n, 'times.Zmanim.new'],
     [0x65aa216d77a78308n, 0x689307845875e63en, 'times.zman_is_deprecated'],
     [0x68ffad4e5539ca69n, 0xc3cb9f9d3b5b28ban, 'times.myzmanim.MyZmanim.date'],
     [0x6b5635f618146d65n, 0x52972cadc08c13efn, 'times.all_zmanim'],
@@ -160,7 +160,7 @@ const $contract = [
     [0x77857568cbec63b3n, 0xcddd8b18c602be76n, 'times.myzmanim.MyZman'],
     [0x79dc07bc571a3ab7n, 0xf70eea6f6621717fn, 'times.validate_location'],
     [0x80d913d2e48601c7n, 0x93dc654d560a63b8n, 'times.myzmanim.MyZmanim.get'],
-    [0x8a9dcfc50ecf7193n, 0x7d00a18dba45f065n, 'times.ZmanFailure'],
+    [0x8a9dcfc50ecf7193n, 0x6590c939314307c3n, 'times.ZmanFailure'],
     [0x8f816bd2ec126fd4n, 0x975c3a96549104d2n, 'times.myzmanim.MyZmanim.all'],
     [0x94ec9f2dd31dd154n, 0x93ef9500cb5f1cfcn, 'times.Zmanim.sunrise_offset_by_degrees'],
     [0x968059cb1e92252an, 0xdec9155329278f29n, 'times.myzmanim.my_zman_name'],
@@ -172,7 +172,7 @@ const $contract = [
     [0xbb0373c362e8a226n, 0x63856359341062een, 'times.Zmanim.location'],
     [0xc1a3c3740d199619n, 0xe3c7eb49f063a0cen, 'times.myzmanim.MyZmanim'],
     [0xc29ca29cb7cd2999n, 0x735499ab0a625d6dn, 'times.myzmanim.dawn_90_degrees'],
-    [0xcc5685d30e954e41n, 0xcc6eb9ea8c42ca79n, 'times.myzmanim.MyZmanim.new'],
+    [0xcc5685d30e954e41n, 0xfc5049b6220741f6n, 'times.myzmanim.MyZmanim.new'],
     [0xce8ce7ef4ad0db32n, 0xc5f954c475f4dc9dn, 'times.zman_java_name'],
     [0xdb5095e0e87f0d79n, 0xc3cb9f9d3b5b28ban, 'times.Zmanim.date'],
     [0xdda7b795bf202896n, 0x63856359341062een, 'times.myzmanim.MyZmanim.location'],
@@ -599,13 +599,13 @@ const times$InvalidGregorianDateError = class InvalidGregorianDateError extends 
 };
 const times$TimeZoneRequiredError = class TimeZoneRequiredError extends times$ZmanimError {
   static CODE = 5;
-  constructor(message = 'A time zone is needed and none was given. The four Kiddush Levana times need one.') {
+  constructor(message = 'A local day is needed and none was given. The four Kiddush Levana times need one.') {
     super(5, message);
   }
 };
-const times$TimeZoneCallbackFailedError = class TimeZoneCallbackFailedError extends times$ZmanimError {
+const times$InvalidLocalDayError = class InvalidLocalDayError extends times$ZmanimError {
   static CODE = 6;
-  constructor(message = 'The time zone callback failed, or gave an offset of a day or more.') {
+  constructor(message = 'The local day is impossible.') {
     super(6, message);
   }
 };
@@ -651,7 +651,7 @@ const $codes$times$ZmanimError = new Map([
   [3, times$InvalidElevationError],
   [4, times$InvalidGregorianDateError],
   [5, times$TimeZoneRequiredError],
-  [6, times$TimeZoneCallbackFailedError],
+  [6, times$InvalidLocalDayError],
   [7, times$InvalidMinutesError],
   [8, times$InvalidDegreesError],
   [10, times$AllDayError],
@@ -1056,13 +1056,11 @@ const times$ZmanFailure = Object.freeze({
   AllNight: 1,
   NotApplicable: 2,
   TimeZoneRequired: 3,
-  TimeZoneCallbackFailed: 4,
   Unexpected: 5,
   0: 'AllDay',
   1: 'AllNight',
   2: 'NotApplicable',
   3: 'TimeZoneRequired',
-  4: 'TimeZoneCallbackFailed',
   5: 'Unexpected',
 });
 
@@ -1482,6 +1480,20 @@ function $r$times$Location(r) {
     western_horizon_elevation: r.readF64(),
   };
 }
+function $w$times$LocalDay(w, v) {
+  w.writeI64(v.start_ms);
+  w.writeI32(v.start_offset_seconds);
+  w.writeI64(v.end_ms);
+  w.writeI32(v.end_offset_seconds);
+}
+function $r$times$LocalDay(r) {
+  return {
+    start_ms: r.readI64(),
+    start_offset_seconds: r.readI32(),
+    end_ms: r.readI64(),
+    end_offset_seconds: r.readI32(),
+  };
+}
 function $w$times$Config(w, v) {
   w.writeI32(v.candle_lighting_minutes);
   w.writeBool(v.use_astronomical_chatzos_for_other_zmanim);
@@ -1588,6 +1600,13 @@ function $w_opt_GregorianDate(w, v) {
 }
 function $r_opt_GregorianDate(r) {
   return r.readOpt($r$calendar$GregorianDate);
+}
+/** `LocalDay?` */
+function $w_opt_LocalDay(w, v) {
+  w.writeOpt(v, $w$times$LocalDay);
+}
+function $r_opt_LocalDay(r) {
+  return r.readOpt($r$times$LocalDay);
 }
 /** `MishnaPair?` */
 function $w_opt_MishnaPair(w, v) {
@@ -2058,23 +2077,11 @@ const calendar$limudim$pirkeiAvos = function pirkeiAvos(date, region) {
   }
 };
 
-function $adapt$times$TimeZoneOffset(impl) {
-  $impl(impl, 'TimeZoneOffset');
-  return {
-    offset_seconds($a0) {
-      return $ret.I32(impl.offsetSeconds($a0), 'TimeZoneOffset.offsetSeconds');
-    },
-    local_to_unix_seconds($a0, $a1, $a2, $a3, $a4, $a5) {
-      return $ret.I64(impl.localToUnixSeconds($a0, $a1, $a2, $a3, $a4, $a5), 'TimeZoneOffset.localToUnixSeconds');
-    },
-  };
-}
-
 const times$Zmanim = class Zmanim extends $Object {
-  constructor(location, date, config, timeZone) {
+  constructor(location, date, config, localDay) {
     super();
     try {
-      $own(this, $raw.kosherz_times_Zmanim_new($encode(location, $w$times$Location), $encode(date, $w$calendar$GregorianDate), $encode(config, $w$times$Config), timeZone == null ? null : $adapt$times$TimeZoneOffset(timeZone)));
+      $own(this, $raw.kosherz_times_Zmanim_new($encode(location, $w$times$Location), $encode(date, $w$calendar$GregorianDate), $encode(config, $w$times$Config), $encode(localDay, $w_opt_LocalDay)));
     } catch ($e) {
       throw $from$times$ZmanimError($e);
     }
@@ -2246,10 +2253,10 @@ const times$shaahZmanis = function shaahZmanis(start, end) {
 };
 
 const times$myzmanim$MyZmanim = class MyZmanim extends $Object {
-  constructor(location, date, candleLightingMinutes, timeZone) {
+  constructor(location, date, candleLightingMinutes, localDay) {
     super();
     try {
-      $own(this, $raw.kosherz_times_myzmanim_MyZmanim_new($encode(location, $w$times$Location), $encode(date, $w$calendar$GregorianDate), candleLightingMinutes, timeZone == null ? null : $adapt$times$TimeZoneOffset(timeZone)));
+      $own(this, $raw.kosherz_times_myzmanim_MyZmanim_new($encode(location, $w$times$Location), $encode(date, $w$calendar$GregorianDate), candleLightingMinutes, $encode(localDay, $w_opt_LocalDay)));
     } catch ($e) {
       throw $from$times$ZmanimError($e);
     }
@@ -2426,7 +2433,7 @@ export const times = Object.freeze({
   InvalidElevationError: times$InvalidElevationError,
   InvalidGregorianDateError: times$InvalidGregorianDateError,
   TimeZoneRequiredError: times$TimeZoneRequiredError,
-  TimeZoneCallbackFailedError: times$TimeZoneCallbackFailedError,
+  InvalidLocalDayError: times$InvalidLocalDayError,
   InvalidMinutesError: times$InvalidMinutesError,
   InvalidDegreesError: times$InvalidDegreesError,
   AllDayError: times$AllDayError,

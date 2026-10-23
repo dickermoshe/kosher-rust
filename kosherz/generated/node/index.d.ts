@@ -799,7 +799,7 @@ export declare namespace times {
     constructor(message?: string);
   }
   /**
-   * A time zone is needed and none was given. The four Kiddush Levana times need one.
+   * A local day is needed and none was given. The four Kiddush Levana times need one.
    * `Zmanim` and `MyZmanim` also need one at a location more than 150 degrees from
    * Greenwich.
    */
@@ -807,8 +807,12 @@ export declare namespace times {
     static readonly CODE: 5;
     constructor(message?: string);
   }
-  /** The time zone callback failed, or gave an offset of a day or more. */
-  export class TimeZoneCallbackFailedError extends times.ZmanimError {
+  /**
+   * The local day is impossible.
+   *
+   * It ends before it starts or more than 48 hours after, or an offset is a day or more.
+   */
+  export class InvalidLocalDayError extends times.ZmanimError {
     static readonly CODE: 6;
     constructor(message?: string);
   }
@@ -1359,12 +1363,10 @@ export declare namespace times {
     /** The time does not apply on this date. */
     NotApplicable = 2,
     /**
-     * The time needs a time zone and none was given. Only the four Kiddush Levana times need
+     * The time needs a local day and none was given. Only the four Kiddush Levana times need
      * one.
      */
     TimeZoneRequired = 3,
-    /** The time zone callback failed. */
-    TimeZoneCallbackFailed = 4,
     /** An internal calculation error. */
     Unexpected = 5,
   }
@@ -1372,7 +1374,7 @@ export declare namespace times {
    * A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
    * leave them 0 for sea level.
    *
-   * The time zone is not part of the location. You pass a `TimeZoneOffset` to `Zmanim` and
+   * The time zone is not part of the location. You pass a `LocalDay` to `Zmanim` and
    * `MyZmanim` when you create them.
    */
   export interface Location {
@@ -1386,6 +1388,32 @@ export declare namespace times {
     eastern_horizon_elevation: number;
     /** The height of the western horizon, behind which the sun sets. */
     western_horizon_elevation: number;
+  }
+  /**
+   * The date in the caller's time zone: when local midnight starts it, when local midnight
+   * starts the next date, and the offset from UTC at each. Compute it with your platform's
+   * time zone support, for example `date.atStartOfDay(zone)` and
+   * `date.plusDays(1).atStartOfDay(zone)` in Java.
+   *
+   * When the clocks skip midnight, the day starts at the first instant the clocks show that
+   * day, such as 01:00. A day the clocks skip entirely starts and ends at the same instant.
+   *
+   * The local day is optional. With one every time works. You can also leave it out. These do
+   * not work without one:
+   *
+   * - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
+   * - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
+   *   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
+   */
+  export interface LocalDay {
+    /** When local midnight starts the date, in Unix milliseconds. */
+    start_ms: bigint;
+    /** The offset from UTC at `start_ms`, in seconds east. */
+    start_offset_seconds: number;
+    /** When local midnight starts the next date, in Unix milliseconds. */
+    end_ms: bigint;
+    /** The offset from UTC at `end_ms`, in seconds east. */
+    end_offset_seconds: number;
   }
   /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
   export interface Config {
@@ -1425,67 +1453,27 @@ export declare namespace times {
     /** Why it could not, when it could not. */
     failure: times.ZmanFailure | null;
   }
-  /**
-   * The time zone. You supply it as a callback with two methods. One gives the offset from UTC
-   * at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
-   * `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
-   *
-   * The time zone is optional. With a time zone every time works. You can also leave it out.
-   * These do not work without a time zone:
-   *
-   * - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
-   * - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
-   *   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
-   *
-   * The callback is called synchronously, once for each sunrise, sunset or other event that a
-   * time is built from.
-   */
-  export interface TimeZoneOffset {
-    /**
-     * The offset from UTC, in seconds east, in effect at `unix_seconds`.
-     *
-     * # Errors
-     *
-     * Fail when the offset is unknown. The calculation then reports
-     * `ZmanimError::TimeZoneCallbackFailed`.
-     */
-    offsetSeconds(unixSeconds: bigint): number;
-    /**
-     * The Unix time, in seconds, at which the clocks in this time zone show the local date
-     * and time given.
-     *
-     * Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
-     * return the instant one gap length later. When the clocks show the time twice, return
-     * the earlier instant. JavaScript's `Temporal` calls this the `compatible`
-     * disambiguation, and it is Temporal's default.
-     *
-     * # Errors
-     *
-     * Fail when the instant is unknown. The calculation then reports
-     * `ZmanimError::TimeZoneCallbackFailed`.
-     */
-    localToUnixSeconds(year: number, month: number, day: number, hour: number, minute: number, second: number): bigint;
-  }
   /** The *zmanim* for one place on one day. */
   export class Zmanim {
     /**
-     * The *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
+     * The *zmanim* at `location` on `date`, whose local day is `local_day`, calculated with
+     * `config`.
      *
-     * The time zone is optional. With a time zone every time works. Without one the four
-     * Kiddush Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150
-     * degrees from Greenwich needs a time zone. Without one this returns
-     * `ZmanimError::TimeZoneRequired`.
+     * The local day is optional. With one every time works. Without one the four Kiddush
+     * Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150 degrees
+     * from Greenwich needs one. Without one this returns `ZmanimError::TimeZoneRequired`.
      *
      * # Errors
      *
      * - `ZmanimError::InvalidGregorianDate` when the date does not exist.
      * - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
      *   Ateret Torah offset is more than a day.
+     * - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
      * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
-     *   there is no time zone and the location is more than 150 degrees from Greenwich.
+     *   there is no local day and the location is more than 150 degrees from Greenwich.
      * @throws {times.ZmanimError}
      */
-    constructor(location: times.Location, date: calendar.GregorianDate, config: times.Config, timeZone: times.TimeZoneOffset | null);
+    constructor(location: times.Location, date: calendar.GregorianDate, config: times.Config, localDay: times.LocalDay | null);
     /**
      * The time of `zman`, in Unix milliseconds.
      *
@@ -1494,7 +1482,7 @@ export declare namespace times {
      * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
      * the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
      * on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
-     * a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+     * a local day.
      * @throws {times.ZmanimError}
      */
     get(zman: times.Zman): bigint;
@@ -1674,11 +1662,11 @@ export declare namespace times {
      */
     export class MyZmanim {
       /**
-       * The *zmanim* at `location` on `date` in `time_zone`. Candles are lit
+       * The *zmanim* at `location` on `date`, whose local day is `local_day`. Candles are lit
        * `candle_lighting_minutes` before sunset. The website uses 18 minutes by default.
        *
-       * The time zone is optional. With a time zone every time works. A location more than
-       * 150 degrees from Greenwich needs a time zone. Without one this returns
+       * The local day is optional. With one every time works. A location more than 150
+       * degrees from Greenwich needs one. Without one this returns
        * `ZmanimError::TimeZoneRequired`.
        *
        * # Errors
@@ -1686,19 +1674,20 @@ export declare namespace times {
        * - `ZmanimError::InvalidGregorianDate` when the date does not exist.
        * - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
        *   0 to 1440.
+       * - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
        * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
-       *   when there is no time zone and the location is more than 150 degrees from
+       *   when there is no local day and the location is more than 150 degrees from
        *   Greenwich.
        * @throws {times.ZmanimError}
        */
-      constructor(location: times.Location, date: calendar.GregorianDate, candleLightingMinutes: number, timeZone: times.TimeZoneOffset | null);
+      constructor(location: times.Location, date: calendar.GregorianDate, candleLightingMinutes: number, localDay: times.LocalDay | null);
       /**
        * The time of `zman`, in Unix milliseconds.
        *
        * # Errors
        *
        * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
-       * time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+       * time.
        * @throws {times.ZmanimError}
        */
       get(zman: times.myzmanim.MyZman): bigint;

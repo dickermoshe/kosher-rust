@@ -4,11 +4,9 @@
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, unused_element
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io' show Platform;
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
@@ -206,7 +204,6 @@ const List<(String, List<(int, int, String)>)> _contracts = [
     (0x01ce427485afb43a, 0x017ce9984014d3c1, 'times.ZmanTime'),
     (0x0643c19407762211, 0x11babf7c30a11935, 'times.myzmanim.dip_degrees_per_root_meter'),
     (0x091fabaf00184561, 0xf13823120f5b4c46, 'times.Calculator'),
-    (0x0a21d46001720019, 0x5cf262e1982cf8f7, 'times.TimeZoneOffset'),
     (0x0a86c54f2d84238c, 0x4b1d4aaf11dfd132, 'times.zman_category'),
     (0x0d3bc9cd549a7137, 0xbea68784cf687a1a, 'times.Zmanim.get'),
     (0x0e595d82f4b54ade, 0x4a23e822039987a7, 'times.zman_description'),
@@ -214,13 +211,14 @@ const List<(String, List<(int, int, String)>)> _contracts = [
     (0x196240a5b18bd7a9, 0x2d4c4ce495502494, 'times.Zmanim'),
     (0x1f4901cd5f081ee4, 0x669e3d4d3e9d42cc, 'times.Zmanim.all'),
     (0x2eabf209e8de2867, 0x6614e227c469c232, 'times.Zmanim.config'),
+    (0x32d6c48bf4c035ce, 0x34a4cdb9918ec167, 'times.LocalDay'),
     (0x38596a351e356743, 0x685412d4d80250ea, 'times.Config'),
     (0x39389f0e68d3cc22, 0x4af5df9a96d3f535, 'times.myzmanim.MyZmanim.proportional_hour_gra'),
     (0x3c92cd49c8b4515b, 0x5962ffa89080c41b, 'times.shaah_zmanis'),
-    (0x44a0809dedbd4a4d, 0x9169cc1ef07d2488, 'times.ZmanimError'),
+    (0x44a0809dedbd4a4d, 0xd12210ce98caa417, 'times.ZmanimError'),
     (0x4d259836d7137c43, 0x0486761191984fd0, 'times.Zman'),
     (0x57d7a9c5a715b9fa, 0x7110b3413cfd8e83, 'times.Location'),
-    (0x5cf83bcd8244d771, 0x99d014ada9906437, 'times.Zmanim.new'),
+    (0x5cf83bcd8244d771, 0x05a3622be2d0b290, 'times.Zmanim.new'),
     (0x65aa216d77a78308, 0x689307845875e63e, 'times.zman_is_deprecated'),
     (0x68ffad4e5539ca69, 0xc3cb9f9d3b5b28ba, 'times.myzmanim.MyZmanim.date'),
     (0x6b5635f618146d65, 0x52972cadc08c13ef, 'times.all_zmanim'),
@@ -229,7 +227,7 @@ const List<(String, List<(int, int, String)>)> _contracts = [
     (0x77857568cbec63b3, 0xcddd8b18c602be76, 'times.myzmanim.MyZman'),
     (0x79dc07bc571a3ab7, 0xf70eea6f6621717f, 'times.validate_location'),
     (0x80d913d2e48601c7, 0x93dc654d560a63b8, 'times.myzmanim.MyZmanim.get'),
-    (0x8a9dcfc50ecf7193, 0x7d00a18dba45f065, 'times.ZmanFailure'),
+    (0x8a9dcfc50ecf7193, 0x6590c939314307c3, 'times.ZmanFailure'),
     (0x8f816bd2ec126fd4, 0x975c3a96549104d2, 'times.myzmanim.MyZmanim.all'),
     (0x94ec9f2dd31dd154, 0x93ef9500cb5f1cfc, 'times.Zmanim.sunrise_offset_by_degrees'),
     (0x968059cb1e92252a, 0xdec9155329278f29, 'times.myzmanim.my_zman_name'),
@@ -241,7 +239,7 @@ const List<(String, List<(int, int, String)>)> _contracts = [
     (0xbb0373c362e8a226, 0x63856359341062ee, 'times.Zmanim.location'),
     (0xc1a3c3740d199619, 0xe3c7eb49f063a0ce, 'times.myzmanim.MyZmanim'),
     (0xc29ca29cb7cd2999, 0x735499ab0a625d6d, 'times.myzmanim.dawn_90_degrees'),
-    (0xcc5685d30e954e41, 0xcc6eb9ea8c42ca79, 'times.myzmanim.MyZmanim.new'),
+    (0xcc5685d30e954e41, 0xfc5049b6220741f6, 'times.myzmanim.MyZmanim.new'),
     (0xce8ce7ef4ad0db32, 0xc5f954c475f4dc9d, 'times.zman_java_name'),
     (0xdb5095e0e87f0d79, 0xc3cb9f9d3b5b28ba, 'times.Zmanim.date'),
     (0xdda7b795bf202896, 0x63856359341062ee, 'times.myzmanim.MyZmanim.location'),
@@ -716,282 +714,6 @@ int _deepHash(Object? v) => switch (v) {
       _ => v.hashCode,
     };
 
-// ── Callback interfaces ──
-// An implementation passed to the producer is parked in [_callbacks] under
-// an integer key. The `ctx` the producer receives points at a small native
-// [_CallbackContext] holding that key, so the producer never holds a Dart
-// object and the GC never sees a raw pointer. The entry lives until the
-// producer calls the vtable's `free`.
-//
-// Methods that return a value are `NativeCallable.isolateLocal` trampolines:
-// they run synchronously, so the producer must call them on this isolate's
-// thread while a call from Dart is in progress (the VM aborts the process
-// otherwise, and an entry point that may run on any thread can't re-enter
-// the isolate to run the method). Void methods and `free` are
-// `NativeCallable.isolateGroupBound` forwarders, which may run on any
-// thread: they copy their arguments into a message for this isolate
-// (borrowed bytes are copied before the forwarder returns) and the
-// implementation runs later on the event loop, in the zone that passed the
-// callback.
-
-/// Where forwarders send messages: the allocator they build a message with
-/// and the isolate port that receives it. Forwarders run outside the
-/// isolate and can't read Dart globals, so everything they need is native.
-final class _CallbackPost extends Struct {
-  external Pointer<NativeFunction<Pointer<Void> Function(Size)>> alloc;
-  external Pointer<NativeFunction<Void Function(Pointer<Void>)>> release;
-  external Pointer<NativeFunction<Bool Function(Int64, Pointer<_CObject>)>> post;
-  @Int64()
-  external int port;
-}
-
-/// The native `ctx` of one registered implementation.
-final class _CallbackContext extends Struct {
-  @Int64()
-  external int key;
-  external Pointer<_CallbackPost> post;
-}
-
-// The `Dart_CObject` layout `Dart_PostCObject` reads.
-final class _CArray extends Struct {
-  @IntPtr()
-  external int length;
-  external Pointer<Pointer<_CObject>> values;
-}
-
-final class _CTypedData extends Struct {
-  @Int32()
-  external int type;
-  @IntPtr()
-  external int length;
-  external Pointer<Uint8> values;
-}
-
-final class _CValue extends Union {
-  @Bool()
-  external bool asBool;
-  @Int64()
-  external int asInt64;
-  @Double()
-  external double asDouble;
-  external _CArray asArray;
-  external _CTypedData asTypedData;
-}
-
-final class _CObject extends Struct {
-  @Int32()
-  external int type;
-  external _CValue value;
-}
-
-typedef _CallbackDispatch = void Function(
-    Object impl, int method, List<Object?> message);
-
-final class _CallbackEntry {
-  _CallbackEntry(this.impl, this.dispatch, this.context) : zone = Zone.current;
-
-  final Object impl;
-  final _CallbackDispatch dispatch;
-  final Pointer<_CallbackContext> context;
-  final Zone zone;
-}
-
-final Map<int, _CallbackEntry> _callbacks = <int, _CallbackEntry>{};
-int _nextCallbackKey = 1;
-
-/// Registers [impl] and returns the `ctx` the producer receives.
-Pointer<Void> _registerCallback(Object impl, _CallbackDispatch dispatch) {
-  final key = _nextCallbackKey++;
-  final context = calloc<_CallbackContext>();
-  context.ref
-    ..key = key
-    ..post = _callbackPost;
-  _callbacks[key] = _CallbackEntry(impl, dispatch, context);
-  return context.cast();
-}
-
-/// The implementation registered under [ctx].
-Object _callbackTarget(Pointer<Void> ctx) {
-  final key = ctx.cast<_CallbackContext>().ref.key;
-  final entry = _callbacks[key];
-  if (entry == null) {
-    throw StateError('callback context $key is not registered');
-  }
-  return entry.impl;
-}
-
-final Pointer<_CallbackPost> _callbackPost = () {
-  final port = RawReceivePort(_receiveCallbackMessage, 'callback messages');
-  port.keepIsolateAlive = false;
-  _callbackPort = port;
-  final allocator = Platform.isWindows
-      ? DynamicLibrary.open('ole32.dll')
-      : DynamicLibrary.process();
-  final post = calloc<_CallbackPost>();
-  post.ref
-    ..alloc = allocator.lookup(Platform.isWindows ? 'CoTaskMemAlloc' : 'malloc')
-    ..release = allocator.lookup(Platform.isWindows ? 'CoTaskMemFree' : 'free')
-    ..post = NativeApi.postCObject.cast()
-    ..port = port.sendPort.nativePort;
-  return post;
-}();
-
-RawReceivePort? _callbackPort;
-
-void _receiveCallbackMessage(Object? message) {
-  final fields = message! as List<Object?>;
-  final key = fields[0]! as int;
-  final method = fields[1]! as int;
-  if (method == _CallbackMessage.free) {
-    final entry = _callbacks.remove(key);
-    if (entry != null) calloc.free(entry.context);
-    return;
-  }
-  final entry = _callbacks[key];
-  if (entry == null) return;
-  entry.zone.runGuarded(() => entry.dispatch(entry.impl, method, fields));
-}
-
-/// One message from a forwarder: `[key, method, arguments...]`, built in
-/// native memory and posted with `Dart_PostCObject`, which copies it. Runs
-/// outside the isolate, so it touches no Dart globals.
-final class _CallbackMessage {
-  _CallbackMessage(Pointer<Void> ctx, int method, int arguments)
-      : _context = ctx.cast<_CallbackContext>().ref,
-        _capacity = arguments + 2 {
-    final post = _context.post.ref;
-    final alloc = post.alloc.asFunction<Pointer<Void> Function(int)>();
-    _objects = alloc(sizeOf<_CObject>() * (_capacity + 1)).cast();
-    _slots = alloc(sizeOf<Pointer<_CObject>>() * _capacity).cast();
-    int64(_context.key);
-    int64(method);
-  }
-
-  static const int free = -1;
-  static const int _kBool = 1;
-  static const int _kInt64 = 3;
-  static const int _kDouble = 4;
-  static const int _kArray = 6;
-  static const int _kTypedData = 7;
-  static const int _kUint8 = 2;
-
-  final _CallbackContext _context;
-  final int _capacity;
-  late final Pointer<_CObject> _objects;
-  late final Pointer<Pointer<_CObject>> _slots;
-  int _count = 0;
-
-  _CObject _next(int type) {
-    final object = _objects + (_count + 1);
-    _slots[_count++] = object;
-    return object.ref..type = type;
-  }
-
-  void boolean(bool v) => _next(_kBool).value.asBool = v;
-
-  void int64(int v) => _next(_kInt64).value.asInt64 = v;
-
-  void float64(double v) => _next(_kDouble).value.asDouble = v;
-
-  void pointer(Pointer<Void> v) => int64(v.address);
-
-  /// A borrowed byte run; posting copies it.
-  void bytes(Pointer<Uint8> ptr, int len) {
-    final data = _next(_kTypedData).value.asTypedData;
-    data
-      ..type = _kUint8
-      ..length = ptr == nullptr ? 0 : len
-      ..values = ptr;
-  }
-
-  void send() {
-    final post = _context.post.ref;
-    _objects.ref.type = _kArray;
-    _objects.ref.value.asArray
-      ..length = _count
-      ..values = _slots;
-    post.post.asFunction<bool Function(int, Pointer<_CObject>)>()(
-        post.port, _objects);
-    final release = post.release.asFunction<void Function(Pointer<Void>)>();
-    release(_slots.cast());
-    release(_objects.cast());
-  }
-}
-
-// The vtable `free` entry every callback interface shares.
-void _forwardCallbackFree(Pointer<Void> ctx) =>
-    _CallbackMessage(ctx, _CallbackMessage.free, 0).send();
-
-final Pointer<NativeFunction<Void Function(Pointer<Void>)>> _callbackFree =
-    _pin(NativeCallable<Void Function(Pointer<Void>)>.isolateGroupBound(
-        _forwardCallbackFree));
-
-// Vtable entries live for the process: they're never closed, so they're
-// anchored here, and they don't keep an idle isolate alive.
-final List<NativeCallable<Function>> _pinned = <NativeCallable<Function>>[];
-
-Pointer<NativeFunction<T>> _pin<T extends Function>(NativeCallable<T> callable) {
-  callable.keepIsolateAlive = false;
-  _pinned.add(callable);
-  return callable.nativeFunction;
-}
-
-final _errorSet = _lib.lookupFunction<
-    Void Function(Pointer<_Error>, Int32, Pointer<Utf8>),
-    void Function(Pointer<_Error>, int, Pointer<Utf8>)>('kosherz_error_set');
-
-final _errorSetPayload = _lib.lookupFunction<
-    Void Function(Pointer<_Error>, Pointer<Uint8>, Size),
-    void Function(
-        Pointer<_Error>, Pointer<Uint8>, int)>('kosherz_error_set_payload');
-
-final _alloc = _lib.lookupFunction<Pointer<Uint8> Function(Size),
-    Pointer<Uint8> Function(int)>('kosherz_alloc', isLeaf: true);
-
-/// Reports a failed callback method to the producer through [outErr]:
-/// `kosherz_error_set` copies [message], and `kosherz_error_set_payload`
-/// copies a domain code's encoded fields. Never throws: it runs in the catch
-/// path of a trampoline an exception must not unwind through.
-void _failCallback(
-    Pointer<_Error> outErr, int code, String message, Uint8List? payload) {
-  if (outErr == nullptr) return;
-  final text = message.toNativeUtf8(allocator: calloc);
-  try {
-    _errorSet(outErr, code, text);
-  } finally {
-    calloc.free(text);
-  }
-  if (payload == null || payload.isEmpty) return;
-  final bytes = calloc<Uint8>(payload.length);
-  try {
-    bytes.asTypedList(payload.length).setAll(0, payload);
-    _errorSetPayload(outErr, bytes, payload.length);
-  } finally {
-    calloc.free(bytes);
-  }
-}
-
-/// Reports an implementation's exception that isn't a domain error of the
-/// method with the foreign code (-4) and the exception's text.
-void _foreignError(Pointer<_Error> outErr, Object error) {
-  try {
-    _failCallback(outErr, NativeException.foreignCode, '$error', null);
-  } catch (_) {
-    _errorSet(outErr, NativeException.foreignCode, nullptr);
-  }
-}
-
-/// Hands [bytes] to the producer through a method's `out_ptr`/`out_len`
-/// slots as a run allocated with `kosherz_alloc`, which the producer
-/// adopts and frees. An empty run is null with length 0.
-void _handOver(
-    List<int> bytes, Pointer<Pointer<Uint8>> outPtr, Pointer<Size> outLen) {
-  final run = bytes.isEmpty ? nullptr : _alloc(bytes.length);
-  if (run != nullptr) run.asTypedList(bytes.length).setAll(0, bytes);
-  outPtr.value = run;
-  outLen.value = bytes.length;
-}
-
 void _packListOfHebrewMonth(_BufferWriter w, List<HebrewMonth> v) =>
     w.writeList(v, (e) => w.writeI32(e.value));
 
@@ -1057,6 +779,12 @@ void _packOptionalOfI64(_BufferWriter w, int? v) =>
 
 int? _unpackOptionalOfI64(_BufferReader r) =>
     r.readOptional(() => r.readI64());
+
+void _packOptionalOfLocalDay(_BufferWriter w, LocalDay? v) =>
+    w.writeOptional(v, (e) => _packLocalDay(w, e));
+
+LocalDay? _unpackOptionalOfLocalDay(_BufferReader r) =>
+    r.readOptional(() => _unpackLocalDay(r));
 
 void _packOptionalOfMishnaPair(_BufferWriter w, MishnaPair? v) =>
     w.writeOptional(v, (e) => _packMishnaPair(w, e));
@@ -2311,93 +2039,93 @@ YearInfo _unpackYearInfo(_BufferReader r) => YearInfo(
 
 final _kosherzCalendarHebrewDateClone = _lib.lookupFunction<
     Pointer<Void> Function(Pointer<Void>),
-    Pointer<Void> Function(Pointer<Void>)>('kosherz_calendar_HebrewDate_clone');
+    Pointer<Void> Function(Pointer<Void>)>('kosherz_calendar_HebrewDate_clone', isLeaf: true);
 
 final _kosherzCalendarHebrewDateDestroy = _lib.lookupFunction<
     Void Function(Pointer<Void>),
-    void Function(Pointer<Void>)>('kosherz_calendar_HebrewDate_destroy');
+    void Function(Pointer<Void>)>('kosherz_calendar_HebrewDate_destroy', isLeaf: true);
 final _kosherzCalendarHebrewDateDestroyFinalizer = NativeFinalizer(
     _lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('kosherz_calendar_HebrewDate_destroy'));
 
 final _kosherzCalendarHebrewDateNew = _lib.lookupFunction<
     Pointer<Void> Function(Int32, Int32, Int32, Pointer<_Error>),
-    Pointer<Void> Function(int, int, int, Pointer<_Error>)>('kosherz_calendar_HebrewDate_new');
+    Pointer<Void> Function(int, int, int, Pointer<_Error>)>('kosherz_calendar_HebrewDate_new', isLeaf: true);
 
 final _kosherzCalendarHebrewDateFromGregorian = _lib.lookupFunction<
     Pointer<Void> Function(Pointer<Uint8>, Size, Pointer<_Error>),
-    Pointer<Void> Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_HebrewDate_from_gregorian');
+    Pointer<Void> Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_HebrewDate_from_gregorian', isLeaf: true);
 
 final _kosherzCalendarHebrewDateYear = _lib.lookupFunction<
     Int32 Function(Pointer<Void>, Pointer<_Error>),
-    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_year');
+    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_year', isLeaf: true);
 
 final _kosherzCalendarHebrewDateMonth = _lib.lookupFunction<
     Int32 Function(Pointer<Void>, Pointer<_Error>),
-    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_month');
+    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_month', isLeaf: true);
 
 final _kosherzCalendarHebrewDateDay = _lib.lookupFunction<
     Int32 Function(Pointer<Void>, Pointer<_Error>),
-    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_day');
+    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_day', isLeaf: true);
 
 final _kosherzCalendarHebrewDateDayOfYear = _lib.lookupFunction<
     Int32 Function(Pointer<Void>, Pointer<_Error>),
-    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_day_of_year');
+    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_day_of_year', isLeaf: true);
 
 final _kosherzCalendarHebrewDateWeekday = _lib.lookupFunction<
     Int32 Function(Pointer<Void>, Pointer<_Error>),
-    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_weekday');
+    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_weekday', isLeaf: true);
 
 final _kosherzCalendarHebrewDateToGregorian = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_to_gregorian');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_to_gregorian', isLeaf: true);
 
 final _kosherzCalendarHebrewDateAddDays = _lib.lookupFunction<
     Pointer<Void> Function(Pointer<Void>, Int32, Pointer<_Error>),
-    Pointer<Void> Function(Pointer<Void>, int, Pointer<_Error>)>('kosherz_calendar_HebrewDate_add_days');
+    Pointer<Void> Function(Pointer<Void>, int, Pointer<_Error>)>('kosherz_calendar_HebrewDate_add_days', isLeaf: true);
 
 final _kosherzCalendarHebrewDateSpecialDays = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_special_days');
+    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_special_days', isLeaf: true);
 
 final _kosherzCalendarHebrewDateIsAssurBemelacha = _lib.lookupFunction<
     Bool Function(Pointer<Void>, Int32, Pointer<_Error>),
-    bool Function(Pointer<Void>, int, Pointer<_Error>)>('kosherz_calendar_HebrewDate_is_assur_bemelacha');
+    bool Function(Pointer<Void>, int, Pointer<_Error>)>('kosherz_calendar_HebrewDate_is_assur_bemelacha', isLeaf: true);
 
 final _kosherzCalendarHebrewDateHasCandleLighting = _lib.lookupFunction<
     Bool Function(Pointer<Void>, Int32, Pointer<_Error>),
-    bool Function(Pointer<Void>, int, Pointer<_Error>)>('kosherz_calendar_HebrewDate_has_candle_lighting');
+    bool Function(Pointer<Void>, int, Pointer<_Error>)>('kosherz_calendar_HebrewDate_has_candle_lighting', isLeaf: true);
 
 final _kosherzCalendarHebrewDateIsAseresYemeiTeshuva = _lib.lookupFunction<
     Bool Function(Pointer<Void>, Pointer<_Error>),
-    bool Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva');
+    bool Function(Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_is_aseres_yemei_teshuva', isLeaf: true);
 
 final _kosherzCalendarHebrewDateParsha = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_parsha');
+    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_parsha', isLeaf: true);
 
 final _kosherzCalendarHebrewDateSpecialParsha = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_special_parsha');
+    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_special_parsha', isLeaf: true);
 
 final _kosherzCalendarHebrewDateNextParsha = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_next_parsha');
+    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_next_parsha', isLeaf: true);
 
 final _kosherzCalendarHebrewDateMolad = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_molad');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_molad', isLeaf: true);
 
 final _kosherzCalendarHebrewDateDisplay = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_display');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_display', isLeaf: true);
 
 final _kosherzCalendarHebrewDateEquals = _lib.lookupFunction<
     Bool Function(Pointer<Void>, Pointer<Void>, Pointer<_Error>),
-    bool Function(Pointer<Void>, Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_equals');
+    bool Function(Pointer<Void>, Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_equals', isLeaf: true);
 
 final _kosherzCalendarHebrewDateCompare = _lib.lookupFunction<
     Int32 Function(Pointer<Void>, Pointer<Void>, Pointer<_Error>),
-    int Function(Pointer<Void>, Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_compare');
+    int Function(Pointer<Void>, Pointer<Void>, Pointer<_Error>)>('kosherz_calendar_HebrewDate_compare', isLeaf: true);
 
 /// A day on the Hebrew calendar: the civil day it mostly overlaps, since a Hebrew day
 /// begins at nightfall. It covers 1 January of year 1 (18 Teves 3761) to 29 Elul 9999.
@@ -2691,7 +2419,7 @@ final class HebrewDate extends _NativeObject {
 
 final _kosherzCalendarYearInfo = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_year_info');
+    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_year_info', isLeaf: true);
 
 /// Facts about the Hebrew year `year`.
 ///
@@ -2708,7 +2436,7 @@ YearInfo yearInfo(int year) {
 
 final _kosherzCalendarDaysInMonth = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_days_in_month');
+    Pointer<Uint8> Function(int, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_days_in_month', isLeaf: true);
 
 /// The number of days in `month` of `year`, or none when the year has no such month or is
 /// outside 3761 to 9999.
@@ -2720,7 +2448,7 @@ int? daysInMonth(int year, HebrewMonth month) {
 
 final _kosherzCalendarRoshHashana = _lib.lookupFunction<
     Pointer<Void> Function(Int32, Pointer<_Error>),
-    Pointer<Void> Function(int, Pointer<_Error>)>('kosherz_calendar_rosh_hashana');
+    Pointer<Void> Function(int, Pointer<_Error>)>('kosherz_calendar_rosh_hashana', isLeaf: true);
 
 /// 1 Tishrei of `year`.
 ///
@@ -2740,7 +2468,7 @@ HebrewDate roshHashana(int year) {
 
 final _kosherzCalendarSpecialDayName = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Uint8>, Size, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_special_day_name');
+    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_special_day_name', isLeaf: true);
 
 /// The day's English name, for example "Chanukah".
 ///
@@ -2764,7 +2492,7 @@ String specialDayName(SpecialDay specialDay) {
 
 final _kosherzCalendarSpecialDayHebrew = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Uint8>, Size, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_special_day_hebrew');
+    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_special_day_hebrew', isLeaf: true);
 
 /// The day's Hebrew name.
 ///
@@ -2788,7 +2516,7 @@ String specialDayHebrew(SpecialDay specialDay) {
 
 final _kosherzCalendarSpecialDayIsAssurBemelacha = _lib.lookupFunction<
     Bool Function(Pointer<Uint8>, Size, Pointer<_Error>),
-    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_special_day_is_assur_bemelacha');
+    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_special_day_is_assur_bemelacha', isLeaf: true);
 
 /// Whether melacha is forbidden on the holiday.
 ///
@@ -2812,7 +2540,7 @@ bool specialDayIsAssurBemelacha(SpecialDay specialDay) {
 
 final _kosherzCalendarSpecialDayIsModern = _lib.lookupFunction<
     Bool Function(Pointer<Uint8>, Size, Pointer<_Error>),
-    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_special_day_is_modern');
+    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_special_day_is_modern', isLeaf: true);
 
 /// Whether the holiday is a modern Israeli one, such as Yom Ha'atzmaut.
 ///
@@ -2836,7 +2564,7 @@ bool specialDayIsModern(SpecialDay specialDay) {
 
 final _kosherzCalendarSpecialDayIsFastDay = _lib.lookupFunction<
     Bool Function(Pointer<Uint8>, Size, Pointer<_Error>),
-    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_special_day_is_fast_day');
+    bool Function(Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_calendar_special_day_is_fast_day', isLeaf: true);
 
 /// Whether the holiday is a fast day.
 ///
@@ -2860,7 +2588,7 @@ bool specialDayIsFastDay(SpecialDay specialDay) {
 
 final _kosherzCalendarParshaName = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_parsha_name');
+    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_parsha_name', isLeaf: true);
 
 /// The portion's English name, for example "Lech Lecha".
 String parshaName(Parsha parsha) {
@@ -2871,7 +2599,7 @@ String parshaName(Parsha parsha) {
 
 final _kosherzCalendarParshaHebrew = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_parsha_hebrew');
+    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_parsha_hebrew', isLeaf: true);
 
 /// The portion's Hebrew name.
 String parshaHebrew(Parsha parsha) {
@@ -2882,7 +2610,7 @@ String parshaHebrew(Parsha parsha) {
 
 final _kosherzCalendarMonthName = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_month_name');
+    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_month_name', isLeaf: true);
 
 /// The month's English name, for example "Nisan".
 String monthName(HebrewMonth month) {
@@ -2893,7 +2621,7 @@ String monthName(HebrewMonth month) {
 
 final _kosherzCalendarMonthHebrew = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_month_hebrew');
+    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_month_hebrew', isLeaf: true);
 
 /// The month's Hebrew name.
 String monthHebrew(HebrewMonth month) {
@@ -3407,7 +3135,7 @@ MishnaPair _unpackMishnaPair(_BufferReader r) => MishnaPair(
 
 final _kosherzCalendarLimudimTractateName = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_tractate_name');
+    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_tractate_name', isLeaf: true);
 
 /// The tractate's English name, for example "Bava Metzia".
 String tractateName(Tractate tractate) {
@@ -3418,7 +3146,7 @@ String tractateName(Tractate tractate) {
 
 final _kosherzCalendarLimudimTractateHebrew = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_tractate_hebrew');
+    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_tractate_hebrew', isLeaf: true);
 
 /// The tractate's Hebrew name.
 String tractateHebrew(Tractate tractate) {
@@ -3429,7 +3157,7 @@ String tractateHebrew(Tractate tractate) {
 
 final _kosherzCalendarLimudimTehillimDisplay = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Uint8>, Size, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_tehillim_display');
+    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_tehillim_display', isLeaf: true);
 
 /// The portion as text, for example "Tehillim 1-9".
 ///
@@ -3452,7 +3180,7 @@ String tehillimDisplay(TehillimUnit unit) {
 
 final _kosherzCalendarLimudimPirkeiAvosDisplay = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Uint8>, Size, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_pirkei_avos_display');
+    Pointer<Uint8> Function(Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_pirkei_avos_display', isLeaf: true);
 
 /// The portion as text, for example "Pirkei Avos 5-6".
 ///
@@ -3475,7 +3203,7 @@ String pirkeiAvosDisplay(PirkeiAvosUnit unit) {
 
 final _kosherzCalendarLimudimDafYomiBavli = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_daf_yomi_bavli');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_daf_yomi_bavli', isLeaf: true);
 
 /// Daf Yomi: a page of the Babylonian Talmud a day, from 11 September 1923.
 Daf? dafYomiBavli(HebrewDate date) {
@@ -3492,7 +3220,7 @@ Daf? dafYomiBavli(HebrewDate date) {
 
 final _kosherzCalendarLimudimDafHashavuaBavli = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_daf_hashavua_bavli');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_daf_hashavua_bavli', isLeaf: true);
 
 /// Daf Hashavua: a page of the Babylonian Talmud a week.
 Daf? dafHashavuaBavli(HebrewDate date) {
@@ -3509,7 +3237,7 @@ Daf? dafHashavuaBavli(HebrewDate date) {
 
 final _kosherzCalendarLimudimDafYomiYerushalmi = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_daf_yomi_yerushalmi');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_daf_yomi_yerushalmi', isLeaf: true);
 
 /// Daf Yomi Yerushalmi: a page of the Jerusalem Talmud a day.
 Daf? dafYomiYerushalmi(HebrewDate date) {
@@ -3526,7 +3254,7 @@ Daf? dafYomiYerushalmi(HebrewDate date) {
 
 final _kosherzCalendarLimudimAmudYomiDirshu = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_amud_yomi_dirshu');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_amud_yomi_dirshu', isLeaf: true);
 
 /// Dirshu's Amud Yomi: one side of a page of the Babylonian Talmud a day.
 Amud? amudYomiDirshu(HebrewDate date) {
@@ -3543,7 +3271,7 @@ Amud? amudYomiDirshu(HebrewDate date) {
 
 final _kosherzCalendarLimudimMishnaYomis = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_mishna_yomis');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_mishna_yomis', isLeaf: true);
 
 /// Mishna Yomis: two *mishnayos* a day, from 20 May 1947.
 MishnaPair? mishnaYomis(HebrewDate date) {
@@ -3560,7 +3288,7 @@ MishnaPair? mishnaYomis(HebrewDate date) {
 
 final _kosherzCalendarLimudimTehillimMonthly = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_tehillim_monthly');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_tehillim_monthly', isLeaf: true);
 
 /// Tehillim divided over the days of the Hebrew month.
 TehillimUnit? tehillimMonthly(HebrewDate date) {
@@ -3577,7 +3305,7 @@ TehillimUnit? tehillimMonthly(HebrewDate date) {
 
 final _kosherzCalendarLimudimPirkeiAvos = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_pirkei_avos');
+    Pointer<Uint8> Function(Pointer<Void>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_calendar_limudim_pirkei_avos', isLeaf: true);
 
 /// Pirkei Avos: a chapter each Shabbos afternoon from Pesach to Rosh Hashana.
 PirkeiAvosUnit? pirkeiAvos(HebrewDate date, Region region) {
@@ -3623,18 +3351,20 @@ final class InvalidGregorianDateException extends ZmanimException {
   InvalidGregorianDateException([String message = 'The Gregorian date does not exist, or is outside the supported range.']) : super(4, message);
 }
 
-/// A time zone is needed and none was given. The four Kiddush Levana times need one.
+/// A local day is needed and none was given. The four Kiddush Levana times need one.
 /// `Zmanim` and `MyZmanim` also need one at a location more than 150 degrees from
 /// Greenwich.
 final class TimeZoneRequiredException extends ZmanimException {
   /// Creates a [TimeZoneRequiredException] (code 5).
-  TimeZoneRequiredException([String message = 'A time zone is needed and none was given. The four Kiddush Levana times need one.']) : super(5, message);
+  TimeZoneRequiredException([String message = 'A local day is needed and none was given. The four Kiddush Levana times need one.']) : super(5, message);
 }
 
-/// The time zone callback failed, or gave an offset of a day or more.
-final class TimeZoneCallbackFailedException extends ZmanimException {
-  /// Creates a [TimeZoneCallbackFailedException] (code 6).
-  TimeZoneCallbackFailedException([String message = 'The time zone callback failed, or gave an offset of a day or more.']) : super(6, message);
+/// The local day is impossible.
+///
+/// It ends before it starts or more than 48 hours after, or an offset is a day or more.
+final class InvalidLocalDayException extends ZmanimException {
+  /// Creates an [InvalidLocalDayException] (code 6).
+  InvalidLocalDayException([String message = 'The local day is impossible.']) : super(6, message);
 }
 
 /// A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
@@ -3688,7 +3418,7 @@ NativeException _mapZmanimException(int code, String message, Uint8List payload)
     case 5:
       return TimeZoneRequiredException(message);
     case 6:
-      return TimeZoneCallbackFailedException(message);
+      return InvalidLocalDayException(message);
     case 7:
       return InvalidMinutesException(message);
     case 8:
@@ -4191,11 +3921,9 @@ enum ZmanFailure {
   allNight(1),
   /// The time does not apply on this date.
   notApplicable(2),
-  /// The time needs a time zone and none was given. Only the four Kiddush Levana times need
+  /// The time needs a local day and none was given. Only the four Kiddush Levana times need
   /// one.
   timeZoneRequired(3),
-  /// The time zone callback failed.
-  timeZoneCallbackFailed(4),
   /// An internal calculation error.
   unexpected(5);
 
@@ -4213,7 +3941,7 @@ enum ZmanFailure {
 /// A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
 /// leave them 0 for sea level.
 ///
-/// The time zone is not part of the location. You pass a `TimeZoneOffset` to `Zmanim` and
+/// The time zone is not part of the location. You pass a `LocalDay` to `Zmanim` and
 /// `MyZmanim` when you create them.
 final class Location {
   /// Creates a [Location].
@@ -4261,6 +3989,63 @@ Location _unpackLocation(_BufferReader r) => Location(
       elevation: r.readF64(),
       easternHorizonElevation: r.readF64(),
       westernHorizonElevation: r.readF64(),
+    );
+
+/// The date in the caller's time zone: when local midnight starts it, when local midnight
+/// starts the next date, and the offset from UTC at each. Compute it with your platform's
+/// time zone support, for example `date.atStartOfDay(zone)` and
+/// `date.plusDays(1).atStartOfDay(zone)` in Java.
+///
+/// When the clocks skip midnight, the day starts at the first instant the clocks show that
+/// day, such as 01:00. A day the clocks skip entirely starts and ends at the same instant.
+///
+/// The local day is optional. With one every time works. You can also leave it out. These do
+/// not work without one:
+///
+/// - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
+/// - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
+///   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
+final class LocalDay {
+  /// Creates a [LocalDay].
+  LocalDay({required this.startMs, required this.startOffsetSeconds, required this.endMs, required this.endOffsetSeconds});
+
+  /// When local midnight starts the date, in Unix milliseconds.
+  final int startMs;
+  /// The offset from UTC at `start_ms`, in seconds east.
+  final int startOffsetSeconds;
+  /// When local midnight starts the next date, in Unix milliseconds.
+  final int endMs;
+  /// The offset from UTC at `end_ms`, in seconds east.
+  final int endOffsetSeconds;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LocalDay &&
+      startMs == other.startMs &&
+      startOffsetSeconds == other.startOffsetSeconds &&
+      endMs == other.endMs &&
+      endOffsetSeconds == other.endOffsetSeconds;
+
+  @override
+  int get hashCode => Object.hashAll([LocalDay, startMs, startOffsetSeconds, endMs, endOffsetSeconds]);
+
+  @override
+  String toString() => 'LocalDay(startMs: $startMs, startOffsetSeconds: $startOffsetSeconds, endMs: $endMs, endOffsetSeconds: $endOffsetSeconds)';
+}
+
+void _packLocalDay(_BufferWriter w, LocalDay v) {
+  w.writeI64(v.startMs);
+  w.writeI32(v.startOffsetSeconds);
+  w.writeI64(v.endMs);
+  w.writeI32(v.endOffsetSeconds);
+}
+
+LocalDay _unpackLocalDay(_BufferReader r) => LocalDay(
+      startMs: r.readI64(),
+      startOffsetSeconds: r.readI32(),
+      endMs: r.readI64(),
+      endOffsetSeconds: r.readI32(),
     );
 
 /// How `Zmanim` calculates. `default_config` matches KosherJava's defaults.
@@ -4365,147 +4150,47 @@ ZmanTime _unpackZmanTime(_BufferReader r) => ZmanTime(
       failure: _unpackOptionalOfZmanFailure(r),
     );
 
-/// The time zone. You supply it as a callback with two methods. One gives the offset from UTC
-/// at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
-/// `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
-///
-/// The time zone is optional. With a time zone every time works. You can also leave it out.
-/// These do not work without a time zone:
-///
-/// - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
-/// - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
-///   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
-///
-/// The callback is called synchronously, once for each sunrise, sunset or other event that a
-/// time is built from.
-///
-/// A callback interface: implement it and pass an instance to any
-/// function taking a [TimeZoneOffset]. The library keeps the instance alive
-/// until the producer releases it.
-///
-/// Methods that return a value run synchronously and must be called by
-/// the producer on this isolate's thread during a call from Dart; a
-/// thrown exception fails that call with [NativeException.foreignCode]
-/// (or, from a method that throws, the domain exception's code and
-/// fields). Void methods may be called from any thread: they're
-/// delivered asynchronously on this isolate's event loop, in the zone
-/// that passed the instance, where a thrown exception is an uncaught
-/// error of that zone. Object arguments are owned by the
-/// implementation.
-abstract class TimeZoneOffset {
-  /// The offset from UTC, in seconds east, in effect at `unix_seconds`.
-  ///
-  /// # Errors
-  ///
-  /// Fail when the offset is unknown. The calculation then reports
-  /// `ZmanimError::TimeZoneCallbackFailed`.
-  int offsetSeconds(int unixSeconds);
-
-  /// The Unix time, in seconds, at which the clocks in this time zone show the local date
-  /// and time given.
-  ///
-  /// Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
-  /// return the instant one gap length later. When the clocks show the time twice, return
-  /// the earlier instant. JavaScript's `Temporal` calls this the `compatible`
-  /// disambiguation, and it is Temporal's default.
-  ///
-  /// # Errors
-  ///
-  /// Fail when the instant is unknown. The calculation then reports
-  /// `ZmanimError::TimeZoneCallbackFailed`.
-  int localToUnixSeconds(int year, int month, int day, int hour, int minute, int second);
-}
-
-typedef _KosherzTimesTimeZoneOffsetOffsetSeconds = Int32 Function(Pointer<Void>, Int64, Pointer<_Error>);
-typedef _KosherzTimesTimeZoneOffsetLocalToUnixSeconds = Int64 Function(Pointer<Void>, Int32, Int32, Int32, Int32, Int32, Int32, Pointer<_Error>);
-
-// The C `kosherz_times_TimeZoneOffset_vtable` layout.
-final class _TimeZoneOffsetVtable extends Struct {
-  @Uint32()
-  external int size;
-  @Uint32()
-  external int flags;
-  external Pointer<NativeFunction<Void Function(Pointer<Void>)>> free;
-  external Pointer<NativeFunction<_KosherzTimesTimeZoneOffsetOffsetSeconds>> offsetSeconds;
-  external Pointer<NativeFunction<_KosherzTimesTimeZoneOffsetLocalToUnixSeconds>> localToUnixSeconds;
-}
-
-// Vtable entry `kosherz_times_TimeZoneOffset_vtable.offset_seconds`.
-int _timeZoneOffsetOffsetSeconds(Pointer<Void> ctx, int unixSeconds, Pointer<_Error> outErr) {
-  try {
-    return (_callbackTarget(ctx) as TimeZoneOffset).offsetSeconds(unixSeconds);
-  } catch (e) {
-    _foreignError(outErr, e);
-  }
-  return 0;
-}
-
-// Vtable entry `kosherz_times_TimeZoneOffset_vtable.local_to_unix_seconds`.
-int _timeZoneOffsetLocalToUnixSeconds(Pointer<Void> ctx, int year, int month, int day, int hour, int minute, int second, Pointer<_Error> outErr) {
-  try {
-    return (_callbackTarget(ctx) as TimeZoneOffset).localToUnixSeconds(year, month, day, hour, minute, second);
-  } catch (e) {
-    _foreignError(outErr, e);
-  }
-  return 0;
-}
-
-void _timeZoneOffsetDispatch(Object impl, int method, List<Object?> message) {
-  // Every TimeZoneOffset method returns a value: nothing is forwarded.
-}
-
-final Pointer<_TimeZoneOffsetVtable> _timeZoneOffsetVtable = () {
-  final vtable = calloc<_TimeZoneOffsetVtable>();
-  vtable.ref
-      ..size = sizeOf<_TimeZoneOffsetVtable>()
-      ..flags = 0
-      ..free = _callbackFree
-      ..offsetSeconds = _pin(NativeCallable<_KosherzTimesTimeZoneOffsetOffsetSeconds>.isolateLocal(_timeZoneOffsetOffsetSeconds, exceptionalReturn: 0))
-      ..localToUnixSeconds = _pin(NativeCallable<_KosherzTimesTimeZoneOffsetLocalToUnixSeconds>.isolateLocal(_timeZoneOffsetLocalToUnixSeconds, exceptionalReturn: 0));
-  return vtable;
-}();
-
 final _kosherzTimesZmanimClone = _lib.lookupFunction<
     Pointer<Void> Function(Pointer<Void>),
-    Pointer<Void> Function(Pointer<Void>)>('kosherz_times_Zmanim_clone');
+    Pointer<Void> Function(Pointer<Void>)>('kosherz_times_Zmanim_clone', isLeaf: true);
 
 final _kosherzTimesZmanimDestroy = _lib.lookupFunction<
     Void Function(Pointer<Void>),
-    void Function(Pointer<Void>)>('kosherz_times_Zmanim_destroy');
+    void Function(Pointer<Void>)>('kosherz_times_Zmanim_destroy', isLeaf: true);
 final _kosherzTimesZmanimDestroyFinalizer = NativeFinalizer(
     _lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('kosherz_times_Zmanim_destroy'));
 
 final _kosherzTimesZmanimNew = _lib.lookupFunction<
-    Pointer<Void> Function(Pointer<Uint8>, Size, Pointer<Uint8>, Size, Pointer<Uint8>, Size, Pointer<Void>, Pointer<Void>, Pointer<_Error>),
-    Pointer<Void> Function(Pointer<Uint8>, int, Pointer<Uint8>, int, Pointer<Uint8>, int, Pointer<Void>, Pointer<Void>, Pointer<_Error>)>('kosherz_times_Zmanim_new');
+    Pointer<Void> Function(Pointer<Uint8>, Size, Pointer<Uint8>, Size, Pointer<Uint8>, Size, Pointer<Uint8>, Size, Pointer<_Error>),
+    Pointer<Void> Function(Pointer<Uint8>, int, Pointer<Uint8>, int, Pointer<Uint8>, int, Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_times_Zmanim_new', isLeaf: true);
 
 final _kosherzTimesZmanimGet = _lib.lookupFunction<
     Int64 Function(Pointer<Void>, Int32, Pointer<_Error>),
-    int Function(Pointer<Void>, int, Pointer<_Error>)>('kosherz_times_Zmanim_get');
+    int Function(Pointer<Void>, int, Pointer<_Error>)>('kosherz_times_Zmanim_get', isLeaf: true);
 
 final _kosherzTimesZmanimAll = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_Zmanim_all');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_Zmanim_all', isLeaf: true);
 
 final _kosherzTimesZmanimSunriseOffsetByDegrees = _lib.lookupFunction<
     Int64 Function(Pointer<Void>, Double, Pointer<_Error>),
-    int Function(Pointer<Void>, double, Pointer<_Error>)>('kosherz_times_Zmanim_sunrise_offset_by_degrees');
+    int Function(Pointer<Void>, double, Pointer<_Error>)>('kosherz_times_Zmanim_sunrise_offset_by_degrees', isLeaf: true);
 
 final _kosherzTimesZmanimSunsetOffsetByDegrees = _lib.lookupFunction<
     Int64 Function(Pointer<Void>, Double, Pointer<_Error>),
-    int Function(Pointer<Void>, double, Pointer<_Error>)>('kosherz_times_Zmanim_sunset_offset_by_degrees');
+    int Function(Pointer<Void>, double, Pointer<_Error>)>('kosherz_times_Zmanim_sunset_offset_by_degrees', isLeaf: true);
 
 final _kosherzTimesZmanimLocation = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_Zmanim_location');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_Zmanim_location', isLeaf: true);
 
 final _kosherzTimesZmanimDate = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_Zmanim_date');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_Zmanim_date', isLeaf: true);
 
 final _kosherzTimesZmanimConfig = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_Zmanim_config');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_Zmanim_config', isLeaf: true);
 
 /// The *zmanim* for one place on one day.
 ///
@@ -4524,33 +4209,34 @@ final class Zmanim extends _NativeObject {
   @override
   Pointer<Void> _clone(Pointer<Void> ptr) => _kosherzTimesZmanimClone(ptr);
 
-  /// The *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
+  /// The *zmanim* at `location` on `date`, whose local day is `local_day`, calculated with
+  /// `config`.
   ///
-  /// The time zone is optional. With a time zone every time works. Without one the four
-  /// Kiddush Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150
-  /// degrees from Greenwich needs a time zone. Without one this returns
-  /// `ZmanimError::TimeZoneRequired`.
+  /// The local day is optional. With one every time works. Without one the four Kiddush
+  /// Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150 degrees
+  /// from Greenwich needs one. Without one this returns `ZmanimError::TimeZoneRequired`.
   ///
   /// # Errors
   ///
   /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
   /// - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
   ///   Ateret Torah offset is more than a day.
+  /// - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
   /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
-  ///   there is no time zone and the location is more than 150 degrees from Greenwich.
+  ///   there is no local day and the location is more than 150 degrees from Greenwich.
   ///
   /// The returned object is owned by the caller: call its `dispose()`
   /// when you're done with it.
   ///
   /// Throws [ZmanimException] on domain errors.
-  factory Zmanim(Location location, GregorianDate date, Config config, TimeZoneOffset? timeZone) {
+  factory Zmanim(Location location, GregorianDate date, Config config, LocalDay? localDay) {
     final _arena = Arena();
     try {
       final _locationBytes = _encode(location, _packLocation);
       final _dateBytes = _encode(date, _packGregorianDate);
       final _configBytes = _encode(config, _packConfig);
-      final _timeZoneCtx = timeZone == null ? nullptr : _registerCallback(timeZone, _timeZoneOffsetDispatch);
-      final _result = _kosherzTimesZmanimNew(_stage(_arena, _locationBytes), _locationBytes.length, _stage(_arena, _dateBytes), _dateBytes.length, _stage(_arena, _configBytes), _configBytes.length, _timeZoneCtx, timeZone == null ? nullptr : _timeZoneOffsetVtable.cast<Void>(), _err);
+      final _localDayBytes = _encode(localDay, _packOptionalOfLocalDay);
+      final _result = _kosherzTimesZmanimNew(_stage(_arena, _locationBytes), _locationBytes.length, _stage(_arena, _dateBytes), _dateBytes.length, _stage(_arena, _configBytes), _configBytes.length, _stage(_arena, _localDayBytes), _localDayBytes.length, _err);
       _check(_err, _mapZmanimException);
       return Zmanim._(_result);
     } finally {
@@ -4565,7 +4251,7 @@ final class Zmanim extends _NativeObject {
   /// `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
   /// the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
   /// on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
-  /// a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+  /// a local day.
   ///
   /// Throws [ZmanimException] on domain errors.
   int get(Zman zman) {
@@ -4670,7 +4356,7 @@ final class Zmanim extends _NativeObject {
 
 final _kosherzTimesSeaLevelLocation = _lib.lookupFunction<
     Pointer<Uint8> Function(Double, Double, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(double, double, Pointer<Size>, Pointer<_Error>)>('kosherz_times_sea_level_location');
+    Pointer<Uint8> Function(double, double, Pointer<Size>, Pointer<_Error>)>('kosherz_times_sea_level_location', isLeaf: true);
 
 /// A location at sea level, with flat horizons.
 Location seaLevelLocation(double latitude, double longitude) {
@@ -4681,7 +4367,7 @@ Location seaLevelLocation(double latitude, double longitude) {
 
 final _kosherzTimesValidateLocation = _lib.lookupFunction<
     Void Function(Pointer<Uint8>, Size, Bool, Pointer<_Error>),
-    void Function(Pointer<Uint8>, int, bool, Pointer<_Error>)>('kosherz_times_validate_location');
+    void Function(Pointer<Uint8>, int, bool, Pointer<_Error>)>('kosherz_times_validate_location', isLeaf: true);
 
 /// Checks a location the way `Zmanim` will.
 ///
@@ -4705,7 +4391,7 @@ void validateLocation(Location location, bool hasTimeZone) {
 
 final _kosherzTimesDefaultConfig = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Size>, Pointer<_Error>)>('kosherz_times_default_config');
+    Pointer<Uint8> Function(Pointer<Size>, Pointer<_Error>)>('kosherz_times_default_config', isLeaf: true);
 
 /// KosherJava's default configuration.
 Config defaultConfig() {
@@ -4716,7 +4402,7 @@ Config defaultConfig() {
 
 final _kosherzTimesAllZmanim = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Size>, Pointer<_Error>)>('kosherz_times_all_zmanim');
+    Pointer<Uint8> Function(Pointer<Size>, Pointer<_Error>)>('kosherz_times_all_zmanim', isLeaf: true);
 
 /// Every zman, grouped by `Category`.
 List<Zman> allZmanim() {
@@ -4727,7 +4413,7 @@ List<Zman> allZmanim() {
 
 final _kosherzTimesZmanName = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_times_zman_name');
+    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_times_zman_name', isLeaf: true);
 
 /// The zman's display name, for example "Sof Zman Shma (GR'A)".
 String zmanName(Zman zman) {
@@ -4738,7 +4424,7 @@ String zmanName(Zman zman) {
 
 final _kosherzTimesZmanJavaName = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_times_zman_java_name');
+    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_times_zman_java_name', isLeaf: true);
 
 /// The KosherJava method that calculates the zman, for example "getSofZmanShmaGRA".
 String zmanJavaName(Zman zman) {
@@ -4749,7 +4435,7 @@ String zmanJavaName(Zman zman) {
 
 final _kosherzTimesZmanCategory = _lib.lookupFunction<
     Int32 Function(Int32, Pointer<_Error>),
-    int Function(int, Pointer<_Error>)>('kosherz_times_zman_category');
+    int Function(int, Pointer<_Error>)>('kosherz_times_zman_category', isLeaf: true);
 
 /// What kind of time the zman is.
 Category zmanCategory(Zman zman) {
@@ -4760,7 +4446,7 @@ Category zmanCategory(Zman zman) {
 
 final _kosherzTimesZmanIsDeprecated = _lib.lookupFunction<
     Bool Function(Int32, Pointer<_Error>),
-    bool Function(int, Pointer<_Error>)>('kosherz_times_zman_is_deprecated');
+    bool Function(int, Pointer<_Error>)>('kosherz_times_zman_is_deprecated', isLeaf: true);
 
 /// Whether KosherJava deprecates the zman.
 bool zmanIsDeprecated(Zman zman) {
@@ -4771,7 +4457,7 @@ bool zmanIsDeprecated(Zman zman) {
 
 final _kosherzTimesZmanDescription = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Uint8>, Size, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_times_zman_description');
+    Pointer<Uint8> Function(int, Pointer<Uint8>, int, Pointer<Size>, Pointer<_Error>)>('kosherz_times_zman_description', isLeaf: true);
 
 /// A paragraph or two explaining the zman to users, with the offsets from `config` filled
 /// in. May contain Markdown links.
@@ -4789,7 +4475,7 @@ String zmanDescription(Zman zman, Config config) {
 
 final _kosherzTimesCalculatorName = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_times_calculator_name');
+    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_times_calculator_name', isLeaf: true);
 
 /// The algorithm's descriptive name, as KosherJava's `getCalculatorName` gives it.
 String calculatorName(Calculator calculator) {
@@ -4800,7 +4486,7 @@ String calculatorName(Calculator calculator) {
 
 final _kosherzTimesShaahZmanis = _lib.lookupFunction<
     Int64 Function(Int64, Int64, Pointer<_Error>),
-    int Function(int, int, Pointer<_Error>)>('kosherz_times_shaah_zmanis');
+    int Function(int, int, Pointer<_Error>)>('kosherz_times_shaah_zmanis', isLeaf: true);
 
 /// A *shaah zmanis*: a twelfth of the day from `start` to `end` (Unix milliseconds), in
 /// milliseconds.
@@ -4945,41 +4631,41 @@ MyZmanTime _unpackMyZmanTime(_BufferReader r) => MyZmanTime(
 
 final _kosherzTimesMyzmanimMyZmanimClone = _lib.lookupFunction<
     Pointer<Void> Function(Pointer<Void>),
-    Pointer<Void> Function(Pointer<Void>)>('kosherz_times_myzmanim_MyZmanim_clone');
+    Pointer<Void> Function(Pointer<Void>)>('kosherz_times_myzmanim_MyZmanim_clone', isLeaf: true);
 
 final _kosherzTimesMyzmanimMyZmanimDestroy = _lib.lookupFunction<
     Void Function(Pointer<Void>),
-    void Function(Pointer<Void>)>('kosherz_times_myzmanim_MyZmanim_destroy');
+    void Function(Pointer<Void>)>('kosherz_times_myzmanim_MyZmanim_destroy', isLeaf: true);
 final _kosherzTimesMyzmanimMyZmanimDestroyFinalizer = NativeFinalizer(
     _lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('kosherz_times_myzmanim_MyZmanim_destroy'));
 
 final _kosherzTimesMyzmanimMyZmanimNew = _lib.lookupFunction<
-    Pointer<Void> Function(Pointer<Uint8>, Size, Pointer<Uint8>, Size, Double, Pointer<Void>, Pointer<Void>, Pointer<_Error>),
-    Pointer<Void> Function(Pointer<Uint8>, int, Pointer<Uint8>, int, double, Pointer<Void>, Pointer<Void>, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_new');
+    Pointer<Void> Function(Pointer<Uint8>, Size, Pointer<Uint8>, Size, Double, Pointer<Uint8>, Size, Pointer<_Error>),
+    Pointer<Void> Function(Pointer<Uint8>, int, Pointer<Uint8>, int, double, Pointer<Uint8>, int, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_new', isLeaf: true);
 
 final _kosherzTimesMyzmanimMyZmanimGet = _lib.lookupFunction<
     Int64 Function(Pointer<Void>, Int32, Pointer<_Error>),
-    int Function(Pointer<Void>, int, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_get');
+    int Function(Pointer<Void>, int, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_get', isLeaf: true);
 
 final _kosherzTimesMyzmanimMyZmanimAll = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_all');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_all', isLeaf: true);
 
 final _kosherzTimesMyzmanimMyZmanimProportionalHourGra = _lib.lookupFunction<
     Int64 Function(Pointer<Void>, Pointer<_Error>),
-    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_proportional_hour_gra');
+    int Function(Pointer<Void>, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_proportional_hour_gra', isLeaf: true);
 
 final _kosherzTimesMyzmanimMyZmanimLocation = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_location');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_location', isLeaf: true);
 
 final _kosherzTimesMyzmanimMyZmanimDate = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_date');
+    Pointer<Uint8> Function(Pointer<Void>, Pointer<Size>, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_date', isLeaf: true);
 
 final _kosherzTimesMyzmanimMyZmanimCandleLightingMinutes = _lib.lookupFunction<
     Double Function(Pointer<Void>, Pointer<_Error>),
-    double Function(Pointer<Void>, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes');
+    double Function(Pointer<Void>, Pointer<_Error>)>('kosherz_times_myzmanim_MyZmanim_candle_lighting_minutes', isLeaf: true);
 
 /// MyZmanim's *zmanim* for one place on one day. The location's elevation and horizons
 /// matter: MyZmanim gives both "level" and "elevated" sunrise and sunset.
@@ -4999,11 +4685,11 @@ final class MyZmanim extends _NativeObject {
   @override
   Pointer<Void> _clone(Pointer<Void> ptr) => _kosherzTimesMyzmanimMyZmanimClone(ptr);
 
-  /// The *zmanim* at `location` on `date` in `time_zone`. Candles are lit
+  /// The *zmanim* at `location` on `date`, whose local day is `local_day`. Candles are lit
   /// `candle_lighting_minutes` before sunset. The website uses 18 minutes by default.
   ///
-  /// The time zone is optional. With a time zone every time works. A location more than
-  /// 150 degrees from Greenwich needs a time zone. Without one this returns
+  /// The local day is optional. With one every time works. A location more than 150
+  /// degrees from Greenwich needs one. Without one this returns
   /// `ZmanimError::TimeZoneRequired`.
   ///
   /// # Errors
@@ -5011,21 +4697,22 @@ final class MyZmanim extends _NativeObject {
   /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
   /// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
   ///   0 to 1440.
+  /// - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
   /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
-  ///   when there is no time zone and the location is more than 150 degrees from
+  ///   when there is no local day and the location is more than 150 degrees from
   ///   Greenwich.
   ///
   /// The returned object is owned by the caller: call its `dispose()`
   /// when you're done with it.
   ///
   /// Throws [ZmanimException] on domain errors.
-  factory MyZmanim(Location location, GregorianDate date, double candleLightingMinutes, TimeZoneOffset? timeZone) {
+  factory MyZmanim(Location location, GregorianDate date, double candleLightingMinutes, LocalDay? localDay) {
     final _arena = Arena();
     try {
       final _locationBytes = _encode(location, _packLocation);
       final _dateBytes = _encode(date, _packGregorianDate);
-      final _timeZoneCtx = timeZone == null ? nullptr : _registerCallback(timeZone, _timeZoneOffsetDispatch);
-      final _result = _kosherzTimesMyzmanimMyZmanimNew(_stage(_arena, _locationBytes), _locationBytes.length, _stage(_arena, _dateBytes), _dateBytes.length, candleLightingMinutes, _timeZoneCtx, timeZone == null ? nullptr : _timeZoneOffsetVtable.cast<Void>(), _err);
+      final _localDayBytes = _encode(localDay, _packOptionalOfLocalDay);
+      final _result = _kosherzTimesMyzmanimMyZmanimNew(_stage(_arena, _locationBytes), _locationBytes.length, _stage(_arena, _dateBytes), _dateBytes.length, candleLightingMinutes, _stage(_arena, _localDayBytes), _localDayBytes.length, _err);
       _check(_err, _mapZmanimException);
       return MyZmanim._(_result);
     } finally {
@@ -5038,7 +4725,7 @@ final class MyZmanim extends _NativeObject {
   /// # Errors
   ///
   /// `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
-  /// time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+  /// time.
   ///
   /// Throws [ZmanimException] on domain errors.
   int get(MyZman zman) {
@@ -5121,7 +4808,7 @@ final class MyZmanim extends _NativeObject {
 
 final _kosherzTimesMyzmanimMyZmanName = _lib.lookupFunction<
     Pointer<Uint8> Function(Int32, Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_times_myzmanim_my_zman_name');
+    Pointer<Uint8> Function(int, Pointer<Size>, Pointer<_Error>)>('kosherz_times_myzmanim_my_zman_name', isLeaf: true);
 
 /// The row's name as the website shows it.
 String myZmanName(MyZman zman) {
@@ -5132,7 +4819,7 @@ String myZmanName(MyZman zman) {
 
 final _kosherzTimesMyzmanimAllMyZmanim = _lib.lookupFunction<
     Pointer<Uint8> Function(Pointer<Size>, Pointer<_Error>),
-    Pointer<Uint8> Function(Pointer<Size>, Pointer<_Error>)>('kosherz_times_myzmanim_all_my_zmanim');
+    Pointer<Uint8> Function(Pointer<Size>, Pointer<_Error>)>('kosherz_times_myzmanim_all_my_zmanim', isLeaf: true);
 
 /// Every row, in the website's order.
 List<MyZman> allMyZmanim() {
@@ -5143,7 +4830,7 @@ List<MyZman> allMyZmanim() {
 
 final _kosherzTimesMyzmanimDawn90Degrees = _lib.lookupFunction<
     Double Function(Pointer<_Error>),
-    double Function(Pointer<_Error>)>('kosherz_times_myzmanim_dawn_90_degrees');
+    double Function(Pointer<_Error>)>('kosherz_times_myzmanim_dawn_90_degrees', isLeaf: true);
 
 /// The sun's depression for "90 minutes as degrees": 19.75 degrees.
 double dawn90Degrees() {
@@ -5154,7 +4841,7 @@ double dawn90Degrees() {
 
 final _kosherzTimesMyzmanimDawn72Degrees = _lib.lookupFunction<
     Double Function(Pointer<_Error>),
-    double Function(Pointer<_Error>)>('kosherz_times_myzmanim_dawn_72_degrees');
+    double Function(Pointer<_Error>)>('kosherz_times_myzmanim_dawn_72_degrees', isLeaf: true);
 
 /// The sun's depression for "72 minutes as 16.1 degrees".
 double dawn72Degrees() {
@@ -5165,7 +4852,7 @@ double dawn72Degrees() {
 
 final _kosherzTimesMyzmanimSeaLevelRefractionArcminutes = _lib.lookupFunction<
     Double Function(Pointer<_Error>),
-    double Function(Pointer<_Error>)>('kosherz_times_myzmanim_sea_level_refraction_arcminutes');
+    double Function(Pointer<_Error>)>('kosherz_times_myzmanim_sea_level_refraction_arcminutes', isLeaf: true);
 
 /// Refraction at a sea-level horizon, in arcminutes.
 double seaLevelRefractionArcminutes() {
@@ -5176,7 +4863,7 @@ double seaLevelRefractionArcminutes() {
 
 final _kosherzTimesMyzmanimDipDegreesPerRootMeter = _lib.lookupFunction<
     Double Function(Pointer<_Error>),
-    double Function(Pointer<_Error>)>('kosherz_times_myzmanim_dip_degrees_per_root_meter');
+    double Function(Pointer<_Error>)>('kosherz_times_myzmanim_dip_degrees_per_root_meter', isLeaf: true);
 
 /// The dip of the horizon per square root of a meter of height, in degrees.
 double dipDegreesPerRootMeter() {
@@ -5187,7 +4874,7 @@ double dipDegreesPerRootMeter() {
 
 final _kosherzTimesMyzmanimDefaultCandleLightingMinutes = _lib.lookupFunction<
     Double Function(Pointer<_Error>),
-    double Function(Pointer<_Error>)>('kosherz_times_myzmanim_default_candle_lighting_minutes');
+    double Function(Pointer<_Error>)>('kosherz_times_myzmanim_default_candle_lighting_minutes', isLeaf: true);
 
 /// The website's default minutes before sunset for candle lighting.
 double defaultCandleLightingMinutes() {

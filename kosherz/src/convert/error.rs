@@ -38,8 +38,8 @@ impl Message for ZmanimError {
             Self::InvalidLongitude => "longitude must be between -180 and 180 degrees",
             Self::InvalidElevation => "elevation must be a finite number of meters, 0 or more",
             Self::InvalidGregorianDate => "no such date, or outside the supported range",
-            Self::TimeZoneRequired => "this needs a time zone",
-            Self::TimeZoneCallbackFailed => "the time zone callback failed or gave an offset of a day or more",
+            Self::TimeZoneRequired => "this needs the local day",
+            Self::InvalidLocalDay => "the local day must end 0 to 48 hours after it starts, with offsets under a day",
             Self::InvalidMinutes => "minutes must be a finite number from -1440 to 1440",
             Self::InvalidDegrees => "degrees must be a number from -90 to 90",
             Self::AllDay => "the sun does not go low enough for this time on this date",
@@ -80,13 +80,13 @@ impl From<ZmanimError> for ZmanFailure {
             ZmanimError::AllNight => Self::AllNight,
             ZmanimError::NotApplicable => Self::NotApplicable,
             ZmanimError::TimeZoneRequired => Self::TimeZoneRequired,
-            ZmanimError::TimeZoneCallbackFailed => Self::TimeZoneCallbackFailed,
             ZmanimError::InvalidLatitude
             | ZmanimError::InvalidLongitude
             | ZmanimError::InvalidElevation
             | ZmanimError::InvalidGregorianDate
             | ZmanimError::InvalidMinutes
             | ZmanimError::InvalidDegrees
+            | ZmanimError::InvalidLocalDay
             | ZmanimError::Unexpected => Self::Unexpected,
         }
     }

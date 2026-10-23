@@ -22,15 +22,13 @@ Conventions:
 - **Instants** are milliseconds since the Unix epoch (an `i64`: a `bigint` in JavaScript);
   durations are milliseconds.
 - **Gregorian dates** are `GregorianDate { year, month, day }` records.
-- **Time zones** come from you. You supply a `TimeZoneOffset` callback with two methods. The
-  first returns the UTC offset in seconds at a Unix time. The second returns the Unix time at
-  which the clocks show a local date and time. It must resolve that time the way Java's
-  `ZonedDateTime.of` does. When the clocks skip the time, it returns the instant one gap length
-  later. When the clocks show the time twice, it returns the earlier instant. No time zone database
-  is bundled.
+- **Time zones** stay on your side. For each date you pass a `LocalDay`, which says when local
+  midnight starts the date, when it starts the next date, and the UTC offset at each. No time zone
+  database is bundled, and your platform's own rules are used. The recipes below show how to fill
+  one in.
 
-  The time zone is optional. With a time zone every time works. You can also leave it out. These
-  do not work without a time zone:
+  The local day is optional. With one every time works. You can also leave it out. These do not
+  work without one:
   - The four Kiddush Levana times fail with `TimeZoneRequired`. They are
     `TchilasZmanKidushLevana3Days`, `TchilasZmanKidushLevana7Days`,
     `SofZmanKidushLevanaBetweenMoldos` and `SofZmanKidushLevana15Days`.
@@ -38,7 +36,47 @@ Conventions:
     Creating them fails with `TimeZoneRequired`.
 - **Errors** are typed, with one error type per module. `CalendarError` has `InvalidDate` and
   `InvalidSpecialDay`. `LimudimError` has `InvalidUnit`. `ZmanimError` has `InvalidLatitude`,
-  `AllNight`, `TimeZoneCallbackFailed` and the rest.
+  `AllNight`, `InvalidLocalDay` and the rest.
+
+## Filling in a `LocalDay`
+
+Take the start of the date and the start of the next date in your time zone, and the offset at
+each. When the clocks skip midnight, the day starts at the first instant the clocks show that day,
+such as 01:00. A day the clocks skip entirely, like 30 December 2011 in Samoa, starts and ends at
+the same instant. The recipes below already do this.
+
+Java and Kotlin, with `java.time`:
+
+```java
+ZonedDateTime start = date.atStartOfDay(zone);
+ZonedDateTime end = date.plusDays(1).atStartOfDay(zone);
+new LocalDay(start.toInstant().toEpochMilli(), start.getOffset().getTotalSeconds(),
+             end.toInstant().toEpochMilli(), end.getOffset().getTotalSeconds());
+```
+
+JavaScript, with `Temporal`:
+
+```js
+const day = Temporal.PlainDate.from(date);
+const start = day.toZonedDateTime(zone);
+const end = day.add({ days: 1 }).toZonedDateTime(zone);
+({ start_ms: BigInt(start.epochMilliseconds), start_offset_seconds: start.offsetNanoseconds / 1e9,
+   end_ms: BigInt(end.epochMilliseconds), end_offset_seconds: end.offsetNanoseconds / 1e9 });
+```
+
+Python, with `zoneinfo`:
+
+```python
+start = datetime(date.year, date.month, date.day, tzinfo=zone)
+end = datetime.combine(date + timedelta(days=1), time(), tzinfo=zone)
+LocalDay(start_ms=int(start.timestamp()) * 1000, start_offset_seconds=int(start.utcoffset().total_seconds()),
+         end_ms=int(end.timestamp()) * 1000, end_offset_seconds=int(end.utcoffset().total_seconds()))
+```
+
+Swift's `Calendar.startOfDay(for:)` gives the same two instants, and `TimeZone.secondsFromGMT(for:)`
+the offsets. In .NET and Go, step past a skipped midnight yourself. .NET's `TimeZoneInfo` throws
+for a skipped local time, so check it with `IsInvalidTime`, and Go's `time.Date` leaves the
+choice open. The smoke tests in `tests/` show each language.
 
 ## Generate
 
@@ -63,19 +101,19 @@ as shown.
 import { calendar, times } from 'kosherz';
 const { limudim } = calendar;
 
-// Eastern Daylight Time all year. A real time zone answers both questions from its rules.
-const newYork = {
-  // The offset from UTC in seconds east at an instant.
-  offsetSeconds: (unixSeconds) => -4 * 3600,
-  // The Unix time at which the clocks show a local date and time.
-  localToUnixSeconds: (year, month, day, hour, minute, second) =>
-    BigInt(Date.UTC(year, month - 1, day, hour, minute, second) / 1000 + 4 * 3600),
+// 23 April 2024 in Eastern Daylight Time: midnight is 04:00 UTC, and the offset is -4 hours.
+const start = Date.UTC(2024, 3, 23, 4);
+const localDay = {
+  start_ms: BigInt(start),
+  start_offset_seconds: -4 * 3600,
+  end_ms: BigInt(start + 86_400_000),
+  end_offset_seconds: -4 * 3600,
 };
 const day = new times.Zmanim(
   times.seaLevelLocation(40.09, -74.22),
   { year: 2024, month: 4, day: 23 },
   times.defaultConfig(),
-  newYork,
+  localDay,
 );
 new Date(Number(day.get(times.Zman.SofZmanShmaGra)));
 
@@ -84,14 +122,14 @@ date.specialDays(calendar.Region.Diaspora); // [{ tag: 'Pesach' }]
 limudim.dafYomiBavli(date).display;     // 'Bava Metzia 55'
 ```
 
-`tests/node/smoke.test.mjs` has a complete time zone built on the Temporal polyfill. Install it
-with `npm install` in `tests/node` before running the tests.
+`tests/node/smoke.test.mjs` builds its local days from real time zones with the Temporal
+polyfill. Install it with `npm install` in `tests/node` before running the tests.
 
 ### Python
 
 From `kosherz`, after `cargo build -p kosherz`. The library is `libkosherz.so` on
-Linux, `libkosherz.dylib` on macOS and `kosherz.dll` on Windows. The example takes its time zone
-from Python's `zoneinfo`. On Windows, `zoneinfo` needs the `tzdata` package, so run
+Linux, `libkosherz.dylib` on macOS and `kosherz.dll` on Windows. The example builds its local
+days from Python's `zoneinfo`. On Windows, `zoneinfo` needs the `tzdata` package, so run
 `pip install tzdata` first.
 
 ```bash
@@ -112,11 +150,12 @@ python examples/smoke.py
 - `src/api.rs` declares everything exported; WeaveFFI reads it to generate the bindings, so it has
   to be written out in full, inline. `src/convert/` converts to and from kosher-rust's types.
 - The `Zman` and `MyZman` enums are generated from kosher-rust. After a zman is added, run
-  `UPDATE_GENERATED=1 cargo test -p kosherz codegen`; until then the conversions
-  don't compile and the drift test fails.
+  `UPDATE_GENERATED=1 cargo test -p kosherz codegen`. Until then the drift test fails, and the
+  bindings leave the new zman out.
 - `cargo test -p kosherz` checks the bindings against kosher-rust. Among other things,
-  every zman over a year at six places, with all three solar algorithms, through a callback time
-  zone, must equal kosher-rust's with jiff's time zone.
+  every zman over a year at six places, with all three solar algorithms, given only a `LocalDay`,
+  must equal kosher-rust's with the full jiff time zone. So must the days the clocks skipped in
+  Samoa, Kiritimati and Kwajalein, and Lord Howe Island's half-hour changes.
 - `generated/` is committed. After changing the API (or upgrading WeaveFFI or kosher-rust), run
   `weaveffi generate` here and commit the result: CI regenerates every language and fails if
   anything in `generated/` changed, appeared or disappeared.

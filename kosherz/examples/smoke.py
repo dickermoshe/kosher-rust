@@ -2,54 +2,40 @@
 says how to run it."""
 
 import calendar
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import kosherz as k
 
 
-class IanaZone(k.TimeZoneOffset):
-    """An IANA time zone, through Python's zoneinfo."""
-
-    def __init__(self, name: str) -> None:
-        self.zone = ZoneInfo(name)
-
-    def offset_seconds(self, unix_seconds: int) -> int:
-        return int(datetime.fromtimestamp(unix_seconds, self.zone).utcoffset().total_seconds())
-
-    def local_to_unix_seconds(self, year: int, month: int, day: int, hour: int, minute: int, second: int) -> int:
-        # fold=0 resolves a skipped or repeated local time the way Java's ZonedDateTime.of does.
-        return int(datetime(year, month, day, hour, minute, second, tzinfo=self.zone, fold=0).timestamp())
+def local_day(zone: ZoneInfo, year: int, month: int, day: int) -> k.LocalDay:
+    """The date in `zone`: its two local midnights and the offsets at them."""
+    start = datetime(year, month, day, tzinfo=zone)
+    end = datetime.combine(start.date() + timedelta(days=1), datetime.min.time(), tzinfo=zone)
+    return k.LocalDay(
+        start_ms=int(start.timestamp()) * 1000,
+        start_offset_seconds=int(start.utcoffset().total_seconds()),
+        end_ms=int(end.timestamp()) * 1000,
+        end_offset_seconds=int(end.utcoffset().total_seconds()),
+    )
 
 
-class FixedZone(k.TimeZoneOffset):
-    """UTC plus `hours` all year."""
-
-    def __init__(self, hours: int) -> None:
-        self.seconds = hours * 3600
-
-    def offset_seconds(self, unix_seconds: int) -> int:
-        return self.seconds
-
-    def local_to_unix_seconds(self, year: int, month: int, day: int, hour: int, minute: int, second: int) -> int:
-        return calendar.timegm((year, month, day, hour, minute, second)) - self.seconds
+def fixed_day(hours: int, year: int, month: int, day: int) -> k.LocalDay:
+    """The date at UTC plus `hours` all year."""
+    start = (calendar.timegm((year, month, day, 0, 0, 0)) - hours * 3600) * 1000
+    return k.LocalDay(
+        start_ms=start,
+        start_offset_seconds=hours * 3600,
+        end_ms=start + 86_400_000,
+        end_offset_seconds=hours * 3600,
+    )
 
 
-class BrokenZone(k.TimeZoneOffset):
-    """A time zone whose callbacks fail."""
-
-    def offset_seconds(self, unix_seconds: int) -> int:
-        raise RuntimeError("no time zone data")
-
-    def local_to_unix_seconds(self, year: int, month: int, day: int, hour: int, minute: int, second: int) -> int:
-        raise RuntimeError("no time zone data")
-
-
-new_york = IanaZone("America/New_York")
+new_york = ZoneInfo("America/New_York")
 
 
 def local(ms: int) -> str:
-    return f"{datetime.fromtimestamp(ms / 1000, new_york.zone):%H:%M:%S}"
+    return f"{datetime.fromtimestamp(ms / 1000, new_york):%H:%M:%S}"
 
 
 def raises(error: type, call) -> None:
@@ -61,25 +47,27 @@ def raises(error: type, call) -> None:
 
 
 lakewood = k.sea_level_location(40.09, -74.22)
-day = k.Zmanim(lakewood, k.GregorianDate(2024, 4, 23), k.default_config(), new_york)
+april = k.GregorianDate(2024, 4, 23)
+day = k.Zmanim(lakewood, april, k.default_config(), local_day(new_york, 2024, 4, 23))
 assert local(day.get(k.Zman.Sunrise)) == "06:06:35"
 assert local(day.get(k.Zman.SofZmanShmaGra)) == "09:31:00"
 assert len(day.all()) == len(k.all_zmanim())
 raises(k.NotApplicable, lambda: day.get(k.Zman.SofZmanAchilasChametzGra))
 
 # Kiddush Levana is the one time whose day depends on the offset: with UTC-4 it falls on 3 December
-# 2024, and with UTC+4 or UTC it does not.
-kiddush_levana = k.Zmanim(lakewood, k.GregorianDate(2024, 12, 3), k.default_config(), FixedZone(-4))
+# 2024, and with UTC+4 it does not.
+december = k.GregorianDate(2024, 12, 3)
+kiddush_levana = k.Zmanim(lakewood, december, k.default_config(), fixed_day(-4, 2024, 12, 3))
 assert kiddush_levana.get(k.Zman.TchilasZmanKidushLevana3Days) == 1733279333504
-wrong_sign = k.Zmanim(lakewood, k.GregorianDate(2024, 12, 3), k.default_config(), FixedZone(4))
+wrong_sign = k.Zmanim(lakewood, december, k.default_config(), fixed_day(4, 2024, 12, 3))
 raises(k.NotApplicable, lambda: wrong_sign.get(k.Zman.TchilasZmanKidushLevana3Days))
-no_zone = k.Zmanim(lakewood, k.GregorianDate(2024, 12, 3), k.default_config(), None)
+no_zone = k.Zmanim(lakewood, december, k.default_config(), None)
 raises(k.TimeZoneRequired, lambda: no_zone.get(k.Zman.TchilasZmanKidushLevana3Days))
 
-broken = k.Zmanim(lakewood, k.GregorianDate(2024, 4, 23), k.default_config(), BrokenZone())
-raises(k.TimeZoneCallbackFailed, lambda: broken.get(k.Zman.Sunrise))
+backwards = k.LocalDay(start_ms=1, start_offset_seconds=0, end_ms=0, end_offset_seconds=0)
+raises(k.InvalidLocalDay, lambda: k.Zmanim(lakewood, april, k.default_config(), backwards))
 
-date = k.HebrewDate.from_gregorian(k.GregorianDate(2024, 4, 23))
+date = k.HebrewDate.from_gregorian(april)
 assert date.display() == "15 Nisan 5784"
 assert [k.special_day_name(d) for d in date.special_days(k.Region.Diaspora)] == ["Pesach"]
 assert k.daf_yomi_bavli(date).display == "Bava Metzia 55"

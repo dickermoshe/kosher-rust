@@ -80,7 +80,6 @@ module Kosherz
       [0x01ce427485afb43a, 0x017ce9984014d3c1, 'times.ZmanTime'],
       [0x0643c19407762211, 0x11babf7c30a11935, 'times.myzmanim.dip_degrees_per_root_meter'],
       [0x091fabaf00184561, 0xf13823120f5b4c46, 'times.Calculator'],
-      [0x0a21d46001720019, 0x5cf262e1982cf8f7, 'times.TimeZoneOffset'],
       [0x0a86c54f2d84238c, 0x4b1d4aaf11dfd132, 'times.zman_category'],
       [0x0d3bc9cd549a7137, 0xbea68784cf687a1a, 'times.Zmanim.get'],
       [0x0e595d82f4b54ade, 0x4a23e822039987a7, 'times.zman_description'],
@@ -88,13 +87,14 @@ module Kosherz
       [0x196240a5b18bd7a9, 0x2d4c4ce495502494, 'times.Zmanim'],
       [0x1f4901cd5f081ee4, 0x669e3d4d3e9d42cc, 'times.Zmanim.all'],
       [0x2eabf209e8de2867, 0x6614e227c469c232, 'times.Zmanim.config'],
+      [0x32d6c48bf4c035ce, 0x34a4cdb9918ec167, 'times.LocalDay'],
       [0x38596a351e356743, 0x685412d4d80250ea, 'times.Config'],
       [0x39389f0e68d3cc22, 0x4af5df9a96d3f535, 'times.myzmanim.MyZmanim.proportional_hour_gra'],
       [0x3c92cd49c8b4515b, 0x5962ffa89080c41b, 'times.shaah_zmanis'],
-      [0x44a0809dedbd4a4d, 0x9169cc1ef07d2488, 'times.ZmanimError'],
+      [0x44a0809dedbd4a4d, 0xd12210ce98caa417, 'times.ZmanimError'],
       [0x4d259836d7137c43, 0x0486761191984fd0, 'times.Zman'],
       [0x57d7a9c5a715b9fa, 0x7110b3413cfd8e83, 'times.Location'],
-      [0x5cf83bcd8244d771, 0x99d014ada9906437, 'times.Zmanim.new'],
+      [0x5cf83bcd8244d771, 0x05a3622be2d0b290, 'times.Zmanim.new'],
       [0x65aa216d77a78308, 0x689307845875e63e, 'times.zman_is_deprecated'],
       [0x68ffad4e5539ca69, 0xc3cb9f9d3b5b28ba, 'times.myzmanim.MyZmanim.date'],
       [0x6b5635f618146d65, 0x52972cadc08c13ef, 'times.all_zmanim'],
@@ -103,7 +103,7 @@ module Kosherz
       [0x77857568cbec63b3, 0xcddd8b18c602be76, 'times.myzmanim.MyZman'],
       [0x79dc07bc571a3ab7, 0xf70eea6f6621717f, 'times.validate_location'],
       [0x80d913d2e48601c7, 0x93dc654d560a63b8, 'times.myzmanim.MyZmanim.get'],
-      [0x8a9dcfc50ecf7193, 0x7d00a18dba45f065, 'times.ZmanFailure'],
+      [0x8a9dcfc50ecf7193, 0x6590c939314307c3, 'times.ZmanFailure'],
       [0x8f816bd2ec126fd4, 0x975c3a96549104d2, 'times.myzmanim.MyZmanim.all'],
       [0x94ec9f2dd31dd154, 0x93ef9500cb5f1cfc, 'times.Zmanim.sunrise_offset_by_degrees'],
       [0x968059cb1e92252a, 0xdec9155329278f29, 'times.myzmanim.my_zman_name'],
@@ -115,7 +115,7 @@ module Kosherz
       [0xbb0373c362e8a226, 0x63856359341062ee, 'times.Zmanim.location'],
       [0xc1a3c3740d199619, 0xe3c7eb49f063a0ce, 'times.myzmanim.MyZmanim'],
       [0xc29ca29cb7cd2999, 0x735499ab0a625d6d, 'times.myzmanim.dawn_90_degrees'],
-      [0xcc5685d30e954e41, 0xcc6eb9ea8c42ca79, 'times.myzmanim.MyZmanim.new'],
+      [0xcc5685d30e954e41, 0xfc5049b6220741f6, 'times.myzmanim.MyZmanim.new'],
       [0xce8ce7ef4ad0db32, 0xc5f954c475f4dc9d, 'times.zman_java_name'],
       [0xdb5095e0e87f0d79, 0xc3cb9f9d3b5b28ba, 'times.Zmanim.date'],
       [0xdda7b795bf202896, 0x63856359341062ee, 'times.myzmanim.MyZmanim.location'],
@@ -2302,23 +2302,25 @@ module Kosherz
       end
     end
 
-    # A time zone is needed and none was given. The four Kiddush Levana times need one.
+    # A local day is needed and none was given. The four Kiddush Levana times need one.
     # `Zmanim` and `MyZmanim` also need one at a location more than 150 degrees from
     # Greenwich.
     class TimeZoneRequired < ZmanimError
       CODE = 5
 
       def initialize(message = nil)
-        super(CODE, message || 'A time zone is needed and none was given. The four Kiddush Levana times need one.')
+        super(CODE, message || 'A local day is needed and none was given. The four Kiddush Levana times need one.')
       end
     end
 
-    # The time zone callback failed, or gave an offset of a day or more.
-    class TimeZoneCallbackFailed < ZmanimError
+    # The local day is impossible.
+    #
+    # It ends before it starts or more than 48 hours after, or an offset is a day or more.
+    class InvalidLocalDay < ZmanimError
       CODE = 6
 
       def initialize(message = nil)
-        super(CODE, message || 'The time zone callback failed, or gave an offset of a day or more.')
+        super(CODE, message || 'The local day is impossible.')
       end
     end
 
@@ -2398,7 +2400,7 @@ module Kosherz
       when 5
         ZmanimError::TimeZoneRequired.new(message)
       when 6
-        ZmanimError::TimeZoneCallbackFailed.new(message)
+        ZmanimError::InvalidLocalDay.new(message)
       when 7
         ZmanimError::InvalidMinutes.new(message)
       when 8
@@ -2880,11 +2882,9 @@ module Kosherz
     ALL_NIGHT = 1
     # The time does not apply on this date.
     NOT_APPLICABLE = 2
-    # The time needs a time zone and none was given. Only the four Kiddush Levana times need
+    # The time needs a local day and none was given. Only the four Kiddush Levana times need
     # one.
     TIME_ZONE_REQUIRED = 3
-    # The time zone callback failed.
-    TIME_ZONE_CALLBACK_FAILED = 4
     # An internal calculation error.
     UNEXPECTED = 5
   end
@@ -2892,7 +2892,7 @@ module Kosherz
   # A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
   # leave them 0 for sea level.
   #
-  # The time zone is not part of the location. You pass a `TimeZoneOffset` to `Zmanim` and
+  # The time zone is not part of the location. You pass a `LocalDay` to `Zmanim` and
   # `MyZmanim` when you create them.
   class Location
     # Latitude in degrees, north positive.
@@ -2932,6 +2932,50 @@ module Kosherz
         elevation == other.elevation &&
         eastern_horizon_elevation == other.eastern_horizon_elevation &&
         western_horizon_elevation == other.western_horizon_elevation
+    end
+  end
+
+  # The date in the caller's time zone: when local midnight starts it, when local midnight
+  # starts the next date, and the offset from UTC at each. Compute it with your platform's
+  # time zone support, for example `date.atStartOfDay(zone)` and
+  # `date.plusDays(1).atStartOfDay(zone)` in Java.
+  #
+  # When the clocks skip midnight, the day starts at the first instant the clocks show that
+  # day, such as 01:00. A day the clocks skip entirely starts and ends at the same instant.
+  #
+  # The local day is optional. With one every time works. You can also leave it out. These do
+  # not work without one:
+  #
+  # - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
+  # - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
+  #   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
+  class LocalDay
+    # When local midnight starts the date, in Unix milliseconds.
+    attr_reader :start_ms
+
+    # The offset from UTC at `start_ms`, in seconds east.
+    attr_reader :start_offset_seconds
+
+    # When local midnight starts the next date, in Unix milliseconds.
+    attr_reader :end_ms
+
+    # The offset from UTC at `end_ms`, in seconds east.
+    attr_reader :end_offset_seconds
+
+    def initialize(start_ms:, start_offset_seconds:, end_ms:, end_offset_seconds:)
+      @start_ms = start_ms
+      @start_offset_seconds = start_offset_seconds
+      @end_ms = end_ms
+      @end_offset_seconds = end_offset_seconds
+    end
+
+    # Structural equality over every field.
+    def ==(other)
+      other.is_a?(LocalDay) &&
+        start_ms == other.start_ms &&
+        start_offset_seconds == other.start_offset_seconds &&
+        end_ms == other.end_ms &&
+        end_offset_seconds == other.end_offset_seconds
     end
   end
 
@@ -3042,6 +3086,26 @@ module Kosherz
   end
 
   # @api private
+  # Packs a LocalDay into the value-buffer wire format.
+  def self._wv_write_local_day(w, v)
+    w.write_i64(v.start_ms)
+    w.write_i32(v.start_offset_seconds)
+    w.write_i64(v.end_ms)
+    w.write_i32(v.end_offset_seconds)
+  end
+
+  # @api private
+  # Unpacks a LocalDay from the value-buffer wire format.
+  def self._wv_read_local_day(r)
+    LocalDay.new(
+      start_ms: r.read_i64,
+      start_offset_seconds: r.read_i32,
+      end_ms: r.read_i64,
+      end_offset_seconds: r.read_i32,
+    )
+  end
+
+  # @api private
   # Packs a Config into the value-buffer wire format.
   def self._wv_write_config(w, v)
     w.write_i32(v.candle_lighting_minutes)
@@ -3083,7 +3147,7 @@ module Kosherz
 
   attach_function :kosherz_times_Zmanim_clone, [:pointer], :pointer
   attach_function :kosherz_times_Zmanim_destroy, [:pointer], :void
-  attach_function :kosherz_times_Zmanim_new, [:pointer, :size_t, :pointer, :size_t, :pointer, :size_t, :pointer, :pointer, :pointer], :pointer, blocking: true
+  attach_function :kosherz_times_Zmanim_new, [:pointer, :size_t, :pointer, :size_t, :pointer, :size_t, :pointer, :size_t, :pointer], :pointer, blocking: true
   attach_function :kosherz_times_Zmanim_get, [:pointer, :int32, :pointer], :int64, blocking: true
   attach_function :kosherz_times_Zmanim_all, [:pointer, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_times_Zmanim_sunrise_offset_by_degrees, [:pointer, :double, :pointer], :int64, blocking: true
@@ -3103,99 +3167,6 @@ module Kosherz
   attach_function :kosherz_times_calculator_name, [:int32, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_times_shaah_zmanis, [:int64, :int64, :pointer], :int64, blocking: true
 
-  # The time zone. You supply it as a callback with two methods. One gives the offset from UTC
-  # at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
-  # `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
-  #
-  # The time zone is optional. With a time zone every time works. You can also leave it out.
-  # These do not work without a time zone:
-  #
-  # - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
-  # - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
-  #   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
-  #
-  # The callback is called synchronously, once for each sunrise, sunset or other event that a
-  # time is built from.
-  #
-  # Consumer-implemented callback interface. Any object responding to the
-  # methods below is accepted wherever a TimeZoneOffset is expected; include
-  # this module to inherit NotImplementedError defaults. The library
-  # may call the methods from any thread until it releases the
-  # implementation.
-  module TimeZoneOffset
-    # The offset from UTC, in seconds east, in effect at `unix_seconds`.
-    #
-    # # Errors
-    #
-    # Fail when the offset is unknown. The calculation then reports
-    # `ZmanimError::TimeZoneCallbackFailed`.
-    # @return [Integer]
-    def offset_seconds(unix_seconds)
-      raise NotImplementedError, "#{self.class}#offset_seconds is not implemented"
-    end
-
-    # The Unix time, in seconds, at which the clocks in this time zone show the local date
-    # and time given.
-    #
-    # Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
-    # return the instant one gap length later. When the clocks show the time twice, return
-    # the earlier instant. JavaScript's `Temporal` calls this the `compatible`
-    # disambiguation, and it is Temporal's default.
-    #
-    # # Errors
-    #
-    # Fail when the instant is unknown. The calculation then reports
-    # `ZmanimError::TimeZoneCallbackFailed`.
-    # @return [Integer]
-    def local_to_unix_seconds(year, month, day, hour, minute, second)
-      raise NotImplementedError, "#{self.class}#local_to_unix_seconds is not implemented"
-    end
-  end
-
-  # @api private
-  # The C vtable layout the library calls a TimeZoneOffset through.
-  class WvTimeZoneOffsetVtable < FFI::Struct
-    layout :wv_size, :uint32,
-           :wv_flags, :uint32,
-           :wv_free, :pointer,
-           :offset_seconds, :pointer,
-           :local_to_unix_seconds, :pointer
-  end
-
-  # @api private
-  # Releases a TimeZoneOffset implementation when the library drops its last
-  # reference. May run on any library thread.
-  WV_TIME_ZONE_OFFSET_FREE = FFI::Function.new(:void, [:pointer]) do |ctx|
-    _wv_cb_free(ctx)
-  end
-
-  # @api private
-  # Trampoline for TimeZoneOffset#offset_seconds.
-  WV_TIME_ZONE_OFFSET_OFFSET_SECONDS = FFI::Function.new(:int32, [:pointer, :int64, :pointer]) do |wv_ctx, unix_seconds, wv_err|
-    _wv_int(_wv_cb_lookup(wv_ctx).offset_seconds(unix_seconds), :i32)
-  rescue Exception => e # rubocop:disable Lint/RescueException
-    _wv_cb_fail(wv_err, e)
-    0
-  end
-
-  # @api private
-  # Trampoline for TimeZoneOffset#local_to_unix_seconds.
-  WV_TIME_ZONE_OFFSET_LOCAL_TO_UNIX_SECONDS = FFI::Function.new(:int64, [:pointer, :int32, :int32, :int32, :int32, :int32, :int32, :pointer]) do |wv_ctx, year, month, day, hour, minute, second, wv_err|
-    _wv_int(_wv_cb_lookup(wv_ctx).local_to_unix_seconds(year, month, day, hour, minute, second), :i64)
-  rescue Exception => e # rubocop:disable Lint/RescueException
-    _wv_cb_fail(wv_err, e)
-    0
-  end
-
-  # The one process-wide TimeZoneOffset vtable every registration hands the
-  # library; its entries live for the process lifetime.
-  WV_TIME_ZONE_OFFSET_VTABLE = WvTimeZoneOffsetVtable.new
-  WV_TIME_ZONE_OFFSET_VTABLE[:wv_size] = WvTimeZoneOffsetVtable.size
-  WV_TIME_ZONE_OFFSET_VTABLE[:wv_flags] = 0
-  WV_TIME_ZONE_OFFSET_VTABLE[:wv_free] = WV_TIME_ZONE_OFFSET_FREE
-  WV_TIME_ZONE_OFFSET_VTABLE[:offset_seconds] = WV_TIME_ZONE_OFFSET_OFFSET_SECONDS
-  WV_TIME_ZONE_OFFSET_VTABLE[:local_to_unix_seconds] = WV_TIME_ZONE_OFFSET_LOCAL_TO_UNIX_SECONDS
-
   # @api private
   # Owns one strong reference to a Zmanim; releases it exactly once.
   class ZmanimPtr < FFI::AutoPointer
@@ -3213,27 +3184,28 @@ module Kosherz
       Kosherz.kosherz_times_Zmanim_clone(ptr)
     end
 
-    # The *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
+    # The *zmanim* at `location` on `date`, whose local day is `local_day`, calculated with
+    # `config`.
     #
-    # The time zone is optional. With a time zone every time works. Without one the four
-    # Kiddush Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150
-    # degrees from Greenwich needs a time zone. Without one this returns
-    # `ZmanimError::TimeZoneRequired`.
+    # The local day is optional. With one every time works. Without one the four Kiddush
+    # Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150 degrees
+    # from Greenwich needs one. Without one this returns `ZmanimError::TimeZoneRequired`.
     #
     # # Errors
     #
     # - `ZmanimError::InvalidGregorianDate` when the date does not exist.
     # - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
     #   Ateret Torah offset is more than a day.
+    # - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
     # - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
-    #   there is no time zone and the location is more than 150 degrees from Greenwich.
-    def initialize(location, date, config, time_zone = nil)
+    #   there is no local day and the location is more than 150 degrees from Greenwich.
+    def initialize(location, date, config, local_day = nil)
       location_s = Kosherz._wv_encode { |w| Kosherz._wv_write_location(w, location) }
       date_s = Kosherz._wv_encode { |w| Kosherz._wv_write_gregorian_date(w, date) }
       config_s = Kosherz._wv_encode { |w| Kosherz._wv_write_config(w, config) }
+      local_day_s = Kosherz._wv_encode { |w| Kosherz._wv_write_opt_local_day(w, local_day) }
       err = ErrorStruct.new
-      time_zone_ctx, time_zone_vtable = Kosherz._wv_cb_register(time_zone, WV_TIME_ZONE_OFFSET_VTABLE)
-      result = Kosherz.kosherz_times_Zmanim_new(location_s, location_s.bytesize, date_s, date_s.bytesize, config_s, config_s.bytesize, time_zone_ctx, time_zone_vtable, err)
+      result = Kosherz.kosherz_times_Zmanim_new(location_s, location_s.bytesize, date_s, date_s.bytesize, config_s, config_s.bytesize, local_day_s, local_day_s.bytesize, err)
       Kosherz._wv_check_zmanim_error!(err)
       _wv_init(Kosherz._wv_nonnull(result))
     end
@@ -3245,7 +3217,7 @@ module Kosherz
     # `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
     # the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
     # on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
-    # a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+    # a local day.
     # @return [Integer]
     def get(zman)
       Kosherz._wv_pin(self) do |_wv_self|
@@ -3586,7 +3558,7 @@ module Kosherz
 
   attach_function :kosherz_times_myzmanim_MyZmanim_clone, [:pointer], :pointer
   attach_function :kosherz_times_myzmanim_MyZmanim_destroy, [:pointer], :void
-  attach_function :kosherz_times_myzmanim_MyZmanim_new, [:pointer, :size_t, :pointer, :size_t, :double, :pointer, :pointer, :pointer], :pointer, blocking: true
+  attach_function :kosherz_times_myzmanim_MyZmanim_new, [:pointer, :size_t, :pointer, :size_t, :double, :pointer, :size_t, :pointer], :pointer, blocking: true
   attach_function :kosherz_times_myzmanim_MyZmanim_get, [:pointer, :int32, :pointer], :int64, blocking: true
   attach_function :kosherz_times_myzmanim_MyZmanim_all, [:pointer, :pointer, :pointer], :pointer, blocking: true
   attach_function :kosherz_times_myzmanim_MyZmanim_proportional_hour_gra, [:pointer, :pointer], :int64, blocking: true
@@ -3619,11 +3591,11 @@ module Kosherz
       Kosherz.kosherz_times_myzmanim_MyZmanim_clone(ptr)
     end
 
-    # The *zmanim* at `location` on `date` in `time_zone`. Candles are lit
+    # The *zmanim* at `location` on `date`, whose local day is `local_day`. Candles are lit
     # `candle_lighting_minutes` before sunset. The website uses 18 minutes by default.
     #
-    # The time zone is optional. With a time zone every time works. A location more than
-    # 150 degrees from Greenwich needs a time zone. Without one this returns
+    # The local day is optional. With one every time works. A location more than 150
+    # degrees from Greenwich needs one. Without one this returns
     # `ZmanimError::TimeZoneRequired`.
     #
     # # Errors
@@ -3631,15 +3603,16 @@ module Kosherz
     # - `ZmanimError::InvalidGregorianDate` when the date does not exist.
     # - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
     #   0 to 1440.
+    # - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
     # - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
-    #   when there is no time zone and the location is more than 150 degrees from
+    #   when there is no local day and the location is more than 150 degrees from
     #   Greenwich.
-    def initialize(location, date, candle_lighting_minutes, time_zone = nil)
+    def initialize(location, date, candle_lighting_minutes, local_day = nil)
       location_s = Kosherz._wv_encode { |w| Kosherz._wv_write_location(w, location) }
       date_s = Kosherz._wv_encode { |w| Kosherz._wv_write_gregorian_date(w, date) }
+      local_day_s = Kosherz._wv_encode { |w| Kosherz._wv_write_opt_local_day(w, local_day) }
       err = ErrorStruct.new
-      time_zone_ctx, time_zone_vtable = Kosherz._wv_cb_register(time_zone, WV_TIME_ZONE_OFFSET_VTABLE)
-      result = Kosherz.kosherz_times_myzmanim_MyZmanim_new(location_s, location_s.bytesize, date_s, date_s.bytesize, candle_lighting_minutes, time_zone_ctx, time_zone_vtable, err)
+      result = Kosherz.kosherz_times_myzmanim_MyZmanim_new(location_s, location_s.bytesize, date_s, date_s.bytesize, candle_lighting_minutes, local_day_s, local_day_s.bytesize, err)
       Kosherz._wv_check_zmanim_error!(err)
       _wv_init(Kosherz._wv_nonnull(result))
     end
@@ -3649,7 +3622,7 @@ module Kosherz
     # # Errors
     #
     # `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
-    # time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+    # time.
     # @return [Integer]
     def get(zman)
       Kosherz._wv_pin(self) do |_wv_self|
@@ -3980,6 +3953,23 @@ module Kosherz
   # Unpacks `[Zman]` from the value-buffer wire format.
   def self._wv_read_list_zman(r)
     Array.new(r.read_len) { r.read_i32 }
+  end
+
+  # @api private
+  # Packs `LocalDay?` into the value-buffer wire format.
+  def self._wv_write_opt_local_day(w, v)
+    if v.nil?
+      w.write_flag(false)
+    else
+      w.write_flag(true)
+      _wv_write_local_day(w, v)
+    end
+  end
+
+  # @api private
+  # Unpacks `LocalDay?` from the value-buffer wire format.
+  def self._wv_read_opt_local_day(r)
+    r.read_flag ? _wv_read_local_day(r) : nil
   end
 
   # @api private

@@ -878,123 +878,6 @@ static napi_value nx_kosherz_times_contract(napi_env env, napi_callback_info inf
   return js_new_contract(env, table, len);
 }
 
-typedef struct {
-  js_error* out_err;
-  int64_t p0;
-  int32_t result;
-} frame_kosherz_times_TimeZoneOffset_offset_seconds;
-
-static void invoke_kosherz_times_TimeZoneOffset_offset_seconds(napi_env env, js_cb* cb, frame_kosherz_times_TimeZoneOffset_offset_seconds* f) {
-  napi_handle_scope scope;
-  napi_open_handle_scope(env, &scope);
-  napi_value argv[2];
-  argv[0] = js_new_i64(env, f->p0);
-  napi_value result;
-  if (!js_cb_call(env, cb, "offset_seconds", 1, argv, &result)) {
-    js_cb_report(env, f->out_err, "TimeZoneOffset.offsetSeconds failed");
-  } else {
-    int32_t v = 0;
-    if (js_arg_i32(env, result, &v)) {
-      f->result = (int32_t)v;
-    } else {
-      js_cb_report(env, f->out_err, "TimeZoneOffset.offsetSeconds returned a value of the wrong type");
-    }
-  }
-  napi_close_handle_scope(env, scope);
-}
-
-static int32_t tramp_kosherz_times_TimeZoneOffset_offset_seconds(void* ctx, int64_t p0, kosherz_error* out_err) {
-  frame_kosherz_times_TimeZoneOffset_offset_seconds f;
-  memset(&f, 0, sizeof f);
-  f.out_err = out_err;
-  f.p0 = p0;
-  js_cb* cb = (js_cb*)ctx;
-  if (js_cb_on_js_thread(cb)) {
-    invoke_kosherz_times_TimeZoneOffset_offset_seconds(cb->env, cb, &f);
-  } else {
-    js_cb_hop(cb, 0, &f, out_err, "TimeZoneOffset.offsetSeconds");
-  }
-  return f.result;
-}
-
-typedef struct {
-  js_error* out_err;
-  int32_t p0;
-  int32_t p1;
-  int32_t p2;
-  int32_t p3;
-  int32_t p4;
-  int32_t p5;
-  int64_t result;
-} frame_kosherz_times_TimeZoneOffset_local_to_unix_seconds;
-
-static void invoke_kosherz_times_TimeZoneOffset_local_to_unix_seconds(napi_env env, js_cb* cb, frame_kosherz_times_TimeZoneOffset_local_to_unix_seconds* f) {
-  napi_handle_scope scope;
-  napi_open_handle_scope(env, &scope);
-  napi_value argv[7];
-  argv[0] = js_new_i32(env, (int32_t)f->p0);
-  argv[1] = js_new_i32(env, (int32_t)f->p1);
-  argv[2] = js_new_i32(env, (int32_t)f->p2);
-  argv[3] = js_new_i32(env, (int32_t)f->p3);
-  argv[4] = js_new_i32(env, (int32_t)f->p4);
-  argv[5] = js_new_i32(env, (int32_t)f->p5);
-  napi_value result;
-  if (!js_cb_call(env, cb, "local_to_unix_seconds", 6, argv, &result)) {
-    js_cb_report(env, f->out_err, "TimeZoneOffset.localToUnixSeconds failed");
-  } else {
-    int64_t v = 0;
-    if (js_arg_i64(env, result, &v)) {
-      f->result = (int64_t)v;
-    } else {
-      js_cb_report(env, f->out_err, "TimeZoneOffset.localToUnixSeconds returned a value of the wrong type");
-    }
-  }
-  napi_close_handle_scope(env, scope);
-}
-
-static int64_t tramp_kosherz_times_TimeZoneOffset_local_to_unix_seconds(void* ctx, int32_t p0, int32_t p1, int32_t p2, int32_t p3, int32_t p4, int32_t p5, kosherz_error* out_err) {
-  frame_kosherz_times_TimeZoneOffset_local_to_unix_seconds f;
-  memset(&f, 0, sizeof f);
-  f.out_err = out_err;
-  f.p0 = p0;
-  f.p1 = p1;
-  f.p2 = p2;
-  f.p3 = p3;
-  f.p4 = p4;
-  f.p5 = p5;
-  js_cb* cb = (js_cb*)ctx;
-  if (js_cb_on_js_thread(cb)) {
-    invoke_kosherz_times_TimeZoneOffset_local_to_unix_seconds(cb->env, cb, &f);
-  } else {
-    js_cb_hop(cb, 1, &f, out_err, "TimeZoneOffset.localToUnixSeconds");
-  }
-  return f.result;
-}
-
-static void dispatch_kosherz_times_TimeZoneOffset(napi_env env, napi_value fn, void* context, void* data) {
-  (void)fn;
-  (void)context;
-  js_cb_req* req = (js_cb_req*)data;
-  if (req->method < 0) {
-    js_cb_release(env, req->cb);
-    free(req);
-    return;
-  }
-  if (!js_cb_take(req)) return;
-  if (env == NULL) {
-    kosherz_error_set(req->out_err, -4, "the JavaScript environment is shutting down");
-  } else {
-    switch (req->method) {
-      case 0: invoke_kosherz_times_TimeZoneOffset_offset_seconds(env, req->cb, (frame_kosherz_times_TimeZoneOffset_offset_seconds*)req->frame); break;
-      case 1: invoke_kosherz_times_TimeZoneOffset_local_to_unix_seconds(env, req->cb, (frame_kosherz_times_TimeZoneOffset_local_to_unix_seconds*)req->frame); break;
-      default: break;
-    }
-  }
-  js_cb_finish(req);
-}
-
-static const kosherz_times_TimeZoneOffset_vtable vtable_kosherz_times_TimeZoneOffset = {sizeof(kosherz_times_TimeZoneOffset_vtable), 0, js_cb_free, tramp_kosherz_times_TimeZoneOffset_offset_seconds, tramp_kosherz_times_TimeZoneOffset_local_to_unix_seconds};
-
 static napi_value nx_kosherz_calendar_HebrewDate_clone(napi_env env, napi_callback_info info) {
   JS_ARGS(1);
   void* h = NULL;
@@ -2251,17 +2134,17 @@ static napi_value nx_kosherz_times_Zmanim_new(napi_env env, napi_callback_info i
   size_t a1_len = 0;
   const uint8_t* a2 = NULL;
   size_t a2_len = 0;
-  js_cb* a3 = NULL;
+  const uint8_t* a3 = NULL;
+  size_t a3_len = 0;
   if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
   if (!js_arg_bytes(env, argv[1], &a1, &a1_len)) goto done;
   if (!js_arg_bytes(env, argv[2], &a2, &a2_len)) goto done;
-  if (!js_arg_cb(env, argv[3], "kosherz_times_TimeZoneOffset", dispatch_kosherz_times_TimeZoneOffset, true, &a3)) goto done;
+  if (!js_arg_bytes(env, argv[3], &a3, &a3_len)) goto done;
   {
     js_error err = {0};
     js_sync_begin();
-    kosherz_times_Zmanim* r = kosherz_times_Zmanim_new(a0, a0_len, a1, a1_len, a2, a2_len, (void*)a3, a3 != NULL ? &vtable_kosherz_times_TimeZoneOffset : NULL, &err);
+    kosherz_times_Zmanim* r = kosherz_times_Zmanim_new(a0, a0_len, a1, a1_len, a2, a2_len, a3, a3_len, &err);
     js_sync_end();
-    a3 = NULL;
     if (err.code != 0) {
       js_throw(env, &err);
       goto done;
@@ -2270,7 +2153,6 @@ static napi_value nx_kosherz_times_Zmanim_new(napi_env env, napi_callback_info i
   }
   goto done;
 done:
-  if (a3 != NULL) js_cb_release(env, a3);
   return ret;
 }
 
@@ -2596,17 +2478,17 @@ static napi_value nx_kosherz_times_myzmanim_MyZmanim_new(napi_env env, napi_call
   const uint8_t* a1 = NULL;
   size_t a1_len = 0;
   double a2 = 0;
-  js_cb* a3 = NULL;
+  const uint8_t* a3 = NULL;
+  size_t a3_len = 0;
   if (!js_arg_bytes(env, argv[0], &a0, &a0_len)) goto done;
   if (!js_arg_bytes(env, argv[1], &a1, &a1_len)) goto done;
   if (!js_arg_f64(env, argv[2], &a2)) goto done;
-  if (!js_arg_cb(env, argv[3], "kosherz_times_TimeZoneOffset", dispatch_kosherz_times_TimeZoneOffset, true, &a3)) goto done;
+  if (!js_arg_bytes(env, argv[3], &a3, &a3_len)) goto done;
   {
     js_error err = {0};
     js_sync_begin();
-    kosherz_times_myzmanim_MyZmanim* r = kosherz_times_myzmanim_MyZmanim_new(a0, a0_len, a1, a1_len, a2, (void*)a3, a3 != NULL ? &vtable_kosherz_times_TimeZoneOffset : NULL, &err);
+    kosherz_times_myzmanim_MyZmanim* r = kosherz_times_myzmanim_MyZmanim_new(a0, a0_len, a1, a1_len, a2, a3, a3_len, &err);
     js_sync_end();
-    a3 = NULL;
     if (err.code != 0) {
       js_throw(env, &err);
       goto done;
@@ -2615,7 +2497,6 @@ static napi_value nx_kosherz_times_myzmanim_MyZmanim_new(napi_env env, napi_call
   }
   goto done;
 done:
-  if (a3 != NULL) js_cb_release(env, a3);
   return ret;
 }
 

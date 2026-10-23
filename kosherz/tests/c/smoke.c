@@ -1,7 +1,6 @@
-// Calls the generated C bindings: sunrise in Lakewood through a time zone callback, Kiddush Levana,
-// which needs the right offset, a failing callback, the daf yomi, and the typed error for an invalid
-// latitude. Build after `cargo build -p kosherz`,
-// from the repository root:
+// Calls the generated C bindings: sunrise in Lakewood on a local day, Kiddush Levana, which needs
+// the right offset, an impossible local day, the daf yomi, and the typed error for an invalid
+// latitude. Build after `cargo build -p kosherz`, from the repository root:
 //
 //     cc -std=c11 -Wall -I kosherz/generated/c kosherz/tests/c/smoke.c \
 //         -L target/debug -lkosherz -Wl,-rpath,"$PWD/target/debug" -o target/smoke-c
@@ -24,13 +23,6 @@ static int failures = 0;
         }                                                    \
     } while (0)
 
-// A fixed time zone: `ctx` points to its offset from UTC in hours.
-static int32_t fixed_offset(void* ctx, int64_t unix_seconds, kosherz_error* out_err) {
-    (void)unix_seconds;
-    (void)out_err;
-    return *(const int*)ctx * 3600;
-}
-
 // Days from 1970-01-01 to the given date on the Gregorian calendar.
 static int64_t days_from_civil(int64_t year, int64_t month, int64_t day) {
     year -= month <= 2;
@@ -41,52 +33,17 @@ static int64_t days_from_civil(int64_t year, int64_t month, int64_t day) {
     return era * 146097 + day_of_era - 719468;
 }
 
-static int64_t fixed_local(void* ctx, int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute,
-                           int32_t second, kosherz_error* out_err) {
-    (void)out_err;
-    return days_from_civil(year, month, day) * 86400 + hour * 3600 + minute * 60 + second -
-           *(const int*)ctx * 3600;
+// `date` at UTC plus `hours` all year: its two local midnights and the offsets at them.
+static kosherz_times_LocalDay fixed_day(int hours, kosherz_calendar_GregorianDate date) {
+    int64_t start = (days_from_civil(date.year, date.month, date.day) * 86400 - hours * 3600) * 1000;
+    kosherz_times_LocalDay day = {start, hours * 3600, start + 86400 * 1000, hours * 3600};
+    return day;
 }
 
-static void no_free(void* ctx) { (void)ctx; }
-
-static const kosherz_times_TimeZoneOffset_vtable fixed = {
-    sizeof(kosherz_times_TimeZoneOffset_vtable), 0, no_free, fixed_offset, fixed_local,
-};
-
-static int edt_hours = -4;
-static int wrong_sign_hours = 4;
-
-// A time zone whose callbacks fail.
-static int32_t broken_offset(void* ctx, int64_t unix_seconds, kosherz_error* out_err) {
-    (void)ctx;
-    (void)unix_seconds;
-    kosherz_error_set(out_err, 1, "no time zone data");
-    return 0;
-}
-
-static int64_t broken_local(void* ctx, int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute,
-                            int32_t second, kosherz_error* out_err) {
-    (void)ctx;
-    (void)year;
-    (void)month;
-    (void)day;
-    (void)hour;
-    (void)minute;
-    (void)second;
-    kosherz_error_set(out_err, 1, "no time zone data");
-    return 0;
-}
-
-static const kosherz_times_TimeZoneOffset_vtable broken = {
-    sizeof(kosherz_times_TimeZoneOffset_vtable), 0, no_free, broken_offset, broken_local,
-};
-
-// Builds Zmanim for `date` at sea level in the time zone `vtable` with `ctx`, which may both be
-// NULL, leaving any error in `err`.
+// Builds Zmanim for `date` at sea level on `local_day`, which may be NULL, leaving any error in
+// `err`.
 static kosherz_times_Zmanim* new_zmanim_on(double latitude, double longitude, kosherz_calendar_GregorianDate date,
-                                           void* ctx, const kosherz_times_TimeZoneOffset_vtable* vtable,
-                                           kosherz_error* err) {
+                                           const kosherz_times_LocalDay* local_day, kosherz_error* err) {
     size_t location_len = 0, config_len = 0;
     const uint8_t* location = kosherz_times_sea_level_location(latitude, longitude, &location_len, err);
     if (err->code != 0) return NULL;
@@ -97,67 +54,25 @@ static kosherz_times_Zmanim* new_zmanim_on(double latitude, double longitude, ko
     }
     kosherz_writer date_buf = {0};
     kosherz_calendar_GregorianDate_write(&date_buf, &date);
+    kosherz_writer day_buf = {0};
+    kosherz_opt_times_LocalDay_write(&day_buf, local_day);
 
-    kosherz_times_Zmanim* zmanim = kosherz_times_Zmanim_new(
-        location, location_len, date_buf.ptr, date_buf.len, config, config_len, ctx, vtable, err);
+    kosherz_times_Zmanim* zmanim = kosherz_times_Zmanim_new(location, location_len, date_buf.ptr, date_buf.len, config,
+                                                            config_len, day_buf.ptr, day_buf.len, err);
 
+    kosherz_writer_free(&day_buf);
     kosherz_writer_free(&date_buf);
     kosherz_free_bytes((uint8_t*)config, config_len);
     kosherz_free_bytes((uint8_t*)location, location_len);
     return zmanim;
 }
 
+static const kosherz_calendar_GregorianDate april_23 = {2024, 4, 23};
+
 // Builds Zmanim for 2024-04-23 at sea level in UTC-4, leaving any error in `err`.
 static kosherz_times_Zmanim* new_zmanim(double latitude, double longitude, kosherz_error* err) {
-    kosherz_calendar_GregorianDate date = {2024, 4, 23};
-    return new_zmanim_on(latitude, longitude, date, &edt_hours, &fixed, err);
-}
-
-// The error code of Tchilas Zman Kiddush Levana (3 days) in Lakewood on 2024-12-03, and its time.
-static int32_t kiddush_levana(void* ctx, const kosherz_times_TimeZoneOffset_vtable* vtable, int64_t* ms) {
-    kosherz_error err = {0};
-    kosherz_calendar_GregorianDate date = {2024, 12, 3};
-    kosherz_times_Zmanim* day = new_zmanim_on(40.09, -74.22, date, ctx, vtable, &err);
-    CHECK(err.code == 0 && day != NULL, "Zmanim_new failed: %d %s", err.code, err.message);
-    if (day == NULL) {
-        kosherz_error_clear(&err);
-        return -1;
-    }
-    *ms = kosherz_times_Zmanim_get(day, kosherz_times_Zman_TchilasZmanKidushLevana3Days, &err);
-    int32_t code = err.code;
-    kosherz_error_clear(&err);
-    kosherz_times_Zmanim_destroy(day);
-    return code;
-}
-
-// Kiddush Levana is the one time whose day depends on the offset: with UTC-4 it falls on
-// 3 December 2024, and with UTC+4 it does not.
-static void check_kiddush_levana(void) {
-    int64_t ms = 0;
-    int32_t code = kiddush_levana(&edt_hours, &fixed, &ms);
-    CHECK(code == 0 && ms == 1733279333504LL, "UTC-4: code %d, time %lld, want 1733279333504", code,
-          (long long)ms);
-    code = kiddush_levana(&wrong_sign_hours, &fixed, &ms);
-    CHECK(code == kosherz_times_ZmanimError_NotApplicable, "UTC+4: code %d, want NotApplicable", code);
-    code = kiddush_levana(NULL, NULL, &ms);
-    CHECK(code == kosherz_times_ZmanimError_TimeZoneRequired, "no time zone: code %d, want TimeZoneRequired",
-          code);
-}
-
-static void check_failing_callback(void) {
-    kosherz_error err = {0};
-    kosherz_calendar_GregorianDate date = {2024, 4, 23};
-    kosherz_times_Zmanim* day = new_zmanim_on(40.09, -74.22, date, NULL, &broken, &err);
-    CHECK(err.code == 0 && day != NULL, "Zmanim_new failed: %d %s", err.code, err.message);
-    if (day == NULL) {
-        kosherz_error_clear(&err);
-        return;
-    }
-    kosherz_times_Zmanim_get(day, kosherz_times_Zman_Sunrise, &err);
-    CHECK(err.code == kosherz_times_ZmanimError_TimeZoneCallbackFailed, "error code is %d, want %d", err.code,
-          kosherz_times_ZmanimError_TimeZoneCallbackFailed);
-    kosherz_error_clear(&err);
-    kosherz_times_Zmanim_destroy(day);
+    kosherz_times_LocalDay edt = fixed_day(-4, april_23);
+    return new_zmanim_on(latitude, longitude, april_23, &edt, err);
 }
 
 static void check_sunrise(void) {
@@ -176,11 +91,55 @@ static void check_sunrise(void) {
     kosherz_times_Zmanim_destroy(day);
 }
 
+// The error code of Tchilas Zman Kiddush Levana (3 days) in Lakewood on 2024-12-03 on
+// `local_day`, and its time.
+static int32_t kiddush_levana(const kosherz_times_LocalDay* local_day, int64_t* ms) {
+    kosherz_error err = {0};
+    kosherz_calendar_GregorianDate date = {2024, 12, 3};
+    kosherz_times_Zmanim* day = new_zmanim_on(40.09, -74.22, date, local_day, &err);
+    CHECK(err.code == 0 && day != NULL, "Zmanim_new failed: %d %s", err.code, err.message);
+    if (day == NULL) {
+        kosherz_error_clear(&err);
+        return -1;
+    }
+    *ms = kosherz_times_Zmanim_get(day, kosherz_times_Zman_TchilasZmanKidushLevana3Days, &err);
+    int32_t code = err.code;
+    kosherz_error_clear(&err);
+    kosherz_times_Zmanim_destroy(day);
+    return code;
+}
+
+// Kiddush Levana is the one time whose day depends on the offset: with UTC-4 it falls on
+// 3 December 2024, and with UTC+4 it does not.
+static void check_kiddush_levana(void) {
+    kosherz_calendar_GregorianDate december_3 = {2024, 12, 3};
+    kosherz_times_LocalDay edt = fixed_day(-4, december_3);
+    kosherz_times_LocalDay wrong_sign = fixed_day(4, december_3);
+    int64_t ms = 0;
+    int32_t code = kiddush_levana(&edt, &ms);
+    CHECK(code == 0 && ms == 1733279333504LL, "UTC-4: code %d, time %lld, want 1733279333504", code,
+          (long long)ms);
+    code = kiddush_levana(&wrong_sign, &ms);
+    CHECK(code == kosherz_times_ZmanimError_NotApplicable, "UTC+4: code %d, want NotApplicable", code);
+    code = kiddush_levana(NULL, &ms);
+    CHECK(code == kosherz_times_ZmanimError_TimeZoneRequired, "no local day: code %d, want TimeZoneRequired", code);
+}
+
+static void check_impossible_local_day(void) {
+    kosherz_error err = {0};
+    kosherz_times_LocalDay backwards = {1, 0, 0, 0};
+    kosherz_times_Zmanim* day = new_zmanim_on(40.09, -74.22, april_23, &backwards, &err);
+    CHECK(day == NULL, "Zmanim_new accepted a local day that ends before it starts");
+    CHECK(err.code == kosherz_times_ZmanimError_InvalidLocalDay, "error code is %d, want %d", err.code,
+          kosherz_times_ZmanimError_InvalidLocalDay);
+    if (day != NULL) kosherz_times_Zmanim_destroy(day);
+    kosherz_error_clear(&err);
+}
+
 static void check_daf_yomi(void) {
     kosherz_error err = {0};
-    kosherz_calendar_GregorianDate date = {2024, 4, 23};
     kosherz_writer date_buf = {0};
-    kosherz_calendar_GregorianDate_write(&date_buf, &date);
+    kosherz_calendar_GregorianDate_write(&date_buf, &april_23);
     kosherz_calendar_HebrewDate* hebrew =
         kosherz_calendar_HebrewDate_from_gregorian(date_buf.ptr, date_buf.len, &err);
     kosherz_writer_free(&date_buf);
@@ -220,7 +179,7 @@ static void check_invalid_latitude(void) {
 int main(void) {
     check_sunrise();
     check_kiddush_levana();
-    check_failing_callback();
+    check_impossible_local_day();
     check_daf_yomi();
     check_invalid_latitude();
     if (failures != 0) {

@@ -1,50 +1,36 @@
-use std::{sync::Arc, time::Duration};
+use std::time::Duration;
 
 use jiff::Timestamp;
 use kosher_rust::myzmanim::MyZman;
 
-use super::{CallbackTimeZone, watching_callbacks};
+use super::DayTimeZone;
 use crate::api::{
     calendar::GregorianDate,
-    times::{Location, TimeZoneOffset, ZmanimError, myzmanim::MyZmanTime},
+    times::{LocalDay, Location, ZmanimError, myzmanim::MyZmanTime},
 };
 
-pub(crate) type Inner = kosher_rust::myzmanim::MyZmanim<CallbackTimeZone>;
+pub(crate) type Inner = kosher_rust::myzmanim::MyZmanim<DayTimeZone>;
 
 pub(crate) fn my_zmanim(
     location: &Location,
     date: &GregorianDate,
     candle_lighting_minutes: f64,
-    time_zone: Option<Arc<dyn TimeZoneOffset>>,
+    local_day: Option<&LocalDay>,
 ) -> Result<Inner, ZmanimError> {
-    let location = super::location(location, time_zone.is_some())?;
+    let location = super::location(location, local_day.is_some())?;
     let date = super::civil_date(date).ok_or(ZmanimError::InvalidGregorianDate)?;
+    let time_zone = super::time_zone(date, local_day)?;
     let candle_lighting = Duration::try_from_secs_f64(super::valid_minutes(candle_lighting_minutes)? * 60.0)?;
     Ok(
-        kosher_rust::myzmanim::MyZmanim::with_custom_timezone(location, date, super::time_zone(time_zone))
+        kosher_rust::myzmanim::MyZmanim::with_custom_timezone(location, date, time_zone)
             .candle_lighting(candle_lighting),
     )
 }
 
-/// Runs `calculate`, reporting a failed time zone callback over its result.
-pub(crate) fn checked(
-    inner: &Inner,
-    calculate: impl FnOnce(&Inner) -> Result<Timestamp, kosher_rust::zmanim::ZmanimError>,
-) -> Result<i64, ZmanimError> {
-    let (result, callback_failed) = watching_callbacks(|| calculate(inner));
-    if callback_failed {
-        return Err(ZmanimError::TimeZoneCallbackFailed);
-    }
-    Ok(result?.as_millisecond())
-}
-
-pub(crate) fn checked_duration(inner: &Inner) -> Result<i64, ZmanimError> {
-    let (result, callback_failed) = watching_callbacks(|| inner.proportional_hour_gra());
-    if callback_failed {
-        return Err(ZmanimError::TimeZoneCallbackFailed);
-    }
+/// A twelfth of the day from sea-level sunrise to sea-level sunset, in milliseconds.
+pub(crate) fn proportional_hour(inner: &Inner) -> Result<i64, ZmanimError> {
     // A twelfth of a day fits in i64 milliseconds many times over.
-    Ok(i64::try_from(result?.as_millis()).unwrap_or(i64::MAX))
+    Ok(i64::try_from(inner.proportional_hour_gra()?.as_millis()).unwrap_or(i64::MAX))
 }
 
 pub(crate) fn all(inner: &Inner) -> Vec<MyZmanTime> {
@@ -52,11 +38,11 @@ pub(crate) fn all(inner: &Inner) -> Vec<MyZmanTime> {
         .into_iter()
         .filter_map(|zman| {
             let ours = zman.try_into().ok()?;
-            let result = checked(inner, |inner| inner.get(zman));
+            let result = inner.get(zman).map(Timestamp::as_millisecond);
             Some(MyZmanTime {
                 zman: ours,
                 time: result.ok(),
-                failure: result.err().map(Into::into),
+                failure: result.err().map(|error| ZmanimError::from(error).into()),
             })
         })
         .collect()

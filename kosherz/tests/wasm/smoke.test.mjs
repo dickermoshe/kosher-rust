@@ -8,20 +8,24 @@ import assert from 'node:assert/strict';
 
 import { calendar, init, times } from '../../generated/wasm/index.js';
 
-/** UTC plus `hours`, every day of the year. */
-const fixed = (hours) => ({
-  offsetSeconds: () => hours * 3600,
-  localToUnixSeconds: (year, month, day, hour, minute, second) =>
-    BigInt(Date.UTC(year, month - 1, day, hour, minute, second) / 1000 - hours * 3600),
-});
-/** Eastern daylight time, every day of the year. */
-const edt = fixed(-4);
+/** `date` at UTC plus `hours` all year: its two local midnights and the offsets at them. */
+function fixedDay(hours, { year, month, day }) {
+  const start = Date.UTC(year, month - 1, day) - hours * 3_600_000;
+  return {
+    start_ms: BigInt(start),
+    start_offset_seconds: hours * 3600,
+    end_ms: BigInt(start + 86_400_000),
+    end_offset_seconds: hours * 3600,
+  };
+}
+
 const date = { year: 2024, month: 4, day: 23 };
+const lakewood = () => times.seaLevelLocation(40.09, -74.22);
 
 before(() => init());
 
 test('sunrise in Lakewood on 2024-04-23 is 06:06:35 EDT', () => {
-  const day = new times.Zmanim(times.seaLevelLocation(40.09, -74.22), date, times.defaultConfig(), edt);
+  const day = new times.Zmanim(lakewood(), date, times.defaultConfig(), fixedDay(-4, date));
   try {
     assert.equal(day.get(times.Zman.Sunrise) / 1000n, 1713866795n);
   } finally {
@@ -40,7 +44,7 @@ test('daf yomi on 2024-04-23 is Bava Metzia 55', () => {
 
 test('latitude 91 throws InvalidLatitudeError', () => {
   assert.throws(
-    () => new times.Zmanim(times.seaLevelLocation(91, 0), date, times.defaultConfig(), edt),
+    () => new times.Zmanim(times.seaLevelLocation(91, 0), date, times.defaultConfig(), fixedDay(-4, date)),
     times.InvalidLatitudeError,
   );
 });
@@ -49,34 +53,24 @@ test('latitude 91 throws InvalidLatitudeError', () => {
 // 3 December 2024, and with UTC+4 it does not.
 test('kiddush levana in Lakewood on 2024-12-03 needs the right offset', () => {
   const december = { year: 2024, month: 12, day: 3 };
-  const lakewood = times.seaLevelLocation(40.09, -74.22);
-  const day = new times.Zmanim(lakewood, december, times.defaultConfig(), edt);
-  const wrongSign = new times.Zmanim(lakewood, december, times.defaultConfig(), fixed(4));
-  const noZone = new times.Zmanim(lakewood, december, times.defaultConfig(), null);
+  const day = new times.Zmanim(lakewood(), december, times.defaultConfig(), fixedDay(-4, december));
+  const wrongSign = new times.Zmanim(lakewood(), december, times.defaultConfig(), fixedDay(4, december));
+  const noDay = new times.Zmanim(lakewood(), december, times.defaultConfig(), null);
   try {
     assert.equal(day.get(times.Zman.TchilasZmanKidushLevana3Days), 1733279333504n);
     assert.throws(() => wrongSign.get(times.Zman.TchilasZmanKidushLevana3Days), times.NotApplicableError);
-    assert.throws(() => noZone.get(times.Zman.TchilasZmanKidushLevana3Days), times.TimeZoneRequiredError);
+    assert.throws(() => noDay.get(times.Zman.TchilasZmanKidushLevana3Days), times.TimeZoneRequiredError);
   } finally {
     day.close();
     wrongSign.close();
-    noZone.close();
+    noDay.close();
   }
 });
 
-test('a throwing time zone callback is a typed error', () => {
-  const broken = {
-    offsetSeconds() {
-      throw new Error('no time zone data');
-    },
-    localToUnixSeconds() {
-      throw new Error('no time zone data');
-    },
-  };
-  const day = new times.Zmanim(times.seaLevelLocation(40.09, -74.22), date, times.defaultConfig(), broken);
-  try {
-    assert.throws(() => day.get(times.Zman.Sunrise), times.TimeZoneCallbackFailedError);
-  } finally {
-    day.close();
-  }
+test('a local day that ends before it starts is a typed error', () => {
+  const backwards = { start_ms: 1n, start_offset_seconds: 0, end_ms: 0n, end_offset_seconds: 0 };
+  assert.throws(
+    () => new times.Zmanim(lakewood(), date, times.defaultConfig(), backwards),
+    times.InvalidLocalDayError,
+  );
 });

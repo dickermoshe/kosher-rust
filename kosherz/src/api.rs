@@ -956,8 +956,6 @@ pub mod calendar {
 /// Halachic times (*zmanim*) for a place and a day.
 #[weaveffi::module]
 pub mod times {
-    use std::sync::Arc;
-
     use crate::api::calendar::GregorianDate;
     use crate::convert;
 
@@ -974,12 +972,14 @@ pub mod times {
         InvalidElevation = 3,
         /// The Gregorian date does not exist, or is outside the supported range.
         InvalidGregorianDate = 4,
-        /// A time zone is needed and none was given. The four Kiddush Levana times need one.
+        /// A local day is needed and none was given. The four Kiddush Levana times need one.
         /// `Zmanim` and `MyZmanim` also need one at a location more than 150 degrees from
         /// Greenwich.
         TimeZoneRequired = 5,
-        /// The time zone callback failed, or gave an offset of a day or more.
-        TimeZoneCallbackFailed = 6,
+        /// The local day is impossible.
+        ///
+        /// It ends before it starts or more than 48 hours after, or an offset is a day or more.
+        InvalidLocalDay = 6,
         /// A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
         /// within a day (1440 minutes) either way.
         InvalidMinutes = 7,
@@ -1005,7 +1005,7 @@ pub mod times {
     /// A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
     /// leave them 0 for sea level.
     ///
-    /// The time zone is not part of the location. You pass a `TimeZoneOffset` to `Zmanim` and
+    /// The time zone is not part of the location. You pass a `LocalDay` to `Zmanim` and
     /// `MyZmanim` when you create them.
     #[weaveffi::record]
     #[derive(Debug, Clone, Copy, PartialEq)]
@@ -1046,50 +1046,31 @@ pub mod times {
         convert::validate_location(&location, has_time_zone)
     }
 
-    /// The time zone. You supply it as a callback with two methods. One gives the offset from UTC
-    /// at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
-    /// `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
+    /// The date in the caller's time zone: when local midnight starts it, when local midnight
+    /// starts the next date, and the offset from UTC at each. Compute it with your platform's
+    /// time zone support, for example `date.atStartOfDay(zone)` and
+    /// `date.plusDays(1).atStartOfDay(zone)` in Java.
     ///
-    /// The time zone is optional. With a time zone every time works. You can also leave it out.
-    /// These do not work without a time zone:
+    /// When the clocks skip midnight, the day starts at the first instant the clocks show that
+    /// day, such as 01:00. A day the clocks skip entirely starts and ends at the same instant.
+    ///
+    /// The local day is optional. With one every time works. You can also leave it out. These do
+    /// not work without one:
     ///
     /// - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
     /// - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
     ///   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
-    ///
-    /// The callback is called synchronously, once for each sunrise, sunset or other event that a
-    /// time is built from.
-    #[weaveffi::callback_interface]
-    pub trait TimeZoneOffset: Send + Sync {
-        /// The offset from UTC, in seconds east, in effect at `unix_seconds`.
-        ///
-        /// # Errors
-        ///
-        /// Fail when the offset is unknown. The calculation then reports
-        /// `ZmanimError::TimeZoneCallbackFailed`.
-        fn offset_seconds(&self, unix_seconds: i64) -> Result<i32, weaveffi::ForeignError>;
-
-        /// The Unix time, in seconds, at which the clocks in this time zone show the local date
-        /// and time given.
-        ///
-        /// Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
-        /// return the instant one gap length later. When the clocks show the time twice, return
-        /// the earlier instant. JavaScript's `Temporal` calls this the `compatible`
-        /// disambiguation, and it is Temporal's default.
-        ///
-        /// # Errors
-        ///
-        /// Fail when the instant is unknown. The calculation then reports
-        /// `ZmanimError::TimeZoneCallbackFailed`.
-        fn local_to_unix_seconds(
-            &self,
-            year: i32,
-            month: i32,
-            day: i32,
-            hour: i32,
-            minute: i32,
-            second: i32,
-        ) -> Result<i64, weaveffi::ForeignError>;
+    #[weaveffi::record]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct LocalDay {
+        /// When local midnight starts the date, in Unix milliseconds.
+        pub start_ms: i64,
+        /// The offset from UTC at `start_ms`, in seconds east.
+        pub start_offset_seconds: i32,
+        /// When local midnight starts the next date, in Unix milliseconds.
+        pub end_ms: i64,
+        /// The offset from UTC at `end_ms`, in seconds east.
+        pub end_offset_seconds: i32,
     }
 
     // BEGIN GENERATED: Zman
@@ -1591,11 +1572,9 @@ pub mod times {
         AllNight = 1,
         /// The time does not apply on this date.
         NotApplicable = 2,
-        /// The time needs a time zone and none was given. Only the four Kiddush Levana times need
+        /// The time needs a local day and none was given. Only the four Kiddush Levana times need
         /// one.
         TimeZoneRequired = 3,
-        /// The time zone callback failed.
-        TimeZoneCallbackFailed = 4,
         /// An internal calculation error.
         Unexpected = 5,
     }
@@ -1615,32 +1594,33 @@ pub mod times {
     /// The *zmanim* for one place on one day.
     #[weaveffi::interface]
     pub struct Zmanim {
-        pub(crate) inner: kosher_rust::Zmanim<convert::CallbackTimeZone>,
+        pub(crate) inner: kosher_rust::Zmanim<convert::DayTimeZone>,
         pub(crate) config: Config,
     }
 
     impl Zmanim {
-        /// The *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
+        /// The *zmanim* at `location` on `date`, whose local day is `local_day`, calculated with
+        /// `config`.
         ///
-        /// The time zone is optional. With a time zone every time works. Without one the four
-        /// Kiddush Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150
-        /// degrees from Greenwich needs a time zone. Without one this returns
-        /// `ZmanimError::TimeZoneRequired`.
+        /// The local day is optional. With one every time works. Without one the four Kiddush
+        /// Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150 degrees
+        /// from Greenwich needs one. Without one this returns `ZmanimError::TimeZoneRequired`.
         ///
         /// # Errors
         ///
         /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
         /// - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
         ///   Ateret Torah offset is more than a day.
+        /// - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
         /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
-        ///   there is no time zone and the location is more than 150 degrees from Greenwich.
+        ///   there is no local day and the location is more than 150 degrees from Greenwich.
         pub fn new(
             location: Location,
             date: GregorianDate,
             config: Config,
-            time_zone: Option<Arc<dyn TimeZoneOffset>>,
+            local_day: Option<LocalDay>,
         ) -> Result<Self, ZmanimError> {
-            convert::zmanim::zmanim(&location, &date, &config, time_zone).map(|inner| Self { inner, config })
+            convert::zmanim::zmanim(&location, &date, &config, local_day.as_ref()).map(|inner| Self { inner, config })
         }
 
         /// The time of `zman`, in Unix milliseconds.
@@ -1650,9 +1630,9 @@ pub mod times {
         /// `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
         /// the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
         /// on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
-        /// a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+        /// a local day.
         pub fn get(&self, zman: Zman) -> Result<i64, ZmanimError> {
-            convert::zmanim::checked(&self.inner, |inner| inner.get(zman.into()))
+            Ok(self.inner.get(zman.into())?.as_millisecond())
         }
 
         /// Every zman, with its time or why it has none.
@@ -1668,7 +1648,7 @@ pub mod times {
         /// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
         /// the same as `get`.
         pub fn sunrise_offset_by_degrees(&self, degrees: f64) -> Result<i64, ZmanimError> {
-            convert::zmanim::checked(&self.inner, |inner| inner.sunrise_offset_by_degrees(degrees))
+            Ok(self.inner.sunrise_offset_by_degrees(degrees)?.as_millisecond())
         }
 
         /// When the sun is `degrees` below the geometric horizon after sunset, in Unix
@@ -1679,7 +1659,7 @@ pub mod times {
         /// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
         /// the same as `get`.
         pub fn sunset_offset_by_degrees(&self, degrees: f64) -> Result<i64, ZmanimError> {
-            convert::zmanim::checked(&self.inner, |inner| inner.sunset_offset_by_degrees(degrees))
+            Ok(self.inner.sunset_offset_by_degrees(degrees)?.as_millisecond())
         }
 
         /// The location.
@@ -1763,9 +1743,7 @@ pub mod times {
     /// The *zmanim* of the MyZmanim website, reproduced to the second.
     #[weaveffi::module]
     pub mod myzmanim {
-        use std::sync::Arc;
-
-        use super::{Location, TimeZoneOffset, ZmanFailure, ZmanimError};
+        use super::{LocalDay, Location, ZmanFailure, ZmanimError};
         use crate::api::calendar::GregorianDate;
         use crate::convert;
 
@@ -1874,15 +1852,15 @@ pub mod times {
         /// matter: MyZmanim gives both "level" and "elevated" sunrise and sunset.
         #[weaveffi::interface]
         pub struct MyZmanim {
-            pub(crate) inner: kosher_rust::myzmanim::MyZmanim<convert::CallbackTimeZone>,
+            pub(crate) inner: kosher_rust::myzmanim::MyZmanim<convert::DayTimeZone>,
         }
 
         impl MyZmanim {
-            /// The *zmanim* at `location` on `date` in `time_zone`. Candles are lit
+            /// The *zmanim* at `location` on `date`, whose local day is `local_day`. Candles are lit
             /// `candle_lighting_minutes` before sunset. The website uses 18 minutes by default.
             ///
-            /// The time zone is optional. With a time zone every time works. A location more than
-            /// 150 degrees from Greenwich needs a time zone. Without one this returns
+            /// The local day is optional. With one every time works. A location more than 150
+            /// degrees from Greenwich needs one. Without one this returns
             /// `ZmanimError::TimeZoneRequired`.
             ///
             /// # Errors
@@ -1890,16 +1868,17 @@ pub mod times {
             /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
             /// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
             ///   0 to 1440.
+            /// - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
             /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
-            ///   when there is no time zone and the location is more than 150 degrees from
+            ///   when there is no local day and the location is more than 150 degrees from
             ///   Greenwich.
             pub fn new(
                 location: Location,
                 date: GregorianDate,
                 candle_lighting_minutes: f64,
-                time_zone: Option<Arc<dyn TimeZoneOffset>>,
+                local_day: Option<LocalDay>,
             ) -> Result<Self, ZmanimError> {
-                convert::myzmanim::my_zmanim(&location, &date, candle_lighting_minutes, time_zone)
+                convert::myzmanim::my_zmanim(&location, &date, candle_lighting_minutes, local_day.as_ref())
                     .map(|inner| Self { inner })
             }
 
@@ -1908,9 +1887,9 @@ pub mod times {
             /// # Errors
             ///
             /// `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
-            /// time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+            /// time.
             pub fn get(&self, zman: MyZman) -> Result<i64, ZmanimError> {
-                convert::myzmanim::checked(&self.inner, |inner| inner.get(zman.into()))
+                Ok(self.inner.get(zman.into())?.as_millisecond())
             }
 
             /// Every row, with its time or why it has none.
@@ -1924,7 +1903,7 @@ pub mod times {
             ///
             /// The same as `get`.
             pub fn proportional_hour_gra(&self) -> Result<i64, ZmanimError> {
-                convert::myzmanim::checked_duration(&self.inner)
+                convert::myzmanim::proportional_hour(&self.inner)
             }
 
             /// The location.

@@ -177,193 +177,6 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_debug_1live(JNIEnv* env, jclass c
     return (jlong)kosherz_debug_live((int32_t)kind);
 }
 
-/* Producer threads (async completions, callback calls, vtable `free`) are
-   usually not JVM threads. The first time one calls in it attaches as a
-   daemon, and a thread-local destructor (a pthread key, or a fiber-local
-   slot on Windows) detaches it when the thread exits, so a busy producer
-   thread pays for one attach, not one per call. If the destructor can't be
-   registered, the thread detaches again as soon as the call ends. */
-#if defined(_WIN32)
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-
-static DWORD Jni_env_slot = FLS_OUT_OF_INDEXES;
-static INIT_ONCE Jni_env_once = INIT_ONCE_STATIC_INIT;
-
-static VOID WINAPI Jni_thread_exit(PVOID value) {
-    if (value != NULL && Jni_vm != NULL) {
-        (*Jni_vm)->DetachCurrentThread(Jni_vm);
-    }
-}
-
-static BOOL CALLBACK Jni_make_env_slot(PINIT_ONCE once, PVOID param, PVOID* context) {
-    (void)once;
-    (void)param;
-    (void)context;
-    Jni_env_slot = FlsAlloc(Jni_thread_exit);
-    return TRUE;
-}
-
-/* Arranges for the calling thread to detach when it exits; 0 if it can't. */
-static int Jni_remember_attach(void) {
-    InitOnceExecuteOnce(&Jni_env_once, Jni_make_env_slot, NULL, NULL);
-    return Jni_env_slot != FLS_OUT_OF_INDEXES && FlsSetValue(Jni_env_slot, (PVOID)Jni_vm);
-}
-#else
-#include <pthread.h>
-
-static pthread_key_t Jni_env_key;
-static int Jni_env_key_ok = 0;
-static pthread_once_t Jni_env_once = PTHREAD_ONCE_INIT;
-
-static void Jni_thread_exit(void* value) {
-    if (value != NULL && Jni_vm != NULL) {
-        (*Jni_vm)->DetachCurrentThread(Jni_vm);
-    }
-}
-
-static void Jni_make_env_key(void) {
-    Jni_env_key_ok = pthread_key_create(&Jni_env_key, Jni_thread_exit) == 0;
-}
-
-/* Arranges for the calling thread to detach when it exits; 0 if it can't. */
-static int Jni_remember_attach(void) {
-    pthread_once(&Jni_env_once, Jni_make_env_key);
-    return Jni_env_key_ok && pthread_setspecific(Jni_env_key, (void*)Jni_vm) == 0;
-}
-#endif
-
-/* The calling thread's JNIEnv, attaching the thread if needed; NULL when
-   the JVM is unavailable. `*detach` is set when the caller must hand it
-   back with Jni_env_done because the thread can't detach itself at exit. */
-static JNIEnv* Jni_env(int* detach) {
-    JNIEnv* env = NULL;
-    *detach = 0;
-    if (Jni_vm == NULL) {
-        return NULL;
-    }
-    if ((*Jni_vm)->GetEnv(Jni_vm, (void**)&env, JNI_VERSION_1_6) == JNI_OK) {
-        return env;
-    }
-    /* `void*` converts to the `JNIEnv**` Android declares and the `void**`
-       the JDK declares. */
-    if ((*Jni_vm)->AttachCurrentThreadAsDaemon(Jni_vm, (void*)&env, NULL) != JNI_OK) {
-        return NULL;
-    }
-    *detach = !Jni_remember_attach();
-    return env;
-}
-
-/* Ends a use of Jni_env's JNIEnv, detaching the thread if Jni_env said so. */
-static void Jni_env_done(int detach) {
-    if (detach) {
-        (*Jni_vm)->DetachCurrentThread(Jni_vm);
-    }
-}
-
-/* Callback interfaces: the producer holds a global reference to the Kotlin
-   implementation as `ctx`; trampolines call the matching static dispatch
-   shim on JniBridge from whatever thread the producer uses. The shim never
-   lets an exception escape: it reports a failure itself through `out_err`
-   (with the two exports below) and returns a zero value. */
-
-/* Enters a trampoline: the JNIEnv with a local frame pushed, or NULL after
-   reporting the failure through `out_err`. */
-static JNIEnv* Jni_callback_begin(kosherz_error* out_err, int* detach) {
-    JNIEnv* env = Jni_env(detach);
-    if (env == NULL) {
-        kosherz_error_set(out_err, -4, "could not attach the calling thread to the JVM");
-        return NULL;
-    }
-    if ((*env)->PushLocalFrame(env, 16) != 0) {
-        (*env)->ExceptionClear(env);
-        kosherz_error_set(out_err, -4, "JNI local frame exhausted");
-        Jni_env_done(*detach);
-        return NULL;
-    }
-    return env;
-}
-
-/* Leaves a trampoline. An exception still pending means the dispatch itself
-   failed (the shim catches everything the implementation throws), which
-   reaches the producer as code -4; nothing ever unwinds through its frames. */
-static void Jni_callback_end(JNIEnv* env, kosherz_error* out_err, int detach) {
-    if ((*env)->ExceptionCheck(env)) {
-        (*env)->ExceptionClear(env);
-        kosherz_error_set(out_err, -4, "the JVM failed to dispatch the callback");
-    }
-    (*env)->PopLocalFrame(env, NULL);
-    Jni_env_done(detach);
-}
-
-/* The vtable `free` entry: drops the producer's reference to the Kotlin
-   implementation, from whatever thread the producer releases it on. */
-static void Jni_release_callback(void* ctx) {
-    int detach = 0;
-    JNIEnv* env = Jni_env(&detach);
-    if (env != NULL) {
-        if (ctx != NULL) {
-            (*env)->DeleteGlobalRef(env, (jobject)ctx);
-        }
-        Jni_env_done(detach);
-    }
-}
-
-/* `JniBridge.error_set`: reports a failed callback through the trampoline's
-   `out_err` (the message is cut at its first NUL). */
-JNIEXPORT void JNICALL Java_kosherz_JniBridge_error_1set(JNIEnv* env, jclass cls, jlong err, jint code, jbyteArray message) {
-    (void)cls;
-    Jni_bytes m = Jni_borrow_bytes(env, message);
-    char* text = (char*)malloc(m.len + 1u);
-    if (text != NULL) {
-        if (m.len > 0) {
-            memcpy(text, m.ptr, m.len);
-        }
-        text[m.len] = '\0';
-    }
-    Jni_release_bytes(env, &m);
-    kosherz_error_set((kosherz_error*)(intptr_t)err, (int32_t)code, text != NULL ? text : "callback failed");
-    free(text);
-}
-
-/* `JniBridge.error_set_payload`: attaches a typed error's fields (a value
-   buffer) to the failure `error_set` reported. */
-JNIEXPORT void JNICALL Java_kosherz_JniBridge_error_1set_1payload(JNIEnv* env, jclass cls, jlong err, jbyteArray payload) {
-    (void)cls;
-    Jni_bytes p = Jni_borrow_bytes(env, payload);
-    kosherz_error_set_payload((kosherz_error*)(intptr_t)err, p.ptr, p.len);
-    Jni_release_bytes(env, &p);
-}
-
-static jmethodID Jni_mid_times_TimeZoneOffset_offset_seconds = NULL;
-static jmethodID Jni_mid_times_TimeZoneOffset_local_to_unix_seconds = NULL;
-
-static int32_t Jni_times_TimeZoneOffset_offset_seconds(void* ctx, int64_t p_unix_seconds, kosherz_error* out_err) {
-    int detach = 0;
-    JNIEnv* env = Jni_callback_begin(out_err, &detach);
-    if (env == NULL) {
-        return (int32_t)0;
-    }
-    jint rv = (*env)->CallStaticIntMethod(env, Jni_bridge, Jni_mid_times_TimeZoneOffset_offset_seconds, (jobject)ctx, (jlong)(intptr_t)out_err, (jlong)p_unix_seconds);
-    Jni_callback_end(env, out_err, detach);
-    return (int32_t)rv;
-}
-
-static int64_t Jni_times_TimeZoneOffset_local_to_unix_seconds(void* ctx, int32_t p_year, int32_t p_month, int32_t p_day, int32_t p_hour, int32_t p_minute, int32_t p_second, kosherz_error* out_err) {
-    int detach = 0;
-    JNIEnv* env = Jni_callback_begin(out_err, &detach);
-    if (env == NULL) {
-        return (int64_t)0;
-    }
-    jlong rv = (*env)->CallStaticLongMethod(env, Jni_bridge, Jni_mid_times_TimeZoneOffset_local_to_unix_seconds, (jobject)ctx, (jlong)(intptr_t)out_err, (jint)p_year, (jint)p_month, (jint)p_day, (jint)p_hour, (jint)p_minute, (jint)p_second);
-    Jni_callback_end(env, out_err, detach);
-    return (int64_t)rv;
-}
-
-static const kosherz_times_TimeZoneOffset_vtable Jni_times_TimeZoneOffset_vtable = {sizeof(kosherz_times_TimeZoneOffset_vtable), 0, Jni_release_callback, Jni_times_TimeZoneOffset_offset_seconds, Jni_times_TimeZoneOffset_local_to_unix_seconds};
-
 static const Jni_contract_entry Jni_contract_calendar[] = {
     {UINT64_C(0x0076e887e475ab9f), UINT64_C(0x96615bd3eb7f1761), "calendar.HebrewDate.molad"},
     {UINT64_C(0x01344feb6b733690), UINT64_C(0x47b992630b03d56a), "calendar.HebrewDate.weekday"},
@@ -433,7 +246,6 @@ static const Jni_contract_entry Jni_contract_times[] = {
     {UINT64_C(0x01ce427485afb43a), UINT64_C(0x017ce9984014d3c1), "times.ZmanTime"},
     {UINT64_C(0x0643c19407762211), UINT64_C(0x11babf7c30a11935), "times.myzmanim.dip_degrees_per_root_meter"},
     {UINT64_C(0x091fabaf00184561), UINT64_C(0xf13823120f5b4c46), "times.Calculator"},
-    {UINT64_C(0x0a21d46001720019), UINT64_C(0x5cf262e1982cf8f7), "times.TimeZoneOffset"},
     {UINT64_C(0x0a86c54f2d84238c), UINT64_C(0x4b1d4aaf11dfd132), "times.zman_category"},
     {UINT64_C(0x0d3bc9cd549a7137), UINT64_C(0xbea68784cf687a1a), "times.Zmanim.get"},
     {UINT64_C(0x0e595d82f4b54ade), UINT64_C(0x4a23e822039987a7), "times.zman_description"},
@@ -441,13 +253,14 @@ static const Jni_contract_entry Jni_contract_times[] = {
     {UINT64_C(0x196240a5b18bd7a9), UINT64_C(0x2d4c4ce495502494), "times.Zmanim"},
     {UINT64_C(0x1f4901cd5f081ee4), UINT64_C(0x669e3d4d3e9d42cc), "times.Zmanim.all"},
     {UINT64_C(0x2eabf209e8de2867), UINT64_C(0x6614e227c469c232), "times.Zmanim.config"},
+    {UINT64_C(0x32d6c48bf4c035ce), UINT64_C(0x34a4cdb9918ec167), "times.LocalDay"},
     {UINT64_C(0x38596a351e356743), UINT64_C(0x685412d4d80250ea), "times.Config"},
     {UINT64_C(0x39389f0e68d3cc22), UINT64_C(0x4af5df9a96d3f535), "times.myzmanim.MyZmanim.proportional_hour_gra"},
     {UINT64_C(0x3c92cd49c8b4515b), UINT64_C(0x5962ffa89080c41b), "times.shaah_zmanis"},
-    {UINT64_C(0x44a0809dedbd4a4d), UINT64_C(0x9169cc1ef07d2488), "times.ZmanimError"},
+    {UINT64_C(0x44a0809dedbd4a4d), UINT64_C(0xd12210ce98caa417), "times.ZmanimError"},
     {UINT64_C(0x4d259836d7137c43), UINT64_C(0x0486761191984fd0), "times.Zman"},
     {UINT64_C(0x57d7a9c5a715b9fa), UINT64_C(0x7110b3413cfd8e83), "times.Location"},
-    {UINT64_C(0x5cf83bcd8244d771), UINT64_C(0x99d014ada9906437), "times.Zmanim.new"},
+    {UINT64_C(0x5cf83bcd8244d771), UINT64_C(0x05a3622be2d0b290), "times.Zmanim.new"},
     {UINT64_C(0x65aa216d77a78308), UINT64_C(0x689307845875e63e), "times.zman_is_deprecated"},
     {UINT64_C(0x68ffad4e5539ca69), UINT64_C(0xc3cb9f9d3b5b28ba), "times.myzmanim.MyZmanim.date"},
     {UINT64_C(0x6b5635f618146d65), UINT64_C(0x52972cadc08c13ef), "times.all_zmanim"},
@@ -456,7 +269,7 @@ static const Jni_contract_entry Jni_contract_times[] = {
     {UINT64_C(0x77857568cbec63b3), UINT64_C(0xcddd8b18c602be76), "times.myzmanim.MyZman"},
     {UINT64_C(0x79dc07bc571a3ab7), UINT64_C(0xf70eea6f6621717f), "times.validate_location"},
     {UINT64_C(0x80d913d2e48601c7), UINT64_C(0x93dc654d560a63b8), "times.myzmanim.MyZmanim.get"},
-    {UINT64_C(0x8a9dcfc50ecf7193), UINT64_C(0x7d00a18dba45f065), "times.ZmanFailure"},
+    {UINT64_C(0x8a9dcfc50ecf7193), UINT64_C(0x6590c939314307c3), "times.ZmanFailure"},
     {UINT64_C(0x8f816bd2ec126fd4), UINT64_C(0x975c3a96549104d2), "times.myzmanim.MyZmanim.all"},
     {UINT64_C(0x94ec9f2dd31dd154), UINT64_C(0x93ef9500cb5f1cfc), "times.Zmanim.sunrise_offset_by_degrees"},
     {UINT64_C(0x968059cb1e92252a), UINT64_C(0xdec9155329278f29), "times.myzmanim.my_zman_name"},
@@ -468,7 +281,7 @@ static const Jni_contract_entry Jni_contract_times[] = {
     {UINT64_C(0xbb0373c362e8a226), UINT64_C(0x63856359341062ee), "times.Zmanim.location"},
     {UINT64_C(0xc1a3c3740d199619), UINT64_C(0xe3c7eb49f063a0ce), "times.myzmanim.MyZmanim"},
     {UINT64_C(0xc29ca29cb7cd2999), UINT64_C(0x735499ab0a625d6d), "times.myzmanim.dawn_90_degrees"},
-    {UINT64_C(0xcc5685d30e954e41), UINT64_C(0xcc6eb9ea8c42ca79), "times.myzmanim.MyZmanim.new"},
+    {UINT64_C(0xcc5685d30e954e41), UINT64_C(0xfc5049b6220741f6), "times.myzmanim.MyZmanim.new"},
     {UINT64_C(0xce8ce7ef4ad0db32), UINT64_C(0xc5f954c475f4dc9d), "times.zman_java_name"},
     {UINT64_C(0xdb5095e0e87f0d79), UINT64_C(0xc3cb9f9d3b5b28ba), "times.Zmanim.date"},
     {UINT64_C(0xdda7b795bf202896), UINT64_C(0x63856359341062ee), "times.myzmanim.MyZmanim.location"},
@@ -484,14 +297,6 @@ static jint Jni_load(JNIEnv* env) {
         return JNI_ERR;
     }
     if (Jni_check_contract(env, kosherz_times_contract, Jni_contract_times, sizeof Jni_contract_times / sizeof Jni_contract_times[0]) != JNI_OK) {
-        return JNI_ERR;
-    }
-    Jni_mid_times_TimeZoneOffset_offset_seconds = (*env)->GetStaticMethodID(env, Jni_bridge, "times_TimeZoneOffset_offset_seconds", "(Lkosherz/TimeZoneOffset;JJ)I");
-    if (Jni_mid_times_TimeZoneOffset_offset_seconds == NULL) {
-        return JNI_ERR;
-    }
-    Jni_mid_times_TimeZoneOffset_local_to_unix_seconds = (*env)->GetStaticMethodID(env, Jni_bridge, "times_TimeZoneOffset_local_to_unix_seconds", "(Lkosherz/TimeZoneOffset;JIIIIII)J");
-    if (Jni_mid_times_TimeZoneOffset_local_to_unix_seconds == NULL) {
         return JNI_ERR;
     }
     return JNI_OK;
@@ -1167,16 +972,18 @@ JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1shaah_1zmanis(JNIEnv* env,
     return (jlong)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jbyteArray p_config, jobject p_time_zone) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1Zmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jbyteArray p_config, jbyteArray p_local_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_location_b = Jni_borrow_bytes(env, p_location);
     Jni_bytes p_date_b = Jni_borrow_bytes(env, p_date);
     Jni_bytes p_config_b = Jni_borrow_bytes(env, p_config);
-    kosherz_times_Zmanim* rv = kosherz_times_Zmanim_new(p_location_b.ptr, p_location_b.len, p_date_b.ptr, p_date_b.len, p_config_b.ptr, p_config_b.len, p_time_zone != NULL ? (void*)(*env)->NewGlobalRef(env, p_time_zone) : NULL, p_time_zone != NULL ? &Jni_times_TimeZoneOffset_vtable : NULL, &err);
+    Jni_bytes p_local_day_b = Jni_borrow_bytes(env, p_local_day);
+    kosherz_times_Zmanim* rv = kosherz_times_Zmanim_new(p_location_b.ptr, p_location_b.len, p_date_b.ptr, p_date_b.len, p_config_b.ptr, p_config_b.len, p_local_day_b.ptr, p_local_day_b.len, &err);
     Jni_release_bytes(env, &p_location_b);
     Jni_release_bytes(env, &p_date_b);
     Jni_release_bytes(env, &p_config_b);
+    Jni_release_bytes(env, &p_local_day_b);
     if (err.code != 0) {
         Jni_throw(env, &err, 3);
         return 0;
@@ -1356,14 +1163,16 @@ JNIEXPORT jdouble JNICALL Java_kosherz_JniBridge_times_1myzmanim_1default_1candl
     return (jdouble)rv;
 }
 
-JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jdouble p_candle_lighting_minutes, jobject p_time_zone) {
+JNIEXPORT jlong JNICALL Java_kosherz_JniBridge_times_1myzmanim_1MyZmanim_1new(JNIEnv* env, jclass cls, jbyteArray p_location, jbyteArray p_date, jdouble p_candle_lighting_minutes, jbyteArray p_local_day) {
     kosherz_error err = {0, NULL, NULL, 0};
     (void)cls;
     Jni_bytes p_location_b = Jni_borrow_bytes(env, p_location);
     Jni_bytes p_date_b = Jni_borrow_bytes(env, p_date);
-    kosherz_times_myzmanim_MyZmanim* rv = kosherz_times_myzmanim_MyZmanim_new(p_location_b.ptr, p_location_b.len, p_date_b.ptr, p_date_b.len, (double)p_candle_lighting_minutes, p_time_zone != NULL ? (void*)(*env)->NewGlobalRef(env, p_time_zone) : NULL, p_time_zone != NULL ? &Jni_times_TimeZoneOffset_vtable : NULL, &err);
+    Jni_bytes p_local_day_b = Jni_borrow_bytes(env, p_local_day);
+    kosherz_times_myzmanim_MyZmanim* rv = kosherz_times_myzmanim_MyZmanim_new(p_location_b.ptr, p_location_b.len, p_date_b.ptr, p_date_b.len, (double)p_candle_lighting_minutes, p_local_day_b.ptr, p_local_day_b.len, &err);
     Jni_release_bytes(env, &p_location_b);
     Jni_release_bytes(env, &p_date_b);
+    Jni_release_bytes(env, &p_local_day_b);
     if (err.code != 0) {
         Jni_throw(env, &err, 3);
         return 0;

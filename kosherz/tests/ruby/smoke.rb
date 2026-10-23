@@ -6,34 +6,12 @@
 #     KOSHERZ_LIBRARY=$PWD/../target/debug/libkosherz.so ruby -I generated/ruby/lib tests/ruby/smoke.rb
 require 'kosherz'
 
-# UTC plus a number of hours, every day of the year.
-class Fixed
-  include Kosherz::TimeZoneOffset
-
-  def initialize(hours)
-    @hours = hours
-  end
-
-  def offset_seconds(_unix_seconds)
-    @hours * 3600
-  end
-
-  def local_to_unix_seconds(year, month, day, hour, minute, second)
-    Time.utc(year, month, day, hour, minute, second).to_i - @hours * 3600
-  end
-end
-
-# A time zone whose callbacks fail.
-class Broken
-  include Kosherz::TimeZoneOffset
-
-  def offset_seconds(_unix_seconds)
-    raise 'no time zone data'
-  end
-
-  def local_to_unix_seconds(_year, _month, _day, _hour, _minute, _second)
-    raise 'no time zone data'
-  end
+# `date` at UTC plus `hours` all year: its two local midnights and the offsets at them. Ruby has no
+# time zone database of its own, so the test uses fixed offsets.
+def fixed_day(hours, date)
+  start = (Time.utc(date.year, date.month, date.day).to_i - hours * 3600) * 1000
+  Kosherz::LocalDay.new(start_ms: start, start_offset_seconds: hours * 3600,
+                        end_ms: start + 86_400_000, end_offset_seconds: hours * 3600)
 end
 
 # Fails unless the block raises `error`.
@@ -59,7 +37,7 @@ end
 date = Kosherz::GregorianDate.new(year: 2024, month: 4, day: 23)
 
 check('sunrise in Lakewood on 2024-04-23 is 06:06:35 EDT') do
-  day = Kosherz::Zmanim.new(Kosherz.sea_level_location(40.09, -74.22), date, Kosherz.default_config, Fixed.new(-4))
+  day = Kosherz::Zmanim.new(Kosherz.sea_level_location(40.09, -74.22), date, Kosherz.default_config, fixed_day(-4, date))
   begin
     seconds = day.get(Kosherz::Zman::SUNRISE).div(1000)
     raise "got #{seconds}, expected 1713866795" unless seconds == 1_713_866_795
@@ -80,7 +58,7 @@ end
 
 check('latitude 91 raises ZmanimError::InvalidLatitude') do
   begin
-    Kosherz::Zmanim.new(Kosherz.sea_level_location(91, 0), date, Kosherz.default_config, Fixed.new(-4)).close
+    Kosherz::Zmanim.new(Kosherz.sea_level_location(91, 0), date, Kosherz.default_config, fixed_day(-4, date)).close
   rescue Kosherz::ZmanimError::InvalidLatitude
     next
   end
@@ -93,8 +71,8 @@ check('kiddush levana in Lakewood on 2024-12-03 needs the right offset') do
   lakewood = Kosherz.sea_level_location(40.09, -74.22)
   december = Kosherz::GregorianDate.new(year: 2024, month: 12, day: 3)
   zman = Kosherz::Zman::TCHILAS_ZMAN_KIDUSH_LEVANA3_DAYS
-  day = Kosherz::Zmanim.new(lakewood, december, Kosherz.default_config, Fixed.new(-4))
-  wrong_sign = Kosherz::Zmanim.new(lakewood, december, Kosherz.default_config, Fixed.new(4))
+  day = Kosherz::Zmanim.new(lakewood, december, Kosherz.default_config, fixed_day(-4, december))
+  wrong_sign = Kosherz::Zmanim.new(lakewood, december, Kosherz.default_config, fixed_day(4, december))
   no_zone = Kosherz::Zmanim.new(lakewood, december, Kosherz.default_config, nil)
   begin
     ms = day.get(zman)
@@ -106,12 +84,10 @@ check('kiddush levana in Lakewood on 2024-12-03 needs the right offset') do
   end
 end
 
-check('a raising time zone callback raises ZmanimError::TimeZoneCallbackFailed') do
-  day = Kosherz::Zmanim.new(Kosherz.sea_level_location(40.09, -74.22), date, Kosherz.default_config, Broken.new)
-  begin
-    raises(Kosherz::ZmanimError::TimeZoneCallbackFailed) { day.get(Kosherz::Zman::SUNRISE) }
-  ensure
-    day.close
+check('a local day that ends before it starts raises ZmanimError::InvalidLocalDay') do
+  backwards = Kosherz::LocalDay.new(start_ms: 1, start_offset_seconds: 0, end_ms: 0, end_offset_seconds: 0)
+  raises(Kosherz::ZmanimError::InvalidLocalDay) do
+    Kosherz::Zmanim.new(Kosherz.sea_level_location(40.09, -74.22), date, Kosherz.default_config, backwards).close
   end
 end
 

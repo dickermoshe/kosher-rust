@@ -348,7 +348,6 @@ inline constexpr ContractEntry times_contract[] = {
     {0x01ce427485afb43aull, 0x017ce9984014d3c1ull, "times.ZmanTime"},
     {0x0643c19407762211ull, 0x11babf7c30a11935ull, "times.myzmanim.dip_degrees_per_root_meter"},
     {0x091fabaf00184561ull, 0xf13823120f5b4c46ull, "times.Calculator"},
-    {0x0a21d46001720019ull, 0x5cf262e1982cf8f7ull, "times.TimeZoneOffset"},
     {0x0a86c54f2d84238cull, 0x4b1d4aaf11dfd132ull, "times.zman_category"},
     {0x0d3bc9cd549a7137ull, 0xbea68784cf687a1aull, "times.Zmanim.get"},
     {0x0e595d82f4b54adeull, 0x4a23e822039987a7ull, "times.zman_description"},
@@ -356,13 +355,14 @@ inline constexpr ContractEntry times_contract[] = {
     {0x196240a5b18bd7a9ull, 0x2d4c4ce495502494ull, "times.Zmanim"},
     {0x1f4901cd5f081ee4ull, 0x669e3d4d3e9d42ccull, "times.Zmanim.all"},
     {0x2eabf209e8de2867ull, 0x6614e227c469c232ull, "times.Zmanim.config"},
+    {0x32d6c48bf4c035ceull, 0x34a4cdb9918ec167ull, "times.LocalDay"},
     {0x38596a351e356743ull, 0x685412d4d80250eaull, "times.Config"},
     {0x39389f0e68d3cc22ull, 0x4af5df9a96d3f535ull, "times.myzmanim.MyZmanim.proportional_hour_gra"},
     {0x3c92cd49c8b4515bull, 0x5962ffa89080c41bull, "times.shaah_zmanis"},
-    {0x44a0809dedbd4a4dull, 0x9169cc1ef07d2488ull, "times.ZmanimError"},
+    {0x44a0809dedbd4a4dull, 0xd12210ce98caa417ull, "times.ZmanimError"},
     {0x4d259836d7137c43ull, 0x0486761191984fd0ull, "times.Zman"},
     {0x57d7a9c5a715b9faull, 0x7110b3413cfd8e83ull, "times.Location"},
-    {0x5cf83bcd8244d771ull, 0x99d014ada9906437ull, "times.Zmanim.new"},
+    {0x5cf83bcd8244d771ull, 0x05a3622be2d0b290ull, "times.Zmanim.new"},
     {0x65aa216d77a78308ull, 0x689307845875e63eull, "times.zman_is_deprecated"},
     {0x68ffad4e5539ca69ull, 0xc3cb9f9d3b5b28baull, "times.myzmanim.MyZmanim.date"},
     {0x6b5635f618146d65ull, 0x52972cadc08c13efull, "times.all_zmanim"},
@@ -371,7 +371,7 @@ inline constexpr ContractEntry times_contract[] = {
     {0x77857568cbec63b3ull, 0xcddd8b18c602be76ull, "times.myzmanim.MyZman"},
     {0x79dc07bc571a3ab7ull, 0xf70eea6f6621717full, "times.validate_location"},
     {0x80d913d2e48601c7ull, 0x93dc654d560a63b8ull, "times.myzmanim.MyZmanim.get"},
-    {0x8a9dcfc50ecf7193ull, 0x7d00a18dba45f065ull, "times.ZmanFailure"},
+    {0x8a9dcfc50ecf7193ull, 0x6590c939314307c3ull, "times.ZmanFailure"},
     {0x8f816bd2ec126fd4ull, 0x975c3a96549104d2ull, "times.myzmanim.MyZmanim.all"},
     {0x94ec9f2dd31dd154ull, 0x93ef9500cb5f1cfcull, "times.Zmanim.sunrise_offset_by_degrees"},
     {0x968059cb1e92252aull, 0xdec9155329278f29ull, "times.myzmanim.my_zman_name"},
@@ -383,7 +383,7 @@ inline constexpr ContractEntry times_contract[] = {
     {0xbb0373c362e8a226ull, 0x63856359341062eeull, "times.Zmanim.location"},
     {0xc1a3c3740d199619ull, 0xe3c7eb49f063a0ceull, "times.myzmanim.MyZmanim"},
     {0xc29ca29cb7cd2999ull, 0x735499ab0a625d6dull, "times.myzmanim.dawn_90_degrees"},
-    {0xcc5685d30e954e41ull, 0xcc6eb9ea8c42ca79ull, "times.myzmanim.MyZmanim.new"},
+    {0xcc5685d30e954e41ull, 0xfc5049b6220741f6ull, "times.myzmanim.MyZmanim.new"},
     {0xce8ce7ef4ad0db32ull, 0xc5f954c475f4dc9dull, "times.zman_java_name"},
     {0xdb5095e0e87f0d79ull, 0xc3cb9f9d3b5b28baull, "times.Zmanim.date"},
     {0xdda7b795bf202896ull, 0x63856359341062eeull, "times.myzmanim.MyZmanim.location"},
@@ -1512,12 +1512,10 @@ enum class ZmanFailure : int32_t {
     /** The time does not apply on this date. */
     NotApplicable = 2,
     /**
-     * The time needs a time zone and none was given. Only the four Kiddush Levana times need
+     * The time needs a local day and none was given. Only the four Kiddush Levana times need
      * one.
      */
     TimeZoneRequired = 3,
-    /** The time zone callback failed. */
-    TimeZoneCallbackFailed = 4,
     /** An internal calculation error. */
     Unexpected = 5,
 };
@@ -1617,10 +1615,10 @@ struct MishnaPair;
 struct TehillimUnit;
 struct PirkeiAvosUnit;
 struct Location;
+struct LocalDay;
 struct Config;
 struct ZmanTime;
 class Zmanim;
-class TimeZoneOffset;
 struct MyZmanTime;
 class MyZmanim;
 
@@ -1812,24 +1810,25 @@ public:
     kosherz_times_Zmanim* clone_handle() const { return kosherz_times_Zmanim_clone(raw_); }
 
     /**
-     * The *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
+     * The *zmanim* at `location` on `date`, whose local day is `local_day`, calculated with
+     * `config`.
      *
-     * The time zone is optional. With a time zone every time works. Without one the four
-     * Kiddush Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150
-     * degrees from Greenwich needs a time zone. Without one this returns
-     * `ZmanimError::TimeZoneRequired`.
+     * The local day is optional. With one every time works. Without one the four Kiddush
+     * Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150 degrees
+     * from Greenwich needs one. Without one this returns `ZmanimError::TimeZoneRequired`.
      *
      * # Errors
      *
      * - `ZmanimError::InvalidGregorianDate` when the date does not exist.
      * - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
      *   Ateret Torah offset is more than a day.
+     * - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
      * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
-     *   there is no time zone and the location is more than 150 degrees from Greenwich.
+     *   there is no local day and the location is more than 150 degrees from Greenwich.
      *
      * @throws ZmanimError when the call fails with one of the domain's codes.
      */
-    explicit Zmanim(const Location& location, const GregorianDate& date, const Config& config, std::shared_ptr<TimeZoneOffset> time_zone);
+    explicit Zmanim(const Location& location, const GregorianDate& date, const Config& config, const std::optional<LocalDay>& local_day);
 
     /**
      * The time of `zman`, in Unix milliseconds.
@@ -1839,7 +1838,7 @@ public:
      * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
      * the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
      * on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
-     * a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+     * a local day.
      *
      * @throws ZmanimError when the call fails with one of the domain's codes.
      */
@@ -1937,11 +1936,11 @@ public:
     kosherz_times_myzmanim_MyZmanim* clone_handle() const { return kosherz_times_myzmanim_MyZmanim_clone(raw_); }
 
     /**
-     * The *zmanim* at `location` on `date` in `time_zone`. Candles are lit
+     * The *zmanim* at `location` on `date`, whose local day is `local_day`. Candles are lit
      * `candle_lighting_minutes` before sunset. The website uses 18 minutes by default.
      *
-     * The time zone is optional. With a time zone every time works. A location more than
-     * 150 degrees from Greenwich needs a time zone. Without one this returns
+     * The local day is optional. With one every time works. A location more than 150
+     * degrees from Greenwich needs one. Without one this returns
      * `ZmanimError::TimeZoneRequired`.
      *
      * # Errors
@@ -1949,13 +1948,14 @@ public:
      * - `ZmanimError::InvalidGregorianDate` when the date does not exist.
      * - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
      *   0 to 1440.
+     * - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
      * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
-     *   when there is no time zone and the location is more than 150 degrees from
+     *   when there is no local day and the location is more than 150 degrees from
      *   Greenwich.
      *
      * @throws ZmanimError when the call fails with one of the domain's codes.
      */
-    explicit MyZmanim(const Location& location, const GregorianDate& date, double candle_lighting_minutes, std::shared_ptr<TimeZoneOffset> time_zone);
+    explicit MyZmanim(const Location& location, const GregorianDate& date, double candle_lighting_minutes, const std::optional<LocalDay>& local_day);
 
     /**
      * The time of `zman`, in Unix milliseconds.
@@ -1963,7 +1963,7 @@ public:
      * # Errors
      *
      * `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
-     * time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+     * time.
      *
      * @throws ZmanimError when the call fails with one of the domain's codes.
      */
@@ -2372,7 +2372,7 @@ struct PirkeiAvosUnit {
  * A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
  * leave them 0 for sea level.
  *
- * The time zone is not part of the location. You pass a `TimeZoneOffset` to `Zmanim` and
+ * The time zone is not part of the location. You pass a `LocalDay` to `Zmanim` and
  * `MyZmanim` when you create them.
  */
 struct Location {
@@ -2386,6 +2386,33 @@ struct Location {
     double eastern_horizon_elevation;
     /** The height of the western horizon, behind which the sun sets. */
     double western_horizon_elevation;
+};
+
+/**
+ * The date in the caller's time zone: when local midnight starts it, when local midnight
+ * starts the next date, and the offset from UTC at each. Compute it with your platform's
+ * time zone support, for example `date.atStartOfDay(zone)` and
+ * `date.plusDays(1).atStartOfDay(zone)` in Java.
+ *
+ * When the clocks skip midnight, the day starts at the first instant the clocks show that
+ * day, such as 01:00. A day the clocks skip entirely starts and ends at the same instant.
+ *
+ * The local day is optional. With one every time works. You can also leave it out. These do
+ * not work without one:
+ *
+ * - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
+ * - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
+ *   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
+ */
+struct LocalDay {
+    /** When local midnight starts the date, in Unix milliseconds. */
+    int64_t start_ms;
+    /** The offset from UTC at `start_ms`, in seconds east. */
+    int32_t start_offset_seconds;
+    /** When local midnight starts the next date, in Unix milliseconds. */
+    int64_t end_ms;
+    /** The offset from UTC at `end_ms`, in seconds east. */
+    int32_t end_offset_seconds;
 };
 
 /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
@@ -2460,6 +2487,8 @@ inline void write_PirkeiAvosUnit(BufferWriter& w, const PirkeiAvosUnit& v);
 inline PirkeiAvosUnit read_PirkeiAvosUnit(BufferReader& r);
 inline void write_Location(BufferWriter& w, const Location& v);
 inline Location read_Location(BufferReader& r);
+inline void write_LocalDay(BufferWriter& w, const LocalDay& v);
+inline LocalDay read_LocalDay(BufferReader& r);
 inline void write_Config(BufferWriter& w, const Config& v);
 inline Config read_Config(BufferReader& r);
 inline void write_ZmanTime(BufferWriter& w, const ZmanTime& v);
@@ -2492,6 +2521,8 @@ inline void write_opt_PirkeiAvosUnit(BufferWriter& w, const std::optional<Pirkei
 inline std::optional<PirkeiAvosUnit> read_opt_PirkeiAvosUnit(BufferReader& r);
 inline void write_list_Zman(BufferWriter& w, const std::vector<Zman>& v);
 inline std::vector<Zman> read_list_Zman(BufferReader& r);
+inline void write_opt_LocalDay(BufferWriter& w, const std::optional<LocalDay>& v);
+inline std::optional<LocalDay> read_opt_LocalDay(BufferReader& r);
 inline void write_list_ZmanTime(BufferWriter& w, const std::vector<ZmanTime>& v);
 inline std::vector<ZmanTime> read_list_ZmanTime(BufferReader& r);
 inline void write_list_MyZman(BufferWriter& w, const std::vector<MyZman>& v);
@@ -2940,6 +2971,24 @@ inline Location read_Location(BufferReader& r) {
     };
 }
 
+/** Writes one `LocalDay` to a value buffer. */
+inline void write_LocalDay(BufferWriter& w, const LocalDay& v) {
+    w.write_i64(v.start_ms);
+    w.write_i32(v.start_offset_seconds);
+    w.write_i64(v.end_ms);
+    w.write_i32(v.end_offset_seconds);
+}
+
+/** Reads one `LocalDay` from a value buffer. */
+inline LocalDay read_LocalDay(BufferReader& r) {
+    return LocalDay{
+        r.read_i64(),
+        r.read_i32(),
+        r.read_i64(),
+        r.read_i32(),
+    };
+}
+
 /** Writes one `Config` to a value buffer. */
 inline void write_Config(BufferWriter& w, const Config& v) {
     w.write_i32(v.candle_lighting_minutes);
@@ -3161,6 +3210,18 @@ inline std::vector<Zman> read_list_Zman(BufferReader& r) {
     return v;
 }
 
+/** Writes one `LocalDay?` to a value buffer. */
+inline void write_opt_LocalDay(BufferWriter& w, const std::optional<LocalDay>& v) {
+    w.write_option_flag(v.has_value());
+    if (v.has_value()) detail::write_LocalDay(w, *v);
+}
+
+/** Reads one `LocalDay?` from a value buffer. */
+inline std::optional<LocalDay> read_opt_LocalDay(BufferReader& r) {
+    if (!r.read_option_flag()) return std::nullopt;
+    return std::optional<LocalDay>(detail::read_LocalDay(r));
+}
+
 /** Writes one `[ZmanTime]` to a value buffer. */
 inline void write_list_ZmanTime(BufferWriter& w, const std::vector<ZmanTime>& v) {
     w.write_len(v.size());
@@ -3357,7 +3418,7 @@ public:
 };
 
 /**
- * A time zone is needed and none was given. The four Kiddush Levana times need one.
+ * A local day is needed and none was given. The four Kiddush Levana times need one.
  * `Zmanim` and `MyZmanim` also need one at a location more than 150 degrees from
  * Greenwich.
  *
@@ -3370,14 +3431,16 @@ public:
 };
 
 /**
- * The time zone callback failed, or gave an offset of a day or more.
+ * The local day is impossible.
+ *
+ * It ends before it starts or more than 48 hours after, or an offset is a day or more.
  *
  * Code 6.
  */
-class TimeZoneCallbackFailedError : public ZmanimError {
+class InvalidLocalDayError : public ZmanimError {
 public:
     /** Builds the error with the producer's `message` and the code's fields. */
-    explicit TimeZoneCallbackFailedError(const std::string& message) : ZmanimError(6, message) {}
+    explicit InvalidLocalDayError(const std::string& message) : ZmanimError(6, message) {}
 };
 
 /**
@@ -3462,7 +3525,7 @@ inline std::exception_ptr make_times_error(int32_t code, const std::string& mess
         case 3: return std::make_exception_ptr(InvalidElevationError(message));
         case 4: return std::make_exception_ptr(InvalidGregorianDateError(message));
         case 5: return std::make_exception_ptr(TimeZoneRequiredError(message));
-        case 6: return std::make_exception_ptr(TimeZoneCallbackFailedError(message));
+        case 6: return std::make_exception_ptr(InvalidLocalDayError(message));
         case 7: return std::make_exception_ptr(InvalidMinutesError(message));
         case 8: return std::make_exception_ptr(InvalidDegreesError(message));
         case 10: return std::make_exception_ptr(AllDayError(message));
@@ -3479,102 +3542,6 @@ inline void check_times(kosherz_error& err) {
     std::exception_ptr ex = make_times_error(err.code, error_message(err), err.payload_ptr, err.payload_len);
     kosherz_error_clear(&err);
     std::rethrow_exception(ex);
-}
-
-} // namespace detail
-
-/**
- * The time zone. You supply it as a callback with two methods. One gives the offset from UTC
- * at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
- * `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
- *
- * The time zone is optional. With a time zone every time works. You can also leave it out.
- * These do not work without a time zone:
- *
- * - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
- * - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
- *   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
- *
- * The callback is called synchronously, once for each sunrise, sunset or other event that a
- * time is built from.
- *
- * Subclass it and pass a `std::shared_ptr<TimeZoneOffset>` where the API takes a `TimeZoneOffset`. The producer may call the methods from any thread, so they must be thread-safe, until it releases the implementation (also from any thread). An exception a method throws reaches the producer as a callback failure (code -4).
- */
-class TimeZoneOffset {
-public:
-    virtual ~TimeZoneOffset() = default;
-
-    /**
-     * The offset from UTC, in seconds east, in effect at `unix_seconds`.
-     *
-     * # Errors
-     *
-     * Fail when the offset is unknown. The calculation then reports
-     * `ZmanimError::TimeZoneCallbackFailed`.
-     */
-    virtual int32_t offset_seconds(int64_t unix_seconds) = 0;
-
-    /**
-     * The Unix time, in seconds, at which the clocks in this time zone show the local date
-     * and time given.
-     *
-     * Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
-     * return the instant one gap length later. When the clocks show the time twice, return
-     * the earlier instant. JavaScript's `Temporal` calls this the `compatible`
-     * disambiguation, and it is Temporal's default.
-     *
-     * # Errors
-     *
-     * Fail when the instant is unknown. The calculation then reports
-     * `ZmanimError::TimeZoneCallbackFailed`.
-     */
-    virtual int64_t local_to_unix_seconds(int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute, int32_t second) = 0;
-};
-
-namespace detail {
-
-/** Trampolines adapting a `TimeZoneOffset` implementation to `kosherz_times_TimeZoneOffset_vtable`. */
-struct TimeZoneOffset_trampolines {
-    static int32_t offset_seconds(void* ctx, int64_t unix_seconds, kosherz_error* out_err) {
-        try {
-            TimeZoneOffset& impl = **static_cast<std::shared_ptr<TimeZoneOffset>*>(ctx);
-            return impl.offset_seconds(unix_seconds);
-        } catch (const std::exception& e) {
-            kosherz_error_set(out_err, -4, e.what());
-        } catch (...) {
-            kosherz_error_set(out_err, -4, "TimeZoneOffset::offset_seconds threw a non-standard exception");
-        }
-        return int32_t{};
-    }
-
-    static int64_t local_to_unix_seconds(void* ctx, int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute, int32_t second, kosherz_error* out_err) {
-        try {
-            TimeZoneOffset& impl = **static_cast<std::shared_ptr<TimeZoneOffset>*>(ctx);
-            return impl.local_to_unix_seconds(year, month, day, hour, minute, second);
-        } catch (const std::exception& e) {
-            kosherz_error_set(out_err, -4, e.what());
-        } catch (...) {
-            kosherz_error_set(out_err, -4, "TimeZoneOffset::local_to_unix_seconds threw a non-standard exception");
-        }
-        return int64_t{};
-    }
-
-    /** Deletes the implementation box once the producer releases it. */
-    static void free_ctx(void* ctx) {
-        delete static_cast<std::shared_ptr<TimeZoneOffset>*>(ctx);
-    }
-};
-
-/** The vtable every `TimeZoneOffset` implementation is passed with. */
-inline const kosherz_times_TimeZoneOffset_vtable& TimeZoneOffset_vtable() {
-    static const kosherz_times_TimeZoneOffset_vtable vtable = {
-        static_cast<uint32_t>(sizeof(kosherz_times_TimeZoneOffset_vtable)),
-        0,
-        &TimeZoneOffset_trampolines::free_ctx,
-        &TimeZoneOffset_trampolines::offset_seconds,
-        &TimeZoneOffset_trampolines::local_to_unix_seconds,
-    };
-    return vtable;
 }
 
 } // namespace detail
@@ -3730,7 +3697,7 @@ inline int32_t HebrewDate::compare(const HebrewDate& other) const {
     return result;
 }
 
-inline Zmanim::Zmanim(const Location& location, const GregorianDate& date, const Config& config, std::shared_ptr<TimeZoneOffset> time_zone) : raw_(nullptr) {
+inline Zmanim::Zmanim(const Location& location, const GregorianDate& date, const Config& config, const std::optional<LocalDay>& local_day) : raw_(nullptr) {
     check_library();
     detail::BufferWriter location_buf;
     detail::write_Location(location_buf, location);
@@ -3738,10 +3705,10 @@ inline Zmanim::Zmanim(const Location& location, const GregorianDate& date, const
     detail::write_GregorianDate(date_buf, date);
     detail::BufferWriter config_buf;
     detail::write_Config(config_buf, config);
-    const auto* time_zone_vtable = time_zone ? &detail::TimeZoneOffset_vtable() : nullptr;
-    std::unique_ptr<std::shared_ptr<TimeZoneOffset>> time_zone_ctx(time_zone ? new std::shared_ptr<TimeZoneOffset>(std::move(time_zone)) : nullptr);
+    detail::BufferWriter local_day_buf;
+    detail::write_opt_LocalDay(local_day_buf, local_day);
     kosherz_error err{};
-    auto result = kosherz_times_Zmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), config_buf.data(), config_buf.size(), static_cast<void*>(time_zone_ctx.release()), time_zone_vtable, &err);
+    auto result = kosherz_times_Zmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), config_buf.data(), config_buf.size(), local_day_buf.data(), local_day_buf.size(), &err);
     detail::check_times(err);
     raw_ = result;
 }
@@ -3799,16 +3766,16 @@ inline Config Zmanim::config() const {
     return detail::take(result, out_len, &detail::read_Config);
 }
 
-inline MyZmanim::MyZmanim(const Location& location, const GregorianDate& date, double candle_lighting_minutes, std::shared_ptr<TimeZoneOffset> time_zone) : raw_(nullptr) {
+inline MyZmanim::MyZmanim(const Location& location, const GregorianDate& date, double candle_lighting_minutes, const std::optional<LocalDay>& local_day) : raw_(nullptr) {
     check_library();
     detail::BufferWriter location_buf;
     detail::write_Location(location_buf, location);
     detail::BufferWriter date_buf;
     detail::write_GregorianDate(date_buf, date);
-    const auto* time_zone_vtable = time_zone ? &detail::TimeZoneOffset_vtable() : nullptr;
-    std::unique_ptr<std::shared_ptr<TimeZoneOffset>> time_zone_ctx(time_zone ? new std::shared_ptr<TimeZoneOffset>(std::move(time_zone)) : nullptr);
+    detail::BufferWriter local_day_buf;
+    detail::write_opt_LocalDay(local_day_buf, local_day);
     kosherz_error err{};
-    auto result = kosherz_times_myzmanim_MyZmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), candle_lighting_minutes, static_cast<void*>(time_zone_ctx.release()), time_zone_vtable, &err);
+    auto result = kosherz_times_myzmanim_MyZmanim_new(location_buf.data(), location_buf.size(), date_buf.data(), date_buf.size(), candle_lighting_minutes, local_day_buf.data(), local_day_buf.size(), &err);
     detail::check_times(err);
     raw_ = result;
 }

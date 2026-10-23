@@ -180,7 +180,7 @@ public abstract class ZmanimException : NativeException
     }
 
     /// <summary>
-    /// A time zone is needed and none was given. The four Kiddush Levana times need one.
+    /// A local day is needed and none was given. The four Kiddush Levana times need one.
     /// `Zmanim` and `MyZmanim` also need one at a location more than 150 degrees from
     /// Greenwich.
     /// </summary>
@@ -190,21 +190,25 @@ public abstract class ZmanimException : NativeException
         public const int ErrorCode = 5;
 
         /// <summary>Creates the error with <paramref name="message"/>, or the
-        /// default message "A time zone is needed and none was given. The four Kiddush Levana times need one." when it's null.</summary>
-        public TimeZoneRequired(string? message = null) : base(ErrorCode, message ?? "A time zone is needed and none was given. The four Kiddush Levana times need one.")
+        /// default message "A local day is needed and none was given. The four Kiddush Levana times need one." when it's null.</summary>
+        public TimeZoneRequired(string? message = null) : base(ErrorCode, message ?? "A local day is needed and none was given. The four Kiddush Levana times need one.")
         {
         }
     }
 
-    /// <summary>The time zone callback failed, or gave an offset of a day or more.</summary>
-    public sealed class TimeZoneCallbackFailed : ZmanimException
+    /// <summary>
+    /// The local day is impossible.
+    ///
+    /// It ends before it starts or more than 48 hours after, or an offset is a day or more.
+    /// </summary>
+    public sealed class InvalidLocalDay : ZmanimException
     {
         /// <summary>The domain code, <c>6</c>.</summary>
         public const int ErrorCode = 6;
 
         /// <summary>Creates the error with <paramref name="message"/>, or the
-        /// default message "The time zone callback failed, or gave an offset of a day or more." when it's null.</summary>
-        public TimeZoneCallbackFailed(string? message = null) : base(ErrorCode, message ?? "The time zone callback failed, or gave an offset of a day or more.")
+        /// default message "The local day is impossible." when it's null.</summary>
+        public InvalidLocalDay(string? message = null) : base(ErrorCode, message ?? "The local day is impossible.")
         {
         }
     }
@@ -309,8 +313,8 @@ public abstract class ZmanimException : NativeException
                 return new InvalidGregorianDate(given);
             case TimeZoneRequired.ErrorCode:
                 return new TimeZoneRequired(given);
-            case TimeZoneCallbackFailed.ErrorCode:
-                return new TimeZoneCallbackFailed(given);
+            case InvalidLocalDay.ErrorCode:
+                return new InvalidLocalDay(given);
             case InvalidMinutes.ErrorCode:
                 return new InvalidMinutes(given);
             case InvalidDegrees.ErrorCode:
@@ -2472,12 +2476,10 @@ public enum ZmanFailure
     /// <summary>The time does not apply on this date.</summary>
     NotApplicable = 2,
     /// <summary>
-    /// The time needs a time zone and none was given. Only the four Kiddush Levana times need
+    /// The time needs a local day and none was given. Only the four Kiddush Levana times need
     /// one.
     /// </summary>
     TimeZoneRequired = 3,
-    /// <summary>The time zone callback failed.</summary>
-    TimeZoneCallbackFailed = 4,
     /// <summary>An internal calculation error.</summary>
     Unexpected = 5,
 }
@@ -2486,7 +2488,7 @@ public enum ZmanFailure
 /// A place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
 /// leave them 0 for sea level.
 ///
-/// The time zone is not part of the location. You pass a `TimeZoneOffset` to `Zmanim` and
+/// The time zone is not part of the location. You pass a `LocalDay` to `Zmanim` and
 /// `MyZmanim` when you create them.
 /// </summary>
 public sealed class Location
@@ -2533,6 +2535,63 @@ public sealed class Location
             reader.ReadF64(),
             reader.ReadF64(),
             reader.ReadF64());
+    }
+}
+
+/// <summary>
+/// The date in the caller's time zone: when local midnight starts it, when local midnight
+/// starts the next date, and the offset from UTC at each. Compute it with your platform's
+/// time zone support, for example `date.atStartOfDay(zone)` and
+/// `date.plusDays(1).atStartOfDay(zone)` in Java.
+///
+/// When the clocks skip midnight, the day starts at the first instant the clocks show that
+/// day, such as 01:00. A day the clocks skip entirely starts and ends at the same instant.
+///
+/// The local day is optional. With one every time works. You can also leave it out. These do
+/// not work without one:
+///
+/// - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
+/// - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
+///   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
+/// </summary>
+public sealed class LocalDay
+{
+    /// <summary>When local midnight starts the date, in Unix milliseconds.</summary>
+    public long StartMs { get; }
+
+    /// <summary>The offset from UTC at `start_ms`, in seconds east.</summary>
+    public int StartOffsetSeconds { get; }
+
+    /// <summary>When local midnight starts the next date, in Unix milliseconds.</summary>
+    public long EndMs { get; }
+
+    /// <summary>The offset from UTC at `end_ms`, in seconds east.</summary>
+    public int EndOffsetSeconds { get; }
+
+    /// <summary>Creates a <see cref="LocalDay"/> from every field.</summary>
+    public LocalDay(long startMs, int startOffsetSeconds, long endMs, int endOffsetSeconds)
+    {
+        StartMs = startMs;
+        StartOffsetSeconds = startOffsetSeconds;
+        EndMs = endMs;
+        EndOffsetSeconds = endOffsetSeconds;
+    }
+
+    internal void WriteTo(FfiBufferWriter writer)
+    {
+        writer.WriteI64(StartMs);
+        writer.WriteI32(StartOffsetSeconds);
+        writer.WriteI64(EndMs);
+        writer.WriteI32(EndOffsetSeconds);
+    }
+
+    internal static LocalDay ReadFrom(FfiBufferReader reader)
+    {
+        return new LocalDay(
+            reader.ReadI64(),
+            reader.ReadI32(),
+            reader.ReadI64(),
+            reader.ReadI32());
     }
 }
 
@@ -2644,119 +2703,6 @@ public sealed class ZmanTime
     }
 }
 
-/// <summary>
-/// The time zone. You supply it as a callback with two methods. One gives the offset from UTC
-/// at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
-/// `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
-///
-/// The time zone is optional. With a time zone every time works. You can also leave it out.
-/// These do not work without a time zone:
-///
-/// - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
-/// - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
-///   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
-///
-/// The callback is called synchronously, once for each sunrise, sunset or other event that a
-/// time is built from.
-/// </summary>
-/// <remarks>The native library may call any method from any thread until
-/// it releases its last reference to the implementation. Object arguments
-/// belong to the implementation. An exception thrown by a method fails the
-/// native library's call in progress: a method documented to throw a domain
-/// exception reports it with its code and fields, and any other exception
-/// reaches the library as <see cref="NativeException.ForeignErrorCode"/>.</remarks>
-public interface ITimeZoneOffset
-{
-    /// <summary>
-    /// The offset from UTC, in seconds east, in effect at `unix_seconds`.
-    ///
-    /// # Errors
-    ///
-    /// Fail when the offset is unknown. The calculation then reports
-    /// `ZmanimError::TimeZoneCallbackFailed`.
-    /// </summary>
-    int OffsetSeconds(long unixSeconds);
-
-    /// <summary>
-    /// The Unix time, in seconds, at which the clocks in this time zone show the local date
-    /// and time given.
-    ///
-    /// Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
-    /// return the instant one gap length later. When the clocks show the time twice, return
-    /// the earlier instant. JavaScript's `Temporal` calls this the `compatible`
-    /// disambiguation, and it is Temporal's default.
-    ///
-    /// # Errors
-    ///
-    /// Fail when the instant is unknown. The calculation then reports
-    /// `ZmanimError::TimeZoneCallbackFailed`.
-    /// </summary>
-    long LocalToUnixSeconds(int year, int month, int day, int hour, int minute, int second);
-}
-
-/// <summary>The process-wide <c>kosherz_times_TimeZoneOffset_vtable</c> and the trampolines behind it,
-/// adapting an <see cref="ITimeZoneOffset"/> to the C ABI.</summary>
-internal static unsafe class FfiVtable_times_TimeZoneOffset
-{
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Layout
-    {
-        public uint Size;
-        public uint Flags;
-        public delegate* unmanaged[Cdecl]<IntPtr, void> Free;
-        public delegate* unmanaged[Cdecl]<IntPtr, long, FfiError*, int> offset_seconds;
-        public delegate* unmanaged[Cdecl]<IntPtr, int, int, int, int, int, int, FfiError*, long> local_to_unix_seconds;
-    }
-
-    /// <summary>The vtable's address, valid for the process lifetime.</summary>
-    internal static readonly IntPtr Pointer = Allocate();
-
-    private static IntPtr Allocate()
-    {
-        var vtable = (Layout*)NativeMemory.AllocZeroed((nuint)sizeof(Layout));
-        vtable->Size = (uint)sizeof(Layout);
-        vtable->Flags = 0;
-        vtable->Free = &FreeTrampoline;
-        vtable->offset_seconds = &OffsetSecondsTrampoline;
-        vtable->local_to_unix_seconds = &LocalToUnixSecondsTrampoline;
-        return (IntPtr)vtable;
-    }
-
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    private static void FreeTrampoline(IntPtr ctx)
-    {
-        Ffi.Unregister(ctx);
-    }
-
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    private static int OffsetSecondsTrampoline(IntPtr ctx, long unix_seconds, FfiError* out_err)
-    {
-        try
-        {
-            return Ffi.Target<ITimeZoneOffset>(ctx).OffsetSeconds(unix_seconds);
-        }
-        catch (Exception e)
-        {
-            Ffi.SetForeignError(out_err, e);
-            return default;
-        }
-    }
-
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    private static long LocalToUnixSecondsTrampoline(IntPtr ctx, int year, int month, int day, int hour, int minute, int second, FfiError* out_err)
-    {
-        try
-        {
-            return Ffi.Target<ITimeZoneOffset>(ctx).LocalToUnixSeconds(year, month, day, hour, minute, second);
-        }
-        catch (Exception e)
-        {
-            Ffi.SetForeignError(out_err, e);
-            return default;
-        }
-    }
-}
-
 /// <summary>The *zmanim* for one place on one day.</summary>
 public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
 {
@@ -2782,23 +2728,24 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     }
 
     /// <summary>
-    /// The *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
+    /// The *zmanim* at `location` on `date`, whose local day is `local_day`, calculated with
+    /// `config`.
     ///
-    /// The time zone is optional. With a time zone every time works. Without one the four
-    /// Kiddush Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150
-    /// degrees from Greenwich needs a time zone. Without one this returns
-    /// `ZmanimError::TimeZoneRequired`.
+    /// The local day is optional. With one every time works. Without one the four Kiddush
+    /// Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150 degrees
+    /// from Greenwich needs one. Without one this returns `ZmanimError::TimeZoneRequired`.
     ///
     /// # Errors
     ///
     /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
     /// - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
     ///   Ateret Torah offset is more than a day.
+    /// - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
     /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
-    ///   there is no time zone and the location is more than 150 degrees from Greenwich.
+    ///   there is no local day and the location is more than 150 degrees from Greenwich.
     /// </summary>
     /// <exception cref="ZmanimException">The call reported a ZmanimError code.</exception>
-    public Zmanim(Location location, GregorianDate date, Config config, ITimeZoneOffset? timeZone)
+    public Zmanim(Location location, GregorianDate date, Config config, LocalDay? localDay)
     {
         var locationWriter = new FfiBufferWriter();
         location.WriteTo(locationWriter);
@@ -2806,20 +2753,12 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
         date.WriteTo(dateWriter);
         var configWriter = new FfiBufferWriter();
         config.WriteTo(configWriter);
-        var timeZoneCtx = Ffi.Register(timeZone);
+        var localDayWriter = new FfiBufferWriter();
+        FfiCodecs.WriteOptionalOfLocalDay(localDayWriter, localDay);
         var ffiErr = default(FfiError);
-        fixed (byte* locationPtr = locationWriter.Written, datePtr = dateWriter.Written, configPtr = configWriter.Written)
+        fixed (byte* locationPtr = locationWriter.Written, datePtr = dateWriter.Written, configPtr = configWriter.Written, localDayPtr = localDayWriter.Written)
         {
-            IntPtr ffiResult;
-            try
-            {
-                ffiResult = NativeMethods.kosherz_times_Zmanim_new(locationPtr, (nuint)locationWriter.Length, datePtr, (nuint)dateWriter.Length, configPtr, (nuint)configWriter.Length, timeZoneCtx, timeZone == null ? IntPtr.Zero : FfiVtable_times_TimeZoneOffset.Pointer, &ffiErr);
-            }
-            catch
-            {
-                Ffi.Unregister(timeZoneCtx);
-                throw;
-            }
+            var ffiResult = NativeMethods.kosherz_times_Zmanim_new(locationPtr, (nuint)locationWriter.Length, datePtr, (nuint)dateWriter.Length, configPtr, (nuint)configWriter.Length, localDayPtr, (nuint)localDayWriter.Length, &ffiErr);
             if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.ZmanimException.FromError);
             Handle = new NativeHandle(ffiResult);
         }
@@ -2833,7 +2772,7 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     /// `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
     /// the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
     /// on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
-    /// a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+    /// a local day.
     /// </summary>
     /// <exception cref="ZmanimException">The call reported a ZmanimError code.</exception>
     public long Get(Zman zman)
@@ -3121,11 +3060,11 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     }
 
     /// <summary>
-    /// The *zmanim* at `location` on `date` in `time_zone`. Candles are lit
+    /// The *zmanim* at `location` on `date`, whose local day is `local_day`. Candles are lit
     /// `candle_lighting_minutes` before sunset. The website uses 18 minutes by default.
     ///
-    /// The time zone is optional. With a time zone every time works. A location more than
-    /// 150 degrees from Greenwich needs a time zone. Without one this returns
+    /// The local day is optional. With one every time works. A location more than 150
+    /// degrees from Greenwich needs one. Without one this returns
     /// `ZmanimError::TimeZoneRequired`.
     ///
     /// # Errors
@@ -3133,31 +3072,24 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
     /// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
     ///   0 to 1440.
+    /// - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
     /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
-    ///   when there is no time zone and the location is more than 150 degrees from
+    ///   when there is no local day and the location is more than 150 degrees from
     ///   Greenwich.
     /// </summary>
     /// <exception cref="ZmanimException">The call reported a ZmanimError code.</exception>
-    public MyZmanim(Location location, GregorianDate date, double candleLightingMinutes, ITimeZoneOffset? timeZone)
+    public MyZmanim(Location location, GregorianDate date, double candleLightingMinutes, LocalDay? localDay)
     {
         var locationWriter = new FfiBufferWriter();
         location.WriteTo(locationWriter);
         var dateWriter = new FfiBufferWriter();
         date.WriteTo(dateWriter);
-        var timeZoneCtx = Ffi.Register(timeZone);
+        var localDayWriter = new FfiBufferWriter();
+        FfiCodecs.WriteOptionalOfLocalDay(localDayWriter, localDay);
         var ffiErr = default(FfiError);
-        fixed (byte* locationPtr = locationWriter.Written, datePtr = dateWriter.Written)
+        fixed (byte* locationPtr = locationWriter.Written, datePtr = dateWriter.Written, localDayPtr = localDayWriter.Written)
         {
-            IntPtr ffiResult;
-            try
-            {
-                ffiResult = NativeMethods.kosherz_times_myzmanim_MyZmanim_new(locationPtr, (nuint)locationWriter.Length, datePtr, (nuint)dateWriter.Length, candleLightingMinutes, timeZoneCtx, timeZone == null ? IntPtr.Zero : FfiVtable_times_TimeZoneOffset.Pointer, &ffiErr);
-            }
-            catch
-            {
-                Ffi.Unregister(timeZoneCtx);
-                throw;
-            }
+            var ffiResult = NativeMethods.kosherz_times_myzmanim_MyZmanim_new(locationPtr, (nuint)locationWriter.Length, datePtr, (nuint)dateWriter.Length, candleLightingMinutes, localDayPtr, (nuint)localDayWriter.Length, &ffiErr);
             if (ffiErr.Code != 0) throw Ffi.TakeError(&ffiErr, global::Kosherz.ZmanimException.FromError);
             Handle = new NativeHandle(ffiResult);
         }
@@ -3169,7 +3101,7 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     /// # Errors
     ///
     /// `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
-    /// time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+    /// time.
     /// </summary>
     /// <exception cref="ZmanimException">The call reported a ZmanimError code.</exception>
     public long Get(MyZman zman)
@@ -4037,6 +3969,20 @@ internal static class FfiCodecs
         return reader.ReadBool() ? reader.ReadI64() : null;
     }
 
+    internal static void WriteOptionalOfLocalDay(FfiBufferWriter writer, LocalDay? value)
+    {
+        writer.WriteBool(value != null);
+        if (value is { } present)
+        {
+            present.WriteTo(writer);
+        }
+    }
+
+    internal static LocalDay? ReadOptionalOfLocalDay(FfiBufferReader reader)
+    {
+        return reader.ReadBool() ? global::Kosherz.LocalDay.ReadFrom(reader) : null;
+    }
+
     internal static void WriteOptionalOfMishnaPair(FfiBufferWriter writer, MishnaPair? value)
     {
         writer.WriteBool(value != null);
@@ -4182,7 +4128,6 @@ internal static unsafe partial class NativeMethods
             (0x01ce427485afb43aUL, 0x017ce9984014d3c1UL, "times.ZmanTime"),
             (0x0643c19407762211UL, 0x11babf7c30a11935UL, "times.myzmanim.dip_degrees_per_root_meter"),
             (0x091fabaf00184561UL, 0xf13823120f5b4c46UL, "times.Calculator"),
-            (0x0a21d46001720019UL, 0x5cf262e1982cf8f7UL, "times.TimeZoneOffset"),
             (0x0a86c54f2d84238cUL, 0x4b1d4aaf11dfd132UL, "times.zman_category"),
             (0x0d3bc9cd549a7137UL, 0xbea68784cf687a1aUL, "times.Zmanim.get"),
             (0x0e595d82f4b54adeUL, 0x4a23e822039987a7UL, "times.zman_description"),
@@ -4190,13 +4135,14 @@ internal static unsafe partial class NativeMethods
             (0x196240a5b18bd7a9UL, 0x2d4c4ce495502494UL, "times.Zmanim"),
             (0x1f4901cd5f081ee4UL, 0x669e3d4d3e9d42ccUL, "times.Zmanim.all"),
             (0x2eabf209e8de2867UL, 0x6614e227c469c232UL, "times.Zmanim.config"),
+            (0x32d6c48bf4c035ceUL, 0x34a4cdb9918ec167UL, "times.LocalDay"),
             (0x38596a351e356743UL, 0x685412d4d80250eaUL, "times.Config"),
             (0x39389f0e68d3cc22UL, 0x4af5df9a96d3f535UL, "times.myzmanim.MyZmanim.proportional_hour_gra"),
             (0x3c92cd49c8b4515bUL, 0x5962ffa89080c41bUL, "times.shaah_zmanis"),
-            (0x44a0809dedbd4a4dUL, 0x9169cc1ef07d2488UL, "times.ZmanimError"),
+            (0x44a0809dedbd4a4dUL, 0xd12210ce98caa417UL, "times.ZmanimError"),
             (0x4d259836d7137c43UL, 0x0486761191984fd0UL, "times.Zman"),
             (0x57d7a9c5a715b9faUL, 0x7110b3413cfd8e83UL, "times.Location"),
-            (0x5cf83bcd8244d771UL, 0x99d014ada9906437UL, "times.Zmanim.new"),
+            (0x5cf83bcd8244d771UL, 0x05a3622be2d0b290UL, "times.Zmanim.new"),
             (0x65aa216d77a78308UL, 0x689307845875e63eUL, "times.zman_is_deprecated"),
             (0x68ffad4e5539ca69UL, 0xc3cb9f9d3b5b28baUL, "times.myzmanim.MyZmanim.date"),
             (0x6b5635f618146d65UL, 0x52972cadc08c13efUL, "times.all_zmanim"),
@@ -4205,7 +4151,7 @@ internal static unsafe partial class NativeMethods
             (0x77857568cbec63b3UL, 0xcddd8b18c602be76UL, "times.myzmanim.MyZman"),
             (0x79dc07bc571a3ab7UL, 0xf70eea6f6621717fUL, "times.validate_location"),
             (0x80d913d2e48601c7UL, 0x93dc654d560a63b8UL, "times.myzmanim.MyZmanim.get"),
-            (0x8a9dcfc50ecf7193UL, 0x7d00a18dba45f065UL, "times.ZmanFailure"),
+            (0x8a9dcfc50ecf7193UL, 0x6590c939314307c3UL, "times.ZmanFailure"),
             (0x8f816bd2ec126fd4UL, 0x975c3a96549104d2UL, "times.myzmanim.MyZmanim.all"),
             (0x94ec9f2dd31dd154UL, 0x93ef9500cb5f1cfcUL, "times.Zmanim.sunrise_offset_by_degrees"),
             (0x968059cb1e92252aUL, 0xdec9155329278f29UL, "times.myzmanim.my_zman_name"),
@@ -4217,7 +4163,7 @@ internal static unsafe partial class NativeMethods
             (0xbb0373c362e8a226UL, 0x63856359341062eeUL, "times.Zmanim.location"),
             (0xc1a3c3740d199619UL, 0xe3c7eb49f063a0ceUL, "times.myzmanim.MyZmanim"),
             (0xc29ca29cb7cd2999UL, 0x735499ab0a625d6dUL, "times.myzmanim.dawn_90_degrees"),
-            (0xcc5685d30e954e41UL, 0xcc6eb9ea8c42ca79UL, "times.myzmanim.MyZmanim.new"),
+            (0xcc5685d30e954e41UL, 0xfc5049b6220741f6UL, "times.myzmanim.MyZmanim.new"),
             (0xce8ce7ef4ad0db32UL, 0xc5f954c475f4dc9dUL, "times.zman_java_name"),
             (0xdb5095e0e87f0d79UL, 0xc3cb9f9d3b5b28baUL, "times.Zmanim.date"),
             (0xdda7b795bf202896UL, 0x63856359341062eeUL, "times.myzmanim.MyZmanim.location"),
@@ -4426,7 +4372,7 @@ internal static unsafe partial class NativeMethods
 
     [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_new")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial IntPtr kosherz_times_Zmanim_new(byte* location_ptr, nuint location_len, byte* date_ptr, nuint date_len, byte* config_ptr, nuint config_len, IntPtr time_zone_ctx, IntPtr time_zone_vtable, FfiError* out_err);
+    internal static partial IntPtr kosherz_times_Zmanim_new(byte* location_ptr, nuint location_len, byte* date_ptr, nuint date_len, byte* config_ptr, nuint config_len, byte* local_day_ptr, nuint local_day_len, FfiError* out_err);
 
     [LibraryImport(LibName, EntryPoint = "kosherz_times_Zmanim_get")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -4510,7 +4456,7 @@ internal static unsafe partial class NativeMethods
 
     [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_MyZmanim_new")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial IntPtr kosherz_times_myzmanim_MyZmanim_new(byte* location_ptr, nuint location_len, byte* date_ptr, nuint date_len, double candle_lighting_minutes, IntPtr time_zone_ctx, IntPtr time_zone_vtable, FfiError* out_err);
+    internal static partial IntPtr kosherz_times_myzmanim_MyZmanim_new(byte* location_ptr, nuint location_len, byte* date_ptr, nuint date_len, double candle_lighting_minutes, byte* local_day_ptr, nuint local_day_len, FfiError* out_err);
 
     [LibraryImport(LibName, EntryPoint = "kosherz_times_myzmanim_MyZmanim_get")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]

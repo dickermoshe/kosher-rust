@@ -1,24 +1,25 @@
-use std::{sync::Arc, time::Duration};
+use std::time::Duration;
 
 use jiff::{SignedDuration, Timestamp};
 use kosher_rust::zmanim::{self as k, AstronomicalCalculator};
 
-use super::{CallbackTimeZone, calendar::mirror, watching_callbacks};
+use super::{DayTimeZone, calendar::mirror};
 use crate::api::{
     calendar::GregorianDate,
-    times::{Calculator, Category, Config, Location, TimeZoneOffset, ZmanTime, ZmanimError},
+    times::{Calculator, Category, Config, LocalDay, Location, ZmanTime, ZmanimError},
 };
 
-pub(crate) type Inner = kosher_rust::Zmanim<CallbackTimeZone>;
+pub(crate) type Inner = kosher_rust::Zmanim<DayTimeZone>;
 
 pub(crate) fn zmanim(
     location: &Location,
     date: &GregorianDate,
     config: &Config,
-    time_zone: Option<Arc<dyn TimeZoneOffset>>,
+    local_day: Option<&LocalDay>,
 ) -> Result<Inner, ZmanimError> {
-    let location = super::location(location, time_zone.is_some())?;
+    let location = super::location(location, local_day.is_some())?;
     let date = super::civil_date(date).ok_or(ZmanimError::InvalidGregorianDate)?;
+    let time_zone = super::time_zone(date, local_day)?;
     if config.candle_lighting_minutes < 0 {
         return Err(ZmanimError::InvalidMinutes);
     }
@@ -27,7 +28,7 @@ pub(crate) fn zmanim(
     Ok(kosher_rust::Zmanim::with_custom_timezone(
         location,
         date,
-        super::time_zone(time_zone),
+        time_zone,
         (*config).into(),
     ))
 }
@@ -38,28 +39,16 @@ pub(crate) fn shaah_zmanis(start: i64, end: i64) -> i64 {
     ((i128::from(end) - i128::from(start)) / 12) as i64
 }
 
-/// Runs `calculate`, reporting a failed time zone callback over its result.
-pub(crate) fn checked(
-    inner: &Inner,
-    calculate: impl FnOnce(&Inner) -> Result<Timestamp, k::ZmanimError>,
-) -> Result<i64, ZmanimError> {
-    let (result, callback_failed) = watching_callbacks(|| calculate(inner));
-    if callback_failed {
-        return Err(ZmanimError::TimeZoneCallbackFailed);
-    }
-    Ok(result?.as_millisecond())
-}
-
 pub(crate) fn all(inner: &Inner) -> Vec<ZmanTime> {
     k::Zman::ALL
         .into_iter()
         .filter_map(|zman| {
             let ours = zman.try_into().ok()?;
-            let result = checked(inner, |inner| inner.get(zman));
+            let result = inner.get(zman).map(Timestamp::as_millisecond);
             Some(ZmanTime {
                 zman: ours,
                 time: result.ok(),
-                failure: result.err().map(Into::into),
+                failure: result.err().map(|error| ZmanimError::from(error).into()),
             })
         })
         .collect()

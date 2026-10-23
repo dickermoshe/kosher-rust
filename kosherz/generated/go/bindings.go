@@ -8,17 +8,6 @@ package kosherz
 /*
 #cgo LDFLAGS: -lkosherz
 #include "kosherz.h"
-extern int32_t goWv_kosherz_times_TimeZoneOffset_offset_seconds(void* ctx, int64_t unix_seconds, kosherz_error* out_err);
-extern int64_t goWv_kosherz_times_TimeZoneOffset_local_to_unix_seconds(void* ctx, int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute, int32_t second, kosherz_error* out_err);
-extern void goWv_kosherz_times_TimeZoneOffset_free(void* ctx);
-static const kosherz_times_TimeZoneOffset_vtable wvVtable_kosherz_times_TimeZoneOffset_vtable = {
-	.size = sizeof(kosherz_times_TimeZoneOffset_vtable),
-	.flags = 0,
-	.free = goWv_kosherz_times_TimeZoneOffset_free,
-	.offset_seconds = goWv_kosherz_times_TimeZoneOffset_offset_seconds,
-	.local_to_unix_seconds = goWv_kosherz_times_TimeZoneOffset_local_to_unix_seconds,
-};
-__attribute__((unused)) static const kosherz_times_TimeZoneOffset_vtable* wvVtablePtr_kosherz_times_TimeZoneOffset_vtable(void) { return &wvVtable_kosherz_times_TimeZoneOffset_vtable; }
 */
 import "C"
 
@@ -100,7 +89,6 @@ func init() {
 		{0x01ce427485afb43a, 0x017ce9984014d3c1, "times.ZmanTime"},
 		{0x0643c19407762211, 0x11babf7c30a11935, "times.myzmanim.dip_degrees_per_root_meter"},
 		{0x091fabaf00184561, 0xf13823120f5b4c46, "times.Calculator"},
-		{0x0a21d46001720019, 0x5cf262e1982cf8f7, "times.TimeZoneOffset"},
 		{0x0a86c54f2d84238c, 0x4b1d4aaf11dfd132, "times.zman_category"},
 		{0x0d3bc9cd549a7137, 0xbea68784cf687a1a, "times.Zmanim.get"},
 		{0x0e595d82f4b54ade, 0x4a23e822039987a7, "times.zman_description"},
@@ -108,13 +96,14 @@ func init() {
 		{0x196240a5b18bd7a9, 0x2d4c4ce495502494, "times.Zmanim"},
 		{0x1f4901cd5f081ee4, 0x669e3d4d3e9d42cc, "times.Zmanim.all"},
 		{0x2eabf209e8de2867, 0x6614e227c469c232, "times.Zmanim.config"},
+		{0x32d6c48bf4c035ce, 0x34a4cdb9918ec167, "times.LocalDay"},
 		{0x38596a351e356743, 0x685412d4d80250ea, "times.Config"},
 		{0x39389f0e68d3cc22, 0x4af5df9a96d3f535, "times.myzmanim.MyZmanim.proportional_hour_gra"},
 		{0x3c92cd49c8b4515b, 0x5962ffa89080c41b, "times.shaah_zmanis"},
-		{0x44a0809dedbd4a4d, 0x9169cc1ef07d2488, "times.ZmanimError"},
+		{0x44a0809dedbd4a4d, 0xd12210ce98caa417, "times.ZmanimError"},
 		{0x4d259836d7137c43, 0x0486761191984fd0, "times.Zman"},
 		{0x57d7a9c5a715b9fa, 0x7110b3413cfd8e83, "times.Location"},
-		{0x5cf83bcd8244d771, 0x99d014ada9906437, "times.Zmanim.new"},
+		{0x5cf83bcd8244d771, 0x05a3622be2d0b290, "times.Zmanim.new"},
 		{0x65aa216d77a78308, 0x689307845875e63e, "times.zman_is_deprecated"},
 		{0x68ffad4e5539ca69, 0xc3cb9f9d3b5b28ba, "times.myzmanim.MyZmanim.date"},
 		{0x6b5635f618146d65, 0x52972cadc08c13ef, "times.all_zmanim"},
@@ -123,7 +112,7 @@ func init() {
 		{0x77857568cbec63b3, 0xcddd8b18c602be76, "times.myzmanim.MyZman"},
 		{0x79dc07bc571a3ab7, 0xf70eea6f6621717f, "times.validate_location"},
 		{0x80d913d2e48601c7, 0x93dc654d560a63b8, "times.myzmanim.MyZmanim.get"},
-		{0x8a9dcfc50ecf7193, 0x7d00a18dba45f065, "times.ZmanFailure"},
+		{0x8a9dcfc50ecf7193, 0x6590c939314307c3, "times.ZmanFailure"},
 		{0x8f816bd2ec126fd4, 0x975c3a96549104d2, "times.myzmanim.MyZmanim.all"},
 		{0x94ec9f2dd31dd154, 0x93ef9500cb5f1cfc, "times.Zmanim.sunrise_offset_by_degrees"},
 		{0x968059cb1e92252a, 0xdec9155329278f29, "times.myzmanim.my_zman_name"},
@@ -135,7 +124,7 @@ func init() {
 		{0xbb0373c362e8a226, 0x63856359341062ee, "times.Zmanim.location"},
 		{0xc1a3c3740d199619, 0xe3c7eb49f063a0ce, "times.myzmanim.MyZmanim"},
 		{0xc29ca29cb7cd2999, 0x735499ab0a625d6d, "times.myzmanim.dawn_90_degrees"},
-		{0xcc5685d30e954e41, 0xcc6eb9ea8c42ca79, "times.myzmanim.MyZmanim.new"},
+		{0xcc5685d30e954e41, 0xfc5049b6220741f6, "times.myzmanim.MyZmanim.new"},
 		{0xce8ce7ef4ad0db32, 0xc5f954c475f4dc9d, "times.zman_java_name"},
 		{0xdb5095e0e87f0d79, 0xc3cb9f9d3b5b28ba, "times.Zmanim.date"},
 		{0xdda7b795bf202896, 0x63856359341062ee, "times.myzmanim.MyZmanim.location"},
@@ -1944,7 +1933,7 @@ func PirkeiAvos(date *HebrewDate, region Region) PirkeiAvosUnit {
 
 // ZmanimError is an error the times module reports: *InvalidLatitudeError,
 // *InvalidLongitudeError, *InvalidElevationError, *InvalidGregorianDateError,
-// *TimeZoneRequiredError, *TimeZoneCallbackFailedError, *InvalidMinutesError,
+// *TimeZoneRequiredError, *InvalidLocalDayError, *InvalidMinutesError,
 // *InvalidDegreesError, *AllDayError, *AllNightError, *NotApplicableError, or
 // *UnexpectedError.
 //
@@ -2065,19 +2054,19 @@ func (*InvalidGregorianDateError) wvPayload() []byte {
 	return nil
 }
 
-// TimeZoneRequiredError: A time zone is needed and none was given. The four Kiddush Levana times need one.
+// TimeZoneRequiredError: A local day is needed and none was given. The four Kiddush Levana times need one.
 // `Zmanim` and `MyZmanim` also need one at a location more than 150 degrees from
 // Greenwich.
 type TimeZoneRequiredError struct {
 	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "A time zone is needed and none was given. The four Kiddush Levana times need one.".
+	// code's default message, "A local day is needed and none was given. The four Kiddush Levana times need one.".
 	Message string
 }
 
 // Error returns the error's message.
 func (e *TimeZoneRequiredError) Error() string {
 	if e.Message == "" {
-		return "A time zone is needed and none was given. The four Kiddush Levana times need one."
+		return "A local day is needed and none was given. The four Kiddush Levana times need one."
 	}
 	return e.Message
 }
@@ -2093,30 +2082,31 @@ func (*TimeZoneRequiredError) wvPayload() []byte {
 	return nil
 }
 
-// TimeZoneCallbackFailedError is the ZmanimError code TimeZoneCallbackFailed
-// (6): The time zone callback failed, or gave an offset of a day or more.
-type TimeZoneCallbackFailedError struct {
+// InvalidLocalDayError: The local day is impossible.
+//
+// It ends before it starts or more than 48 hours after, or an offset is a day or more.
+type InvalidLocalDayError struct {
 	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "The time zone callback failed, or gave an offset of a day or more.".
+	// code's default message, "The local day is impossible.".
 	Message string
 }
 
 // Error returns the error's message.
-func (e *TimeZoneCallbackFailedError) Error() string {
+func (e *InvalidLocalDayError) Error() string {
 	if e.Message == "" {
-		return "The time zone callback failed, or gave an offset of a day or more."
+		return "The local day is impossible."
 	}
 	return e.Message
 }
 
 // Code returns 6.
-func (*TimeZoneCallbackFailedError) Code() int32 {
+func (*InvalidLocalDayError) Code() int32 {
 	return 6
 }
 
-func (*TimeZoneCallbackFailedError) isZmanimError() {}
+func (*InvalidLocalDayError) isZmanimError() {}
 
-func (*TimeZoneCallbackFailedError) wvPayload() []byte {
+func (*InvalidLocalDayError) wvPayload() []byte {
 	return nil
 }
 
@@ -2295,7 +2285,7 @@ func wvZmanimError(f wvFailure) error {
 	case 5:
 		return &TimeZoneRequiredError{Message: f.message}
 	case 6:
-		return &TimeZoneCallbackFailedError{Message: f.message}
+		return &InvalidLocalDayError{Message: f.message}
 	case 7:
 		return &InvalidMinutesError{Message: f.message}
 	case 8:
@@ -2791,11 +2781,9 @@ const (
 	ZmanFailureAllNight ZmanFailure = 1
 	// ZmanFailureNotApplicable: The time does not apply on this date.
 	ZmanFailureNotApplicable ZmanFailure = 2
-	// ZmanFailureTimeZoneRequired: The time needs a time zone and none was given. Only the four Kiddush Levana times need
+	// ZmanFailureTimeZoneRequired: The time needs a local day and none was given. Only the four Kiddush Levana times need
 	// one.
 	ZmanFailureTimeZoneRequired ZmanFailure = 3
-	// ZmanFailureTimeZoneCallbackFailed: The time zone callback failed.
-	ZmanFailureTimeZoneCallbackFailed ZmanFailure = 4
 	// ZmanFailureUnexpected: An internal calculation error.
 	ZmanFailureUnexpected ZmanFailure = 5
 )
@@ -2811,7 +2799,7 @@ func wvReadZmanFailure(r *wvReader) ZmanFailure {
 // Location is a place on earth: where to calculate *zmanim* for. Heights are in meters above sea level;
 // leave them 0 for sea level.
 //
-// The time zone is not part of the location. You pass a `TimeZoneOffset` to `Zmanim` and
+// The time zone is not part of the location. You pass a `LocalDay` to `Zmanim` and
 // `MyZmanim` when you create them.
 type Location struct {
 	// Latitude in degrees, north positive.
@@ -2841,6 +2829,47 @@ func wvReadLocation(r *wvReader) Location {
 	v.Elevation = r.readF64()
 	v.EasternHorizonElevation = r.readF64()
 	v.WesternHorizonElevation = r.readF64()
+	return v
+}
+
+// LocalDay is the date in the caller's time zone: when local midnight starts it, when local midnight
+// starts the next date, and the offset from UTC at each. Compute it with your platform's
+// time zone support, for example `date.atStartOfDay(zone)` and
+// `date.plusDays(1).atStartOfDay(zone)` in Java.
+//
+// When the clocks skip midnight, the day starts at the first instant the clocks show that
+// day, such as 01:00. A day the clocks skip entirely starts and ends at the same instant.
+//
+// The local day is optional. With one every time works. You can also leave it out. These do
+// not work without one:
+//
+// - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
+// - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
+//   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
+type LocalDay struct {
+	// StartMs is when local midnight starts the date, in Unix milliseconds.
+	StartMs int64
+	// StartOffsetSeconds is the offset from UTC at `start_ms`, in seconds east.
+	StartOffsetSeconds int32
+	// EndMs is when local midnight starts the next date, in Unix milliseconds.
+	EndMs int64
+	// EndOffsetSeconds is the offset from UTC at `end_ms`, in seconds east.
+	EndOffsetSeconds int32
+}
+
+func wvWriteLocalDay(w *wvWriter, v LocalDay) {
+	w.writeI64(v.StartMs)
+	w.writeI32(v.StartOffsetSeconds)
+	w.writeI64(v.EndMs)
+	w.writeI32(v.EndOffsetSeconds)
+}
+
+func wvReadLocalDay(r *wvReader) LocalDay {
+	var v LocalDay
+	v.StartMs = r.readI64()
+	v.StartOffsetSeconds = r.readI32()
+	v.EndMs = r.readI64()
+	v.EndOffsetSeconds = r.readI32()
 	return v
 }
 
@@ -2912,67 +2941,6 @@ func wvReadZmanTime(r *wvReader) ZmanTime {
 	return v
 }
 
-// TimeZoneOffset is the time zone. You supply it as a callback with two methods. One gives the offset from UTC
-// at an instant. The other gives the instant of a local date and time. Java's `ZoneId`, .NET's
-// `TimeZoneInfo`, Python's `zoneinfo` and JavaScript's `Temporal` can answer both.
-//
-// The time zone is optional. With a time zone every time works. You can also leave it out.
-// These do not work without a time zone:
-//
-// - The four Kiddush Levana times return `ZmanimError::TimeZoneRequired`.
-// - `Zmanim` and `MyZmanim` cannot be created for a location more than 150 degrees from
-//   Greenwich. Creating them returns `ZmanimError::TimeZoneRequired`.
-//
-// The callback is called synchronously, once for each sunrise, sunset or other event that a
-// time is built from.
-//
-// Implement TimeZoneOffset in Go and pass the value to the functions that take
-// it. The native library may call its methods from any thread until it
-// releases the implementation. A method that panics, or a throwing method that
-// returns an error outside its domain, fails the native call in progress as a
-// callback failure (code -4).
-type TimeZoneOffset interface {
-	// OffsetSeconds returns the offset from UTC, in seconds east, in effect at `unix_seconds`.
-	//
-	// # Errors
-	//
-	// Fail when the offset is unknown. The calculation then reports
-	// `ZmanimError::TimeZoneCallbackFailed`.
-	OffsetSeconds(unixSeconds int64) int32
-	// LocalToUnixSeconds returns the Unix time, in seconds, at which the clocks in this time zone show the local date
-	// and time given.
-	//
-	// Resolve it the way Java's `ZonedDateTime.of` does. When the clocks skip over the time,
-	// return the instant one gap length later. When the clocks show the time twice, return
-	// the earlier instant. JavaScript's `Temporal` calls this the `compatible`
-	// disambiguation, and it is Temporal's default.
-	//
-	// # Errors
-	//
-	// Fail when the instant is unknown. The calculation then reports
-	// `ZmanimError::TimeZoneCallbackFailed`.
-	LocalToUnixSeconds(year int32, month int32, day int32, hour int32, minute int32, second int32) int64
-}
-
-//export goWv_kosherz_times_TimeZoneOffset_offset_seconds
-func goWv_kosherz_times_TimeZoneOffset_offset_seconds(ctx unsafe.Pointer, unix_seconds C.int64_t, out_err *C.kosherz_error) (cRet C.int32_t) {
-	defer wvRecoverCallback(out_err)
-	ret := wvCallback[TimeZoneOffset](ctx).OffsetSeconds(int64(unix_seconds))
-	return C.int32_t(ret)
-}
-
-//export goWv_kosherz_times_TimeZoneOffset_local_to_unix_seconds
-func goWv_kosherz_times_TimeZoneOffset_local_to_unix_seconds(ctx unsafe.Pointer, year C.int32_t, month C.int32_t, day C.int32_t, hour C.int32_t, minute C.int32_t, second C.int32_t, out_err *C.kosherz_error) (cRet C.int64_t) {
-	defer wvRecoverCallback(out_err)
-	ret := wvCallback[TimeZoneOffset](ctx).LocalToUnixSeconds(int32(year), int32(month), int32(day), int32(hour), int32(minute), int32(second))
-	return C.int64_t(ret)
-}
-
-//export goWv_kosherz_times_TimeZoneOffset_free
-func goWv_kosherz_times_TimeZoneOffset_free(ctx unsafe.Pointer) {
-	wvFreeCallback(ctx)
-}
-
 // Zmanim is the *zmanim* for one place on one day.
 //
 // Each wrapper holds one strong reference; Close releases it, and a finalizer
@@ -3027,31 +2995,28 @@ func (s *Zmanim) Close() error {
 	return nil
 }
 
-// NewZmanim returns the *zmanim* at `location` on `date` in `time_zone`, calculated with `config`.
+// NewZmanim returns the *zmanim* at `location` on `date`, whose local day is `local_day`, calculated with
+// `config`.
 //
-// The time zone is optional. With a time zone every time works. Without one the four
-// Kiddush Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150
-// degrees from Greenwich needs a time zone. Without one this returns
-// `ZmanimError::TimeZoneRequired`.
+// The local day is optional. With one every time works. Without one the four Kiddush
+// Levana times return `ZmanimError::TimeZoneRequired`. A location more than 150 degrees
+// from Greenwich needs one. Without one this returns `ZmanimError::TimeZoneRequired`.
 //
 // # Errors
 //
 // - `ZmanimError::InvalidGregorianDate` when the date does not exist.
 // - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
 //   Ateret Torah offset is more than a day.
+// - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
 // - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
-//   there is no time zone and the location is more than 150 degrees from Greenwich.
-func NewZmanim(location Location, date GregorianDate, config Config, timeZone TimeZoneOffset) (*Zmanim, error) {
+//   there is no local day and the location is more than 150 degrees from Greenwich.
+func NewZmanim(location Location, date GregorianDate, config Config, localDay *LocalDay) (*Zmanim, error) {
 	cLocationPtr, cLocationLen := wvBytes(wvEncode(location, wvWriteLocation))
 	cDatePtr, cDateLen := wvBytes(wvEncode(date, wvWriteGregorianDate))
 	cConfigPtr, cConfigLen := wvBytes(wvEncode(config, wvWriteConfig))
-	var cTimeZoneCtx unsafe.Pointer
-	var cTimeZoneVtable *C.kosherz_times_TimeZoneOffset_vtable
-	if timeZone != nil {
-		cTimeZoneCtx, cTimeZoneVtable = wvNewCallback(timeZone), C.wvVtablePtr_kosherz_times_TimeZoneOffset_vtable()
-	}
+	cLocalDayPtr, cLocalDayLen := wvBytes(wvEncode(localDay, wvWriteOptLocalDay))
 	var cErr C.kosherz_error
-	cRet := C.kosherz_times_Zmanim_new(cLocationPtr, cLocationLen, cDatePtr, cDateLen, cConfigPtr, cConfigLen, cTimeZoneCtx, cTimeZoneVtable, &cErr)
+	cRet := C.kosherz_times_Zmanim_new(cLocationPtr, cLocationLen, cDatePtr, cDateLen, cConfigPtr, cConfigLen, cLocalDayPtr, cLocalDayLen, &cErr)
 	if cErr.code != 0 {
 		return nil, wvZmanimError(wvTakeError(&cErr))
 	}
@@ -3065,7 +3030,7 @@ func NewZmanim(location Location, date GregorianDate, config Config, timeZone Ti
 // `ZmanimError::AllDay` or `ZmanimError::AllNight` where the sun never reaches
 // the angle the time needs; `ZmanimError::NotApplicable` for a time that only exists
 // on some days; `ZmanimError::TimeZoneRequired` for the Kiddush Levana times without
-// a time zone; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+// a local day.
 func (s *Zmanim) Get(zman Zman) (int64, error) {
 	cSelf := s.native()
 	defer s.ref.release()
@@ -3437,11 +3402,11 @@ func (s *MyZmanim) Close() error {
 	return nil
 }
 
-// NewMyZmanim returns the *zmanim* at `location` on `date` in `time_zone`. Candles are lit
+// NewMyZmanim returns the *zmanim* at `location` on `date`, whose local day is `local_day`. Candles are lit
 // `candle_lighting_minutes` before sunset. The website uses 18 minutes by default.
 //
-// The time zone is optional. With a time zone every time works. A location more than
-// 150 degrees from Greenwich needs a time zone. Without one this returns
+// The local day is optional. With one every time works. A location more than 150
+// degrees from Greenwich needs one. Without one this returns
 // `ZmanimError::TimeZoneRequired`.
 //
 // # Errors
@@ -3449,19 +3414,16 @@ func (s *MyZmanim) Close() error {
 // - `ZmanimError::InvalidGregorianDate` when the date does not exist.
 // - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
 //   0 to 1440.
+// - `ZmanimError::InvalidLocalDay` when `local_day` is impossible.
 // - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
-//   when there is no time zone and the location is more than 150 degrees from
+//   when there is no local day and the location is more than 150 degrees from
 //   Greenwich.
-func NewMyZmanim(location Location, date GregorianDate, candleLightingMinutes float64, timeZone TimeZoneOffset) (*MyZmanim, error) {
+func NewMyZmanim(location Location, date GregorianDate, candleLightingMinutes float64, localDay *LocalDay) (*MyZmanim, error) {
 	cLocationPtr, cLocationLen := wvBytes(wvEncode(location, wvWriteLocation))
 	cDatePtr, cDateLen := wvBytes(wvEncode(date, wvWriteGregorianDate))
-	var cTimeZoneCtx unsafe.Pointer
-	var cTimeZoneVtable *C.kosherz_times_TimeZoneOffset_vtable
-	if timeZone != nil {
-		cTimeZoneCtx, cTimeZoneVtable = wvNewCallback(timeZone), C.wvVtablePtr_kosherz_times_TimeZoneOffset_vtable()
-	}
+	cLocalDayPtr, cLocalDayLen := wvBytes(wvEncode(localDay, wvWriteOptLocalDay))
 	var cErr C.kosherz_error
-	cRet := C.kosherz_times_myzmanim_MyZmanim_new(cLocationPtr, cLocationLen, cDatePtr, cDateLen, C.double(candleLightingMinutes), cTimeZoneCtx, cTimeZoneVtable, &cErr)
+	cRet := C.kosherz_times_myzmanim_MyZmanim_new(cLocationPtr, cLocationLen, cDatePtr, cDateLen, C.double(candleLightingMinutes), cLocalDayPtr, cLocalDayLen, &cErr)
 	if cErr.code != 0 {
 		return nil, wvZmanimError(wvTakeError(&cErr))
 	}
@@ -3473,7 +3435,7 @@ func NewMyZmanim(location Location, date GregorianDate, candleLightingMinutes fl
 // # Errors
 //
 // `ZmanimError::AllDay` or `ZmanimError::AllNight` where the website shows no
-// time; `ZmanimError::TimeZoneCallbackFailed` when the callback failed.
+// time.
 func (s *MyZmanim) Get(zman MyZman) (int64, error) {
 	cSelf := s.native()
 	defer s.ref.release()
@@ -3688,6 +3650,14 @@ func wvWriteOptI64(w *wvWriter, v *int64) {
 
 func wvReadOptI64(r *wvReader) *int64 {
 	return wvReadOptional(r, (*wvReader).readI64)
+}
+
+func wvWriteOptLocalDay(w *wvWriter, v *LocalDay) {
+	wvWriteOptional(w, v, wvWriteLocalDay)
+}
+
+func wvReadOptLocalDay(r *wvReader) *LocalDay {
+	return wvReadOptional(r, wvReadLocalDay)
 }
 
 func wvWriteOptMishnaPair(w *wvWriter, v *MishnaPair) {
