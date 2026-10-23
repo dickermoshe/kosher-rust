@@ -253,7 +253,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fa961b519f0b462e3a3b4a34b64d119eeaca1d59af726fe450bbba07a9fc0a1"
 dependencies = [
- "thiserror 2.0.18",
+ "thiserror",
 ]
 
 [[package]]
@@ -370,7 +370,7 @@ version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71958f69fb2de856c5dd51ac9377e986ca1aa5919f931bf5395a807277f889a0"
 dependencies = [
- "thiserror 2.0.18",
+ "thiserror",
 ]
 
 [[package]]
@@ -787,7 +787,7 @@ version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "75a8efab869ad90ab3a84f7995f712e8808e0d9ba6f84bebaaa602a434d54e26"
 dependencies = [
- "thiserror 2.0.18",
+ "thiserror",
  "which",
 ]
 
@@ -804,7 +804,7 @@ dependencies = [
  "jni",
  "log",
  "pretty_env_logger",
- "thiserror 2.0.18",
+ "thiserror",
  "zip",
 ]
 
@@ -869,7 +869,7 @@ dependencies = [
  "libloading",
  "log",
  "simd_cesu8",
- "thiserror 2.0.18",
+ "thiserror",
  "walkdir",
  "windows-link",
 ]
@@ -942,16 +942,7 @@ dependencies = [
  "num_enum",
  "postcard",
  "serde",
- "thiserror 2.0.18",
-]
-
-[[package]]
-name = "kosherz"
-version = "0.3.0"
-dependencies = [
- "jiff",
- "kosher-rust",
- "weaveffi",
+ "thiserror",
 ]
 
 [[package]]
@@ -1604,31 +1595,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.69"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
-dependencies = [
- "thiserror-impl 1.0.69",
-]
-
-[[package]]
-name = "thiserror"
 version = "2.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4288b5bcbc7920c07a1149a35cf9590a2aa808e0bc1eafaade0b80947865fbc4"
 dependencies = [
- "thiserror-impl 2.0.18",
-]
-
-[[package]]
-name = "thiserror-impl"
-version = "1.0.69"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.117",
+ "thiserror-impl",
 ]
 
 [[package]]
@@ -1834,41 +1805,6 @@ dependencies = [
  "hashbrown 0.15.5",
  "indexmap",
  "semver",
-]
-
-[[package]]
-name = "weaveffi"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d249c50bb7812f58031dc9e3d7cf8be6aaa05944710ca2244c0614983c91e90e"
-dependencies = [
- "weaveffi-macros",
-]
-
-[[package]]
-name = "weaveffi-macros"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a363cd2a5389d41e0714fb8febd6877e0f38e0be4e90cf264e46c0637078d60"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.117",
- "weaveffi-model",
-]
-
-[[package]]
-name = "weaveffi-model"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5aab188964a7c20a8a1f8f3779c7ec65d470e6b2a6af597a14a22224155f26f2"
-dependencies = [
- "heck",
- "proc-macro2",
- "serde",
- "serde_json",
- "syn 2.0.117",
- "thiserror 1.0.69",
 ]
 
 [[package]]

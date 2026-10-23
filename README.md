@@ -14,12 +14,6 @@ Jewish calendar, *zmanim* and daily learning schedules for Rust. A port of
 cargo add kosher-rust jiff
 ```
 
-## Other languages
-
-If you're looking for this library in another language, see
-[kosherz](https://github.com/dickermoshe/kosher-rust/tree/main/kosherz), its bindings for Node,
-WebAssembly, Python, Swift, Kotlin, Dart, .NET, Go, Ruby, C and C++.
-
 ## The Hebrew calendar
 
 A `jiff::civil::Date` (or ICU date) converts to a `HebrewDate`, which answers questions about

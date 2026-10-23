@@ -14,7 +14,6 @@ keywords = ["zmanim", "hebrew-calendar", "jewish", "daf-yomi", "halacha"]
 categories = ["date-and-time", "no-std", "internationalization"]
 exclude = [
     "/interop-tests/",
-    "/kosherz/",
     "/third-party/",
     # About 1 MB of conformance data; the tests that read it stay in the repository. The small
     # SPA reference table ships, because a unit test includes it.
@@ -77,7 +76,7 @@ opt-level = 2
 
 [workspace]
 resolver = "2"
-members = ["interop-tests/java_interop_tests", "interop-tests/js_interop_tests", "kosherz"]
+members = ["interop-tests/java_interop_tests", "interop-tests/js_interop_tests"]
 
 [workspace.lints.rust]
 missing_docs = "deny"
