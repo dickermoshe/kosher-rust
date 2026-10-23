@@ -1937,7 +1937,7 @@ public enum ZmanimError: Error, LocalizedError, Sendable {
     /// A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
     /// within a day (1440 minutes) either way.
     case invalidMinutes(message: String)
-    /// An angle in degrees is not a finite number.
+    /// An angle in degrees is not a number from -90 to 90.
     case invalidDegrees(message: String)
     /// The sun stays above the angle the time needs all day, as in the far north in summer.
     case allDay(message: String)
@@ -1996,7 +1996,7 @@ func wvMapTimes(_ err: WvError) -> Error {
     case 5: return ZmanimError.timeZoneRequired(message: message.isEmpty ? "A time zone is needed and none was given. The four Kiddush Levana times need one." : message)
     case 6: return ZmanimError.timeZoneCallbackFailed(message: message.isEmpty ? "The time zone callback failed, or gave an offset of a day or more." : message)
     case 7: return ZmanimError.invalidMinutes(message: message.isEmpty ? "A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number" : message)
-    case 8: return ZmanimError.invalidDegrees(message: message.isEmpty ? "An angle in degrees is not a finite number." : message)
+    case 8: return ZmanimError.invalidDegrees(message: message.isEmpty ? "An angle in degrees is not a number from -90 to 90." : message)
     case 10: return ZmanimError.allDay(message: message.isEmpty ? "The sun stays above the angle the time needs all day, as in the far north in summer." : message)
     case 11: return ZmanimError.allNight(message: message.isEmpty ? "The sun stays below the angle the time needs all day, as in the far north in winter." : message)
     case 12: return ZmanimError.notApplicable(message: message.isEmpty ? "The time only exists on certain dates, and this is not one." : message)
@@ -2527,8 +2527,8 @@ extension Location: WvCodable {
 
 /// How `Zmanim` calculates. `default_config` matches KosherJava's defaults.
 public struct Config: Hashable, Sendable {
-    /// How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
-    /// way. Default 18.
+    /// How long before sea-level sunset candle lighting is, in minutes, from 0 to 1440.
+    /// Default 18.
     public var candleLightingMinutes: Int32
     /// Whether proportional zmanim divide the day at astronomical *chatzos*. Default false.
     public var useAstronomicalChatzosForOtherZmanim: Bool
@@ -2699,8 +2699,8 @@ public final class Zmanim: @unchecked Sendable {
     /// # Errors
     ///
     /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-    /// - `ZmanimError::InvalidMinutes` when the candle-lighting or Ateret Torah offset is more
-    ///   than a day.
+    /// - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
+    ///   Ateret Torah offset is more than a day.
     /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
     ///   there is no time zone and the location is more than 150 degrees from Greenwich.
     ///
@@ -2751,8 +2751,8 @@ public final class Zmanim: @unchecked Sendable {
     ///
     /// # Errors
     ///
-    /// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-    /// same as `get`.
+    /// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+    /// the same as `get`.
     ///
     /// - Throws: ``ZmanimError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
     public func sunriseOffsetByDegrees(degrees: Double) throws -> Int64 {
@@ -2767,8 +2767,8 @@ public final class Zmanim: @unchecked Sendable {
     ///
     /// # Errors
     ///
-    /// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-    /// same as `get`.
+    /// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+    /// the same as `get`.
     ///
     /// - Throws: ``ZmanimError`` for a declared failure, ``KosherzRuntimeError`` otherwise.
     public func sunsetOffsetByDegrees(degrees: Double) throws -> Int64 {
@@ -2955,8 +2955,8 @@ public final class MyZmanim: @unchecked Sendable {
     /// # Errors
     ///
     /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-    /// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number or
-    ///   is more than 1440 minutes either way.
+    /// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
+    ///   0 to 1440.
     /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
     ///   when there is no time zone and the location is more than 150 degrees from
     ///   Greenwich.

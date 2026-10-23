@@ -983,7 +983,7 @@ pub mod times {
         /// A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number
         /// within a day (1440 minutes) either way.
         InvalidMinutes = 7,
-        /// An angle in degrees is not a finite number.
+        /// An angle in degrees is not a number from -90 to 90.
         InvalidDegrees = 8,
         /// The sun stays above the angle the time needs all day, as in the far north in summer.
         AllDay = 10,
@@ -1554,8 +1554,8 @@ pub mod times {
     #[weaveffi::record]
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub struct Config {
-        /// How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
-        /// way. Default 18.
+        /// How long before sea-level sunset candle lighting is, in minutes, from 0 to 1440.
+        /// Default 18.
         pub candle_lighting_minutes: i32,
         /// Whether proportional zmanim divide the day at astronomical *chatzos*. Default false.
         pub use_astronomical_chatzos_for_other_zmanim: bool,
@@ -1630,8 +1630,8 @@ pub mod times {
         /// # Errors
         ///
         /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-        /// - `ZmanimError::InvalidMinutes` when the candle-lighting or Ateret Torah offset is more
-        ///   than a day.
+        /// - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
+        ///   Ateret Torah offset is more than a day.
         /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
         ///   there is no time zone and the location is more than 150 degrees from Greenwich.
         pub fn new(
@@ -1665,10 +1665,10 @@ pub mod times {
         ///
         /// # Errors
         ///
-        /// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-        /// same as `get`.
+        /// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+        /// the same as `get`.
         pub fn sunrise_offset_by_degrees(&self, degrees: f64) -> Result<i64, ZmanimError> {
-            convert::zmanim::offset_by_degrees(&self.inner, degrees, kosher_rust::Zmanim::sunrise_offset_by_degrees)
+            convert::zmanim::checked(&self.inner, |inner| inner.sunrise_offset_by_degrees(degrees))
         }
 
         /// When the sun is `degrees` below the geometric horizon after sunset, in Unix
@@ -1676,10 +1676,10 @@ pub mod times {
         ///
         /// # Errors
         ///
-        /// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-        /// same as `get`.
+        /// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+        /// the same as `get`.
         pub fn sunset_offset_by_degrees(&self, degrees: f64) -> Result<i64, ZmanimError> {
-            convert::zmanim::offset_by_degrees(&self.inner, degrees, kosher_rust::Zmanim::sunset_offset_by_degrees)
+            convert::zmanim::checked(&self.inner, |inner| inner.sunset_offset_by_degrees(degrees))
         }
 
         /// The location.
@@ -1888,8 +1888,8 @@ pub mod times {
             /// # Errors
             ///
             /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-            /// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number or
-            ///   is more than 1440 minutes either way.
+            /// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
+            ///   0 to 1440.
             /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
             ///   when there is no time zone and the location is more than 150 degrees from
             ///   Greenwich.
@@ -1939,7 +1939,7 @@ pub mod times {
 
             /// The minutes before sunset of candle lighting.
             pub fn candle_lighting_minutes(&self) -> f64 {
-                self.inner.candle_lighting_minutes()
+                self.inner.candle_lighting_offset().as_secs_f64() / 60.0
             }
         }
 
@@ -1985,7 +1985,7 @@ pub mod times {
         /// The website's default minutes before sunset for candle lighting.
         #[weaveffi::export]
         pub fn default_candle_lighting_minutes() -> f64 {
-            kosher_rust::myzmanim::DEFAULT_CANDLE_LIGHTING_MINUTES
+            kosher_rust::myzmanim::DEFAULT_CANDLE_LIGHTING.as_secs_f64() / 60.0
         }
     }
 }

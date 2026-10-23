@@ -1,3 +1,5 @@
+use core::time::Duration;
+
 use jiff::SignedDuration;
 
 /// The solar position algorithm used for sunrise, sunset, solar noon / midnight and every
@@ -62,11 +64,11 @@ impl AstronomicalCalculator {
 /// offsets some zmanim use. [`Config::default`] matches KosherJava's defaults.
 ///
 /// ```
-/// use jiff::SignedDuration;
+/// use core::time::Duration;
 /// use kosher_rust::zmanim::Config;
 ///
 /// let config = Config {
-///     candle_lighting_offset: SignedDuration::from_mins(40), // Jerusalem custom
+///     candle_lighting_offset: Duration::from_mins(40), // Jerusalem custom
 ///     ..Config::default()
 /// };
 /// ```
@@ -74,7 +76,7 @@ impl AstronomicalCalculator {
 pub struct Config {
     /// How long before sea-level sunset [`Zman::CandleLighting`](super::Zman::CandleLighting)
     /// is. Default: 18 minutes.
-    pub candle_lighting_offset: SignedDuration,
+    pub candle_lighting_offset: Duration,
     /// Whether proportional zmanim divide the day at astronomical *chatzos*: morning times as a
     /// fraction of sunrise to *chatzos*, afternoon times of *chatzos* to sunset, instead of a
     /// fraction of sunrise to sunset. Only affects zmanim whose day is symmetric around
@@ -97,7 +99,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            candle_lighting_offset: SignedDuration::from_mins(18),
+            candle_lighting_offset: Duration::from_mins(18),
             use_astronomical_chatzos_for_other_zmanim: false,
             use_elevation: false,
             ateret_torah_sunset_offset: SignedDuration::from_mins(40),

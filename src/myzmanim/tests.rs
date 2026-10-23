@@ -26,7 +26,7 @@ fn safed(date: Date) -> MyZmanim {
         .and_then(|l| l.with_elevation(570.0))
         .and_then(|l| l.with_horizons(570.0, 0.0))
         .unwrap();
-    MyZmanim::new(location, date, Some(tz)).candle_lighting(30.0)
+    MyZmanim::new(location, date, Some(tz)).candle_lighting(core::time::Duration::from_mins(30))
 }
 
 fn assert_site_second(calendar: &MyZmanim, zman: MyZman, site_local: &str, offset_hours: i8) {
@@ -146,14 +146,17 @@ fn polar_day_reports_errors_not_panics() {
 #[test]
 fn candle_lighting_minutes_default_and_override() {
     let calendar = anvers(Date::new(2026, 11, 6).unwrap());
-    assert_eq!(calendar.candle_lighting_minutes(), DEFAULT_CANDLE_LIGHTING_MINUTES);
+    assert_eq!(calendar.candle_lighting_offset(), DEFAULT_CANDLE_LIGHTING);
     let sunset = calendar.get(MyZman::SunsetElevated).unwrap();
     assert_eq!(
         calendar.get(MyZman::CandleLighting).unwrap(),
         sunset - SignedDuration::from_mins(18)
     );
-    let calendar = calendar.candle_lighting(40.5);
-    assert_eq!(calendar.candle_lighting_minutes(), 40.5);
+    let calendar = calendar.candle_lighting(core::time::Duration::from_secs(40 * 60 + 30));
+    assert_eq!(
+        calendar.candle_lighting_offset(),
+        core::time::Duration::from_secs(40 * 60 + 30)
+    );
     assert_eq!(
         calendar.get(MyZman::CandleLighting).unwrap(),
         sunset - SignedDuration::from_secs(40 * 60 + 30)
@@ -217,8 +220,8 @@ fn range_edges_and_wild_candle_lighting_report_errors_not_panics() {
                 let Ok(location) = Location::new(0.0, longitude) else {
                     continue;
                 };
-                for minutes in [18.0, f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 1e15, -1e15] {
-                    let times = MyZmanim::new(location.clone(), date, timezone.clone()).candle_lighting(minutes);
+                for offset in [core::time::Duration::from_mins(18), core::time::Duration::MAX] {
+                    let times = MyZmanim::new(location.clone(), date, timezone.clone()).candle_lighting(offset);
                     for zman in MyZman::ALL {
                         let _ = times.get(zman);
                     }
@@ -254,5 +257,19 @@ fn what_needs_a_time_zone() {
     let far = MyZmanim::new(Location::new(0.0, 150.1).unwrap(), date, None);
     for zman in MyZman::ALL {
         assert_eq!(far.get(zman), Err(ZmanimError::TimeZoneRequired), "{zman:?}");
+    }
+}
+
+#[test]
+fn horizons_above_the_air_have_no_refraction() {
+    let location = Location::new(31.778, 35.235)
+        .unwrap()
+        .with_elevation(50_000.0)
+        .unwrap()
+        .with_horizons(50_000.0, 50_000.0)
+        .unwrap();
+    let times = MyZmanim::new(location, Date::new(2026, 11, 6).unwrap(), None);
+    for zman in MyZman::ALL {
+        assert_ne!(times.get(zman), Err(ZmanimError::Internal), "{zman:?}");
     }
 }

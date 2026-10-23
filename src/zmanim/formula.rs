@@ -233,7 +233,7 @@ impl Formula {
                 // (e.g., sunset itself), an earlier time is not universally considered
                 // *l’chumrah*, so we do not apply this rule there.
                 let sunset = Formula::SeaLevelSunset.evaluate(calculator)?;
-                minus(sunset, calculator.config.candle_lighting_offset)
+                Ok(sunset.checked_sub(calculator.config.candle_lighting_offset)?)
             }
             Formula::Offset(event, duration) => {
                 let event_time = event.evaluate(calculator)?;
@@ -585,6 +585,18 @@ impl Formula {
 #[cfg(feature = "alloc")]
 // What a formula reads from the config, so `Zman::description` can say how it was calculated.
 impl Formula {
+    /// Whether a proportional zman falls in the morning, so that with astronomical chatzos it divides
+    /// the morning rather than the afternoon.
+    pub(crate) fn is_in_the_morning(&self) -> bool {
+        matches!(
+            self,
+            Formula::Shema(..)
+                | Formula::Tefila(..)
+                | Formula::SofZmanBiurChametz(..)
+                | Formula::SofZmanAchilasChametz(..)
+        )
+    }
+
     pub(crate) fn uses_astronomical_chatzos_for_other_zmanim_from_config(&self) -> bool {
         match self {
             Formula::Shema(_, _, synchronous)
@@ -637,7 +649,10 @@ impl Formula {
 
     pub(crate) fn uses_astronomical_chatzos_from_config(&self) -> bool {
         match self {
-            Formula::ChatzosHayom | Formula::ChatzosHalayla => true,
+            Formula::ChatzosHayom
+            | Formula::ChatzosHalayla
+            | Formula::MinchaGedolaAhavatShalom
+            | Formula::MinchaGedolaGraGreaterThan30 => true,
             Formula::Offset(event, _) => event.uses_astronomical_chatzos_from_config(),
             Formula::ElevationAdjustedSunrise
             | Formula::SeaLevelSunrise
@@ -665,12 +680,10 @@ impl Formula {
             | Formula::SofZmanAchilasChametz(_, _, _)
             | Formula::TzaisAteretTorah
             | Formula::BainHashmashosRt2Stars
-            | Formula::MinchaGedolaGraGreaterThan30
             | Formula::SofZmanKidushLevana15Days
             | Formula::SofZmanKidushLevanaBetweenMoldos
             | Formula::TchilasZmanKidushLevana3Days
             | Formula::TchilasZmanKidushLevana7Days
-            | Formula::MinchaGedolaAhavatShalom
             | Formula::MinchaKetanaAhavatShalom
             | Formula::PlagAhavatShalom
             | Formula::BeginCivilTwilight

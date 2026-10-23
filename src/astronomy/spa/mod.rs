@@ -297,7 +297,7 @@ impl Spa {
 
     /// The upper (`Noon`) or lower (`Midnight`) meridian transit in UTC minutes after 0:00 of the
     /// date, searched for within [`TRANSIT_WINDOW_MINUTES`] of its approximate time. The lower
-    /// transit is the one after the date's noon.
+    /// transit is the one after the date's noon. NaN if the search finds none.
     fn transit_minutes(&self, date: Date, longitude_west: f64, event: SolarEvent) -> f64 {
         let jd_day = julian_day(date);
         let delta_t = self.delta_t(date);
@@ -325,8 +325,14 @@ impl Spa {
             |t| value(start + t * 60.0),
             || value(start + hours * 60.0 + 1.0 / 60000.0),
         );
-        // The sun transits once in any 12 hours, so the search always finds it.
-        found.map_or(approximate, |t| start + t * 60.0)
+        // The window spans about 180° of hour angle around local mean noon or midnight, so it holds
+        // exactly one transit, and sin(hour angle) bends less than TRANSIT_CURVATURE allows. A
+        // miss is a bug; NaN makes the caller report it as an internal error.
+        debug_assert!(
+            found.is_some(),
+            "no transit within {TRANSIT_WINDOW_MINUTES} minutes of {approximate}"
+        );
+        found.map_or(f64::NAN, |t| start + t * 60.0)
     }
 }
 

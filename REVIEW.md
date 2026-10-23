@@ -340,7 +340,7 @@ These were checked and found correct, so they don't need another look.
   `Date::try_from_fields` accepts the wider range, which is worth checking. If you keep the
   limit, document it on each function.
 
-- [ ] **C5. `sunrise_offset_by_degrees` and `sunset_offset_by_degrees` jump at 0° and accept any
+- [x] **C5. `sunrise_offset_by_degrees` and `sunset_offset_by_degrees` jump at 0° and accept any
   number.** Low. Confirmed.
 
   **What happens.**
@@ -362,7 +362,7 @@ These were checked and found correct, so they don't need another look.
   allow the sun above the horizon), with an error that is not `Internal`. Adding an error variant
   is a breaking change unless B5 is done first.
 
-- [ ] **C6. MyZmanim misbehaves for very high horizons and NaN candle lighting.** Low. Confirmed.
+- [x] **C6. MyZmanim misbehaves for very high horizons and NaN candle lighting.** Low. Confirmed.
 
   **What happens.**
 
@@ -377,7 +377,7 @@ These were checked and found correct, so they don't need another look.
   `refraction`. Take candle lighting as a `SignedDuration`, which also fixes D5, or ignore
   values that aren't finite.
 
-- [ ] **C7. `Zman::description` says the wrong thing in three cases.** Low. Reproduced (a) and
+- [x] **C7. `Zman::description` says the wrong thing in three cases.** Low. Reproduced (a) and
   confirmed (b, c).
 
   **(a) Offsets are rounded and lose their sign.** `minutes` at

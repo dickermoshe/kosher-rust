@@ -576,8 +576,8 @@ struct kosherz_times_Location {
 /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
 struct kosherz_times_Config {
     /**
-     * How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
-     * way. Default 18.
+     * How long before sea-level sunset candle lighting is, in minutes, from 0 to 1440.
+     * Default 18.
      */
     int32_t candle_lighting_minutes;
     /** Whether proportional zmanim divide the day at astronomical *chatzos*. Default false. */

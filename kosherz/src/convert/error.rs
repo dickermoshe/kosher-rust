@@ -41,7 +41,7 @@ impl Message for ZmanimError {
             Self::TimeZoneRequired => "this needs a time zone",
             Self::TimeZoneCallbackFailed => "the time zone callback failed or gave an offset of a day or more",
             Self::InvalidMinutes => "minutes must be a finite number from -1440 to 1440",
-            Self::InvalidDegrees => "degrees must be a finite number",
+            Self::InvalidDegrees => "degrees must be a number from -90 to 90",
             Self::AllDay => "the sun does not go low enough for this time on this date",
             Self::AllNight => "the sun does not rise high enough for this time on this date",
             Self::NotApplicable => "this time does not apply on this date",
@@ -67,6 +67,7 @@ impl From<kosher_rust::zmanim::ZmanimError> for ZmanimError {
             kosher_rust::zmanim::ZmanimError::AllNight => Self::AllNight,
             kosher_rust::zmanim::ZmanimError::NotApplicable => Self::NotApplicable,
             kosher_rust::zmanim::ZmanimError::TimeZoneRequired => Self::TimeZoneRequired,
+            kosher_rust::zmanim::ZmanimError::InvalidDegrees => Self::InvalidDegrees,
             kosher_rust::zmanim::ZmanimError::Internal => Self::Unexpected,
         }
     }
@@ -94,5 +95,11 @@ impl From<ZmanimError> for ZmanFailure {
 impl From<kosher_rust::calendar::DateOutOfRange> for CalendarError {
     fn from(_: kosher_rust::calendar::DateOutOfRange) -> Self {
         Self::InvalidDate
+    }
+}
+
+impl From<std::time::TryFromFloatSecsError> for ZmanimError {
+    fn from(_: std::time::TryFromFloatSecsError) -> Self {
+        Self::InvalidMinutes
     }
 }

@@ -3644,10 +3644,10 @@ final class InvalidMinutesException extends ZmanimException {
   InvalidMinutesException([String message = 'A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number']) : super(7, message);
 }
 
-/// An angle in degrees is not a finite number.
+/// An angle in degrees is not a number from -90 to 90.
 final class InvalidDegreesException extends ZmanimException {
   /// Creates an [InvalidDegreesException] (code 8).
-  InvalidDegreesException([String message = 'An angle in degrees is not a finite number.']) : super(8, message);
+  InvalidDegreesException([String message = 'An angle in degrees is not a number from -90 to 90.']) : super(8, message);
 }
 
 /// The sun stays above the angle the time needs all day, as in the far north in summer.
@@ -4268,8 +4268,8 @@ final class Config {
   /// Creates a [Config].
   Config({required this.candleLightingMinutes, required this.useAstronomicalChatzosForOtherZmanim, required this.useElevation, required this.ateretTorahSunsetMinutes, required this.useAstronomicalChatzos, required this.calculator, required this.applyDeltaT});
 
-  /// How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
-  /// way. Default 18.
+  /// How long before sea-level sunset candle lighting is, in minutes, from 0 to 1440.
+  /// Default 18.
   final int candleLightingMinutes;
   /// Whether proportional zmanim divide the day at astronomical *chatzos*. Default false.
   final bool useAstronomicalChatzosForOtherZmanim;
@@ -4534,8 +4534,8 @@ final class Zmanim extends _NativeObject {
   /// # Errors
   ///
   /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-  /// - `ZmanimError::InvalidMinutes` when the candle-lighting or Ateret Torah offset is more
-  ///   than a day.
+  /// - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
+  ///   Ateret Torah offset is more than a day.
   /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
   ///   there is no time zone and the location is more than 150 degrees from Greenwich.
   ///
@@ -4596,8 +4596,8 @@ final class Zmanim extends _NativeObject {
   ///
   /// # Errors
   ///
-  /// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-  /// same as `get`.
+  /// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+  /// the same as `get`.
   ///
   /// Throws [ZmanimException] on domain errors.
   int sunriseOffsetByDegrees(double degrees) {
@@ -4616,8 +4616,8 @@ final class Zmanim extends _NativeObject {
   ///
   /// # Errors
   ///
-  /// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-  /// same as `get`.
+  /// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+  /// the same as `get`.
   ///
   /// Throws [ZmanimException] on domain errors.
   int sunsetOffsetByDegrees(double degrees) {
@@ -5009,8 +5009,8 @@ final class MyZmanim extends _NativeObject {
   /// # Errors
   ///
   /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-  /// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number or
-  ///   is more than 1440 minutes either way.
+  /// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
+  ///   0 to 1440.
   /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
   ///   when there is no time zone and the location is more than 150 degrees from
   ///   Greenwich.

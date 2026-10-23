@@ -3105,11 +3105,11 @@ class InvalidMinutes(ZmanimError):
 
 
 class InvalidDegrees(ZmanimError):
-    """An angle in degrees is not a finite number."""
+    """An angle in degrees is not a number from -90 to 90."""
 
     CODE = 8
 
-    def __init__(self, message: str = "An angle in degrees is not a finite number.") -> None:
+    def __init__(self, message: str = "An angle in degrees is not a number from -90 to 90.") -> None:
         super().__init__(8, message)
 
 
@@ -3708,8 +3708,8 @@ def _read_Location(_r: _Reader) -> Location:
 class Config:
     """How `Zmanim` calculates. `default_config` matches KosherJava's defaults."""
 
-    # How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
-    # way. Default 18.
+    # How long before sea-level sunset candle lighting is, in minutes, from 0 to 1440.
+    # Default 18.
     candle_lighting_minutes: int
     # Whether proportional zmanim divide the day at astronomical *chatzos*. Default false.
     use_astronomical_chatzos_for_other_zmanim: bool
@@ -3895,8 +3895,8 @@ class Zmanim(_Object):
         # Errors
 
         - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-        - `ZmanimError::InvalidMinutes` when the candle-lighting or Ateret Torah offset is more
-          than a day.
+        - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
+          Ateret Torah offset is more than a day.
         - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
           there is no time zone and the location is more than 150 degrees from Greenwich.
 
@@ -3965,8 +3965,8 @@ class Zmanim(_Object):
 
         # Errors
 
-        `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-        same as `get`.
+        `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+        the same as `get`.
 
         Raises
         ------
@@ -3989,8 +3989,8 @@ class Zmanim(_Object):
 
         # Errors
 
-        `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-        same as `get`.
+        `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+        the same as `get`.
 
         Raises
         ------
@@ -4351,8 +4351,8 @@ class MyZmanim(_Object):
         # Errors
 
         - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-        - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number or
-          is more than 1440 minutes either way.
+        - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
+          0 to 1440.
         - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
           when there is no time zone and the location is more than 150 degrees from
           Greenwich.

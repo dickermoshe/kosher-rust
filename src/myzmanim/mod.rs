@@ -27,6 +27,7 @@
 //!   rounded to the nearest second, as the website displays them, and cut to a whole second.
 //!
 //! ```
+//! use core::time::Duration;
 //! use jiff::{civil::date, tz::TimeZone};
 //! use kosher_rust::Location;
 //! use kosher_rust::myzmanim::{MyZman, MyZmanim};
@@ -35,10 +36,12 @@
 //!     .with_elevation(754.0)?
 //!     .with_horizons(754.0, 0.0)?;
 //! let times = MyZmanim::new(jerusalem, date(2026, 11, 6), Some(TimeZone::get("Asia/Jerusalem")?))
-//!     .candle_lighting(40.0);
+//!     .candle_lighting(Duration::from_mins(40));
 //! assert!(times.get(MyZman::CandleLighting)? < times.get(MyZman::SunsetElevated)?);
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
+
+use core::time::Duration;
 
 mod myzman;
 
@@ -56,5 +59,5 @@ pub const SEA_LEVEL_REFRACTION_ARCMINUTES: f64 = 33.66;
 /// The dip of the horizon below an observer `h` meters above it, in degrees per root meter, measured.
 pub const DIP_DEGREES_PER_ROOT_METER: f64 = 0.0347;
 
-/// MyZmanim's default minutes before sunset for candle lighting.
-pub const DEFAULT_CANDLE_LIGHTING_MINUTES: f64 = 18.0;
+/// MyZmanim's default time before sunset for candle lighting, 18 minutes.
+pub const DEFAULT_CANDLE_LIGHTING: Duration = Duration::from_mins(18);

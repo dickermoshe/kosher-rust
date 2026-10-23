@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use jiff::Timestamp;
 use kosher_rust::myzmanim::MyZman;
@@ -19,10 +19,10 @@ pub(crate) fn my_zmanim(
 ) -> Result<Inner, ZmanimError> {
     let location = super::location(location, time_zone.is_some())?;
     let date = super::civil_date(date).ok_or(ZmanimError::InvalidGregorianDate)?;
-    let candle_lighting_minutes = super::valid_minutes(candle_lighting_minutes)?;
+    let candle_lighting = Duration::try_from_secs_f64(super::valid_minutes(candle_lighting_minutes)? * 60.0)?;
     Ok(
         kosher_rust::myzmanim::MyZmanim::with_custom_timezone(location, date, super::time_zone(time_zone))
-            .candle_lighting(candle_lighting_minutes),
+            .candle_lighting(candle_lighting),
     )
 }
 

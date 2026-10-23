@@ -2332,12 +2332,12 @@ module Kosherz
       end
     end
 
-    # An angle in degrees is not a finite number.
+    # An angle in degrees is not a number from -90 to 90.
     class InvalidDegrees < ZmanimError
       CODE = 8
 
       def initialize(message = nil)
-        super(CODE, message || 'An angle in degrees is not a finite number.')
+        super(CODE, message || 'An angle in degrees is not a number from -90 to 90.')
       end
     end
 
@@ -2937,8 +2937,8 @@ module Kosherz
 
   # How `Zmanim` calculates. `default_config` matches KosherJava's defaults.
   class Config
-    # How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
-    # way. Default 18.
+    # How long before sea-level sunset candle lighting is, in minutes, from 0 to 1440.
+    # Default 18.
     attr_reader :candle_lighting_minutes
 
     # Whether proportional zmanim divide the day at astronomical *chatzos*. Default false.
@@ -3223,8 +3223,8 @@ module Kosherz
     # # Errors
     #
     # - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-    # - `ZmanimError::InvalidMinutes` when the candle-lighting or Ateret Torah offset is more
-    #   than a day.
+    # - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
+    #   Ateret Torah offset is more than a day.
     # - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
     #   there is no time zone and the location is more than 150 degrees from Greenwich.
     def initialize(location, date, config, time_zone = nil)
@@ -3273,8 +3273,8 @@ module Kosherz
     #
     # # Errors
     #
-    # `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-    # same as `get`.
+    # `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+    # the same as `get`.
     # @return [Integer]
     def sunrise_offset_by_degrees(degrees)
       Kosherz._wv_pin(self) do |_wv_self|
@@ -3290,8 +3290,8 @@ module Kosherz
     #
     # # Errors
     #
-    # `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-    # same as `get`.
+    # `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+    # the same as `get`.
     # @return [Integer]
     def sunset_offset_by_degrees(degrees)
       Kosherz._wv_pin(self) do |_wv_self|
@@ -3629,8 +3629,8 @@ module Kosherz
     # # Errors
     #
     # - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-    # - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number or
-    #   is more than 1440 minutes either way.
+    # - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
+    #   0 to 1440.
     # - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
     #   when there is no time zone and the location is more than 150 degrees from
     #   Greenwich.

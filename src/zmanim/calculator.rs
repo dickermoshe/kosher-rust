@@ -106,25 +106,31 @@ impl<Tz: TimeZoneLike> Zmanim<Tz> {
     }
 
     /// When the sun is `degrees` below the eastern horizon before sunrise, for an opinion the
-    /// catalog doesn't have. Measured from the geometric horizon, without elevation.
+    /// catalog doesn't have. The angle is measured from the geometric horizon, without elevation.
+    /// A negative angle is above the horizon. At exactly 0 the result is sea-level sunrise, which
+    /// also allows for refraction and the size of the sun.
     ///
     /// # Errors
     ///
-    /// [`ZmanimError::AllDay`] or [`ZmanimError::AllNight`] when the sun doesn't reach that
-    /// depression on this day.
+    /// - [`ZmanimError::InvalidDegrees`] when `degrees` is not a number from -90 to 90.
+    /// - [`ZmanimError::AllDay`] or [`ZmanimError::AllNight`] when the sun doesn't reach that
+    ///   angle on this day.
     pub fn sunrise_offset_by_degrees(&self, degrees: f64) -> Result<Timestamp, ZmanimError> {
-        Formula::SunriseOffsetByDegrees(degrees).evaluate(self)
+        Formula::SunriseOffsetByDegrees(valid_degrees(degrees)?).evaluate(self)
     }
 
     /// When the sun is `degrees` below the western horizon after sunset, for example 8.5 for a
-    /// custom *tzais*. Measured from the geometric horizon, without elevation.
+    /// custom *tzais*. The angle is measured from the geometric horizon, without elevation. A
+    /// negative angle is above the horizon. At exactly 0 the result is sea-level sunset, which
+    /// also allows for refraction and the size of the sun.
     ///
     /// # Errors
     ///
-    /// [`ZmanimError::AllDay`] or [`ZmanimError::AllNight`] when the sun doesn't reach that
-    /// depression on this day.
+    /// - [`ZmanimError::InvalidDegrees`] when `degrees` is not a number from -90 to 90.
+    /// - [`ZmanimError::AllDay`] or [`ZmanimError::AllNight`] when the sun doesn't reach that
+    ///   angle on this day.
     pub fn sunset_offset_by_degrees(&self, degrees: f64) -> Result<Timestamp, ZmanimError> {
-        Formula::SunsetOffsetByDegrees(degrees).evaluate(self)
+        Formula::SunsetOffsetByDegrees(valid_degrees(degrees)?).evaluate(self)
     }
 
     /// The location.
@@ -154,6 +160,15 @@ impl<Tz: TimeZoneLike> Zmanim<Tz> {
 /// day from dawn to nightfall is `start + shaah_zmanis(start, end) * 3`.
 pub fn shaah_zmanis(start: Timestamp, end: Timestamp) -> SignedDuration {
     end.duration_since(start) / 12
+}
+
+/// `degrees`, if it is an angle from -90 to 90.
+fn valid_degrees(degrees: f64) -> Result<f64, ZmanimError> {
+    if (-90.0..=90.0).contains(&degrees) {
+        Ok(degrees)
+    } else {
+        Err(ZmanimError::InvalidDegrees)
+    }
 }
 
 /// `time` plus `duration`, or [`ZmanimError::Internal`] past the last instant a [`Timestamp`]

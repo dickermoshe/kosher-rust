@@ -179,8 +179,14 @@ impl Zman {
     pub fn description(self, config: &Config) -> String {
         let mut text = self
             .about()
-            .replace("{candle_lighting_offset}", &minutes(config.candle_lighting_offset))
-            .replace("{ateret_torah_offset}", &minutes(config.ateret_torah_sunset_offset));
+            .replace(
+                "{candle_lighting_offset}",
+                &duration_text(config.candle_lighting_offset.as_secs()),
+            )
+            .replace(
+                "{ateret_torah_offset} after",
+                &offset(config.ateret_torah_sunset_offset, "after", "before"),
+            );
 
         let formula = self.formula();
         if formula.uses_elevation_from_config() {
@@ -198,10 +204,12 @@ impl Zman {
             });
         }
         if formula.uses_astronomical_chatzos_for_other_zmanim_from_config() {
-            text.push_str(if config.use_astronomical_chatzos_for_other_zmanim {
-                "\n\nThis zman divides the afternoon from astronomical chatzos when calculating shaos zmaniyos."
-            } else {
+            text.push_str(if !config.use_astronomical_chatzos_for_other_zmanim {
                 "\n\nThis zman uses a fixed fraction of the sunrise-to-sunset interval for shaos zmaniyos, without dividing the day at astronomical chatzos."
+            } else if formula.is_in_the_morning() {
+                "\n\nThis zman divides the morning up to astronomical chatzos when calculating shaos zmaniyos."
+            } else {
+                "\n\nThis zman divides the afternoon from astronomical chatzos when calculating shaos zmaniyos."
             });
         }
         text
@@ -215,7 +223,22 @@ impl fmt::Display for Zman {
     }
 }
 
+/// `duration` as "18 minutes" or "18 minutes 45 seconds", followed by `ahead` when it is zero or
+/// more and `behind` when it is negative.
 #[cfg(feature = "alloc")]
-fn minutes(duration: SignedDuration) -> String {
-    format!("{} minutes", duration.as_mins().unsigned_abs())
+fn offset(duration: SignedDuration, ahead: &str, behind: &str) -> String {
+    let direction = if duration.is_negative() { behind } else { ahead };
+    format!("{} {direction}", duration_text(duration.as_secs().unsigned_abs()))
+}
+
+/// `seconds` as "18 minutes" or "18 minutes 45 seconds".
+#[cfg(feature = "alloc")]
+fn duration_text(seconds: u64) -> String {
+    let (minutes, seconds) = (seconds / 60, seconds % 60);
+    let unit = |count: u64, name: &str| format!("{count} {name}{}", if count == 1 { "" } else { "s" });
+    if seconds == 0 {
+        unit(minutes, "minute")
+    } else {
+        format!("{} {}", unit(minutes, "minute"), unit(seconds, "second"))
+    }
 }

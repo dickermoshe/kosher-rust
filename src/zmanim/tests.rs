@@ -51,7 +51,7 @@ fn new_calc(elevation_m: f64) -> Zmanim {
         lakewood_date(),
         Some(lakewood_tz()),
         Config {
-            candle_lighting_offset: Duration::from_mins(18),
+            candle_lighting_offset: core::time::Duration::from_mins(18),
             use_astronomical_chatzos_for_other_zmanim: false,
             use_elevation: true,
             ateret_torah_sunset_offset: Duration::from_mins(40),
@@ -645,7 +645,7 @@ fn test_mcmurdo_antimeridian_alos_matches_java() {
         .and_then(|l| l.with_elevation(61.48216934280892))
         .unwrap();
     let config = Config {
-        candle_lighting_offset: Duration::from_mins(12),
+        candle_lighting_offset: core::time::Duration::from_mins(12),
         use_astronomical_chatzos_for_other_zmanim: true,
         use_elevation: false,
         ateret_torah_sunset_offset: Duration::from_mins(4),
@@ -742,14 +742,16 @@ fn test_preset_description_uses_chatzos_for_other_zmanim_config_flag() {
     config.use_astronomical_chatzos_for_other_zmanim = true;
     let calc = Zmanim::with_config(lakewood_location(0.0), lakewood_date(), Some(lakewood_tz()), config);
     let desc = Zman::SofZmanShmaGra.description(calc.config());
-    assert!(desc.contains("divides the afternoon from astronomical chatzos"));
+    assert!(desc.contains("divides the morning up to astronomical chatzos"));
     assert!(!desc.contains("midpoint between sunrise and sunset"));
+    let desc = Zman::PlagHaminchaGra.description(calc.config());
+    assert!(desc.contains("divides the afternoon from astronomical chatzos"));
 
     config.use_astronomical_chatzos_for_other_zmanim = false;
     let calc = Zmanim::with_config(lakewood_location(0.0), lakewood_date(), Some(lakewood_tz()), config);
     let desc = Zman::SofZmanShmaGra.description(calc.config());
     assert!(desc.contains("fixed fraction of the sunrise-to-sunset interval"));
-    assert!(!desc.contains("divides the afternoon from astronomical chatzos"));
+    assert!(!desc.contains("divides the morning up to astronomical chatzos"));
 }
 
 /// On the first and last days a `Timestamp` holds, with any offsets, every zman is a time or an
@@ -768,12 +770,12 @@ fn test_range_edges_report_errors_not_panics() {
     let configs = [
         Config::default(),
         Config {
-            candle_lighting_offset: Duration::MIN,
+            candle_lighting_offset: core::time::Duration::ZERO,
             ateret_torah_sunset_offset: Duration::MAX,
             ..Config::default()
         },
         Config {
-            candle_lighting_offset: Duration::MAX,
+            candle_lighting_offset: core::time::Duration::MAX,
             ateret_torah_sunset_offset: Duration::MIN,
             ..Config::default()
         },
@@ -858,4 +860,38 @@ fn java_names_round_trip() {
         assert_eq!(Zman::from_java_name(zman.java_name()), Some(zman));
     }
     assert_eq!(Zman::from_java_name("getZmanMolad"), None);
+}
+
+#[test]
+fn offset_angles_must_be_from_minus_90_to_90() {
+    let zmanim = Zmanim::new(
+        Location::new(40.09, -74.22).unwrap(),
+        Date::new(2024, 4, 23).unwrap(),
+        None,
+    );
+    for degrees in [f64::NAN, f64::INFINITY, -90.5, 90.5, 1e300] {
+        assert_eq!(
+            zmanim.sunrise_offset_by_degrees(degrees),
+            Err(ZmanimError::InvalidDegrees)
+        );
+        assert_eq!(
+            zmanim.sunset_offset_by_degrees(degrees),
+            Err(ZmanimError::InvalidDegrees)
+        );
+    }
+    assert!(zmanim.sunrise_offset_by_degrees(16.1).is_ok());
+    assert!(zmanim.sunset_offset_by_degrees(-0.5).is_ok());
+}
+
+#[cfg(feature = "alloc")]
+#[test]
+fn descriptions_show_offsets_with_seconds_and_direction() {
+    let config = |candle_lighting_offset| Config {
+        candle_lighting_offset,
+        ..Config::default()
+    };
+    let text = Zman::CandleLighting.description(&config(core::time::Duration::from_secs(18 * 60 + 45)));
+    assert!(text.contains("18 minutes 45 seconds before sea level sunset"), "{text}");
+    let text = Zman::CandleLighting.description(&config(core::time::Duration::from_mins(1)));
+    assert!(text.contains("1 minute before sea level sunset"), "{text}");
 }

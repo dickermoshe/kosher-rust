@@ -1109,7 +1109,7 @@ const times$InvalidMinutesError = class InvalidMinutesError extends times$Zmanim
 };
 const times$InvalidDegreesError = class InvalidDegreesError extends times$ZmanimError {
   static CODE = 8;
-  constructor(message = 'An angle in degrees is not a finite number.') {
+  constructor(message = 'An angle in degrees is not a number from -90 to 90.') {
     super(8, message);
   }
 };

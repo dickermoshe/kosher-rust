@@ -126,15 +126,6 @@ pub(crate) fn valid_minutes(minutes: f64) -> Result<f64, ZmanimError> {
     }
 }
 
-/// `degrees`, if it is a finite number.
-pub(crate) fn valid_degrees(degrees: f64) -> Result<f64, ZmanimError> {
-    if degrees.is_finite() {
-        Ok(degrees)
-    } else {
-        Err(ZmanimError::InvalidDegrees)
-    }
-}
-
 /// `value` as kosher-rust's narrower type, if it is in `range`.
 pub(crate) fn valid_number<T: TryFrom<i32>>(value: i32, range: RangeInclusive<i32>) -> Option<T> {
     range.contains(&value).then(|| T::try_from(value).ok()).flatten()

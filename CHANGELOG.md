@@ -38,6 +38,15 @@ are unchanged, and they are still checked against KosherJava and hebcal.
   and the schedules return `None`.
 - **`PirkeiAvos` past Hebrew year 9999.** It panicked for every date from the summer of 9999
   (Gregorian 6239) on. That summer now has its portions, and from 10000 on there are none.
+- **Custom angles are checked.** `Zmanim::sunrise_offset_by_degrees` and
+  `sunset_offset_by_degrees` return the new `ZmanimError::InvalidDegrees` for an angle that is not
+  a number from -90 to 90. Before, NaN gave `ZmanimError::Internal` and a huge angle gave a
+  meaningless time.
+- **MyZmanim above 44 km.** A horizon higher than about 44 km gave `ZmanimError::Internal` for
+  sunrise and the times built on it. Refraction there is now zero.
+- **Zman descriptions.** Offsets are written with their seconds ("18 minutes 45 seconds"). Morning
+  times such as Shema say they divide the morning when astronomical chatzos is used, and Mincha
+  Gedola (Ahavat Shalom) and Mincha Gedola (GR'A, greater than 30) mention the chatzos setting.
 
 ### Migrating from 0.2
 
@@ -94,7 +103,7 @@ Elevations must now be finite; an infinite observer elevation used to be accepte
 | `preset.method_name`, `.name`, `.zman_type`, `.deprecated` | `zman.java_name()`, `.name()`, `.category()`, `.is_deprecated()` |
 | `preset.description(&calc)` | `zman.description(&config)` |
 | `ZmanType` | `Category` |
-| `CalculatorConfig` | `Config` |
+| `CalculatorConfig` | `Config`. Its `candle_lighting_offset` is a `core::time::Duration` before sunset |
 | `ZmanPrimitive`, `ZmanLike`, `ZmanPreset` | private. For a custom depression angle use `Zmanim::sunrise_offset_by_degrees` / `sunset_offset_by_degrees`; for proportional hours, `zmanim::shaah_zmanis` |
 | `kosher_rust::for_all_zman_presets!` | removed; iterate `Zman::ALL` |
 
@@ -125,7 +134,7 @@ Hebrew name.
 |---|---|
 | `use kosher_rust::myzmanim::prelude::*` | `use kosher_rust::myzmanim::{MyZman, MyZmanim}` |
 | `MyZmanimCalendar::new(location, date)` | `MyZmanim::new(location, date, Some(tz))` |
-| `.with_candle_lighting_minutes(m)` | `.candle_lighting(m)` |
+| `.with_candle_lighting_minutes(m)` | `.candle_lighting(Duration::from_mins(m))`, a `core::time::Duration` before sunset |
 | `calendar.calculate(MyZman::X)`, `MyZman::X.calculate(&calendar)` | `times.get(MyZman::X)` |
 | `set_date`, `set_candle_lighting_minutes` | build a new `MyZmanim` |
 

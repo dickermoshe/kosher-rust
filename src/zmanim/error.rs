@@ -17,6 +17,13 @@ pub enum ZmanimError {
     /// with a normal sunrise.
     #[error("this time does not apply on this date")]
     NotApplicable,
+    /// An angle passed to [`Zmanim::sunrise_offset_by_degrees`] or
+    /// [`Zmanim::sunset_offset_by_degrees`] is not a number from -90 to 90.
+    ///
+    /// [`Zmanim::sunrise_offset_by_degrees`]: crate::Zmanim::sunrise_offset_by_degrees
+    /// [`Zmanim::sunset_offset_by_degrees`]: crate::Zmanim::sunset_offset_by_degrees
+    #[error("the angle must be a number of degrees from -90 to 90")]
+    InvalidDegrees,
     /// The time needs a time zone and none was given.
     ///
     /// The four Kiddush Levana times always need a time zone. So does `get_zoned`. At a location

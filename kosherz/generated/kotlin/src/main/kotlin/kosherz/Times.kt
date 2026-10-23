@@ -27,8 +27,8 @@ sealed class ZmanimException(code: Int, message: String) : FfiException(code, me
      * within a day (1440 minutes) either way.
      */
     class InvalidMinutes(message: String = "A number of minutes, for candle lighting or Tzais Ateret Torah, is not a finite number") : ZmanimException(7, message)
-    /** An angle in degrees is not a finite number. */
-    class InvalidDegrees(message: String = "An angle in degrees is not a finite number.") : ZmanimException(8, message)
+    /** An angle in degrees is not a number from -90 to 90. */
+    class InvalidDegrees(message: String = "An angle in degrees is not a number from -90 to 90.") : ZmanimException(8, message)
     /** The sun stays above the angle the time needs all day, as in the far north in summer. */
     class AllDay(message: String = "The sun stays above the angle the time needs all day, as in the far north in summer.") : ZmanimException(10, message)
     /** The sun stays below the angle the time needs all day, as in the far north in winter. */
@@ -648,8 +648,8 @@ internal fun unpackLocation(_r: BufferReader): Location = Location(
 /** How `Zmanim` calculates. `default_config` matches KosherJava's defaults. */
 data class Config(
     /**
-     * How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
-     * way. Default 18.
+     * How long before sea-level sunset candle lighting is, in minutes, from 0 to 1440.
+     * Default 18.
      */
     val candle_lighting_minutes: Int,
     /** Whether proportional zmanim divide the day at astronomical *chatzos*. Default false. */
@@ -792,8 +792,8 @@ class Zmanim private constructor(address: Long) : AutoCloseable {
      *
      * # Errors
      *
-     * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-     * same as `get`.
+     * `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+     * the same as `get`.
      */
     fun sunriseOffsetByDegrees(degrees: Double): Long = handle.borrow { _self ->
         JniBridge.times_Zmanim_sunrise_offset_by_degrees(_self, degrees)
@@ -805,8 +805,8 @@ class Zmanim private constructor(address: Long) : AutoCloseable {
      *
      * # Errors
      *
-     * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-     * same as `get`.
+     * `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+     * the same as `get`.
      */
     fun sunsetOffsetByDegrees(degrees: Double): Long = handle.borrow { _self ->
         JniBridge.times_Zmanim_sunset_offset_by_degrees(_self, degrees)
@@ -848,8 +848,8 @@ class Zmanim private constructor(address: Long) : AutoCloseable {
          * # Errors
          *
          * - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-         * - `ZmanimError::InvalidMinutes` when the candle-lighting or Ateret Torah offset is more
-         *   than a day.
+         * - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
+         *   Ateret Torah offset is more than a day.
          * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
          *   there is no time zone and the location is more than 150 degrees from Greenwich.
          */
@@ -1043,8 +1043,8 @@ class MyZmanim private constructor(address: Long) : AutoCloseable {
          * # Errors
          *
          * - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-         * - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number or
-         *   is more than 1440 minutes either way.
+         * - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
+         *   0 to 1440.
          * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
          *   when there is no time zone and the location is more than 150 degrees from
          *   Greenwich.

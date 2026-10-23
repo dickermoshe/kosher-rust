@@ -1287,7 +1287,7 @@ typedef enum {
      * within a day (1440 minutes) either way.
      */
     kosherz_times_ZmanimError_InvalidMinutes = 7,
-    /** An angle in degrees is not a finite number. */
+    /** An angle in degrees is not a number from -90 to 90. */
     kosherz_times_ZmanimError_InvalidDegrees = 8,
     /** The sun stays above the angle the time needs all day, as in the far north in summer. */
     kosherz_times_ZmanimError_AllDay = 10,
@@ -1628,8 +1628,8 @@ KOSHERZ_API const uint8_t* kosherz_calendar_limudim_pirkei_avos(const kosherz_ca
  * # Errors
  *
  * - `ZmanimError::InvalidGregorianDate` when the date does not exist.
- * - `ZmanimError::InvalidMinutes` when the candle-lighting or Ateret Torah offset is more
- *   than a day.
+ * - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
+ *   Ateret Torah offset is more than a day.
  * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
  *   there is no time zone and the location is more than 150 degrees from Greenwich.
  */
@@ -1653,8 +1653,8 @@ KOSHERZ_API const uint8_t* kosherz_times_Zmanim_all(const kosherz_times_Zmanim* 
  *
  * # Errors
  *
- * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
- * same as `get`.
+ * `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+ * the same as `get`.
  */
 KOSHERZ_API int64_t kosherz_times_Zmanim_sunrise_offset_by_degrees(const kosherz_times_Zmanim* self, double degrees, kosherz_error* out_err);
 /**
@@ -1663,8 +1663,8 @@ KOSHERZ_API int64_t kosherz_times_Zmanim_sunrise_offset_by_degrees(const kosherz
  *
  * # Errors
  *
- * `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
- * same as `get`.
+ * `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+ * the same as `get`.
  */
 KOSHERZ_API int64_t kosherz_times_Zmanim_sunset_offset_by_degrees(const kosherz_times_Zmanim* self, double degrees, kosherz_error* out_err);
 /** The location. */
@@ -1731,8 +1731,8 @@ KOSHERZ_API int64_t kosherz_times_shaah_zmanis(int64_t start, int64_t end, koshe
  * # Errors
  *
  * - `ZmanimError::InvalidGregorianDate` when the date does not exist.
- * - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number or
- *   is more than 1440 minutes either way.
+ * - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
+ *   0 to 1440.
  * - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
  *   when there is no time zone and the location is more than 150 degrees from
  *   Greenwich.

@@ -2148,17 +2148,17 @@ func (*InvalidMinutesError) wvPayload() []byte {
 }
 
 // InvalidDegreesError is the ZmanimError code InvalidDegrees (8): An angle in
-// degrees is not a finite number.
+// degrees is not a number from -90 to 90.
 type InvalidDegreesError struct {
 	// Message describes the failure; when it's empty, Error returns the
-	// code's default message, "An angle in degrees is not a finite number.".
+	// code's default message, "An angle in degrees is not a number from -90 to 90.".
 	Message string
 }
 
 // Error returns the error's message.
 func (e *InvalidDegreesError) Error() string {
 	if e.Message == "" {
-		return "An angle in degrees is not a finite number."
+		return "An angle in degrees is not a number from -90 to 90."
 	}
 	return e.Message
 }
@@ -2846,8 +2846,8 @@ func wvReadLocation(r *wvReader) Location {
 
 // Config is how `Zmanim` calculates. `default_config` matches KosherJava's defaults.
 type Config struct {
-	// CandleLightingMinutes is how long before sea-level sunset candle lighting is, in minutes, at most 1440 either
-	// way. Default 18.
+	// CandleLightingMinutes is how long before sea-level sunset candle lighting is, in minutes, from 0 to 1440.
+	// Default 18.
 	CandleLightingMinutes int32
 	// UseAstronomicalChatzosForOtherZmanim reports whether proportional zmanim divide the day at astronomical *chatzos*. Default false.
 	UseAstronomicalChatzosForOtherZmanim bool
@@ -3037,8 +3037,8 @@ func (s *Zmanim) Close() error {
 // # Errors
 //
 // - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-// - `ZmanimError::InvalidMinutes` when the candle-lighting or Ateret Torah offset is more
-//   than a day.
+// - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
+//   Ateret Torah offset is more than a day.
 // - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
 //   there is no time zone and the location is more than 150 degrees from Greenwich.
 func NewZmanim(location Location, date GregorianDate, config Config, timeZone TimeZoneOffset) (*Zmanim, error) {
@@ -3093,8 +3093,8 @@ func (s *Zmanim) All() []ZmanTime {
 //
 // # Errors
 //
-// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-// same as `get`.
+// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+// the same as `get`.
 func (s *Zmanim) SunriseOffsetByDegrees(degrees float64) (int64, error) {
 	cSelf := s.native()
 	defer s.ref.release()
@@ -3111,8 +3111,8 @@ func (s *Zmanim) SunriseOffsetByDegrees(degrees float64) (int64, error) {
 //
 // # Errors
 //
-// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-// same as `get`.
+// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+// the same as `get`.
 func (s *Zmanim) SunsetOffsetByDegrees(degrees float64) (int64, error) {
 	cSelf := s.native()
 	defer s.ref.release()
@@ -3447,8 +3447,8 @@ func (s *MyZmanim) Close() error {
 // # Errors
 //
 // - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number or
-//   is more than 1440 minutes either way.
+// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
+//   0 to 1440.
 // - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
 //   when there is no time zone and the location is more than 150 degrees from
 //   Greenwich.

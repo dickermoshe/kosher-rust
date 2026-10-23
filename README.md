@@ -119,6 +119,8 @@ println!("{}", MishnaYomis.on(day).unwrap());    // Nazir 5:5-6
 second. Use it when your users compare against that site.
 
 ```rust
+use std::time::Duration;
+
 use jiff::{civil::date, tz::TimeZone};
 use kosher_rust::Location;
 use kosher_rust::myzmanim::{MyZman, MyZmanim};
@@ -128,7 +130,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_elevation(754.0)?
         .with_horizons(754.0, 0.0)?;
     let times = MyZmanim::new(jerusalem, date(2026, 11, 6), Some(TimeZone::get("Asia/Jerusalem")?))
-        .candle_lighting(40.0);
+        .candle_lighting(Duration::from_mins(40));
     println!("Candle lighting: {}", times.get_zoned(MyZman::CandleLighting)?.strftime("%H:%M"));
     Ok(())
 }

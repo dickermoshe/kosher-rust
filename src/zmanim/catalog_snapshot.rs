@@ -22,7 +22,7 @@ const SNAPSHOT_PATH: &str = "tests/fixtures/zman_catalog.snap";
 fn flipped_config() -> Config {
     let default = Config::default();
     Config {
-        candle_lighting_offset: SignedDuration::from_mins(40),
+        candle_lighting_offset: core::time::Duration::from_mins(40),
         use_astronomical_chatzos_for_other_zmanim: !default.use_astronomical_chatzos_for_other_zmanim,
         use_elevation: !default.use_elevation,
         ateret_torah_sunset_offset: SignedDuration::from_mins(25),

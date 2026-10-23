@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use jiff::{SignedDuration, Timestamp};
 use kosher_rust::zmanim::{self as k, AstronomicalCalculator};
@@ -19,6 +19,9 @@ pub(crate) fn zmanim(
 ) -> Result<Inner, ZmanimError> {
     let location = super::location(location, time_zone.is_some())?;
     let date = super::civil_date(date).ok_or(ZmanimError::InvalidGregorianDate)?;
+    if config.candle_lighting_minutes < 0 {
+        return Err(ZmanimError::InvalidMinutes);
+    }
     super::valid_minutes(f64::from(config.candle_lighting_minutes))?;
     super::valid_minutes(f64::from(config.ateret_torah_sunset_minutes))?;
     Ok(kosher_rust::Zmanim::with_custom_timezone(
@@ -47,17 +50,6 @@ pub(crate) fn checked(
     Ok(result?.as_millisecond())
 }
 
-/// `offset_by_degrees` (kosher-rust's sunrise or sunset version) for `degrees`, if they are
-/// finite.
-pub(crate) fn offset_by_degrees(
-    inner: &Inner,
-    degrees: f64,
-    offset_by_degrees: impl FnOnce(&Inner, f64) -> Result<Timestamp, k::ZmanimError>,
-) -> Result<i64, ZmanimError> {
-    let degrees = super::valid_degrees(degrees)?;
-    checked(inner, |inner| offset_by_degrees(inner, degrees))
-}
-
 pub(crate) fn all(inner: &Inner) -> Vec<ZmanTime> {
     k::Zman::ALL
         .into_iter()
@@ -77,7 +69,10 @@ impl From<Config> for k::Config {
     fn from(config: Config) -> Self {
         let apply_delta_t = config.apply_delta_t;
         Self {
-            candle_lighting_offset: SignedDuration::from_mins(i64::from(config.candle_lighting_minutes)),
+            // `zmanim` rejects a negative offset; elsewhere one counts as none.
+            candle_lighting_offset: Duration::from_secs(
+                u64::try_from(config.candle_lighting_minutes).unwrap_or(0) * 60,
+            ),
             use_astronomical_chatzos_for_other_zmanim: config.use_astronomical_chatzos_for_other_zmanim,
             use_elevation: config.use_elevation,
             ateret_torah_sunset_offset: SignedDuration::from_mins(i64::from(config.ateret_torah_sunset_minutes)),
@@ -102,7 +97,7 @@ impl From<k::Config> for Config {
             _ => (Calculator::Noaa, true),
         };
         Self {
-            candle_lighting_minutes: minutes(config.candle_lighting_offset),
+            candle_lighting_minutes: i32::try_from(config.candle_lighting_offset.as_secs() / 60).unwrap_or(i32::MAX),
             use_astronomical_chatzos_for_other_zmanim: config.use_astronomical_chatzos_for_other_zmanim,
             use_elevation: config.use_elevation,
             ateret_torah_sunset_minutes: minutes(config.ateret_torah_sunset_offset),

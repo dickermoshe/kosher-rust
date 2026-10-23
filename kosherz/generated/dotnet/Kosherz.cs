@@ -225,15 +225,15 @@ public abstract class ZmanimException : NativeException
         }
     }
 
-    /// <summary>An angle in degrees is not a finite number.</summary>
+    /// <summary>An angle in degrees is not a number from -90 to 90.</summary>
     public sealed class InvalidDegrees : ZmanimException
     {
         /// <summary>The domain code, <c>8</c>.</summary>
         public const int ErrorCode = 8;
 
         /// <summary>Creates the error with <paramref name="message"/>, or the
-        /// default message "An angle in degrees is not a finite number." when it's null.</summary>
-        public InvalidDegrees(string? message = null) : base(ErrorCode, message ?? "An angle in degrees is not a finite number.")
+        /// default message "An angle in degrees is not a number from -90 to 90." when it's null.</summary>
+        public InvalidDegrees(string? message = null) : base(ErrorCode, message ?? "An angle in degrees is not a number from -90 to 90.")
         {
         }
     }
@@ -2540,8 +2540,8 @@ public sealed class Location
 public sealed class Config
 {
     /// <summary>
-    /// How long before sea-level sunset candle lighting is, in minutes, at most 1440 either
-    /// way. Default 18.
+    /// How long before sea-level sunset candle lighting is, in minutes, from 0 to 1440.
+    /// Default 18.
     /// </summary>
     public int CandleLightingMinutes { get; }
 
@@ -2792,8 +2792,8 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     /// # Errors
     ///
     /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-    /// - `ZmanimError::InvalidMinutes` when the candle-lighting or Ateret Torah offset is more
-    ///   than a day.
+    /// - `ZmanimError::InvalidMinutes` when the candle-lighting offset is negative, or it or the
+    ///   Ateret Torah offset is more than a day.
     /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired` when
     ///   there is no time zone and the location is more than 150 degrees from Greenwich.
     /// </summary>
@@ -2860,8 +2860,8 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     ///
     /// # Errors
     ///
-    /// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-    /// same as `get`.
+    /// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+    /// the same as `get`.
     /// </summary>
     /// <exception cref="ZmanimException">The call reported a ZmanimError code.</exception>
     public long SunriseOffsetByDegrees(double degrees)
@@ -2878,8 +2878,8 @@ public sealed unsafe class Zmanim : IDisposable, IEquatable<Zmanim>
     ///
     /// # Errors
     ///
-    /// `ZmanimError::InvalidDegrees` when `degrees` is not a finite number; otherwise the
-    /// same as `get`.
+    /// `ZmanimError::InvalidDegrees` when `degrees` is not a number from -90 to 90; otherwise
+    /// the same as `get`.
     /// </summary>
     /// <exception cref="ZmanimException">The call reported a ZmanimError code.</exception>
     public long SunsetOffsetByDegrees(double degrees)
@@ -3131,8 +3131,8 @@ public sealed unsafe class MyZmanim : IDisposable, IEquatable<MyZmanim>
     /// # Errors
     ///
     /// - `ZmanimError::InvalidGregorianDate` when the date does not exist.
-    /// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number or
-    ///   is more than 1440 minutes either way.
+    /// - `ZmanimError::InvalidMinutes` when `candle_lighting_minutes` is not a number from
+    ///   0 to 1440.
     /// - The errors of `validate_location`. This includes `ZmanimError::TimeZoneRequired`
     ///   when there is no time zone and the location is more than 150 degrees from
     ///   Greenwich.

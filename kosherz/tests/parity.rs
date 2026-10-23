@@ -246,7 +246,7 @@ fn expected(result: Result<jiff::Timestamp, kosher_rust::zmanim::ZmanimError>) -
                 E::AllNight => ZmanFailure::AllNight,
                 E::NotApplicable => ZmanFailure::NotApplicable,
                 E::TimeZoneRequired => ZmanFailure::TimeZoneRequired,
-                E::Internal => ZmanFailure::Unexpected,
+                E::Internal | E::InvalidDegrees => ZmanFailure::Unexpected,
             }),
         ),
     }
@@ -311,7 +311,7 @@ fn my_zmanim_match_kosher_rust() {
                 date,
                 Some(TimeZone::get(place.zone).unwrap()),
             )
-            .candle_lighting(40.0);
+            .candle_lighting(std::time::Duration::from_mins(40));
             for row in ours.all() {
                 let zman = kosher_rust::myzmanim::MyZman::from(row.zman);
                 let (time, failure) = expected(theirs.get(zman));
@@ -532,16 +532,18 @@ fn inputs_at_their_limits() {
         };
         Zmanim::new(lakewood, date, config, None).map(|_| ())
     };
-    assert_eq!(with_minutes(-1440, 1440), Ok(()));
+    assert_eq!(with_minutes(0, -1440), Ok(()));
+    assert_eq!(with_minutes(1440, 1440), Ok(()));
+    assert_eq!(with_minutes(-1, 40), Err(ZmanimError::InvalidMinutes));
     assert_eq!(with_minutes(1441, 40), Err(ZmanimError::InvalidMinutes));
     assert_eq!(with_minutes(18, -1441), Err(ZmanimError::InvalidMinutes));
     assert_eq!(with_minutes(i32::MAX, i32::MIN), Err(ZmanimError::InvalidMinutes));
 
     let candle_lighting = |minutes: f64| MyZmanim::new(lakewood, date, minutes, None).map(|_| ());
-    for minutes in [0.0, 40.5, -1440.0, 1440.0] {
+    for minutes in [0.0, 40.5, 1440.0] {
         assert_eq!(candle_lighting(minutes), Ok(()), "{minutes}");
     }
-    for minutes in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 1440.5, -1e15] {
+    for minutes in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 1440.5, -0.5, -1440.0, -1e15] {
         assert_eq!(candle_lighting(minutes), Err(ZmanimError::InvalidMinutes), "{minutes}");
     }
 }
@@ -841,7 +843,7 @@ fn out_of_range_values_are_rejected() {
         None,
     )
     .unwrap();
-    for degrees in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+    for degrees in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 90.5, -90.5] {
         assert_eq!(day.sunrise_offset_by_degrees(degrees), Err(ZmanimError::InvalidDegrees));
         assert_eq!(day.sunset_offset_by_degrees(degrees), Err(ZmanimError::InvalidDegrees));
     }

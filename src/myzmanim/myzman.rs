@@ -1,4 +1,5 @@
 use core::fmt;
+use core::time::Duration;
 
 use jiff::{SignedDuration, Timestamp, Zoned, civil::Date, tz::TimeZone};
 
@@ -15,7 +16,7 @@ use crate::{
 };
 
 use super::{
-    DAWN_72_DEGREES, DAWN_90_DEGREES, DEFAULT_CANDLE_LIGHTING_MINUTES, DIP_DEGREES_PER_ROOT_METER,
+    DAWN_72_DEGREES, DAWN_90_DEGREES, DEFAULT_CANDLE_LIGHTING, DIP_DEGREES_PER_ROOT_METER,
     SEA_LEVEL_REFRACTION_ARCMINUTES,
 };
 
@@ -88,7 +89,7 @@ pub enum MyZman {
     PlagGra,
     /// "Plag hamincha, Magen Avraham using fixed 72 minutes": ten and three quarter hours into the fixed-72-minute day.
     PlagMA72Fixed,
-    /// "Candle lighting": [`MyZmanim::candle_lighting_minutes`] before the sunset with heights.
+    /// "Candle lighting": [`MyZmanim::candle_lighting_offset`] before the sunset with heights.
     CandleLighting,
     /// "Sunset, level region": sea-level sunset.
     SunsetLevel,
@@ -242,13 +243,13 @@ impl fmt::Display for MyZman {
 pub struct MyZmanim<Tz = TimeZone> {
     location: Location,
     date: Date,
-    candle_lighting_minutes: f64,
+    candle_lighting: Duration,
     timezone: Option<Tz>,
 }
 
 impl MyZmanim {
     /// The *zmanim* at `location` on `date` in `timezone`. Candles are lit
-    /// [`DEFAULT_CANDLE_LIGHTING_MINUTES`] before sunset.
+    /// [`DEFAULT_CANDLE_LIGHTING`] before sunset.
     ///
     /// Pass a time zone if you have one. Every time works with a time zone. Without one a few
     /// things do not work. The section on [time zones](MyZmanim#time-zones) lists them.
@@ -277,15 +278,15 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
         Self {
             location,
             date,
-            candle_lighting_minutes: DEFAULT_CANDLE_LIGHTING_MINUTES,
+            candle_lighting: DEFAULT_CANDLE_LIGHTING,
             timezone,
         }
     }
 
-    /// The same, lighting candles `minutes` before sunset, for example 40 in Jerusalem.
+    /// The same, lighting candles `offset` before sunset, for example 40 minutes in Jerusalem.
     #[must_use]
-    pub fn candle_lighting(mut self, minutes: f64) -> Self {
-        self.candle_lighting_minutes = minutes;
+    pub fn candle_lighting(mut self, offset: Duration) -> Self {
+        self.candle_lighting = offset;
         self
     }
 
@@ -307,10 +308,10 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
         self.date
     }
 
-    /// The minutes before sunset of [`MyZman::CandleLighting`].
+    /// How long before sunset [`MyZman::CandleLighting`] is.
     #[must_use]
-    pub fn candle_lighting_minutes(&self) -> f64 {
-        self.candle_lighting_minutes
+    pub fn candle_lighting_offset(&self) -> Duration {
+        self.candle_lighting
     }
 
     /// The time of `zman` on this day.
@@ -353,11 +354,7 @@ impl<Tz: TimeZoneLike> MyZmanim<Tz> {
             KetanaMA72Fixed => self.proportional(Dawn72Fixed, NIGHT_72_FIXED_LEVEL, 9.5),
             PlagGra => self.proportional(SunriseLevel, SunsetLevel, 10.75),
             PlagMA72Fixed => self.proportional(Dawn72Fixed, NIGHT_72_FIXED_LEVEL, 10.75),
-            CandleLighting => {
-                let sunset = self.get(SunsetElevated)?;
-                let millis = (self.candle_lighting_minutes * 60_000.0).round() as i64;
-                minus(sunset, SignedDuration::from_millis(millis))
-            }
+            CandleLighting => Ok(self.get(SunsetElevated)?.checked_sub(self.candle_lighting)?),
             SunsetLevel => self.rise_set(SolarEvent::Sunset, false),
             SunsetElevated => self.rise_set(SolarEvent::Sunset, true),
             NightGra18Minutes => self.rise_set_by_degrees(SolarEvent::Sunset, 3.65),
@@ -487,7 +484,8 @@ const fn calculator() -> Meeus {
 /// Refraction at a horizon `horizon_elevation` meters above sea level, in degrees: the sea-level
 /// value scaled by the barometric pressure ratio at that height.
 fn refraction(horizon_elevation: f64) -> f64 {
-    SEA_LEVEL_REFRACTION_ARCMINUTES / 60.0 * (1.0 - 2.25577e-5 * horizon_elevation).powf(5.25588)
+    // Above about 44 km the formula's pressure ratio would go negative; there is no air to bend light.
+    SEA_LEVEL_REFRACTION_ARCMINUTES / 60.0 * (1.0 - 2.25577e-5 * horizon_elevation).max(0.0).powf(5.25588)
 }
 
 /// The dip of the horizon below an observer `height` meters above it, in degrees.
