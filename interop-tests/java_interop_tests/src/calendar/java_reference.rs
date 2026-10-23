@@ -198,7 +198,8 @@ pub(super) fn java_jewish_calendar_snapshot(
                     &[],
                 )?
                 .l()?;
-            let mut part = |name| -> jni::errors::Result<i32> { env.call_method(&molad, name, jni_sig!("()I"), &[])?.i() };
+            let mut part =
+                |name| -> jni::errors::Result<i32> { env.call_method(&molad, name, jni_sig!("()I"), &[])?.i() };
             Some((
                 part(jni_str!("getDayOfWeek"))?,
                 part(jni_str!("getMoladHours"))?,

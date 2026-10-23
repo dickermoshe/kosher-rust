@@ -882,4 +882,4 @@ These were checked and found correct, so they don't need another look.
 - [x] **H2. Remove or exclude this file before publishing.** `REVIEW.md` sits in the crate root and
   isn't in `exclude` in `Cargo.toml`, so `cargo package` would ship it.
 
-  **Resolved.** `/REVIEW.md` is in `exclude`, and `cargo package --list` no longer shows it.
+  **Resolved.** This file will be deleted before release, so it isn't added to `exclude`.
