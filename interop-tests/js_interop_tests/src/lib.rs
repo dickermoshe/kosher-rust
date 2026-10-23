@@ -9,8 +9,8 @@ use kosher_rust::limudim::*;
 #[derive(Serialize)]
 pub struct SerializableTractate(String);
 
-impl From<Tractate> for SerializableTractate {
-    fn from(t: Tractate) -> Self {
+impl From<MishnaTractate> for SerializableTractate {
+    fn from(t: MishnaTractate) -> Self {
         SerializableTractate(format!("{:?}", t))
     }
 }
@@ -33,10 +33,10 @@ pub struct SerializableDaf {
     page: u16,
 }
 
-impl From<Daf> for SerializableDaf {
-    fn from(d: Daf) -> Self {
+impl<T: Into<MishnaTractate>> From<Daf<T>> for SerializableDaf {
+    fn from(d: Daf<T>) -> Self {
         SerializableDaf {
-            tractate: d.tractate.into(),
+            tractate: d.tractate.into().into(),
             page: d.daf,
         }
     }
@@ -52,7 +52,7 @@ pub struct SerializableAmud {
 impl From<Amud> for SerializableAmud {
     fn from(a: Amud) -> Self {
         SerializableAmud {
-            tractate: a.tractate.into(),
+            tractate: a.tractate.mishna().into(),
             page: a.daf,
             side: a.side.into(),
         }

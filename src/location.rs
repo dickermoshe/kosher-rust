@@ -17,7 +17,7 @@ use thiserror::Error;
 ///
 /// The time zone is given to [`Zmanim`](crate::Zmanim) and
 /// [`MyZmanim`](crate::myzmanim::MyZmanim) when they are built.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Location {
     pub(crate) latitude: f64,
     pub(crate) longitude: f64,
@@ -170,18 +170,9 @@ mod tests {
     fn rejects_invalid_elevations() {
         let location = Location::new(0.0, 0.0).unwrap();
         for bad in [-1.0, f64::NAN, f64::INFINITY] {
-            assert_eq!(
-                location.clone().with_elevation(bad),
-                Err(LocationError::InvalidElevation)
-            );
-            assert_eq!(
-                location.clone().with_horizons(bad, 0.0),
-                Err(LocationError::InvalidElevation)
-            );
-            assert_eq!(
-                location.clone().with_horizons(0.0, bad),
-                Err(LocationError::InvalidElevation)
-            );
+            assert_eq!(location.with_elevation(bad), Err(LocationError::InvalidElevation));
+            assert_eq!(location.with_horizons(bad, 0.0), Err(LocationError::InvalidElevation));
+            assert_eq!(location.with_horizons(0.0, bad), Err(LocationError::InvalidElevation));
         }
     }
 

@@ -161,7 +161,7 @@ fn candle_lighting_minutes_default_and_override() {
         calendar.get(MyZman::CandleLighting).unwrap(),
         sunset - SignedDuration::from_secs(40 * 60 + 30)
     );
-    let next_day = MyZmanim::new(calendar.location().clone(), Date::new(2026, 11, 7).unwrap(), None);
+    let next_day = MyZmanim::new(*calendar.location(), Date::new(2026, 11, 7).unwrap(), None);
     assert_eq!(next_day.date(), Date::new(2026, 11, 7).unwrap());
     assert_ne!(next_day.get(MyZman::SunsetElevated).unwrap(), sunset);
 }
@@ -221,7 +221,7 @@ fn range_edges_and_wild_candle_lighting_report_errors_not_panics() {
                     continue;
                 };
                 for offset in [core::time::Duration::from_mins(18), core::time::Duration::MAX] {
-                    let times = MyZmanim::new(location.clone(), date, timezone.clone()).candle_lighting(offset);
+                    let times = MyZmanim::new(location, date, timezone.clone()).candle_lighting(offset);
                     for zman in MyZman::ALL {
                         let _ = times.get(zman);
                     }
@@ -280,4 +280,45 @@ fn names_parse_back() {
         assert_eq!(MyZman::from_name(zman.name()), Some(zman));
     }
     assert_eq!(MyZman::from_name(""), None);
+}
+
+#[test]
+fn candle_lighting_a_day_or_more_before_sunset_is_invalid() {
+    let calendar = anvers(Date::new(2026, 11, 6).unwrap());
+    let day = core::time::Duration::from_hours(24);
+    assert_eq!(
+        calendar.clone().candle_lighting(day).get(MyZman::CandleLighting),
+        Err(ZmanimError::InvalidOffset)
+    );
+    let almost = day - core::time::Duration::from_secs(1);
+    assert!(calendar.candle_lighting(almost).get(MyZman::CandleLighting).is_ok());
+}
+
+/// An eastern horizon above the observer has no dip, and thinner air bends the light less, so
+/// the elevated sunrise comes a little after the level one.
+#[test]
+fn a_horizon_above_the_observer_delays_the_elevated_sunrise() {
+    let location = Location::new(31.778, 35.235)
+        .and_then(|l| l.with_elevation(754.0))
+        .and_then(|l| l.with_horizons(900.0, 754.0))
+        .unwrap();
+    let times = MyZmanim::new(location, Date::new(2026, 11, 6).unwrap(), None);
+    let later_by = times
+        .get(MyZman::SunriseElevated)
+        .unwrap()
+        .duration_since(times.get(MyZman::SunriseLevel).unwrap());
+    assert!(
+        later_by > SignedDuration::ZERO && later_by < SignedDuration::from_secs(10),
+        "{later_by:?}"
+    );
+    assert_eq!(times.get(MyZman::SunsetElevated), times.get(MyZman::SunsetLevel));
+}
+
+#[test]
+fn all_lists_every_row_once() {
+    for (index, zman) in MyZman::ALL.into_iter().enumerate() {
+        assert!(!MyZman::ALL[..index].contains(&zman), "{zman:?}");
+    }
+    assert_eq!(MyZman::ALL.first(), Some(&MyZman::Dawn90Degrees));
+    assert_eq!(MyZman::ALL.last(), Some(&MyZman::Midnight));
 }

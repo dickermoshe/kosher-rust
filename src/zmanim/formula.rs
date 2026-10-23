@@ -12,7 +12,7 @@ use jiff::{SignedDuration as Duration, Timestamp, ToSpan, tz::TimeZone};
 
 use crate::{
     calendar::{HebrewDate, Region, SpecialDay, molad::months_molad},
-    zmanim::{Zmanim, ZmanimError, minus, plus},
+    zmanim::{Zmanim, ZmanimError, minus, offset, plus},
 };
 
 static CIVIL_ZENITH: f64 = 6.0;
@@ -227,7 +227,7 @@ impl Formula {
                 // (e.g., sunset itself), an earlier time is not universally considered
                 // *l’chumrah*, so we do not apply this rule there.
                 let sunset = Formula::SeaLevelSunset.evaluate(calculator)?;
-                Ok(sunset.checked_sub(calculator.config.candle_lighting_offset)?)
+                minus(sunset, offset(calculator.config.candle_lighting_offset)?)
             }
             Formula::Offset(event, duration) => {
                 let event_time = event.evaluate(calculator)?;
@@ -385,7 +385,7 @@ impl Formula {
             }
             Formula::TzaisAteretTorah => {
                 let sunset = Formula::ConfiguredSunset.evaluate(calculator)?;
-                plus(sunset, calculator.config.ateret_torah_sunset_offset)
+                plus(sunset, offset(calculator.config.ateret_torah_sunset_offset)?)
             }
             Formula::SofZmanKidushLevana15Days => {
                 let tz = calculator.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
@@ -436,9 +436,7 @@ impl Formula {
                     let mut add_option = DateAddOptions::default();
                     add_option.overflow = Some(Overflow::Constrain);
 
-                    let new = hebrew
-                        .try_added_with_options(DateDuration::for_months(1), add_option)
-                        .map_err(|_| ZmanimError::Internal)?;
+                    let new = hebrew.try_added_with_options(DateDuration::for_months(1), add_option)?;
                     let molad = plus(molad_of(&new)?, Duration::from_hours(72))?;
                     if is_on_date(molad, calculator.date, tz)? {
                         return Ok(molad);
@@ -464,8 +462,8 @@ impl Formula {
                 let sunrise = Formula::ConfiguredSunrise.evaluate(calculator)?;
                 let sunset = Formula::ConfiguredSunset.evaluate(calculator)?;
                 let time_diff = sunrise.duration_since(alos19_point_8);
-                let offset = time_diff.as_millis() as f64 * (5.0 / 18.0);
-                plus(sunset, Duration::from_millis(offset as i64))
+                let offset = time_diff.as_nanos() as f64 * (5.0 / 18.0);
+                plus(sunset, Duration::from_nanos(offset as i64))
             }
             Formula::MinchaGedolaAhavatShalom => {
                 let chatzos = Formula::ChatzosHayom.evaluate(calculator)?;

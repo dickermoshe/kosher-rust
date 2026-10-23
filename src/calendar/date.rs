@@ -52,7 +52,7 @@ impl Region {
 /// assert_eq!(day.to_string(), "15 Nisan 5784");
 /// assert_eq!(day.month(), HebrewMonth::Nisan);
 /// assert!(day.special_days(Region::Diaspora).any(|h| h == SpecialDay::Pesach));
-/// assert_eq!(day.to_gregorian(), Some(date(2024, 4, 23)));
+/// assert_eq!(day.to_gregorian(), date(2024, 4, 23));
 /// # Ok::<(), kosher_rust::calendar::DateOutOfRange>(())
 /// ```
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -115,10 +115,10 @@ impl HebrewDate {
     }
 
     /// The same day on the Gregorian calendar.
-    ///
-    /// Returns `None` outside the years -9999 to 9999, which `jiff` cannot represent.
-    pub fn to_gregorian(self) -> Option<civil::Date> {
-        civil::Date::convert_try_from(self.0.to_calendar(Gregorian)).ok()
+    #[allow(clippy::expect_used, clippy::missing_panics_doc)]
+    pub fn to_gregorian(self) -> civil::Date {
+        civil::Date::convert_try_from(self.0.to_calendar(Gregorian))
+            .expect("every HebrewDate is in the Gregorian years 1 to 6239, which jiff holds")
     }
 
     /// The date `days` days later, or earlier when `days` is negative.
@@ -132,7 +132,7 @@ impl HebrewDate {
         )
     }
 
-    /// The holidays, fasts and other notable days that fall on this date, in calendar order.
+    /// The holidays, fasts and other notable days that fall on this date.
     ///
     /// Includes the modern Israeli days (Yom HaShoah, Yom HaZikaron, Yom HaAtzmaut, Yom
     /// Yerushalayim); filter them out with [`SpecialDay::is_modern`] if you don't want them.
@@ -280,10 +280,9 @@ impl HebrewDate {
     }
 
     /// The molad of this date's month.
-    ///
-    /// Every `HebrewDate` has one, so this always returns `Some`.
-    pub fn molad(self) -> Option<Molad> {
-        molad_of_month(&self.0)
+    #[allow(clippy::expect_used, clippy::missing_panics_doc)]
+    pub fn molad(self) -> Molad {
+        molad_of_month(&self.0).expect("every month a HebrewDate covers has a molad")
     }
 }
 

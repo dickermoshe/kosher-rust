@@ -11,7 +11,7 @@ use crate::{
         GEOMETRIC_ZENITH, SolarEvent, adjusted_local_date, apparent_solar_radius, meeus::Meeus,
         rise_set_on_adjusted_date,
     },
-    zmanim::{ZmanimError, minus, plus},
+    zmanim::{ZmanimError, minus, offset, plus},
 };
 
 use super::{
@@ -27,196 +27,135 @@ const FIXED_72_MINUTES: i64 = 72;
 const MINCHA_30_MINUTES: i64 = 30;
 const NANOS_PER_SECOND: i128 = 1_000_000_000;
 
-/// One row of MyZmanim's "All zmanim" table, in the table's order.
-///
-/// Calculate one with [`MyZmanim::get`]. Every variant returns an error where
-/// the website shows no time. The error is [`ZmanimError::AllDay`] or [`ZmanimError::AllNight`]
-/// where the sun never reaches the angle that time, or a time it is built from, needs.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
-#[non_exhaustive]
-pub enum MyZman {
+/// Declares `enum MyZman` with its `ALL` and `name` from one list of rows, in the table's order.
+macro_rules! my_zmanim {
+    ($(
+        $(#[doc = $doc:literal])*
+        $variant:ident => $name:literal,
+    )*) => {
+        /// One row of MyZmanim's "All zmanim" table, in the table's order.
+        ///
+        /// Calculate one with [`MyZmanim::get`]. Every variant returns an error where
+        /// the website shows no time. The error is [`ZmanimError::AllDay`] or [`ZmanimError::AllNight`]
+        /// where the sun never reaches the angle that time, or a time it is built from, needs.
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+        #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+        #[non_exhaustive]
+        pub enum MyZman {
+            $(
+                $(#[doc = $doc])*
+                $variant,
+            )*
+        }
+
+        impl MyZman {
+            /// Every row, in the table's order.
+            pub const ALL: [MyZman; [$(stringify!($variant)),*].len()] = [$(Self::$variant),*];
+
+            /// The row's label on the website.
+            #[must_use]
+            pub const fn name(self) -> &'static str {
+                match self {
+                    $(Self::$variant => $name,)*
+                }
+            }
+        }
+    };
+}
+
+my_zmanim! {
     /// "Dawn, 90 minutes as degrees before sunrise": the sun [`DAWN_90_DEGREES`] below the horizon.
-    Dawn90Degrees,
-    /// "Dawn, fixed 72 minutes before sunrise": before sea-level sunrise.
-    Dawn72Fixed,
+    Dawn90Degrees => "Dawn, 90 minutes as degrees",
+    /// "Dawn, fixed 72 minutes before sunrise": before [level sunrise](Self::SunriseLevel).
+    Dawn72Fixed => "Dawn, fixed 72 minutes",
     /// "Dawn, 72 minutes as 16.1 degrees".
-    Dawn72Degrees,
+    Dawn72Degrees => "Dawn, 72 minutes as 16.1 degrees",
     /// "Earliest talis & tefillin, sun is 11.5 degrees below horizon".
-    Talis11Point5Degrees,
+    Talis11Point5Degrees => "Earliest talis & tefillin, 11.5 degrees",
     /// "Earliest talis & tefillin, sun is 11 degrees below horizon".
-    Talis11Degrees,
+    Talis11Degrees => "Earliest talis & tefillin, 11 degrees",
     /// "Earliest talis & tefillin, sun is 10.2 degrees below horizon".
-    Talis10Point2Degrees,
-    /// "Sunrise, level region": sea-level sunrise.
-    SunriseLevel,
+    Talis10Point2Degrees => "Earliest talis & tefillin, 10.2 degrees",
+    /// "Sunrise, level region": sunrise with no dip of the horizon, and with refraction for the
+    /// air at the observer's height.
+    SunriseLevel => "Sunrise, level region",
     /// "Sunrise, elevated observer/horizon": sunrise with the observer's height above the
     /// eastern horizon. Where the horizon is level with the observer it is the level time.
-    SunriseElevated,
+    SunriseElevated => "Sunrise, elevated observer/horizon",
     /// "Latest shema Magen Avraham, using 90 minutes as degrees": three hours into the 19.75° day.
-    ShemaMA90Degrees,
+    ShemaMA90Degrees => "Latest shema Magen Avraham, 90 minutes as degrees",
     /// "Latest shema Magen Avraham, using fixed 72 minutes": three hours into the day from 72
-    /// minutes before sea-level sunrise to 72 minutes after sea-level sunset.
-    ShemaMA72Fixed,
+    /// minutes before level sunrise to 72 minutes after level sunset.
+    ShemaMA72Fixed => "Latest shema Magen Avraham, fixed 72 minutes",
     /// "Latest shema Magen Avraham, using 72 minutes as 16.1 degrees": three hours into the 16.1° day.
-    ShemaMA72Degrees,
-    /// "Latest shema Gra & Baal HaTanya": three hours into the day from sea-level sunrise to sea-level sunset.
-    ShemaGra,
+    ShemaMA72Degrees => "Latest shema Magen Avraham, 72 minutes as 16.1 degrees",
+    /// "Latest shema Gra & Baal HaTanya": three hours into the day from level sunrise to level sunset.
+    ShemaGra => "Latest shema Gra & Baal HaTanya",
     /// "Latest shacharis Magen Avraham, using 90 minutes as degrees": four hours into the 19.75° day.
-    ShacharisMA90Degrees,
+    ShacharisMA90Degrees => "Latest shacharis Magen Avraham, 90 minutes as degrees",
     /// "Latest shacharis Magen Avraham, using fixed 72 minutes": four hours into the fixed-72-minute day.
-    ShacharisMA72Fixed,
+    ShacharisMA72Fixed => "Latest shacharis Magen Avraham, fixed 72 minutes",
     /// "Latest shacharis Magen Avraham, using 72 minutes as 16.1 degrees": four hours into the 16.1° day.
-    ShacharisMA72Degrees,
+    ShacharisMA72Degrees => "Latest shacharis Magen Avraham, 72 minutes as 16.1 degrees",
     /// "Latest shacharis Gra & Baal HaTanya": four hours into the Gra day.
-    ShacharisGra,
-    /// "Midday": the midpoint of sea-level sunrise and sunset.
-    Midday,
+    ShacharisGra => "Latest shacharis Gra & Baal HaTanya",
+    /// "Midday": the midpoint of level sunrise and sunset.
+    Midday => "Midday",
     /// "Earliest mincha, 30 fixed minutes after midday".
-    Mincha30Fixed,
+    Mincha30Fixed => "Earliest mincha, 30 fixed minutes after midday",
     /// "Earliest mincha, Gra & Baal HaTanya": six and a half hours into the Gra day.
-    MinchaGra,
+    MinchaGra => "Earliest mincha, Gra & Baal HaTanya",
     /// "Earliest mincha, lechumra": the later of [`Self::Mincha30Fixed`] and [`Self::MinchaGra`].
-    MinchaLechumra,
+    MinchaLechumra => "Earliest mincha, lechumra",
     /// "Earliest mincha, Magen Avraham using fixed 72 minutes": six and a half hours into the fixed-72-minute day.
-    MinchaMA72Fixed,
+    MinchaMA72Fixed => "Earliest mincha, Magen Avraham fixed 72 minutes",
     /// "Mincha ketana, Gra & Baal HaTanya": nine and a half hours into the Gra day.
-    KetanaGra,
+    KetanaGra => "Mincha ketana, Gra & Baal HaTanya",
     /// "Mincha ketana, Magen Avraham using fixed 72 minutes": nine and a half hours into the fixed-72-minute day.
-    KetanaMA72Fixed,
+    KetanaMA72Fixed => "Mincha ketana, Magen Avraham fixed 72 minutes",
     /// "Plag hamincha, Gra & Baal HaTanya": ten and three quarter hours into the Gra day.
-    PlagGra,
+    PlagGra => "Plag hamincha, Gra & Baal HaTanya",
     /// "Plag hamincha, Magen Avraham using fixed 72 minutes": ten and three quarter hours into the fixed-72-minute day.
-    PlagMA72Fixed,
+    PlagMA72Fixed => "Plag hamincha, Magen Avraham fixed 72 minutes",
     /// "Candle lighting": [`MyZmanim::candle_lighting_offset`] before the sunset with heights.
-    CandleLighting,
-    /// "Sunset, level region": sea-level sunset.
-    SunsetLevel,
+    CandleLighting => "Candle lighting",
+    /// "Sunset, level region": sunset with no dip of the horizon, and with refraction for the air
+    /// at the observer's height.
+    SunsetLevel => "Sunset, level region",
     /// "Sunset, elevated observer/horizon": sunset with the observer's height above the western horizon.
-    SunsetElevated,
+    SunsetElevated => "Sunset, elevated observer/horizon",
     /// "Gra's nightfall, 3/4 mil, 13 1/2 minutes as degrees, based on 1 mil = 18 minutes": 3.65°.
-    NightGra18Minutes,
+    NightGra18Minutes => "Gra's nightfall, 13 1/2 minutes as degrees",
     /// "Gra's nightfall, 3/4 mil, 16 7/8 minutes as degrees, based on 1 mil = 22.5 minutes": 4.37°.
-    NightGra22Point5Minutes,
+    NightGra22Point5Minutes => "Gra's nightfall, 16 7/8 minutes as degrees",
     /// "Gra's nightfall, 3/4 mil, 18 minutes as degrees, based on 1 mil = 24 minutes": 4.61°.
-    NightGra24Minutes,
+    NightGra24Minutes => "Gra's nightfall, 18 minutes as degrees",
     /// "Gra's nightfall, 24 minutes as degrees, Siddur of R' Schneur Zalman": 5.95°.
-    NightZalman,
+    NightZalman => "Gra's nightfall, 24 minutes as degrees, R' Schneur Zalman",
     /// "Nightfall, end of ordained fasts, R' Tukaccinsky 27 minutes as degrees": 6.45°.
-    NightFastTukaccinsky,
+    NightFastTukaccinsky => "End of ordained fasts, R' Tukaccinsky",
     /// "Nightfall, end of ordained fasts, R' Moshe Feinstein for one who finds fasting difficult": 7.12°.
-    NightFastFeinstein,
+    NightFastFeinstein => "End of ordained fasts, R' Moshe Feinstein",
     /// "Nightfall, 3 stars emerge, 34 minutes as degrees, Sefer Moed Moadim": 8°.
-    NightMoed,
+    NightMoed => "3 stars emerge, Sefer Moed Moadim",
     /// "Nightfall, 3 stars emerge, 36 minutes as degrees, end of Shabbos and Yom Tov": 8.5°.
-    NightShabbos,
+    NightShabbos => "3 stars emerge, end of Shabbos and Yom Tov",
     /// "Nightfall, 3 stars emerge, 40 minutes as degrees, Chazon Ish": 9.28°.
-    NightChazonIsh,
+    NightChazonIsh => "3 stars emerge, Chazon Ish",
     /// "R' Tam's nightfall, 4 milin, fixed 72 minutes after sunset": after the sunset with heights.
-    NightRTam72Fixed,
+    NightRTam72Fixed => "R' Tam's nightfall, fixed 72 minutes",
     /// "R' Tam's nightfall, 4 milin, 72 minutes as 16.1 degrees".
-    NightRTam72Degrees,
-    /// "Midnight": the midpoint of sea-level sunset and the next day's sea-level sunrise.
-    Midnight,
+    NightRTam72Degrees => "R' Tam's nightfall, 72 minutes as 16.1 degrees",
+    /// "Midnight": the midpoint of level sunset and the next day's level sunrise.
+    Midnight => "Midnight",
 }
 
 impl MyZman {
-    /// Every row, in the table's order.
-    pub const ALL: [MyZman; 40] = [
-        Self::Dawn90Degrees,
-        Self::Dawn72Fixed,
-        Self::Dawn72Degrees,
-        Self::Talis11Point5Degrees,
-        Self::Talis11Degrees,
-        Self::Talis10Point2Degrees,
-        Self::SunriseLevel,
-        Self::SunriseElevated,
-        Self::ShemaMA90Degrees,
-        Self::ShemaMA72Fixed,
-        Self::ShemaMA72Degrees,
-        Self::ShemaGra,
-        Self::ShacharisMA90Degrees,
-        Self::ShacharisMA72Fixed,
-        Self::ShacharisMA72Degrees,
-        Self::ShacharisGra,
-        Self::Midday,
-        Self::Mincha30Fixed,
-        Self::MinchaGra,
-        Self::MinchaLechumra,
-        Self::MinchaMA72Fixed,
-        Self::KetanaGra,
-        Self::KetanaMA72Fixed,
-        Self::PlagGra,
-        Self::PlagMA72Fixed,
-        Self::CandleLighting,
-        Self::SunsetLevel,
-        Self::SunsetElevated,
-        Self::NightGra18Minutes,
-        Self::NightGra22Point5Minutes,
-        Self::NightGra24Minutes,
-        Self::NightZalman,
-        Self::NightFastTukaccinsky,
-        Self::NightFastFeinstein,
-        Self::NightMoed,
-        Self::NightShabbos,
-        Self::NightChazonIsh,
-        Self::NightRTam72Fixed,
-        Self::NightRTam72Degrees,
-        Self::Midnight,
-    ];
-
     /// The variant whose [`name`](Self::name) is exactly `name`. Returns `None` when no
     /// variant has that name.
     #[must_use]
     pub fn from_name(name: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|candidate| candidate.name() == name)
-    }
-
-    /// The row's label on the website.
-    #[must_use]
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Dawn90Degrees => "Dawn, 90 minutes as degrees",
-            Self::Dawn72Fixed => "Dawn, fixed 72 minutes",
-            Self::Dawn72Degrees => "Dawn, 72 minutes as 16.1 degrees",
-            Self::Talis11Point5Degrees => "Earliest talis & tefillin, 11.5 degrees",
-            Self::Talis11Degrees => "Earliest talis & tefillin, 11 degrees",
-            Self::Talis10Point2Degrees => "Earliest talis & tefillin, 10.2 degrees",
-            Self::SunriseLevel => "Sunrise, level region",
-            Self::SunriseElevated => "Sunrise, elevated observer/horizon",
-            Self::ShemaMA90Degrees => "Latest shema Magen Avraham, 90 minutes as degrees",
-            Self::ShemaMA72Fixed => "Latest shema Magen Avraham, fixed 72 minutes",
-            Self::ShemaMA72Degrees => "Latest shema Magen Avraham, 72 minutes as 16.1 degrees",
-            Self::ShemaGra => "Latest shema Gra & Baal HaTanya",
-            Self::ShacharisMA90Degrees => "Latest shacharis Magen Avraham, 90 minutes as degrees",
-            Self::ShacharisMA72Fixed => "Latest shacharis Magen Avraham, fixed 72 minutes",
-            Self::ShacharisMA72Degrees => "Latest shacharis Magen Avraham, 72 minutes as 16.1 degrees",
-            Self::ShacharisGra => "Latest shacharis Gra & Baal HaTanya",
-            Self::Midday => "Midday",
-            Self::Mincha30Fixed => "Earliest mincha, 30 fixed minutes after midday",
-            Self::MinchaGra => "Earliest mincha, Gra & Baal HaTanya",
-            Self::MinchaLechumra => "Earliest mincha, lechumra",
-            Self::MinchaMA72Fixed => "Earliest mincha, Magen Avraham fixed 72 minutes",
-            Self::KetanaGra => "Mincha ketana, Gra & Baal HaTanya",
-            Self::KetanaMA72Fixed => "Mincha ketana, Magen Avraham fixed 72 minutes",
-            Self::PlagGra => "Plag hamincha, Gra & Baal HaTanya",
-            Self::PlagMA72Fixed => "Plag hamincha, Magen Avraham fixed 72 minutes",
-            Self::CandleLighting => "Candle lighting",
-            Self::SunsetLevel => "Sunset, level region",
-            Self::SunsetElevated => "Sunset, elevated observer/horizon",
-            Self::NightGra18Minutes => "Gra's nightfall, 13 1/2 minutes as degrees",
-            Self::NightGra22Point5Minutes => "Gra's nightfall, 16 7/8 minutes as degrees",
-            Self::NightGra24Minutes => "Gra's nightfall, 18 minutes as degrees",
-            Self::NightZalman => "Gra's nightfall, 24 minutes as degrees, R' Schneur Zalman",
-            Self::NightFastTukaccinsky => "End of ordained fasts, R' Tukaccinsky",
-            Self::NightFastFeinstein => "End of ordained fasts, R' Moshe Feinstein",
-            Self::NightMoed => "3 stars emerge, Sefer Moed Moadim",
-            Self::NightShabbos => "3 stars emerge, end of Shabbos and Yom Tov",
-            Self::NightChazonIsh => "3 stars emerge, Chazon Ish",
-            Self::NightRTam72Fixed => "R' Tam's nightfall, fixed 72 minutes",
-            Self::NightRTam72Degrees => "R' Tam's nightfall, 72 minutes as 16.1 degrees",
-            Self::Midnight => "Midnight",
-        }
     }
 }
 
@@ -263,6 +202,8 @@ impl MyZmanim {
     }
 
     /// The same, lighting candles `offset` before sunset, for example 40 minutes in Jerusalem.
+    /// An offset of a day or more makes [`MyZman::CandleLighting`] return
+    /// [`ZmanimError::InvalidOffset`].
     #[must_use]
     pub fn candle_lighting(mut self, offset: Duration) -> Self {
         self.candle_lighting = offset;
@@ -312,6 +253,9 @@ impl MyZmanim {
     ///   the sun never reaches the angle this time, or one it is built from, needs.
     /// - [`ZmanimError::TimeZoneRequired`] when there is no time zone and the location is more
     ///   than 150° from Greenwich.
+    /// - [`ZmanimError::InvalidOffset`] for candle lighting when its offset is a day or more.
+    /// - [`ZmanimError::TimeOutOfRange`] on a date within a day or two of the years -9999 and
+    ///   9999, when the time falls past the end of the range.
     pub fn get(&self, zman: MyZman) -> Result<Timestamp, ZmanimError> {
         use MyZman::*;
         match zman {
@@ -344,7 +288,7 @@ impl MyZmanim {
             KetanaMA72Fixed => self.proportional(Dawn72Fixed, NIGHT_72_FIXED_LEVEL, 9.5),
             PlagGra => self.proportional(SunriseLevel, SunsetLevel, 10.75),
             PlagMA72Fixed => self.proportional(Dawn72Fixed, NIGHT_72_FIXED_LEVEL, 10.75),
-            CandleLighting => Ok(self.get(SunsetElevated)?.checked_sub(self.candle_lighting)?),
+            CandleLighting => minus(self.get(SunsetElevated)?, offset(self.candle_lighting)?),
             SunsetLevel => self.rise_set(SolarEvent::Sunset, false),
             SunsetElevated => self.rise_set(SolarEvent::Sunset, true),
             NightGra18Minutes => self.rise_set_by_degrees(SolarEvent::Sunset, 3.65),
@@ -367,8 +311,12 @@ impl MyZmanim {
         }
     }
 
-    /// "Proportional hour, Gra & Baal HaTanya": a twelfth of the day from sea-level sunrise
-    /// to sea-level sunset.
+    /// "Proportional hour, Gra & Baal HaTanya": a twelfth of the day from level sunrise to
+    /// level sunset.
+    ///
+    /// It is not rounded. The proportional rows, such as [`MyZman::ShemaGra`], round sunrise and
+    /// sunset to the nearest second first, so adding these hours to sunrise can differ from them
+    /// by up to a second.
     ///
     /// # Errors
     ///
@@ -396,7 +344,7 @@ impl MyZmanim {
             DayBound::Zman(zman) => self.get(zman),
             // The end of the 19.75° Magen Avraham day; the website shows no row for it.
             DayBound::Night90Degrees => self.rise_set_by_degrees(SolarEvent::Sunset, DAWN_90_DEGREES),
-            // The end of the fixed-72-minute Magen Avraham day: 72 minutes after sea-level sunset.
+            // The end of the fixed-72-minute Magen Avraham day: 72 minutes after level sunset.
             DayBound::Night72FixedLevel => plus(self.get(MyZman::SunsetLevel)?, minutes(FIXED_72_MINUTES)),
         }
     }

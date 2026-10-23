@@ -27,7 +27,7 @@ fn converts_from_jiff_and_icu_dates() {
     assert_eq!(from_jiff, hebrew(5784, HebrewMonth::Nisan, 15));
     assert_eq!(from_icu, from_jiff);
     assert_eq!(from_iso, from_jiff);
-    assert_eq!(from_jiff.to_gregorian(), Some(date(2024, 4, 23)));
+    assert_eq!(from_jiff.to_gregorian(), date(2024, 4, 23));
 }
 
 #[test]
@@ -245,7 +245,7 @@ fn names_in_english_and_hebrew() {
 #[test]
 fn molad_of_tishrei_5784_was_friday_morning() {
     // Announced as Friday 5:49 and 0 chalakim, Jerusalem mean time (about 6:28 Israel daylight time).
-    let molad = hebrew(5784, HebrewMonth::Tishrei, 1).molad().unwrap();
+    let molad = hebrew(5784, HebrewMonth::Tishrei, 1).molad();
     let jerusalem = molad.timestamp().to_zoned(TimeZone::get("Asia/Jerusalem").unwrap());
     assert_eq!(jerusalem.date(), date(2023, 9, 15));
     assert_eq!((jerusalem.hour(), jerusalem.minute()), (6, 28));
@@ -256,20 +256,27 @@ fn molad_of_tishrei_5784_was_friday_morning() {
 #[test]
 fn molad_of_teves_3761_is_in_gregorian_year_0() {
     // Tuesday 20:07 and 2 chalakim, Jerusalem mean time, on 12 December of year 0, a leap year.
-    let molad = hebrew(3761, HebrewMonth::Teves, 20).molad().unwrap();
+    let molad = hebrew(3761, HebrewMonth::Teves, 20).molad();
     assert_eq!(molad.weekday(), Weekday::Tuesday);
     assert_eq!((molad.hours(), molad.minutes(), molad.chalakim()), (20, 7, 2));
     assert_eq!(molad.timestamp().to_zoned(TimeZone::UTC).date(), date(0, 12, 12));
 }
 
 #[test]
-fn every_date_has_a_molad() {
+fn every_month_has_its_own_molad() {
+    // The molad falls within three days of the first of its month.
+    let check = |day: HebrewDate| {
+        let first = day.to_gregorian() - jiff::Span::new().days(i64::from(day.day()) - 1);
+        let molad = day.molad().timestamp().to_zoned(TimeZone::UTC).date();
+        let days = first.until(molad).unwrap().get_days().abs();
+        assert!(days <= 3, "{day}: molad on {molad}");
+    };
     let mut day = HebrewDate::try_from(date(1, 1, 1)).unwrap();
     while let Some(next) = day.add_days(29) {
-        assert!(day.molad().is_some(), "{day}");
+        check(day);
         day = next;
     }
-    assert!(hebrew(9999, HebrewMonth::Elul, 29).molad().is_some());
+    check(hebrew(9999, HebrewMonth::Elul, 29));
 }
 
 #[test]
@@ -284,7 +291,7 @@ fn molad_parts_agree_with_its_timestamp() {
             HebrewMonth::COMMON_YEAR.as_slice()
         };
         for &month in months {
-            let molad = hebrew(year, month, 1).molad().unwrap();
+            let molad = hebrew(year, month, 1).molad();
             let local = (molad.timestamp() + ahead).to_zoned(mean_time.clone());
             let chalakim = (local.second() as f64 + local.subsec_nanosecond() as f64 / 1e9) * 0.3;
             assert_eq!(molad.weekday(), local.weekday(), "{year} {month}");
@@ -332,7 +339,7 @@ fn covers_1_january_of_year_1_through_the_end_of_9999() {
 
     let last = hebrew(9999, HebrewMonth::Elul, 29);
     assert_eq!(last.add_days(1), None);
-    let after = last.to_gregorian().unwrap().tomorrow().unwrap();
+    let after = last.to_gregorian().tomorrow().unwrap();
     assert_eq!(HebrewDate::try_from(after), Err(DateOutOfRange));
     assert_eq!(HebrewDate::try_from(jiff::civil::Date::MAX), Err(DateOutOfRange));
 
@@ -368,4 +375,172 @@ fn names_parse_back() {
     }
     assert_eq!(Parsha::from_name("bereshis"), None);
     assert_eq!(HebrewMonth::from_name("Adar II"), None);
+}
+
+// The dates below are checked against hebcal.
+
+fn civil(year: i16, month: i8, day: i8) -> HebrewDate {
+    HebrewDate::try_from(date(year, month, day)).unwrap()
+}
+
+/// `special` is on `day` in both regions.
+fn assert_on(day: HebrewDate, special: SpecialDay) {
+    for region in [Region::Israel, Region::Diaspora] {
+        assert!(
+            special_days(day, region).contains(&special),
+            "{special:?} on {day} ({region:?})"
+        );
+    }
+}
+
+/// `special` is not on `day` in either region.
+fn assert_not_on(day: HebrewDate, special: SpecialDay) {
+    for region in [Region::Israel, Region::Diaspora] {
+        assert!(
+            !special_days(day, region).contains(&special),
+            "{special:?} on {day} ({region:?})"
+        );
+    }
+}
+
+#[test]
+fn birchas_hachamah_every_28_years() {
+    assert_on(civil(2009, 4, 8), SpecialDay::BirchasHachamah);
+    assert_on(civil(2037, 4, 8), SpecialDay::BirchasHachamah);
+    assert_not_on(civil(2009, 4, 9), SpecialDay::BirchasHachamah);
+    assert_not_on(civil(2023, 4, 8), SpecialDay::BirchasHachamah);
+}
+
+#[test]
+fn eighth_day_of_chanukah_after_a_short_kislev() {
+    let day = civil(2023, 12, 15);
+    assert!(day.year().is_kislev_short());
+    assert_eq!((day.day(), day.month()), (3, HebrewMonth::Teves));
+    assert_on(day, SpecialDay::Chanukah(8));
+    assert_not_on(civil(2023, 12, 16), SpecialDay::Chanukah(9));
+}
+
+#[test]
+fn yom_hazikaron_and_yom_haatzmaut_move_off_shabbos_friday_and_monday() {
+    // 5 Iyar on Shabbos, Friday, Wednesday and Monday.
+    for (zikaron, atzmaut) in [
+        ((2021, 4, 14), (2021, 4, 15)),
+        ((2022, 5, 4), (2022, 5, 5)),
+        ((2023, 4, 25), (2023, 4, 26)),
+        ((2024, 5, 13), (2024, 5, 14)),
+    ] {
+        let zikaron = civil(zikaron.0, zikaron.1, zikaron.2);
+        let atzmaut = civil(atzmaut.0, atzmaut.1, atzmaut.2);
+        assert_on(zikaron, SpecialDay::YomHaZikaron);
+        assert_on(atzmaut, SpecialDay::YomHaAtzmaut);
+        assert_not_on(zikaron, SpecialDay::YomHaAtzmaut);
+        assert_not_on(atzmaut, SpecialDay::YomHaZikaron);
+    }
+    assert_not_on(civil(2021, 4, 17), SpecialDay::YomHaAtzmaut);
+}
+
+#[test]
+fn yom_hashoah_moves_off_friday_and_sunday() {
+    assert_on(civil(2021, 4, 8), SpecialDay::YomHaShoah);
+    assert_not_on(civil(2021, 4, 9), SpecialDay::YomHaShoah);
+    assert_on(civil(2024, 5, 6), SpecialDay::YomHaShoah);
+    assert_not_on(civil(2024, 5, 5), SpecialDay::YomHaShoah);
+}
+
+#[test]
+fn fasts_on_shabbos_are_postponed_or_moved_earlier() {
+    // Tishah B'Av, 17 Tammuz and Tzom Gedalyah move to Sunday.
+    assert_not_on(civil(2015, 7, 25), SpecialDay::TishahBav);
+    assert_on(civil(2015, 7, 26), SpecialDay::TishahBav);
+    assert_not_on(civil(2015, 7, 4), SpecialDay::SeventeenthOfTammuz);
+    assert_on(civil(2015, 7, 5), SpecialDay::SeventeenthOfTammuz);
+    assert_not_on(civil(2014, 9, 27), SpecialDay::FastOfGedalyah);
+    assert_on(civil(2014, 9, 28), SpecialDay::FastOfGedalyah);
+    // The Fast of the Firstborn and Taanis Esther move back to Thursday.
+    assert_not_on(civil(2021, 3, 27), SpecialDay::FastOfTheFirstborn);
+    assert_on(civil(2021, 3, 25), SpecialDay::FastOfTheFirstborn);
+    assert_not_on(civil(2024, 3, 23), SpecialDay::FastOfEsther);
+    assert_on(civil(2024, 3, 21), SpecialDay::FastOfEsther);
+}
+
+#[test]
+fn purim_katan_and_shushan_purim_katan_in_adar_i() {
+    assert_on(civil(2024, 2, 23), SpecialDay::PurimKatan);
+    assert_on(civil(2024, 2, 24), SpecialDay::ShushanPurimKatan);
+    assert_not_on(civil(2024, 3, 24), SpecialDay::PurimKatan);
+    assert_not_on(civil(2024, 3, 25), SpecialDay::ShushanPurimKatan);
+}
+
+#[test]
+fn special_shabbosos_of_the_year() {
+    for ((year, month, day), parsha) in [
+        ((2024, 3, 9), Parsha::Shekalim),
+        ((2024, 3, 23), Parsha::Zachor),
+        ((2024, 3, 30), Parsha::Parah),
+        ((2023, 3, 11), Parsha::Parah),
+        ((2024, 4, 6), Parsha::Hachodesh),
+        ((2018, 3, 17), Parsha::Hachodesh),
+        ((2024, 4, 20), Parsha::Hagadol),
+        ((2021, 3, 27), Parsha::Hagadol),
+        ((2024, 8, 10), Parsha::Chazon),
+        ((2015, 7, 25), Parsha::Chazon),
+        ((2024, 8, 17), Parsha::Nachamu),
+        ((2024, 10, 5), Parsha::Shuva),
+        ((2014, 9, 27), Parsha::Shuva),
+        ((2024, 1, 27), Parsha::Shira),
+    ] {
+        for region in [Region::Israel, Region::Diaspora] {
+            assert_eq!(
+                civil(year, month, day).special_parsha(region),
+                Some(parsha),
+                "{year}-{month}-{day} ({region:?})"
+            );
+        }
+    }
+    assert_eq!(civil(2024, 6, 8).special_parsha(Region::Diaspora), None);
+}
+
+#[test]
+fn machar_chodesh_and_mevarchim() {
+    // 30 Sivan 5784 is a Shabbos and Rosh Chodesh, and Sunday is Rosh Chodesh too.
+    let shabbos = civil(2024, 7, 6);
+    assert_on(shabbos, SpecialDay::RoshChodesh);
+    assert_on(shabbos, SpecialDay::MacharChodesh);
+    // 29 Adar I and 27 Adar II 5784 bless the coming month.
+    assert_on(civil(2024, 3, 9), SpecialDay::ShabbosMevarchim);
+    assert_on(civil(2024, 4, 6), SpecialDay::ShabbosMevarchim);
+    assert_not_on(civil(2024, 3, 30), SpecialDay::ShabbosMevarchim);
+}
+
+/// Each of the 14 kinds of year (leap or not, the length of Cheshvan and Kislev, and the weekday
+/// of Rosh Hashana) reads every week's parsha from its own table, so every Shabbos of a year has
+/// a parsha, a special reading or a Yom Tov reading.
+#[test]
+fn every_kind_of_year_has_a_parsha_table() {
+    let mut kinds = Vec::new();
+    for year in 5700..=5800 {
+        let year = HebrewYear::new(year).unwrap();
+        let rosh_hashana = year.rosh_hashana().unwrap();
+        let kind = (year.is_leap(), year.length(), rosh_hashana.weekday());
+        if kinds.contains(&kind) {
+            continue;
+        }
+        kinds.push(kind);
+        for region in [Region::Israel, Region::Diaspora] {
+            let mut day = rosh_hashana;
+            let mut readings = 0;
+            while day.year() == year {
+                if day.weekday() == Weekday::Saturday {
+                    if day.parsha(region).is_some() {
+                        readings += 1;
+                    } else {
+                        assert!(day.is_assur_bemelacha(region), "no reading on {day} ({region:?})");
+                    }
+                }
+                day = day.add_days(1).unwrap();
+            }
+            assert!(readings >= 46, "{readings} parshiyos in {year} ({region:?})");
+        }
+    }
+    assert_eq!(kinds.len(), 14);
 }

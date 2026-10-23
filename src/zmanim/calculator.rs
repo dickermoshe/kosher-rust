@@ -1,3 +1,5 @@
+use core::time::Duration;
+
 use jiff::{SignedDuration, Timestamp, Zoned, civil::Date, tz::TimeZone};
 
 use super::{Config, Zman, ZmanimError, formula::Formula};
@@ -74,6 +76,10 @@ impl Zmanim {
     ///   29 Elul 9999 or before 1 January of year 1, where there is no Hebrew date.
     /// - [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone and the time
     ///   needs one. The section on [time zones](Zmanim#time-zones) lists those times.
+    /// - [`ZmanimError::InvalidOffset`] for candle lighting and the Ateret Torah times when their
+    ///   offset in the [`Config`] is a day or more.
+    /// - [`ZmanimError::TimeOutOfRange`] on a date within a day or two of the years -9999 and
+    ///   9999, when the time falls past the end of the range.
     pub fn get(&self, zman: Zman) -> Result<Timestamp, ZmanimError> {
         zman.formula().evaluate(self)
     }
@@ -155,16 +161,24 @@ fn valid_degrees(degrees: f64) -> Result<f64, ZmanimError> {
     }
 }
 
-/// `time` plus `duration`, or [`ZmanimError::Internal`] past the last instant a [`Timestamp`]
-/// holds.
+/// `time` plus `duration`, or [`ZmanimError::TimeOutOfRange`] past the last instant a
+/// [`Timestamp`] holds.
 pub(crate) fn plus(time: Timestamp, duration: SignedDuration) -> Result<Timestamp, ZmanimError> {
     Ok(time.checked_add(duration)?)
 }
 
-/// `time` minus `duration`, or [`ZmanimError::Internal`] before the first instant a
+/// `time` minus `duration`, or [`ZmanimError::TimeOutOfRange`] before the first instant a
 /// [`Timestamp`] holds.
 pub(crate) fn minus(time: Timestamp, duration: SignedDuration) -> Result<Timestamp, ZmanimError> {
     Ok(time.checked_sub(duration)?)
+}
+
+/// A configured offset, or [`ZmanimError::InvalidOffset`] when it is a day or more.
+pub(crate) fn offset(duration: Duration) -> Result<SignedDuration, ZmanimError> {
+    if duration >= Duration::from_hours(24) {
+        return Err(ZmanimError::InvalidOffset);
+    }
+    Ok(SignedDuration::try_from(duration)?)
 }
 
 #[cfg(feature = "defmt")]

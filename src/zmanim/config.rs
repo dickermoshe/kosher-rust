@@ -1,7 +1,5 @@
 use core::time::Duration;
 
-use jiff::SignedDuration;
-
 /// The solar position algorithm used for sunrise, sunset, solar noon / midnight and every
 /// degree-based zman.
 ///
@@ -73,9 +71,11 @@ impl AstronomicalCalculator {
 /// };
 /// ```
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Config {
     /// How long before sea-level sunset [`Zman::CandleLighting`](super::Zman::CandleLighting)
-    /// is. The default is 18 minutes.
+    /// is. The default is 18 minutes. An offset of a day or more gives
+    /// [`ZmanimError::InvalidOffset`](super::ZmanimError::InvalidOffset).
     pub candle_lighting_offset: Duration,
     /// Whether proportional zmanim divide the day at *chatzos*. When `true`, morning times are a
     /// fraction of the start of the day to *chatzos* and afternoon times a fraction of *chatzos* to
@@ -90,8 +90,9 @@ pub struct Config {
     /// default is `false`.
     pub use_elevation: bool,
     /// How long after sunset [`Zman::TzaisAteretTorah`](super::Zman::TzaisAteretTorah) is,
-    /// which also ends the day for the other Ateret Torah zmanim. The default is 40 minutes.
-    pub ateret_torah_sunset_offset: SignedDuration,
+    /// which also ends the day for the other Ateret Torah zmanim. The default is 40 minutes. An
+    /// offset of a day or more gives [`ZmanimError::InvalidOffset`](super::ZmanimError::InvalidOffset).
+    pub ateret_torah_sunset_offset: Duration,
     /// Whether *chatzos* is the sun's transit (`true`) or the midpoint of sunrise and sunset
     /// (`false`). The default is `true`.
     pub use_astronomical_chatzos: bool,
@@ -105,26 +106,9 @@ impl Default for Config {
             candle_lighting_offset: Duration::from_mins(18),
             use_astronomical_chatzos_for_other_zmanim: false,
             use_elevation: false,
-            ateret_torah_sunset_offset: SignedDuration::from_mins(40),
+            ateret_torah_sunset_offset: Duration::from_mins(40),
             use_astronomical_chatzos: true,
             astronomical_calculator: AstronomicalCalculator::Noaa,
         }
-    }
-}
-
-// Written by hand because jiff's SignedDuration has no defmt support.
-#[cfg(feature = "defmt")]
-impl defmt::Format for Config {
-    fn format(&self, fmt: defmt::Formatter) {
-        defmt::write!(
-            fmt,
-            "Config {{ candle_lighting_offset: {}, use_astronomical_chatzos_for_other_zmanim: {}, ateret_torah_sunset_offset: {}, use_astronomical_chatzos: {}, use_elevation: {}, astronomical_calculator: {} }}",
-            self.candle_lighting_offset.as_secs_f64(),
-            self.use_astronomical_chatzos_for_other_zmanim,
-            self.ateret_torah_sunset_offset.as_secs_f64(),
-            self.use_astronomical_chatzos,
-            self.use_elevation,
-            self.astronomical_calculator
-        )
     }
 }

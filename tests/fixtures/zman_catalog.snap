@@ -114,21 +114,21 @@ getAlosBaalHatanya
 
 getBainHashmashosRT13Point24Degrees
   name: Bain Hashmashos (Rabbeinu Tam, 13.24 Degrees)
-  category: BeinHashmashos
+  category: BainHashmashos
   deprecated: false
   formula: SunsetOffsetByDegrees(13.24)
   description: "The beginning of Rabbeinu Tam's bain hashmashos.\n\nWhen the sun is 13.24 degrees below the western geometric horizon after sunset. This is the degree-based equivalent of bain hashmashos 58.5 minutes after sunset: in Jerusalem [around the equinox or equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), the sun is 13.24 degrees below geometric zenith about 58.5 minutes after sunset. The source cited in the original documentation says that the proper dip should be slightly less than 13 degrees; this project's recalculation gives about 13.2456 degrees, so 13.24 degrees is used as a truncation that yields a time about 1.5 seconds earlier, lechumra.\n\nAt some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon."
 
 getBainHashmashosRT13Point5MinutesBefore7Point083Degrees
   name: Bain Hashmashos (Rabbeinu Tam, 13.5 Minutes Before 7.083 Degrees)
-  category: BeinHashmashos
+  category: BainHashmashos
   deprecated: false
   formula: Offset(SunsetOffsetByDegrees(7.083333333333333), 13m 30s ago)
   description: "The beginning of Rabbeinu Tam's bain hashmashos.\n\n13.5 minutes (3/4 of an 18-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement)) before shkiah calculated at 7.083 degrees below the horizon.\n\nAt some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon."
 
 getBainHashmashosRT2Stars
   name: Bain Hashmashos (Rabbeinu Tam, 2 Stars)
-  category: BeinHashmashos
+  category: BainHashmashos
   deprecated: false
   formula: BainHashmashosRt2Stars
   description: "The beginning of Rabbeinu Tam's bain hashmashos, according to the Divrei Yosef (see Yisrael Vehazmanim).\n\nCalculated as 5/18 (about 27.77%) of the time from alos at 19.8 degrees before sunrise to sunrise; that interval is added after sunset to reach Rabbeinu Tam's bain hashmashos.\n\nAt some northern and southern locations, including places even south of the Arctic Circle and north of the Antarctic Circle, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nThis zman is calculated as though the configured location were at sea level."
@@ -136,7 +136,7 @@ getBainHashmashosRT2Stars
 
 getBainHashmashosRT58Point5Minutes
   name: Bain Hashmashos (Rabbeinu Tam, 58.5 Minutes)
-  category: BeinHashmashos
+  category: BainHashmashos
   deprecated: false
   formula: Offset(ConfiguredSunset, 58m 30s)
   description: "The beginning of Rabbeinu Tam's bain hashmashos.\n\n58.5 minutes after sunset. Bain hashmashos is 3/4 of a [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement) before tzais, or 3 1/4 mil after sunset. With an 18-minute mil, 3.25 * 18 = 58.5 minutes.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level."
@@ -144,7 +144,7 @@ getBainHashmashosRT58Point5Minutes
 
 getBainHashmashosYereim13Point5Minutes
   name: Bain Hashmashos (Yereim, 13.5 Minutes)
-  category: BeinHashmashos
+  category: BainHashmashos
   deprecated: false
   formula: Offset(ConfiguredSunset, 13m 30s ago)
   description: "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n13.5 minutes, or 3/4 of an 18-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level."
@@ -152,7 +152,7 @@ getBainHashmashosYereim13Point5Minutes
 
 getBainHashmashosYereim16Point875Minutes
   name: Bain Hashmashos (Yereim, 16.875 Minutes)
-  category: BeinHashmashos
+  category: BainHashmashos
   deprecated: false
   formula: Offset(ConfiguredSunset, 16m 52s 500ms ago)
   description: "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n16.875 minutes, or 3/4 of a 22.5-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level."
@@ -160,7 +160,7 @@ getBainHashmashosYereim16Point875Minutes
 
 getBainHashmashosYereim18Minutes
   name: Bain Hashmashos (Yereim, 18 Minutes)
-  category: BeinHashmashos
+  category: BainHashmashos
   deprecated: false
   formula: Offset(ConfiguredSunset, 18m ago)
   description: "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n18 minutes, or 3/4 of a 24-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level."
@@ -168,21 +168,21 @@ getBainHashmashosYereim18Minutes
 
 getBainHashmashosYereim2Point1Degrees
   name: Bain Hashmashos (Yereim, 2.1 Degrees)
-  category: BeinHashmashos
+  category: BainHashmashos
   deprecated: false
   formula: SunsetOffsetByDegrees(-2.1)
   description: "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\nWhen the sun is 2.1 degrees above the horizon - in Jerusalem [around the equinox or equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), about 13.5 minutes or 3/4 of an 18-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement) before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated."
 
 getBainHashmashosYereim2Point8Degrees
   name: Bain Hashmashos (Yereim, 2.8 Degrees)
-  category: BeinHashmashos
+  category: BainHashmashos
   deprecated: false
   formula: SunsetOffsetByDegrees(-2.8)
   description: "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\nWhen the sun is 2.8 degrees above the horizon - in Jerusalem [around the equinox or equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), about 16.875 minutes or 3/4 of a 22.5-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement) before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated."
 
 getBainHashmashosYereim3Point05Degrees
   name: Bain Hashmashos (Yereim, 3.05 Degrees)
-  category: BeinHashmashos
+  category: BainHashmashos
   deprecated: false
   formula: SunsetOffsetByDegrees(-3.05)
   description: "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\nWhen the sun is 3.05 degrees above the horizon. In Jerusalem [around the equinox or equilux](https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/), that matches about 18 minutes, or 3/4 of a 24-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset.\n\nThe Yereim holds that bain hashmashos begins 3/4 of a mil before sunset and that tzais (nightfall) is at sunset. This degree-based version uses 0.5166 degrees of refraction instead of the traditional 0.566 degrees, which shifts the time earlier by about 14 seconds lechumra and is closer to refraction in Eretz Yisrael per [Rabbi Yedidya Manet](http://beinenu.com/rabbis/%D7%94%D7%A8%D7%91-%D7%99%D7%93%D7%99%D7%93%D7%99%D7%94-%D7%9E%D7%A0%D7%AA) ([Zmanei HaHalacha Lema'aseh](https://www.nli.org.il/en/books/NNL_ALEPH002542826/NLI), p. 11) and the [Luach Itim Lebinah](https://zmanim.online/). For background, see the [The Yereim's Bain Hashmashos](https://kosherjava.com/2020/12/07/the-yereims-bein-hashmashos/) article on the KosherJava blog.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated."
@@ -908,7 +908,7 @@ getSofZmanShmaMGA96MinutesZmanis
 
 getSofZmanTfila2HoursBeforeChatzos
   name: Sof Zman Tfila (2 Hours Before Chatzos)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Offset(ChatzosHayom, 2h ago)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis), calculated as 2 regular clock hours before chatzos hayom (not shaos zmaniyos). Paired with sof zman krias shema at 3 clock hours before chatzos; often grouped with the \"Komarno\" zmanim after [Rav Yitzchak Eizik of Komarno](https://en.wikipedia.org/wiki/Komarno_(Hasidic_dynasty)#Rabbi_Yitzchak_Eisik_Safrin), though this calculation is much older.\n\n2 clock hours before chatzos hayom.\n\nThis view is cited by the Shach in Nekudas Hakesef (Yoreh Deah 184), [Rav Moshe Lifshitz](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=30) in [Lechem Mishneh on Brachos 1:2](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=50), the [Yaavetz](https://en.wikipedia.org/wiki/Jacob_Emden), and later by Komarno, Shevus Yaakov, Chasan Sofer, and others. See also [Yisrael Vehazmanim vol. 1, 7:3](https://hebrewbooks.org/pdfpager.aspx?req=9765&st=&pgnum=83).\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nChatzos is solar noon, when the sun crosses the meridian."
@@ -916,7 +916,7 @@ getSofZmanTfila2HoursBeforeChatzos
 
 getSofZmanTfilaAteretTorah
   name: Sof Zman Tfila (Ateret Torah)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(ZmanisOffset(ConfiguredSunrise, -1.2), TzaisAteretTorah, false)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.\n\nAteret Torah zmanim use a day that begins at alos 1/10 of the day before sunrise and ends 40 minutes after sunset. Sof zman tfila is 4 of those shaos zmaniyos after that alos. By this calculation, chatzos is not at midday.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level."
@@ -924,7 +924,7 @@ getSofZmanTfilaAteretTorah
 
 getSofZmanTfilaBaalHatanya
   name: Sof Zman Tfila (Baal Hatanya)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(SunriseOffsetByDegrees(1.583), SunsetOffsetByDegrees(1.583), true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the Baal Hatanya.\n\n4 shaos zmaniyos after netz amiti (true sunrise), with the day measured from Baal Hatanya sunrise to sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nEach shaah zmanis is a twelfth of the whole day."
@@ -932,7 +932,7 @@ getSofZmanTfilaBaalHatanya
 
 getSofZmanTfilaGRA
   name: Sof Zman Tfila (GR'A)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(ConfiguredSunrise, ConfiguredSunset, true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon).\n\n4 shaos zmaniyos after sunrise. \n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level.\n\nEach shaah zmanis is a twelfth of the whole day."
@@ -940,7 +940,7 @@ getSofZmanTfilaGRA
 
 getSofZmanTfilaGRASunriseToFixedLocalChatzos
   name: Sof Zman Tfila (GR'A, Sunrise to Fixed Local Chatzos)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: HalfDayBasedOffset(ConfiguredSunrise, LocalMeanTime(12.0), 4.0)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon) day, using only the first half of the day.\n\n4 shaos zmaniyos after sunrise, with shaos zmaniyos measured from sunrise to fixed local chatzos (two-thirds of that half-day). \n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nThis zman is calculated as though the configured location were at sea level."
@@ -948,7 +948,7 @@ getSofZmanTfilaGRASunriseToFixedLocalChatzos
 
 getSofZmanTfilaMGA120Minutes
   name: Sof Zman Tfila (MGA, 120 Minutes)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(Offset(ConfiguredSunrise, 2h ago), Offset(ConfiguredSunset, 2h), true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 120-minute day. This is an extremely early time, used as a chumra.\n\n4 shaos zmaniyos after alos 120 minutes before sunrise, with the day measured from alos 120 minutes before sunrise to tzais 120 minutes after sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level.\n\nEach shaah zmanis is a twelfth of the whole day."
@@ -956,7 +956,7 @@ getSofZmanTfilaMGA120Minutes
 
 getSofZmanTfilaMGA16Point1Degrees
   name: Sof Zman Tfila (MGA, 16.1 Degrees)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(SunriseOffsetByDegrees(16.1), SunsetOffsetByDegrees(16.1), true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 16.1-degree day.\n\n4 shaos zmaniyos after alos at 16.1 degrees, with the day measured from alos at 16.1 degrees to tzais at 16.1 degrees.\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nEach shaah zmanis is a twelfth of the whole day."
@@ -964,7 +964,7 @@ getSofZmanTfilaMGA16Point1Degrees
 
 getSofZmanTfilaMGA18Degrees
   name: Sof Zman Tfila (MGA, 18 Degrees)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(SunriseOffsetByDegrees(18.0), SunsetOffsetByDegrees(18.0), true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 18-degree day.\n\n4 shaos zmaniyos after alos at 18 degrees, with the day measured from alos at 18 degrees to tzais at 18 degrees.\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nEach shaah zmanis is a twelfth of the whole day."
@@ -972,7 +972,7 @@ getSofZmanTfilaMGA18Degrees
 
 getSofZmanTfilaMGA19Point8Degrees
   name: Sof Zman Tfila (MGA, 19.8 Degrees)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(SunriseOffsetByDegrees(19.8), SunsetOffsetByDegrees(19.8), true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 19.8-degree day.\n\n4 shaos zmaniyos after alos at 19.8 degrees, with the day measured from alos at 19.8 degrees to tzais at 19.8 degrees.\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nEach shaah zmanis is a twelfth of the whole day."
@@ -980,7 +980,7 @@ getSofZmanTfilaMGA19Point8Degrees
 
 getSofZmanTfilaMGA72Minutes
   name: Sof Zman Tfila (MGA, 72 Minutes)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(Offset(ConfiguredSunrise, 1h 12m ago), Offset(ConfiguredSunset, 1h 12m), true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 72-minute day.\n\n4 shaos zmaniyos after alos 72 minutes before sunrise, with the day measured from alos 72 minutes before sunrise to tzais 72 minutes after sunset. \n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level.\n\nEach shaah zmanis is a twelfth of the whole day."
@@ -988,7 +988,7 @@ getSofZmanTfilaMGA72Minutes
 
 getSofZmanTfilaMGA72MinutesZmanis
   name: Sof Zman Tfila (MGA, 72 Minutes in Shaos Zmanios)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(ZmanisOffset(ConfiguredSunrise, -1.2), ZmanisOffset(ConfiguredSunset, 1.2), true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 72 zmaniyos-minute day.\n\n4 shaos zmaniyos after alos 72 zmaniyos minutes before sunrise, with the day measured from that alos to tzais 72 zmaniyos minutes after sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level.\n\nEach shaah zmanis is a twelfth of the whole day."
@@ -996,7 +996,7 @@ getSofZmanTfilaMGA72MinutesZmanis
 
 getSofZmanTfilaMGA90Minutes
   name: Sof Zman Tfila (MGA, 90 Minutes)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(Offset(ConfiguredSunrise, 1h 30m ago), Offset(ConfiguredSunset, 1h 30m), true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 90-minute day.\n\n4 shaos zmaniyos after alos 90 minutes before sunrise, with the day measured from alos 90 minutes before sunrise to tzais 90 minutes after sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level.\n\nEach shaah zmanis is a twelfth of the whole day."
@@ -1004,7 +1004,7 @@ getSofZmanTfilaMGA90Minutes
 
 getSofZmanTfilaMGA90MinutesZmanis
   name: Sof Zman Tfila (MGA, 90 Minutes in Shaos Zmanios)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(ZmanisOffset(ConfiguredSunrise, -1.5), ZmanisOffset(ConfiguredSunset, 1.5), true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 90 zmaniyos-minute day.\n\n4 shaos zmaniyos after alos 90 zmaniyos minutes before sunrise, with the day measured from that alos to tzais 90 zmaniyos minutes after sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level.\n\nEach shaah zmanis is a twelfth of the whole day."
@@ -1012,7 +1012,7 @@ getSofZmanTfilaMGA90MinutesZmanis
 
 getSofZmanTfilaMGA96Minutes
   name: Sof Zman Tfila (MGA, 96 Minutes)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(Offset(ConfiguredSunrise, 1h 36m ago), Offset(ConfiguredSunset, 1h 36m), true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 96-minute day.\n\n4 shaos zmaniyos after alos 96 minutes before sunrise, with the day measured from alos 96 minutes before sunrise to tzais 96 minutes after sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level.\n\nEach shaah zmanis is a twelfth of the whole day."
@@ -1020,7 +1020,7 @@ getSofZmanTfilaMGA96Minutes
 
 getSofZmanTfilaMGA96MinutesZmanis
   name: Sof Zman Tfila (MGA, 96 Minutes in Shaos Zmanios)
-  category: SofZmanTefila
+  category: SofZmanTfila
   deprecated: false
   formula: Tefila(ZmanisOffset(ConfiguredSunrise, -1.6), ZmanisOffset(ConfiguredSunset, 1.6), true)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 96 zmaniyos-minute day.\n\n4 shaos zmaniyos after alos 96 zmaniyos minutes before sunrise, with the day measured from that alos to tzais 96 zmaniyos minutes after sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level.\n\nEach shaah zmanis is a twelfth of the whole day."

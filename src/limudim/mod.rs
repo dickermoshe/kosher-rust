@@ -19,10 +19,10 @@
 //!
 //! | Schedule | Gives |
 //! |---|---|
-//! | [`DafYomiBavli`] | [`Daf`] |
-//! | [`DafHashavuaBavli`] | [`Daf`] |
+//! | [`DafYomiBavli`] | [`Daf`]`<`[`BavliTractate`]`>` |
+//! | [`DafHashavuaBavli`] | [`Daf`]`<`[`BavliTractate`]`>` |
 //! | [`AmudYomiDirshu`] | [`Amud`] |
-//! | [`DafYomiYerushalmi`] | [`Daf`] |
+//! | [`DafYomiYerushalmi`] | [`Daf`]`<`[`YerushalmiTractate`]`>` |
 //! | [`MishnaYomis`] | [`MishnaPair`] |
 //! | [`TehillimMonthly`] | [`TehillimUnit`] |
 //! | [`PirkeiAvos`] | [`PirkeiAvosUnit`] |
@@ -44,7 +44,7 @@ pub use daf_yomi_yerushalmi::DafYomiYerushalmi;
 pub use mishna_yomis::{MishnaPair, MishnaYomis};
 pub use pirkei_avos::{PirkeiAvos, PirkeiAvosUnit};
 pub use tehillim_monthly::{TehillimMonthly, TehillimUnit};
-pub use units::{Amud, Daf, Mishna, Side, Tractate};
+pub use units::{Amud, BavliTractate, Daf, Mishna, MishnaTractate, Side, YerushalmiTractate};
 
 use crate::calendar::HebrewDate;
 

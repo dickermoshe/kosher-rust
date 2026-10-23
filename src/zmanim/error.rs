@@ -35,16 +35,30 @@ pub enum ZmanimError {
     /// more than 150° from Greenwich every time needs one.
     #[error("this time needs a time zone")]
     TimeZoneRequired,
+    /// An offset is a day or more. The offsets are the two in [`Config`](crate::zmanim::Config)
+    /// and the one given to [`MyZmanim::candle_lighting`](crate::myzmanim::MyZmanim::candle_lighting).
+    #[error("the offset must be shorter than a day")]
+    InvalidOffset,
+    /// The time is outside the range a [`Timestamp`](jiff::Timestamp) holds, which ends in the
+    /// years -9999 and 9999. Only dates within a day or two of either end get this.
+    #[error("the time is outside the years -9999 to 9999")]
+    TimeOutOfRange,
     /// A calculation failed in a way that should not happen. Please report it with the location
     /// and date.
     #[error("internal calculation error; please report the location and date")]
     Internal,
 }
 
-/// Date and time arithmetic fails only past the ends of the range jiff holds, which a calculation
-/// should not reach.
+/// Date and time arithmetic fails only past the ends of the range jiff holds.
 impl From<jiff::Error> for ZmanimError {
     fn from(_: jiff::Error) -> Self {
-        Self::Internal
+        Self::TimeOutOfRange
+    }
+}
+
+/// Adding to a date with overflow constrained fails only past the ends of the range ICU holds.
+impl From<icu_calendar::error::DateAddError> for ZmanimError {
+    fn from(_: icu_calendar::error::DateAddError) -> Self {
+        Self::TimeOutOfRange
     }
 }

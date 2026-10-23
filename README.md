@@ -95,10 +95,10 @@ println!("{}", MishnaYomis.on(day).unwrap());    // Nazir 5:5-6
 
 | Schedule | Gives | |
 |---|---|---|
-| `DafYomiBavli` | `Daf` | one daf a day, since 1923 |
-| `DafHashavuaBavli` | `Daf` | one daf a week, since 2005 |
+| `DafYomiBavli` | `Daf<BavliTractate>` | one daf a day, since 1923 |
+| `DafHashavuaBavli` | `Daf<BavliTractate>` | one daf a week, since 2005 |
 | `AmudYomiDirshu` | `Amud` | one amud a day, since 2023 |
-| `DafYomiYerushalmi` | `Daf` | Vilna edition, since 1980 |
+| `DafYomiYerushalmi` | `Daf<YerushalmiTractate>` | Vilna edition, since 1980 |
 | `MishnaYomis` | `MishnaPair` | two mishnayos a day, since 1947 |
 | `TehillimMonthly` | `TehillimUnit` | the book of Tehillim each Hebrew month |
 | `PirkeiAvos(Region)` | `PirkeiAvosUnit` | summer Shabbos afternoons |

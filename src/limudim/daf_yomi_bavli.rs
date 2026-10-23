@@ -2,7 +2,7 @@ use icu_calendar::{Date, cal::Hebrew};
 
 use crate::limudim::{
     engine::{Cycle, CycleFinder, HebrewDateExt, InternalLimud, Interval},
-    units::{BAVLI_TRACTATES, Daf, Tractate},
+    units::{BavliTractate, Daf},
 };
 
 /// Dafim in Daf Yomi Bavli cycles 1-7, before Shekalim was expanded.
@@ -22,74 +22,72 @@ fn initial_cycle_date() -> Date<Hebrew> {
     date
 }
 
-pub(crate) const fn start_daf(tractate: Tractate) -> u16 {
+pub(crate) const fn start_daf(tractate: BavliTractate) -> u16 {
     match tractate {
-        Tractate::Kinnim => 23,
-        Tractate::Tamid => 26,
-        Tractate::Midos => 34,
+        BavliTractate::Kinnim => 23,
+        BavliTractate::Tamid => 26,
+        BavliTractate::Midos => 34,
         _ => 2,
     }
 }
 
 /// Last daf number (Berachos ends at 64)
-pub(crate) const fn end_daf(tractate: Tractate, iteration: i32) -> Option<u16> {
-    let daf = match tractate {
-        Tractate::Berachos => 64,
-        Tractate::Shabbos => 157,
-        Tractate::Eruvin => 105,
-        Tractate::Pesachim => 121,
-        Tractate::Shekalim => {
+pub(crate) const fn end_daf(tractate: BavliTractate, iteration: i32) -> u16 {
+    match tractate {
+        BavliTractate::Berachos => 64,
+        BavliTractate::Shabbos => 157,
+        BavliTractate::Eruvin => 105,
+        BavliTractate::Pesachim => 121,
+        BavliTractate::Shekalim => {
             if iteration < SHEKALIM_EXPANSION_CYCLE {
                 13
             } else {
                 22
             }
         }
-        Tractate::Yoma => 88,
-        Tractate::Sukkah => 56,
-        Tractate::Beitzah => 40,
-        Tractate::RoshHashanah => 35,
-        Tractate::Taanis => 31,
-        Tractate::Megillah => 32,
-        Tractate::MoedKatan => 29,
-        Tractate::Chagigah => 27,
-        Tractate::Yevamos => 122,
-        Tractate::Kesubos => 112,
-        Tractate::Nedarim => 91,
-        Tractate::Nazir => 66,
-        Tractate::Sotah => 49,
-        Tractate::Gitin => 90,
-        Tractate::Kiddushin => 82,
-        Tractate::BavaKamma => 119,
-        Tractate::BavaMetzia => 119,
-        Tractate::BavaBasra => 176,
-        Tractate::Sanhedrin => 113,
-        Tractate::Makkos => 24,
-        Tractate::Shevuos => 49,
-        Tractate::AvodahZarah => 76,
-        Tractate::Horiyos => 14,
-        Tractate::Zevachim => 120,
-        Tractate::Menachos => 110,
-        Tractate::Chullin => 142,
-        Tractate::Bechoros => 61,
-        Tractate::Arachin => 34,
-        Tractate::Temurah => 34,
-        Tractate::Kerisos => 28,
-        Tractate::Meilah => 22,
-        Tractate::Kinnim => 25,
-        Tractate::Tamid => 33,
-        Tractate::Midos => 37,
-        Tractate::Niddah => 73,
-        _ => 0,
-    };
-    if daf == 0 { None } else { Some(daf) }
+        BavliTractate::Yoma => 88,
+        BavliTractate::Sukkah => 56,
+        BavliTractate::Beitzah => 40,
+        BavliTractate::RoshHashanah => 35,
+        BavliTractate::Taanis => 31,
+        BavliTractate::Megillah => 32,
+        BavliTractate::MoedKatan => 29,
+        BavliTractate::Chagigah => 27,
+        BavliTractate::Yevamos => 122,
+        BavliTractate::Kesubos => 112,
+        BavliTractate::Nedarim => 91,
+        BavliTractate::Nazir => 66,
+        BavliTractate::Sotah => 49,
+        BavliTractate::Gitin => 90,
+        BavliTractate::Kiddushin => 82,
+        BavliTractate::BavaKamma => 119,
+        BavliTractate::BavaMetzia => 119,
+        BavliTractate::BavaBasra => 176,
+        BavliTractate::Sanhedrin => 113,
+        BavliTractate::Makkos => 24,
+        BavliTractate::Shevuos => 49,
+        BavliTractate::AvodahZarah => 76,
+        BavliTractate::Horiyos => 14,
+        BavliTractate::Zevachim => 120,
+        BavliTractate::Menachos => 110,
+        BavliTractate::Chullin => 142,
+        BavliTractate::Bechoros => 61,
+        BavliTractate::Arachin => 34,
+        BavliTractate::Temurah => 34,
+        BavliTractate::Kerisos => 28,
+        BavliTractate::Meilah => 22,
+        BavliTractate::Kinnim => 25,
+        BavliTractate::Tamid => 33,
+        BavliTractate::Midos => 37,
+        BavliTractate::Niddah => 73,
+    }
 }
 
 /// Daf Yomi, one page of the Bavli a day, from 11 September 1923.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct DafYomiBavli;
 
-fn daf_yomi_bavli_for_date(limud_date: Date<Hebrew>) -> Option<Daf> {
+fn daf_yomi_bavli_for_date(limud_date: Date<Hebrew>) -> Option<Daf<BavliTractate>> {
     let cycle = Cycle::from_cycle_initiation(initial_cycle_date(), DafYomiBavli::cycle_end_calculation, limud_date)?;
     if limud_date > cycle.end_date {
         return None;
@@ -98,8 +96,8 @@ fn daf_yomi_bavli_for_date(limud_date: Date<Hebrew>) -> Option<Daf> {
     daf_at_offset(cycle.iteration?, offset)
 }
 
-impl InternalLimud<Daf> for DafYomiBavli {
-    fn limud(&self, limud_date: Date<Hebrew>) -> Option<Daf> {
+impl InternalLimud<Daf<BavliTractate>> for DafYomiBavli {
+    fn limud(&self, limud_date: Date<Hebrew>) -> Option<Daf<BavliTractate>> {
         daf_yomi_bavli_for_date(limud_date)
     }
 
@@ -119,18 +117,18 @@ impl InternalLimud<Daf> for DafYomiBavli {
         hebrew_date.add_days(days - 1)
     }
 
-    fn unit_for_interval(&self, _interval: &Interval, limud_date: &Date<Hebrew>) -> Option<Daf> {
+    fn unit_for_interval(&self, _interval: &Interval, limud_date: &Date<Hebrew>) -> Option<Daf<BavliTractate>> {
         daf_yomi_bavli_for_date(*limud_date)
     }
 }
 
-super::schedule!(DafYomiBavli => Daf);
+super::schedule!(DafYomiBavli => Daf<BavliTractate>);
 
-fn daf_at_offset(cycle_iteration: i32, offset: usize) -> Option<Daf> {
+fn daf_at_offset(cycle_iteration: i32, offset: usize) -> Option<Daf<BavliTractate>> {
     let mut remaining = offset;
-    for tractate in BAVLI_TRACTATES {
+    for tractate in BavliTractate::ALL {
         let start = start_daf(tractate);
-        let end = end_daf(tractate, cycle_iteration)?;
+        let end = end_daf(tractate, cycle_iteration);
         let count = usize::from(end - start + 1);
         if remaining < count {
             return Some(Daf {
@@ -154,7 +152,7 @@ mod tests {
         let test_date = from_gregorian_date(2017, 12, 28);
         let limud = DafYomiBavli.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 30);
-        assert_eq!(limud.tractate, Tractate::Shevuos);
+        assert_eq!(limud.tractate, BavliTractate::Shevuos);
     }
 
     #[test]
@@ -169,7 +167,7 @@ mod tests {
         let test_date = from_gregorian_date(2012, 8, 3);
         let limud = DafYomiBavli.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 2);
-        assert_eq!(limud.tractate, Tractate::Berachos);
+        assert_eq!(limud.tractate, BavliTractate::Berachos);
     }
 
     #[test]
@@ -177,7 +175,7 @@ mod tests {
         let test_date = from_gregorian_date(2020, 1, 4);
         let limud = DafYomiBavli.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 73);
-        assert_eq!(limud.tractate, Tractate::Niddah);
+        assert_eq!(limud.tractate, BavliTractate::Niddah);
     }
 
     #[test]
@@ -185,7 +183,7 @@ mod tests {
         let test_date = from_gregorian_date(1969, 4, 28);
         let limud = DafYomiBavli.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 13);
-        assert_eq!(limud.tractate, Tractate::Shekalim);
+        assert_eq!(limud.tractate, BavliTractate::Shekalim);
     }
 
     #[test]
@@ -193,7 +191,7 @@ mod tests {
         let test_date = from_gregorian_date(1969, 4, 29);
         let limud = DafYomiBavli.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 2);
-        assert_eq!(limud.tractate, Tractate::Yoma);
+        assert_eq!(limud.tractate, BavliTractate::Yoma);
     }
 
     #[test]
@@ -201,7 +199,7 @@ mod tests {
         let test_date = from_gregorian_date(2019, 10, 9);
         let limud = DafYomiBavli.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 22);
-        assert_eq!(limud.tractate, Tractate::Meilah);
+        assert_eq!(limud.tractate, BavliTractate::Meilah);
     }
 
     #[test]
@@ -209,7 +207,7 @@ mod tests {
         let test_date = from_gregorian_date(2019, 10, 10);
         let limud = DafYomiBavli.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 23);
-        assert_eq!(limud.tractate, Tractate::Kinnim);
+        assert_eq!(limud.tractate, BavliTractate::Kinnim);
     }
 
     #[test]
@@ -217,7 +215,7 @@ mod tests {
         let test_date = from_gregorian_date(2019, 10, 13);
         let limud = DafYomiBavli.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 26);
-        assert_eq!(limud.tractate, Tractate::Tamid);
+        assert_eq!(limud.tractate, BavliTractate::Tamid);
     }
 
     #[test]
@@ -226,7 +224,7 @@ mod tests {
         let test_date = from_gregorian_date(2019, 10, 22);
         let limud = DafYomiBavli.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 35);
-        assert_eq!(limud.tractate, Tractate::Midos);
+        assert_eq!(limud.tractate, BavliTractate::Midos);
     }
 
     #[test]
@@ -234,6 +232,6 @@ mod tests {
         let test_date = from_gregorian_date(2019, 10, 25);
         let limud = DafYomiBavli.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 2);
-        assert_eq!(limud.tractate, Tractate::Niddah);
+        assert_eq!(limud.tractate, BavliTractate::Niddah);
     }
 }

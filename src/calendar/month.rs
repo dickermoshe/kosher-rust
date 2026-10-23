@@ -79,8 +79,8 @@ impl HebrewMonth {
 
     /// The month's name in Hebrew, for example `"ניסן"`.
     ///
-    /// [`Adar`](Self::Adar) is `"אדר"` whatever the year; [`HebrewDate`](super::HebrewDate)'s
-    /// formatting says Adar II when it needs to.
+    /// [`Adar`](Self::Adar) is `"אדר"` whatever the year, including a leap year, where it is the
+    /// month called Adar II.
     pub const fn hebrew(self) -> &'static str {
         match self {
             Self::Tishrei => "תשרי",

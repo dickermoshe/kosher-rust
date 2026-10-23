@@ -24,7 +24,7 @@ use super::month::month_of_year;
 /// use kosher_rust::HebrewDate;
 ///
 /// // The molad of Iyar 5784.
-/// let molad = HebrewDate::try_from(date(2024, 5, 9))?.molad().unwrap();
+/// let molad = HebrewDate::try_from(date(2024, 5, 9))?.molad();
 /// assert_eq!(molad.weekday(), Weekday::Wednesday);
 /// assert_eq!((molad.hours(), molad.minutes(), molad.chalakim()), (11, 41, 8));
 /// # Ok::<(), kosher_rust::calendar::DateOutOfRange>(())

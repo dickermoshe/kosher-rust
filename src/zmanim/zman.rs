@@ -24,7 +24,7 @@ pub enum Category {
     /// Latest time for the morning Shema (*sof zman shma*).
     SofZmanShma,
     /// Latest time for the morning prayer (*sof zman tefila*).
-    SofZmanTefila,
+    SofZmanTfila,
     /// Latest time to eat chametz on Erev Pesach.
     SofZmanAchilasChametz,
     /// Latest time to burn chametz on Erev Pesach.
@@ -40,7 +40,7 @@ pub enum Category {
     /// Preferred Mincha time (*mincha ketana*).
     MinchaKetana,
     /// Twilight between sunset and nightfall (*bein hashmashos*).
-    BeinHashmashos,
+    BainHashmashos,
     /// Candle lighting before Shabbos or Yom Tov.
     CandleLighting,
     /// Sunset (*shkiya*).
@@ -167,8 +167,6 @@ macro_rules! zman_catalog {
 pub(crate) use zman_catalog;
 
 use super::Zman;
-#[cfg(feature = "alloc")]
-use jiff::SignedDuration;
 
 impl Zman {
     /// The zman KosherJava calculates with the method `name`, for example "getSofZmanShmaGRA".
@@ -191,8 +189,8 @@ impl Zman {
                 &duration_text(config.candle_lighting_offset.as_secs()),
             )
             .replace(
-                "{ateret_torah_offset} after",
-                &offset(config.ateret_torah_sunset_offset, "after", "before"),
+                "{ateret_torah_offset}",
+                &duration_text(config.ateret_torah_sunset_offset.as_secs()),
             );
 
         let formula = self.formula();
@@ -233,14 +231,6 @@ impl fmt::Display for Zman {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.name())
     }
-}
-
-/// `duration` as "18 minutes" or "18 minutes 45 seconds", followed by `ahead` when it is zero or
-/// more and `behind` when it is negative.
-#[cfg(feature = "alloc")]
-fn offset(duration: SignedDuration, ahead: &str, behind: &str) -> String {
-    let direction = if duration.is_negative() { behind } else { ahead };
-    format!("{} {direction}", duration_text(duration.as_secs().unsigned_abs()))
 }
 
 /// `seconds` as "18 minutes" or "18 minutes 45 seconds".

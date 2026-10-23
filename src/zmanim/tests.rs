@@ -55,7 +55,7 @@ fn new_calc(elevation_m: f64) -> Zmanim {
             candle_lighting_offset: core::time::Duration::from_mins(18),
             use_astronomical_chatzos_for_other_zmanim: false,
             use_elevation: true,
-            ateret_torah_sunset_offset: Duration::from_mins(40),
+            ateret_torah_sunset_offset: core::time::Duration::from_mins(40),
             use_astronomical_chatzos: true,
             astronomical_calculator: AstronomicalCalculator::Noaa,
         },
@@ -649,7 +649,7 @@ fn test_mcmurdo_antimeridian_alos_matches_java() {
         candle_lighting_offset: core::time::Duration::from_mins(12),
         use_astronomical_chatzos_for_other_zmanim: true,
         use_elevation: false,
-        ateret_torah_sunset_offset: Duration::from_mins(4),
+        ateret_torah_sunset_offset: core::time::Duration::from_mins(4),
         use_astronomical_chatzos: false,
         astronomical_calculator: AstronomicalCalculator::Noaa,
     };
@@ -839,12 +839,12 @@ fn test_range_edges_report_errors_not_panics() {
         Config::default(),
         Config {
             candle_lighting_offset: core::time::Duration::ZERO,
-            ateret_torah_sunset_offset: Duration::MAX,
+            ateret_torah_sunset_offset: core::time::Duration::from_secs(24 * 60 * 60 - 1),
             ..Config::default()
         },
         Config {
             candle_lighting_offset: core::time::Duration::MAX,
-            ateret_torah_sunset_offset: Duration::MIN,
+            ateret_torah_sunset_offset: core::time::Duration::MAX,
             ..Config::default()
         },
     ];
@@ -856,7 +856,7 @@ fn test_range_edges_report_errors_not_panics() {
                     continue;
                 };
                 for config in configs {
-                    let zmanim = Zmanim::with_config(location.clone(), date, timezone.clone(), config);
+                    let zmanim = Zmanim::with_config(location, date, timezone.clone(), config);
                     for zman in Zman::ALL {
                         let _ = zmanim.get(zman);
                     }
@@ -883,7 +883,7 @@ fn test_time_zone_required_only_near_the_date_line() {
 #[test]
 fn test_get_zoned() {
     let location = Location::new(LAKEWOOD_LAT, LAKEWOOD_LON).unwrap();
-    let zoned = Zmanim::new(location.clone(), lakewood_date(), Some(lakewood_tz()));
+    let zoned = Zmanim::new(location, lakewood_date(), Some(lakewood_tz()));
     let time = zoned.get_zoned(Zman::Sunrise).unwrap();
     assert_eq!(time.timestamp(), zoned.get(Zman::Sunrise).unwrap());
     assert_eq!(time.time_zone(), &lakewood_tz());
@@ -981,9 +981,9 @@ fn times_without_a_time_zone_match_times_with_one() {
             let offset = jiff::tz::Offset::from_seconds((longitude * 240.0) as i32).unwrap();
             for (year, month, day) in dates {
                 let date = Date::new(year, month, day).unwrap();
-                let without = Zmanim::new(location.clone(), date, None);
+                let without = Zmanim::new(location, date, None);
                 for zone in [TimeZone::fixed(offset), TimeZone::fixed(jiff::tz::Offset::UTC)] {
-                    let with = Zmanim::new(location.clone(), date, Some(zone));
+                    let with = Zmanim::new(location, date, Some(zone));
                     for zman in Zman::ALL {
                         if zman.category() == crate::zmanim::Category::KidushLevana {
                             continue;
@@ -1016,7 +1016,7 @@ fn polar_sunrise_near_the_date_line_is_on_its_own_date() {
             astronomical_calculator: calculator,
             ..Config::default()
         };
-        let zmanim = Zmanim::with_config(cape_schmidt.clone(), date, Some(anadyr.clone()), config);
+        let zmanim = Zmanim::with_config(cape_schmidt, date, Some(anadyr.clone()), config);
         let sunrise = zmanim.get_zoned(Zman::SeaLevelSunrise).unwrap();
         let sunset = zmanim.get_zoned(Zman::SeaLevelSunset).unwrap();
         assert_eq!(sunrise.date(), date, "{calculator:?}");
@@ -1086,4 +1086,130 @@ fn names_parse_back() {
         assert_eq!(Zman::from_name(zman.name()), Some(zman));
     }
     assert_eq!(Zman::from_name("sunrise"), None);
+}
+
+/// Lakewood with KosherJava's defaults, as in KosherJava's `SpecialDayZmanimTest`.
+fn lakewood_on(year: i16, month: i8, day: i8) -> Zmanim {
+    Zmanim::new(
+        lakewood_location(LAKEWOOD_ELEVATION_M),
+        Date::new(year, month, day).unwrap(),
+        Some(lakewood_tz()),
+    )
+}
+
+fn assert_within_a_microsecond(actual: Result<Timestamp, ZmanimError>, expected: &str) {
+    let expected: Timestamp = expected.parse().unwrap();
+    let diff = actual.unwrap().as_nanosecond() - expected.as_nanosecond();
+    assert!(diff.abs() < 1_000, "off by {diff} ns from {expected}");
+}
+
+/// The values KosherJava's own tests expect.
+#[test]
+fn test_kiddush_levana_times_match_kosherjava() {
+    assert_within_a_microsecond(
+        lakewood_on(2017, 10, 23).get(Zman::TchilasZmanKidushLevana3Days),
+        "2017-10-23T09:52:00.170666666Z",
+    );
+    assert_within_a_microsecond(
+        lakewood_on(2017, 10, 27).get(Zman::TchilasZmanKidushLevana7Days),
+        "2017-10-27T09:52:00.170666666Z",
+    );
+    assert_within_a_microsecond(
+        lakewood_on(2017, 10, 5).get(Zman::SofZmanKidushLevana15Days),
+        "2017-10-05T21:07:56.837333333Z",
+    );
+    assert_within_a_microsecond(
+        lakewood_on(2017, 10, 5).get(Zman::SofZmanKidushLevanaBetweenMoldos),
+        "2017-10-05T15:29:58.503333333Z",
+    );
+    let between = lakewood_on(2017, 10, 17);
+    for zman in [Zman::TchilasZmanKidushLevana3Days, Zman::SofZmanKidushLevana15Days] {
+        assert_eq!(between.get(zman), Err(ZmanimError::NotApplicable), "{zman:?}");
+    }
+}
+
+/// On the 30th of a month, three days after the next month's molad can already fall on the date.
+/// In Honolulu that happens on 30 Kislev 5788.
+#[test]
+fn test_tchilas_kiddush_levana_on_the_30th_uses_the_next_molad() {
+    let honolulu = |day| {
+        Zmanim::new(
+            Location::new(21.3, -157.86).unwrap(),
+            Date::new(2027, 12, day).unwrap(),
+            Some(TimeZone::get("Pacific/Honolulu").unwrap()),
+        )
+    };
+    assert_within_a_microsecond(
+        honolulu(30).get(Zman::TchilasZmanKidushLevana3Days),
+        "2027-12-31T06:23:00.170666666Z",
+    );
+    assert_eq!(
+        honolulu(29).get(Zman::TchilasZmanKidushLevana3Days),
+        Err(ZmanimError::NotApplicable)
+    );
+}
+
+/// The values KosherJava's own tests expect for Erev Pesach 5777.
+#[test]
+fn test_chametz_times_match_kosherjava() {
+    let erev_pesach = lakewood_on(2017, 4, 10);
+    let close = |zman, expected: &str| {
+        let expected: Timestamp = expected.parse().unwrap();
+        let diff = erev_pesach.get(zman).unwrap().duration_since(expected);
+        assert!(diff.abs() < Duration::from_millis(1), "{zman:?} off by {diff}");
+    };
+    close(Zman::SofZmanAchilasChametzGra, "2017-04-10T14:47:45.675920561Z");
+    close(Zman::SofZmanBiurChametzGra, "2017-04-10T15:53:07.762314340Z");
+    assert_eq!(
+        lakewood_on(2017, 10, 17).get(Zman::SofZmanAchilasChametzGra),
+        Err(ZmanimError::NotApplicable)
+    );
+}
+
+/// A day or more is too long for an offset. Anything shorter gives a time.
+#[test]
+fn test_offsets_of_a_day_or_more_are_invalid() {
+    let day = core::time::Duration::from_hours(24);
+    let almost = day - core::time::Duration::from_secs(1);
+    let zmanim = |candle_lighting_offset, ateret_torah_sunset_offset| {
+        Zmanim::with_config(
+            lakewood_location(0.0),
+            lakewood_date(),
+            Some(lakewood_tz()),
+            Config {
+                candle_lighting_offset,
+                ateret_torah_sunset_offset,
+                ..Config::default()
+            },
+        )
+    };
+    let too_long = zmanim(day, core::time::Duration::MAX);
+    for zman in [
+        Zman::CandleLighting,
+        Zman::TzaisAteretTorah,
+        Zman::SofZmanShmaAteretTorah,
+    ] {
+        assert_eq!(too_long.get(zman), Err(ZmanimError::InvalidOffset), "{zman:?}");
+    }
+    let longest = zmanim(almost, almost);
+    for zman in [
+        Zman::CandleLighting,
+        Zman::TzaisAteretTorah,
+        Zman::SofZmanShmaAteretTorah,
+    ] {
+        assert!(longest.get(zman).is_ok(), "{zman:?}");
+    }
+}
+
+/// The last instant a `Timestamp` holds is 22:00 UTC on 30 December 9999, so noon in Lakewood on
+/// the 31st is past it.
+#[test]
+fn test_times_past_the_last_timestamp_are_out_of_range() {
+    let last_day = Zmanim::new(lakewood_location(0.0), Date::new(9999, 12, 31).unwrap(), None);
+    assert_eq!(
+        last_day.get(Zman::FixedLocalChatzosHayom),
+        Err(ZmanimError::TimeOutOfRange)
+    );
+    let day_before = Zmanim::new(lakewood_location(0.0), Date::new(9999, 12, 29).unwrap(), None);
+    assert!(day_before.get(Zman::FixedLocalChatzosHayom).is_ok());
 }

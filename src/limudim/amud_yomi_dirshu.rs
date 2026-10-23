@@ -16,60 +16,58 @@ fn initial_cycle_date() -> Date<Hebrew> {
     date
 }
 
-pub(crate) const fn start_daf(tractate: Tractate) -> Amud {
+pub(crate) const fn start_daf(tractate: BavliTractate) -> Amud {
     match tractate {
-        Tractate::Kinnim => Amud::new(Tractate::Kinnim, 22, Side::Bet),
-        Tractate::Tamid => Amud::new(Tractate::Tamid, 25, Side::Bet),
-        Tractate::Midos => Amud::new(Tractate::Midos, 34, Side::Aleph),
+        BavliTractate::Kinnim => Amud::new(BavliTractate::Kinnim, 22, Side::Bet),
+        BavliTractate::Tamid => Amud::new(BavliTractate::Tamid, 25, Side::Bet),
+        BavliTractate::Midos => Amud::new(BavliTractate::Midos, 34, Side::Aleph),
         _ => Amud::new(tractate, 2, Side::Aleph),
     }
 }
 
-pub(crate) const fn end_daf(tractate: Tractate) -> Option<Amud> {
-    let amud = match tractate {
-        Tractate::Berachos => Amud::new(Tractate::Berachos, 64, Side::Aleph),
-        Tractate::Shabbos => Amud::new(Tractate::Shabbos, 157, Side::Bet),
-        Tractate::Eruvin => Amud::new(Tractate::Eruvin, 105, Side::Aleph),
-        Tractate::Pesachim => Amud::new(Tractate::Pesachim, 121, Side::Bet),
-        Tractate::Shekalim => Amud::new(Tractate::Shekalim, 22, Side::Bet),
-        Tractate::Yoma => Amud::new(Tractate::Yoma, 88, Side::Aleph),
-        Tractate::Sukkah => Amud::new(Tractate::Sukkah, 56, Side::Bet),
-        Tractate::Beitzah => Amud::new(Tractate::Beitzah, 40, Side::Bet),
-        Tractate::RoshHashanah => Amud::new(Tractate::RoshHashanah, 35, Side::Bet),
-        Tractate::Taanis => Amud::new(Tractate::Taanis, 31, Side::Aleph),
-        Tractate::Megillah => Amud::new(Tractate::Megillah, 32, Side::Aleph),
-        Tractate::MoedKatan => Amud::new(Tractate::MoedKatan, 29, Side::Aleph),
-        Tractate::Chagigah => Amud::new(Tractate::Chagigah, 27, Side::Aleph),
-        Tractate::Yevamos => Amud::new(Tractate::Yevamos, 122, Side::Bet),
-        Tractate::Kesubos => Amud::new(Tractate::Kesubos, 112, Side::Bet),
-        Tractate::Nedarim => Amud::new(Tractate::Nedarim, 91, Side::Bet),
-        Tractate::Nazir => Amud::new(Tractate::Nazir, 66, Side::Bet),
-        Tractate::Sotah => Amud::new(Tractate::Sotah, 49, Side::Bet),
-        Tractate::Gitin => Amud::new(Tractate::Gitin, 90, Side::Bet),
-        Tractate::Kiddushin => Amud::new(Tractate::Kiddushin, 82, Side::Bet),
-        Tractate::BavaKamma => Amud::new(Tractate::BavaKamma, 119, Side::Bet),
-        Tractate::BavaMetzia => Amud::new(Tractate::BavaMetzia, 119, Side::Aleph),
-        Tractate::BavaBasra => Amud::new(Tractate::BavaBasra, 176, Side::Bet),
-        Tractate::Sanhedrin => Amud::new(Tractate::Sanhedrin, 113, Side::Bet),
-        Tractate::Makkos => Amud::new(Tractate::Makkos, 24, Side::Bet),
-        Tractate::Shevuos => Amud::new(Tractate::Shevuos, 49, Side::Bet),
-        Tractate::AvodahZarah => Amud::new(Tractate::AvodahZarah, 76, Side::Bet),
-        Tractate::Horiyos => Amud::new(Tractate::Horiyos, 14, Side::Aleph),
-        Tractate::Zevachim => Amud::new(Tractate::Zevachim, 120, Side::Bet),
-        Tractate::Menachos => Amud::new(Tractate::Menachos, 110, Side::Aleph),
-        Tractate::Chullin => Amud::new(Tractate::Chullin, 142, Side::Aleph),
-        Tractate::Bechoros => Amud::new(Tractate::Bechoros, 61, Side::Aleph),
-        Tractate::Arachin => Amud::new(Tractate::Arachin, 34, Side::Aleph),
-        Tractate::Temurah => Amud::new(Tractate::Temurah, 34, Side::Aleph),
-        Tractate::Kerisos => Amud::new(Tractate::Kerisos, 28, Side::Bet),
-        Tractate::Meilah => Amud::new(Tractate::Meilah, 22, Side::Aleph),
-        Tractate::Kinnim => Amud::new(Tractate::Kinnim, 25, Side::Aleph),
-        Tractate::Tamid => Amud::new(Tractate::Tamid, 33, Side::Bet),
-        Tractate::Midos => Amud::new(Tractate::Midos, 37, Side::Bet),
-        Tractate::Niddah => Amud::new(Tractate::Niddah, 73, Side::Aleph),
-        _ => Amud::new(Tractate::Bechoros, 0, Side::Aleph),
-    };
-    if amud.daf == 0 { None } else { Some(amud) }
+pub(crate) const fn end_daf(tractate: BavliTractate) -> Amud {
+    match tractate {
+        BavliTractate::Berachos => Amud::new(BavliTractate::Berachos, 64, Side::Aleph),
+        BavliTractate::Shabbos => Amud::new(BavliTractate::Shabbos, 157, Side::Bet),
+        BavliTractate::Eruvin => Amud::new(BavliTractate::Eruvin, 105, Side::Aleph),
+        BavliTractate::Pesachim => Amud::new(BavliTractate::Pesachim, 121, Side::Bet),
+        BavliTractate::Shekalim => Amud::new(BavliTractate::Shekalim, 22, Side::Bet),
+        BavliTractate::Yoma => Amud::new(BavliTractate::Yoma, 88, Side::Aleph),
+        BavliTractate::Sukkah => Amud::new(BavliTractate::Sukkah, 56, Side::Bet),
+        BavliTractate::Beitzah => Amud::new(BavliTractate::Beitzah, 40, Side::Bet),
+        BavliTractate::RoshHashanah => Amud::new(BavliTractate::RoshHashanah, 35, Side::Bet),
+        BavliTractate::Taanis => Amud::new(BavliTractate::Taanis, 31, Side::Aleph),
+        BavliTractate::Megillah => Amud::new(BavliTractate::Megillah, 32, Side::Aleph),
+        BavliTractate::MoedKatan => Amud::new(BavliTractate::MoedKatan, 29, Side::Aleph),
+        BavliTractate::Chagigah => Amud::new(BavliTractate::Chagigah, 27, Side::Aleph),
+        BavliTractate::Yevamos => Amud::new(BavliTractate::Yevamos, 122, Side::Bet),
+        BavliTractate::Kesubos => Amud::new(BavliTractate::Kesubos, 112, Side::Bet),
+        BavliTractate::Nedarim => Amud::new(BavliTractate::Nedarim, 91, Side::Bet),
+        BavliTractate::Nazir => Amud::new(BavliTractate::Nazir, 66, Side::Bet),
+        BavliTractate::Sotah => Amud::new(BavliTractate::Sotah, 49, Side::Bet),
+        BavliTractate::Gitin => Amud::new(BavliTractate::Gitin, 90, Side::Bet),
+        BavliTractate::Kiddushin => Amud::new(BavliTractate::Kiddushin, 82, Side::Bet),
+        BavliTractate::BavaKamma => Amud::new(BavliTractate::BavaKamma, 119, Side::Bet),
+        BavliTractate::BavaMetzia => Amud::new(BavliTractate::BavaMetzia, 119, Side::Aleph),
+        BavliTractate::BavaBasra => Amud::new(BavliTractate::BavaBasra, 176, Side::Bet),
+        BavliTractate::Sanhedrin => Amud::new(BavliTractate::Sanhedrin, 113, Side::Bet),
+        BavliTractate::Makkos => Amud::new(BavliTractate::Makkos, 24, Side::Bet),
+        BavliTractate::Shevuos => Amud::new(BavliTractate::Shevuos, 49, Side::Bet),
+        BavliTractate::AvodahZarah => Amud::new(BavliTractate::AvodahZarah, 76, Side::Bet),
+        BavliTractate::Horiyos => Amud::new(BavliTractate::Horiyos, 14, Side::Aleph),
+        BavliTractate::Zevachim => Amud::new(BavliTractate::Zevachim, 120, Side::Bet),
+        BavliTractate::Menachos => Amud::new(BavliTractate::Menachos, 110, Side::Aleph),
+        BavliTractate::Chullin => Amud::new(BavliTractate::Chullin, 142, Side::Aleph),
+        BavliTractate::Bechoros => Amud::new(BavliTractate::Bechoros, 61, Side::Aleph),
+        BavliTractate::Arachin => Amud::new(BavliTractate::Arachin, 34, Side::Aleph),
+        BavliTractate::Temurah => Amud::new(BavliTractate::Temurah, 34, Side::Aleph),
+        BavliTractate::Kerisos => Amud::new(BavliTractate::Kerisos, 28, Side::Bet),
+        BavliTractate::Meilah => Amud::new(BavliTractate::Meilah, 22, Side::Aleph),
+        BavliTractate::Kinnim => Amud::new(BavliTractate::Kinnim, 25, Side::Aleph),
+        BavliTractate::Tamid => Amud::new(BavliTractate::Tamid, 33, Side::Bet),
+        BavliTractate::Midos => Amud::new(BavliTractate::Midos, 37, Side::Bet),
+        BavliTractate::Niddah => Amud::new(BavliTractate::Niddah, 73, Side::Aleph),
+    }
 }
 
 /// Dirshu's Amud Yomi, one side of a page of the Bavli a day, from 16 October 2023.
@@ -83,9 +81,9 @@ fn amud_yomi_bavli_dirshu_for_date(limud_date: Date<Hebrew>) -> Option<Amud> {
     }
     let offset = cycle.start_date.days_until(&limud_date)? as usize;
     let mut remaining = offset;
-    for tractate in BAVLI_TRACTATES {
+    for tractate in BavliTractate::ALL {
         let start = start_daf(tractate);
-        let end = end_daf(tractate)?;
+        let end = end_daf(tractate);
         let count = start.amudim_to(end)? as usize;
         if remaining < count {
             return start.at_offset(remaining as i32);
@@ -126,7 +124,7 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 53);
         assert_eq!(limud.side, Side::Aleph);
-        assert_eq!(limud.tractate, Tractate::Shabbos);
+        assert_eq!(limud.tractate, BavliTractate::Shabbos);
     }
 
     #[test]
@@ -142,7 +140,7 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 2);
         assert_eq!(limud.side, Side::Aleph);
-        assert_eq!(limud.tractate, Tractate::Berachos);
+        assert_eq!(limud.tractate, BavliTractate::Berachos);
     }
 
     #[test]
@@ -151,7 +149,7 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 73);
         assert_eq!(limud.side, Side::Aleph);
-        assert_eq!(limud.tractate, Tractate::Niddah);
+        assert_eq!(limud.tractate, BavliTractate::Niddah);
     }
 
     #[test]
@@ -160,7 +158,7 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 21);
         assert_eq!(limud.side, Side::Bet);
-        assert_eq!(limud.tractate, Tractate::Meilah);
+        assert_eq!(limud.tractate, BavliTractate::Meilah);
     }
 
     #[test]
@@ -169,7 +167,7 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 22);
         assert_eq!(limud.side, Side::Bet);
-        assert_eq!(limud.tractate, Tractate::Kinnim);
+        assert_eq!(limud.tractate, BavliTractate::Kinnim);
     }
 
     #[test]
@@ -178,7 +176,7 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 25);
         assert_eq!(limud.side, Side::Aleph);
-        assert_eq!(limud.tractate, Tractate::Kinnim);
+        assert_eq!(limud.tractate, BavliTractate::Kinnim);
     }
 
     #[test]
@@ -187,7 +185,7 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 25);
         assert_eq!(limud.side, Side::Bet);
-        assert_eq!(limud.tractate, Tractate::Tamid);
+        assert_eq!(limud.tractate, BavliTractate::Tamid);
     }
 
     #[test]
@@ -196,7 +194,7 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 33);
         assert_eq!(limud.side, Side::Bet);
-        assert_eq!(limud.tractate, Tractate::Tamid);
+        assert_eq!(limud.tractate, BavliTractate::Tamid);
     }
 
     #[test]
@@ -205,7 +203,7 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 34);
         assert_eq!(limud.side, Side::Aleph);
-        assert_eq!(limud.tractate, Tractate::Midos);
+        assert_eq!(limud.tractate, BavliTractate::Midos);
     }
 
     #[test]
@@ -214,7 +212,7 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 37);
         assert_eq!(limud.side, Side::Bet);
-        assert_eq!(limud.tractate, Tractate::Midos);
+        assert_eq!(limud.tractate, BavliTractate::Midos);
     }
 
     #[test]
@@ -223,7 +221,7 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 2);
         assert_eq!(limud.side, Side::Aleph);
-        assert_eq!(limud.tractate, Tractate::Niddah);
+        assert_eq!(limud.tractate, BavliTractate::Niddah);
     }
     #[test]
     fn amud_yomi_bavli_2025_23_9() {
@@ -231,6 +229,6 @@ mod tests {
         let limud = AmudYomiDirshu.limud(test_date).expect("limud exists");
         assert_eq!(limud.daf, 34);
         assert_eq!(limud.side, Side::Aleph);
-        assert_eq!(limud.tractate, Tractate::Pesachim);
+        assert_eq!(limud.tractate, BavliTractate::Pesachim);
     }
 }

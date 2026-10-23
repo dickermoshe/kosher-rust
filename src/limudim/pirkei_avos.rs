@@ -79,7 +79,7 @@ impl InternalLimud<PirkeiAvosUnit> for PirkeiAvos {
             0 => Some(PirkeiAvosUnit::Combined(5, 6)),
             1 => Some(PirkeiAvosUnit::Combined(3, 4)),
             2 => {
-                // If iteration % 6 == 1, return [2], else [1,2]
+                // Chapters 1 and 2 together when this week would start the chapters over, else this week's chapter.
                 if (iteration - 1) % 6 == 0 {
                     Some(PirkeiAvosUnit::Combined(1, 2))
                 } else {

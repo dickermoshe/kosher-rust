@@ -1,9 +1,9 @@
 use core::fmt;
 
-/// A tractate of the Mishnah and Talmud.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+/// A tractate of the Mishnah. Tractates sort in the order of the Mishnah.
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
-pub enum Tractate {
+pub enum MishnaTractate {
     /// Berachos (ברכות).
     Berachos,
     /// Peah (פאה).
@@ -132,145 +132,145 @@ pub enum Tractate {
     Uktzin,
 }
 
-impl Tractate {
+impl MishnaTractate {
     /// Every tractate, in the order of the Mishnah.
-    pub const ALL: [Tractate; 63] = [
-        Tractate::Berachos,
-        Tractate::Peah,
-        Tractate::Demai,
-        Tractate::Kilayim,
-        Tractate::Sheviis,
-        Tractate::Terumos,
-        Tractate::Maasros,
-        Tractate::MaaserSheni,
-        Tractate::Chalah,
-        Tractate::Orlah,
-        Tractate::Bikurim,
-        Tractate::Shabbos,
-        Tractate::Eruvin,
-        Tractate::Pesachim,
-        Tractate::Shekalim,
-        Tractate::Yoma,
-        Tractate::Sukkah,
-        Tractate::Beitzah,
-        Tractate::RoshHashanah,
-        Tractate::Taanis,
-        Tractate::Megillah,
-        Tractate::MoedKatan,
-        Tractate::Chagigah,
-        Tractate::Yevamos,
-        Tractate::Kesubos,
-        Tractate::Nedarim,
-        Tractate::Nazir,
-        Tractate::Sotah,
-        Tractate::Gitin,
-        Tractate::Kiddushin,
-        Tractate::BavaKamma,
-        Tractate::BavaMetzia,
-        Tractate::BavaBasra,
-        Tractate::Sanhedrin,
-        Tractate::Makkos,
-        Tractate::Shevuos,
-        Tractate::Eduyos,
-        Tractate::AvodahZarah,
-        Tractate::Avos,
-        Tractate::Horiyos,
-        Tractate::Zevachim,
-        Tractate::Menachos,
-        Tractate::Chullin,
-        Tractate::Bechoros,
-        Tractate::Arachin,
-        Tractate::Temurah,
-        Tractate::Kerisos,
-        Tractate::Meilah,
-        Tractate::Tamid,
-        Tractate::Midos,
-        Tractate::Kinnim,
-        Tractate::Keilim,
-        Tractate::Ohalos,
-        Tractate::Negaim,
-        Tractate::Parah,
-        Tractate::Taharos,
-        Tractate::Mikvaos,
-        Tractate::Niddah,
-        Tractate::Machshirin,
-        Tractate::Zavim,
-        Tractate::TevulYom,
-        Tractate::Yadayim,
-        Tractate::Uktzin,
+    pub const ALL: [MishnaTractate; 63] = [
+        MishnaTractate::Berachos,
+        MishnaTractate::Peah,
+        MishnaTractate::Demai,
+        MishnaTractate::Kilayim,
+        MishnaTractate::Sheviis,
+        MishnaTractate::Terumos,
+        MishnaTractate::Maasros,
+        MishnaTractate::MaaserSheni,
+        MishnaTractate::Chalah,
+        MishnaTractate::Orlah,
+        MishnaTractate::Bikurim,
+        MishnaTractate::Shabbos,
+        MishnaTractate::Eruvin,
+        MishnaTractate::Pesachim,
+        MishnaTractate::Shekalim,
+        MishnaTractate::Yoma,
+        MishnaTractate::Sukkah,
+        MishnaTractate::Beitzah,
+        MishnaTractate::RoshHashanah,
+        MishnaTractate::Taanis,
+        MishnaTractate::Megillah,
+        MishnaTractate::MoedKatan,
+        MishnaTractate::Chagigah,
+        MishnaTractate::Yevamos,
+        MishnaTractate::Kesubos,
+        MishnaTractate::Nedarim,
+        MishnaTractate::Nazir,
+        MishnaTractate::Sotah,
+        MishnaTractate::Gitin,
+        MishnaTractate::Kiddushin,
+        MishnaTractate::BavaKamma,
+        MishnaTractate::BavaMetzia,
+        MishnaTractate::BavaBasra,
+        MishnaTractate::Sanhedrin,
+        MishnaTractate::Makkos,
+        MishnaTractate::Shevuos,
+        MishnaTractate::Eduyos,
+        MishnaTractate::AvodahZarah,
+        MishnaTractate::Avos,
+        MishnaTractate::Horiyos,
+        MishnaTractate::Zevachim,
+        MishnaTractate::Menachos,
+        MishnaTractate::Chullin,
+        MishnaTractate::Bechoros,
+        MishnaTractate::Arachin,
+        MishnaTractate::Temurah,
+        MishnaTractate::Kerisos,
+        MishnaTractate::Meilah,
+        MishnaTractate::Tamid,
+        MishnaTractate::Midos,
+        MishnaTractate::Kinnim,
+        MishnaTractate::Keilim,
+        MishnaTractate::Ohalos,
+        MishnaTractate::Negaim,
+        MishnaTractate::Parah,
+        MishnaTractate::Taharos,
+        MishnaTractate::Mikvaos,
+        MishnaTractate::Niddah,
+        MishnaTractate::Machshirin,
+        MishnaTractate::Zavim,
+        MishnaTractate::TevulYom,
+        MishnaTractate::Yadayim,
+        MishnaTractate::Uktzin,
     ];
 
     /// The name in Hebrew, for example `"בבא מציעא"`.
     pub const fn hebrew(self) -> &'static str {
         match self {
-            Tractate::Berachos => "ברכות",
-            Tractate::Peah => "פאה",
-            Tractate::Demai => "דמאי",
-            Tractate::Kilayim => "כלאים",
-            Tractate::Sheviis => "שביעית",
-            Tractate::Terumos => "תרומות",
-            Tractate::Maasros => "מעשרות",
-            Tractate::MaaserSheni => "מעשר שני",
-            Tractate::Chalah => "חלה",
-            Tractate::Orlah => "ערלה",
-            Tractate::Bikurim => "ביכורים",
-            Tractate::Shabbos => "שבת",
-            Tractate::Eruvin => "עירובין",
-            Tractate::Pesachim => "פסחים",
-            Tractate::Shekalim => "שקלים",
-            Tractate::Yoma => "יומא",
-            Tractate::Sukkah => "סוכה",
-            Tractate::Beitzah => "ביצה",
-            Tractate::RoshHashanah => "ראש השנה",
-            Tractate::Taanis => "תענית",
-            Tractate::Megillah => "מגילה",
-            Tractate::MoedKatan => "מועד קטן",
-            Tractate::Chagigah => "חגיגה",
-            Tractate::Yevamos => "יבמות",
-            Tractate::Kesubos => "כתובות",
-            Tractate::Nedarim => "נדרים",
-            Tractate::Nazir => "נזיר",
-            Tractate::Sotah => "סוטה",
-            Tractate::Gitin => "גיטין",
-            Tractate::Kiddushin => "קידושין",
-            Tractate::BavaKamma => "בבא קמא",
-            Tractate::BavaMetzia => "בבא מציעא",
-            Tractate::BavaBasra => "בבא בתרא",
-            Tractate::Sanhedrin => "סנהדרין",
-            Tractate::Makkos => "מכות",
-            Tractate::Shevuos => "שבועות",
-            Tractate::Eduyos => "עדיות",
-            Tractate::AvodahZarah => "עבודה זרה",
-            Tractate::Avos => "אבות",
-            Tractate::Horiyos => "הוריות",
-            Tractate::Zevachim => "זבחים",
-            Tractate::Menachos => "מנחות",
-            Tractate::Chullin => "חולין",
-            Tractate::Bechoros => "בכורות",
-            Tractate::Arachin => "ערכין",
-            Tractate::Temurah => "תמורה",
-            Tractate::Kerisos => "כריתות",
-            Tractate::Meilah => "מעילה",
-            Tractate::Tamid => "תמיד",
-            Tractate::Midos => "מידות",
-            Tractate::Kinnim => "קינים",
-            Tractate::Keilim => "כלים",
-            Tractate::Ohalos => "אהלות",
-            Tractate::Negaim => "נגעים",
-            Tractate::Parah => "פרה",
-            Tractate::Taharos => "טהרות",
-            Tractate::Mikvaos => "מקואות",
-            Tractate::Niddah => "נדה",
-            Tractate::Machshirin => "מכשירין",
-            Tractate::Zavim => "זבים",
-            Tractate::TevulYom => "טבול יום",
-            Tractate::Yadayim => "ידים",
-            Tractate::Uktzin => "עוקצין",
+            MishnaTractate::Berachos => "ברכות",
+            MishnaTractate::Peah => "פאה",
+            MishnaTractate::Demai => "דמאי",
+            MishnaTractate::Kilayim => "כלאים",
+            MishnaTractate::Sheviis => "שביעית",
+            MishnaTractate::Terumos => "תרומות",
+            MishnaTractate::Maasros => "מעשרות",
+            MishnaTractate::MaaserSheni => "מעשר שני",
+            MishnaTractate::Chalah => "חלה",
+            MishnaTractate::Orlah => "ערלה",
+            MishnaTractate::Bikurim => "ביכורים",
+            MishnaTractate::Shabbos => "שבת",
+            MishnaTractate::Eruvin => "עירובין",
+            MishnaTractate::Pesachim => "פסחים",
+            MishnaTractate::Shekalim => "שקלים",
+            MishnaTractate::Yoma => "יומא",
+            MishnaTractate::Sukkah => "סוכה",
+            MishnaTractate::Beitzah => "ביצה",
+            MishnaTractate::RoshHashanah => "ראש השנה",
+            MishnaTractate::Taanis => "תענית",
+            MishnaTractate::Megillah => "מגילה",
+            MishnaTractate::MoedKatan => "מועד קטן",
+            MishnaTractate::Chagigah => "חגיגה",
+            MishnaTractate::Yevamos => "יבמות",
+            MishnaTractate::Kesubos => "כתובות",
+            MishnaTractate::Nedarim => "נדרים",
+            MishnaTractate::Nazir => "נזיר",
+            MishnaTractate::Sotah => "סוטה",
+            MishnaTractate::Gitin => "גיטין",
+            MishnaTractate::Kiddushin => "קידושין",
+            MishnaTractate::BavaKamma => "בבא קמא",
+            MishnaTractate::BavaMetzia => "בבא מציעא",
+            MishnaTractate::BavaBasra => "בבא בתרא",
+            MishnaTractate::Sanhedrin => "סנהדרין",
+            MishnaTractate::Makkos => "מכות",
+            MishnaTractate::Shevuos => "שבועות",
+            MishnaTractate::Eduyos => "עדיות",
+            MishnaTractate::AvodahZarah => "עבודה זרה",
+            MishnaTractate::Avos => "אבות",
+            MishnaTractate::Horiyos => "הוריות",
+            MishnaTractate::Zevachim => "זבחים",
+            MishnaTractate::Menachos => "מנחות",
+            MishnaTractate::Chullin => "חולין",
+            MishnaTractate::Bechoros => "בכורות",
+            MishnaTractate::Arachin => "ערכין",
+            MishnaTractate::Temurah => "תמורה",
+            MishnaTractate::Kerisos => "כריתות",
+            MishnaTractate::Meilah => "מעילה",
+            MishnaTractate::Tamid => "תמיד",
+            MishnaTractate::Midos => "מידות",
+            MishnaTractate::Kinnim => "קינים",
+            MishnaTractate::Keilim => "כלים",
+            MishnaTractate::Ohalos => "אהלות",
+            MishnaTractate::Negaim => "נגעים",
+            MishnaTractate::Parah => "פרה",
+            MishnaTractate::Taharos => "טהרות",
+            MishnaTractate::Mikvaos => "מקואות",
+            MishnaTractate::Niddah => "נדה",
+            MishnaTractate::Machshirin => "מכשירין",
+            MishnaTractate::Zavim => "זבים",
+            MishnaTractate::TevulYom => "טבול יום",
+            MishnaTractate::Yadayim => "ידים",
+            MishnaTractate::Uktzin => "עוקצין",
         }
     }
 }
 
-impl Tractate {
+impl MishnaTractate {
     /// The variant whose [`name`](Self::name) is exactly `name`. Returns `None` when no
     /// variant has that name.
     pub fn from_name(name: &str) -> Option<Self> {
@@ -280,184 +280,326 @@ impl Tractate {
     /// The name in English, for example `"Bava Metzia"`.
     pub const fn name(self) -> &'static str {
         match self {
-            Tractate::Berachos => "Berachos",
-            Tractate::Peah => "Peah",
-            Tractate::Demai => "Demai",
-            Tractate::Kilayim => "Kilayim",
-            Tractate::Sheviis => "Sheviis",
-            Tractate::Terumos => "Terumos",
-            Tractate::Maasros => "Maasros",
-            Tractate::MaaserSheni => "Maaser Sheni",
-            Tractate::Chalah => "Chalah",
-            Tractate::Orlah => "Orlah",
-            Tractate::Bikurim => "Bikurim",
-            Tractate::Shabbos => "Shabbos",
-            Tractate::Eruvin => "Eruvin",
-            Tractate::Pesachim => "Pesachim",
-            Tractate::Shekalim => "Shekalim",
-            Tractate::Yoma => "Yoma",
-            Tractate::Sukkah => "Sukkah",
-            Tractate::Beitzah => "Beitzah",
-            Tractate::RoshHashanah => "Rosh Hashanah",
-            Tractate::Taanis => "Taanis",
-            Tractate::Megillah => "Megillah",
-            Tractate::MoedKatan => "Moed Katan",
-            Tractate::Chagigah => "Chagigah",
-            Tractate::Yevamos => "Yevamos",
-            Tractate::Kesubos => "Kesubos",
-            Tractate::Nedarim => "Nedarim",
-            Tractate::Nazir => "Nazir",
-            Tractate::Sotah => "Sotah",
-            Tractate::Gitin => "Gitin",
-            Tractate::Kiddushin => "Kiddushin",
-            Tractate::BavaKamma => "Bava Kamma",
-            Tractate::BavaMetzia => "Bava Metzia",
-            Tractate::BavaBasra => "Bava Basra",
-            Tractate::Sanhedrin => "Sanhedrin",
-            Tractate::Makkos => "Makkos",
-            Tractate::Shevuos => "Shevuos",
-            Tractate::Eduyos => "Eduyos",
-            Tractate::AvodahZarah => "Avodah Zarah",
-            Tractate::Avos => "Avos",
-            Tractate::Horiyos => "Horiyos",
-            Tractate::Zevachim => "Zevachim",
-            Tractate::Menachos => "Menachos",
-            Tractate::Chullin => "Chullin",
-            Tractate::Bechoros => "Bechoros",
-            Tractate::Arachin => "Arachin",
-            Tractate::Temurah => "Temurah",
-            Tractate::Kerisos => "Kerisos",
-            Tractate::Meilah => "Meilah",
-            Tractate::Tamid => "Tamid",
-            Tractate::Midos => "Midos",
-            Tractate::Kinnim => "Kinnim",
-            Tractate::Keilim => "Keilim",
-            Tractate::Ohalos => "Ohalos",
-            Tractate::Negaim => "Negaim",
-            Tractate::Parah => "Parah",
-            Tractate::Taharos => "Taharos",
-            Tractate::Mikvaos => "Mikvaos",
-            Tractate::Niddah => "Niddah",
-            Tractate::Machshirin => "Machshirin",
-            Tractate::Zavim => "Zavim",
-            Tractate::TevulYom => "Tevul Yom",
-            Tractate::Yadayim => "Yadayim",
-            Tractate::Uktzin => "Uktzin",
+            MishnaTractate::Berachos => "Berachos",
+            MishnaTractate::Peah => "Peah",
+            MishnaTractate::Demai => "Demai",
+            MishnaTractate::Kilayim => "Kilayim",
+            MishnaTractate::Sheviis => "Sheviis",
+            MishnaTractate::Terumos => "Terumos",
+            MishnaTractate::Maasros => "Maasros",
+            MishnaTractate::MaaserSheni => "Maaser Sheni",
+            MishnaTractate::Chalah => "Chalah",
+            MishnaTractate::Orlah => "Orlah",
+            MishnaTractate::Bikurim => "Bikurim",
+            MishnaTractate::Shabbos => "Shabbos",
+            MishnaTractate::Eruvin => "Eruvin",
+            MishnaTractate::Pesachim => "Pesachim",
+            MishnaTractate::Shekalim => "Shekalim",
+            MishnaTractate::Yoma => "Yoma",
+            MishnaTractate::Sukkah => "Sukkah",
+            MishnaTractate::Beitzah => "Beitzah",
+            MishnaTractate::RoshHashanah => "Rosh Hashanah",
+            MishnaTractate::Taanis => "Taanis",
+            MishnaTractate::Megillah => "Megillah",
+            MishnaTractate::MoedKatan => "Moed Katan",
+            MishnaTractate::Chagigah => "Chagigah",
+            MishnaTractate::Yevamos => "Yevamos",
+            MishnaTractate::Kesubos => "Kesubos",
+            MishnaTractate::Nedarim => "Nedarim",
+            MishnaTractate::Nazir => "Nazir",
+            MishnaTractate::Sotah => "Sotah",
+            MishnaTractate::Gitin => "Gitin",
+            MishnaTractate::Kiddushin => "Kiddushin",
+            MishnaTractate::BavaKamma => "Bava Kamma",
+            MishnaTractate::BavaMetzia => "Bava Metzia",
+            MishnaTractate::BavaBasra => "Bava Basra",
+            MishnaTractate::Sanhedrin => "Sanhedrin",
+            MishnaTractate::Makkos => "Makkos",
+            MishnaTractate::Shevuos => "Shevuos",
+            MishnaTractate::Eduyos => "Eduyos",
+            MishnaTractate::AvodahZarah => "Avodah Zarah",
+            MishnaTractate::Avos => "Avos",
+            MishnaTractate::Horiyos => "Horiyos",
+            MishnaTractate::Zevachim => "Zevachim",
+            MishnaTractate::Menachos => "Menachos",
+            MishnaTractate::Chullin => "Chullin",
+            MishnaTractate::Bechoros => "Bechoros",
+            MishnaTractate::Arachin => "Arachin",
+            MishnaTractate::Temurah => "Temurah",
+            MishnaTractate::Kerisos => "Kerisos",
+            MishnaTractate::Meilah => "Meilah",
+            MishnaTractate::Tamid => "Tamid",
+            MishnaTractate::Midos => "Midos",
+            MishnaTractate::Kinnim => "Kinnim",
+            MishnaTractate::Keilim => "Keilim",
+            MishnaTractate::Ohalos => "Ohalos",
+            MishnaTractate::Negaim => "Negaim",
+            MishnaTractate::Parah => "Parah",
+            MishnaTractate::Taharos => "Taharos",
+            MishnaTractate::Mikvaos => "Mikvaos",
+            MishnaTractate::Niddah => "Niddah",
+            MishnaTractate::Machshirin => "Machshirin",
+            MishnaTractate::Zavim => "Zavim",
+            MishnaTractate::TevulYom => "Tevul Yom",
+            MishnaTractate::Yadayim => "Yadayim",
+            MishnaTractate::Uktzin => "Uktzin",
         }
     }
 }
 
 /// The name in English, for example "Bava Metzia".
-impl fmt::Display for Tractate {
+impl fmt::Display for MishnaTractate {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.name())
     }
 }
-/// A list of all the tractates in Talmud Bavli.
-pub(crate) const BAVLI_TRACTATES: [Tractate; 40] = [
-    Tractate::Berachos,
-    Tractate::Shabbos,
-    Tractate::Eruvin,
-    Tractate::Pesachim,
-    Tractate::Shekalim,
-    Tractate::Yoma,
-    Tractate::Sukkah,
-    Tractate::Beitzah,
-    Tractate::RoshHashanah,
-    Tractate::Taanis,
-    Tractate::Megillah,
-    Tractate::MoedKatan,
-    Tractate::Chagigah,
-    Tractate::Yevamos,
-    Tractate::Kesubos,
-    Tractate::Nedarim,
-    Tractate::Nazir,
-    Tractate::Sotah,
-    Tractate::Gitin,
-    Tractate::Kiddushin,
-    Tractate::BavaKamma,
-    Tractate::BavaMetzia,
-    Tractate::BavaBasra,
-    Tractate::Sanhedrin,
-    Tractate::Makkos,
-    Tractate::Shevuos,
-    Tractate::AvodahZarah,
-    Tractate::Horiyos,
-    Tractate::Zevachim,
-    Tractate::Menachos,
-    Tractate::Chullin,
-    Tractate::Bechoros,
-    Tractate::Arachin,
-    Tractate::Temurah,
-    Tractate::Kerisos,
-    Tractate::Meilah,
-    Tractate::Kinnim,
-    Tractate::Tamid,
-    Tractate::Midos,
-    Tractate::Niddah,
-];
+/// Declares a Talmud's tractates, in its own order, from the [`MishnaTractate`]s they share names
+/// with.
+macro_rules! talmud_tractates {
+    ($(#[doc = $enum_doc:literal])* $talmud:ident, $count:literal { $($(#[doc = $doc:literal])* $variant:ident,)* }) => {
+        $(#[doc = $enum_doc])*
+        #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+        #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+        pub enum $talmud {
+            $($(#[doc = $doc])* $variant,)*
+        }
 
-/// A list of all the tractates in Talmud Yerushalmi.
-pub(crate) const YERUSHALMI_TRACTATES: [Tractate; 39] = [
-    Tractate::Berachos,
-    Tractate::Peah,
-    Tractate::Demai,
-    Tractate::Kilayim,
-    Tractate::Sheviis,
-    Tractate::Terumos,
-    Tractate::Maasros,
-    Tractate::MaaserSheni,
-    Tractate::Chalah,
-    Tractate::Orlah,
-    Tractate::Bikurim,
-    Tractate::Shabbos,
-    Tractate::Eruvin,
-    Tractate::Pesachim,
-    Tractate::Beitzah,
-    Tractate::RoshHashanah,
-    Tractate::Yoma,
-    Tractate::Sukkah,
-    Tractate::Taanis,
-    Tractate::Shekalim,
-    Tractate::Megillah,
-    Tractate::Chagigah,
-    Tractate::MoedKatan,
-    Tractate::Yevamos,
-    Tractate::Kesubos,
-    Tractate::Sotah,
-    Tractate::Nedarim,
-    Tractate::Nazir,
-    Tractate::Gitin,
-    Tractate::Kiddushin,
-    Tractate::BavaKamma,
-    Tractate::BavaMetzia,
-    Tractate::BavaBasra,
-    Tractate::Shevuos,
-    Tractate::Makkos,
-    Tractate::Sanhedrin,
-    Tractate::AvodahZarah,
-    Tractate::Horiyos,
-    Tractate::Niddah,
-];
+        impl $talmud {
+            /// Every tractate, in this Talmud's order.
+            pub const ALL: [$talmud; $count] = [$($talmud::$variant),*];
+
+            /// The variant whose [`name`](Self::name) is exactly `name`. Returns `None` when no
+            /// variant has that name.
+            pub fn from_name(name: &str) -> Option<Self> {
+                Self::ALL.into_iter().find(|candidate| candidate.name() == name)
+            }
+
+            /// The name in English, for example `"Bava Metzia"`.
+            pub const fn name(self) -> &'static str {
+                self.mishna().name()
+            }
+
+            /// The name in Hebrew, for example `"בבא מציעא"`.
+            pub const fn hebrew(self) -> &'static str {
+                self.mishna().hebrew()
+            }
+
+            /// The tractate of the Mishnah with the same name.
+            pub const fn mishna(self) -> MishnaTractate {
+                match self {
+                    $($talmud::$variant => MishnaTractate::$variant,)*
+                }
+            }
+        }
+
+        impl From<$talmud> for MishnaTractate {
+            fn from(tractate: $talmud) -> Self {
+                tractate.mishna()
+            }
+        }
+
+        /// The name in English, for example "Bava Metzia".
+        impl fmt::Display for $talmud {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                f.write_str(self.name())
+            }
+        }
+    };
+}
+
+talmud_tractates! {
+    /// A tractate of Talmud Bavli. Tractates sort in the order Daf Yomi learns them.
+    ///
+    /// It includes Shekalim, which is from the Yerushalmi but printed and learned with the Bavli.
+    BavliTractate, 40 {
+        /// Berachos (ברכות).
+        Berachos,
+        /// Shabbos (שבת).
+        Shabbos,
+        /// Eruvin (עירובין).
+        Eruvin,
+        /// Pesachim (פסחים).
+        Pesachim,
+        /// Shekalim (שקלים).
+        Shekalim,
+        /// Yoma (יומא).
+        Yoma,
+        /// Sukkah (סוכה).
+        Sukkah,
+        /// Beitzah (ביצה).
+        Beitzah,
+        /// Rosh Hashanah (ראש השנה).
+        RoshHashanah,
+        /// Taanis (תענית).
+        Taanis,
+        /// Megillah (מגילה).
+        Megillah,
+        /// Moed Katan (מועד קטן).
+        MoedKatan,
+        /// Chagigah (חגיגה).
+        Chagigah,
+        /// Yevamos (יבמות).
+        Yevamos,
+        /// Kesubos (כתובות).
+        Kesubos,
+        /// Nedarim (נדרים).
+        Nedarim,
+        /// Nazir (נזיר).
+        Nazir,
+        /// Sotah (סוטה).
+        Sotah,
+        /// Gitin (גיטין).
+        Gitin,
+        /// Kiddushin (קידושין).
+        Kiddushin,
+        /// Bava Kamma (בבא קמא).
+        BavaKamma,
+        /// Bava Metzia (בבא מציעא).
+        BavaMetzia,
+        /// Bava Basra (בבא בתרא).
+        BavaBasra,
+        /// Sanhedrin (סנהדרין).
+        Sanhedrin,
+        /// Makkos (מכות).
+        Makkos,
+        /// Shevuos (שבועות).
+        Shevuos,
+        /// Avodah Zarah (עבודה זרה).
+        AvodahZarah,
+        /// Horiyos (הוריות).
+        Horiyos,
+        /// Zevachim (זבחים).
+        Zevachim,
+        /// Menachos (מנחות).
+        Menachos,
+        /// Chullin (חולין).
+        Chullin,
+        /// Bechoros (בכורות).
+        Bechoros,
+        /// Arachin (ערכין).
+        Arachin,
+        /// Temurah (תמורה).
+        Temurah,
+        /// Kerisos (כריתות).
+        Kerisos,
+        /// Meilah (מעילה).
+        Meilah,
+        /// Kinnim (קינים).
+        Kinnim,
+        /// Tamid (תמיד).
+        Tamid,
+        /// Midos (מידות).
+        Midos,
+        /// Niddah (נדה).
+        Niddah,
+    }
+}
+
+talmud_tractates! {
+    /// A tractate of Talmud Yerushalmi. Tractates sort in the order of the Vilna edition.
+    YerushalmiTractate, 39 {
+        /// Berachos (ברכות).
+        Berachos,
+        /// Peah (פאה).
+        Peah,
+        /// Demai (דמאי).
+        Demai,
+        /// Kilayim (כלאים).
+        Kilayim,
+        /// Sheviis (שביעית).
+        Sheviis,
+        /// Terumos (תרומות).
+        Terumos,
+        /// Maasros (מעשרות).
+        Maasros,
+        /// Maaser Sheni (מעשר שני).
+        MaaserSheni,
+        /// Chalah (חלה).
+        Chalah,
+        /// Orlah (ערלה).
+        Orlah,
+        /// Bikurim (ביכורים).
+        Bikurim,
+        /// Shabbos (שבת).
+        Shabbos,
+        /// Eruvin (עירובין).
+        Eruvin,
+        /// Pesachim (פסחים).
+        Pesachim,
+        /// Beitzah (ביצה).
+        Beitzah,
+        /// Rosh Hashanah (ראש השנה).
+        RoshHashanah,
+        /// Yoma (יומא).
+        Yoma,
+        /// Sukkah (סוכה).
+        Sukkah,
+        /// Taanis (תענית).
+        Taanis,
+        /// Shekalim (שקלים).
+        Shekalim,
+        /// Megillah (מגילה).
+        Megillah,
+        /// Chagigah (חגיגה).
+        Chagigah,
+        /// Moed Katan (מועד קטן).
+        MoedKatan,
+        /// Yevamos (יבמות).
+        Yevamos,
+        /// Kesubos (כתובות).
+        Kesubos,
+        /// Sotah (סוטה).
+        Sotah,
+        /// Nedarim (נדרים).
+        Nedarim,
+        /// Nazir (נזיר).
+        Nazir,
+        /// Gitin (גיטין).
+        Gitin,
+        /// Kiddushin (קידושין).
+        Kiddushin,
+        /// Bava Kamma (בבא קמא).
+        BavaKamma,
+        /// Bava Metzia (בבא מציעא).
+        BavaMetzia,
+        /// Bava Basra (בבא בתרא).
+        BavaBasra,
+        /// Shevuos (שבועות).
+        Shevuos,
+        /// Makkos (מכות).
+        Makkos,
+        /// Sanhedrin (סנהדרין).
+        Sanhedrin,
+        /// Avodah Zarah (עבודה זרה).
+        AvodahZarah,
+        /// Horiyos (הוריות).
+        Horiyos,
+        /// Niddah (נדה).
+        Niddah,
+    }
+}
 
 /// A page (*daf*) of the Talmud, both sides of one leaf. Prints as "Bava Metzia 55".
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+///
+/// `T` is the Talmud's tractate type, [`BavliTractate`] or [`YerushalmiTractate`]. Pages sort in
+/// that Talmud's order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
-pub struct Daf {
+pub struct Daf<T> {
     /// The tractate.
-    pub tractate: Tractate,
+    pub tractate: T,
     /// The page number. The Bavli starts at 2, the Yerushalmi at 1.
     pub daf: u16,
 }
 
-impl fmt::Display for Daf {
+impl<T: fmt::Display> fmt::Display for Daf<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} {}", self.tractate, self.daf)
     }
 }
 
 /// A side of a page, either *amud aleph* (a) or *amud beis* (b).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Side {
     /// The front of the page, "a".
@@ -466,12 +608,14 @@ pub enum Side {
     Bet,
 }
 
-/// One side of a page (*amud*). Prints as "Bava Metzia 55b".
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+/// One side of a page (*amud*) of the Bavli. Prints as "Bava Metzia 55b".
+///
+/// Sides sort in the order Daf Yomi learns them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Amud {
     /// The tractate.
-    pub tractate: Tractate,
+    pub tractate: BavliTractate,
     /// The page number. The Bavli starts at 2.
     pub daf: u16,
     /// Which side of the page.
@@ -489,7 +633,7 @@ impl fmt::Display for Amud {
 }
 
 impl Amud {
-    pub(crate) const fn new(tractate: Tractate, daf: u16, side: Side) -> Self {
+    pub(crate) const fn new(tractate: BavliTractate, daf: u16, side: Side) -> Self {
         Self { tractate, daf, side }
     }
 
@@ -536,11 +680,13 @@ impl Amud {
 }
 
 /// One *mishnah*. Prints as "Nazir 5:5".
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+///
+/// *Mishnayos* sort in the order of the Mishnah.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Mishna {
     /// The tractate.
-    pub tractate: Tractate,
+    pub tractate: MishnaTractate,
     /// The chapter (*perek*), from 1.
     pub chapter: u16,
     /// The *mishnah* within the chapter, from 1.

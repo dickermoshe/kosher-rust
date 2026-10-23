@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 (2026-10-22)
+## 0.3.0 (unreleased)
 
 0.3 rebuilds the public API around what users do. Apart from the fixes below, the calculations
 are unchanged, and they are still checked against KosherJava and hebcal.
@@ -29,8 +29,9 @@ are unchanged, and they are still checked against KosherJava and hebcal.
   uses the one after, as KosherJava does.
 - **No panics at the ends of the date range.** Near the first and last days a `Timestamp` holds,
   times built by adding to or subtracting from another time panicked when the result fell
-  outside the range, even with the default `Config`. They now return `ZmanimError::Internal`,
-  as do candle-lighting and Ateret Torah offsets too large to add.
+  outside the range, even with the default `Config`. They now return the new
+  `ZmanimError::TimeOutOfRange`. A candle-lighting or Ateret Torah offset of a day or more
+  returns the new `ZmanimError::InvalidOffset`.
 - **`HebrewDate` has a range.** It covers 1 January of year 1, which is 18 Teves 3761, through
   29 Elul 9999. Converting a date outside that range fails with `DateOutOfRange`, where before it
   gave wrong leap years, parshiyos and moladot, or a panic in `molad`. The times that need a
@@ -50,9 +51,6 @@ are unchanged, and they are still checked against KosherJava and hebcal.
   it does for every other week, and agrees with hebcal.
 - **`PirkeiAvos` past Hebrew year 9999.** It panicked for every date from the summer of 9999
   (Gregorian 6239) on. That summer now has its portions, and from 10000 on there are none.
-- **`PirkeiAvos` on the weekdays of Pesach.** A weekday of Pesach week returned `None`, even when
-  that week's Shabbos is after Pesach and has a reading. It now gives that Shabbos's chapter, as
-  every other weekday does.
 - **Sunrise and sunset near the date line.** Within a few degrees of 180°, in polar winter or
   summer, a sunrise or sunset near local noon could be reported a day early or late, and the times
   built on it with it. They now fall on their own date.
@@ -65,6 +63,26 @@ are unchanged, and they are still checked against KosherJava and hebcal.
 - **Zman descriptions.** Offsets are written with their seconds ("18 minutes 45 seconds"). Morning
   times such as Shema say they divide the morning when astronomical chatzos is used, and Mincha
   Gedola (Ahavat Shalom) and Mincha Gedola (GR'A, greater than 30) mention the chatzos setting.
+- **Bain Hashmashos (Rabbeinu Tam, 2 stars)** keeps the nanoseconds of the time from alos to
+  sunrise, as KosherJava does. It was up to a millisecond off.
+
+### Changes since 0.3.0-rc.1
+
+- `ZmanimError` has two new variants. `InvalidOffset` is for an offset of a day or more, and
+  `TimeOutOfRange` for a time past either end of the range a `Timestamp` holds. Both used to be
+  `ZmanimError::Internal`.
+- `Config::ateret_torah_sunset_offset` is a `core::time::Duration` after sunset, like
+  `candle_lighting_offset`.
+- `Location` is `Copy`.
+- `HebrewDate::molad()` returns a `Molad` and `HebrewDate::to_gregorian()` a
+  `jiff::civil::Date`, without the `Option`.
+- `Category::SofZmanTefila` and `Category::BeinHashmashos` are now `Category::SofZmanTfila` and
+  `Category::BainHashmashos`, spelled like the zmanim they group.
+- `Tractate` is now three enums, `MishnaTractate`, `BavliTractate` and `YerushalmiTractate`, each
+  in its own work's order. `Daf` takes the Talmud's tractate type, so Daf Yomi Bavli gives a
+  `Daf<BavliTractate>` and Daf Yomi Yerushalmi a `Daf<YerushalmiTractate>`. `Amud` has a
+  `BavliTractate` and `Mishna` a `MishnaTractate`.
+- The tractates, `Daf`, `Amud`, `Side`, `Mishna` and `MishnaPair` sort.
 
 ### Migrating from 0.2
 
@@ -106,7 +124,7 @@ are unchanged, and they are still checked against KosherJava and hebcal.
 | `ZmanimError::InvalidLatitude`, `InvalidLongitude`, `InvalidElevation` | `LocationError::*`, returned when the `Location` is built |
 | `ZmanimError::TimeZoneRequired` from `Location::new` | `ZmanimError::TimeZoneRequired` from `get`. Without a time zone it is returned by the four Kiddush Levana times, by `get_zoned`, and by every time more than 150° from Greenwich |
 | `ZmanimError::InvalidForDate` | `ZmanimError::NotApplicable`, which the polar Ben Ish Chai times now also return on ordinary days |
-| `ZmanimError::CalculationError`, `TimeConversionError`, `InvalidHours` | `ZmanimError::Internal` |
+| `ZmanimError::CalculationError`, `TimeConversionError`, `InvalidHours` | `ZmanimError::TimeOutOfRange` past either end of the range a `Timestamp` holds, `ZmanimError::InvalidOffset` for an offset of a day or more, and `ZmanimError::Internal` otherwise |
 
 Elevations must now be finite; an infinite observer elevation used to be accepted.
 
@@ -122,7 +140,7 @@ Elevations must now be finite; an infinite observer elevation used to be accepte
 | `preset.method_name`, `.name`, `.zman_type`, `.deprecated` | `zman.java_name()`, `.name()`, `.category()`, `.is_deprecated()` |
 | `preset.description(&calc)` | `zman.description(&config)` |
 | `ZmanType` | `Category` |
-| `CalculatorConfig` | `Config`. Its `candle_lighting_offset` is a `core::time::Duration` before sunset |
+| `CalculatorConfig` | `Config`. Its `candle_lighting_offset` and `ateret_torah_sunset_offset` are `core::time::Duration`s before and after sunset |
 | `ZmanPrimitive`, `ZmanLike`, `ZmanPreset` | private. For a custom depression angle use `Zmanim::sunrise_offset_by_degrees` / `sunset_offset_by_degrees`; for proportional hours, `zmanim::shaah_zmanis` |
 | `kosher_rust::for_all_zman_presets!` | removed; iterate `Zman::ALL` |
 
@@ -140,13 +158,15 @@ warning where you name them.
 | `DafYomiYerushalmiVilna` | `DafYomiYerushalmi` |
 | `PirkeiAvos { in_israel }`, `PirkeiAvos::new(in_israel)` | `PirkeiAvos(Region::Israel)` / `PirkeiAvos(Region::Diaspora)` |
 | `Mishnas(first, second)` | `MishnaPair { first, second }` |
+| `Tractate` | `MishnaTractate`, `BavliTractate` or `YerushalmiTractate`, each in its own order. `BavliTractate` and `YerushalmiTractate` convert to `MishnaTractate` with `From` |
+| `Daf` | `Daf<BavliTractate>` from the Bavli schedules and `Daf<YerushalmiTractate>` from `DafYomiYerushalmi` |
 | `Daf::page`, `Amud::page` | `Daf::daf`, `Amud::daf` |
 | `Amud::amudim_to`, `Amud::at_offset` | removed |
 | `Mishna::chapter` as a `usize` | a `u16`, like `Mishna::mishna` |
 
-`Daf`, `Amud`, `Mishna`, `MishnaPair`, `TehillimUnit`, `PirkeiAvosUnit` and `Tractate` implement
-`Display` ("Bava Metzia 55", "Nazir 5:5-6", "Tehillim 119:1-96"); `Tractate::hebrew()` gives the
-Hebrew name.
+`Daf`, `Amud`, `Mishna`, `MishnaPair`, `TehillimUnit`, `PirkeiAvosUnit` and the three tractate
+enums implement `Display` ("Bava Metzia 55", "Nazir 5:5-6", "Tehillim 119:1-96"). `hebrew()` on a
+tractate gives its Hebrew name.
 
 #### MyZmanim
 
@@ -167,19 +187,20 @@ Hebrew name.
   times that need one.
 - **`get_zoned`.** `Zmanim` and `MyZmanim` give a time as a `Zoned` in their time zone, with
   any time zone.
-- **Lists and names.** `SpecialDay`, `Parsha`, `Tractate` and `HebrewMonth` have `ALL` and
-  `name()`, as `Zman` and `MyZman` do. `Zman`, `MyZman`, `Parsha`, `Tractate` and `HebrewMonth`
+- **Lists and names.** `SpecialDay`, `Parsha`, the tractates and `HebrewMonth` have `ALL` and
+  `name()`, as `Zman` and `MyZman` do. `Zman`, `MyZman`, `Parsha`, the tractates and `HebrewMonth`
   also have `from_name`, which returns the variant with that name or `None`.
 - **The molad as it is announced.** `Molad` has `weekday()`, `hours()`, `minutes()` and
   `chalakim()`, in Jerusalem mean time.
-- **Sorting.** `Mishna` and `MishnaPair` sort in the order of the Mishnah, as `Daf` and `Amud`
-  do. `Zmanim` implements `PartialEq`.
+- **Sorting.** `MishnaTractate`, `Mishna` and `MishnaPair` sort in the order of the Mishnah.
+  `BavliTractate`, `Amud` and a Bavli `Daf` sort in the order Daf Yomi learns them, and
+  `YerushalmiTractate` and a Yerushalmi `Daf` in the order of the Vilna edition. `Zmanim` implements
+  `PartialEq`.
 - **Room to grow.** `Zman`, `MyZman`, `Category`, `SpecialDay` and `AstronomicalCalculator` are
   `#[non_exhaustive]`, so later releases can add to them without breaking your code. A `match` on
   one needs a `_` arm. The error types stay exhaustive.
-
 - The README is the crate's front page and its examples are tested; `examples/today.rs` prints
   today's date, holidays, learning and zmanim.
 - `no_std` builds are checked in CI for `thumbv7em-none-eabihf`, with and without `alloc`.
 - `cargo bench` (divan) replaces the 10 ms timing assertions that ran as tests.
-- Every public item is documented, including every `SpecialDay`, `Parsha`, `Tractate` and `Zman`.
+- Every public item is documented, including every `SpecialDay`, `Parsha`, tractate and `Zman`.
