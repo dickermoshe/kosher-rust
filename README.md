@@ -77,11 +77,20 @@ candle-lighting offset, build the calculator with `Zmanim::with_config` and a `z
 
 ### Time zones
 
-When calculating *zmanim*, pass a time zone to `Zmanim::new` or `MyZmanim::new`. If you pass
-`None`, you will get `ZmanimError::TimeZoneRequired` when you call `get_zoned`, for any *zman* if
-the location is more than 150° east or west of Greenwich, and when you calculate one of the four
-Kiddush Levana *zmanim* (`TchilasZmanKidushLevana3Days`, `TchilasZmanKidushLevana7Days`,
-`SofZmanKidushLevanaBetweenMoldos` or `SofZmanKidushLevana15Days`).
+You can calculate *zmanim* without a time zone, but there are some limitations. In these cases you
+get `ZmanimError::TimeZoneRequired`.
+
+- The `get_zoned` function always returns this error when no time zone was provided. If you would
+  like to use this function, you must provide a time zone.
+- The `get` function returns this error for any *zman* when the location is more than 150° east or
+  west of Greenwich. For example, Auckland, New Zealand is at 174.76° east, so none of its *zmanim*
+  can be calculated without a time zone.
+- The `get` function returns this error for the four Kiddush Levana *zmanim*, even for locations
+  close to Greenwich.
+  - `TchilasZmanKidushLevana3Days`
+  - `TchilasZmanKidushLevana7Days`
+  - `SofZmanKidushLevanaBetweenMoldos`
+  - `SofZmanKidushLevana15Days`
 
 ## Learning schedules
 
