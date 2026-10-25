@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 // ../.., where this example links it from instead of from npm. The WebAssembly is inlined in the
 // package's JavaScript, which makes the chunk larger than Vite's default warning size.
 //
-// The app is index.html. slim.html uses `kr4js/slim`, which loads the WebAssembly as a file.
+// The app is index.html. slim.html uses `@dickermoshe/kr4js/slim`, which loads the WebAssembly as a file.
 export default defineConfig({
   plugins: [react()],
   server: { fs: { allow: ["../.."] } },

@@ -134,13 +134,6 @@ impl JsHebrewDate {
         Ok(date.ok_or(Error::Range(MESSAGE))?.into())
     }
 
-    /// Today's Hebrew date, by the civil day in `zone` or in the runtime's local time zone.
-    pub fn today(
-        #[wasm_bindgen(unchecked_optional_param_type = "TimeZoneInput")] zone: Option<JsValue>,
-    ) -> Result<JsHebrewDate, Error> {
-        Ok(HebrewDate::try_from(date::today(zone.unwrap_or(JsValue::UNDEFINED))?)?.into())
-    }
-
     /// The Hebrew year, such as 5784.
     #[wasm_bindgen(getter)]
     pub fn year(&self) -> i32 {

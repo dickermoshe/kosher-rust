@@ -2,8 +2,6 @@ import { describe, expect, test } from "vitest";
 
 import {
   allZmanim,
-  fixedOffset,
-  localTime,
   MyZmanim,
   shaahZmanis,
   Zmanim,
@@ -11,7 +9,7 @@ import {
   zmanInfo,
   type Zman,
   type ZmanimError,
-} from "kr4js";
+} from "@dickermoshe/kr4js";
 
 const lakewood = { latitude: 40.09, longitude: -74.22, elevation: 30 };
 const options = { location: lakewood, timeZone: "America/New_York", date: { year: 2024, month: 4, day: 23 } } as const;
@@ -30,8 +28,7 @@ function zmanimError(run: () => unknown): ZmanimError {
 
 function clock(time: Date | null, zone = "America/New_York"): string {
   if (!time) throw new Error("expected a time");
-  const { hour, minute } = localTime(time, zone);
-  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  return time.toLocaleTimeString("en-GB", { timeZone: zone, hour: "2-digit", minute: "2-digit" });
 }
 
 describe("Zmanim", () => {
@@ -44,7 +41,7 @@ describe("Zmanim", () => {
     const zmanim = new Zmanim({ ...options, candleLightingOffset: 40 });
     expect(zmanim.location).toEqual(lakewood);
     expect(zmanim.date).toEqual({ year: 2024, month: 4, day: 23 });
-    expect(zmanim.timeZone?.name).toBe("America/New_York");
+    expect(zmanim.timeZone).toBe("America/New_York");
     expect(zmanim.config).toEqual({ candleLightingOffset: 40 });
   });
 
@@ -102,6 +99,15 @@ describe("Zmanim", () => {
     const elevated = new Zmanim({ ...options, location: high, useElevation: true });
     expect(plain.get("alos72Minutes")!.getTime()).toBeGreaterThan(elevated.get("alos72Minutes")!.getTime());
     expect(plain.get("sunrise")).toEqual(elevated.get("sunrise"));
+  });
+
+  test("a raised horizon makes sunrise later and sunset earlier", () => {
+    const high = { ...lakewood, elevation: 800 };
+    const open = new Zmanim({ ...options, location: high });
+    const hills = new Zmanim({ ...options, location: { ...high, easternHorizon: 800, westernHorizon: 400 } });
+    expect(hills.get("sunrise")!.getTime()).toBeGreaterThan(open.get("sunrise")!.getTime());
+    expect(hills.get("sunset")!.getTime()).toBeLessThan(open.get("sunset")!.getTime());
+    expect(hills.get("sunrise")).toEqual(new Zmanim({ ...options, location: { ...lakewood, elevation: 0 } }).get("sunrise"));
   });
 
   test("the calculators agree to within a minute", () => {
@@ -182,9 +188,9 @@ describe("MyZmanim", () => {
     expect(times.on({ year: 2026, month: 11, day: 7 }).candleLightingOffset).toBe(40);
   });
 
-  test("works with a fixed offset", () => {
-    const anvers = new MyZmanim({ location: { latitude: 51.216667, longitude: 4.416667 }, timeZone: fixedOffset(60), date: { year: 2027, month: 3, day: 1 } });
-    expect(clock(anvers.get("shemaGra"), "+01:00")).toBe("10:11");
+  test("works in another time zone", () => {
+    const anvers = new MyZmanim({ location: { latitude: 51.216667, longitude: 4.416667 }, timeZone: "Europe/Brussels", date: { year: 2027, month: 3, day: 1 } });
+    expect(clock(anvers.get("shemaGra"), "Europe/Brussels")).toBe("10:11");
     expect(anvers.proportionalHourGra()).toBeGreaterThan(50 * 60_000);
   });
 });

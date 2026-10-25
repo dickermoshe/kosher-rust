@@ -1,5 +1,5 @@
 import * as glue from "./wasm/kr4js.js";
-import { timeZone } from "./timezone.js";
+import { offsetAt } from "./timezone.js";
 
 /** Instantiates the WebAssembly from `module`, for the entries that load it as the package loads. */
 export function start(module: () => WebAssembly.Module | BufferSource): void {
@@ -8,12 +8,12 @@ export function start(module: () => WebAssembly.Module | BufferSource): void {
   } catch (error) {
     throw new Error(
       "kr4js could not compile its WebAssembly here. Where compiling it at runtime isn't " +
-        "allowed, as in Cloudflare Workers, import kr4js/slim and pass `init` the module " +
-        "imported from kr4js/kr4js.wasm.",
+        "allowed, as in Cloudflare Workers, import @dickermoshe/kr4js/slim and pass `init` " +
+        "the module imported from @dickermoshe/kr4js/kr4js.wasm.",
       { cause: error },
     );
   }
-  glue.setTimeZoneResolver(timeZone);
+  glue.setTimeZoneResolver(offsetAt);
 }
 
 let loading: Promise<void> | undefined;
@@ -25,7 +25,7 @@ let loading: Promise<void> | undefined;
  */
 export function load(source: glue.InitInput | Promise<glue.InitInput>): Promise<void> {
   loading ??= glue.default({ module_or_path: source }).then(
-    () => glue.setTimeZoneResolver(timeZone),
+    () => glue.setTimeZoneResolver(offsetAt),
     (error: unknown) => {
       loading = undefined;
       throw error;

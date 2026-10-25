@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("kr4js/slim fetches the WebAssembly file Vite copied into the build", async ({ page }) => {
+test("@dickermoshe/kr4js/slim fetches the WebAssembly file Vite copied into the build", async ({ page }) => {
   page.on("pageerror", (error) => {
     throw error;
   });

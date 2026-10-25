@@ -14,7 +14,7 @@
     "typecheck": "tsc -p jsconfig.json"
   },
   "dependencies": {
-    "kr4js": "file:../.."
+    "@dickermoshe/kr4js": "file:../.."
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

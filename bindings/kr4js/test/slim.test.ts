@@ -9,7 +9,7 @@ import { dafYomiBavli, HebrewDate, init, Zmanim } from "../dist/slim.js";
 
 const bytes = readFileSync(new URL("../dist/wasm/kr4js_bg.wasm", import.meta.url));
 
-describe("kr4js/slim", () => {
+describe("@dickermoshe/kr4js/slim", () => {
   test("throws before init is called", () => {
     const script = fileURLToPath(new URL("./fixtures/slim-before-init.mjs", import.meta.url));
     expect(execFileSync(process.execPath, [script], { encoding: "utf8" }).trim()).toBe("threw");

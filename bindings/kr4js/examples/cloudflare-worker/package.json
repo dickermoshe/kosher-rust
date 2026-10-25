@@ -9,7 +9,7 @@
     "test": "node --test"
   },
   "dependencies": {
-    "kr4js": "file:../.."
+    "@dickermoshe/kr4js": "file:../.."
   },
   "devDependencies": {
     "wrangler": "^4.40.0"

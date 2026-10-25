@@ -4,13 +4,11 @@ import {
   HebrewDate,
   Zmanim,
   dafYomiBavli,
-  localTime,
   mishnaYomis,
   tehillimMonthly,
-  today,
-} from "kr4js";
+} from "@dickermoshe/kr4js";
 
-/** @typedef {{ name: string, location: import("kr4js").LocationOptions, timeZone: string, region: import("kr4js").Region }} City */
+/** @typedef {{ name: string, location: import("@dickermoshe/kr4js").LocationOptions, timeZone: string, region: import("@dickermoshe/kr4js").Region }} City */
 
 /** Places the app knows by name. @type {Record<string, City>} */
 export const CITIES = {
@@ -21,7 +19,7 @@ export const CITIES = {
   melbourne: { name: "Melbourne", location: { latitude: -37.8136, longitude: 144.9631, elevation: 30 }, timeZone: "Australia/Melbourne", region: "diaspora" },
 };
 
-/** The zmanim the report shows, in order. @type {import("kr4js").Zman[]} */
+/** The zmanim the report shows, in order. @type {import("@dickermoshe/kr4js").Zman[]} */
 export const SHOWN = [
   "alos72Minutes",
   "misheyakir10Point2Degrees",
@@ -42,16 +40,15 @@ export const SHOWN = [
 /** `time` as HH:MM:SS in `timeZone`. @param {Date | null} time @param {string} timeZone */
 function clock(time, timeZone) {
   if (!time) return "—";
-  const { hour, minute, second } = localTime(time, timeZone);
-  return [hour, minute, second].map((n) => String(n).padStart(2, "0")).join(":");
+  return time.toLocaleTimeString("en-GB", { timeZone });
 }
 
 /**
- * The report for `city` on `date`, today in the city when left out.
+ * The report for `city` on `date`, today when left out.
  * @param {City} city
- * @param {import("kr4js").DateInput} [date]
+ * @param {import("@dickermoshe/kr4js").DateInput} [date]
  */
-export function report(city, date = today(city.timeZone)) {
+export function report(city, date = new Date()) {
   const hebrew = HebrewDate.from(date);
   const zmanim = new Zmanim({ location: city.location, timeZone: city.timeZone, date });
   const shown = new Set(SHOWN);

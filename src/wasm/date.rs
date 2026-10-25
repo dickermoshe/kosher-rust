@@ -5,8 +5,6 @@ use tsify::Tsify;
 use wasm_bindgen::prelude::*;
 
 use super::error::Error;
-use super::zone::JsZone;
-use crate::Zone;
 use crate::calendar::DateOutOfRange;
 
 #[wasm_bindgen(typescript_custom_section)]
@@ -83,16 +81,4 @@ pub(crate) fn gregorian(input: &JsValue) -> Result<civil::Date, Error> {
     Err(Error::Type(
         "a date is a Date, or an object with year, month and day".into(),
     ))
-}
-
-/// Today's date in the time zone `input` gives, or in the runtime's local time zone without one.
-pub(crate) fn today(input: JsValue) -> Result<civil::Date, Error> {
-    let now = js_sys::Date::new_0();
-    let Some(zone) = JsZone::from_input(input)? else {
-        return gregorian(&now.into());
-    };
-    let instant = jiff::Timestamp::from_millisecond(now.get_time() as i64)?;
-    let offset = zone.offset(instant);
-    zone.check()?;
-    Ok(offset.to_datetime(instant).date())
 }

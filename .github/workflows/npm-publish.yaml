@@ -46,5 +46,11 @@ jobs:
       # Trusted publishing needs npm 11.5.1 or later.
       - run: npm install --global npm@^11.5.1
       - run: npm ci
-      # prepublishOnly builds the package and runs its tests first.
-      - run: npm publish --provenance --access public
+      # prepublishOnly builds the package and runs its tests first. Prereleases such as 0.2.0-rc.1
+      # go to the next dist-tag so they aren't installed by default.
+      - run: |
+          case "$(node -p 'require("./package.json").version')" in
+            *-*) tag=next ;;
+            *) tag=latest ;;
+          esac
+          npm publish --provenance --access public --tag "$tag"

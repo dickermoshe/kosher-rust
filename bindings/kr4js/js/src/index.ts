@@ -3,7 +3,7 @@
  * WebAssembly.
  *
  * ```ts
- * import { HebrewDate, Zmanim, dafYomiBavli } from "kr4js";
+ * import { HebrewDate, Zmanim, dafYomiBavli } from "@dickermoshe/kr4js";
  *
  * const date = { year: 2024, month: 4, day: 23 };
  * const zmanim = new Zmanim({
@@ -70,8 +70,6 @@ export type {
   Side,
   SpecialDay,
   SpecialDayInfo,
-  TimeZone,
-  TimeZoneInput,
   TractateInfo,
   Unavailable,
   Verses,
@@ -83,4 +81,3 @@ export type {
   ZmanInfo,
   ZmanTime,
 } from "./wasm/kr4js.js";
-export { fixedOffset, type LocalTime, localTime, timeZone, today } from "./timezone.js";

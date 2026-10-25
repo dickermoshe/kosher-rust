@@ -1,4 +1,4 @@
-// Prints "ok" when kr4js/slim loads the WebAssembly once however `init` is called. Runs in a
+// Prints "ok" when @dickermoshe/kr4js/slim loads the WebAssembly once however `init` is called. Runs in a
 // fresh process, where nothing else has loaded the WebAssembly yet.
 import { readFileSync } from "node:fs";
 

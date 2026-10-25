@@ -1,6 +1,6 @@
 {
-  "name": "kr4js",
-  "version": "0.1.0",
+  "name": "@dickermoshe/kr4js",
+  "version": "0.1.0-rc.1",
   "description": "Jewish calendar, zmanim and daily learning schedules for JavaScript. Runs in browsers, Node, Bun, Deno and edge runtimes.",
   "keywords": [
     "zmanim",

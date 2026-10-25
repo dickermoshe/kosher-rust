@@ -15,14 +15,14 @@ export type WasmSource = URL | string | Request | Response | BufferSource | WebA
  * Parcel copy that file into your build on their own. Pass a source to load it from somewhere else.
  *
  * ```ts
- * import { HebrewDate, init } from "kr4js/slim";
+ * import { HebrewDate, init } from "@dickermoshe/kr4js/slim";
  *
  * await init();
  * HebrewDate.from({ year: 2024, month: 4, day: 23 }).toString(); // "15 Nisan 5784"
  * ```
  *
  * In Node, pass the file's bytes, since `fetch` doesn't read files. In Cloudflare Workers, import
- * `kr4js/kr4js.wasm` and pass the module it gives.
+ * `@dickermoshe/kr4js/kr4js.wasm` and pass the module it gives.
  */
 export function init(source?: WasmSource | Promise<WasmSource>): Promise<void> {
   return load(source ?? new URL("./wasm/kr4js_bg.wasm", import.meta.url));

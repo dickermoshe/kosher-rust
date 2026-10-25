@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { allHebrewMonths, HebrewDate, HebrewYear, type Region } from "kr4js";
+import { allHebrewMonths, HebrewDate, HebrewYear, type Region } from "@dickermoshe/kr4js";
 
 describe("HebrewDate", () => {
   test("converts from the Gregorian calendar", () => {
@@ -95,11 +95,6 @@ describe("HebrewDate", () => {
     expect(day.compare(HebrewDate.of(5784, "elul", 29))).toBe(0);
     expect(() => day.addDays(1.5)).toThrow(RangeError);
     expect(() => HebrewDate.of(9999, "elul", 29).addDays(1)).toThrow(RangeError);
-  });
-
-  test("today", () => {
-    expect(HebrewDate.today("Asia/Jerusalem")).toBeInstanceOf(HebrewDate);
-    expect(HebrewDate.today().gregorian.year).toBe(new Date().getFullYear());
   });
 
   test("rejects unknown regions", () => {

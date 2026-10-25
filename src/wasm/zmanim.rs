@@ -149,11 +149,12 @@ pub struct ZmanimOptions {
     #[serde(with = "serde_wasm_bindgen::preserve")]
     #[tsify(type = "DateInput")]
     date: JsValue,
-    /// The location's time zone. Every zman works with one. Without one, the four Kiddush Levana
-    /// times fail, and so does every time more than 150° from Greenwich.
-    #[serde(default, with = "serde_wasm_bindgen::preserve")]
-    #[tsify(optional, type = "TimeZoneInput")]
-    time_zone: JsValue,
+    /// The location's IANA time zone, such as `"America/New_York"`. Every zman works with one.
+    /// Without one, the four Kiddush Levana times fail, and so does every time more than 150° from
+    /// Greenwich.
+    #[tsify(optional)]
+    #[serde(default)]
+    time_zone: Option<String>,
     #[serde(flatten)]
     config: ZmanimConfig,
 }
@@ -290,7 +291,7 @@ impl JsZmanim {
     #[wasm_bindgen(constructor)]
     pub fn new(options: Ts<ZmanimOptions>) -> Result<JsZmanim, Error> {
         let options = options.to_rust()?;
-        let zone = JsZone::from_input(options.time_zone)?;
+        let zone = JsZone::from_name(options.time_zone)?;
         Self::build(options.location, &options.date, zone, options.config)
     }
 
@@ -328,9 +329,9 @@ impl JsZmanim {
     }
 
     /// The time zone, when one was given.
-    #[wasm_bindgen(getter, js_name = timeZone, unchecked_return_type = "TimeZone | undefined")]
-    pub fn time_zone(&self) -> JsValue {
-        self.zmanim.timezone().map_or(JsValue::UNDEFINED, JsZone::js_value)
+    #[wasm_bindgen(getter, js_name = timeZone)]
+    pub fn time_zone(&self) -> Option<String> {
+        self.zmanim.timezone().map(|zone| zone.name().to_owned())
     }
 
     /// The settings it was built with.
@@ -416,10 +417,11 @@ pub struct MyZmanimOptions {
     #[serde(with = "serde_wasm_bindgen::preserve")]
     #[tsify(type = "DateInput")]
     date: JsValue,
-    /// The location's time zone. Needed more than 150° from Greenwich.
-    #[serde(default, with = "serde_wasm_bindgen::preserve")]
-    #[tsify(optional, type = "TimeZoneInput")]
-    time_zone: JsValue,
+    /// The location's IANA time zone, such as `"Asia/Jerusalem"`. Needed more than 150° from
+    /// Greenwich.
+    #[tsify(optional)]
+    #[serde(default)]
+    time_zone: Option<String>,
     /// Minutes before sunset that candles are lit, such as 40 in Jerusalem.
     #[tsify(optional)]
     #[serde(default)]
@@ -470,7 +472,7 @@ impl JsMyZmanim {
     #[wasm_bindgen(constructor)]
     pub fn new(options: Ts<MyZmanimOptions>) -> Result<JsMyZmanim, Error> {
         let options = options.to_rust()?;
-        let zone = JsZone::from_input(options.time_zone)?;
+        let zone = JsZone::from_name(options.time_zone)?;
         Self::build(options.location, &options.date, zone, options.candle_lighting_offset)
     }
 
@@ -516,9 +518,9 @@ impl JsMyZmanim {
     }
 
     /// The time zone, when one was given.
-    #[wasm_bindgen(getter, js_name = timeZone, unchecked_return_type = "TimeZone | undefined")]
-    pub fn time_zone(&self) -> JsValue {
-        self.zmanim.timezone().map_or(JsValue::UNDEFINED, JsZone::js_value)
+    #[wasm_bindgen(getter, js_name = timeZone)]
+    pub fn time_zone(&self) -> Option<String> {
+        self.zmanim.timezone().map(|zone| zone.name().to_owned())
     }
 
     /// Minutes before sunset that candles are lit, when it was given.

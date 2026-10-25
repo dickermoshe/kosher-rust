@@ -25,7 +25,7 @@ import {
   type SpecialDay,
   type ZmanimConfig,
   type ZmanimError,
-} from "kr4js";
+} from "@dickermoshe/kr4js";
 
 type Time = number | string;
 type ParshaId = ParshaInfo["id"] | null;

@@ -1,7 +1,7 @@
 // Imports the installed package the way an app does and checks one answer from the calendar, the
 // learning schedules and the zmanim. CI runs it in Node, Bun and Deno from a project that installed
 // the packed package.
-import { HebrewDate, Zmanim, dafYomiBavli } from "kr4js";
+import { HebrewDate, Zmanim, dafYomiBavli } from "@dickermoshe/kr4js";
 
 const date = { year: 2024, month: 4, day: 23 };
 const zmanim = new Zmanim({ location: { latitude: 40.09, longitude: -74.22 }, timeZone: "America/New_York", date });

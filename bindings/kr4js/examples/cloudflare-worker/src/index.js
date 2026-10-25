@@ -5,10 +5,10 @@
 // Without `tz`, the time zone Cloudflare reports for the visitor is used, and without `lat` and
 // `lon`, their approximate location.
 //
-// Workers don't compile WebAssembly while running, so this uses kr4js/slim and passes `init`
+// Workers don't compile WebAssembly while running, so this uses @dickermoshe/kr4js/slim and passes `init`
 // the WebAssembly module, which Wrangler compiles when it uploads the Worker.
-import wasm from "kr4js/kr4js.wasm";
-import { HebrewDate, Zmanim, dafYomiBavli, init, today } from "kr4js/slim";
+import wasm from "@dickermoshe/kr4js/kr4js.wasm";
+import { HebrewDate, Zmanim, dafYomiBavli, init } from "@dickermoshe/kr4js/slim";
 
 /** Responds with `body` as JSON. */
 function json(body, status = 200) {
@@ -30,8 +30,10 @@ export default {
     const region = params.get("region") === "israel" ? "israel" : "diaspora";
 
     try {
-      const [year, month, day] = (params.get("date") ?? "").split("-").map(Number);
-      const date = params.has("date") ? { year, month, day } : today(timeZone);
+      // Without `date`, today in the time zone, which en-CA writes as YYYY-MM-DD.
+      const iso = params.get("date") ?? new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date());
+      const [year, month, day] = iso.split("-").map(Number);
+      const date = { year, month, day };
       const hebrew = HebrewDate.from(date);
       const zmanim = new Zmanim({ location: { latitude, longitude }, timeZone, date });
       return json({

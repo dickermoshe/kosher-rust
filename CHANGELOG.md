@@ -188,9 +188,9 @@ tractate gives its Hebrew name.
 - **`Zone`, for time zones that don't come from jiff.** Implement it with the offset from UTC at an
   instant, and build the calculator with `Zmanim::with_zone` or `MyZmanim::with_zone`.
   `jiff::tz::TimeZone` and `jiff::tz::Offset` implement it.
-- **JavaScript.** The crate is published to npm as `kr4js`, for browsers, Node, Bun, Deno and
-  Cloudflare Workers. It takes time zones from the runtime or from any date library and bundles no
-  time zone database. The `wasm` feature holds its bindings and is only meant for building it.
+- **JavaScript.** The crate is published to npm as `@dickermoshe/kr4js`, for browsers, Node, Bun, Deno and
+  Cloudflare Workers. Time zones are IANA names, looked up in the runtime's own time zone
+  data, so it bundles no time zone database. The `wasm` feature holds its bindings and is only meant for building it.
 - **`get_zoned`.** `Zmanim` and `MyZmanim` give a time as a `Zoned` in their time zone, with
   any time zone.
 - **Lists and names.** `SpecialDay`, `Parsha`, the tractates and `HebrewMonth` have `ALL` and

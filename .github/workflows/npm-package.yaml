@@ -114,7 +114,7 @@ jobs:
           cp test/fixtures/smoke.mjs test/fixtures/smoke.cjs "$RUNNER_TEMP/app/"
           cd "$RUNNER_TEMP/app"
           echo '{ "private": true }' > package.json
-          npm install --no-audit --no-fund ./kr4js-*.tgz
+          npm install --no-audit --no-fund ./dickermoshe-kr4js-*.tgz
       - if: startsWith(matrix.runtime, 'node')
         working-directory: ${{ runner.temp }}/app
         run: |

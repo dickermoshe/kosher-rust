@@ -15,7 +15,7 @@ import {
   type Region,
   type Zman,
   type ZmanTime,
-} from "kr4js";
+} from "@dickermoshe/kr4js";
 
 interface City {
   id: string;
@@ -61,7 +61,7 @@ const CATEGORY_NAMES: Record<Category, string> = {
   misheyakir: "Tallis and tefillin",
   netz: "Sunrise",
   sofZmanShma: "Latest Shema",
-  sofZmanTefila: "Latest Shacharis",
+  sofZmanTfila: "Latest Shacharis",
   sofZmanAchilasChametz: "Latest to eat chametz",
   sofZmanBiurChametz: "Latest to burn chametz",
   chatzosHayom: "Midday",
@@ -69,7 +69,7 @@ const CATEGORY_NAMES: Record<Category, string> = {
   plagHamincha: "Plag hamincha",
   samuchLeMinchaKetana: "Samuch le-mincha ketana",
   minchaKetana: "Mincha ketana",
-  beinHashmashos: "Bein hashmashos",
+  bainHashmashos: "Bein hashmashos",
   candleLighting: "Candle lighting",
   shkiya: "Sunset",
   tzais: "Nightfall",
@@ -84,14 +84,21 @@ const UNAVAILABLE = {
   timeZoneRequired: "Needs a time zone",
   dateOutOfRange: "Out of range",
   invalidDegrees: "Invalid angle",
+  invalidOffset: "Invalid offset",
+  timeOutOfRange: "Out of range",
   internal: "Could not be calculated",
 } as const;
+
+/** Today in `timeZone`, as `YYYY-MM-DD`, which is how en-CA writes dates. */
+function todayIn(timeZone: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date());
+}
 
 function fromUrl(): { cityId: string; date: string } {
   const params = new URLSearchParams(window.location.search);
   const cityId = CITIES.some((c) => c.id === params.get("city")) ? params.get("city")! : "jerusalem";
   const city = CITIES.find((c) => c.id === cityId)!;
-  return { cityId, date: params.get("date") ?? HebrewDate.today(city.timeZone).toJSON() };
+  return { cityId, date: params.get("date") ?? todayIn(city.timeZone) };
 }
 
 /** The `YYYY-MM-DD` day `text` as an object. */
@@ -194,7 +201,7 @@ export function App() {
           <button aria-label="Next day" onClick={() => choose({ date: shift(date, 1) })}>
             ›
           </button>
-          <button className="today" onClick={() => choose({ date: HebrewDate.today(city.timeZone).toJSON() })}>
+          <button className="today" onClick={() => choose({ date: todayIn(city.timeZone) })}>
             Today
           </button>
         </div>

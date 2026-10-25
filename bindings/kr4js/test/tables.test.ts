@@ -9,7 +9,7 @@ import {
   allTractates,
   allZmanim,
   zmanInfo,
-} from "kr4js";
+} from "@dickermoshe/kr4js";
 
 describe("lists", () => {
   test.each([

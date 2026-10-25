@@ -1,102 +1,56 @@
 use std::cell::RefCell;
 
 use jiff::{Timestamp, tz::Offset};
-use js_sys::{Function, Reflect};
+use js_sys::Function;
 use wasm_bindgen::prelude::*;
 
 use super::error::Error;
 use crate::Zone;
 
-#[wasm_bindgen(typescript_custom_section)]
-const TIME_ZONE: &str = r#"
-/**
- * A time zone, described by its UTC offset at any instant.
- *
- * Any date library can supply one. `offsetAt` receives Unix milliseconds and returns the offset in
- * minutes east of UTC, so New York in summer is `-240` and Jerusalem in summer is `180`.
- */
-export interface TimeZone {
-  /** The UTC offset at `epochMilliseconds`, in minutes east of UTC. */
-  offsetAt(epochMilliseconds: number): number;
-  /** The zone's name, such as `"America/New_York"`, when it has one. */
-  readonly name?: string;
-}
-
-/**
- * Anything that names or describes a time zone. It is an IANA name such as `"America/New_York"`,
- * looked up in the runtime's own time zone data, a {@link TimeZone}, or a function from Unix
- * milliseconds to the offset in minutes east of UTC.
- */
-export type TimeZoneInput = string | TimeZone | ((epochMilliseconds: number) => number);
-"#;
-
 thread_local! {
-    /// The JavaScript function that turns an IANA name into a [`TimeZone`] object.
+    /// The JavaScript function that turns an IANA name into a function from Unix milliseconds to
+    /// the UTC offset in minutes.
     static RESOLVER: RefCell<Option<Function>> = const { RefCell::new(None) };
 }
 
-/// Sets the function that turns an IANA name into a time zone. The package's entry points pass
-/// the one built on `Intl.DateTimeFormat`.
+/// Sets the function that looks up time zone names. The package's entry points pass the one
+/// built on `Intl.DateTimeFormat`.
 #[wasm_bindgen(js_name = setTimeZoneResolver)]
 pub fn set_time_zone_resolver(resolve: Function) {
     RESOLVER.with(|resolver| *resolver.borrow_mut() = Some(resolve));
 }
 
-/// A time zone that asks JavaScript for its offset.
+/// A named time zone whose offsets come from the runtime's own time zone data.
 ///
 /// [`Zone::offset`] can't fail, so when JavaScript throws or gives something that isn't an offset,
 /// the error is kept and UTC is used. Call [`check`](Self::check) after calculating.
 #[derive(Clone, Debug)]
 pub struct JsZone {
-    /// The time zone as given, or as resolved from its name.
-    zone: JsValue,
-    /// The function that gives the offset in minutes, and the `this` it is called with.
+    name: String,
+    /// The function that gives the offset in minutes at a Unix millisecond.
     offset_at: Function,
-    this: JsValue,
     error: RefCell<Option<JsValue>>,
 }
 
 impl JsZone {
-    /// The time zone `input` names or describes, or `None` when it is `undefined` or `null`.
-    pub(crate) fn from_input(input: JsValue) -> Result<Option<Self>, Error> {
-        if input.is_undefined() || input.is_null() {
+    /// The time zone `name`, such as `"America/New_York"`, or `None` without one.
+    pub(crate) fn from_name(name: Option<String>) -> Result<Option<Self>, Error> {
+        let Some(name) = name else {
             return Ok(None);
-        }
-        let zone = match input.as_string() {
-            Some(name) => {
-                let resolver = RESOLVER.with(|resolver| resolver.borrow().clone());
-                let resolver = resolver.ok_or(Error::Range("time zone names need the package's entry point"))?;
-                resolver.call1(&JsValue::NULL, &JsValue::from_str(&name))?
-            }
-            None => input,
         };
-        let (offset_at, this) = match zone.dyn_ref::<Function>() {
-            Some(function) => (function.clone(), JsValue::NULL),
-            None => {
-                let method = if zone.is_object() {
-                    Reflect::get(&zone, &"offsetAt".into())?
-                } else {
-                    JsValue::UNDEFINED
-                };
-                let Ok(method) = method.dyn_into::<Function>() else {
-                    return Err(Error::Type(
-                        "a time zone is an IANA name, an object with offsetAt, or a function".into(),
-                    ));
-                };
-                (method, zone.clone())
-            }
-        };
+        let resolver = RESOLVER.with(|resolver| resolver.borrow().clone());
+        let resolver = resolver.ok_or(Error::Range("time zone names need the package's entry point"))?;
+        let offset_at = resolver.call1(&JsValue::NULL, &JsValue::from_str(&name))?.dyn_into::<Function>()?;
         Ok(Some(Self {
-            zone,
+            name,
             offset_at,
-            this,
             error: RefCell::new(None),
         }))
     }
 
-    /// The time zone as given, or as resolved from its name.
-    pub(crate) fn js_value(&self) -> JsValue {
-        self.zone.clone()
+    /// The name the time zone was given by.
+    pub(crate) fn name(&self) -> &str {
+        &self.name
     }
 
     /// The first error since the last check, if any.
@@ -109,10 +63,10 @@ impl JsZone {
 
     fn try_offset(&self, instant: Timestamp) -> Result<Offset, Error> {
         let millis = JsValue::from_f64(instant.as_millisecond() as f64);
-        let returned = self.offset_at.call1(&self.this, &millis)?;
+        let returned = self.offset_at.call1(&JsValue::NULL, &millis)?;
         let Some(minutes) = returned.as_f64().filter(|minutes| minutes.is_finite()) else {
             return Err(Error::Type(format!(
-                "the time zone's offsetAt returned {}, not a number of minutes",
+                "the time zone gave {}, not a number of minutes",
                 String::from(js_sys::JsString::from(returned))
             )));
         };

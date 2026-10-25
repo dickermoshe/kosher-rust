@@ -15,7 +15,7 @@ import {
   TehillimPortion,
   tehillimMonthly,
   type Region,
-} from "kr4js";
+} from "@dickermoshe/kr4js";
 
 describe("schedules", () => {
   test("give the README's portions", () => {
