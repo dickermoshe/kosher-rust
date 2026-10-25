@@ -1,7 +1,0 @@
-/target
-/pkg
-/dist
-/LICENSE
-node_modules
-*.tgz
-wasm-pack.log

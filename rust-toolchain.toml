@@ -1,5 +1,5 @@
 [toolchain]
 channel = "1.99.1"
-# rust-src and the wasm32 target build the npm package in bindings/kr4js.
-components = ["rustfmt", "clippy", "rust-src"]
+# The wasm32 target builds the hebcal conformance tests in interop-tests/js_interop_tests.
+components = ["rustfmt", "clippy"]
 targets = ["wasm32-unknown-unknown"]

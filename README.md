@@ -14,9 +14,6 @@ Jewish calendar, *zmanim* and daily learning schedules for Rust. A port of
 cargo add kosher-rust jiff
 ```
 
-For JavaScript and TypeScript, the same calculations are on npm as
-[`kr4js`](bindings/kr4js).
-
 ## The Hebrew calendar
 
 A `jiff::civil::Date` (or ICU date) converts to a `HebrewDate`, which answers questions about
@@ -142,7 +139,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ## Port status
 
 This port is tracked against KosherJava commit
-[6d9026d](https://github.com/KosherJava/zmanim/commit/6d9026d2a4e6172858ec0ed6cf169804ed2c44c6),
+[0dde7ae](https://github.com/KosherJava/zmanim/commit/0dde7aee81b09cc5d210175cae96b01ea1031bc6),
 which is master after the 3.0.0 release. CI compares it with that version on every commit,
 using random dates and locations for every zman, the Hebrew calendar and Daf Yomi.
 

@@ -45,11 +45,6 @@ impl FusedIterator for SpecialDayIterator {}
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 #[non_exhaustive]
-#[cfg_attr(
-    feature = "wasm",
-    derive(serde::Serialize, serde::Deserialize, tsify::Tsify),
-    serde(tag = "id", content = "day", rename_all = "camelCase")
-)]
 pub enum SpecialDay {
     /// Erev Pesach, 14 Nisan.
     ErevPesach,

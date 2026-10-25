@@ -12,11 +12,6 @@ use super::Config;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[non_exhaustive]
-#[cfg_attr(
-    feature = "wasm",
-    derive(serde::Serialize, serde::Deserialize, tsify::Tsify),
-    serde(rename_all = "camelCase")
-)]
 pub enum Category {
     /// Start and end of astronomical, civil and nautical twilight.
     Twilight,
@@ -92,11 +87,6 @@ macro_rules! zman_catalog {
         /// assert_eq!(Zman::SofZmanShmaGra.java_name(), "getSofZmanShmaGRA");
         /// ```
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-        #[cfg_attr(
-            feature = "wasm",
-            derive(serde::Serialize, serde::Deserialize, tsify::Tsify),
-            serde(rename_all = "camelCase")
-        )]
         #[non_exhaustive]
         pub enum Zman {
             $(

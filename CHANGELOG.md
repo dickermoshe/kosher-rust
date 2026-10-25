@@ -7,6 +7,20 @@ are unchanged, and they are still checked against KosherJava and hebcal.
 
 ### Fixes
 
+- **No times outside a very short polar day.** When the day is only minutes or a few hours
+  long, these return `ZmanimError::NotApplicable` instead of a time outside the day:
+  - 3 hours and 2 hours before chatzos, when that is before sunrise.
+  - Mincha gedola 30 minutes after chatzos or after fixed local chatzos, when that is after
+    sunset.
+  - Fixed local chatzos when it is before sunrise or after sunset, and the zmanim based on it.
+  - The three Yereim *bain hashmashos* times and candle lighting, when they are before plag
+    hamincha GRA.
+  - Mincha ketana and plag hamincha of Ateret Torah and Ahavat Shalom, when they are after
+    sunset.
+
+  Mincha gedola GRA greater than 30 and mincha gedola Ahavat Shalom use their own time when
+  30 minutes after chatzos has none. This follows KosherJava up to
+  [0dde7ae](https://github.com/KosherJava/zmanim/commit/0dde7aee81b09cc5d210175cae96b01ea1031bc6).
 - **Meeus and NOAA no longer miss events near the threshold.** On days when the sun only just
   reaches an angle (sunrise and sunset in the far north and south, twilight angles from about
   50° latitude), they reported no time because the first estimate used the sun's position at
@@ -188,9 +202,6 @@ tractate gives its Hebrew name.
 - **`Zone`, for time zones that don't come from jiff.** Implement it with the offset from UTC at an
   instant, and build the calculator with `Zmanim::with_zone` or `MyZmanim::with_zone`.
   `jiff::tz::TimeZone` and `jiff::tz::Offset` implement it.
-- **JavaScript.** The crate is published to npm as `@dickermoshe/kr4js`, for browsers, Node, Bun, Deno and
-  Cloudflare Workers. Time zones are IANA names, looked up in the runtime's own time zone
-  data, so it bundles no time zone database. The `wasm` feature holds its bindings and is only meant for building it.
 - **`get_zoned`.** `Zmanim` and `MyZmanim` give a time as a `Zoned` in their time zone, with
   any time zone.
 - **Lists and names.** `SpecialDay`, `Parsha`, the tractates and `HebrewMonth` have `ALL` and

@@ -95,7 +95,9 @@ impl<Z: Zone> Zmanim<Z> {
     /// - [`ZmanimError::AllDay`] or [`ZmanimError::AllNight`] where the sun never reaches the
     ///   angle the time needs, as in the far north or south.
     /// - [`ZmanimError::NotApplicable`] for a time that only exists on some days, such as the
-    ///   latest time to eat chametz outside Erev Pesach.
+    ///   latest time to eat chametz outside Erev Pesach. It is also returned on a very short
+    ///   day near the poles for a time that would fall outside the day, such as candle lighting
+    ///   before plag hamincha or mincha gedola after sunset.
     /// - [`ZmanimError::DateOutOfRange`] for the chametz and Kiddush Levana times on a date after
     ///   29 Elul 9999 or before 1 January of year 1, where there is no Hebrew date.
     /// - [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone and the time

@@ -13,7 +13,7 @@ use jiff::{SignedDuration as Duration, Timestamp, ToSpan, tz::Offset};
 use crate::{
     Zone,
     calendar::{HebrewDate, Region, SpecialDay, molad::months_molad},
-    zmanim::{Zmanim, ZmanimError, minus, offset, plus},
+    zmanim::{Zman, Zmanim, ZmanimError, minus, offset, plus},
 };
 
 static CIVIL_ZENITH: f64 = 6.0;
@@ -53,10 +53,16 @@ pub(crate) enum Formula {
     SunsetOffsetByDegrees(f64),
     /// Local mean time at the given hour (0.0–24.0).
     LocalMeanTime(f64),
+    /// Fixed local chatzos (local mean noon), when it falls between sunrise and sunset.
+    FixedLocalChatzos,
     /// Shabbos/Yom Tov candle lighting time based on configuration.
     CandleLighting,
     /// A fixed time offset from another [`Formula`].
     Offset(&'static Formula, Duration),
+    /// The first [`Formula`], when it is not after the second. A second that can't be calculated is ignored.
+    NotAfter(&'static Formula, &'static Formula),
+    /// The first [`Formula`], when it is not before the second. A second that can't be calculated is ignored.
+    NotBefore(&'static Formula, &'static Formula),
     /// An offset in "shaos zmaniyos" according to the GRA from another [`Formula`].
     ZmanisOffset(&'static Formula, f64),
     /// An offset expressed as a fraction of the half-day between two [`Formula`]s.
@@ -115,6 +121,15 @@ pub(crate) enum Formula {
     PolarSunsetBenIshChai,
     /// Polar sunrise (Ben Ish Chai) is due east azimuth on polar no-sunrise days only.
     PolarSunriseBenIshChai,
+}
+
+/// The later of `mincha_gedola` and [`Zman::MinchaGedola30Minutes`], or `mincha_gedola` alone when
+/// the 30 minute time can't be calculated.
+fn not_before_30_minutes<Z: Zone>(mincha_gedola: Timestamp, calculator: &Zmanim<Z>) -> Timestamp {
+    match calculator.get(Zman::MinchaGedola30Minutes) {
+        Ok(mincha_gedola_30) => mincha_gedola_30.max(mincha_gedola),
+        Err(_) => mincha_gedola,
+    }
 }
 
 /// Whether `time` falls on `date` in `timezone`, from the local midnight starting `date` through
@@ -215,6 +230,11 @@ impl Formula {
                     .and_then(|dt| dt.checked_sub(Duration::from_nanos(offset_nanos)))?;
                 Ok(Offset::UTC.to_timestamp(lmt_dt)?)
             }
+            Formula::FixedLocalChatzos => Formula::NotAfter(
+                &Formula::NotBefore(&Formula::LocalMeanTime(12.0), &Formula::ConfiguredSunrise),
+                &Formula::ConfiguredSunset,
+            )
+            .evaluate(calculator),
             Formula::CandleLighting => {
                 // Sea-level sunset occurs earlier than elevation-adjusted sunset.
                 // Since candle lighting times are used strictly *l’chumrah* (stringently),
@@ -229,6 +249,20 @@ impl Formula {
             Formula::Offset(event, duration) => {
                 let event_time = event.evaluate(calculator)?;
                 plus(event_time, duration)
+            }
+            Formula::NotAfter(event, bound) => {
+                let event_time = event.evaluate(calculator)?;
+                match bound.evaluate(calculator) {
+                    Ok(bound) if event_time > bound => Err(ZmanimError::NotApplicable),
+                    _ => Ok(event_time),
+                }
+            }
+            Formula::NotBefore(event, bound) => {
+                let event_time = event.evaluate(calculator)?;
+                match bound.evaluate(calculator) {
+                    Ok(bound) if event_time < bound => Err(ZmanimError::NotApplicable),
+                    _ => Ok(event_time),
+                }
             }
             Formula::ZmanisOffset(event, hours) => {
                 let event_time = event.evaluate(calculator)?;
@@ -464,25 +498,17 @@ impl Formula {
             }
             Formula::MinchaGedolaAhavatShalom => {
                 let chatzos = Formula::ChatzosHayom.evaluate(calculator)?;
-                let mincha_gedola_30 = plus(chatzos, Duration::from_mins(30))?;
-
                 let alos = Formula::SunriseOffsetByDegrees(16.1).evaluate(calculator)?;
                 let tzais = Formula::SunsetOffsetByDegrees(3.7).evaluate(calculator)?;
                 let shaah_zmanis = tzais.duration_since(alos) / 12;
-                let mincha_alternative = plus(chatzos, shaah_zmanis / 2)?;
-                if mincha_gedola_30 > mincha_alternative {
-                    Ok(mincha_gedola_30)
-                } else {
-                    Ok(mincha_alternative)
-                }
+                let mincha_gedola = plus(chatzos, shaah_zmanis / 2)?;
+                Ok(not_before_30_minutes(mincha_gedola, calculator))
             }
             Formula::MinchaGedolaGraGreaterThan30 => {
-                let mincha_gedola_30 =
-                    Formula::Offset(&Formula::ChatzosHayom, Duration::from_mins(30)).evaluate(calculator)?;
                 let mincha_gedola_gra =
                     Formula::MinchaGedola(&Formula::ConfiguredSunrise, &Formula::ConfiguredSunset, true)
                         .evaluate(calculator)?;
-                Ok(mincha_gedola_30.max(mincha_gedola_gra))
+                Ok(not_before_30_minutes(mincha_gedola_gra, calculator))
             }
             Formula::MinchaKetanaAhavatShalom => {
                 let tzais = Formula::SunsetOffsetByDegrees(3.8).evaluate(calculator)?;
@@ -590,7 +616,9 @@ impl Formula {
     pub(crate) fn uses_chatzos_halayla(&self) -> bool {
         match self {
             Formula::ChatzosHalayla => true,
-            Formula::Offset(event, _) => event.uses_chatzos_halayla(),
+            Formula::Offset(event, _) | Formula::NotAfter(event, _) | Formula::NotBefore(event, _) => {
+                event.uses_chatzos_halayla()
+            }
             _ => false,
         }
     }
@@ -606,6 +634,9 @@ impl Formula {
             | Formula::SofZmanBiurChametz(_, _, synchronous)
             | Formula::SofZmanAchilasChametz(_, _, synchronous) => *synchronous,
             Formula::MinchaGedolaGraGreaterThan30 => true,
+            Formula::NotAfter(event, _) | Formula::NotBefore(event, _) => {
+                event.uses_astronomical_chatzos_for_other_zmanim_from_config()
+            }
             Formula::ElevationAdjustedSunrise
             | Formula::SeaLevelSunrise
             | Formula::ConfiguredSunrise
@@ -621,6 +652,7 @@ impl Formula {
             | Formula::SunriseOffsetByDegrees(_)
             | Formula::SunsetOffsetByDegrees(_)
             | Formula::LocalMeanTime(_)
+            | Formula::FixedLocalChatzos
             | Formula::CandleLighting
             | Formula::Offset(_, _)
             | Formula::ZmanisOffset(_, _)
@@ -651,7 +683,9 @@ impl Formula {
             | Formula::ChatzosHalayla
             | Formula::MinchaGedolaAhavatShalom
             | Formula::MinchaGedolaGraGreaterThan30 => true,
-            Formula::Offset(event, _) => event.uses_astronomical_chatzos_from_config(),
+            Formula::Offset(event, _) | Formula::NotAfter(event, _) | Formula::NotBefore(event, _) => {
+                event.uses_astronomical_chatzos_from_config()
+            }
             Formula::ElevationAdjustedSunrise
             | Formula::SeaLevelSunrise
             | Formula::ConfiguredSunrise
@@ -665,6 +699,7 @@ impl Formula {
             | Formula::SunriseOffsetByDegrees(_)
             | Formula::SunsetOffsetByDegrees(_)
             | Formula::LocalMeanTime(_)
+            | Formula::FixedLocalChatzos
             | Formula::CandleLighting
             | Formula::ZmanisOffset(_, _)
             | Formula::HalfDayBasedOffset(_, _, _)
@@ -698,7 +733,9 @@ impl Formula {
     pub(crate) fn uses_elevation_from_config(&self) -> bool {
         match self {
             Formula::ConfiguredSunrise | Formula::ConfiguredSunset => true,
-            Formula::Offset(event, _) => event.uses_elevation_from_config(),
+            Formula::Offset(event, _) | Formula::NotAfter(event, _) | Formula::NotBefore(event, _) => {
+                event.uses_elevation_from_config()
+            }
             Formula::ZmanisOffset(_, _) => true,
             Formula::HalfDayBasedOffset(start, end, _)
             | Formula::Shema(start, end, _)
@@ -729,6 +766,7 @@ impl Formula {
             | Formula::SunriseOffsetByDegrees(_)
             | Formula::SunsetOffsetByDegrees(_)
             | Formula::LocalMeanTime(_)
+            | Formula::FixedLocalChatzos
             | Formula::CandleLighting
             | Formula::SofZmanKidushLevana15Days
             | Formula::SofZmanKidushLevanaBetweenMoldos

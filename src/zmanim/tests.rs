@@ -1166,7 +1166,8 @@ fn test_chametz_times_match_kosherjava() {
     );
 }
 
-/// A day or more is too long for an offset. Anything shorter gives a time.
+/// A day or more is too long for an offset. Anything shorter gives a time, though candle
+/// lighting that far before sunset is before plag hamincha and so has none.
 #[test]
 fn test_offsets_of_a_day_or_more_are_invalid() {
     let day = core::time::Duration::from_hours(24);
@@ -1192,13 +1193,10 @@ fn test_offsets_of_a_day_or_more_are_invalid() {
         assert_eq!(too_long.get(zman), Err(ZmanimError::InvalidOffset), "{zman:?}");
     }
     let longest = zmanim(almost, almost);
-    for zman in [
-        Zman::CandleLighting,
-        Zman::TzaisAteretTorah,
-        Zman::SofZmanShmaAteretTorah,
-    ] {
+    for zman in [Zman::TzaisAteretTorah, Zman::SofZmanShmaAteretTorah] {
         assert!(longest.get(zman).is_ok(), "{zman:?}");
     }
+    assert_eq!(longest.get(Zman::CandleLighting), Err(ZmanimError::NotApplicable));
 }
 
 /// The last instant a `Timestamp` holds is 22:00 UTC on 30 December 9999, so noon in Lakewood on
@@ -1212,4 +1210,38 @@ fn test_times_past_the_last_timestamp_are_out_of_range() {
     );
     let day_before = Zmanim::new(lakewood_location(0.0), Date::new(9999, 12, 29).unwrap(), None);
     assert!(day_before.get(Zman::FixedLocalChatzosHayom).is_ok());
+}
+
+/// Tromsø on 26 November 2025 has 16 minutes of daylight. Zmanim that would fall outside that day
+/// have no time.
+#[test]
+fn test_zmanim_outside_a_very_short_day_are_not_applicable() {
+    let zmanim = Zmanim::new(
+        Location::new(69.8, 18.9553).unwrap(),
+        Date::new(2025, 11, 26).unwrap(),
+        Some(TimeZone::get("Europe/Oslo").unwrap()),
+    );
+    for zman in [
+        Zman::SofZmanShma3HoursBeforeChatzos,
+        Zman::SofZmanTfila2HoursBeforeChatzos,
+        Zman::MinchaGedola30Minutes,
+        Zman::FixedLocalChatzosHayom,
+        Zman::SofZmanShmaGraSunriseToFixedLocalChatzos,
+        Zman::SofZmanTfilaGraSunriseToFixedLocalChatzos,
+        Zman::MinchaGedolaGraFixedLocalChatzos30Minutes,
+        Zman::MinchaKetanaGraFixedLocalChatzosToSunset,
+        Zman::PlagHaminchaGraFixedLocalChatzosToSunset,
+        Zman::BainHashmashosYereim18Minutes,
+        Zman::BainHashmashosYereim16Point875Minutes,
+        Zman::BainHashmashosYereim13Point5Minutes,
+        Zman::MinchaKetanaAteretTorah,
+        Zman::PlagHaminchaAteretTorah,
+        Zman::CandleLighting,
+    ] {
+        assert_eq!(zmanim.get(zman), Err(ZmanimError::NotApplicable), "{zman:?}");
+    }
+    assert_eq!(
+        zmanim.get(Zman::MinchaGedolaGraGreaterThan30),
+        zmanim.get(Zman::MinchaGedolaGra)
+    );
 }

@@ -146,7 +146,7 @@ getBainHashmashosYereim13Point5Minutes
   name: Bain Hashmashos (Yereim, 13.5 Minutes)
   category: BainHashmashos
   deprecated: false
-  formula: Offset(ConfiguredSunset, 13m 30s ago)
+  formula: NotBefore(Offset(ConfiguredSunset, 13m 30s ago), PlagHamincha(ConfiguredSunrise, ConfiguredSunset, true))
   description: "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n13.5 minutes, or 3/4 of an 18-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level."
   description (flipped config): "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n13.5 minutes, or 3/4 of an 18-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman takes the configured location's elevation into account when it is calculated."
 
@@ -154,7 +154,7 @@ getBainHashmashosYereim16Point875Minutes
   name: Bain Hashmashos (Yereim, 16.875 Minutes)
   category: BainHashmashos
   deprecated: false
-  formula: Offset(ConfiguredSunset, 16m 52s 500ms ago)
+  formula: NotBefore(Offset(ConfiguredSunset, 16m 52s 500ms ago), PlagHamincha(ConfiguredSunrise, ConfiguredSunset, true))
   description: "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n16.875 minutes, or 3/4 of a 22.5-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level."
   description (flipped config): "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n16.875 minutes, or 3/4 of a 22.5-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman takes the configured location's elevation into account when it is calculated."
 
@@ -162,7 +162,7 @@ getBainHashmashosYereim18Minutes
   name: Bain Hashmashos (Yereim, 18 Minutes)
   category: BainHashmashos
   deprecated: false
-  formula: Offset(ConfiguredSunset, 18m ago)
+  formula: NotBefore(Offset(ConfiguredSunset, 18m ago), PlagHamincha(ConfiguredSunrise, ConfiguredSunset, true))
   description: "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n18 minutes, or 3/4 of a 24-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman is calculated as though the configured location were at sea level."
   description (flipped config): "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n18 minutes, or 3/4 of a 24-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nThis zman takes the configured location's elevation into account when it is calculated."
 
@@ -212,7 +212,7 @@ getCandleLighting
   name: Candle Lighting
   category: CandleLighting
   deprecated: false
-  formula: CandleLighting
+  formula: NotBefore(CandleLighting, PlagHamincha(ConfiguredSunrise, ConfiguredSunset, true))
   description: "The time to light candles before Shabbos or Yom Tov.\n\n18 minutes before sea level sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated."
   description (flipped config): "The time to light candles before Shabbos or Yom Tov.\n\n40 minutes before sea level sunset.\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated."
 
@@ -264,7 +264,7 @@ getFixedLocalChatzosHayom
   name: Chatzos Hayom (Fixed Local Chatzos)
   category: ChatzosHayom
   deprecated: false
-  formula: LocalMeanTime(12.0)
+  formula: FixedLocalChatzos
   description: "Fixed local chatzos - clock noon adjusted for the location's longitude and time zone, not tied only to theoretical 15-degree time zones.\n\nThe globe is divided into 24 hours over 360 degrees, or 15 degrees per hour (4 minutes per degree). At longitudes 0, 15, 30, and so on, chatzos is exactly 12:00 noon. The result is adjusted to the actual time zone and [daylight saving time](https://en.wikipedia.org/wiki/Daylight_saving_time).\n\nThis is the time of chatzos according to the [Aruch Hashulchan](https://en.wikipedia.org/wiki/Aruch_HaShulchan) ([Orach Chaim 233:14](https://hebrewbooks.org/pdfpager.aspx?req=7705&pgnum=426)) and [Rabbi Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein) ([Igros Moshe, Orach Chaim 1:24](https://hebrewbooks.org/pdfpager.aspx?req=916&st=&pgnum=67), [2:20](https://hebrewbooks.org/pdfpager.aspx?req=14675&pgnum=191))."
 
 getMinchaGedola16Point1Degrees
@@ -279,7 +279,7 @@ getMinchaGedola30Minutes
   name: Mincha Gedola (30 Minutes)
   category: MinchaGedola
   deprecated: false
-  formula: Offset(ChatzosHayom, 30m)
+  formula: NotAfter(Offset(ChatzosHayom, 30m), ConfiguredSunset)
   description: "Mincha gedola calculated as 30 minutes after chatzos hayom.\n\nSome use this in winter when half a shaah zmanis is less than 30 minutes, to delay the start of mincha.\n\nDo not use this time to begin mincha before standard mincha gedola GRA.\n\nIn places where chatzos cannot be calculated, this zman may not be available.\n\nChatzos is solar noon, when the sun crosses the meridian."
   description (flipped config): "Mincha gedola calculated as 30 minutes after chatzos hayom.\n\nSome use this in winter when half a shaah zmanis is less than 30 minutes, to delay the start of mincha.\n\nDo not use this time to begin mincha before standard mincha gedola GRA.\n\nIn places where chatzos cannot be calculated, this zman may not be available.\n\nChatzos is the midpoint between sea level sunrise and sunset."
 
@@ -327,7 +327,7 @@ getMinchaGedolaGRAFixedLocalChatzos30Minutes
   name: Mincha Gedola (GR'A, Fixed Local Chatzos, 30 Minutes)
   category: MinchaGedola
   deprecated: false
-  formula: Offset(LocalMeanTime(12.0), 30m)
+  formula: NotAfter(Offset(FixedLocalChatzos, 30m), ConfiguredSunset)
   description: "Mincha gedola according to Rav Moshe Feinstein's opinion.\n\n30 minutes after fixed local chatzos.\n\nIn places where fixed local chatzos cannot be calculated, this zman may not be available."
 
 getMinchaGedolaGRAGreaterThan30
@@ -358,14 +358,14 @@ getMinchaKetanaAhavatShalom
   name: Mincha Ketana (Ahavat Shalom)
   category: MinchaKetana
   deprecated: false
-  formula: MinchaKetanaAhavatShalom
+  formula: NotAfter(MinchaKetanaAhavatShalom, ConfiguredSunset)
   description: "Mincha ketana according to Rabbi Yaakov Moshe Hillel, as published in the luach of the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.\n\n2.5 shaos zmaniyos before tzais 3.8 degrees, using a day from alos 16.1 degrees to tzais 3.8 degrees.\n\nAt some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon."
 
 getMinchaKetanaAteretTorah
   name: Mincha Ketana (Ateret Torah)
   category: MinchaKetana
   deprecated: false
-  formula: MinchaKetana(ZmanisOffset(ConfiguredSunrise, -1.2), TzaisAteretTorah, false)
+  formula: NotAfter(MinchaKetana(ZmanisOffset(ConfiguredSunrise, -1.2), TzaisAteretTorah, false), ConfiguredSunset)
   description: "Mincha ketana according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.\n\n9.5 shaos zmaniyos after alos.\n\nThe day begins at alos 1/10 of the day before sunrise and ends 40 minutes after sunset.\n\nIn places where sunrise or sunset cannot be calculated, this zman may not be available.\n\nThis zman is calculated as though the configured location were at sea level."
   description (flipped config): "Mincha ketana according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.\n\n9.5 shaos zmaniyos after alos.\n\nThe day begins at alos 1/10 of the day before sunrise and ends 25 minutes after sunset.\n\nIn places where sunrise or sunset cannot be calculated, this zman may not be available.\n\nThis zman takes the configured location's elevation into account when it is calculated."
 
@@ -389,7 +389,7 @@ getMinchaKetanaGRAFixedLocalChatzosToSunset
   name: Mincha Ketana (GR'A, Fixed Local Chatzos to Sunset)
   category: MinchaKetana
   deprecated: false
-  formula: HalfDayBasedOffset(LocalMeanTime(12.0), ConfiguredSunset, 3.5)
+  formula: HalfDayBasedOffset(FixedLocalChatzos, ConfiguredSunset, 3.5)
   description: "Mincha ketana according to Rav Moshe Feinstein's opinion, following the view of the Vilna Gaon.\n\n3.5 shaos zmaniyos after fixed local chatzos.\n\nIn places where fixed local chatzos or sunset cannot be calculated, this zman may not be available.\n\nThis zman is calculated as though the configured location were at sea level."
   description (flipped config): "Mincha ketana according to Rav Moshe Feinstein's opinion, following the view of the Vilna Gaon.\n\n3.5 shaos zmaniyos after fixed local chatzos.\n\nIn places where fixed local chatzos or sunset cannot be calculated, this zman may not be available.\n\nThis zman takes the configured location's elevation into account when it is calculated."
 
@@ -439,7 +439,7 @@ getPlagAhavatShalom
   name: Plag Hamincha (Ahavat Shalom)
   category: PlagHamincha
   deprecated: false
-  formula: PlagAhavatShalom
+  formula: NotAfter(PlagAhavatShalom, ConfiguredSunset)
   description: "Plag hamincha according to [Rabbi Yaakov Moshe Hillel](https://en.wikipedia.org/wiki/Yaakov_Moshe_Hillel), as published in the luach of the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.\n\n1.25 shaos zmaniyos before tzais 3.8 degrees, using a day from alos 16.1 degrees to tzais 3.8 degrees.\n\nAt some northern and southern locations, this zman may not be available if the sun does not reach low enough below the horizon."
 
 getPlagAlos16Point1DegreesToTzaisGeonim7Point083Degrees
@@ -565,7 +565,7 @@ getPlagHaminchaAteretTorah
   name: Plag Hamincha (Ateret Torah)
   category: PlagHamincha
   deprecated: false
-  formula: PlagHamincha(ZmanisOffset(ConfiguredSunrise, -1.2), TzaisAteretTorah, false)
+  formula: NotAfter(PlagHamincha(ZmanisOffset(ConfiguredSunrise, -1.2), TzaisAteretTorah, false), ConfiguredSunset)
   description: "Plag hamincha according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.\n\n10.75 shaos zmaniyos after alos.\n\nThe day begins at alos 1/10 of the day before sunrise and ends 40 minutes after sunset.\n\nIn places where sunrise or sunset cannot be calculated, this zman may not be available.\n\nThis zman is calculated as though the configured location were at sea level."
   description (flipped config): "Plag hamincha according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.\n\n10.75 shaos zmaniyos after alos.\n\nThe day begins at alos 1/10 of the day before sunrise and ends 25 minutes after sunset.\n\nIn places where sunrise or sunset cannot be calculated, this zman may not be available.\n\nThis zman takes the configured location's elevation into account when it is calculated."
 
@@ -589,7 +589,7 @@ getPlagHaminchaGRAFixedLocalChatzosToSunset
   name: Plag Hamincha (GR'A, Fixed Local Chatzos to Sunset)
   category: PlagHamincha
   deprecated: false
-  formula: HalfDayBasedOffset(LocalMeanTime(12.0), ConfiguredSunset, 4.75)
+  formula: HalfDayBasedOffset(FixedLocalChatzos, ConfiguredSunset, 4.75)
   description: "Plag hamincha according to [Rav Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein)'s opinion, following the [Vilna Gaon](https://en.wikipedia.org/wiki/Vilna_Gaon) with the day ending at sunset.\n\n4.75 shaos zmaniyos after fixed local chatzos.\n\nIn places where sunset cannot be calculated, this zman may not be available.\n\nThis zman is calculated as though the configured location were at sea level."
   description (flipped config): "Plag hamincha according to [Rav Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein)'s opinion, following the [Vilna Gaon](https://en.wikipedia.org/wiki/Vilna_Gaon) with the day ending at sunset.\n\n4.75 shaos zmaniyos after fixed local chatzos.\n\nIn places where sunset cannot be calculated, this zman may not be available.\n\nThis zman takes the configured location's elevation into account when it is calculated."
 
@@ -745,7 +745,7 @@ getSofZmanShma3HoursBeforeChatzos
   name: Sof Zman Shma (3 Hours Before Chatzos)
   category: SofZmanShma
   deprecated: false
-  formula: Offset(ChatzosHayom, 3h ago)
+  formula: NotBefore(Offset(ChatzosHayom, 3h ago), ConfiguredSunrise)
   description: "Sof zman krias shema - the latest time to recite morning Shema, calculated as 3 regular clock hours before chatzos hayom (not shaos zmaniyos). Often grouped with the \"Komarno\" zmanim after [Rav Yitzchak Eizik of Komarno](https://en.wikipedia.org/wiki/Komarno_(Hasidic_dynasty)#Rabbi_Yitzchak_Eisik_Safrin), though this calculation is much older.\n\n3 clock hours before chatzos hayom.\n\nThis view is cited by the Shach in Nekudas Hakesef (Yoreh Deah 184), [Rav Moshe Lifshitz](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=30) in [Lechem Mishneh on Brachos 1:2](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=50), the [Yaavetz](https://en.wikipedia.org/wiki/Jacob_Emden), and later by Komarno, Shevus Yaakov, Chasan Sofer, and others. See also [Yisrael Vehazmanim vol. 1, 7:3](https://hebrewbooks.org/pdfpager.aspx?req=9765&st=&pgnum=83).\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nChatzos is solar noon, when the sun crosses the meridian."
   description (flipped config): "Sof zman krias shema - the latest time to recite morning Shema, calculated as 3 regular clock hours before chatzos hayom (not shaos zmaniyos). Often grouped with the \"Komarno\" zmanim after [Rav Yitzchak Eizik of Komarno](https://en.wikipedia.org/wiki/Komarno_(Hasidic_dynasty)#Rabbi_Yitzchak_Eisik_Safrin), though this calculation is much older.\n\n3 clock hours before chatzos hayom.\n\nThis view is cited by the Shach in Nekudas Hakesef (Yoreh Deah 184), [Rav Moshe Lifshitz](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=30) in [Lechem Mishneh on Brachos 1:2](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=50), the [Yaavetz](https://en.wikipedia.org/wiki/Jacob_Emden), and later by Komarno, Shevus Yaakov, Chasan Sofer, and others. See also [Yisrael Vehazmanim vol. 1, 7:3](https://hebrewbooks.org/pdfpager.aspx?req=9765&st=&pgnum=83).\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nChatzos is the midpoint between sea level sunrise and sunset."
 
@@ -792,7 +792,7 @@ getSofZmanShmaGRASunriseToFixedLocalChatzos
   name: Sof Zman Shma (GR'A, Sunrise to Fixed Local Chatzos)
   category: SofZmanShma
   deprecated: false
-  formula: HalfDayBasedOffset(ConfiguredSunrise, LocalMeanTime(12.0), 3.0)
+  formula: HalfDayBasedOffset(ConfiguredSunrise, FixedLocalChatzos, 3.0)
   description: "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon) day, using only the first half of the day.\n\n3 shaos zmaniyos after sunrise, with shaos zmaniyos measured from sunrise to fixed local chatzos (half of that half-day). \n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nThis zman is calculated as though the configured location were at sea level."
   description (flipped config): "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon) day, using only the first half of the day.\n\n3 shaos zmaniyos after sunrise, with shaos zmaniyos measured from sunrise to fixed local chatzos (half of that half-day). \n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nThis zman takes the configured location's elevation into account when it is calculated."
 
@@ -816,7 +816,7 @@ getSofZmanShmaMGA16Point1DegreesToFixedLocalChatzos
   name: Sof Zman Shma (MGA, 16.1 Degrees to Fixed Local Chatzos)
   category: SofZmanShma
   deprecated: false
-  formula: HalfDayBasedOffset(SunriseOffsetByDegrees(16.1), LocalMeanTime(12.0), 3.0)
+  formula: HalfDayBasedOffset(SunriseOffsetByDegrees(16.1), FixedLocalChatzos, 3.0)
   description: "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner) day, using only the first half of the day.\n\n3 shaos zmaniyos after alos at 16.1 degrees, with shaos zmaniyos measured from that alos to fixed local chatzos (half of that half-day).\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon."
 
 getSofZmanShmaMGA18Degrees
@@ -831,7 +831,7 @@ getSofZmanShmaMGA18DegreesToFixedLocalChatzos
   name: Sof Zman Shma (MGA, 18 Degrees to Fixed Local Chatzos)
   category: SofZmanShma
   deprecated: false
-  formula: HalfDayBasedOffset(SunriseOffsetByDegrees(18.0), LocalMeanTime(12.0), 3.0)
+  formula: HalfDayBasedOffset(SunriseOffsetByDegrees(18.0), FixedLocalChatzos, 3.0)
   description: "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner) day, using only the first half of the day.\n\n3 shaos zmaniyos after alos at 18 degrees, with shaos zmaniyos measured from that alos to fixed local chatzos (half of that half-day).\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon."
 
 getSofZmanShmaMGA19Point8Degrees
@@ -854,7 +854,7 @@ getSofZmanShmaMGA72MinutesToFixedLocalChatzos
   name: Sof Zman Shma (MGA, 72 Minutes to Fixed Local Chatzos)
   category: SofZmanShma
   deprecated: false
-  formula: HalfDayBasedOffset(Offset(ConfiguredSunrise, 1h 12m ago), LocalMeanTime(12.0), 3.0)
+  formula: HalfDayBasedOffset(Offset(ConfiguredSunrise, 1h 12m ago), FixedLocalChatzos, 3.0)
   description: "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner) day, using only the first half of the day.\n\n3 shaos zmaniyos after alos 72 minutes before sunrise, with shaos zmaniyos measured from that alos to fixed local chatzos (half of that half-day).\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nThis zman is calculated as though the configured location were at sea level."
   description (flipped config): "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner) day, using only the first half of the day.\n\n3 shaos zmaniyos after alos 72 minutes before sunrise, with shaos zmaniyos measured from that alos to fixed local chatzos (half of that half-day).\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nThis zman takes the configured location's elevation into account when it is calculated."
 
@@ -878,7 +878,7 @@ getSofZmanShmaMGA90MinutesToFixedLocalChatzos
   name: Sof Zman Shma (MGA, 90 Minutes to Fixed Local Chatzos)
   category: SofZmanShma
   deprecated: false
-  formula: HalfDayBasedOffset(Offset(ConfiguredSunrise, 1h 30m ago), LocalMeanTime(12.0), 3.0)
+  formula: HalfDayBasedOffset(Offset(ConfiguredSunrise, 1h 30m ago), FixedLocalChatzos, 3.0)
   description: "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner) day, using only the first half of the day.\n\n3 shaos zmaniyos after alos 90 minutes before sunrise, with shaos zmaniyos measured from that alos to fixed local chatzos (half of that half-day).\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nThis zman is calculated as though the configured location were at sea level."
   description (flipped config): "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner) day, using only the first half of the day.\n\n3 shaos zmaniyos after alos 90 minutes before sunrise, with shaos zmaniyos measured from that alos to fixed local chatzos (half of that half-day).\n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nThis zman takes the configured location's elevation into account when it is calculated."
 
@@ -910,7 +910,7 @@ getSofZmanTfila2HoursBeforeChatzos
   name: Sof Zman Tfila (2 Hours Before Chatzos)
   category: SofZmanTfila
   deprecated: false
-  formula: Offset(ChatzosHayom, 2h ago)
+  formula: NotBefore(Offset(ChatzosHayom, 2h ago), ConfiguredSunrise)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis), calculated as 2 regular clock hours before chatzos hayom (not shaos zmaniyos). Paired with sof zman krias shema at 3 clock hours before chatzos; often grouped with the \"Komarno\" zmanim after [Rav Yitzchak Eizik of Komarno](https://en.wikipedia.org/wiki/Komarno_(Hasidic_dynasty)#Rabbi_Yitzchak_Eisik_Safrin), though this calculation is much older.\n\n2 clock hours before chatzos hayom.\n\nThis view is cited by the Shach in Nekudas Hakesef (Yoreh Deah 184), [Rav Moshe Lifshitz](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=30) in [Lechem Mishneh on Brachos 1:2](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=50), the [Yaavetz](https://en.wikipedia.org/wiki/Jacob_Emden), and later by Komarno, Shevus Yaakov, Chasan Sofer, and others. See also [Yisrael Vehazmanim vol. 1, 7:3](https://hebrewbooks.org/pdfpager.aspx?req=9765&st=&pgnum=83).\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nChatzos is solar noon, when the sun crosses the meridian."
   description (flipped config): "Sof zman tfila - the latest time to recite morning prayers (Shacharis), calculated as 2 regular clock hours before chatzos hayom (not shaos zmaniyos). Paired with sof zman krias shema at 3 clock hours before chatzos; often grouped with the \"Komarno\" zmanim after [Rav Yitzchak Eizik of Komarno](https://en.wikipedia.org/wiki/Komarno_(Hasidic_dynasty)#Rabbi_Yitzchak_Eisik_Safrin), though this calculation is much older.\n\n2 clock hours before chatzos hayom.\n\nThis view is cited by the Shach in Nekudas Hakesef (Yoreh Deah 184), [Rav Moshe Lifshitz](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=30) in [Lechem Mishneh on Brachos 1:2](https://hebrewbooks.org/pdfpager.aspx?req=21638&st=&pgnum=50), the [Yaavetz](https://en.wikipedia.org/wiki/Jacob_Emden), and later by Komarno, Shevus Yaakov, Chasan Sofer, and others. See also [Yisrael Vehazmanim vol. 1, 7:3](https://hebrewbooks.org/pdfpager.aspx?req=9765&st=&pgnum=83).\n\nIn places such as the Arctic Circle, where there is at least one day a year when the sun does not rise and one when it does not set, this zman may not be available or cannot be calculated.\n\nChatzos is the midpoint between sea level sunrise and sunset."
 
@@ -942,7 +942,7 @@ getSofZmanTfilaGRASunriseToFixedLocalChatzos
   name: Sof Zman Tfila (GR'A, Sunrise to Fixed Local Chatzos)
   category: SofZmanTfila
   deprecated: false
-  formula: HalfDayBasedOffset(ConfiguredSunrise, LocalMeanTime(12.0), 4.0)
+  formula: HalfDayBasedOffset(ConfiguredSunrise, FixedLocalChatzos, 4.0)
   description: "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon) day, using only the first half of the day.\n\n4 shaos zmaniyos after sunrise, with shaos zmaniyos measured from sunrise to fixed local chatzos (two-thirds of that half-day). \n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nThis zman is calculated as though the configured location were at sea level."
   description (flipped config): "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon) day, using only the first half of the day.\n\n4 shaos zmaniyos after sunrise, with shaos zmaniyos measured from sunrise to fixed local chatzos (two-thirds of that half-day). \n\nAt some northern and southern locations, this zman may not be available or cannot be calculated if the sun does not reach low enough below the horizon.\n\nThis zman takes the configured location's elevation into account when it is calculated."
 

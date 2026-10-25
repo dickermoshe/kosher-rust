@@ -41,11 +41,6 @@ macro_rules! my_zmanim {
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
         #[cfg_attr(feature = "defmt", derive(defmt::Format))]
         #[non_exhaustive]
-        #[cfg_attr(
-            feature = "wasm",
-            derive(serde::Serialize, serde::Deserialize, tsify::Tsify),
-            serde(rename_all = "camelCase")
-        )]
         pub enum MyZman {
             $(
                 $(#[doc = $doc])*

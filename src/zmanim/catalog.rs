@@ -693,7 +693,7 @@ zman_catalog! {
         java: "getSofZmanShma3HoursBeforeChatzos",
         name: "Sof Zman Shma (3 Hours Before Chatzos)",
         category: SofZmanShma,
-        formula: Offset(&ChatzosHayom, Duration::from_mins(-180)),
+        formula: NotBefore(&Offset(&ChatzosHayom, Duration::from_mins(-180)), &ConfiguredSunrise),
         about: concat!(
             "Sof zman krias shema - the latest time to recite morning Shema, calculated as 3 regular clock hours before chatzos hayom (not shaos zmaniyos). Often grouped with the \"Komarno\" zmanim after [Rav Yitzchak Eizik of Komarno](https://en.wikipedia.org/wiki/Komarno_(Hasidic_dynasty)#Rabbi_Yitzchak_Eisik_Safrin), though this calculation is much older.\n\n",
             "3 clock hours before chatzos hayom.\n\n",
@@ -799,7 +799,7 @@ zman_catalog! {
         java: "getSofZmanShmaGRASunriseToFixedLocalChatzos",
         name: "Sof Zman Shma (GR'A, Sunrise to Fixed Local Chatzos)",
         category: SofZmanShma,
-        formula: HalfDayBasedOffset(&ConfiguredSunrise, &LocalMeanTime(12.0), 3.0),
+        formula: HalfDayBasedOffset(&ConfiguredSunrise, &FixedLocalChatzos, 3.0),
         about: concat!(
             "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon) day, using only the first half of the day.\n\n",
             "3 shaos zmaniyos after sunrise, with shaos zmaniyos measured from sunrise to fixed local chatzos (half of that half-day). \n\n",
@@ -817,7 +817,7 @@ zman_catalog! {
         java: "getSofZmanShmaMGA18DegreesToFixedLocalChatzos",
         name: "Sof Zman Shma (MGA, 18 Degrees to Fixed Local Chatzos)",
         category: SofZmanShma,
-        formula: HalfDayBasedOffset(&SunriseOffsetByDegrees(18.0), &LocalMeanTime(12.0), 3.0),
+        formula: HalfDayBasedOffset(&SunriseOffsetByDegrees(18.0), &FixedLocalChatzos, 3.0),
         about: concat!(
             "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner) day, using only the first half of the day.\n\n",
             "3 shaos zmaniyos after alos at 18 degrees, with shaos zmaniyos measured from that alos to fixed local chatzos (half of that half-day).\n\n",
@@ -835,7 +835,7 @@ zman_catalog! {
         java: "getSofZmanShmaMGA16Point1DegreesToFixedLocalChatzos",
         name: "Sof Zman Shma (MGA, 16.1 Degrees to Fixed Local Chatzos)",
         category: SofZmanShma,
-        formula: HalfDayBasedOffset(&SunriseOffsetByDegrees(16.1), &LocalMeanTime(12.0), 3.0),
+        formula: HalfDayBasedOffset(&SunriseOffsetByDegrees(16.1), &FixedLocalChatzos, 3.0),
         about: concat!(
             "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner) day, using only the first half of the day.\n\n",
             "3 shaos zmaniyos after alos at 16.1 degrees, with shaos zmaniyos measured from that alos to fixed local chatzos (half of that half-day).\n\n",
@@ -853,7 +853,7 @@ zman_catalog! {
         java: "getSofZmanShmaMGA90MinutesToFixedLocalChatzos",
         name: "Sof Zman Shma (MGA, 90 Minutes to Fixed Local Chatzos)",
         category: SofZmanShma,
-        formula: HalfDayBasedOffset(&Offset(&ConfiguredSunrise, Duration::from_mins(-90)), &LocalMeanTime(12.0), 3.0),
+        formula: HalfDayBasedOffset(&Offset(&ConfiguredSunrise, Duration::from_mins(-90)), &FixedLocalChatzos, 3.0),
         about: concat!(
             "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner) day, using only the first half of the day.\n\n",
             "3 shaos zmaniyos after alos 90 minutes before sunrise, with shaos zmaniyos measured from that alos to fixed local chatzos (half of that half-day).\n\n",
@@ -871,7 +871,7 @@ zman_catalog! {
         java: "getSofZmanShmaMGA72MinutesToFixedLocalChatzos",
         name: "Sof Zman Shma (MGA, 72 Minutes to Fixed Local Chatzos)",
         category: SofZmanShma,
-        formula: HalfDayBasedOffset(&Offset(&ConfiguredSunrise, Duration::from_mins(-72)), &LocalMeanTime(12.0), 3.0),
+        formula: HalfDayBasedOffset(&Offset(&ConfiguredSunrise, Duration::from_mins(-72)), &FixedLocalChatzos, 3.0),
         about: concat!(
             "Sof zman krias shema - the latest time to recite morning Shema according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner) day, using only the first half of the day.\n\n",
             "3 shaos zmaniyos after alos 72 minutes before sunrise, with shaos zmaniyos measured from that alos to fixed local chatzos (half of that half-day).\n\n",
@@ -1061,7 +1061,7 @@ zman_catalog! {
         java: "getSofZmanTfila2HoursBeforeChatzos",
         name: "Sof Zman Tfila (2 Hours Before Chatzos)",
         category: SofZmanTfila,
-        formula: Offset(&ChatzosHayom, Duration::from_mins(-120)),
+        formula: NotBefore(&Offset(&ChatzosHayom, Duration::from_mins(-120)), &ConfiguredSunrise),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis), calculated as 2 regular clock hours before chatzos hayom (not shaos zmaniyos). Paired with sof zman krias shema at 3 clock hours before chatzos; often grouped with the \"Komarno\" zmanim after [Rav Yitzchak Eizik of Komarno](https://en.wikipedia.org/wiki/Komarno_(Hasidic_dynasty)#Rabbi_Yitzchak_Eisik_Safrin), though this calculation is much older.\n\n",
             "2 clock hours before chatzos hayom.\n\n",
@@ -1131,7 +1131,7 @@ zman_catalog! {
         java: "getSofZmanTfilaGRASunriseToFixedLocalChatzos",
         name: "Sof Zman Tfila (GR'A, Sunrise to Fixed Local Chatzos)",
         category: SofZmanTfila,
-        formula: HalfDayBasedOffset(&ConfiguredSunrise, &LocalMeanTime(12.0), 4.0),
+        formula: HalfDayBasedOffset(&ConfiguredSunrise, &FixedLocalChatzos, 4.0),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon) day, using only the first half of the day.\n\n",
             "4 shaos zmaniyos after sunrise, with shaos zmaniyos measured from sunrise to fixed local chatzos (two-thirds of that half-day). \n\n",
@@ -1363,7 +1363,7 @@ zman_catalog! {
         java: "getFixedLocalChatzosHayom",
         name: "Chatzos Hayom (Fixed Local Chatzos)",
         category: ChatzosHayom,
-        formula: LocalMeanTime(12.0),
+        formula: FixedLocalChatzos,
         about: concat!(
             "Fixed local chatzos - clock noon adjusted for the location's longitude and time zone, not tied only to theoretical 15-degree time zones.\n\n",
             "The globe is divided into 24 hours over 360 degrees, or 15 degrees per hour (4 minutes per degree). At longitudes 0, 15, 30, and so on, chatzos is exactly 12:00 noon. The result is adjusted to the actual time zone and [daylight saving time](https://en.wikipedia.org/wiki/Daylight_saving_time).\n\n",
@@ -1411,7 +1411,7 @@ zman_catalog! {
         java: "getMinchaGedola30Minutes",
         name: "Mincha Gedola (30 Minutes)",
         category: MinchaGedola,
-        formula: Offset(&ChatzosHayom, Duration::from_mins(30)),
+        formula: NotAfter(&Offset(&ChatzosHayom, Duration::from_mins(30)), &ConfiguredSunset),
         about: concat!(
             "Mincha gedola calculated as 30 minutes after chatzos hayom.\n\n",
             "Some use this in winter when half a shaah zmanis is less than 30 minutes, to delay the start of mincha.\n\n",
@@ -1507,7 +1507,7 @@ zman_catalog! {
         java: "getMinchaGedolaGRAFixedLocalChatzos30Minutes",
         name: "Mincha Gedola (GR'A, Fixed Local Chatzos, 30 Minutes)",
         category: MinchaGedola,
-        formula: Offset(&LocalMeanTime(12.0), Duration::from_mins(30)),
+        formula: NotAfter(&Offset(&FixedLocalChatzos, Duration::from_mins(30)), &ConfiguredSunset),
         about: concat!(
             "Mincha gedola according to Rav Moshe Feinstein's opinion.\n\n",
             "30 minutes after fixed local chatzos.\n\n",
@@ -1541,7 +1541,7 @@ zman_catalog! {
         java: "getPlagAhavatShalom",
         name: "Plag Hamincha (Ahavat Shalom)",
         category: PlagHamincha,
-        formula: PlagAhavatShalom,
+        formula: NotAfter(&PlagAhavatShalom, &ConfiguredSunset),
         about: concat!(
             "Plag hamincha according to [Rabbi Yaakov Moshe Hillel](https://en.wikipedia.org/wiki/Yaakov_Moshe_Hillel), as published in the luach of the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.\n\n",
             "1.25 shaos zmaniyos before tzais 3.8 degrees, using a day from alos 16.1 degrees to tzais 3.8 degrees.\n\n",
@@ -1813,7 +1813,10 @@ zman_catalog! {
         java: "getPlagHaminchaAteretTorah",
         name: "Plag Hamincha (Ateret Torah)",
         category: PlagHamincha,
-        formula: PlagHamincha(&ZmanisOffset(&ConfiguredSunrise, -1.2), &TzaisAteretTorah, false),
+        formula: NotAfter(
+            &PlagHamincha(&ZmanisOffset(&ConfiguredSunrise, -1.2), &TzaisAteretTorah, false),
+            &ConfiguredSunset,
+        ),
         about: concat!(
             "Plag hamincha according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.\n\n",
             "10.75 shaos zmaniyos after alos.\n\n",
@@ -1846,7 +1849,7 @@ zman_catalog! {
         java: "getPlagHaminchaGRAFixedLocalChatzosToSunset",
         name: "Plag Hamincha (GR'A, Fixed Local Chatzos to Sunset)",
         category: PlagHamincha,
-        formula: HalfDayBasedOffset(&LocalMeanTime(12.0), &ConfiguredSunset, 4.75),
+        formula: HalfDayBasedOffset(&FixedLocalChatzos, &ConfiguredSunset, 4.75),
         about: concat!(
             "Plag hamincha according to [Rav Moshe Feinstein](https://en.wikipedia.org/wiki/Moshe_Feinstein)'s opinion, following the [Vilna Gaon](https://en.wikipedia.org/wiki/Vilna_Gaon) with the day ending at sunset.\n\n",
             "4.75 shaos zmaniyos after fixed local chatzos.\n\n",
@@ -1969,7 +1972,7 @@ zman_catalog! {
         java: "getMinchaKetanaAhavatShalom",
         name: "Mincha Ketana (Ahavat Shalom)",
         category: MinchaKetana,
-        formula: MinchaKetanaAhavatShalom,
+        formula: NotAfter(&MinchaKetanaAhavatShalom, &ConfiguredSunset),
         about: concat!(
             "Mincha ketana according to Rabbi Yaakov Moshe Hillel, as published in the luach of the Bais Horaah of Yeshivat Chevrat Ahavat Shalom.\n\n",
             "2.5 shaos zmaniyos before tzais 3.8 degrees, using a day from alos 16.1 degrees to tzais 3.8 degrees.\n\n",
@@ -1985,7 +1988,10 @@ zman_catalog! {
         java: "getMinchaKetanaAteretTorah",
         name: "Mincha Ketana (Ateret Torah)",
         category: MinchaKetana,
-        formula: MinchaKetana(&ZmanisOffset(&ConfiguredSunrise, -1.2), &TzaisAteretTorah, false),
+        formula: NotAfter(
+            &MinchaKetana(&ZmanisOffset(&ConfiguredSunrise, -1.2), &TzaisAteretTorah, false),
+            &ConfiguredSunset,
+        ),
         about: concat!(
             "Mincha ketana according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.\n\n",
             "9.5 shaos zmaniyos after alos.\n\n",
@@ -2016,7 +2022,7 @@ zman_catalog! {
         java: "getMinchaKetanaGRAFixedLocalChatzosToSunset",
         name: "Mincha Ketana (GR'A, Fixed Local Chatzos to Sunset)",
         category: MinchaKetana,
-        formula: HalfDayBasedOffset(&LocalMeanTime(12.0), &ConfiguredSunset, 3.5),
+        formula: HalfDayBasedOffset(&FixedLocalChatzos, &ConfiguredSunset, 3.5),
         about: concat!(
             "Mincha ketana according to Rav Moshe Feinstein's opinion, following the view of the Vilna Gaon.\n\n",
             "3.5 shaos zmaniyos after fixed local chatzos.\n\n",
@@ -2106,7 +2112,7 @@ zman_catalog! {
         java: "getBainHashmashosYereim18Minutes",
         name: "Bain Hashmashos (Yereim, 18 Minutes)",
         category: BainHashmashos,
-        formula: Offset(&ConfiguredSunset, Duration::from_mins(-18)),
+        formula: NotBefore(&Offset(&ConfiguredSunset, Duration::from_mins(-18)), &PlagHamincha(&ConfiguredSunrise, &ConfiguredSunset, true)),
         about: concat!(
             "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n",
             "18 minutes, or 3/4 of a 24-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\n",
@@ -2124,7 +2130,7 @@ zman_catalog! {
         java: "getBainHashmashosYereim16Point875Minutes",
         name: "Bain Hashmashos (Yereim, 16.875 Minutes)",
         category: BainHashmashos,
-        formula: Offset(&ConfiguredSunset, Duration::from_millis(-1012500)),
+        formula: NotBefore(&Offset(&ConfiguredSunset, Duration::from_millis(-1012500)), &PlagHamincha(&ConfiguredSunrise, &ConfiguredSunset, true)),
         about: concat!(
             "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n",
             "16.875 minutes, or 3/4 of a 22.5-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\n",
@@ -2142,7 +2148,7 @@ zman_catalog! {
         java: "getBainHashmashosYereim13Point5Minutes",
         name: "Bain Hashmashos (Yereim, 13.5 Minutes)",
         category: BainHashmashos,
-        formula: Offset(&ConfiguredSunset, Duration::from_millis(-810000)),
+        formula: NotBefore(&Offset(&ConfiguredSunset, Duration::from_millis(-810000)), &PlagHamincha(&ConfiguredSunrise, &ConfiguredSunset, true)),
         about: concat!(
             "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n",
             "13.5 minutes, or 3/4 of an 18-minute [mil](https://en.wikipedia.org/wiki/Biblical_and_Talmudic_units_of_measurement), before sunset. According to the Yereim, bain hashmashos starts 3/4 of a mil before sunset and tzais (nightfall) is at sunset.\n\n",
@@ -2218,7 +2224,7 @@ zman_catalog! {
         java: "getCandleLighting",
         name: "Candle Lighting",
         category: CandleLighting,
-        formula: CandleLighting,
+        formula: NotBefore(&CandleLighting, &PlagHamincha(&ConfiguredSunrise, &ConfiguredSunset, true)),
         about: concat!(
             "The time to light candles before Shabbos or Yom Tov.\n\n",
             "{candle_lighting_offset} before sea level sunset.\n\n",

@@ -8,7 +8,7 @@
 //! | [`zmanim`] | [`Zmanim`] and [`Zman`]: halachic times for a [`Location`] |
 //! | [`limudim`] | Daf Yomi and the other learning schedules, through [`limudim::Schedule`] |
 //! | [`myzmanim`] | The times shown on the MyZmanim website. Almost all of them are within one second of the site |
-#![cfg_attr(not(any(test, feature = "wasm")), no_std)]
+#![cfg_attr(not(test), no_std)]
 // Float functions are called as `CoreFloat::sin(x)`, not `x.sin()`. Where std is linked, as in
 // unit tests, `x.sin()` resolves to std's version instead of the one the crate ships with.
 
@@ -20,8 +20,6 @@ pub mod calendar;
 pub mod limudim;
 mod location;
 pub mod myzmanim;
-#[cfg(feature = "wasm")]
-mod wasm;
 pub mod zmanim;
 mod zone;
 

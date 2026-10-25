@@ -14,7 +14,9 @@ pub enum ZmanimError {
     AllNight,
     /// The time only exists on certain dates, and this is not one. Examples are the latest time
     /// to eat chametz outside Erev Pesach, Kiddush Levana outside its window, and the polar times
-    /// on a day with a normal sunrise.
+    /// on a day with a normal sunrise. On a very short day near the poles, a time that would fall
+    /// outside the day also gets this, such as candle lighting before plag hamincha or mincha
+    /// gedola after sunset.
     #[error("this time does not apply on this date")]
     NotApplicable,
     /// The time depends on the Hebrew date, and the date is outside the range a
