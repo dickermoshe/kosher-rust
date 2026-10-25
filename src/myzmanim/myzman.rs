@@ -6,7 +6,7 @@ use jiff::{SignedDuration, Timestamp, Zoned, civil::Date, tz::TimeZone};
 use core_maths::*;
 
 use crate::{
-    Location,
+    Location, Zone,
     astronomy::{
         GEOMETRIC_ZENITH, SolarEvent, adjusted_local_date, apparent_solar_radius, meeus::Meeus,
         rise_set_on_adjusted_date,
@@ -35,6 +35,11 @@ const NANOS_PER_SECOND: i128 = 1_000_000_000;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[non_exhaustive]
+#[cfg_attr(
+    feature = "wasm",
+    derive(serde::Serialize, serde::Deserialize, tsify::Tsify),
+    serde(rename_all = "camelCase")
+)]
 pub enum MyZman {
     /// "Dawn, 90 minutes as degrees before sunrise": the sun [`DAWN_90_DEGREES`] below the horizon.
     Dawn90Degrees,
@@ -238,12 +243,15 @@ impl fmt::Display for MyZman {
 /// When calculating *zmanim*, pass a time zone to [`MyZmanim::new`]. If you pass `None`, you will
 /// get [`ZmanimError::TimeZoneRequired`] when you call [`get_zoned`](Self::get_zoned) and for any
 /// *zman* if the location is more than 150° east or west of Greenwich.
+///
+/// The time zone is a [`jiff::tz::TimeZone`] unless you build the *zmanim* with
+/// [`with_zone`](Self::with_zone) and a [`Zone`] of your own.
 #[derive(Debug, Clone, PartialEq)]
-pub struct MyZmanim {
+pub struct MyZmanim<Z = TimeZone> {
     location: Location,
     date: Date,
     candle_lighting: Duration,
-    timezone: Option<TimeZone>,
+    timezone: Option<Z>,
 }
 
 impl MyZmanim {
@@ -254,11 +262,31 @@ impl MyZmanim {
     /// things do not work. The section on [time zones](MyZmanim#time-zones) lists them.
     #[must_use]
     pub fn new(location: Location, date: Date, timezone: Option<TimeZone>) -> Self {
+        Self::with_zone(location, date, timezone)
+    }
+
+    /// The time of `zman` in the time zone of these *zmanim*.
+    ///
+    /// # Errors
+    ///
+    /// It returns the same errors as [`get`](Self::get). It also returns
+    /// [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone.
+    pub fn get_zoned(&self, zman: MyZman) -> Result<Zoned, ZmanimError> {
+        let timezone = self.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
+        Ok(self.get(zman)?.to_zoned(timezone.clone()))
+    }
+}
+
+impl<Z: Zone> MyZmanim<Z> {
+    /// The *zmanim* at `location` on `date` in `zone`, any [`Zone`]. Candles are lit
+    /// [`DEFAULT_CANDLE_LIGHTING`] before sunset.
+    #[must_use]
+    pub fn with_zone(location: Location, date: Date, zone: Option<Z>) -> Self {
         Self {
             location,
             date,
             candle_lighting: DEFAULT_CANDLE_LIGHTING,
-            timezone,
+            timezone: zone,
         }
     }
 
@@ -277,8 +305,13 @@ impl MyZmanim {
 
     /// The time zone, if one was given.
     #[must_use]
-    pub fn timezone(&self) -> Option<&TimeZone> {
+    pub fn timezone(&self) -> Option<&Z> {
         self.timezone.as_ref()
+    }
+
+    /// The time zone as the calculations read it.
+    fn zone(&self) -> Option<&dyn Zone> {
+        self.timezone.as_ref().map(|zone| zone as &dyn Zone)
     }
 
     /// The date the *zmanim* are for.
@@ -291,17 +324,6 @@ impl MyZmanim {
     #[must_use]
     pub fn candle_lighting_offset(&self) -> Duration {
         self.candle_lighting
-    }
-
-    /// The time of `zman` in the time zone of these *zmanim*.
-    ///
-    /// # Errors
-    ///
-    /// It returns the same errors as [`get`](Self::get). It also returns
-    /// [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone.
-    pub fn get_zoned(&self, zman: MyZman) -> Result<Zoned, ZmanimError> {
-        let timezone = self.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
-        Ok(self.get(zman)?.to_zoned(timezone.clone()))
     }
 
     /// The time of `zman` on this day.
@@ -413,7 +435,7 @@ impl MyZmanim {
 
     /// [`rise_set`](Self::rise_set) on another `date` at the same location.
     fn rise_set_on(&self, date: Date, event: SolarEvent, elevated: bool) -> Result<Timestamp, ZmanimError> {
-        let adjusted_date = adjusted_local_date(date, &self.location, self.timezone.as_ref())?;
+        let adjusted_date = adjusted_local_date(date, &self.location, self.zone())?;
         let (horizon_elevation, height_above_horizon) = match (event, elevated) {
             (SolarEvent::Sunrise, true) => (
                 self.location.eastern_horizon_elevation,
@@ -433,7 +455,7 @@ impl MyZmanim {
     /// The time the sun is `degrees` below the geometric horizon, with no refraction, radius or
     /// dip.
     fn rise_set_by_degrees(&self, event: SolarEvent, degrees: f64) -> Result<Timestamp, ZmanimError> {
-        let adjusted_date = adjusted_local_date(self.date, &self.location, self.timezone.as_ref())?;
+        let adjusted_date = adjusted_local_date(self.date, &self.location, self.zone())?;
         rise_set_on_adjusted_date(
             &calculator(),
             adjusted_date,

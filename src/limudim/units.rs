@@ -3,6 +3,11 @@ use core::fmt;
 /// A tractate of the Mishnah and Talmud.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(
+    feature = "wasm",
+    derive(serde::Serialize, serde::Deserialize, tsify::Tsify),
+    serde(rename_all = "camelCase")
+)]
 pub enum Tractate {
     /// Berachos (ברכות).
     Berachos,
@@ -459,10 +464,13 @@ impl fmt::Display for Daf {
 /// A side of a page, either *amud aleph* (a) or *amud beis* (b).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "wasm", derive(serde::Serialize, serde::Deserialize, tsify::Tsify))]
 pub enum Side {
     /// The front of the page, "a".
+    #[cfg_attr(feature = "wasm", serde(rename = "a"))]
     Aleph,
     /// The back of the page, "b".
+    #[cfg_attr(feature = "wasm", serde(rename = "b"))]
     Bet,
 }
 

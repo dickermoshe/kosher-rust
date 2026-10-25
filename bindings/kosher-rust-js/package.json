@@ -1,0 +1,61 @@
+{
+  "name": "kosher-rust",
+  "version": "0.1.0",
+  "description": "Jewish calendar, zmanim and daily learning schedules for JavaScript. Runs in browsers, Node, Bun, Deno and edge runtimes.",
+  "keywords": [
+    "zmanim",
+    "hebrew-calendar",
+    "jewish",
+    "daf-yomi",
+    "halacha",
+    "kosherjava",
+    "webassembly"
+  ],
+  "license": "LGPL-2.1-or-later",
+  "author": "Moshe Dicker <dickermoshe@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dickermoshe/kosher-rust.git",
+    "directory": "bindings/kosher-rust-js"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "node": "./dist/node.js",
+      "default": "./dist/browser.js"
+    },
+    "./slim": {
+      "types": "./dist/slim.d.ts",
+      "default": "./dist/slim.js"
+    },
+    "./kosher_rust.wasm": "./dist/wasm/kosher_rust_bg.wasm",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/node.js",
+  "module": "./dist/browser.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": [
+    "./dist/browser.js",
+    "./dist/node.js"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:bun": "bun test ./test",
+    "test:rust": "cargo test -p kosher-rust-js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.0"
+  }
+}

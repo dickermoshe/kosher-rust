@@ -21,6 +21,11 @@ use super::year::{HebrewYear, LAST_YEAR, elapsed_days};
 /// of the year.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(
+    feature = "wasm",
+    derive(serde::Serialize, serde::Deserialize, tsify::Tsify),
+    serde(rename_all = "camelCase")
+)]
 pub enum Region {
     /// Eretz Yisrael, with one day of Yom Tov.
     Israel,

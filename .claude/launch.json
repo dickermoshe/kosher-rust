@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vite-react-example",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "preview", "--prefix", "bindings/kosher-rust-js/examples/vite-react"],
+      "port": 4173
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 (2026-10-22)
+## Unreleased
 
 0.3 rebuilds the public API around what users do. Apart from the fixes below, the calculations
 are unchanged, and they are still checked against KosherJava and hebcal.
@@ -165,6 +165,12 @@ Hebrew name.
 - **Time zones belong to the *zmanim*.** `Location` no longer holds a time zone. Pass it to
   `Zmanim::new`, `Zmanim::with_config` or `MyZmanim::new`, or pass `None`. The README lists the
   times that need one.
+- **`Zone`, for time zones that don't come from jiff.** Implement it with the offset from UTC at an
+  instant, and build the calculator with `Zmanim::with_zone` or `MyZmanim::with_zone`.
+  `jiff::tz::TimeZone` and `jiff::tz::Offset` implement it.
+- **JavaScript.** The crate is published to npm as `kosher-rust`, for browsers, Node, Bun, Deno and
+  Cloudflare Workers. It takes time zones from the runtime or from any date library and bundles no
+  time zone database. The `wasm` feature holds its bindings and is only meant for building it.
 - **`get_zoned`.** `Zmanim` and `MyZmanim` give a time as a `Zoned` in their time zone, with
   any time zone.
 - **Lists and names.** `SpecialDay`, `Parsha`, `Tractate` and `HebrewMonth` have `ALL` and
