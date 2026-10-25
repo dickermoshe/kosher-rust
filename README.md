@@ -15,7 +15,7 @@ cargo add kosher-rust jiff
 ```
 
 For JavaScript and TypeScript, the same calculations are on npm as
-[`kr4js`](bindings/kr4js), for browsers, Node, Bun, Deno and Cloudflare Workers.
+[`kr4js`](bindings/kr4js).
 
 ## The Hebrew calendar
 
