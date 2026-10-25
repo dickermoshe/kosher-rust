@@ -29,25 +29,40 @@
       "types": "./dist/slim.d.ts",
       "default": "./dist/slim.js"
     },
-    "./kosher_rust.wasm": "./dist/wasm/kosher_rust_bg.wasm",
+    "./kosher_rust.wasm": {
+      "types": "./dist/wasm/module.d.ts",
+      "default": "./dist/wasm/kosher_rust_bg.wasm"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/node.js",
   "module": "./dist/browser.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "slim": [
+        "./dist/slim.d.ts"
+      ],
+      "kosher_rust.wasm": [
+        "./dist/wasm/module.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "sideEffects": [
     "./dist/browser.js",
     "./dist/node.js"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22.12"
   },
   "scripts": {
     "build": "node scripts/build.mjs",
+    "prepublishOnly": "npm run build && npm test",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:bun": "bun test ./test",

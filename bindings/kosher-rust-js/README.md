@@ -176,10 +176,9 @@ times.get("candleLighting");
 | Runtime | |
 |---|---|
 | Browsers, with Vite, webpack, Rollup, esbuild, Parcel or no bundler | The WebAssembly is inlined in the module. |
-| Node 18 and later, Bun and Deno | The WebAssembly file is read from the package. |
+| Node 22.12 and later, Bun and Deno | The WebAssembly file is read from the package. |
 
 The WebAssembly is compiled when the package is imported, which takes a few milliseconds.
-
 ### Cloudflare Workers and other edge runtimes
 
 Some runtimes, such as Cloudflare Workers, don't compile WebAssembly while running. Their build tool
@@ -219,13 +218,13 @@ file into your build without any setup, and the browser compiles it while it dow
 from somewhere else, pass `init` a URL, a `fetch` response, the file's bytes or a compiled
 `WebAssembly.Module`. The file is exported as `kosher-rust/kosher_rust.wasm`.
 
-Calling anything in `kosher-rust/slim` before `init` has finished throws. The main entry needs no
-`init` and works the same with or without a bundler.
+Calling anything in `kosher-rust/slim` before `init` has finished throws.
 
 ## Building from source
 
-You need Rust with the `wasm32-unknown-unknown` target, [wasm-pack](https://rustwasm.github.io/wasm-pack/)
-and Node.
+You need [rustup](https://rustup.rs/), [wasm-pack](https://github.com/drager/wasm-pack) and Node.
+The repository's `rust-toolchain.toml` installs the Rust version, the `wasm32-unknown-unknown`
+target and the standard library source that the build uses.
 
 ```bash
 npm install

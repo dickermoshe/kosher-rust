@@ -14,6 +14,9 @@ Jewish calendar, *zmanim* and daily learning schedules for Rust. A port of
 cargo add kosher-rust jiff
 ```
 
+For JavaScript and TypeScript, the same calculations are on npm as
+[`kosher-rust`](bindings/kosher-rust-js), for browsers, Node, Bun, Deno and Cloudflare Workers.
+
 ## The Hebrew calendar
 
 A `jiff::civil::Date` (or ICU date) converts to a `HebrewDate`, which answers questions about

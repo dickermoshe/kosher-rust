@@ -1,3 +1,5 @@
 [toolchain]
 channel = "1.99.1"
-components = ["rustfmt", "clippy"]
+# rust-src and the wasm32 target build the npm package in bindings/kosher-rust-js.
+components = ["rustfmt", "clippy", "rust-src"]
+targets = ["wasm32-unknown-unknown"]
