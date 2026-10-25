@@ -3,6 +3,6 @@ import { readFileSync } from "node:fs";
 
 import { start } from "./runtime.js";
 
-start(() => readFileSync(new URL("./wasm/kosher_rust_bg.wasm", import.meta.url)));
+start(() => readFileSync(new URL("./wasm/kr4js_bg.wasm", import.meta.url)));
 
 export * from "./index.js";

@@ -1,5 +1,5 @@
 {
-  "name": "kosher-rust-example-node",
+  "name": "kr4js-example-node",
   "private": true,
   "description": "A command line app that prints the day's Hebrew date, zmanim and learning. Runs on Node and Bun.",
   "type": "module",
@@ -14,7 +14,7 @@
     "typecheck": "tsc -p jsconfig.json"
   },
   "dependencies": {
-    "kosher-rust": "file:../.."
+    "kr4js": "file:../.."
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

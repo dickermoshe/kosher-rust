@@ -1,5 +1,5 @@
 // The package must give exactly what the Rust crate gives with the real time zone database.
-// test/fixtures/parity.json is written by `UPDATE_GENERATED=1 cargo test -p kosher-rust-js`.
+// test/fixtures/parity.json is written by `UPDATE_GENERATED=1 cargo test -p kr4js`.
 import { readFileSync } from "node:fs";
 
 import { describe, expect, test } from "vitest";
@@ -25,7 +25,7 @@ import {
   type SpecialDay,
   type ZmanimConfig,
   type ZmanimError,
-} from "kosher-rust";
+} from "kr4js";
 
 type Time = number | string;
 type ParshaId = ParshaInfo["id"] | null;

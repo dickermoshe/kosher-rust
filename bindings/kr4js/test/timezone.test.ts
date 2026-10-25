@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { fixedOffset, localTime, timeZone, today, Zmanim, type TimeZone } from "kosher-rust";
+import { fixedOffset, localTime, timeZone, today, Zmanim, type TimeZone } from "kr4js";
 
 const at = (iso: string) => Date.parse(iso);
 

@@ -1,10 +1,10 @@
 [package]
-name = "kosher-rust-js"
+name = "kr4js"
 version = "0.1.0"
 edition = "2024"
 authors = ["Moshe Dicker <dickermoshe@gmail.com>"]
 license = "LGPL-2.1-or-later"
-description = "Builds the WebAssembly of the kosher-rust npm package."
+description = "Builds the WebAssembly of the kr4js npm package."
 repository = "https://github.com/dickermoshe/kosher-rust"
 publish = false
 

@@ -5,10 +5,10 @@
 // Without `tz`, the time zone Cloudflare reports for the visitor is used, and without `lat` and
 // `lon`, their approximate location.
 //
-// Workers don't compile WebAssembly while running, so this uses kosher-rust/slim and passes `init`
+// Workers don't compile WebAssembly while running, so this uses kr4js/slim and passes `init`
 // the WebAssembly module, which Wrangler compiles when it uploads the Worker.
-import wasm from "kosher-rust/kosher_rust.wasm";
-import { HebrewDate, Zmanim, dafYomiBavli, init, today } from "kosher-rust/slim";
+import wasm from "kr4js/kr4js.wasm";
+import { HebrewDate, Zmanim, dafYomiBavli, init, today } from "kr4js/slim";
 
 /** Responds with `body` as JSON. */
 function json(body, status = 200) {

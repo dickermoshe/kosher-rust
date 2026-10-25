@@ -9,8 +9,8 @@ const entry = (file: string) => fileURLToPath(new URL(`./dist/${file}`, import.m
 export default defineConfig({
   test: {
     projects: [
-      { resolve: { alias: { "kosher-rust": entry("node.js") } }, test: { name: "node entry", include: ["test/**/*.test.ts"] } },
-      { resolve: { alias: { "kosher-rust": entry("browser.js") } }, test: { name: "browser entry", include: ["test/**/*.test.ts"] } },
+      { resolve: { alias: { "kr4js": entry("node.js") } }, test: { name: "node entry", include: ["test/**/*.test.ts"] } },
+      { resolve: { alias: { "kr4js": entry("browser.js") } }, test: { name: "browser entry", include: ["test/**/*.test.ts"] } },
     ],
   },
 });

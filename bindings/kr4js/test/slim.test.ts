@@ -7,9 +7,9 @@ import { describe, expect, test } from "vitest";
 
 import { dafYomiBavli, HebrewDate, init, Zmanim } from "../dist/slim.js";
 
-const bytes = readFileSync(new URL("../dist/wasm/kosher_rust_bg.wasm", import.meta.url));
+const bytes = readFileSync(new URL("../dist/wasm/kr4js_bg.wasm", import.meta.url));
 
-describe("kosher-rust/slim", () => {
+describe("kr4js/slim", () => {
   test("throws before init is called", () => {
     const script = fileURLToPath(new URL("./fixtures/slim-before-init.mjs", import.meta.url));
     expect(execFileSync(process.execPath, [script], { encoding: "utf8" }).trim()).toBe("threw");
@@ -32,7 +32,7 @@ describe("kosher-rust/slim", () => {
   test("ignores later calls", async () => {
     await init(new WebAssembly.Module(bytes));
     // Never fetched.
-    await init("https://example.invalid/kosher_rust.wasm");
+    await init("https://example.invalid/kr4js.wasm");
     expect(HebrewDate.from({ year: 2024, month: 4, day: 24 }).toString()).toBe("16 Nisan 5784");
   });
 });

@@ -1,6 +1,6 @@
 // Time zones from the runtime's own data, through `Intl.DateTimeFormat`, which every browser,
 // Node, Bun, Deno and Cloudflare Workers has. The package bundles no time zone database.
-import type { GregorianDate, TimeZone, TimeZoneInput } from "./wasm/kosher_rust.js";
+import type { GregorianDate, TimeZone, TimeZoneInput } from "./wasm/kr4js.js";
 
 const formatters = new Map<string, Intl.DateTimeFormat>();
 

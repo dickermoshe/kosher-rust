@@ -9,7 +9,7 @@ import {
   allTractates,
   allZmanim,
   zmanInfo,
-} from "kosher-rust";
+} from "kr4js";
 
 describe("lists", () => {
   test.each([

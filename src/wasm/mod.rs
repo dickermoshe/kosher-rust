@@ -1,6 +1,6 @@
-//! The JavaScript API of the kosher-rust npm package, built with wasm-bindgen.
+//! The JavaScript API of the kr4js npm package, built with wasm-bindgen.
 //!
-//! The classes and functions here are what `bindings/kosher-rust-js` publishes. Their TypeScript
+//! The classes and functions here are what `bindings/kr4js` publishes. Their TypeScript
 //! types come from wasm-bindgen and from the `Tsify` derives on the crate's own types, so the ids
 //! JavaScript uses, such as `"sofZmanShmaGra"`, are the enums' variant names in camel case.
 

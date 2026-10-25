@@ -15,7 +15,7 @@ import {
   TehillimPortion,
   tehillimMonthly,
   type Region,
-} from "kosher-rust";
+} from "kr4js";
 
 describe("schedules", () => {
   test("give the README's portions", () => {

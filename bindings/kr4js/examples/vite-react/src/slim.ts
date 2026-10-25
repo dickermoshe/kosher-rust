@@ -1,6 +1,6 @@
 // The slim entry: the WebAssembly is a separate file that Vite copies into the build, fetched once
 // by `init`.
-import { HebrewDate, dafYomiBavli, init } from "kosher-rust/slim";
+import { HebrewDate, dafYomiBavli, init } from "kr4js/slim";
 
 async function main() {
   await init();

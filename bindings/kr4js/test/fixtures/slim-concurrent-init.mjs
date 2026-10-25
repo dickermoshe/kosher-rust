@@ -1,10 +1,10 @@
-// Prints "ok" when kosher-rust/slim loads the WebAssembly once however `init` is called. Runs in a
+// Prints "ok" when kr4js/slim loads the WebAssembly once however `init` is called. Runs in a
 // fresh process, where nothing else has loaded the WebAssembly yet.
 import { readFileSync } from "node:fs";
 
 import { HebrewDate, init } from "../../dist/slim.js";
 
-const bytes = readFileSync(new URL("../../dist/wasm/kosher_rust_bg.wasm", import.meta.url));
+const bytes = readFileSync(new URL("../../dist/wasm/kr4js_bg.wasm", import.meta.url));
 const wasm = () => new Response(bytes, { headers: { "content-type": "application/wasm" } });
 const broken = () => new Response(new Uint8Array([0, 1, 2, 3]), { headers: { "content-type": "application/wasm" } });
 

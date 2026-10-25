@@ -1,4 +1,4 @@
-import * as glue from "./wasm/kosher_rust.js";
+import * as glue from "./wasm/kr4js.js";
 import { timeZone } from "./timezone.js";
 
 /** Instantiates the WebAssembly from `module`, for the entries that load it as the package loads. */
@@ -7,9 +7,9 @@ export function start(module: () => WebAssembly.Module | BufferSource): void {
     glue.initSync({ module: module() });
   } catch (error) {
     throw new Error(
-      "kosher-rust could not compile its WebAssembly here. Where compiling it at runtime isn't " +
-        "allowed, as in Cloudflare Workers, import kosher-rust/slim and pass `init` the module " +
-        "imported from kosher-rust/kosher_rust.wasm.",
+      "kr4js could not compile its WebAssembly here. Where compiling it at runtime isn't " +
+        "allowed, as in Cloudflare Workers, import kr4js/slim and pass `init` the module " +
+        "imported from kr4js/kr4js.wasm.",
       { cause: error },
     );
   }

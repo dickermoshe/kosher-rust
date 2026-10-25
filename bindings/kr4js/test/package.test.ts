@@ -26,7 +26,7 @@ describe("package.json", () => {
   test("publishes dist and nothing from the sources", () => {
     const output = execFileSync(npm, ["pack", "--dry-run", "--json"], { cwd: root, encoding: "utf8", shell });
     const files: string[] = JSON.parse(output)[0].files.map((f: { path: string }) => f.path);
-    for (const file of ["dist/index.d.ts", "dist/browser.js", "dist/node.js", "dist/slim.js", "dist/slim.d.ts", "dist/wasm/kosher_rust_bg.wasm", "dist/wasm/inline.js", "dist/wasm/module.d.ts", "README.md", "LICENSE"]) {
+    for (const file of ["dist/index.d.ts", "dist/browser.js", "dist/node.js", "dist/slim.js", "dist/slim.d.ts", "dist/wasm/kr4js_bg.wasm", "dist/wasm/inline.js", "dist/wasm/module.d.ts", "README.md", "LICENSE"]) {
       expect(files).toContain(file);
     }
     expect(files.filter((f) => f.startsWith("js/") || f.startsWith("src/") || f.startsWith("test/"))).toEqual([]);
@@ -36,7 +36,7 @@ describe("package.json", () => {
 describe("entries", () => {
   test("the browser entry needs no URL, fetch or top-level await", () => {
     const browser = read("dist/browser.js");
-    const glue = read("dist/wasm/kosher_rust.js");
+    const glue = read("dist/wasm/kr4js.js");
     for (const source of [browser, glue, read("dist/index.js"), read("dist/runtime.js")]) {
       expect(source).not.toMatch(/new URL\(/);
       expect(source).not.toMatch(/^await /m);
@@ -46,15 +46,15 @@ describe("entries", () => {
 
   test("the slim entry leaves out the inlined WebAssembly and points bundlers at the file", () => {
     expect(pkg.exports["./slim"]).toEqual({ types: "./dist/slim.d.ts", default: "./dist/slim.js" });
-    expect(pkg.exports["./kosher_rust.wasm"]).toEqual({ types: "./dist/wasm/module.d.ts", default: "./dist/wasm/kosher_rust_bg.wasm" });
+    expect(pkg.exports["./kr4js.wasm"]).toEqual({ types: "./dist/wasm/module.d.ts", default: "./dist/wasm/kr4js_bg.wasm" });
     const slim = read("dist/slim.js");
     expect(slim).not.toMatch(/inline\.js/);
     // Vite, webpack and Parcel copy a file referred to this way into the build.
-    expect(slim).toMatch(/new URL\("\.\/wasm\/kosher_rust_bg\.wasm", import\.meta\.url\)/);
+    expect(slim).toMatch(/new URL\("\.\/wasm\/kr4js_bg\.wasm", import\.meta\.url\)/);
   });
 
   test("the WebAssembly stays small", () => {
-    const wasm = readFileSync(new URL("dist/wasm/kosher_rust_bg.wasm", root));
+    const wasm = readFileSync(new URL("dist/wasm/kr4js_bg.wasm", root));
     // No time zone database and no panic messages.
     expect(wasm.includes("America/New_York")).toBe(false);
     expect(wasm.includes("TZif")).toBe(false);
@@ -69,7 +69,7 @@ describe("types", () => {
 
   // A TypeScript project with the packed package installed, as a user gets it from npm.
   beforeAll(() => {
-    project = mkdtempSync(join(tmpdir(), "kosher-rust-types-"));
+    project = mkdtempSync(join(tmpdir(), "kr4js-types-"));
     const packed = execFileSync(npm, ["pack", "--json", "--pack-destination", project], { cwd: root, encoding: "utf8", shell });
     const tarball = join(project, JSON.parse(packed)[0].filename);
     writeFileSync(join(project, "package.json"), '{ "private": true, "type": "module" }\n');

@@ -8,9 +8,9 @@ import {
   mishnaYomis,
   tehillimMonthly,
   today,
-} from "kosher-rust";
+} from "kr4js";
 
-/** @typedef {{ name: string, location: import("kosher-rust").LocationOptions, timeZone: string, region: import("kosher-rust").Region }} City */
+/** @typedef {{ name: string, location: import("kr4js").LocationOptions, timeZone: string, region: import("kr4js").Region }} City */
 
 /** Places the app knows by name. @type {Record<string, City>} */
 export const CITIES = {
@@ -21,7 +21,7 @@ export const CITIES = {
   melbourne: { name: "Melbourne", location: { latitude: -37.8136, longitude: 144.9631, elevation: 30 }, timeZone: "Australia/Melbourne", region: "diaspora" },
 };
 
-/** The zmanim the report shows, in order. @type {import("kosher-rust").Zman[]} */
+/** The zmanim the report shows, in order. @type {import("kr4js").Zman[]} */
 export const SHOWN = [
   "alos72Minutes",
   "misheyakir10Point2Degrees",
@@ -49,7 +49,7 @@ function clock(time, timeZone) {
 /**
  * The report for `city` on `date`, today in the city when left out.
  * @param {City} city
- * @param {import("kosher-rust").DateInput} [date]
+ * @param {import("kr4js").DateInput} [date]
  */
 export function report(city, date = today(city.timeZone)) {
   const hebrew = HebrewDate.from(date);

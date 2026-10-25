@@ -15,7 +15,7 @@ import {
   type Region,
   type Zman,
   type ZmanTime,
-} from "kosher-rust";
+} from "kr4js";
 
 interface City {
   id: string;

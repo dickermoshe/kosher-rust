@@ -3,7 +3,7 @@
  * WebAssembly.
  *
  * ```ts
- * import { HebrewDate, Zmanim, dafYomiBavli } from "kosher-rust";
+ * import { HebrewDate, Zmanim, dafYomiBavli } from "kr4js";
  *
  * const date = { year: 2024, month: 4, day: 23 };
  * const zmanim = new Zmanim({
@@ -49,7 +49,7 @@ export {
   tehillimMonthly,
   zmanInfo,
   zmanimIn,
-} from "./wasm/kosher_rust.js";
+} from "./wasm/kr4js.js";
 export type {
   Calculator,
   Category,
@@ -82,5 +82,5 @@ export type {
   ZmanimOptions,
   ZmanInfo,
   ZmanTime,
-} from "./wasm/kosher_rust.js";
+} from "./wasm/kr4js.js";
 export { fixedOffset, type LocalTime, localTime, timeZone, today } from "./timezone.js";

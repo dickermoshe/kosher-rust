@@ -2,7 +2,7 @@
 //! and time zones, using the real time zone database. The JavaScript tests check that the package,
 //! with time zones from `Intl`, gives the same answers.
 //!
-//! Run `UPDATE_GENERATED=1 cargo test -p kosher-rust-js` after changing a calculation in the crate.
+//! Run `UPDATE_GENERATED=1 cargo test -p kr4js` after changing a calculation in the crate.
 
 #![cfg(not(target_arch = "wasm32"))]
 #![allow(clippy::expect_used, clippy::unwrap_used)]
@@ -376,6 +376,6 @@ fn generated_parity_fixture_is_current() {
     let actual = std::fs::read_to_string(&path).unwrap_or_default().replace("\r\n", "\n");
     assert!(
         actual == expected,
-        "test/fixtures/parity.json is out of date. Run `UPDATE_GENERATED=1 cargo test -p kosher-rust-js`."
+        "test/fixtures/parity.json is out of date. Run `UPDATE_GENERATED=1 cargo test -p kr4js`."
     );
 }

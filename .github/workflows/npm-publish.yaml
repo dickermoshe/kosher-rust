@@ -1,5 +1,5 @@
-# Publishes bindings/kosher-rust-js to npm when a tag such as `npm-v0.1.0` is pushed. The tag must
-# match the version in its package.json.
+# Publishes bindings/kr4js to npm when a tag such as `npm-v0.1.0` is pushed. The tag must match the
+# version in its package.json.
 #
 # It publishes with npm's trusted publishing, which needs no token and adds provenance. Set it up on
 # npmjs.com under the package's settings, with this repository and the workflow file
@@ -19,7 +19,7 @@ env:
 
 defaults:
   run:
-    working-directory: bindings/kosher-rust-js
+    working-directory: bindings/kr4js
 
 jobs:
   publish:

@@ -1,5 +1,5 @@
 {
-  "name": "kosher-rust-example-cloudflare-worker",
+  "name": "kr4js-example-cloudflare-worker",
   "private": true,
   "description": "A Cloudflare Worker that answers with the zmanim for a place and day.",
   "type": "module",
@@ -9,7 +9,7 @@
     "test": "node --test"
   },
   "dependencies": {
-    "kosher-rust": "file:../.."
+    "kr4js": "file:../.."
   },
   "devDependencies": {
     "wrangler": "^4.40.0"

@@ -19,7 +19,7 @@ function run(command, args, env = {}) {
   execFileSync(command, args, { cwd: root, stdio: "inherit", env: { ...process.env, ...env } });
 }
 
-run("cargo", ["test", "--quiet", "-p", "kosher-rust-js", "--test", "parity"], { UPDATE_GENERATED: "1" });
+run("cargo", ["test", "--quiet", "-p", "kr4js", "--test", "parity"], { UPDATE_GENERATED: "1" });
 
 // Built for size. A panic aborts without a message, which drops the formatting code and the text
 // of every message the libraries might panic with. `Debug` formatting and source locations are
@@ -35,7 +35,7 @@ run(
     "--out-dir",
     "js/src/wasm",
     "--out-name",
-    "kosher_rust",
+    "kr4js",
     "--no-pack",
     "--",
     "--config",
@@ -58,23 +58,23 @@ run(
 
 // The glue's async initializer would load the .wasm file by URL. Each entry point loads it its own
 // way, and a `new URL(..., import.meta.url)` left in makes bundlers copy the file into every build.
-const gluePath = join(wasmDir, "kosher_rust.js");
+const gluePath = join(wasmDir, "kr4js.js");
 const glue = readFileSync(gluePath, "utf8");
-const urlLine = "module_or_path = new URL('kosher_rust_bg.wasm', import.meta.url);";
+const urlLine = "module_or_path = new URL('kr4js_bg.wasm', import.meta.url);";
 if (!glue.includes(urlLine)) throw new Error("the wasm-bindgen glue changed; update scripts/build.mjs");
 writeFileSync(
   gluePath,
-  glue.replace(urlLine, 'throw new Error("kosher-rust loads its WebAssembly itself");'),
+  glue.replace(urlLine, 'throw new Error("kr4js loads its WebAssembly itself");'),
 );
 
 // The classes declare `[Symbol.dispose]`, which TypeScript only knows with this library.
-const typesPath = join(wasmDir, "kosher_rust.d.ts");
+const typesPath = join(wasmDir, "kr4js.d.ts");
 writeFileSync(typesPath, `/// <reference lib="esnext.disposable" />\n${readFileSync(typesPath, "utf8")}`);
 
-const wasm = readFileSync(join(wasmDir, "kosher_rust_bg.wasm"));
+const wasm = readFileSync(join(wasmDir, "kr4js_bg.wasm"));
 writeFileSync(join(wasmDir, "inline.js"), `export const WASM_BASE64 = "${wasm.toString("base64")}";\n`);
 writeFileSync(join(wasmDir, "inline.d.ts"), "export declare const WASM_BASE64: string;\n");
-// The type of `kosher-rust/kosher_rust.wasm`, which runtimes such as Cloudflare Workers import as a
+// The type of `kr4js/kr4js.wasm`, which runtimes such as Cloudflare Workers import as a
 // compiled module.
 writeFileSync(
   join(wasmDir, "module.d.ts"),
@@ -85,7 +85,7 @@ rmSync(dist, { recursive: true, force: true });
 run(process.execPath, [join(root, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.json"]);
 
 mkdirSync(join(dist, "wasm"), { recursive: true });
-for (const file of ["kosher_rust.js", "kosher_rust.d.ts", "kosher_rust_bg.wasm", "inline.js", "inline.d.ts", "module.d.ts"]) {
+for (const file of ["kr4js.js", "kr4js.d.ts", "kr4js_bg.wasm", "inline.js", "inline.d.ts", "module.d.ts"]) {
   cpSync(join(wasmDir, file), join(dist, "wasm", file));
 }
 cpSync(join(root, "..", "..", "LICENSE"), join(root, "LICENSE"));

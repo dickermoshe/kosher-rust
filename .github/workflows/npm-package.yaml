@@ -16,7 +16,7 @@ env:
 
 defaults:
   run:
-    working-directory: bindings/kosher-rust-js
+    working-directory: bindings/kr4js
 
 jobs:
   build:
@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: bindings/kosher-rust-js/package-lock.json
+          cache-dependency-path: bindings/kr4js/package-lock.json
       - run: npm ci
       - run: npm run build
       - name: Check that the parity fixture matches the crate
@@ -44,8 +44,8 @@ jobs:
         with:
           name: package
           path: |
-            bindings/kosher-rust-js/dist
-            bindings/kosher-rust-js/LICENSE
+            bindings/kr4js/dist
+            bindings/kr4js/LICENSE
           if-no-files-found: error
 
   oldest-node:
@@ -57,12 +57,12 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: package
-          path: bindings/kosher-rust-js
+          path: bindings/kr4js
       - uses: actions/setup-node@v7
         with:
           node-version: "22.12"
           cache: npm
-          cache-dependency-path: bindings/kosher-rust-js/package-lock.json
+          cache-dependency-path: bindings/kr4js/package-lock.json
       - run: npm ci
       - run: npm test
 
@@ -75,12 +75,12 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: package
-          path: bindings/kosher-rust-js
+          path: bindings/kr4js
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: bindings/kosher-rust-js/package-lock.json
+          cache-dependency-path: bindings/kr4js/package-lock.json
       - uses: oven-sh/setup-bun@v2
       - run: npm ci
       - run: bun test ./test
@@ -98,7 +98,7 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: package
-          path: bindings/kosher-rust-js
+          path: bindings/kr4js
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.runtime == 'node 22.12' && '22.12' || '24' }}
@@ -113,7 +113,7 @@ jobs:
           cp test/fixtures/smoke.mjs test/fixtures/smoke.cjs "$RUNNER_TEMP/app/"
           cd "$RUNNER_TEMP/app"
           echo '{ "private": true }' > package.json
-          npm install --no-audit --no-fund ./kosher-rust-*.tgz
+          npm install --no-audit --no-fund ./kr4js-*.tgz
       - if: startsWith(matrix.runtime, 'node')
         working-directory: ${{ runner.temp }}/app
         run: |
@@ -136,18 +136,18 @@ jobs:
         example: [node, cloudflare-worker, vite-react]
     defaults:
       run:
-        working-directory: bindings/kosher-rust-js/examples/${{ matrix.example }}
+        working-directory: bindings/kr4js/examples/${{ matrix.example }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
         with:
           name: package
-          path: bindings/kosher-rust-js
+          path: bindings/kr4js
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: bindings/kosher-rust-js/examples/${{ matrix.example }}/package-lock.json
+          cache-dependency-path: bindings/kr4js/examples/${{ matrix.example }}/package-lock.json
       - if: matrix.example == 'node'
         uses: oven-sh/setup-bun@v2
       - run: npm ci

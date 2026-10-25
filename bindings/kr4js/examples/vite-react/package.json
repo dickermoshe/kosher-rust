@@ -1,5 +1,5 @@
 {
-  "name": "kosher-rust-example-vite-react",
+  "name": "kr4js-example-vite-react",
   "private": true,
   "description": "A zmanim and calendar page built with Vite and React. Its tests run the production build in a browser.",
   "type": "module",
@@ -10,7 +10,7 @@
     "test": "vite build && playwright test"
   },
   "dependencies": {
-    "kosher-rust": "file:../..",
+    "kr4js": "file:../..",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

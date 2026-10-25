@@ -11,7 +11,7 @@ import {
   zmanInfo,
   type Zman,
   type ZmanimError,
-} from "kosher-rust";
+} from "kr4js";
 
 const lakewood = { latitude: 40.09, longitude: -74.22, elevation: 30 };
 const options = { location: lakewood, timeZone: "America/New_York", date: { year: 2024, month: 4, day: 23 } } as const;

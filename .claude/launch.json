@@ -4,7 +4,7 @@
     {
       "name": "vite-react-example",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "preview", "--prefix", "bindings/kosher-rust-js/examples/vite-react"],
+      "runtimeArgs": ["run", "preview", "--prefix", "bindings/kr4js/examples/vite-react"],
       "port": 4173
     }
   ]

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { allHebrewMonths, HebrewDate, HebrewYear, type Region } from "kosher-rust";
+import { allHebrewMonths, HebrewDate, HebrewYear, type Region } from "kr4js";
 
 describe("HebrewDate", () => {
   test("converts from the Gregorian calendar", () => {

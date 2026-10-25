@@ -1,4 +1,4 @@
-# kosher-rust for JavaScript
+# kr4js
 
 Jewish calendar, *zmanim* and daily learning schedules for JavaScript and TypeScript. The
 calculations are the [kosher-rust](https://github.com/dickermoshe/kosher-rust) crate, compiled to
@@ -15,7 +15,7 @@ runtimes that don't compile WebAssembly while running need two more lines, shown
 [Where it runs](#where-it-runs).
 
 ```bash
-npm install kosher-rust
+npm install kr4js
 ```
 
 ## Zmanim
@@ -24,7 +24,7 @@ Give `Zmanim` a location, a date and a time zone, then ask for any zman. Times c
 JavaScript `Date`s.
 
 ```ts
-import { Zmanim } from "kosher-rust";
+import { Zmanim } from "kr4js";
 
 const zmanim = new Zmanim({
   location: { latitude: 40.09, longitude: -74.22, elevation: 30 },
@@ -111,7 +111,7 @@ A Gregorian date converts to a `HebrewDate`, which answers questions about that 
 `"israel"` or `"diaspora"` wherever they differ.
 
 ```ts
-import { HebrewDate } from "kosher-rust";
+import { HebrewDate } from "kr4js";
 
 const day = HebrewDate.from({ year: 2024, month: 4, day: 23 });
 day.toString();                        // "15 Nisan 5784"
@@ -135,7 +135,7 @@ is midnight UTC, which is still the 22nd in America, so prefer the object.
 Each schedule gives that day's portion, or `undefined` when nothing is scheduled.
 
 ```ts
-import { dafYomiBavli, mishnaYomis, pirkeiAvos } from "kosher-rust";
+import { dafYomiBavli, mishnaYomis, pirkeiAvos } from "kr4js";
 
 const date = { year: 2024, month: 4, day: 23 };
 String(dafYomiBavli(date)); // "Bava Metzia 55"
@@ -160,7 +160,7 @@ your users compare your times with that site, with the site's own coordinates, e
 horizons for the area.
 
 ```ts
-import { MyZmanim } from "kosher-rust";
+import { MyZmanim } from "kr4js";
 
 const times = new MyZmanim({
   location: { latitude: 31.778, longitude: 35.235, elevation: 754, easternHorizon: 754, westernHorizon: 0 },
@@ -186,8 +186,8 @@ compiles it when the code is uploaded instead. Import the WebAssembly file and t
 pass the file to `init` before the first call.
 
 ```ts
-import wasm from "kosher-rust/kosher_rust.wasm";
-import { init, Zmanim } from "kosher-rust/slim";
+import wasm from "kr4js/kr4js.wasm";
+import { init, Zmanim } from "kr4js/slim";
 
 export default {
   async fetch(request) {
@@ -204,10 +204,10 @@ this.
 
 In browsers the WebAssembly is inlined as base64, which costs about a third more than the file
 itself, roughly 160 KB gzipped instead of 125 KB. To serve it as a separate file instead, import
-`kosher-rust/slim` and call `init` once before anything else.
+`kr4js/slim` and call `init` once before anything else.
 
 ```ts
-import { HebrewDate, init } from "kosher-rust/slim";
+import { HebrewDate, init } from "kr4js/slim";
 
 await init();
 HebrewDate.from({ year: 2024, month: 4, day: 23 }).toString(); // "15 Nisan 5784"
@@ -216,9 +216,9 @@ HebrewDate.from({ year: 2024, month: 4, day: 23 }).toString(); // "15 Nisan 5784
 `init` fetches the file from next to the package's own module. Vite, webpack 5 and Parcel copy the
 file into your build without any setup, and the browser compiles it while it downloads. To load it
 from somewhere else, pass `init` a URL, a `fetch` response, the file's bytes or a compiled
-`WebAssembly.Module`. The file is exported as `kosher-rust/kosher_rust.wasm`.
+`WebAssembly.Module`. The file is exported as `kr4js/kr4js.wasm`.
 
-Calling anything in `kosher-rust/slim` before `init` has finished throws.
+Calling anything in `kr4js/slim` before `init` has finished throws.
 
 ## Building from source
 
