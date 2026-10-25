@@ -65,7 +65,7 @@
     "prepublishOnly": "npm run build && npm test",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:bun": "bun test ./test",
+    "test:bun": "bun --bun vitest run",
     "test:rust": "cargo test -p kr4js"
   },
   "devDependencies": {

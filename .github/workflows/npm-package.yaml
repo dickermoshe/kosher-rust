@@ -83,7 +83,8 @@ jobs:
           cache-dependency-path: bindings/kr4js/package-lock.json
       - uses: oven-sh/setup-bun@v2
       - run: npm ci
-      - run: bun test ./test
+      # Runs the Vitest suite with Bun as the runtime of its test workers.
+      - run: bun run test:bun
 
   installed:
     name: Installed package on ${{ matrix.runtime }}
