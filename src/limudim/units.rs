@@ -3,6 +3,11 @@ use core::fmt;
 /// A tractate of the Mishnah. Tractates sort in the order of the Mishnah.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(
+    feature = "wasm",
+    derive(serde::Serialize, serde::Deserialize, tsify::Tsify),
+    serde(rename_all = "camelCase")
+)]
 pub enum MishnaTractate {
     /// Berachos (ברכות).
     Berachos,
@@ -601,10 +606,13 @@ impl<T: fmt::Display> fmt::Display for Daf<T> {
 /// A side of a page, either *amud aleph* (a) or *amud beis* (b).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "wasm", derive(serde::Serialize, serde::Deserialize, tsify::Tsify))]
 pub enum Side {
     /// The front of the page, "a".
+    #[cfg_attr(feature = "wasm", serde(rename = "a"))]
     Aleph,
     /// The back of the page, "b".
+    #[cfg_attr(feature = "wasm", serde(rename = "b"))]
     Bet,
 }
 

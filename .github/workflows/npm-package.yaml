@@ -1,0 +1,159 @@
+name: npm package
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+defaults:
+  run:
+    working-directory: bindings/kr4js
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # The toolchain, wasm32 target and rust-src come from rust-toolchain.toml.
+      - uses: actions-rust-lang/setup-rust-toolchain@v2
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: bindings/kr4js/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - name: Check that the parity fixture matches the crate
+        run: git diff --exit-code -- test/fixtures/parity.json
+      - run: npm test
+      - uses: actions/upload-artifact@v7
+        with:
+          name: package
+          path: |
+            bindings/kr4js/dist
+            bindings/kr4js/LICENSE
+          if-no-files-found: error
+
+  oldest-node:
+    name: Test on Node 22
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: package
+          path: bindings/kr4js
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22.12"
+          cache: npm
+          cache-dependency-path: bindings/kr4js/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  bun:
+    name: Test on Bun
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: package
+          path: bindings/kr4js
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: bindings/kr4js/package-lock.json
+      - uses: oven-sh/setup-bun@v2
+      - run: npm ci
+      # Runs the Vitest suite with Bun as the runtime of its test workers.
+      - run: bun run test:bun
+
+  installed:
+    name: Installed package on ${{ matrix.runtime }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [node 22.12, node 24, bun, deno]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: package
+          path: bindings/kr4js
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.runtime == 'node 22.12' && '22.12' || '24' }}
+      - if: matrix.runtime == 'bun'
+        uses: oven-sh/setup-bun@v2
+      - if: matrix.runtime == 'deno'
+        uses: denoland/setup-deno@v2
+      - name: Install the packed package in a new project
+        run: |
+          mkdir "$RUNNER_TEMP/app"
+          npm pack --pack-destination "$RUNNER_TEMP/app"
+          cp test/fixtures/smoke.mjs test/fixtures/smoke.cjs "$RUNNER_TEMP/app/"
+          cd "$RUNNER_TEMP/app"
+          echo '{ "private": true }' > package.json
+          npm install --no-audit --no-fund ./kr4js-*.tgz
+      - if: startsWith(matrix.runtime, 'node')
+        working-directory: ${{ runner.temp }}/app
+        run: |
+          node smoke.mjs
+          node smoke.cjs
+      - if: matrix.runtime == 'bun'
+        working-directory: ${{ runner.temp }}/app
+        run: bun smoke.mjs
+      - if: matrix.runtime == 'deno'
+        working-directory: ${{ runner.temp }}/app
+        run: deno run --allow-read smoke.mjs
+
+  examples:
+    name: Example ${{ matrix.example }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        example: [node, cloudflare-worker, vite-react]
+    defaults:
+      run:
+        working-directory: bindings/kr4js/examples/${{ matrix.example }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: package
+          path: bindings/kr4js
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: bindings/kr4js/examples/${{ matrix.example }}/package-lock.json
+      - if: matrix.example == 'node'
+        uses: oven-sh/setup-bun@v2
+      - run: npm ci
+      - if: matrix.example == 'vite-react'
+        run: npx playwright install --with-deps chromium
+      - run: npm test
+      - if: matrix.example == 'node'
+        run: npm run test:bun

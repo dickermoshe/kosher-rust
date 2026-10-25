@@ -35,6 +35,8 @@ default = ["alloc"]
 alloc = []
 # `defmt::Format` on the public types, for embedded logging.
 defmt = ["dep:defmt"]
+# The WebAssembly bindings of the kr4js npm package, built from bindings/kr4js.
+wasm = ["alloc", "dep:wasm-bindgen", "dep:js-sys", "dep:serde", "dep:serde-wasm-bindgen", "dep:tsify"]
 
 
 [dependencies]
@@ -54,6 +56,13 @@ defmt = { version = "1", optional = true }
 
 # Utility for creating custom error types
 thiserror = { version = "2.0.18", default-features = false }
+
+# The `wasm` feature: JavaScript classes, and TypeScript types derived from the Rust ones.
+wasm-bindgen = { version = "0.2.100", optional = true }
+js-sys = { version = "0.3", optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde-wasm-bindgen = { version = "0.6", optional = true }
+tsify = { version = "0.5", default-features = false, features = ["js"], optional = true }
 
 [dev-dependencies]
 jiff = { version = "0.2.0", default-features = false, features = [
@@ -76,7 +85,7 @@ opt-level = 2
 
 [workspace]
 resolver = "2"
-members = ["interop-tests/java_interop_tests", "interop-tests/js_interop_tests"]
+members = ["interop-tests/java_interop_tests", "interop-tests/js_interop_tests", "bindings/kr4js"]
 
 [workspace.lints.rust]
 missing_docs = "deny"

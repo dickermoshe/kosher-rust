@@ -3,7 +3,7 @@ use core::time::Duration;
 use jiff::{SignedDuration, Timestamp, Zoned, civil::Date, tz::TimeZone};
 
 use super::{Config, Zman, ZmanimError, formula::Formula};
-use crate::Location;
+use crate::{Location, Zone};
 
 /// The *zmanim* for one place on one day.
 ///
@@ -32,12 +32,15 @@ use crate::Location;
 /// of the four Kiddush Levana *zmanim* ([`Zman::TchilasZmanKidushLevana3Days`],
 /// [`Zman::TchilasZmanKidushLevana7Days`], [`Zman::SofZmanKidushLevanaBetweenMoldos`] or
 /// [`Zman::SofZmanKidushLevana15Days`]).
+///
+/// The time zone is a [`jiff::tz::TimeZone`] unless you build the *zmanim* with
+/// [`with_zone`](Self::with_zone) and a [`Zone`] of your own.
 #[derive(Clone, Debug, PartialEq)]
-pub struct Zmanim {
+pub struct Zmanim<Z = TimeZone> {
     pub(crate) location: Location,
     pub(crate) date: Date,
     pub(crate) config: Config,
-    pub(crate) timezone: Option<TimeZone>,
+    pub(crate) timezone: Option<Z>,
 }
 
 impl Zmanim {
@@ -56,11 +59,32 @@ impl Zmanim {
     /// Pass a time zone if you have one. Every time works with a time zone. Without one a few
     /// times do not work. The section on [time zones](Zmanim#time-zones) lists them.
     pub fn with_config(location: Location, date: Date, timezone: Option<TimeZone>, config: Config) -> Self {
+        Self::with_zone(location, date, timezone, config)
+    }
+
+    /// The time of `zman` in the time zone of these *zmanim*.
+    ///
+    /// # Errors
+    ///
+    /// It returns the same errors as [`get`](Self::get). It also returns
+    /// [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone.
+    pub fn get_zoned(&self, zman: Zman) -> Result<Zoned, ZmanimError> {
+        let timezone = self.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
+        Ok(self.get(zman)?.to_zoned(timezone.clone()))
+    }
+}
+
+impl<Z: Zone> Zmanim<Z> {
+    /// The *zmanim* at `location` on `date` in `zone`, any [`Zone`], calculated with `config`.
+    ///
+    /// Pass a time zone if you have one. Every time works with a time zone. Without one a few
+    /// times do not work. The section on [time zones](Zmanim#time-zones) lists them.
+    pub fn with_zone(location: Location, date: Date, zone: Option<Z>, config: Config) -> Self {
         Self {
             location,
             date,
             config,
-            timezone,
+            timezone: zone,
         }
     }
 
@@ -82,17 +106,6 @@ impl Zmanim {
     ///   9999, when the time falls past the end of the range.
     pub fn get(&self, zman: Zman) -> Result<Timestamp, ZmanimError> {
         zman.formula().evaluate(self)
-    }
-
-    /// The time of `zman` in the time zone of these *zmanim*.
-    ///
-    /// # Errors
-    ///
-    /// It returns the same errors as [`get`](Self::get). It also returns
-    /// [`ZmanimError::TimeZoneRequired`] when the *zmanim* have no time zone.
-    pub fn get_zoned(&self, zman: Zman) -> Result<Zoned, ZmanimError> {
-        let timezone = self.timezone.as_ref().ok_or(ZmanimError::TimeZoneRequired)?;
-        Ok(self.get(zman)?.to_zoned(timezone.clone()))
     }
 
     /// When the sun is `degrees` below the eastern horizon before sunrise, for an opinion the
@@ -129,8 +142,13 @@ impl Zmanim {
     }
 
     /// The time zone, if one was given.
-    pub fn timezone(&self) -> Option<&TimeZone> {
+    pub fn timezone(&self) -> Option<&Z> {
         self.timezone.as_ref()
+    }
+
+    /// The time zone as the calculations read it.
+    pub(crate) fn zone(&self) -> Option<&dyn Zone> {
+        self.timezone.as_ref().map(|zone| zone as &dyn Zone)
     }
 
     /// The date.
@@ -182,7 +200,7 @@ pub(crate) fn offset(duration: Duration) -> Result<SignedDuration, ZmanimError> 
 }
 
 #[cfg(feature = "defmt")]
-impl defmt::Format for Zmanim {
+impl<Z> defmt::Format for Zmanim<Z> {
     fn format(&self, fmt: defmt::Formatter) {
         defmt::write!(
             fmt,

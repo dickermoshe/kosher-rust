@@ -11,6 +11,11 @@ use num_enum::{IntoPrimitive, TryFromPrimitive};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, IntoPrimitive, TryFromPrimitive)]
 #[repr(u8)]
+#[cfg_attr(
+    feature = "wasm",
+    derive(serde::Serialize, serde::Deserialize, tsify::Tsify),
+    serde(rename_all = "camelCase")
+)]
 pub enum Parsha {
     /// Bereshis (בראשית).
     Bereshis = 0,

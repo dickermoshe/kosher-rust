@@ -32,6 +32,11 @@ pub struct HebrewYear(i32);
 /// Called the year's *kviah* along with the weekday of Rosh Hashana.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(
+    feature = "wasm",
+    derive(serde::Serialize, serde::Deserialize, tsify::Tsify),
+    serde(rename_all = "camelCase")
+)]
 pub enum YearLength {
     /// Deficient: Cheshvan and Kislev both have 29 days (353 or 383 days in the year).
     Chaserim,
