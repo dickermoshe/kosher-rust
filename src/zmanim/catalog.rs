@@ -879,7 +879,7 @@ zman_catalog! {
         ),
     },
 
-    // SofZmanTefila
+    // SofZmanTfila
 
     /// Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the
     /// [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon).
@@ -888,7 +888,7 @@ zman_catalog! {
     SofZmanTfilaGra {
         java: "getSofZmanTfilaGRA",
         name: "Sof Zman Tfila (GR'A)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&ConfiguredSunrise, &ConfiguredSunset, true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon).\n\n",
@@ -905,7 +905,7 @@ zman_catalog! {
     SofZmanTfilaMga72Minutes {
         java: "getSofZmanTfilaMGA72Minutes",
         name: "Sof Zman Tfila (MGA, 72 Minutes)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&Offset(&ConfiguredSunrise, Duration::from_mins(-72)), &Offset(&ConfiguredSunset, Duration::from_mins(72)), true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 72-minute day.\n\n",
@@ -922,7 +922,7 @@ zman_catalog! {
     SofZmanTfilaMga19Point8Degrees {
         java: "getSofZmanTfilaMGA19Point8Degrees",
         name: "Sof Zman Tfila (MGA, 19.8 Degrees)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&SunriseOffsetByDegrees(19.8), &SunsetOffsetByDegrees(19.8), true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 19.8-degree day.\n\n",
@@ -939,7 +939,7 @@ zman_catalog! {
     SofZmanTfilaMga16Point1Degrees {
         java: "getSofZmanTfilaMGA16Point1Degrees",
         name: "Sof Zman Tfila (MGA, 16.1 Degrees)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&SunriseOffsetByDegrees(16.1), &SunsetOffsetByDegrees(16.1), true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 16.1-degree day.\n\n",
@@ -956,7 +956,7 @@ zman_catalog! {
     SofZmanTfilaMga18Degrees {
         java: "getSofZmanTfilaMGA18Degrees",
         name: "Sof Zman Tfila (MGA, 18 Degrees)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&SunriseOffsetByDegrees(18.0), &SunsetOffsetByDegrees(18.0), true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 18-degree day.\n\n",
@@ -973,7 +973,7 @@ zman_catalog! {
     SofZmanTfilaMga72MinutesZmanis {
         java: "getSofZmanTfilaMGA72MinutesZmanis",
         name: "Sof Zman Tfila (MGA, 72 Minutes in Shaos Zmanios)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&ZmanisOffset(&ConfiguredSunrise, -1.2), &ZmanisOffset(&ConfiguredSunset, 1.2), true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 72 zmaniyos-minute day.\n\n",
@@ -990,7 +990,7 @@ zman_catalog! {
     SofZmanTfilaMga90Minutes {
         java: "getSofZmanTfilaMGA90Minutes",
         name: "Sof Zman Tfila (MGA, 90 Minutes)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&Offset(&ConfiguredSunrise, Duration::from_mins(-90)), &Offset(&ConfiguredSunset, Duration::from_mins(90)), true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 90-minute day.\n\n",
@@ -1007,7 +1007,7 @@ zman_catalog! {
     SofZmanTfilaMga90MinutesZmanis {
         java: "getSofZmanTfilaMGA90MinutesZmanis",
         name: "Sof Zman Tfila (MGA, 90 Minutes in Shaos Zmanios)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&ZmanisOffset(&ConfiguredSunrise, -1.5), &ZmanisOffset(&ConfiguredSunset, 1.5), true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 90 zmaniyos-minute day.\n\n",
@@ -1024,7 +1024,7 @@ zman_catalog! {
     SofZmanTfilaMga96Minutes {
         java: "getSofZmanTfilaMGA96Minutes",
         name: "Sof Zman Tfila (MGA, 96 Minutes)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&Offset(&ConfiguredSunrise, Duration::from_mins(-96)), &Offset(&ConfiguredSunset, Duration::from_mins(96)), true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 96-minute day.\n\n",
@@ -1041,7 +1041,7 @@ zman_catalog! {
     SofZmanTfilaMga96MinutesZmanis {
         java: "getSofZmanTfilaMGA96MinutesZmanis",
         name: "Sof Zman Tfila (MGA, 96 Minutes in Shaos Zmanios)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&ZmanisOffset(&ConfiguredSunrise, -1.6), &ZmanisOffset(&ConfiguredSunset, 1.6), true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 96 zmaniyos-minute day.\n\n",
@@ -1060,7 +1060,7 @@ zman_catalog! {
     SofZmanTfila2HoursBeforeChatzos {
         java: "getSofZmanTfila2HoursBeforeChatzos",
         name: "Sof Zman Tfila (2 Hours Before Chatzos)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Offset(&ChatzosHayom, Duration::from_mins(-120)),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis), calculated as 2 regular clock hours before chatzos hayom (not shaos zmaniyos). Paired with sof zman krias shema at 3 clock hours before chatzos; often grouped with the \"Komarno\" zmanim after [Rav Yitzchak Eizik of Komarno](https://en.wikipedia.org/wiki/Komarno_(Hasidic_dynasty)#Rabbi_Yitzchak_Eisik_Safrin), though this calculation is much older.\n\n",
@@ -1079,7 +1079,7 @@ zman_catalog! {
     SofZmanTfilaMga120Minutes {
         java: "getSofZmanTfilaMGA120Minutes",
         name: "Sof Zman Tfila (MGA, 120 Minutes)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&Offset(&ConfiguredSunrise, Duration::from_mins(-120)), &Offset(&ConfiguredSunset, Duration::from_mins(120)), true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the [Magen Avraham (MGA)](https://en.wikipedia.org/wiki/Avraham_Gombiner), using the 120-minute day. This is an extremely early time, used as a chumra.\n\n",
@@ -1097,7 +1097,7 @@ zman_catalog! {
     SofZmanTfilaAteretTorah {
         java: "getSofZmanTfilaAteretTorah",
         name: "Sof Zman Tfila (Ateret Torah)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&ZmanisOffset(&ConfiguredSunrise, -1.2), &TzaisAteretTorah, false),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the Ateret Torah calculation of Chacham Yosef Harari-Raful of Yeshivat Ateret Torah.\n\n",
@@ -1112,7 +1112,7 @@ zman_catalog! {
     SofZmanTfilaBaalHatanya {
         java: "getSofZmanTfilaBaalHatanya",
         name: "Sof Zman Tfila (Baal Hatanya)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: Tefila(&SunriseOffsetByDegrees(1.583), &SunsetOffsetByDegrees(1.583), true),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to the Baal Hatanya.\n\n",
@@ -1130,7 +1130,7 @@ zman_catalog! {
     SofZmanTfilaGraSunriseToFixedLocalChatzos {
         java: "getSofZmanTfilaGRASunriseToFixedLocalChatzos",
         name: "Sof Zman Tfila (GR'A, Sunrise to Fixed Local Chatzos)",
-        category: SofZmanTefila,
+        category: SofZmanTfila,
         formula: HalfDayBasedOffset(&ConfiguredSunrise, &LocalMeanTime(12.0), 4.0),
         about: concat!(
             "Sof zman tfila - the latest time to recite morning prayers (Shacharis) according to [Rav Moshe Feinstein's](https://en.wikipedia.org/wiki/Moshe_Feinstein) view of the [GRA](https://en.wikipedia.org/wiki/Vilna_Gaon) day, using only the first half of the day.\n\n",
@@ -2024,7 +2024,7 @@ zman_catalog! {
         ),
     },
 
-    // BeinHashmashos
+    // BainHashmashos
 
     /// The beginning of Rabbeinu Tam's bain hashmashos.
     ///
@@ -2037,7 +2037,7 @@ zman_catalog! {
     BainHashmashosRt13Point24Degrees {
         java: "getBainHashmashosRT13Point24Degrees",
         name: "Bain Hashmashos (Rabbeinu Tam, 13.24 Degrees)",
-        category: BeinHashmashos,
+        category: BainHashmashos,
         formula: SunsetOffsetByDegrees(13.24),
         about: concat!(
             "The beginning of Rabbeinu Tam's bain hashmashos.\n\n",
@@ -2054,7 +2054,7 @@ zman_catalog! {
     BainHashmashosRt58Point5Minutes {
         java: "getBainHashmashosRT58Point5Minutes",
         name: "Bain Hashmashos (Rabbeinu Tam, 58.5 Minutes)",
-        category: BeinHashmashos,
+        category: BainHashmashos,
         formula: Offset(&ConfiguredSunset, Duration::from_millis(3510000)),
         about: concat!(
             "The beginning of Rabbeinu Tam's bain hashmashos.\n\n",
@@ -2071,7 +2071,7 @@ zman_catalog! {
     BainHashmashosRt13Point5MinutesBefore7Point083Degrees {
         java: "getBainHashmashosRT13Point5MinutesBefore7Point083Degrees",
         name: "Bain Hashmashos (Rabbeinu Tam, 13.5 Minutes Before 7.083 Degrees)",
-        category: BeinHashmashos,
+        category: BainHashmashos,
         formula: Offset(&SunsetOffsetByDegrees(7.083333333333333), Duration::from_millis(-810000)),
         about: concat!(
             "The beginning of Rabbeinu Tam's bain hashmashos.\n\n",
@@ -2087,7 +2087,7 @@ zman_catalog! {
     BainHashmashosRt2Stars {
         java: "getBainHashmashosRT2Stars",
         name: "Bain Hashmashos (Rabbeinu Tam, 2 Stars)",
-        category: BeinHashmashos,
+        category: BainHashmashos,
         formula: BainHashmashosRt2Stars,
         about: concat!(
             "The beginning of Rabbeinu Tam's bain hashmashos, according to the Divrei Yosef (see Yisrael Vehazmanim).\n\n",
@@ -2105,7 +2105,7 @@ zman_catalog! {
     BainHashmashosYereim18Minutes {
         java: "getBainHashmashosYereim18Minutes",
         name: "Bain Hashmashos (Yereim, 18 Minutes)",
-        category: BeinHashmashos,
+        category: BainHashmashos,
         formula: Offset(&ConfiguredSunset, Duration::from_mins(-18)),
         about: concat!(
             "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n",
@@ -2123,7 +2123,7 @@ zman_catalog! {
     BainHashmashosYereim16Point875Minutes {
         java: "getBainHashmashosYereim16Point875Minutes",
         name: "Bain Hashmashos (Yereim, 16.875 Minutes)",
-        category: BeinHashmashos,
+        category: BainHashmashos,
         formula: Offset(&ConfiguredSunset, Duration::from_millis(-1012500)),
         about: concat!(
             "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n",
@@ -2141,7 +2141,7 @@ zman_catalog! {
     BainHashmashosYereim13Point5Minutes {
         java: "getBainHashmashosYereim13Point5Minutes",
         name: "Bain Hashmashos (Yereim, 13.5 Minutes)",
-        category: BeinHashmashos,
+        category: BainHashmashos,
         formula: Offset(&ConfiguredSunset, Duration::from_millis(-810000)),
         about: concat!(
             "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n",
@@ -2160,7 +2160,7 @@ zman_catalog! {
     BainHashmashosYereim2Point1Degrees {
         java: "getBainHashmashosYereim2Point1Degrees",
         name: "Bain Hashmashos (Yereim, 2.1 Degrees)",
-        category: BeinHashmashos,
+        category: BainHashmashos,
         formula: SunsetOffsetByDegrees(-2.1),
         about: concat!(
             "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n",
@@ -2180,7 +2180,7 @@ zman_catalog! {
     BainHashmashosYereim2Point8Degrees {
         java: "getBainHashmashosYereim2Point8Degrees",
         name: "Bain Hashmashos (Yereim, 2.8 Degrees)",
-        category: BeinHashmashos,
+        category: BainHashmashos,
         formula: SunsetOffsetByDegrees(-2.8),
         about: concat!(
             "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n",
@@ -2199,7 +2199,7 @@ zman_catalog! {
     BainHashmashosYereim3Point05Degrees {
         java: "getBainHashmashosYereim3Point05Degrees",
         name: "Bain Hashmashos (Yereim, 3.05 Degrees)",
-        category: BeinHashmashos,
+        category: BainHashmashos,
         formula: SunsetOffsetByDegrees(-3.05),
         about: concat!(
             "The beginning of bain hashmashos (twilight) according to the [Yereim (Rabbi Eliezer of Metz)](https://en.wikipedia.org/wiki/Eliezer_ben_Samuel).\n\n",

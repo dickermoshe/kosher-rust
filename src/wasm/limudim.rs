@@ -6,20 +6,20 @@ use super::date;
 use super::error::Error;
 use crate::Region;
 use crate::limudim::{
-    Amud, AmudYomiDirshu, Daf, DafHashavuaBavli, DafYomiBavli, DafYomiYerushalmi, Mishna, MishnaPair, MishnaYomis,
-    PirkeiAvos, PirkeiAvosUnit, Schedule, Side, TehillimMonthly, TehillimUnit, Tractate,
+    Amud, AmudYomiDirshu, Daf, DafHashavuaBavli, DafYomiBavli, DafYomiYerushalmi, Mishna, MishnaPair, MishnaTractate,
+    MishnaYomis, PirkeiAvos, PirkeiAvosUnit, Schedule, Side, TehillimMonthly, TehillimUnit,
 };
 
-/// A tractate of the Mishnah or Talmud.
+/// A tractate of the Mishnah or Talmud. Its `id` is the tractate of the Mishnah with the same name.
 #[derive(Serialize, Tsify)]
 pub struct TractateInfo {
-    id: Tractate,
+    id: MishnaTractate,
     name: &'static str,
     hebrew: &'static str,
 }
 
-impl From<Tractate> for TractateInfo {
-    fn from(tractate: Tractate) -> Self {
+impl From<MishnaTractate> for TractateInfo {
+    fn from(tractate: MishnaTractate) -> Self {
         Self {
             id: tractate,
             name: tractate.name(),
@@ -28,13 +28,22 @@ impl From<Tractate> for TractateInfo {
     }
 }
 
-fn tractate(tractate: Tractate) -> Result<Ts<TractateInfo>, Error> {
-    Ok(Ts::from_rust(&tractate.into())?)
+fn tractate(tractate: impl Into<MishnaTractate>) -> Result<Ts<TractateInfo>, Error> {
+    Ok(Ts::from_rust(&TractateInfo::from(tractate.into()))?)
 }
 
 /// A page (*daf*) of the Talmud, both sides of one leaf. Prints as "Bava Metzia 55".
 #[wasm_bindgen(js_name = Daf)]
-pub struct JsDaf(Daf);
+pub struct JsDaf(Daf<MishnaTractate>);
+
+impl<T: Into<MishnaTractate>> From<Daf<T>> for JsDaf {
+    fn from(daf: Daf<T>) -> Self {
+        Self(Daf {
+            tractate: daf.tractate.into(),
+            daf: daf.daf,
+        })
+    }
+}
 
 #[wasm_bindgen(js_class = Daf)]
 impl JsDaf {
@@ -213,7 +222,7 @@ impl JsPirkeiAvosPortion {
 pub fn daf_yomi_bavli(
     #[wasm_bindgen(unchecked_param_type = "DateInput")] date: JsValue,
 ) -> Result<Option<JsDaf>, Error> {
-    Ok(DafYomiBavli.on(date::gregorian(&date)?).map(JsDaf))
+    Ok(DafYomiBavli.on(date::gregorian(&date)?).map(JsDaf::from))
 }
 
 /// One daf of the Bavli a week, from Sunday to Shabbos, since 2005.
@@ -221,7 +230,7 @@ pub fn daf_yomi_bavli(
 pub fn daf_hashavua_bavli(
     #[wasm_bindgen(unchecked_param_type = "DateInput")] date: JsValue,
 ) -> Result<Option<JsDaf>, Error> {
-    Ok(DafHashavuaBavli.on(date::gregorian(&date)?).map(JsDaf))
+    Ok(DafHashavuaBavli.on(date::gregorian(&date)?).map(JsDaf::from))
 }
 
 /// Daf Yomi of the Vilna Yerushalmi, since 1980. `undefined` on Yom Kippur and Tishah B'Av.
@@ -229,7 +238,7 @@ pub fn daf_hashavua_bavli(
 pub fn daf_yomi_yerushalmi(
     #[wasm_bindgen(unchecked_param_type = "DateInput")] date: JsValue,
 ) -> Result<Option<JsDaf>, Error> {
-    Ok(DafYomiYerushalmi.on(date::gregorian(&date)?).map(JsDaf))
+    Ok(DafYomiYerushalmi.on(date::gregorian(&date)?).map(JsDaf::from))
 }
 
 /// Dirshu's Amud Yomi, one amud a day since 2023.
@@ -271,5 +280,5 @@ pub fn pirkei_avos(
 /// Every tractate, in the order of the Mishnah.
 #[wasm_bindgen(js_name = allTractates)]
 pub fn all_tractates() -> Result<Vec<Ts<TractateInfo>>, Error> {
-    Tractate::ALL.into_iter().map(tractate).collect()
+    MishnaTractate::ALL.into_iter().map(tractate).collect()
 }

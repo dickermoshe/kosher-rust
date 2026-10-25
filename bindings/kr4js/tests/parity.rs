@@ -11,7 +11,7 @@ use std::fmt::Write;
 use std::path::Path;
 use std::time::Duration;
 
-use jiff::{SignedDuration, ToSpan, civil::Date, civil::date, tz::TimeZone};
+use jiff::{ToSpan, civil::Date, civil::date, tz::TimeZone};
 use kosher_rust::limudim::{
     AmudYomiDirshu, DafHashavuaBavli, DafYomiBavli, DafYomiYerushalmi, MishnaYomis, PirkeiAvos, Schedule,
     TehillimMonthly,
@@ -49,6 +49,8 @@ fn reason(error: ZmanimError) -> &'static str {
         ZmanimError::DateOutOfRange(_) => "dateOutOfRange",
         ZmanimError::InvalidDegrees => "invalidDegrees",
         ZmanimError::TimeZoneRequired => "timeZoneRequired",
+        ZmanimError::InvalidOffset => "invalidOffset",
+        ZmanimError::TimeOutOfRange => "timeOutOfRange",
         ZmanimError::Internal => "internal",
     }
 }
@@ -126,11 +128,11 @@ fn configs() -> Vec<(Config, &'static str)> {
             Config {
                 use_astronomical_chatzos: false,
                 use_astronomical_chatzos_for_other_zmanim: true,
-                ateret_torah_sunset_offset: SignedDuration::from_mins(-12),
+                ateret_torah_sunset_offset: Duration::from_mins(12),
                 astronomical_calculator: AstronomicalCalculator::Spa { apply_delta_t: false },
                 ..Config::default()
             },
-            r#"{"useAstronomicalChatzos":false,"useAstronomicalChatzosForOtherZmanim":true,"ateretTorahSunsetOffset":-12,"calculator":"spa","applyDeltaT":false}"#,
+            r#"{"useAstronomicalChatzos":false,"useAstronomicalChatzosForOtherZmanim":true,"ateretTorahSunsetOffset":12,"calculator":"spa","applyDeltaT":false}"#,
         ),
     ]
 }
@@ -306,7 +308,7 @@ fn calendar_cases(out: &mut Vec<String>) {
         let parsha = |region| id(hebrew.parsha(region));
         let special_parsha = |region| id(hebrew.special_parsha(region));
         let next_parsha = |region| id(hebrew.next_parsha(region));
-        let molad = hebrew.molad().unwrap();
+        let molad = hebrew.molad();
         out.push(format!(
             concat!(
                 r#"{{"date":"{}","hebrew":{},"dayOfYear":{},"weekday":{},"#,

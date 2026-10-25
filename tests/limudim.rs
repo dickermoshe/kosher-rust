@@ -7,8 +7,9 @@ use icu_calendar::Date;
 use jiff::civil::date;
 use kosher_rust::calendar::{HebrewDate, HebrewMonth, Region};
 use kosher_rust::limudim::{
-    AmudYomiDirshu, DafHashavuaBavli, DafYomiBavli, DafYomiYerushalmi, Mishna, MishnaPair, MishnaYomis, PirkeiAvos,
-    PirkeiAvosUnit, Schedule, TehillimMonthly, TehillimUnit, Tractate,
+    AmudYomiDirshu, BavliTractate, Daf, DafHashavuaBavli, DafYomiBavli, DafYomiYerushalmi, Mishna, MishnaPair,
+    MishnaTractate, MishnaYomis, PirkeiAvos, PirkeiAvosUnit, Schedule, TehillimMonthly, TehillimUnit,
+    YerushalmiTractate,
 };
 
 #[test]
@@ -102,31 +103,31 @@ fn mishna_pairs_across_chapters_and_tractates() {
         mishna,
     };
     let across_chapters = MishnaPair {
-        first: mishna(Tractate::Nazir, 5, 10),
-        second: mishna(Tractate::Nazir, 6, 1),
+        first: mishna(MishnaTractate::Nazir, 5, 10),
+        second: mishna(MishnaTractate::Nazir, 6, 1),
     };
     assert_eq!(across_chapters.to_string(), "Nazir 5:10-6:1");
 
     let across_tractates = MishnaPair {
-        first: mishna(Tractate::Nazir, 9, 5),
-        second: mishna(Tractate::Sotah, 1, 1),
+        first: mishna(MishnaTractate::Nazir, 9, 5),
+        second: mishna(MishnaTractate::Sotah, 1, 1),
     };
     assert_eq!(across_tractates.to_string(), "Nazir 9:5-Sotah 1:1");
 }
 
 #[test]
 fn tractate_names() {
-    assert_eq!(Tractate::BavaMetzia.to_string(), "Bava Metzia");
-    assert_eq!(Tractate::BavaMetzia.hebrew(), "בבא מציעא");
-    assert_eq!(Tractate::RoshHashanah.hebrew(), "ראש השנה");
+    assert_eq!(MishnaTractate::BavaMetzia.to_string(), "Bava Metzia");
+    assert_eq!(MishnaTractate::BavaMetzia.hebrew(), "בבא מציעא");
+    assert_eq!(MishnaTractate::RoshHashanah.hebrew(), "ראש השנה");
 }
 
 #[test]
 fn tractate_names_parse_back() {
-    for tractate in Tractate::ALL {
-        assert_eq!(Tractate::from_name(tractate.name()), Some(tractate));
+    for tractate in MishnaTractate::ALL {
+        assert_eq!(MishnaTractate::from_name(tractate.name()), Some(tractate));
     }
-    assert_eq!(Tractate::from_name(""), None);
+    assert_eq!(MishnaTractate::from_name(""), None);
 }
 
 #[test]
@@ -146,4 +147,132 @@ fn pirkei_avos_weekdays_of_pesach_give_the_first_chapter() {
     assert_eq!(diaspora.on(date(2024, 4, 24)), None);
     assert_eq!(diaspora.on(date(2024, 4, 27)), None);
     assert_eq!(diaspora.on(date(2024, 4, 28)), Some(PirkeiAvosUnit::Single(1)));
+}
+
+#[test]
+fn yerushalmi_skips_tishah_bav_when_it_is_postponed() {
+    // 9 Av 5775 was a Shabbos, so the fast and the skipped day were Sunday. Checked against hebcal.
+    let daf = |day| DafYomiYerushalmi.on(day).map(|daf| daf.to_string());
+    assert_eq!(daf(date(2015, 7, 24)).as_deref(), Some("Shabbos 62"));
+    assert_eq!(daf(date(2015, 7, 25)).as_deref(), Some("Shabbos 63"));
+    assert_eq!(daf(date(2015, 7, 26)), None);
+    assert_eq!(daf(date(2015, 7, 27)).as_deref(), Some("Shabbos 64"));
+}
+
+/// Every Shabbos of a summer, from hebcal. 9 Av was on Shabbos in 5775 and 5778, and 8 Av in 5776;
+/// those Shabbosos have no chapter.
+#[test]
+fn pirkei_avos_summers_with_a_shabbos_on_8_or_9_av() {
+    let summers = [
+        (
+            Region::Diaspora,
+            (2015, 4, 18),
+            "1 2 3 4 5 6 1 2 3 4 5 6 1 2 - 3 4 5 6 1-2 3-4 5-6",
+        ),
+        (
+            Region::Israel,
+            (2015, 4, 11),
+            "1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 - 4 5 6 1 2 3-4 5-6",
+        ),
+        (
+            Region::Diaspora,
+            (2016, 5, 7),
+            "1 2 3 4 5 6 1 2 3 4 5 6 1 2 - 3 4 5 6 1-2 3-4",
+        ),
+        (
+            Region::Israel,
+            (2016, 4, 30),
+            "1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 - 4 5 6 1 2 3-4",
+        ),
+        (
+            Region::Diaspora,
+            (2018, 4, 14),
+            "1 2 3 4 5 6 1 2 3 4 5 6 1 2 - 3 4 5 6 1-2 3-4 5-6",
+        ),
+        (
+            Region::Israel,
+            (2018, 4, 7),
+            "1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 - 4 5 6 1 2 3-4 5-6",
+        ),
+    ];
+    for (region, (year, month, day), chapters) in summers {
+        let mut shabbos = date(year, month, day);
+        for expected in chapters.split(' ') {
+            let actual = PirkeiAvos(region).on(shabbos).map(|unit| match unit {
+                PirkeiAvosUnit::Single(chapter) => chapter.to_string(),
+                PirkeiAvosUnit::Combined(first, second) => format!("{first}-{second}"),
+            });
+            let expected = (expected != "-").then(|| expected.to_string());
+            assert_eq!(actual, expected, "{shabbos} ({region:?})");
+            shabbos = shabbos.checked_add(jiff::Span::new().days(7)).unwrap();
+        }
+    }
+}
+
+#[test]
+fn each_work_has_its_own_order() {
+    assert_eq!(MishnaTractate::ALL.len(), 63);
+    assert_eq!(BavliTractate::ALL.len(), 40);
+    assert_eq!(YerushalmiTractate::ALL.len(), 39);
+    assert!(MishnaTractate::ALL.is_sorted());
+    assert!(BavliTractate::ALL.is_sorted());
+    assert!(YerushalmiTractate::ALL.is_sorted());
+    // Kinnim is after Tamid and Midos in the Mishnah and before them in the Bavli.
+    assert!(MishnaTractate::Midos < MishnaTractate::Kinnim);
+    assert!(BavliTractate::Kinnim < BavliTractate::Tamid);
+    // Shekalim follows Pesachim in the Bavli and Taanis in the Yerushalmi.
+    assert!(BavliTractate::Shekalim < BavliTractate::Yoma);
+    assert!(YerushalmiTractate::Taanis < YerushalmiTractate::Shekalim);
+    assert!(YerushalmiTractate::Yoma < YerushalmiTractate::Shekalim);
+}
+
+#[test]
+fn talmud_tractates_share_the_mishnahs_names() {
+    for tractate in BavliTractate::ALL {
+        assert_eq!(tractate.name(), MishnaTractate::from(tractate).name());
+        assert_eq!(BavliTractate::from_name(tractate.name()), Some(tractate));
+    }
+    for tractate in YerushalmiTractate::ALL {
+        assert_eq!(tractate.hebrew(), tractate.mishna().hebrew());
+        assert_eq!(YerushalmiTractate::from_name(tractate.name()), Some(tractate));
+    }
+    assert_eq!(YerushalmiTractate::BavaMetzia.to_string(), "Bava Metzia");
+    assert_eq!(BavliTractate::from_name("Peah"), None);
+}
+
+#[test]
+fn units_sort_in_their_works_order() {
+    let daf = |tractate, daf| Daf { tractate, daf };
+    let mut dafim = [
+        daf(BavliTractate::Tamid, 26),
+        daf(BavliTractate::Kinnim, 24),
+        daf(BavliTractate::Kinnim, 23),
+    ];
+    dafim.sort();
+    assert_eq!(
+        dafim,
+        [
+            daf(BavliTractate::Kinnim, 23),
+            daf(BavliTractate::Kinnim, 24),
+            daf(BavliTractate::Tamid, 26)
+        ]
+    );
+    // Each day of a cycle is later than the one before, across tractates too.
+    let mut day = date(2024, 1, 1);
+    while day < date(2024, 12, 31) {
+        let tomorrow = day.tomorrow().unwrap();
+        assert!(DafYomiBavli.on(day) < DafYomiBavli.on(tomorrow), "{day}");
+        assert!(MishnaYomis.on(day) < MishnaYomis.on(tomorrow), "{day}");
+        if let (Some(today), Some(next)) = (DafYomiYerushalmi.on(day), DafYomiYerushalmi.on(tomorrow)) {
+            assert!(today < next, "{day}");
+        }
+        day = tomorrow;
+    }
+    let mishna = |chapter, mishna| Mishna {
+        tractate: MishnaTractate::Nazir,
+        chapter,
+        mishna,
+    };
+    assert!(mishna(5, 6) < mishna(5, 10));
+    assert!(mishna(5, 10) < mishna(6, 1));
 }

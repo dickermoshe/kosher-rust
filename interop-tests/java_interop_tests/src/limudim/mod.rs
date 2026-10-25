@@ -15,6 +15,7 @@ use crate::java_bindings::com::kosherjava::zmanim::hebrewcalendar::{
 };
 use kosher_rust::limudim::*;
 
+/// Which of KosherJava's transliterations to read from a `Daf`.
 #[derive(Clone, Copy)]
 enum Talmud {
     Bavli,
@@ -213,7 +214,7 @@ fn hebrew_date(date: Date) -> IcuDate<Hebrew> {
         .to_calendar(Hebrew)
 }
 
-fn java_bavli_daf(date: Date) -> Result<Option<Daf>, Box<dyn Error>> {
+fn java_bavli_daf(date: Date) -> Result<Option<Daf<BavliTractate>>, Box<dyn Error>> {
     java_vm().attach_current_thread(|env| {
         let calendar = java_jewish_calendar(env, date)?;
         let daf = match YomiCalculator::get_daf_yomi_bavli(env, &calendar) {
@@ -230,11 +231,13 @@ fn java_bavli_daf(date: Date) -> Result<Option<Daf>, Box<dyn Error>> {
             return Ok(None);
         }
 
-        java_daf_to_rust(env, &daf, Talmud::Bavli).map(Some)
+        let (tractate, page) = java_daf_to_rust(env, &daf, Talmud::Bavli)?;
+        let tractate = BavliTractate::from_name(tractate.name()).ok_or("not a Bavli tractate")?;
+        Ok(Some(Daf { tractate, daf: page }))
     })
 }
 
-fn java_yerushalmi_daf(date: Date) -> Result<Option<Daf>, Box<dyn Error>> {
+fn java_yerushalmi_daf(date: Date) -> Result<Option<Daf<YerushalmiTractate>>, Box<dyn Error>> {
     java_vm().attach_current_thread(|env| {
         let calendar = java_jewish_calendar(env, date)?;
         let daf = match YerushalmiYomiCalculator::get_daf_yomi_yerushalmi(env, &calendar) {
@@ -251,7 +254,9 @@ fn java_yerushalmi_daf(date: Date) -> Result<Option<Daf>, Box<dyn Error>> {
             return Ok(None);
         }
 
-        java_daf_to_rust(env, &daf, Talmud::Yerushalmi).map(Some)
+        let (tractate, page) = java_daf_to_rust(env, &daf, Talmud::Yerushalmi)?;
+        let tractate = YerushalmiTractate::from_name(tractate.name()).ok_or("not a Yerushalmi tractate")?;
+        Ok(Some(Daf { tractate, daf: page }))
     })
 }
 
@@ -284,7 +289,12 @@ fn java_jewish_calendar<'local>(env: &mut jni::Env<'local>, date: Date) -> jni::
     JewishCalendar::new_local_date(env, &local_date)
 }
 
-fn java_daf_to_rust(env: &mut jni::Env<'_>, daf: &JavaDaf<'_>, talmud: Talmud) -> Result<Daf, Box<dyn Error>> {
+/// The tractate and page of a KosherJava `Daf`.
+fn java_daf_to_rust(
+    env: &mut jni::Env<'_>,
+    daf: &JavaDaf<'_>,
+    talmud: Talmud,
+) -> Result<(MishnaTractate, u16), Box<dyn Error>> {
     let page = env.call_method(daf, jni_str!("getDaf"), jni_sig!("()I"), &[])?.i()? as u16;
     let name = match talmud {
         Talmud::Bavli => env.call_method(
@@ -304,61 +314,61 @@ fn java_daf_to_rust(env: &mut jni::Env<'_>, daf: &JavaDaf<'_>, talmud: Talmud) -
     let name = env.cast_local::<JString>(name)?;
     let tractate = tractate_from_java_name(&name.to_string())?;
 
-    Ok(Daf { tractate, daf: page })
+    Ok((tractate, page))
 }
 
-fn tractate_from_java_name(name: &str) -> Result<Tractate, Box<dyn Error>> {
+fn tractate_from_java_name(name: &str) -> Result<MishnaTractate, Box<dyn Error>> {
     match name {
-        "Berachos" => Ok(Tractate::Berachos),
-        "Pe'ah" => Ok(Tractate::Peah),
-        "Demai" => Ok(Tractate::Demai),
-        "Kilayim" => Ok(Tractate::Kilayim),
-        "Shevi'is" => Ok(Tractate::Sheviis),
-        "Terumos" => Ok(Tractate::Terumos),
-        "Ma'asros" => Ok(Tractate::Maasros),
-        "Ma'aser Sheni" => Ok(Tractate::MaaserSheni),
-        "Chalah" => Ok(Tractate::Chalah),
-        "Orlah" => Ok(Tractate::Orlah),
-        "Bikurim" => Ok(Tractate::Bikurim),
-        "Shabbos" => Ok(Tractate::Shabbos),
-        "Eruvin" => Ok(Tractate::Eruvin),
-        "Pesachim" => Ok(Tractate::Pesachim),
-        "Shekalim" => Ok(Tractate::Shekalim),
-        "Yoma" => Ok(Tractate::Yoma),
-        "Sukkah" | "Sukah" => Ok(Tractate::Sukkah),
-        "Beitzah" => Ok(Tractate::Beitzah),
-        "Rosh Hashana" | "Rosh Hashanah" => Ok(Tractate::RoshHashanah),
-        "Taanis" | "Ta'anis" => Ok(Tractate::Taanis),
-        "Megillah" | "Megilah" => Ok(Tractate::Megillah),
-        "Moed Katan" => Ok(Tractate::MoedKatan),
-        "Chagigah" => Ok(Tractate::Chagigah),
-        "Yevamos" => Ok(Tractate::Yevamos),
-        "Kesubos" | "Kesuvos" => Ok(Tractate::Kesubos),
-        "Nedarim" => Ok(Tractate::Nedarim),
-        "Nazir" => Ok(Tractate::Nazir),
-        "Sotah" => Ok(Tractate::Sotah),
-        "Gitin" => Ok(Tractate::Gitin),
-        "Kiddushin" | "Kidushin" => Ok(Tractate::Kiddushin),
-        "Bava Kamma" | "Bava Kama" => Ok(Tractate::BavaKamma),
-        "Bava Metzia" => Ok(Tractate::BavaMetzia),
-        "Bava Basra" => Ok(Tractate::BavaBasra),
-        "Sanhedrin" => Ok(Tractate::Sanhedrin),
-        "Makkos" | "Makos" => Ok(Tractate::Makkos),
-        "Shevuos" => Ok(Tractate::Shevuos),
-        "Avodah Zarah" => Ok(Tractate::AvodahZarah),
-        "Horiyos" | "Horayos" => Ok(Tractate::Horiyos),
-        "Zevachim" => Ok(Tractate::Zevachim),
-        "Menachos" => Ok(Tractate::Menachos),
-        "Chullin" => Ok(Tractate::Chullin),
-        "Bechoros" => Ok(Tractate::Bechoros),
-        "Arachin" => Ok(Tractate::Arachin),
-        "Temurah" => Ok(Tractate::Temurah),
-        "Kerisos" => Ok(Tractate::Kerisos),
-        "Meilah" => Ok(Tractate::Meilah),
-        "Kinnim" => Ok(Tractate::Kinnim),
-        "Tamid" => Ok(Tractate::Tamid),
-        "Midos" => Ok(Tractate::Midos),
-        "Niddah" | "Nidah" => Ok(Tractate::Niddah),
+        "Berachos" => Ok(MishnaTractate::Berachos),
+        "Pe'ah" => Ok(MishnaTractate::Peah),
+        "Demai" => Ok(MishnaTractate::Demai),
+        "Kilayim" => Ok(MishnaTractate::Kilayim),
+        "Shevi'is" => Ok(MishnaTractate::Sheviis),
+        "Terumos" => Ok(MishnaTractate::Terumos),
+        "Ma'asros" => Ok(MishnaTractate::Maasros),
+        "Ma'aser Sheni" => Ok(MishnaTractate::MaaserSheni),
+        "Chalah" => Ok(MishnaTractate::Chalah),
+        "Orlah" => Ok(MishnaTractate::Orlah),
+        "Bikurim" => Ok(MishnaTractate::Bikurim),
+        "Shabbos" => Ok(MishnaTractate::Shabbos),
+        "Eruvin" => Ok(MishnaTractate::Eruvin),
+        "Pesachim" => Ok(MishnaTractate::Pesachim),
+        "Shekalim" => Ok(MishnaTractate::Shekalim),
+        "Yoma" => Ok(MishnaTractate::Yoma),
+        "Sukkah" | "Sukah" => Ok(MishnaTractate::Sukkah),
+        "Beitzah" => Ok(MishnaTractate::Beitzah),
+        "Rosh Hashana" | "Rosh Hashanah" => Ok(MishnaTractate::RoshHashanah),
+        "Taanis" | "Ta'anis" => Ok(MishnaTractate::Taanis),
+        "Megillah" | "Megilah" => Ok(MishnaTractate::Megillah),
+        "Moed Katan" => Ok(MishnaTractate::MoedKatan),
+        "Chagigah" => Ok(MishnaTractate::Chagigah),
+        "Yevamos" => Ok(MishnaTractate::Yevamos),
+        "Kesubos" | "Kesuvos" => Ok(MishnaTractate::Kesubos),
+        "Nedarim" => Ok(MishnaTractate::Nedarim),
+        "Nazir" => Ok(MishnaTractate::Nazir),
+        "Sotah" => Ok(MishnaTractate::Sotah),
+        "Gitin" => Ok(MishnaTractate::Gitin),
+        "Kiddushin" | "Kidushin" => Ok(MishnaTractate::Kiddushin),
+        "Bava Kamma" | "Bava Kama" => Ok(MishnaTractate::BavaKamma),
+        "Bava Metzia" => Ok(MishnaTractate::BavaMetzia),
+        "Bava Basra" => Ok(MishnaTractate::BavaBasra),
+        "Sanhedrin" => Ok(MishnaTractate::Sanhedrin),
+        "Makkos" | "Makos" => Ok(MishnaTractate::Makkos),
+        "Shevuos" => Ok(MishnaTractate::Shevuos),
+        "Avodah Zarah" => Ok(MishnaTractate::AvodahZarah),
+        "Horiyos" | "Horayos" => Ok(MishnaTractate::Horiyos),
+        "Zevachim" => Ok(MishnaTractate::Zevachim),
+        "Menachos" => Ok(MishnaTractate::Menachos),
+        "Chullin" => Ok(MishnaTractate::Chullin),
+        "Bechoros" => Ok(MishnaTractate::Bechoros),
+        "Arachin" => Ok(MishnaTractate::Arachin),
+        "Temurah" => Ok(MishnaTractate::Temurah),
+        "Kerisos" => Ok(MishnaTractate::Kerisos),
+        "Meilah" => Ok(MishnaTractate::Meilah),
+        "Kinnim" => Ok(MishnaTractate::Kinnim),
+        "Tamid" => Ok(MishnaTractate::Tamid),
+        "Midos" => Ok(MishnaTractate::Midos),
+        "Niddah" | "Nidah" => Ok(MishnaTractate::Niddah),
         _ => Err(format!("unknown KosherJava masechta name: {name}").into()),
     }
 }

@@ -111,12 +111,12 @@ pub struct JsHebrewDate {
     gregorian: civil::Date,
 }
 
-impl TryFrom<HebrewDate> for JsHebrewDate {
-    type Error = Error;
-
-    fn try_from(date: HebrewDate) -> Result<Self, Error> {
-        let gregorian = date.to_gregorian().ok_or(crate::calendar::DateOutOfRange)?;
-        Ok(Self { date, gregorian })
+impl From<HebrewDate> for JsHebrewDate {
+    fn from(date: HebrewDate) -> Self {
+        Self {
+            date,
+            gregorian: date.to_gregorian(),
+        }
     }
 }
 
@@ -124,22 +124,21 @@ impl TryFrom<HebrewDate> for JsHebrewDate {
 impl JsHebrewDate {
     /// The Hebrew date of a Gregorian day.
     pub fn from(#[wasm_bindgen(unchecked_param_type = "DateInput")] date: JsValue) -> Result<JsHebrewDate, Error> {
-        HebrewDate::try_from(date::gregorian(&date)?)?.try_into()
+        Ok(HebrewDate::try_from(date::gregorian(&date)?)?.into())
     }
 
     /// The Hebrew date `day` `month` `year`, such as `HebrewDate.of(5785, "nisan", 15)`.
     pub fn of(year: f64, month: Ts<HebrewMonth>, day: f64) -> Result<JsHebrewDate, Error> {
         const MESSAGE: &str = "there is no such Hebrew date";
-        HebrewDate::new(whole(year, MESSAGE)?, month.to_rust()?, whole(day, MESSAGE)?)
-            .ok_or(Error::Range(MESSAGE))?
-            .try_into()
+        let date = HebrewDate::new(whole(year, MESSAGE)?, month.to_rust()?, whole(day, MESSAGE)?);
+        Ok(date.ok_or(Error::Range(MESSAGE))?.into())
     }
 
     /// Today's Hebrew date, by the civil day in `zone` or in the runtime's local time zone.
     pub fn today(
         #[wasm_bindgen(unchecked_optional_param_type = "TimeZoneInput")] zone: Option<JsValue>,
     ) -> Result<JsHebrewDate, Error> {
-        HebrewDate::try_from(date::today(zone.unwrap_or(JsValue::UNDEFINED))?)?.try_into()
+        Ok(HebrewDate::try_from(date::today(zone.unwrap_or(JsValue::UNDEFINED))?)?.into())
     }
 
     /// The Hebrew year, such as 5784.
@@ -188,10 +187,7 @@ impl JsHebrewDate {
     #[wasm_bindgen(js_name = addDays)]
     pub fn add_days(&self, days: f64) -> Result<JsHebrewDate, Error> {
         let days = whole(days, "the number of days must be a whole number")?;
-        self.date
-            .add_days(days)
-            .ok_or(crate::calendar::DateOutOfRange)?
-            .try_into()
+        Ok(self.date.add_days(days).ok_or(crate::calendar::DateOutOfRange)?.into())
     }
 
     /// The holidays, fasts and other notable days on this date, in calendar order. The modern
@@ -259,7 +255,7 @@ impl JsHebrewDate {
 
     /// The molad of this date's month.
     pub fn molad(&self) -> Result<Ts<Molad>, Error> {
-        let molad = self.date.molad().ok_or(crate::calendar::DateOutOfRange)?;
+        let molad = self.date.molad();
         Ok(Ts::from_rust(&Molad {
             time: js_date(molad.timestamp()),
             weekday: molad.weekday().to_sunday_zero_offset(),
@@ -373,7 +369,7 @@ impl JsHebrewYear {
     /// 1 Tishrei.
     #[wasm_bindgen(getter, js_name = roshHashana)]
     pub fn rosh_hashana(&self) -> Result<JsHebrewDate, Error> {
-        self.0.rosh_hashana().ok_or(crate::calendar::DateOutOfRange)?.try_into()
+        Ok(self.0.rosh_hashana().ok_or(crate::calendar::DateOutOfRange)?.into())
     }
 
     #[wasm_bindgen(js_name = toString)]

@@ -41,6 +41,35 @@ fn test_molad_in_gregorian_year_0() -> Result<(), Box<dyn Error>> {
     assert_calendar_snapshots_match(DateTuple::new(3761, 10, 20), false, false, "molad in Gregorian year 0")
 }
 
+/// Every day of one year of each of the 14 kinds of year, in both regions. Together they reach
+/// every parsha table and every rule that moves a holiday or fast.
+#[test]
+fn test_every_day_of_each_kind_of_year() -> Result<(), Box<dyn Error>> {
+    let mut kinds = Vec::new();
+    for year in 5700..=5800 {
+        let hebrew_year = kosher_rust::calendar::HebrewYear::new(year).expect("in range");
+        let rosh_hashana = hebrew_year.rosh_hashana().expect("in range");
+        let kind = (hebrew_year.is_leap(), hebrew_year.length(), rosh_hashana.weekday());
+        if kinds.contains(&kind) {
+            continue;
+        }
+        kinds.push(kind);
+        for month in 1..=13 {
+            for day in 1..=30 {
+                let date = DateTuple::new(year, month, day);
+                if rust_hebrew_date(date).is_none() {
+                    continue;
+                }
+                for in_israel in [false, true] {
+                    assert_calendar_snapshots_match(date, in_israel, true, &format!("year kind {kind:?}"))?;
+                }
+            }
+        }
+    }
+    assert_eq!(kinds.len(), 14);
+    Ok(())
+}
+
 #[test]
 pub(crate) fn test_hebrew_date_parity() -> Result<(), Box<dyn Error>> {
     run_regression_tests()?;

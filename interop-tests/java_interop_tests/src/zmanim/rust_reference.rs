@@ -1,6 +1,8 @@
 //! Rust-side reference path for zmanim Java parity tests.
 
-use jiff::{SignedDuration as Duration, civil::Date, tz::TimeZone};
+use std::time::Duration;
+
+use jiff::{civil::Date, tz::TimeZone};
 
 use kosher_rust::{Location, zmanim::*};
 
@@ -15,10 +17,10 @@ pub(super) fn calculate_rust_zman(case: TestCase, preset: Zman) -> Result<Option
         .expect("generated test locations are valid");
     let date = Date::new(case.year as i16, case.month as i8, case.day as i8).unwrap();
     let config = Config {
-        candle_lighting_offset: std::time::Duration::from_secs(case.candle_lighting_offset_minutes.unsigned_abs() * 60),
+        candle_lighting_offset: Duration::from_mins(case.candle_lighting_offset_minutes.unsigned_abs()),
         use_astronomical_chatzos_for_other_zmanim: case.use_astronomical_chatzos_for_other_zmanim,
         use_elevation: case.use_elevation,
-        ateret_torah_sunset_offset: Duration::from_mins(case.ateret_torah_sunset_offset_minutes),
+        ateret_torah_sunset_offset: Duration::from_mins(case.ateret_torah_sunset_offset_minutes.unsigned_abs()),
         use_astronomical_chatzos: case.use_astronomical_chatzos,
         astronomical_calculator: case.calculator,
     };

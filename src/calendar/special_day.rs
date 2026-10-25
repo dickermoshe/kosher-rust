@@ -132,7 +132,8 @@ pub enum SpecialDay {
     CountOfTheOmer(u8),
     /// Birchas Hachamah, the blessing of the sun, once every 28 years.
     BirchasHachamah,
-    /// Shabbos Machar Chodesh, the Shabbos before Rosh Chodesh.
+    /// Shabbos Machar Chodesh, a Shabbos on the 29th or 30th of the month, when Sunday is Rosh
+    /// Chodesh. On the 30th that Shabbos is also Rosh Chodesh.
     MacharChodesh,
     /// Shabbos Mevarchim, the Shabbos when the coming month is announced (not before Tishrei).
     ShabbosMevarchim,

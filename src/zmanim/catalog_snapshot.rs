@@ -13,8 +13,6 @@ extern crate std;
 
 use std::{env, fmt::Write as _, fs, path::PathBuf, string::String, vec::Vec};
 
-use jiff::SignedDuration;
-
 use crate::zmanim::{AstronomicalCalculator, Config, Zman};
 
 const SNAPSHOT_PATH: &str = "tests/fixtures/zman_catalog.snap";
@@ -25,7 +23,7 @@ fn flipped_config() -> Config {
         candle_lighting_offset: core::time::Duration::from_mins(40),
         use_astronomical_chatzos_for_other_zmanim: !default.use_astronomical_chatzos_for_other_zmanim,
         use_elevation: !default.use_elevation,
-        ateret_torah_sunset_offset: SignedDuration::from_mins(25),
+        ateret_torah_sunset_offset: core::time::Duration::from_mins(25),
         use_astronomical_chatzos: !default.use_astronomical_chatzos,
         astronomical_calculator: AstronomicalCalculator::Meeus { apply_delta_t: true },
     }

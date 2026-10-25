@@ -23,7 +23,7 @@
 //!   are 3.65°, 4.37° and 4.61°; R' Moshe Feinstein's end of fasts 7.12°, Sefer Moed Moadim
 //!   8°, the Chazon Ish 9.28°.
 //! - Candle lighting and R' Tam's fixed 72 minutes count from the sunset with heights; the
-//!   72-minute Magen Avraham day still ends 72 minutes after sea-level sunset.
+//!   72-minute Magen Avraham day still ends 72 minutes after the level sunset.
 //! - Proportional *zmanim*, midday and midnight are built from the start and end of the day
 //!   rounded to the nearest second, as the website displays them, and cut to a whole second.
 //!

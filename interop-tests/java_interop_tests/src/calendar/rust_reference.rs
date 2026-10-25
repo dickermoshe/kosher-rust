@@ -206,17 +206,13 @@ pub(super) fn rust_jewish_calendar_snapshot(
         is_shabbos_mevorchim: rust_special_days.contains(&SpecialDay::ShabbosMevarchim),
         day_of_omer: day_of_omer,
         // Rounded down, as Java's `toEpochMilli` rounds, so instants before 1970 agree.
-        molad_ms: day
-            .molad()
-            .map(|molad| molad.timestamp().as_nanosecond().div_euclid(1_000_000) as i64),
-        molad_parts: day.molad().map(|molad| {
-            (
-                i32::from(molad.weekday().to_sunday_one_offset()),
-                i32::from(molad.hours()),
-                i32::from(molad.minutes()),
-                i32::from(molad.chalakim()),
-            )
-        }),
+        molad_ms: Some(day.molad().timestamp().as_nanosecond().div_euclid(1_000_000) as i64),
+        molad_parts: Some((
+            i32::from(day.molad().weekday().to_sunday_one_offset()),
+            i32::from(day.molad().hours()),
+            i32::from(day.molad().minutes()),
+            i32::from(day.molad().chalakim()),
+        )),
     })
 }
 

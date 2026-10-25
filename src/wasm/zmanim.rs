@@ -1,6 +1,6 @@
 use core::time::Duration;
 
-use jiff::{SignedDuration, Timestamp, civil};
+use jiff::{Timestamp, civil};
 use serde::{Deserialize, Serialize};
 use tsify::{Ts, Tsify};
 use wasm_bindgen::prelude::*;
@@ -119,9 +119,7 @@ impl TryFrom<ZmanimConfig> for Config {
                 .unwrap_or(defaults.use_astronomical_chatzos_for_other_zmanim),
             use_elevation: options.use_elevation.unwrap_or(defaults.use_elevation),
             ateret_torah_sunset_offset: match options.ateret_torah_sunset_offset {
-                Some(minutes) => SignedDuration::try_from_secs_f64(minutes * 60.0)
-                    .ok()
-                    .ok_or(INVALID_OFFSET)?,
+                Some(minutes) => minutes_duration(minutes)?,
                 None => defaults.ateret_torah_sunset_offset,
             },
             use_astronomical_chatzos: options
@@ -136,8 +134,7 @@ impl TryFrom<ZmanimConfig> for Config {
     }
 }
 
-const INVALID_OFFSET: Error =
-    Error::Range("the offset must be a finite number of minutes, and candle lighting 0 or more");
+const INVALID_OFFSET: Error = Error::Range("an offset must be a finite number of minutes, 0 or more");
 
 /// `minutes` as a duration of 0 or more.
 fn minutes_duration(minutes: f64) -> Result<Duration, Error> {
@@ -173,6 +170,8 @@ pub enum Unavailable {
     DateOutOfRange,
     InvalidDegrees,
     TimeZoneRequired,
+    InvalidOffset,
+    TimeOutOfRange,
     Internal,
 }
 
@@ -185,6 +184,8 @@ impl From<ZmanimError> for Unavailable {
             ZmanimError::DateOutOfRange(_) => Self::DateOutOfRange,
             ZmanimError::InvalidDegrees => Self::InvalidDegrees,
             ZmanimError::TimeZoneRequired => Self::TimeZoneRequired,
+            ZmanimError::InvalidOffset => Self::InvalidOffset,
+            ZmanimError::TimeOutOfRange => Self::TimeOutOfRange,
             ZmanimError::Internal => Self::Internal,
         }
     }
@@ -198,6 +199,8 @@ fn zmanim_error(error: ZmanimError) -> Error {
         }
         ZmanimError::InvalidDegrees => "the angle must be a number of degrees from -90 to 90",
         ZmanimError::TimeZoneRequired => "this time needs a time zone; pass timeZone",
+        ZmanimError::InvalidOffset => "the offset must be shorter than a day",
+        ZmanimError::TimeOutOfRange => "the time is outside the years -9999 to 9999",
         _ => "internal calculation error; please report the location and date",
     };
     let thrown = js_sys::Error::new(message);
