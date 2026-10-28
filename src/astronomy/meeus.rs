@@ -11,13 +11,16 @@ use core_maths::*;
 use jiff::civil::Date;
 
 use super::{
-    JULIAN_DAY_JAN_1_2000, JULIAN_DAYS_PER_CENTURY, SolarAlgorithm, SolarEvent, julian_day, sun_hour_angle,
-    time_at_azimuth_iterative,
+    JULIAN_DAY_JAN_1_2000, JULIAN_DAYS_PER_CENTURY, SolarAlgorithm, SolarEvent, julian_day, position_from_declination,
+    sun_hour_angle, time_at_azimuth_iterative,
     vsop87::{
         self, asin_degrees, cos_degrees, delta_t_seconds, nutation_arcsec, sin_degrees, sun_mean_longitude, tan_degrees,
     },
 };
-use crate::{Location, zmanim::ZmanimError};
+use crate::{
+    Location,
+    zmanim::{SolarPosition, ZmanimError},
+};
 
 /// The Meeus algorithm.
 #[derive(Clone, Copy, Debug)]
@@ -116,6 +119,16 @@ impl SolarAlgorithm for Meeus {
                 self.equation_of_time(julian_centuries),
             )
         })
+    }
+
+    fn solar_position(&self, date: Date, fraction_of_day: f64, location: &Location) -> SolarPosition {
+        let julian_centuries = self.julian_centuries(julian_day(date) + fraction_of_day);
+        position_from_declination(
+            fraction_of_day,
+            location,
+            self.sun_declination(julian_centuries),
+            self.equation_of_time(julian_centuries),
+        )
     }
 }
 

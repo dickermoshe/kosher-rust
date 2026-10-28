@@ -26,6 +26,7 @@ mod catalog;
 mod config;
 mod error;
 mod formula;
+mod position;
 mod zman;
 
 #[cfg(test)]
@@ -39,4 +40,5 @@ pub(crate) use calculator::{minus, offset, plus};
 pub use catalog::Zman;
 pub use config::{AstronomicalCalculator, Config};
 pub use error::ZmanimError;
+pub use position::SolarPosition;
 pub use zman::Category;

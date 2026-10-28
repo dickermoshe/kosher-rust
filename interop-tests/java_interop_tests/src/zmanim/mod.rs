@@ -6,11 +6,14 @@ pub(crate) mod java_reference;
 mod policy;
 mod random;
 mod rust_reference;
+mod solar_position;
 mod types;
 
 use std::error::Error;
 
 use rand::{SeedableRng, rngs::StdRng};
+
+pub use self::solar_position::test_solar_position;
 
 use kosher_rust::{Location, zmanim::*};
 
@@ -47,7 +50,7 @@ pub fn test_regressions(preset: Zman) {
 }
 
 /// Every KosherJava solar algorithm, with both ΔT settings where it applies.
-pub(crate) const ALL_CALCULATORS: [AstronomicalCalculator; 5] = [
+pub const ALL_CALCULATORS: [AstronomicalCalculator; 5] = [
     AstronomicalCalculator::Noaa,
     AstronomicalCalculator::Meeus { apply_delta_t: true },
     AstronomicalCalculator::Meeus { apply_delta_t: false },

@@ -38,8 +38,13 @@ use core_maths::*;
 use jiff::civil::Date;
 
 use self::coefficients::{NUTATION_COEFFS, OBLIQUITY_COEFFS, TERMS_B, TERMS_L, TERMS_PE, TERMS_R, TERMS_Y};
-use super::{SolarAlgorithm, SolarEvent, julian_day, time_at_azimuth_iterative, vsop87::sun_mean_longitude};
-use crate::{Location, zmanim::ZmanimError};
+use super::{
+    REFRACTION, SolarAlgorithm, SolarEvent, julian_day, time_at_azimuth_iterative, vsop87::sun_mean_longitude,
+};
+use crate::{
+    Location,
+    zmanim::{SolarPosition, ZmanimError},
+};
 
 /// The SPA algorithm.
 pub(super) struct Spa {
@@ -140,28 +145,75 @@ fn time_dependent(jd: JulianDate) -> TimeDependent {
     }
 }
 
+/// The direction from an observer to the sun, corrected for parallax. `x` points to where the
+/// observer's meridian crosses the celestial equator, `y` points west and `z` points to the north
+/// celestial pole. The vector is not normalised.
+struct Topocentric {
+    x: f64,
+    y: f64,
+    z: f64,
+    sin_latitude: f64,
+    cos_latitude: f64,
+    /// Geocentric local hour angle in degrees, positive west, not normalised.
+    hour_angle: f64,
+}
+
+impl Topocentric {
+    /// The sun as seen by an observer at `latitude`, `longitude` (positive east) and `height`
+    /// metres.
+    fn new(time: JulianDate, latitude: f64, longitude: f64, height: f64) -> Self {
+        let phi = latitude.to_radians();
+        let u = CoreFloat::atan(0.99664719 * CoreFloat::tan(phi));
+        let sin_latitude = CoreFloat::sin(phi);
+        let cos_latitude = CoreFloat::cos(phi);
+        let x = CoreFloat::cos(u) + (height * cos_latitude) / 6378140.0;
+        let z = 0.99664719 * CoreFloat::sin(u) + (height * sin_latitude) / 6378140.0;
+        let parts = time_dependent(time);
+        let delta = parts.delta_degrees.to_radians();
+        let hour_angle = parts.nu_degrees + longitude - parts.alpha_degrees;
+        let parallax = CoreFloat::sin((8.794 / (3600.0 * parts.r)).to_radians());
+        // The parallax correction in vector form, which stays stable at the zenith.
+        Self {
+            x: CoreFloat::cos(delta) * CoreFloat::cos(hour_angle.to_radians()) - x * parallax,
+            y: CoreFloat::cos(delta) * CoreFloat::sin(hour_angle.to_radians()),
+            z: CoreFloat::sin(delta) - z * parallax,
+            sin_latitude,
+            cos_latitude,
+            hour_angle,
+        }
+    }
+
+    /// The unrefracted elevation of the solar centre in degrees.
+    fn elevation(&self) -> f64 {
+        let up = self.cos_latitude * self.x + self.sin_latitude * self.z;
+        let length = (self.x * self.x + self.y * self.y + self.z * self.z).sqrt();
+        CoreFloat::asin((up / length).clamp(-1.0, 1.0)).to_degrees()
+    }
+
+    /// The azimuth in degrees, eastward from north, 0 to 360.
+    fn azimuth(&self) -> f64 {
+        let north = self.cos_latitude * self.z - self.sin_latitude * self.x;
+        limit_to(CoreFloat::atan2(-self.y, north).to_degrees(), 360.0)
+    }
+}
+
 /// The sun's unrefracted topocentric elevation for an observer at `latitude`, `longitude`
 /// (positive east) and `height` metres, and its geocentric hour angle.
 fn event_position_at_height(time: JulianDate, latitude: f64, longitude: f64, height: f64) -> EventPosition {
-    let phi = latitude.to_radians();
-    let u = CoreFloat::atan(0.99664719 * CoreFloat::tan(phi));
-    let sin_phi = CoreFloat::sin(phi);
-    let cos_phi = CoreFloat::cos(phi);
-    let x = CoreFloat::cos(u) + (height * cos_phi) / 6378140.0;
-    let z = 0.99664719 * CoreFloat::sin(u) + (height * sin_phi) / 6378140.0;
-    let parts = time_dependent(time);
-    let delta = parts.delta_degrees.to_radians();
-    let hour_angle = parts.nu_degrees + longitude - parts.alpha_degrees;
-    let parallax = CoreFloat::sin((8.794 / (3600.0 * parts.r)).to_radians());
-    // The parallax correction in vector form, which stays stable at the zenith.
-    let vx = CoreFloat::cos(delta) * CoreFloat::cos(hour_angle.to_radians()) - x * parallax;
-    let vy = CoreFloat::cos(delta) * CoreFloat::sin(hour_angle.to_radians());
-    let vz = CoreFloat::sin(delta) - z * parallax;
-    let projection = (cos_phi * vx + sin_phi * vz) / (vx * vx + vy * vy + vz * vz).sqrt();
+    let topocentric = Topocentric::new(time, latitude, longitude, height);
     EventPosition {
-        elevation: CoreFloat::asin(projection.clamp(-1.0, 1.0)).to_degrees(),
-        hour_angle,
+        elevation: topocentric.elevation(),
+        hour_angle: topocentric.hour_angle,
     }
+}
+
+/// The SPA atmospheric refraction in degrees for a true elevation in degrees, at 1013.25 hPa and
+/// 10 °C. It is zero once the whole sun is below the horizon.
+fn refraction_correction(elevation: f64) -> f64 {
+    if elevation < -(16.0 / 60.0 + REFRACTION) {
+        return 0.0;
+    }
+    (1013.25 / 1010.0) * 1.02 / (60.0 * CoreFloat::tan((elevation + 10.3 / (elevation + 5.11)).to_radians()))
 }
 
 /// The sun's geocentric right ascension (0 to 360) and declination, in degrees.
@@ -499,6 +551,19 @@ impl SolarAlgorithm for Spa {
             let parts = time_dependent(time);
             (parts.delta_degrees, equation_of_time(time, &parts))
         })
+    }
+
+    fn solar_position(&self, date: Date, fraction_of_day: f64, location: &Location) -> SolarPosition {
+        let time = JulianDate {
+            julian_date: julian_day(date) + fraction_of_day,
+            delta_t: self.delta_t(date),
+        };
+        let topocentric = Topocentric::new(time, location.latitude, location.longitude, location.elevation);
+        let elevation = topocentric.elevation();
+        SolarPosition {
+            elevation: elevation + refraction_correction(elevation),
+            azimuth: topocentric.azimuth(),
+        }
     }
 }
 

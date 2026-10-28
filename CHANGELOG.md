@@ -97,6 +97,9 @@ are unchanged, and they are still checked against KosherJava and hebcal.
   `Daf<BavliTractate>` and Daf Yomi Yerushalmi a `Daf<YerushalmiTractate>`. `Amud` has a
   `BavliTractate` and `Mishna` a `MishnaTractate`.
 - The tractates, `Daf`, `Amud`, `Side`, `Mishna` and `MishnaPair` sort.
+- `AstronomicalCalculator::solar_position` gives the sun's elevation and azimuth from a
+  `Location` at any instant, as a `SolarPosition`. It works with all three algorithms and matches
+  KosherJava's `getSolarElevation` and `getSolarAzimuth`.
 
 ### Migrating from 0.2
 

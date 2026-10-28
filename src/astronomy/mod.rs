@@ -20,7 +20,7 @@ use crate::Zone;
 
 use crate::{
     Location,
-    zmanim::{AstronomicalCalculator, ZmanimError},
+    zmanim::{AstronomicalCalculator, SolarPosition, ZmanimError},
 };
 
 pub(crate) mod meeus;
@@ -71,6 +71,10 @@ pub(crate) trait SolarAlgorithm {
 
     /// UTC hours (not normalised) at which the sun reaches an azimuth of exactly 90° or 270°.
     fn time_at_azimuth_utc_hours(&self, date: Date, location: &Location, azimuth: f64) -> Result<f64, ZmanimError>;
+
+    /// The sun's refracted elevation and azimuth at `fraction_of_day` (0 to 1) past 0:00 UTC of
+    /// the UTC date `date`.
+    fn solar_position(&self, date: Date, fraction_of_day: f64, location: &Location) -> SolarPosition;
 }
 
 impl SolarAlgorithm for AstronomicalCalculator {
@@ -115,6 +119,81 @@ impl SolarAlgorithm for AstronomicalCalculator {
             }
         }
     }
+
+    fn solar_position(&self, date: Date, fraction_of_day: f64, location: &Location) -> SolarPosition {
+        match *self {
+            Self::Noaa => noaa::Noaa.solar_position(date, fraction_of_day, location),
+            Self::Meeus { apply_delta_t } => {
+                meeus::Meeus::standard(apply_delta_t).solar_position(date, fraction_of_day, location)
+            }
+            Self::Spa { apply_delta_t } => spa::Spa { apply_delta_t }.solar_position(date, fraction_of_day, location),
+        }
+    }
+}
+
+/// The sun's place in the sky from `location` at `instant`.
+pub(crate) fn solar_position(
+    calculator: AstronomicalCalculator,
+    location: &Location,
+    instant: Timestamp,
+) -> SolarPosition {
+    let utc = Offset::UTC.to_datetime(instant);
+    let seconds = f64::from(utc.second()) + f64::from(utc.subsec_nanosecond()) / 1_000_000_000.0;
+    let fraction_of_day = (f64::from(utc.hour()) + (f64::from(utc.minute()) + seconds / 60.0) / 60.0) / 24.0;
+    SolarAlgorithm::solar_position(&calculator, utc.date(), fraction_of_day, location)
+}
+
+/// The sun's place in the sky from its declination and the equation of time (in minutes) at
+/// `fraction_of_day` past 0:00 UTC. The elevation is measured at sea level and includes
+/// [`refraction_correction`].
+pub(super) fn position_from_declination(
+    fraction_of_day: f64,
+    location: &Location,
+    declination: f64,
+    equation_of_time: f64,
+) -> SolarPosition {
+    let latitude = location.latitude.to_radians();
+    let declination = declination.to_radians();
+    let true_solar_time = ((fraction_of_day + equation_of_time / 1440.0 + location.longitude / 360.0) + 2.0) % 1.0;
+    let hour_angle = true_solar_time * 2.0 * core::f64::consts::PI - core::f64::consts::PI;
+    let cos_zenith = CoreFloat::sin(latitude) * CoreFloat::sin(declination)
+        + CoreFloat::cos(latitude) * CoreFloat::cos(declination) * CoreFloat::cos(hour_angle);
+    let zenith = CoreFloat::acos(cos_zenith.clamp(-1.0, 1.0));
+    let true_elevation = 90.0 - zenith.to_degrees();
+
+    let azimuth_denominator = CoreFloat::cos(latitude) * CoreFloat::sin(zenith);
+    let azimuth = if azimuth_denominator.abs() > 0.001 {
+        let cos_azimuth =
+            (CoreFloat::sin(latitude) * CoreFloat::cos(zenith) - CoreFloat::sin(declination)) / azimuth_denominator;
+        let angle = CoreFloat::acos(cos_azimuth.clamp(-1.0, 1.0)).to_degrees();
+        if hour_angle > 0.0 { 180.0 + angle } else { 180.0 - angle }
+    } else if location.latitude > 0.0 {
+        180.0
+    } else {
+        0.0
+    };
+
+    SolarPosition {
+        elevation: true_elevation + refraction_correction(true_elevation),
+        azimuth: (azimuth + 360.0) % 360.0,
+    }
+}
+
+/// Atmospheric refraction in degrees for a true elevation in degrees, from NOAA's solar
+/// calculator.
+fn refraction_correction(elevation: f64) -> f64 {
+    if elevation > 85.0 {
+        return 0.0;
+    }
+    let te = CoreFloat::tan(elevation.to_radians());
+    let correction = if elevation > 5.0 {
+        58.1 / te - 0.07 / CoreFloat::powi(te, 3) + 0.000086 / CoreFloat::powi(te, 5)
+    } else if elevation > -0.575 {
+        1735.0 + elevation * (-518.2 + elevation * (103.4 + elevation * (-12.79 + 0.711 * elevation)))
+    } else {
+        -20.774 / te
+    };
+    correction / 3600.0
 }
 
 pub(crate) fn sunrise(

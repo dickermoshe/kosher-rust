@@ -30,6 +30,8 @@ fn refracted_zenith(elevation: f64, pressure: f64, temperature: f64) -> f64 {
 fn nrel_example() {
     let time = julian_date("2003-10-17T19:30:30Z", 67.0);
     let position = event_position_at_height(time, 39.742476, -105.1786, 1830.14);
+    let azimuth = Topocentric::new(time, 39.742476, -105.1786, 1830.14).azimuth();
+    assert!((azimuth - 194.340241).abs() < 1e-4, "{azimuth}");
     assert!(
         (90.0 - position.elevation - 50.1279).abs() < 1e-4,
         "{}",
@@ -42,18 +44,22 @@ fn nrel_example() {
     );
 }
 
-/// Zenith angles from NREL's reference implementation, `spa.c` (ΔT 0, sea level, 1000 hPa, 10 °C).
+/// Zenith and azimuth angles from NREL's reference implementation, `spa.c` (ΔT 0, sea level, 1000 hPa, 10 °C).
 #[test]
-fn nrel_reference_zenith_angles() {
+fn nrel_reference_angles() {
     let data = include_str!("../../../tests/fixtures/spa_reference_testdata.csv");
     let mut checked = 0;
     for line in data.lines().filter(|line| !line.starts_with('#') && !line.is_empty()) {
         let fields: Vec<&str> = line.split(',').collect();
         let (latitude, longitude) = (fields[1].parse::<f64>().unwrap(), fields[2].parse::<f64>().unwrap());
-        let reference_zenith = fields[4].parse::<f64>().unwrap();
-        let position = event_position_at_height(julian_date(fields[0], 0.0), latitude, longitude, 0.0);
-        let zenith = refracted_zenith(position.elevation, 1000.0, 10.0);
+        let (reference_azimuth, reference_zenith) =
+            (fields[3].parse::<f64>().unwrap(), fields[4].parse::<f64>().unwrap());
+        let topocentric = Topocentric::new(julian_date(fields[0], 0.0), latitude, longitude, 0.0);
+        let zenith = refracted_zenith(topocentric.elevation(), 1000.0, 10.0);
         assert!((zenith - reference_zenith).abs() < 1e-6, "{line}: zenith {zenith}");
+        let azimuth = topocentric.azimuth();
+        let azimuth_error = (azimuth - reference_azimuth + 540.0) % 360.0 - 180.0;
+        assert!(azimuth_error.abs() < 1e-6, "{line}: azimuth {azimuth}");
         checked += 1;
     }
     assert_eq!(checked, 512);

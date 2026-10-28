@@ -126,6 +126,12 @@ mod zmanim {
     }
 
     #[divan::bench(args = ALGORITHMS)]
+    fn solar_position(algorithm: AstronomicalCalculator) -> kosher_rust::zmanim::SolarPosition {
+        let instant: jiff::Timestamp = "2024-04-23T09:00:00Z".parse().unwrap();
+        black_box(algorithm).solar_position(&jerusalem(), black_box(instant))
+    }
+
+    #[divan::bench(args = ALGORITHMS)]
     fn sunrise(bencher: Bencher, algorithm: AstronomicalCalculator) {
         let zmanim = zmanim(algorithm);
         bencher.bench(|| black_box(&zmanim).get(Zman::Sunrise));

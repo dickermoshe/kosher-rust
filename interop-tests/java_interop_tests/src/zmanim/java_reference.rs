@@ -175,7 +175,7 @@ pub(super) fn calculate_java_zman(case: TestCase, zman: Zman) -> Result<Option<Z
 }
 
 /// Instantiates the KosherJava `AstronomicalCalculator` matching a Rust [`AstronomicalCalculator`].
-fn new_java_calculator<'local>(
+pub(super) fn new_java_calculator<'local>(
     env: &mut jni::Env<'local>,
     calculator: AstronomicalCalculator,
 ) -> jni::errors::Result<JObject<'local>> {

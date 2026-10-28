@@ -7,9 +7,13 @@ use core_maths::*;
 use jiff::civil::Date;
 
 use super::{
-    SolarAlgorithm, SolarEvent, julian_centuries_from_julian_day, julian_day, sun_hour_angle, time_at_azimuth_iterative,
+    SolarAlgorithm, SolarEvent, julian_centuries_from_julian_day, julian_day, position_from_declination,
+    sun_hour_angle, time_at_azimuth_iterative,
 };
-use crate::{Location, zmanim::ZmanimError};
+use crate::{
+    Location,
+    zmanim::{SolarPosition, ZmanimError},
+};
 
 /// The NOAA algorithm. Stateless.
 pub(super) struct Noaa;
@@ -78,6 +82,16 @@ impl SolarAlgorithm for Noaa {
             let julian_centuries = julian_centuries_from_julian_day(julian_day);
             (sun_declination(julian_centuries), equation_of_time(julian_centuries))
         })
+    }
+
+    fn solar_position(&self, date: Date, fraction_of_day: f64, location: &Location) -> SolarPosition {
+        let julian_centuries = julian_centuries_from_julian_day(julian_day(date) + fraction_of_day);
+        position_from_declination(
+            fraction_of_day,
+            location,
+            sun_declination(julian_centuries),
+            equation_of_time(julian_centuries),
+        )
     }
 }
 
