@@ -39,7 +39,7 @@ defmt = ["dep:defmt"]
 
 [dependencies]
 # Calendar libraries
-icu_calendar = { version = "2.2.0", default-features = false }
+icu_calendar = { version = "2.4.0", default-features = false }
 
 # Datetime libraries
 jiff = { version = "0.2.0", default-features = false }
