@@ -175,6 +175,7 @@ pub(super) fn position_from_declination(
 
     SolarPosition {
         elevation: true_elevation + refraction_correction(true_elevation),
+        geometric_elevation: true_elevation,
         azimuth: (azimuth + 360.0) % 360.0,
     }
 }

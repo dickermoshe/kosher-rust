@@ -12,6 +12,9 @@ pub struct SolarPosition {
     /// appears, so it includes the bending of light by the atmosphere. Near the horizon that
     /// raises the sun by about half a degree.
     pub elevation: f64,
+    /// Degrees above the horizon of the center of the sun as it would be without the atmosphere.
+    /// It is lower than [`elevation`](Self::elevation) by the bending of the light.
+    pub geometric_elevation: f64,
     /// Degrees clockwise from true north, from 0 up to 360. East is 90, south is 180 and west
     /// is 270.
     pub azimuth: f64,

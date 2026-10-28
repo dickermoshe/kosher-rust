@@ -562,6 +562,7 @@ impl SolarAlgorithm for Spa {
         let elevation = topocentric.elevation();
         SolarPosition {
             elevation: elevation + refraction_correction(elevation),
+            geometric_elevation: elevation,
             azimuth: topocentric.azimuth(),
         }
     }
