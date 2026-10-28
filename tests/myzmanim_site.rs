@@ -2,21 +2,25 @@
 //!
 //! `tests/fixtures/myzmanim-site.bin` holds the whole data set gathered for the KosherJava
 //! `MyZmanim`: 284 places over a year, every row of the site's "All zmanim" table with
-//! the observer and horizon heights the site used that day and each place's coordinates,
-//! standard UTC offset and candle-lighting minutes. It is the site's three CSV files
-//! (`places.csv`, `heights.csv`, `days.csv`) as a [`SiteData`] value, postcard-encoded and
-//! deflated; times and heights are delta-coded against the previous row of the same place so
-//! the whole year fits in well under a megabyte. Rebuild it from the CSV files with
+//! the observer and horizon heights the site used that day, the UTC offset its times are in that
+//! day, and each place's coordinates, standard UTC offset and candle-lighting minutes. It is the
+//! site's four CSV files (`places.csv`, `heights.csv`, `offsets.csv`, `days.csv`) as a
+//! [`SiteData`] value, postcard-encoded and deflated; times, heights and offsets are delta-coded
+//! against the previous row of the same place so the whole year fits in well under a megabyte.
+//! Rebuild it from the CSV files with
 //!
 //! ```text
 //! MYZMANIM_SITE_DIR=<dir with the csv files> cargo test --test myzmanim_site -- --ignored encode_fixture
 //! ```
 //!
-//! The data has no time-zone names: times are local wall-clock at the place's standard UTC
-//! offset. Each place-day's daylight-saving shift, 0 or -1 hours, is the one most of its cells
-//! show, and any other whole-hour difference fails the test apart from the website's known AM/PM
-//! mistakes, which are counted. Set `MYZMANIM_SITE_DIFFS` to the Java
-//! comparison's `diffs.csv` to also check every row against the Java port's own difference.
+//! The offsets come from MyZmanim's web app, which states for every day whether the place is on
+//! daylight-saving time. They are MyZmanim's, not the tz database's: MyZmanim's time-zone rules are
+//! out of date in places, and this test checks the calculation, not the time-zone rules, so each
+//! time is read in the offset the site itself used. A time may then differ from ours by exactly
+//! 12 hours, an AM/PM mistake in the scraped data, which is counted; any other whole-hour
+//! difference fails. The heights were checked against the web app's for every place-day.
+//! Set `MYZMANIM_SITE_DIFFS` to the Java comparison's `diffs.csv` to also check every row against
+//! the Java port's own difference.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -122,18 +126,26 @@ struct Row {
     date_days: i32,
     /// Observer, eastern horizon and western horizon heights in decimeters.
     heights_dm: [i32; 3],
+    /// The UTC offset of the row's times in seconds: the standard offset, plus an hour on the
+    /// days MyZmanim keeps daylight-saving time.
+    offset_seconds: i32,
     /// Local wall-clock seconds after the row's midnight, one per column.
     times: Vec<i32>,
 }
 
-/// The running absolute values of one place while delta-coding: date, heights, times.
-type Running = (i32, [i32; 3], Vec<i32>);
+/// The running absolute values of one place while delta-coding: date, heights, offset, times.
+type Running = (i32, [i32; 3], i32, Vec<i32>);
+
+/// One `days.csv` row before delta-coding: place, date, heights, offset, times.
+type ParsedRow = (u16, i32, [i32; 3], i32, Vec<i32>);
 
 /// A decoded place-day.
 struct PlaceDay {
     place: Place,
     date: Date,
     heights: [f64; 3],
+    /// The UTC offset the site's times are in that day.
+    offset: Offset,
     /// `(column, local wall-clock time)` for the times the site showed.
     times: Vec<(&'static str, DateTime)>,
 }
@@ -162,11 +174,12 @@ fn decode(bytes: &[u8]) -> Vec<PlaceDay> {
     for row in &data.rows {
         let state = running
             .entry(row.place)
-            .or_insert_with(|| (0, [0; 3], vec![0; row.times.len()]));
+            .or_insert_with(|| (0, [0; 3], 0, vec![0; row.times.len()]));
         state.0 += row.date_days;
         for (height, delta) in state.1.iter_mut().zip(row.heights_dm) {
             *height += delta;
         }
+        state.2 += row.offset_seconds;
         let date = epoch()
             .checked_add(SignedDuration::from_hours(24 * i64::from(state.0)))
             .unwrap();
@@ -175,11 +188,11 @@ fn decode(bytes: &[u8]) -> Vec<PlaceDay> {
             if *delta == MISSING {
                 continue;
             }
-            state.2[index] += delta;
+            state.3[index] += delta;
             if let Some(column) = columns[index] {
                 let time = date
                     .at(0, 0, 0, 0)
-                    .checked_add(SignedDuration::from_secs(i64::from(state.2[index])))
+                    .checked_add(SignedDuration::from_secs(i64::from(state.3[index])))
                     .unwrap();
                 times.push((column, time));
             }
@@ -188,6 +201,7 @@ fn decode(bytes: &[u8]) -> Vec<PlaceDay> {
             place: data.places[usize::from(row.place)].clone(),
             date,
             heights: state.1.map(|dm| f64::from(dm) / 10.0),
+            offset: Offset::from_seconds(state.2).unwrap(),
             times,
         });
     }
@@ -257,9 +271,18 @@ fn encode(dir: &Path) -> Vec<u8> {
         })
         .collect();
 
+    let offsets: HashMap<(String, String), i32> = read_csv(dir, "offsets.csv")
+        .iter()
+        .skip(1)
+        .map(|line| {
+            let fields: Vec<&str> = line.split(',').collect();
+            ((fields[0].to_owned(), fields[1].to_owned()), fields[2].parse().unwrap())
+        })
+        .collect();
+
     let days = read_csv(dir, "days.csv");
     let columns: Vec<String> = days[0].split(',').skip(2).map(str::to_owned).collect();
-    let mut parsed: Vec<(u16, i32, [i32; 3], Vec<i32>)> = days
+    let mut parsed: Vec<ParsedRow> = days
         .iter()
         .skip(1)
         .map(|line| {
@@ -267,7 +290,11 @@ fn encode(dir: &Path) -> Vec<u8> {
             let place = place_index[cells[0]];
             let date: Date = cells[1].parse().unwrap();
             let date_days = epoch().until(date).unwrap().get_days();
-            let heights = heights[&(cells[0].to_owned(), cells[1].to_owned())];
+            let key = (cells[0].to_owned(), cells[1].to_owned());
+            let heights = heights[&key];
+            let offset = *offsets
+                .get(&key)
+                .unwrap_or_else(|| panic!("{} {}: no offset", cells[0], cells[1]));
             let midnight = date.at(0, 0, 0, 0);
             let times = cells[2..]
                 .iter()
@@ -280,17 +307,17 @@ fn encode(dir: &Path) -> Vec<u8> {
                     }
                 })
                 .collect();
-            (place, date_days, heights, times)
+            (place, date_days, heights, offset, times)
         })
         .collect();
     parsed.sort_by_key(|(place, date_days, ..)| (*place, *date_days));
 
     let mut rows = Vec::with_capacity(parsed.len());
     let mut running: HashMap<u16, Running> = HashMap::new();
-    for (place, date_days, heights, times) in parsed {
+    for (place, date_days, heights, offset, times) in parsed {
         let state = running
             .entry(place)
-            .or_insert_with(|| (0, [0; 3], vec![0; times.len()]));
+            .or_insert_with(|| (0, [0; 3], 0, vec![0; times.len()]));
         let row = Row {
             place,
             date_days: date_days - state.0,
@@ -299,9 +326,10 @@ fn encode(dir: &Path) -> Vec<u8> {
                 heights[1] - state.1[1],
                 heights[2] - state.1[2],
             ],
+            offset_seconds: offset - state.2,
             times: times
                 .iter()
-                .zip(state.2.iter_mut())
+                .zip(state.3.iter_mut())
                 .map(|(&time, last)| {
                     if time == MISSING {
                         MISSING
@@ -315,6 +343,7 @@ fn encode(dir: &Path) -> Vec<u8> {
         };
         state.0 = date_days;
         state.1 = heights;
+        state.2 = offset;
         rows.push(row);
     }
 
@@ -367,22 +396,21 @@ struct SiteDiffs {
     diffs: Vec<Diff>,
     /// Cells the website shows 12 hours off, which look like AM/PM mistakes in the scraped data.
     am_pm: usize,
-    /// Cells off by any other whole number of hours, and days whose hour is neither 0 nor -1.
+    /// Cells off by any other whole number of hours.
     far_off: Vec<String>,
 }
 
 /// Every difference, ours minus the website's.
 ///
-/// The website shows some places an hour late all year, as if daylight saving never ended, so each
-/// place-day has one hour correction, 0 or -1, taken from most of its cells. A cell may differ
-/// from that by exactly 12 hours, an AM/PM mistake in the scraped data. Any other whole-hour
-/// difference is a real error and lands in `far_off`.
+/// Each time is read in the UTC offset the site used that day. A cell may differ from ours by
+/// exactly 12 hours, an AM/PM mistake in the scraped data. Any other whole-hour difference is a
+/// real error and lands in `far_off`.
 fn site_diffs() -> SiteDiffs {
     let mut diffs = Vec::new();
     let mut am_pm = 0;
     let mut far_off = Vec::new();
     for day in decode(FIXTURE) {
-        let timezone = TimeZone::fixed(Offset::from_seconds(day.place.offset_seconds).unwrap());
+        let timezone = TimeZone::fixed(day.offset);
         let location = Location::new(day.place.latitude, day.place.longitude)
             .and_then(|l| l.with_elevation(day.heights[0]))
             .and_then(|l| l.with_horizons(day.heights[1], day.heights[2]))
@@ -391,40 +419,19 @@ fn site_diffs() -> SiteDiffs {
             std::time::Duration::from_secs(u64::from(day.place.candle_tenths.unsigned_abs()) * 6),
         );
 
-        // (column, whole hours, seconds left over) for every cell with a time on both sides.
-        let mut cells = Vec::new();
         for (column, theirs) in &day.times {
             let zman = COLUMNS.iter().find(|(name, _)| name == column).unwrap().1;
             let Ok(ours) = calendar.get(zman) else { continue };
             let theirs: Timestamp = theirs.to_zoned(timezone.clone()).unwrap().timestamp();
             let seconds = (ours.as_millisecond() - theirs.as_millisecond()) as f64 / 1000.0;
             let hours = (seconds / 3600.0).round() as i64;
-            cells.push((*column, hours, seconds - hours as f64 * 3600.0));
-        }
-        let mut counts = HashMap::new();
-        for &(_, hours, _) in &cells {
-            *counts.entry(hours).or_insert(0) += 1;
-        }
-        let Some((&day_hours, _)) = counts.iter().max_by_key(|&(&hours, &count)| (count, -hours.abs())) else {
-            continue;
-        };
-        if day_hours != 0 && day_hours != -1 {
-            far_off.push(format!(
-                "{} {}: most cells are {day_hours} h off",
-                day.place.id, day.date
-            ));
-            continue;
-        }
-
-        for (column, hours, seconds) in cells {
-            if (hours - day_hours).abs() == 12 {
+            let seconds = seconds - hours as f64 * 3600.0;
+            if hours.abs() == 12 {
                 am_pm += 1;
-            } else if hours != day_hours {
+            } else if hours != 0 {
                 far_off.push(format!(
-                    "{} {} {column}: {} h {seconds:+.1} s off",
-                    day.place.id,
-                    day.date,
-                    hours - day_hours
+                    "{} {} {column}: {hours} h {seconds:+.1} s off",
+                    day.place.id, day.date
                 ));
                 continue;
             }
@@ -473,6 +480,20 @@ fn fixture_decodes_to_the_whole_data_set() {
     let safed = days.iter().find(|day| day.place.id == "27491341").unwrap();
     assert_eq!(safed.heights, [570.0, 570.0, 0.0]);
     assert_eq!(safed.place.candle_tenths, 300);
+    assert_eq!(anvers.offset, Offset::from_seconds(3600).unwrap());
+
+    // Each day's times are in the offset the site used that day. Edmonton's times were scraped
+    // before MyZmanim moved it to permanent standard time, so they still switch to daylight time
+    // in March.
+    let offset_hours = |id: &str, date: Date| {
+        days.iter()
+            .find(|day| day.place.id == id && day.date == date)
+            .map(|day| day.offset.seconds() / 3600)
+            .unwrap()
+    };
+    assert_eq!(offset_hours("CAT5J4Y8", jiff::civil::date(2027, 3, 5)), -7);
+    assert_eq!(offset_hours("CAT5J4Y8", jiff::civil::date(2027, 3, 26)), -6);
+    assert_eq!(offset_hours("27526341", jiff::civil::date(2027, 3, 26)), 3);
 }
 
 #[test]
