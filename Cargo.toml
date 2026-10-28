@@ -26,7 +26,7 @@ exclude = [
 ]
 
 [package.metadata.docs.rs]
-all-features = true
+features = ["alloc", "defmt"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
@@ -35,6 +35,7 @@ default = ["alloc"]
 alloc = []
 # `defmt::Format` on the public types, for embedded logging.
 defmt = ["dep:defmt"]
+__dart_enabled = []
 
 
 [dependencies]

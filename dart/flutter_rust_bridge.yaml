@@ -1,0 +1,7 @@
+rust_input: crate::api,kosher-rust
+rust_root: rust/
+dart_output: lib/src/rust
+rust_preamble: "use core::time::Duration as StdDuration; use jiff::{SignedDuration, Timestamp, civil::{Date, Weekday}, tz::Offset};"
+dart_preamble: "import 'package:kosher_rust/src/convert.dart';"
+default_dart_async: false
+web: false

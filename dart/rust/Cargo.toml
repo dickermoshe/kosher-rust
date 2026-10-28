@@ -1,0 +1,21 @@
+[package]
+name = "kosher_rust_dart"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+flutter_rust_bridge = "=2.13.0"
+kosher-rust = { path = "../..", features = ["__dart_enabled"] }
+jiff = { version = "0.2.0", default-features = false }
+# Adds methods to kosher-rust's types, the way flutter_rust_bridge's overrides expect.
+extend = "1.2"
+futures = { version = "0.3.29", default-features = false, features = ["executor"] }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
+
+# Kept out of the kosher-rust workspace in the repository root.
+[workspace]

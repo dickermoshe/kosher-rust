@@ -44,7 +44,7 @@ impl FusedIterator for SpecialDayIterator {}
 /// listed because calendars show them. Dates below are for the diaspora unless noted.
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
-#[non_exhaustive]
+#[cfg_attr(not(feature = "__dart_enabled"), non_exhaustive)]
 pub enum SpecialDay {
     /// Erev Pesach, 14 Nisan.
     ErevPesach,
