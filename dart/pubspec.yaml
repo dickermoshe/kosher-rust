@@ -1,7 +1,6 @@
 name: kosher_rust
 description: "Jewish calendar, halachic times (zmanim) and daily learning schedules, from the kosher-rust crate."
 version: 0.3.0-rc.2
-publish_to: none
 
 environment:
   sdk: ^3.13.7
