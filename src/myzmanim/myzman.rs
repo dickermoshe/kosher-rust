@@ -331,9 +331,8 @@ impl<Z: Zone> MyZmanim<Z> {
     /// "Proportional hour, Gra & Baal HaTanya": a twelfth of the day from level sunrise to
     /// level sunset.
     ///
-    /// It is not rounded. The proportional rows, such as [`MyZman::ShemaGra`], round sunrise and
-    /// sunset to the nearest second first, so adding these hours to sunrise can differ from them
-    /// by up to a second.
+    /// It is not rounded. The proportional rows, such as [`MyZman::ShemaGra`], are cut to a whole
+    /// second, so adding these hours to sunrise can differ from them by up to a second.
     ///
     /// # Errors
     ///
@@ -368,7 +367,8 @@ impl<Z: Zone> MyZmanim<Z> {
 
     // ---- The sun ----
 
-    /// True sunrise or sunset, with MyZmanim's refraction and dip. Refraction happens where
+    /// True sunrise or sunset, with MyZmanim's refraction and dip, cut to a whole second as the
+    /// website shows it. Refraction happens where
     /// the light grazes the horizon, so it is scaled for the air at that horizon's height. That is
     /// the observer's own for the level times, and the eastern or western horizon's for the
     /// elevated.
@@ -392,20 +392,26 @@ impl<Z: Zone> MyZmanim<Z> {
         };
         let zenith = GEOMETRIC_ZENITH
             + (apparent_solar_radius(adjusted_date) + refraction(horizon_elevation) + dip(height_above_horizon));
-        rise_set_on_adjusted_date(&calculator(), adjusted_date, &self.location, zenith, event)
+        floor_second(rise_set_on_adjusted_date(
+            &calculator(),
+            adjusted_date,
+            &self.location,
+            zenith,
+            event,
+        )?)
     }
 
     /// The time the sun is `degrees` below the geometric horizon, with no refraction, radius or
-    /// dip.
+    /// dip, cut to a whole second as the website shows it.
     fn rise_set_by_degrees(&self, event: SolarEvent, degrees: f64) -> Result<Timestamp, ZmanimError> {
         let adjusted_date = adjusted_local_date(self.date, &self.location, self.zone())?;
-        rise_set_on_adjusted_date(
+        floor_second(rise_set_on_adjusted_date(
             &calculator(),
             adjusted_date,
             &self.location,
             GEOMETRIC_ZENITH + degrees,
             event,
-        )
+        )?)
     }
 }
 
@@ -429,12 +435,14 @@ const NIGHT_90_DEGREES: DayBound = DayBound::Night90Degrees;
 /// The end of the fixed-72-minute Magen Avraham day.
 const NIGHT_72_FIXED_LEVEL: DayBound = DayBound::Night72FixedLevel;
 
-/// Meeus with ΔT, without nutation, on the Earth–Moon barycenter's orbit.
+/// Meeus with ΔT, without nutation, on the Earth–Moon barycenter's orbit, timing noon with the
+/// Astronomical Almanac's equation of time.
 const fn calculator() -> Meeus {
     Meeus {
         apply_delta_t: true,
         apply_nutation: false,
         use_earth_moon_barycenter: true,
+        use_almanac_equation_of_time: true,
     }
 }
 
@@ -458,26 +466,20 @@ fn minutes(count: i64) -> SignedDuration {
     SignedDuration::from_mins(count)
 }
 
-/// `hours` proportional hours into a day, from its start and end rounded to the nearest
-/// second, cut to a second.
+/// `hours` proportional hours into a day whose start and end are already whole seconds, cut to a
+/// second.
 fn proportional(start_of_day: Timestamp, end_of_day: Timestamp, hours: f64) -> Result<Timestamp, ZmanimError> {
-    let start = nearest_second(start_of_day);
-    let day_nanos = nearest_second(end_of_day).as_nanosecond() - start.as_nanosecond();
+    let start = start_of_day;
+    let day_nanos = end_of_day.as_nanosecond() - start.as_nanosecond();
     // Java: `start.plusNanos((long) (dayNanos / 12 * hours))` — integer twelfth, then scaled.
     let offset = ((day_nanos / 12) as f64 * hours) as i64;
     floor_second(timestamp_from_nanos(start.as_nanosecond() + i128::from(offset))?)
 }
 
-/// The midpoint of two times rounded to the nearest second, cut to a second.
+/// The midpoint of two whole seconds, cut to a second.
 fn midpoint(begin: Timestamp, end: Timestamp) -> Result<Timestamp, ZmanimError> {
-    let start = nearest_second(begin);
-    let nanos = nearest_second(end).as_nanosecond() - start.as_nanosecond();
-    floor_second(timestamp_from_nanos(start.as_nanosecond() + nanos / 2)?)
-}
-
-fn nearest_second(time: Timestamp) -> Timestamp {
-    let seconds = (time.as_nanosecond() + NANOS_PER_SECOND / 2).div_euclid(NANOS_PER_SECOND);
-    Timestamp::from_second(seconds as i64).unwrap_or(time)
+    let nanos = end.as_nanosecond() - begin.as_nanosecond();
+    floor_second(timestamp_from_nanos(begin.as_nanosecond() + nanos / 2)?)
 }
 
 fn floor_second(time: Timestamp) -> Result<Timestamp, ZmanimError> {

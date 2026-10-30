@@ -7,12 +7,15 @@
 //! its elevation and horizons and a date; every row of the site's "All zmanim" table is a
 //! [`MyZman`].
 //!
-//! MyZmanim does not publish its methods. Everything here was read off that table at 284
-//! places over a year and reproduces it within a second 92% of the time and within two
-//! seconds 99.8% of the time. The rules, as measured:
+//! MyZmanim does not publish its methods. Everything here was read off that table. At 245 places
+//! on 135 days from September 2026 to August 2027 it reproduces the table within a second 99.6%
+//! of the time and within two seconds 99.9% of the time. The rules, as measured:
 //!
-//! - The sun's position is Jean Meeus's VSOP87 algorithm with ΔT, but with nutation off and
+//! - The sun's declination is Jean Meeus's VSOP87 algorithm with ΔT, but with nutation off and
 //!   the Earth's monthly motion around the Earth–Moon barycenter left out.
+//! - Noon comes from the 2002 Astronomical Almanac's low-precision equation of time. The Almanac
+//!   rates its formulas from 1950 to 2050, so expect these times to drift from the true sun
+//!   outside those years.
 //! - Refraction at the horizon is [`SEA_LEVEL_REFRACTION_ARCMINUTES`] (not 34′), scaled by
 //!   the air pressure at the height of the horizon the sun is seen over. That is the observer's
 //!   own height for the "level region" times, and the eastern or western horizon's height for
@@ -24,8 +27,8 @@
 //!   8°, the Chazon Ish 9.28°.
 //! - Candle lighting and R' Tam's fixed 72 minutes count from the sunset with heights; the
 //!   72-minute Magen Avraham day still ends 72 minutes after the level sunset.
-//! - Proportional *zmanim*, midday and midnight are built from the start and end of the day
-//!   rounded to the nearest second, as the website displays them, and cut to a whole second.
+//! - Every time from the sun is cut, not rounded, to a whole second. Proportional *zmanim*,
+//!   midday and midnight are built from those whole seconds and cut to a whole second again.
 //!
 //! ```
 //! use core::time::Duration;

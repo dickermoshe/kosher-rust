@@ -34,6 +34,10 @@ pub(crate) struct Meeus {
     /// Whether to leave out the synodic-month terms, which removes most of the Earth's monthly
     /// motion around the Earth–Moon barycenter (up to 6.5″ of solar longitude). Default `false`.
     pub(crate) use_earth_moon_barycenter: bool,
+    /// Whether the equation of time comes from the Astronomical Almanac's low-precision formula
+    /// instead of VSOP87. MyZmanim times its noon this way, and the formula differs from the
+    /// VSOP87 value by up to 1.5 s. Declination stays VSOP87. Default `false`.
+    pub(crate) use_almanac_equation_of_time: bool,
 }
 
 impl Meeus {
@@ -43,6 +47,7 @@ impl Meeus {
             apply_delta_t,
             apply_nutation: true,
             use_earth_moon_barycenter: false,
+            use_almanac_equation_of_time: false,
         }
     }
 }
@@ -211,6 +216,9 @@ impl Meeus {
 
     /// Equation of time in minutes (Meeus chapter 28), with the NOAA sign convention.
     fn equation_of_time(&self, julian_centuries: f64) -> f64 {
+        if self.use_almanac_equation_of_time {
+            return almanac_equation_of_time(julian_centuries);
+        }
         let tau = julian_centuries / 10.0;
         let l0 = sun_mean_longitude(tau);
         let alpha = self.sun_right_ascension(julian_centuries);
@@ -220,4 +228,30 @@ impl Meeus {
         e = ((e + 180.0) % 360.0 + 360.0) % 360.0 - 180.0;
         e * 4.0
     }
+}
+
+/// Equation of time in minutes from the Astronomical Almanac's "low precision formulas for the
+/// Sun", rated by the Almanac at 0.01° for the sun's coordinates and 0.1 minute for the equation of
+/// time from 1950 to 2050.
+///
+/// The sun's longitude is the mean longitude plus two terms of the equation of center, with no
+/// planets, Moon or nutation. Right ascension is a series in that longitude, which stops at
+/// `sin 4λ`, where the next term would be about 0.37 s.
+///
+/// This is the 2002 edition (p. C24), as quoted by LASP's `eve_sun_almanac.pro`. Of the published
+/// formulas tested, it matches MyZmanim's times best. Others convert to right ascension exactly,
+/// which is further from MyZmanim's noon.
+pub(super) fn almanac_equation_of_time(julian_centuries: f64) -> f64 {
+    let days = julian_centuries * JULIAN_DAYS_PER_CENTURY;
+    let mean_longitude = 280.460 + 0.9856474 * days;
+    let mean_anomaly = 357.528 + 0.9856003 * days;
+    let longitude = mean_longitude + 1.915 * sin_degrees(mean_anomaly) + 0.020 * sin_degrees(2.0 * mean_anomaly);
+    let obliquity = 23.439 - 0.0000004 * days;
+    let y = tan_degrees(obliquity / 2.0);
+    let y = y * y;
+    let f = 180.0 / core::f64::consts::PI;
+    let right_ascension =
+        longitude - f * y * sin_degrees(2.0 * longitude) + f / 2.0 * y * y * sin_degrees(4.0 * longitude);
+    let e = mean_longitude - right_ascension;
+    (((e + 180.0) % 360.0 + 360.0) % 360.0 - 180.0) * 4.0
 }

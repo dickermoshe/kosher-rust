@@ -72,6 +72,11 @@ are unchanged, and they are still checked against KosherJava and hebcal.
   `sunset_offset_by_degrees` return the new `ZmanimError::InvalidDegrees` for an angle that is not
   a number from -90 to 90. Before, NaN gave `ZmanimError::Internal` and a huge angle gave a
   meaningless time.
+- **MyZmanim matches the site far more closely.** 99.6% of times are now within one second of
+  the website and 99.9% within two, measured at 245 places on 135 days. The old figures of 92%
+  and 99.8% came from fewer dates, and on these dates the old code reached 88.4% and 99.7%. Noon
+  now comes from the 2002 Astronomical Almanac's low-precision equation of time, and times are cut to
+  a whole second instead of rounded. Only `myzmanim` changes; `Zmanim` and its calculators don't.
 - **MyZmanim above 44 km.** A horizon higher than about 44 km gave `ZmanimError::Internal` for
   sunrise and the times built on it. Refraction there is now zero.
 - **Zman descriptions.** Offsets are written with their seconds ("18 minutes 45 seconds"). Morning

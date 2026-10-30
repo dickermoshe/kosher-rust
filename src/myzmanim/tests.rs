@@ -42,7 +42,7 @@ fn assert_site_second(calendar: &MyZmanim, zman: MyZman, site_local: &str, offse
 #[test]
 fn anvers_matches_site_rows() {
     // Row 26244298,2027-03-01 of the site data (a weekday, so no candle-lighting row). Every
-    // row is within a second; the site's own per-date drift makes early November 1.5 s off.
+    // row is within a second.
     let calendar = anvers(Date::new(2027, 3, 1).unwrap());
     for (zman, site) in [
         (MyZman::Dawn90Degrees, "2027-03-01T05:26:17"),
@@ -181,9 +181,9 @@ fn refraction_and_dip_follow_the_measured_rules() {
 }
 
 #[test]
-fn website_arithmetic_rounds_like_java() {
-    let start = ts("2026-11-06T06:43:40.600Z"); // rounds up to :41
-    let end = ts("2026-11-06T16:07:33.400Z"); // rounds down to :33
+fn website_arithmetic_cuts_to_whole_seconds() {
+    let start = ts("2026-11-06T06:43:41Z");
+    let end = ts("2026-11-06T16:07:33Z");
     // Day = 33_832 s; a twelfth is 2_819.333… s, integer-divided in nanos then scaled, so
     // three hours land 8_457.999… s in and are cut back to 8_457 s.
     let three_hours = proportional(start, end, 3.0).unwrap();
@@ -191,11 +191,6 @@ fn website_arithmetic_rounds_like_java() {
     assert_eq!(three_hours.subsec_nanosecond(), 0);
     let mid = midpoint(start, end).unwrap();
     assert_eq!(mid, ts("2026-11-06T11:25:37Z"));
-    assert_eq!(
-        nearest_second(ts("2026-11-06T00:00:00.499999999Z")),
-        ts("2026-11-06T00:00:00Z")
-    );
-    assert_eq!(nearest_second(ts("2026-11-06T00:00:00.5Z")), ts("2026-11-06T00:00:01Z"));
     assert_eq!(
         floor_second(ts("1969-12-31T23:59:59.9Z")).unwrap(),
         ts("1969-12-31T23:59:59Z")

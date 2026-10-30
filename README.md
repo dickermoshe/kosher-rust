@@ -110,7 +110,7 @@ Use it when your users compare your times with that site.
 To match the site, you need the same inputs MyZmanim uses for the location. These are its
 latitude and longitude, the observer's elevation, and the elevations of the eastern and western
 horizons. MyZmanim doesn't publish these values, but you can usually get them from its API, app or
-website. With them, 92% of times match the site to within one second and 99.8% to within two.
+website. With them, 99.6% of times match the site to within one second and 99.9% to within two.
 
 Keep in mind when doing a comparison, MyZmanim.com does not calculate times for the exact point you search for.
 It groups places into areas, finds the area your point is in, and shows the times for that area. 

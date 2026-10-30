@@ -833,3 +833,13 @@ fn adjusted_date_reads_the_offset_at_local_midnight() {
     }
     assert_eq!(differences, std::vec::Vec::<std::string::String>::new());
 }
+
+/// Worked out separately from the published formula, for 2026-11-03 and 2027-02-11, when the
+/// equation of time is near its largest values of the year.
+#[test]
+fn almanac_equation_of_time_follows_the_published_formula() {
+    for (days_since_j2000, minutes) in [(9803.0, 16.453392735), (9903.0, -14.200749858)] {
+        let actual = meeus::almanac_equation_of_time(days_since_j2000 / JULIAN_DAYS_PER_CENTURY);
+        assert!((actual - minutes).abs() < 1e-8, "{actual} vs {minutes}");
+    }
+}

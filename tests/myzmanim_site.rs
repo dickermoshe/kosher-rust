@@ -1,9 +1,13 @@
 //! Checks [`kosher_rust::myzmanim`] against MyZmanim's website.
 //!
-//! `tests/fixtures/myzmanim-site.bin` holds the whole data set gathered for the KosherJava
-//! `MyZmanim`: 284 places over a year, every row of the site's "All zmanim" table with
-//! the observer and horizon heights the site used that day, the UTC offset its times are in that
-//! day, and each place's coordinates, standard UTC offset and candle-lighting minutes. It is the
+//! `tests/fixtures/myzmanim-site.bin` holds the zmanim device's 245 preset places on 135 days
+//! from September 2026 to August 2027: every row of the site's "All zmanim" table with the
+//! observer and horizon heights the site used that day, the UTC offset its times are in that
+//! day, and each place's coordinates, standard UTC offset and candle-lighting minutes. Each
+//! place is the MyZmanim location id the device stores. The website redirects ten of those ids
+//! (Antwerp, Munich, Rome and other cities with an English name) to the local-language place they
+//! are a name variant of, which the web app gives the same coordinates, heights and settings;
+//! their pages were fetched from that place and filed under the device's id. It is the
 //! site's four CSV files (`places.csv`, `heights.csv`, `offsets.csv`, `days.csv`) as a
 //! [`SiteData`] value, postcard-encoded and deflated; times, heights and offsets are delta-coded
 //! against the previous row of the same place so the whole year fits in well under a megabyte.
@@ -18,9 +22,12 @@
 //! out of date in places, and this test checks the calculation, not the time-zone rules, so each
 //! time is read in the offset the site itself used. A time may then differ from ours by exactly
 //! 12 hours, an AM/PM mistake in the scraped data, which is counted; any other whole-hour
-//! difference fails. The heights were checked against the web app's for every place-day.
+//! difference fails. The heights are the ones the site's labels show. They match the web app's
+//! on every place-day but 22: in winter the site draws Ramat Shlomo's elevated sunset against a
+//! 100 m western horizon, where the web app says 0 m all year.
 //! Set `MYZMANIM_SITE_DIFFS` to the Java comparison's `diffs.csv` to also check every row against
-//! the Java port's own difference.
+//! the Java port's own difference. That port still times noon with VSOP87 and rounds sunrise and
+//! sunset to the nearest second, so the check fails until the port makes the same changes.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -381,7 +388,7 @@ fn encode_fixture() {
 // ---------------------------------------------------------------------------------------
 
 /// Cells the website shows exactly 12 hours off.
-const AM_PM_CELLS: usize = 10_261;
+const AM_PM_CELLS: usize = 13_506;
 
 struct Diff {
     place: String,
@@ -450,23 +457,23 @@ fn site_diffs() -> SiteDiffs {
 #[test]
 fn fixture_decodes_to_the_whole_data_set() {
     let days = decode(FIXTURE);
-    assert_eq!(days.len(), 24_140);
+    assert_eq!(days.len(), 33_075);
     assert_eq!(
         days.iter()
             .map(|day| day.place.id.clone())
             .collect::<HashSet<_>>()
             .len(),
-        284
+        245
     );
-    // Anvers (Antwerp), 2026-11-06, the first row of the site's days.csv.
-    let anvers = days
+    // Antwerp, 2026-11-06: one of the ids the website redirects (to Antwerpen, 39842001).
+    let antwerp = days
         .iter()
-        .find(|day| day.place.id == "26244298" && day.date == jiff::civil::date(2026, 11, 6))
+        .find(|day| day.place.id == "39847741" && day.date == jiff::civil::date(2026, 11, 6))
         .unwrap();
-    assert_eq!(anvers.place.name, "Anvers, Belgium");
-    assert_eq!(anvers.heights, [0.0, 0.0, 0.0]);
+    assert_eq!(antwerp.place.name, "Antwerp, Belgium");
+    assert_eq!(antwerp.heights, [0.0, 0.0, 0.0]);
     let time = |column: &str| {
-        anvers
+        antwerp
             .times
             .iter()
             .find(|(c, _)| *c == column)
@@ -480,20 +487,28 @@ fn fixture_decodes_to_the_whole_data_set() {
     let safed = days.iter().find(|day| day.place.id == "27491341").unwrap();
     assert_eq!(safed.heights, [570.0, 570.0, 0.0]);
     assert_eq!(safed.place.candle_tenths, 300);
-    assert_eq!(anvers.offset, Offset::from_seconds(3600).unwrap());
+    assert_eq!(antwerp.offset, Offset::from_seconds(3600).unwrap());
 
-    // Each day's times are in the offset the site used that day. Edmonton's times were scraped
-    // before MyZmanim moved it to permanent standard time, so they still switch to daylight time
-    // in March.
-    let offset_hours = |id: &str, date: Date| {
-        days.iter()
-            .find(|day| day.place.id == id && day.date == date)
-            .map(|day| day.offset.seconds() / 3600)
-            .unwrap()
-    };
-    assert_eq!(offset_hours("CAT5J4Y8", jiff::civil::date(2027, 3, 5)), -7);
-    assert_eq!(offset_hours("CAT5J4Y8", jiff::civil::date(2027, 3, 26)), -6);
-    assert_eq!(offset_hours("27526341", jiff::civil::date(2027, 3, 26)), 3);
+    let day = |id: &str, date: Date| days.iter().find(|day| day.place.id == id && day.date == date).unwrap();
+    // Ramat Shlomo's western horizon is 100 m in winter on the website only.
+    assert_eq!(
+        day("27470600", jiff::civil::date(2026, 11, 10)).heights,
+        [650.0, 650.0, 0.0]
+    );
+    assert_eq!(
+        day("27470600", jiff::civil::date(2026, 12, 10)).heights,
+        [650.0, 650.0, 100.0]
+    );
+
+    // Each day's times are in the offset the site used that day: daylight time starts on
+    // 2027-03-14 in Lakewood, 2027-03-26 in Har Nof and 2027-03-28 in Antwerp.
+    let offset_hours = |id: &str, date: Date| day(id, date).offset.seconds() / 3600;
+    assert_eq!(offset_hours("69581767", jiff::civil::date(2027, 3, 5)), -5);
+    assert_eq!(offset_hours("69581767", jiff::civil::date(2027, 3, 26)), -4);
+    assert_eq!(offset_hours("27470376", jiff::civil::date(2027, 3, 5)), 2);
+    assert_eq!(offset_hours("27470376", jiff::civil::date(2027, 3, 26)), 3);
+    assert_eq!(offset_hours("39847741", jiff::civil::date(2027, 3, 27)), 1);
+    assert_eq!(offset_hours("39847741", jiff::civil::date(2027, 3, 28)), 2);
 }
 
 #[test]
@@ -505,7 +520,7 @@ fn reproduces_the_website_to_the_second() {
         far_off.len(),
         far_off.iter().take(40).cloned().collect::<Vec<_>>().join("\n")
     );
-    assert_eq!(diffs.len(), 944_603, "every comparison the Java port makes");
+    assert_eq!(diffs.len(), 1_295_195, "every time the site showed");
     // Pinned so that a real 12-hour error can't hide among the website's AM/PM mistakes.
     assert_eq!(am_pm, AM_PM_CELLS, "cells 12 hours off");
 
@@ -528,11 +543,11 @@ fn reproduces_the_website_to_the_second() {
         worst.column
     );
 
-    // The Java port measures 92.2% within 1 s, 99.8% within 2 s and a worst case of 9.9 s. The
-    // worst case here is 13.6 s: misheyakir at 11.5° on a day the sun only just reaches that angle
-    // (75245600, 2027-04-29), so it crosses the angle slowly and the time is harder to pin down.
-    assert!(within(1.0) >= 0.92, "{:.3}", within(1.0));
-    assert!(within(2.0) >= 0.997, "{:.4}", within(2.0));
+    // This measures 99.6% within 1 s and 99.9% within 2 s. The worst case is 9.0 s: dawn at 16.1°
+    // in Saint Petersburg (86290690, 2027-04-28), a night the sun only just gets that far below
+    // the horizon, so it crosses the angle slowly and the time is harder to pin down.
+    assert!(within(1.0) >= 0.996, "{:.3}", within(1.0));
+    assert!(within(2.0) >= 0.999, "{:.4}", within(2.0));
     assert!(
         worst.seconds.abs() <= 15.0,
         "{} {} {}: {:+.1} s",
@@ -541,10 +556,10 @@ fn reproduces_the_website_to_the_second() {
         worst.column,
         worst.seconds
     );
-    assert!(mean.abs() < 0.5, "{mean}");
+    assert!(mean.abs() < 0.1, "{mean}");
 
     // No single zman should be systematically off. The one known bias is the elevated sunset
-    // from Israel's hill towns, which still sets 2–3 s early (about +1.1 s on average).
+    // from Israel's hill towns, which still sets 2–3 s early (about +1.3 s on average).
     for (column, _) in COLUMNS {
         let values: Vec<f64> = diffs
             .iter()
