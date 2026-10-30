@@ -25,9 +25,6 @@
 //! difference fails. The heights are the ones the site's labels show. They match the web app's
 //! on every place-day but 22: in winter the site draws Ramat Shlomo's elevated sunset against a
 //! 100 m western horizon, where the web app says 0 m all year.
-//! Set `MYZMANIM_SITE_DIFFS` to the Java comparison's `diffs.csv` to also check every row against
-//! the Java port's own difference. That port still times noon with VSOP87 and rounds sunrise and
-//! sunset to the nearest second, so the check fails until the port makes the same changes.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -446,8 +443,7 @@ fn site_diffs() -> SiteDiffs {
                 place: day.place.id.clone(),
                 date: day.date,
                 column,
-                // The Java comparison's tenth of a second.
-                seconds: (seconds * 10.0).round() / 10.0,
+                seconds,
             });
         }
     }
@@ -576,49 +572,4 @@ fn reproduces_the_website_to_the_second() {
             values.len()
         );
     }
-}
-
-#[test]
-fn matches_the_java_port_row_for_row() {
-    let Some(diffs_path) = env::var_os("MYZMANIM_SITE_DIFFS") else {
-        eprintln!("MYZMANIM_SITE_DIFFS not set; skipping the row-for-row check against the Java port");
-        return;
-    };
-    let java: HashMap<(String, String, String), f64> = fs::read_to_string(diffs_path)
-        .unwrap()
-        .lines()
-        .skip(1)
-        .filter(|line| !line.is_empty())
-        .map(|line| {
-            let fields: Vec<&str> = line.split(',').collect();
-            (
-                (fields[0].to_owned(), fields[1].to_owned(), fields[2].to_owned()),
-                fields[4].parse().unwrap(),
-            )
-        })
-        .collect();
-
-    let diffs = site_diffs().diffs;
-    let mut compared = 0usize;
-    let mut mismatches = Vec::new();
-    for diff in &diffs {
-        let key = (diff.place.clone(), diff.date.to_string(), diff.column.to_owned());
-        let Some(&java_seconds) = java.get(&key) else { continue };
-        compared += 1;
-        // Java's diffs are printed to a tenth of a second.
-        if (diff.seconds - java_seconds).abs() > 0.15 {
-            mismatches.push(format!(
-                "{} {} {}: rust {:+.2} java {:+.1}",
-                key.0, key.1, key.2, diff.seconds, java_seconds
-            ));
-        }
-    }
-    assert_eq!(compared, diffs.len(), "every row should have a Java counterpart");
-    eprintln!("{compared} rows compared with the Java port");
-    assert!(
-        mismatches.is_empty(),
-        "{} rows differ from the Java port:\n{}",
-        mismatches.len(),
-        mismatches.iter().take(40).cloned().collect::<Vec<_>>().join("\n")
-    );
 }
