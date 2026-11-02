@@ -138,9 +138,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Port status
 
-This port is tracked against KosherJava commit
-[258f520](https://github.com/KosherJava/zmanim/commit/258f520a53fa0da5639e12fe3d5d26895dc18dda),
-which is master after the 3.0.0 release. CI compares it with that version on every commit,
+This port is tracked against the KosherJava
+[3.1.0](https://github.com/KosherJava/zmanim/releases/tag/3.1.0). CI compares it with that version on every commit,
 using random dates and locations for every zman, the Hebrew calendar and Daf Yomi.
 
 The zmanim, the three astronomical calculators, the Hebrew calendar and both Daf Yomi
