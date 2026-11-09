@@ -15,8 +15,8 @@ use crate::{
 };
 
 use super::{
-    DAWN_72_DEGREES, DAWN_90_DEGREES, DEFAULT_CANDLE_LIGHTING, DIP_DEGREES_PER_ROOT_METER,
-    SEA_LEVEL_REFRACTION_ARCMINUTES,
+    DEFAULT_CANDLE_LIGHTING, DIP_DEGREES_PER_ROOT_METER, DIP_PRESSURE_EXPONENT, REFRACTION_PRESSURE_EXPONENT, Rules,
+    SEA_LEVEL_REFRACTION_ARCMINUTES, Source,
 };
 
 #[cfg(test)]
@@ -64,7 +64,8 @@ macro_rules! my_zmanim {
 }
 
 my_zmanim! {
-    /// "Dawn, 90 minutes as degrees before sunrise": the sun [`DAWN_90_DEGREES`] below the horizon.
+    /// "Dawn, 90 minutes as degrees before sunrise": the sun
+    /// [`DAWN_90_DEGREES`](super::DAWN_90_DEGREES) below the horizon on the website.
     Dawn90Degrees => "Dawn, 90 minutes as degrees",
     /// "Dawn, fixed 72 minutes before sunrise": before [level sunrise](Self::SunriseLevel).
     Dawn72Fixed => "Dawn, fixed 72 minutes",
@@ -186,6 +187,7 @@ pub struct MyZmanim<Z = TimeZone> {
     date: Date,
     candle_lighting: Duration,
     timezone: Option<Z>,
+    source: Source,
 }
 
 impl MyZmanim {
@@ -221,7 +223,26 @@ impl<Z: Zone> MyZmanim<Z> {
             date,
             candle_lighting: DEFAULT_CANDLE_LIGHTING,
             timezone: zone,
+            source: Source::WebApp,
         }
+    }
+
+    /// The same, matching `source`: the times on MyZmanim's website or in its web app.
+    #[must_use]
+    pub fn matching(mut self, source: Source) -> Self {
+        self.source = source;
+        self
+    }
+
+    /// Which of MyZmanim's front ends these times match.
+    #[must_use]
+    pub fn source(&self) -> Source {
+        self.source
+    }
+
+    /// The angles and arithmetic of the front end these times match.
+    fn rules(&self) -> &'static Rules {
+        self.source.rules()
     }
 
     /// The same, lighting candles `offset` before sunset, for example 40 minutes in Jerusalem.
@@ -276,12 +297,12 @@ impl<Z: Zone> MyZmanim<Z> {
     pub fn get(&self, zman: MyZman) -> Result<Timestamp, ZmanimError> {
         use MyZman::*;
         match zman {
-            Dawn90Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, DAWN_90_DEGREES),
+            Dawn90Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, self.rules().dawn_90),
             Dawn72Fixed => minus(self.get(SunriseLevel)?, minutes(FIXED_72_MINUTES)),
-            Dawn72Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, DAWN_72_DEGREES),
-            Talis11Point5Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, 11.5),
-            Talis11Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, 11.0),
-            Talis10Point2Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, 10.2),
+            Dawn72Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, self.rules().dawn_72),
+            Talis11Point5Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, self.rules().talis_11_5),
+            Talis11Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, self.rules().talis_11),
+            Talis10Point2Degrees => self.rise_set_by_degrees(SolarEvent::Sunrise, self.rules().talis_10_2),
             SunriseLevel => self.rise_set(SolarEvent::Sunrise, false),
             SunriseElevated => self.rise_set(SolarEvent::Sunrise, true),
             ShemaMA90Degrees => self.proportional(Dawn90Degrees, NIGHT_90_DEGREES, 3.0),
@@ -292,7 +313,7 @@ impl<Z: Zone> MyZmanim<Z> {
             ShacharisMA72Fixed => self.proportional(Dawn72Fixed, NIGHT_72_FIXED_LEVEL, 4.0),
             ShacharisMA72Degrees => self.proportional(Dawn72Degrees, NightRTam72Degrees, 4.0),
             ShacharisGra => self.proportional(SunriseLevel, SunsetLevel, 4.0),
-            Midday => midpoint(self.get(SunriseLevel)?, self.get(SunsetLevel)?),
+            Midday => midpoint(self.bound(SunriseLevel.into())?, self.bound(SunsetLevel.into())?),
             Mincha30Fixed => plus(self.get(Midday)?, minutes(MINCHA_30_MINUTES)),
             MinchaGra => self.proportional(SunriseLevel, SunsetLevel, 6.5),
             MinchaLechumra => {
@@ -308,21 +329,21 @@ impl<Z: Zone> MyZmanim<Z> {
             CandleLighting => minus(self.get(SunsetElevated)?, offset(self.candle_lighting)?),
             SunsetLevel => self.rise_set(SolarEvent::Sunset, false),
             SunsetElevated => self.rise_set(SolarEvent::Sunset, true),
-            NightGra18Minutes => self.rise_set_by_degrees(SolarEvent::Sunset, 3.65),
-            NightGra22Point5Minutes => self.rise_set_by_degrees(SolarEvent::Sunset, 4.37),
-            NightGra24Minutes => self.rise_set_by_degrees(SolarEvent::Sunset, 4.61),
-            NightZalman => self.rise_set_by_degrees(SolarEvent::Sunset, 5.95),
-            NightFastTukaccinsky => self.rise_set_by_degrees(SolarEvent::Sunset, 6.45),
-            NightFastFeinstein => self.rise_set_by_degrees(SolarEvent::Sunset, 7.12),
-            NightMoed => self.rise_set_by_degrees(SolarEvent::Sunset, 8.0),
-            NightShabbos => self.rise_set_by_degrees(SolarEvent::Sunset, 8.5),
-            NightChazonIsh => self.rise_set_by_degrees(SolarEvent::Sunset, 9.28),
+            NightGra18Minutes => self.rise_set_by_degrees(SolarEvent::Sunset, self.rules().night_gra_18),
+            NightGra22Point5Minutes => self.rise_set_by_degrees(SolarEvent::Sunset, self.rules().night_gra_22_5),
+            NightGra24Minutes => self.rise_set_by_degrees(SolarEvent::Sunset, self.rules().night_gra_24),
+            NightZalman => self.rise_set_by_degrees(SolarEvent::Sunset, self.rules().night_zalman),
+            NightFastTukaccinsky => self.rise_set_by_degrees(SolarEvent::Sunset, self.rules().night_fast_tukaccinsky),
+            NightFastFeinstein => self.rise_set_by_degrees(SolarEvent::Sunset, self.rules().night_fast_feinstein),
+            NightMoed => self.rise_set_by_degrees(SolarEvent::Sunset, self.rules().night_moed),
+            NightShabbos => self.rise_set_by_degrees(SolarEvent::Sunset, self.rules().night_shabbos),
+            NightChazonIsh => self.rise_set_by_degrees(SolarEvent::Sunset, self.rules().night_chazon_ish),
             NightRTam72Fixed => plus(self.get(SunsetElevated)?, minutes(FIXED_72_MINUTES)),
-            NightRTam72Degrees => self.rise_set_by_degrees(SolarEvent::Sunset, DAWN_72_DEGREES),
+            NightRTam72Degrees => self.rise_set_by_degrees(SolarEvent::Sunset, self.rules().night_72),
             Midnight => {
-                let sunset = self.get(SunsetLevel)?;
+                let sunset = self.bound(SunsetLevel.into())?;
                 let tomorrow = self.date.tomorrow()?;
-                let next_sunrise = self.rise_set_on(tomorrow, SolarEvent::Sunrise, false)?;
+                let next_sunrise = self.cut(self.exact_rise_set_on(tomorrow, SolarEvent::Sunrise, false)?)?;
                 midpoint(sunset, next_sunrise)
             }
         }
@@ -355,13 +376,33 @@ impl<Z: Zone> MyZmanim<Z> {
         proportional(self.bound(start.into())?, self.bound(end.into())?, hours)
     }
 
+    /// A start or end of a day that other times are built from. It is cut to a whole second when
+    /// the rules say so, and otherwise exact.
     fn bound(&self, bound: DayBound) -> Result<Timestamp, ZmanimError> {
-        match bound {
-            DayBound::Zman(zman) => self.get(zman),
-            // The end of the 19.75° Magen Avraham day; the website shows no row for it.
-            DayBound::Night90Degrees => self.rise_set_by_degrees(SolarEvent::Sunset, DAWN_90_DEGREES),
+        use MyZman::*;
+        let exact = match bound {
+            DayBound::Zman(SunriseLevel) => self.exact_rise_set_on(self.date, SolarEvent::Sunrise, false)?,
+            DayBound::Zman(SunsetLevel) => self.exact_rise_set_on(self.date, SolarEvent::Sunset, false)?,
+            DayBound::Zman(Dawn72Fixed) => minus(self.bound(SunriseLevel.into())?, minutes(FIXED_72_MINUTES))?,
+            DayBound::Zman(Dawn90Degrees) => self.exact_by_degrees(SolarEvent::Sunrise, self.rules().dawn_90)?,
+            DayBound::Zman(Dawn72Degrees) => self.exact_by_degrees(SolarEvent::Sunrise, self.rules().dawn_72)?,
+            DayBound::Zman(NightRTam72Degrees) => self.exact_by_degrees(SolarEvent::Sunset, self.rules().night_72)?,
+            DayBound::Zman(zman) => return self.get(zman),
+            // The end of the "90 minutes as degrees" Magen Avraham day. The table shows no row for it.
+            DayBound::Night90Degrees => self.exact_by_degrees(SolarEvent::Sunset, self.rules().night_90)?,
             // The end of the fixed-72-minute Magen Avraham day: 72 minutes after level sunset.
-            DayBound::Night72FixedLevel => plus(self.get(MyZman::SunsetLevel)?, minutes(FIXED_72_MINUTES)),
+            DayBound::Night72FixedLevel => plus(self.bound(SunsetLevel.into())?, minutes(FIXED_72_MINUTES))?,
+        };
+        self.cut(exact)
+    }
+
+    /// `time` cut to a whole second when the rules build times from whole seconds. Otherwise it
+    /// is returned as it is.
+    fn cut(&self, time: Timestamp) -> Result<Timestamp, ZmanimError> {
+        if self.rules().whole_second_bounds {
+            floor_second(time)
+        } else {
+            Ok(time)
         }
     }
 
@@ -378,6 +419,11 @@ impl<Z: Zone> MyZmanim<Z> {
 
     /// [`rise_set`](Self::rise_set) on another `date` at the same location.
     fn rise_set_on(&self, date: Date, event: SolarEvent, elevated: bool) -> Result<Timestamp, ZmanimError> {
+        floor_second(self.exact_rise_set_on(date, event, elevated)?)
+    }
+
+    /// [`rise_set_on`](Self::rise_set_on), not cut to a second.
+    fn exact_rise_set_on(&self, date: Date, event: SolarEvent, elevated: bool) -> Result<Timestamp, ZmanimError> {
         let adjusted_date = adjusted_local_date(date, &self.location, self.zone())?;
         let (horizon_elevation, height_above_horizon) = match (event, elevated) {
             (SolarEvent::Sunrise, true) => (
@@ -391,27 +437,28 @@ impl<Z: Zone> MyZmanim<Z> {
             _ => (self.location.elevation, 0.0),
         };
         let zenith = GEOMETRIC_ZENITH
-            + (apparent_solar_radius(adjusted_date) + refraction(horizon_elevation) + dip(height_above_horizon));
-        floor_second(rise_set_on_adjusted_date(
-            &calculator(),
-            adjusted_date,
-            &self.location,
-            zenith,
-            event,
-        )?)
+            + (apparent_solar_radius(adjusted_date)
+                + refraction(horizon_elevation)
+                + dip(height_above_horizon, self.location.elevation));
+        rise_set_on_adjusted_date(&calculator(), adjusted_date, &self.location, zenith, event)
     }
 
     /// The time the sun is `degrees` below the geometric horizon, with no refraction, radius or
     /// dip, cut to a whole second as the website shows it.
     fn rise_set_by_degrees(&self, event: SolarEvent, degrees: f64) -> Result<Timestamp, ZmanimError> {
+        floor_second(self.exact_by_degrees(event, degrees)?)
+    }
+
+    /// [`rise_set_by_degrees`](Self::rise_set_by_degrees), not cut to a second.
+    fn exact_by_degrees(&self, event: SolarEvent, degrees: f64) -> Result<Timestamp, ZmanimError> {
         let adjusted_date = adjusted_local_date(self.date, &self.location, self.zone())?;
-        floor_second(rise_set_on_adjusted_date(
+        rise_set_on_adjusted_date(
             &calculator(),
             adjusted_date,
             &self.location,
             GEOMETRIC_ZENITH + degrees,
             event,
-        )?)
+        )
     }
 }
 
@@ -446,19 +493,30 @@ const fn calculator() -> Meeus {
     }
 }
 
-/// Refraction at a horizon `horizon_elevation` meters above sea level, in degrees. It is the
-/// sea-level value scaled by the barometric pressure ratio at that height.
-fn refraction(horizon_elevation: f64) -> f64 {
-    // Above about 44 km the formula's pressure ratio would go negative; there is no air to bend light.
-    SEA_LEVEL_REFRACTION_ARCMINUTES / 60.0 * CoreFloat::powf((1.0 - 2.25577e-5 * horizon_elevation).max(0.0), 5.25588)
+/// The air pressure `elevation` meters above sea level, as a fraction of the pressure at sea
+/// level, from the barometric formula.
+fn pressure_ratio(elevation: f64) -> f64 {
+    // Above about 44 km the formula would go negative. There is no air there, so it is zero.
+    CoreFloat::powf((1.0 - 2.25577e-5 * elevation).max(0.0), 5.25588)
 }
 
-/// The dip of the horizon below an observer `height` meters above it, in degrees.
-fn dip(height: f64) -> f64 {
+/// Refraction at a horizon `horizon_elevation` meters above sea level, in degrees. It is the
+/// sea-level value scaled by a power of the air pressure at that height.
+fn refraction(horizon_elevation: f64) -> f64 {
+    SEA_LEVEL_REFRACTION_ARCMINUTES / 60.0
+        * CoreFloat::powf(pressure_ratio(horizon_elevation), REFRACTION_PRESSURE_EXPONENT)
+}
+
+/// The dip of the horizon below an observer `height` meters above it, in degrees, for an
+/// observer `observer_elevation` meters above sea level. The higher the observer, the smaller the
+/// dip for the same height above the horizon.
+fn dip(height: f64, observer_elevation: f64) -> f64 {
     if height <= 0.0 {
         0.0
     } else {
-        DIP_DEGREES_PER_ROOT_METER * height.sqrt()
+        DIP_DEGREES_PER_ROOT_METER
+            * CoreFloat::sqrt(height)
+            * CoreFloat::powf(pressure_ratio(observer_elevation), DIP_PRESSURE_EXPONENT)
     }
 }
 
