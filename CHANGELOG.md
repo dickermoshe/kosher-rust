@@ -85,6 +85,25 @@ are unchanged, and they are still checked against KosherJava and hebcal.
 - **Bain Hashmashos (Rabbeinu Tam, 2 stars)** keeps the nanoseconds of the time from alos to
   sunrise, as KosherJava does. It was up to a millisecond off.
 
+### Changes since 0.3.0-rc.3
+
+- **MyZmanim matches the web app by default.** MyZmanim shows its times on its original website
+  and in its newer web app. The two differ only in the angles of the rows measured in degrees
+  (the web app's "16.1°" dawn is 16.053°, its 10.2° talis 10.129°, and so on) and in rounding:
+  the web app builds proportional times, midday and midnight from the exact sunrise and sunset,
+  where the website first cuts them to whole seconds. `MyZmanim` takes the new `Source` setting,
+  `WebApp` by default or `LegacySite`. To keep the website's times, as in rc.3, add
+  `.matching(Source::LegacySite)`.
+- **MyZmanim for a raised observer.** Refraction now falls a little faster with height than the
+  air pressure does, and the dip of the horizon shrinks as the observer gets higher. These fix
+  level sunrise and sunset, which were 1–2 seconds off for high observers, and elevated sunset,
+  which was 2–3 seconds off in Israel's hill towns. Candle lighting and R' Tam's fixed 72 minutes
+  count from elevated sunset, so they were off by the same amount. 99.89% of times are now within
+  one second of the website, up from 99.6%. Both rules were measured at 10 places and checked at
+  9 others.
+- **MyZmanim is checked against the web app** at 746 places on every day of a year, 11 million
+  times: 99.991% are within one second.
+
 ### Changes since 0.3.0-rc.1
 
 - `ZmanimError` has two new variants. `InvalidOffset` is for an offset of a day or more, and
@@ -201,7 +220,8 @@ tractate gives its Hebrew name.
 | `calendar.calculate(MyZman::X)`, `MyZman::X.calculate(&calendar)` | `times.get(MyZman::X)` |
 | `set_date`, `set_candle_lighting_minutes` | build a new `MyZmanim` |
 
-`MyZman` implements `Display` with the site's label.
+`MyZman` implements `Display` with the site's label. 0.2 matched the website. 0.3 matches the web
+app unless you add `.matching(Source::LegacySite)`.
 
 ### Also new in 0.3
 
