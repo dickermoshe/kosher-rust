@@ -16,7 +16,7 @@ fn ts(iso: &str) -> Timestamp {
 fn anvers(date: Date) -> MyZmanim {
     let tz = TimeZone::fixed(Offset::from_hours(1).unwrap());
     let location = Location::new(51.216667, 4.416667).unwrap();
-    MyZmanim::new(location, date, Some(tz))
+    MyZmanim::new(location, date, Some(tz)).matching(Source::LegacySite)
 }
 
 /// Safed, Israel (place 27491341): 570 m up, eastern horizon level with the observer, western at sea level, UTC+2.
@@ -26,7 +26,9 @@ fn safed(date: Date) -> MyZmanim {
         .and_then(|l| l.with_elevation(570.0))
         .and_then(|l| l.with_horizons(570.0, 0.0))
         .unwrap();
-    MyZmanim::new(location, date, Some(tz)).candle_lighting(core::time::Duration::from_mins(30))
+    MyZmanim::new(location, date, Some(tz))
+        .candle_lighting(core::time::Duration::from_mins(30))
+        .matching(Source::LegacySite)
 }
 
 fn assert_site_second(calendar: &MyZmanim, zman: MyZman, site_local: &str, offset_hours: i8) {
@@ -94,7 +96,7 @@ fn safed_hill_sunset_uses_western_horizon_and_dip() {
     let calendar = safed(Date::new(2026, 11, 6).unwrap());
     let level = calendar.get(MyZman::SunsetLevel).unwrap();
     let elevated = calendar.get(MyZman::SunsetElevated).unwrap();
-    // 570 m above a sea-level western horizon: the dip (0.0347°·√570 ≈ 0.83°) sets later.
+    // 570 m above a sea-level western horizon: the dip (about 0.83°) sets later.
     let later_by = elevated.duration_since(level);
     assert!(
         later_by > SignedDuration::from_mins(3) && later_by < SignedDuration::from_mins(6),
@@ -171,13 +173,16 @@ fn refraction_and_dip_follow_the_measured_rules() {
     assert!((refraction(0.0) - 33.66 / 60.0).abs() < 1e-12);
     assert!(refraction(1000.0) < refraction(0.0));
     assert!(
-        (refraction(1000.0) / refraction(0.0) - 0.8870).abs() < 1e-3,
+        (refraction(1000.0) / refraction(0.0) - 0.8762).abs() < 1e-3,
         "{}",
         refraction(1000.0)
     );
-    assert_eq!(dip(0.0), 0.0);
-    assert_eq!(dip(-5.0), 0.0);
-    assert!((dip(100.0) - 0.347).abs() < 1e-12);
+    assert_eq!(dip(0.0, 650.0), 0.0);
+    assert_eq!(dip(-5.0, 650.0), 0.0);
+    // At sea level the dip is the plain coefficient times the root of the height.
+    assert!((dip(100.0, 0.0) - 0.35130).abs() < 1e-12);
+    // The same 100 m drop seen from 650 m up dips a little less.
+    assert!(dip(100.0, 650.0) < dip(100.0, 0.0));
 }
 
 #[test]
@@ -316,4 +321,74 @@ fn all_lists_every_row_once() {
     }
     assert_eq!(MyZman::ALL.first(), Some(&MyZman::Dawn90Degrees));
     assert_eq!(MyZman::ALL.last(), Some(&MyZman::Midnight));
+}
+
+/// Jerusalem (web app place 27526341): observer 650 m, eastern horizon level with the observer,
+/// western at sea level that day, UTC+2. By default the times match the web app.
+fn jerusalem_web_app(date: Date) -> MyZmanim {
+    let tz = TimeZone::fixed(Offset::from_hours(2).unwrap());
+    let location = Location::new(31.76831898, 35.21370996)
+        .and_then(|l| l.with_elevation(650.0))
+        .and_then(|l| l.with_horizons(650.0, 0.0))
+        .unwrap();
+    MyZmanim::new(location, date, Some(tz)).candle_lighting(core::time::Duration::from_mins(40))
+}
+
+/// Times the web app showed for Jerusalem on 2026-11-09, converted to UTC.
+#[test]
+fn jerusalem_matches_the_web_app_to_the_second() {
+    let app = jerusalem_web_app(Date::new(2026, 11, 9).unwrap());
+    for (zman, web) in [
+        (MyZman::Dawn90Degrees, "2026-11-09T02:29:40Z"),
+        (MyZman::Dawn72Fixed, "2026-11-09T02:50:13Z"),
+        (MyZman::Dawn72Degrees, "2026-11-09T02:47:49Z"),
+        (MyZman::Talis11Point5Degrees, "2026-11-09T03:09:42Z"),
+        (MyZman::Talis11Degrees, "2026-11-09T03:12:06Z"),
+        (MyZman::Talis10Point2Degrees, "2026-11-09T03:16:19Z"),
+        (MyZman::SunriseLevel, "2026-11-09T04:02:13Z"),
+        (MyZman::ShemaMA90Degrees, "2026-11-09T05:56:14Z"),
+        (MyZman::ShemaMA72Degrees, "2026-11-09T06:05:18Z"),
+        (MyZman::ShemaGra, "2026-11-09T06:42:29Z"),
+        (MyZman::Midday, "2026-11-09T09:22:45Z"),
+        (MyZman::PlagGra, "2026-11-09T13:36:31Z"),
+        (MyZman::SunsetLevel, "2026-11-09T14:43:18Z"),
+        (MyZman::SunsetElevated, "2026-11-09T14:47:54Z"),
+        (MyZman::NightGra18Minutes, "2026-11-09T14:57:31Z"),
+        (MyZman::NightFastTukaccinsky, "2026-11-09T15:11:15Z"),
+        (MyZman::NightShabbos, "2026-11-09T15:21:17Z"),
+        (MyZman::NightChazonIsh, "2026-11-09T15:25:05Z"),
+        (MyZman::NightRTam72Fixed, "2026-11-09T15:59:54Z"),
+        (MyZman::NightRTam72Degrees, "2026-11-09T15:57:47Z"),
+    ] {
+        let web: Timestamp = web.parse().unwrap();
+        let ours = app.get(zman).unwrap();
+        let diff = ours.duration_since(web).abs();
+        assert!(diff <= SignedDuration::from_secs(1), "{zman:?}: web {web} ours {ours}");
+    }
+}
+
+#[test]
+fn the_web_app_differs_from_the_website_only_in_angles_and_whole_seconds() {
+    let date = Date::new(2026, 11, 9).unwrap();
+    let app = jerusalem_web_app(date);
+    let site = app.clone().matching(Source::LegacySite);
+    assert_eq!(MyZmanim::new(*app.location(), date, None).source(), Source::WebApp);
+    assert_eq!(app.source(), Source::WebApp);
+    // 16.053° is a smaller angle than 16.1°, so the web app's dawn comes later.
+    assert!(app.get(MyZman::Dawn72Degrees).unwrap() > site.get(MyZman::Dawn72Degrees).unwrap());
+    // Times straight from the sun at an angle both share are the same.
+    for zman in [
+        MyZman::SunriseLevel,
+        MyZman::SunsetElevated,
+        MyZman::NightShabbos,
+        MyZman::Talis11Degrees,
+    ] {
+        assert_eq!(app.get(zman).unwrap(), site.get(zman).unwrap(), "{zman:?}");
+    }
+    // Times built from sunrise and sunset start from the exact times in the web app and from
+    // whole seconds on the website, so they can differ by a second.
+    for zman in [MyZman::ShemaGra, MyZman::Midday, MyZman::PlagGra] {
+        let diff = app.get(zman).unwrap().duration_since(site.get(zman).unwrap()).abs();
+        assert!(diff <= SignedDuration::from_secs(1), "{zman:?}: {diff:?}");
+    }
 }

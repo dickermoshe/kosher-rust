@@ -15,11 +15,14 @@ categories = ["date-and-time", "no-std", "internationalization"]
 exclude = [
     "/interop-tests/",
     "/third-party/",
-    # About 1 MB of conformance data; the tests that read it stay in the repository. The small
-    # SPA reference table ships, because a unit test includes it.
+    # Several megabytes of conformance data; the tests that read it stay in the repository. The
+    # small SPA reference table ships, because a unit test includes it.
     "/tests/fixtures/myzmanim-site.bin",
+    "/tests/fixtures/myzmanim-app.bin",
     "/tests/fixtures/zman_catalog.snap",
     "/tests/myzmanim_site.rs",
+    "/tests/myzmanim_app.rs",
+    "/tests/support/",
     "/.vscode/",
     "/rust-toolchain.toml",
     "/.github/",

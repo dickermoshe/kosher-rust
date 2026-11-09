@@ -186,7 +186,7 @@ impl Topocentric {
     /// The unrefracted elevation of the solar centre in degrees.
     fn elevation(&self) -> f64 {
         let up = self.cos_latitude * self.x + self.sin_latitude * self.z;
-        let length = (self.x * self.x + self.y * self.y + self.z * self.z).sqrt();
+        let length = CoreFloat::sqrt(self.x * self.x + self.y * self.y + self.z * self.z);
         CoreFloat::asin((up / length).clamp(-1.0, 1.0)).to_degrees()
     }
 

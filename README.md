@@ -105,12 +105,16 @@ println!("{}", MishnaYomis.on(day).unwrap());    // Nazir 5:5-6
 ## MyZmanim
 
 `kosher_rust::myzmanim` calculates zmanim the way [MyZmanim](https://www.myzmanim.com/) does.
-Use it when your users compare your times with that site.
+Use it when your users compare your times with MyZmanim. MyZmanim shows its times in two places,
+its original website and its newer web app, and the two differ slightly in a few rows. By default
+the times match the web app. Call `.matching(Source::LegacySite)` to match the original website
+instead.
 
-To match the site, you need the same inputs MyZmanim uses for the location. These are its
-latitude and longitude, the observer's elevation, and the elevations of the eastern and western
-horizons. MyZmanim doesn't publish these values, but you can usually get them from its API, app or
-website. With them, 99.6% of times match the site to within one second and 99.9% to within two.
+To match MyZmanim, you need the same inputs it uses for the location. These are its latitude and
+longitude, the observer's elevation, and the elevations of the eastern and western horizons.
+MyZmanim doesn't publish these values, but you can usually get them from its API, app or website.
+With them, 99.89% of times match the website to within one second and 99.999% to within two, and
+99.991% match the web app to within one second and 99.998% to within two.
 
 Keep in mind when doing a comparison, MyZmanim.com does not calculate times for the exact point you search for.
 It groups places into areas, finds the area your point is in, and shows the times for that area. 
