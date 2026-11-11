@@ -10,16 +10,24 @@
 //! slightly different angles and rounding, as [`Source`] lists.
 //!
 //! MyZmanim does not publish its methods. Everything here was read off its times. At 245 places
-//! on 135 days from September 2026 to August 2027 it reproduces the website within a second
-//! 99.89% of the time and within two seconds 99.999% of the time. At 746 places on every day from
-//! November 2026 to November 2027 it reproduces the web app within a second 99.991% of the time
-//! and within two seconds 99.998% of the time. The rules, as measured:
+//! on 135 days from September 2026 to August 2027 it reproduces the website to the very second
+//! 89.42% of the time, within a second 99.976% of the time and within two seconds 99.9999% of the
+//! time. At 746 places on every day from November 2026 to November 2027 it reproduces the web app
+//! to the very second 96.16% of the time, within a second 99.9996% of the time and within two
+//! seconds 99.9999% of the time. The rules, as measured:
 //!
-//! - The sun's declination is Jean Meeus's VSOP87 algorithm with ΔT, but with nutation off and
-//!   the Earth's monthly motion around the Earth–Moon barycenter left out.
-//! - Noon comes from the 2002 Astronomical Almanac's low-precision equation of time. The Almanac
-//!   rates its formulas from 1950 to 2050, so expect these times to drift from the true sun
-//!   outside those years.
+//! - The sun's longitude comes from the Astronomical Almanac's low-precision formulas for the
+//!   sun: a mean longitude plus two terms of the equation of center. Its days are counted in
+//!   Universal Time, without ΔT. The Almanac rates its formulas from 1950 to 2050, so expect
+//!   these times to drift from the true sun outside those years.
+//! - The sun's declination comes from that longitude and Jean Meeus's mean obliquity of the
+//!   ecliptic, without nutation. The Almanac's own obliquity is rounded, and in 2027 it is 2.5″
+//!   smaller. With it, far fewer times match.
+//! - Noon comes from the Almanac's equation of time, in the form the U.S. Naval Observatory
+//!   quotes, whose sin 2λ and sin 4λ coefficients 2.466° and 0.053° are fixed for an obliquity of
+//!   23.44°.
+//! - Each time is refined until it stops changing. On the nights the sun only just gets as far
+//!   below the horizon as a row needs, the usual two passes leave it seconds off.
 //! - Refraction at the horizon is [`SEA_LEVEL_REFRACTION_ARCMINUTES`] (not 34′), scaled by
 //!   p^[`REFRACTION_PRESSURE_EXPONENT`], where p is the air pressure at the height of the horizon
 //!   the sun is seen over, as a fraction of the pressure at sea level. That is the observer's

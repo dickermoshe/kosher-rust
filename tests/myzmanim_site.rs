@@ -179,13 +179,14 @@ fn reproduces_the_website_to_the_second() {
     let summary = fixture::summarize(&diffs);
     let worst = summary.worst;
 
-    // This measures 99.89% within 1 s and 100.00% within 2 s. The worst case is 9.0 s: dawn at
-    // 16.1° in Saint Petersburg (86290690, 2027-04-28), a night the sun only just gets that far
-    // below the horizon, so it crosses the angle slowly and the time is harder to pin down.
-    assert!(summary.within_1 >= 0.998, "{:.4}", summary.within_1);
-    assert!(summary.within_2 >= 0.9999, "{:.5}", summary.within_2);
+    // This measures 99.976% within 1 s and 99.9999% within 2 s, and 89.42% to the very second.
+    // The worst case is 3.0 s: R' Tam's nightfall at 16.1° in Amsterdam (41619637, 2027-05-28), a
+    // night the sun only just gets that far below the horizon, so it crosses the angle slowly and
+    // the time is harder to pin down.
+    assert!(summary.within_1 >= 0.9997, "{:.5}", summary.within_1);
+    assert!(summary.within_2 >= 0.99999, "{:.6}", summary.within_2);
     assert!(
-        worst.seconds.abs() <= 15.0,
+        worst.seconds.abs() <= 5.0,
         "{} {} {}: {:+.1} s",
         worst.place,
         worst.date,

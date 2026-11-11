@@ -179,15 +179,15 @@ fn reproduces_the_web_app_to_the_second() {
 
     let summary = fixture::summarize(&diffs);
     let worst = summary.worst;
-    // This measures 99.991% within 1 s and 99.998% within 2 s. Only 45 times are more than 5 s
-    // off. All of them are rows measured in degrees, on the first or last nights of the year the
-    // sun gets that far below the horizon, so it crosses the angle slowly and the time is hard to
-    // pin down. Most are far north in spring and summer. The worst is 40 s: dawn at 19.860° in
-    // Oslo (41135580, 2027-08-27).
-    assert!(summary.within_1 >= 0.9995, "{:.5}", summary.within_1);
-    assert!(summary.within_2 >= 0.9999, "{:.5}", summary.within_2);
+    // This measures 99.9996% within 1 s and 99.9999% within 2 s, and 96.16% to the very second.
+    // Only 3 times are more than 5 s off. They are dawn at 19.860° in Oslo (41135580, 2027-08-27),
+    // 10 s off, and the two times built from it. That is the last night of the year the sun gets
+    // that far below the horizon there, so it crosses the angle slowly and the time is hard to pin
+    // down.
+    assert!(summary.within_1 >= 0.99999, "{:.6}", summary.within_1);
+    assert!(summary.within_2 >= 0.99999, "{:.6}", summary.within_2);
     assert!(
-        worst.seconds.abs() <= 45.0,
+        worst.seconds.abs() <= 15.0,
         "{} {} {}: {:+.1} s",
         worst.place,
         worst.date,

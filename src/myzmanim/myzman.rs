@@ -482,14 +482,15 @@ const NIGHT_90_DEGREES: DayBound = DayBound::Night90Degrees;
 /// The end of the fixed-72-minute Magen Avraham day.
 const NIGHT_72_FIXED_LEVEL: DayBound = DayBound::Night72FixedLevel;
 
-/// Meeus with ΔT, without nutation, on the Earth–Moon barycenter's orbit, timing noon with the
-/// Astronomical Almanac's equation of time.
+/// The Astronomical Almanac's low-precision sun, counted in Universal Time, with Meeus's mean
+/// obliquity of the ecliptic and no nutation. Sunrise and sunset are refined until they stop
+/// changing. ΔT plays no part, because the Almanac's formula takes Universal Time.
 const fn calculator() -> Meeus {
     Meeus {
-        apply_delta_t: true,
+        apply_delta_t: false,
         apply_nutation: false,
-        use_earth_moon_barycenter: true,
-        use_almanac_equation_of_time: true,
+        use_almanac_sun: true,
+        iterate_to_convergence: true,
     }
 }
 

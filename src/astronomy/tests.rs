@@ -838,8 +838,22 @@ fn adjusted_date_reads_the_offset_at_local_midnight() {
 /// equation of time is near its largest values of the year.
 #[test]
 fn almanac_equation_of_time_follows_the_published_formula() {
-    for (days_since_j2000, minutes) in [(9803.0, 16.453392735), (9903.0, -14.200749858)] {
+    for (days_since_j2000, minutes) in [(9803.0, 16.458222156), (9903.0, -14.205505572)] {
         let actual = meeus::almanac_equation_of_time(days_since_j2000 / JULIAN_DAYS_PER_CENTURY);
         assert!((actual - minutes).abs() < 1e-8, "{actual} vs {minutes}");
+    }
+}
+
+/// Worked out separately from the published formula with an obliquity of 23.4357°, for
+/// 2026-11-03, 2027-02-11 and the June solstice of 2027.
+#[test]
+fn almanac_declination_follows_the_published_formula() {
+    for (days_since_j2000, degrees) in [
+        (9803.0, -15.148559751),
+        (9903.0, -14.004106598),
+        (10034.0, 23.432858534),
+    ] {
+        let actual = meeus::almanac_declination(days_since_j2000 / JULIAN_DAYS_PER_CENTURY, 23.4357);
+        assert!((actual - degrees).abs() < 1e-8, "{actual} vs {degrees}");
     }
 }
