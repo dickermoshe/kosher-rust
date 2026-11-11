@@ -440,7 +440,7 @@ impl<Z: Zone> MyZmanim<Z> {
             + (apparent_solar_radius(adjusted_date)
                 + refraction(horizon_elevation)
                 + dip(height_above_horizon, self.location.elevation));
-        rise_set_on_adjusted_date(&calculator(), adjusted_date, &self.location, zenith, event)
+        rise_set_on_adjusted_date(&Meeus::MyZmanim, adjusted_date, &self.location, zenith, event)
     }
 
     /// The time the sun is `degrees` below the geometric horizon, with no refraction, radius or
@@ -453,7 +453,7 @@ impl<Z: Zone> MyZmanim<Z> {
     fn exact_by_degrees(&self, event: SolarEvent, degrees: f64) -> Result<Timestamp, ZmanimError> {
         let adjusted_date = adjusted_local_date(self.date, &self.location, self.zone())?;
         rise_set_on_adjusted_date(
-            &calculator(),
+            &Meeus::MyZmanim,
             adjusted_date,
             &self.location,
             GEOMETRIC_ZENITH + degrees,
@@ -481,18 +481,6 @@ impl From<MyZman> for DayBound {
 const NIGHT_90_DEGREES: DayBound = DayBound::Night90Degrees;
 /// The end of the fixed-72-minute Magen Avraham day.
 const NIGHT_72_FIXED_LEVEL: DayBound = DayBound::Night72FixedLevel;
-
-/// The Astronomical Almanac's low-precision sun, counted in Universal Time, with Meeus's mean
-/// obliquity of the ecliptic and no nutation. Sunrise and sunset are refined until they stop
-/// changing. ΔT plays no part, because the Almanac's formula takes Universal Time.
-const fn calculator() -> Meeus {
-    Meeus {
-        apply_delta_t: false,
-        apply_nutation: false,
-        use_almanac_sun: true,
-        iterate_to_convergence: true,
-    }
-}
 
 /// The air pressure `elevation` meters above sea level, as a fraction of the pressure at sea
 /// level, from the barometric formula.

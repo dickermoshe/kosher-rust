@@ -88,7 +88,7 @@ impl SolarAlgorithm for AstronomicalCalculator {
         match *self {
             Self::Noaa => noaa::Noaa.rise_set_utc_minutes(date, location, adjusted_zenith, event),
             Self::Meeus { apply_delta_t } => {
-                meeus::Meeus::standard(apply_delta_t).rise_set_utc_minutes(date, location, adjusted_zenith, event)
+                meeus::Meeus::KosherJava { apply_delta_t }.rise_set_utc_minutes(date, location, adjusted_zenith, event)
             }
             Self::Spa { apply_delta_t } => {
                 spa::Spa { apply_delta_t }.rise_set_utc_minutes(date, location, adjusted_zenith, event)
@@ -100,7 +100,7 @@ impl SolarAlgorithm for AstronomicalCalculator {
         match *self {
             Self::Noaa => noaa::Noaa.noon_midnight_utc_minutes(date, longitude_west, event),
             Self::Meeus { apply_delta_t } => {
-                meeus::Meeus::standard(apply_delta_t).noon_midnight_utc_minutes(date, longitude_west, event)
+                meeus::Meeus::KosherJava { apply_delta_t }.noon_midnight_utc_minutes(date, longitude_west, event)
             }
             Self::Spa { apply_delta_t } => {
                 spa::Spa { apply_delta_t }.noon_midnight_utc_minutes(date, longitude_west, event)
@@ -112,7 +112,7 @@ impl SolarAlgorithm for AstronomicalCalculator {
         match *self {
             Self::Noaa => noaa::Noaa.time_at_azimuth_utc_hours(date, location, azimuth),
             Self::Meeus { apply_delta_t } => {
-                meeus::Meeus::standard(apply_delta_t).time_at_azimuth_utc_hours(date, location, azimuth)
+                meeus::Meeus::KosherJava { apply_delta_t }.time_at_azimuth_utc_hours(date, location, azimuth)
             }
             Self::Spa { apply_delta_t } => {
                 spa::Spa { apply_delta_t }.time_at_azimuth_utc_hours(date, location, azimuth)
@@ -124,7 +124,7 @@ impl SolarAlgorithm for AstronomicalCalculator {
         match *self {
             Self::Noaa => noaa::Noaa.solar_position(date, fraction_of_day, location),
             Self::Meeus { apply_delta_t } => {
-                meeus::Meeus::standard(apply_delta_t).solar_position(date, fraction_of_day, location)
+                meeus::Meeus::KosherJava { apply_delta_t }.solar_position(date, fraction_of_day, location)
             }
             Self::Spa { apply_delta_t } => spa::Spa { apply_delta_t }.solar_position(date, fraction_of_day, location),
         }

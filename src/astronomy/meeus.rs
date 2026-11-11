@@ -5,10 +5,10 @@
 //! the sun's apparent geocentric longitude (FK5 frame correction, nutation in longitude,
 //! aberration), apparent right ascension and declination, and the equation of time per
 //! Meeus chapter 28. Positions are evaluated in Terrestrial Time, so an estimate of ΔT is
-//! applied unless [`Meeus::apply_delta_t`] is `false`.
+//! applied unless `apply_delta_t` is `false`.
 //!
-//! For MyZmanim the same calculator can instead take the sun's longitude from the Astronomical
-//! Almanac's low-precision formula, as [`Meeus::use_almanac_sun`] describes.
+//! For MyZmanim the same calculator instead takes the sun from the Astronomical Almanac's
+//! low-precision formula, as [`Meeus::MyZmanim`] describes.
 
 use core_maths::*;
 use jiff::civil::Date;
@@ -25,47 +25,34 @@ use crate::{
     zmanim::{SolarPosition, ZmanimError},
 };
 
-/// The Meeus algorithm.
+/// The Meeus algorithm, set up as KosherJava or as MyZmanim calculates the sun.
 #[derive(Clone, Copy, Debug)]
-pub(crate) struct Meeus {
-    /// Whether to apply ΔT (TT − UT) when evaluating the sun's position. KosherJava
-    /// defaults this to `true`; `false` reproduces NOAA-style UT = TT behaviour.
-    pub(crate) apply_delta_t: bool,
-    /// Whether to apply nutation (the 18.6-year wobble of the Earth's axis). With it off,
-    /// positions are referred to the mean equinox and obliquity of date. Default `true`.
-    pub(crate) apply_nutation: bool,
-    /// Whether the sun's longitude comes from the Astronomical Almanac's low-precision formula
-    /// instead of VSOP87. MyZmanim calculates the sun this way. The equation of time is then the
-    /// Almanac's, and the declination comes from the Almanac's longitude and the obliquity of the
-    /// ecliptic of date. The Almanac counts its days in Universal Time, so ΔT plays no part. From
-    /// 1950 to 2050 its equation of time differs from the VSOP87 value by up to 2.8 s. Default
-    /// `false`.
-    pub(crate) use_almanac_sun: bool,
-    /// Whether sunrise and sunset are refined until the time stops changing. Otherwise they get
-    /// two refining passes, as in KosherJava. Two passes are almost always enough. On the nights
-    /// the sun only just reaches the zenith, it moves so little that the time is still changing
-    /// after them. Default `false`.
-    pub(crate) iterate_to_convergence: bool,
+pub(crate) enum Meeus {
+    /// KosherJava's stock `MeeusCalculator`. The sun comes from VSOP87 with nutation, and sunrise
+    /// and sunset get two refining passes.
+    KosherJava {
+        /// Whether to apply ΔT (TT − UT) when evaluating the sun's position. KosherJava defaults
+        /// this to `true`. With `false`, Universal Time is used as Terrestrial Time, as NOAA does.
+        apply_delta_t: bool,
+    },
+    /// MyZmanim's sun. Its longitude comes from the Astronomical Almanac's low-precision formula,
+    /// and so does the equation of time. The declination comes from that longitude and Meeus's
+    /// mean obliquity of the ecliptic, with no nutation. The Almanac counts its days in Universal
+    /// Time, so ΔT plays no part. From 1950 to 2050 its equation of time differs from the VSOP87
+    /// value by up to 2.8 s.
+    ///
+    /// Sunrise and sunset are refined until the time stops changing. Two passes are almost always
+    /// enough. On the nights the sun only just reaches the zenith, it moves so little that the time
+    /// is still changing after them.
+    MyZmanim,
 }
 
-impl Meeus {
-    /// KosherJava's stock `MeeusCalculator`: VSOP87 with nutation, refined in two passes.
-    pub(crate) const fn standard(apply_delta_t: bool) -> Self {
-        Self {
-            apply_delta_t,
-            apply_nutation: true,
-            use_almanac_sun: false,
-            iterate_to_convergence: false,
-        }
-    }
-}
-
-/// The most refining passes [`Meeus::iterate_to_convergence`] makes. In a year of MyZmanim's times
-/// at 746 places, no time needed more than 16.
+/// The most refining passes [`Meeus::MyZmanim`] makes. In a year of MyZmanim's times at 746
+/// places, no time needed more than 16.
 const MAX_PASSES: usize = 50;
 
-/// The change in a sunrise or sunset, in minutes, below which [`Meeus::iterate_to_convergence`]
-/// stops refining it. It is 6 microseconds.
+/// The change in a sunrise or sunset, in minutes, below which [`Meeus::MyZmanim`] stops refining
+/// it. It is 6 microseconds.
 const CONVERGED_MINUTES: f64 = 1e-7;
 
 impl SolarAlgorithm for Meeus {
@@ -104,9 +91,9 @@ impl SolarAlgorithm for Meeus {
         let mut time_utc = 720.0 + (4.0 * delta) - equation_of_time;
 
         // Each pass takes the sun's position at the time the previous pass found. KosherJava makes
-        // two passes, one more than NOAA. When iterating to convergence, the passes stop once the
-        // time stops changing.
-        let passes = if self.iterate_to_convergence { MAX_PASSES } else { 2 };
+        // two passes, one more than NOAA. MyZmanim's passes stop once the time stops changing.
+        let converge = matches!(self, Meeus::MyZmanim);
+        let passes = if converge { MAX_PASSES } else { 2 };
         for _ in 0..passes {
             let event_time = julian_day + time_utc / 1440.0;
             equation_of_time = self.equation_of_time(event_time);
@@ -115,7 +102,7 @@ impl SolarAlgorithm for Meeus {
             delta = longitude - hour_angle.to_degrees();
             let previous = time_utc;
             time_utc = 720.0 + (4.0 * delta) - equation_of_time;
-            if self.iterate_to_convergence && (time_utc - previous).abs() < CONVERGED_MINUTES {
+            if converge && (time_utc - previous).abs() < CONVERGED_MINUTES {
                 break;
             }
         }
@@ -155,89 +142,24 @@ impl SolarAlgorithm for Meeus {
 }
 
 impl Meeus {
-    /// Converts a UT Julian day to Julian centuries since J2000.0 in Terrestrial Time.
+    /// Converts a UT Julian day to Julian centuries since J2000.0 in Terrestrial Time, for VSOP87.
+    /// MyZmanim's sun takes Universal Time, so ΔT is never added for it.
     fn julian_centuries(&self, julian_day_ut: f64) -> f64 {
         let mut jde = julian_day_ut;
-        if self.apply_delta_t {
+        if let Meeus::KosherJava { apply_delta_t: true } = self {
             jde += delta_t_seconds(julian_day_ut) / 86400.0;
         }
         (jde - JULIAN_DAY_JAN_1_2000) / JULIAN_DAYS_PER_CENTURY
     }
-}
 
-impl Meeus {
-    /// The sun's declination in degrees at the UT Julian day `julian_day_ut`. It comes from the
-    /// Almanac's formula when [`use_almanac_sun`](Self::use_almanac_sun) is set, and otherwise from
-    /// VSOP87.
+    /// The sun's declination in degrees at the UT Julian day `julian_day_ut`.
     fn declination(&self, julian_day_ut: f64) -> f64 {
-        if self.use_almanac_sun {
-            let julian_centuries = julian_centuries_from_julian_day(julian_day_ut);
-            return almanac_declination(julian_centuries, self.true_obliquity(julian_centuries));
-        }
-        self.sun_declination(self.julian_centuries(julian_day_ut))
-    }
-
-    /// Apparent declination of the sun in degrees.
-    fn sun_declination(&self, julian_centuries: f64) -> f64 {
-        let (lambda, beta) = self.sun_apparent_ecliptic_coordinates(julian_centuries);
-        let epsilon = self.true_obliquity(julian_centuries);
-        let sin_dec =
-            sin_degrees(beta) * cos_degrees(epsilon) + cos_degrees(beta) * sin_degrees(epsilon) * sin_degrees(lambda);
-        asin_degrees(sin_dec)
-    }
-
-    /// Apparent geocentric right ascension of the sun in degrees (0–360).
-    fn sun_right_ascension(&self, julian_centuries: f64) -> f64 {
-        let (lambda, beta) = self.sun_apparent_ecliptic_coordinates(julian_centuries);
-        let epsilon = self.true_obliquity(julian_centuries);
-        let y = sin_degrees(lambda) * cos_degrees(epsilon) - tan_degrees(beta) * sin_degrees(epsilon);
-        let x = cos_degrees(lambda);
-        let ra = CoreFloat::atan2(y, x).to_degrees();
-        (ra % 360.0 + 360.0) % 360.0
-    }
-
-    /// Apparent geocentric ecliptic `(longitude λ, latitude β)` of the sun in degrees.
-    fn sun_apparent_ecliptic_coordinates(&self, julian_centuries: f64) -> (f64, f64) {
-        let tau = julian_centuries / 10.0;
-        let earth_l = vsop87::earth_longitude(tau).to_degrees();
-        let earth_b = vsop87::earth_latitude(tau).to_degrees();
-        let earth_r = vsop87::earth_radius(tau);
-
-        // Geocentric position of the sun is diametrically opposite the heliocentric Earth.
-        let mut theta = earth_l + 180.0;
-        let mut beta = -earth_b;
-
-        // FK5 frame correction (Meeus 25.9).
-        let lambda_prime = theta - 1.397 * julian_centuries - 0.00031 * julian_centuries * julian_centuries;
-        let delta_long_fk5 =
-            -0.09033 + 0.03916 * (cos_degrees(lambda_prime) + sin_degrees(lambda_prime)) * tan_degrees(beta);
-        let delta_lat_fk5 = 0.03916 * (cos_degrees(lambda_prime) - sin_degrees(lambda_prime));
-        theta += delta_long_fk5 / 3600.0;
-        beta += delta_lat_fk5 / 3600.0;
-
-        // Nutation in longitude and aberration of light.
-        let (delta_psi, _) = self.nutation_arcsec(julian_centuries);
-        let aberration = -20.4898 / earth_r;
-        let lambda = theta + delta_psi / 3600.0 + aberration / 3600.0;
-
-        ((lambda % 360.0 + 360.0) % 360.0, beta)
-    }
-
-    /// True obliquity of the ecliptic ε = ε₀ + Δε in degrees.
-    fn true_obliquity(&self, julian_centuries: f64) -> f64 {
-        let seconds =
-            21.448 - julian_centuries * (46.8150 + julian_centuries * (0.00059 - julian_centuries * 0.001813));
-        let epsilon0 = 23.0 + (26.0 + (seconds / 60.0)) / 60.0;
-        let delta_epsilon = self.nutation_arcsec(julian_centuries).1 / 3600.0;
-        epsilon0 + delta_epsilon
-    }
-
-    /// Nutation `(Δψ, Δε)` in arc-seconds, or zero when nutation is switched off.
-    fn nutation_arcsec(&self, julian_centuries: f64) -> (f64, f64) {
-        if self.apply_nutation {
-            nutation_arcsec(julian_centuries)
-        } else {
-            (0.0, 0.0)
+        match self {
+            Meeus::KosherJava { .. } => sun_declination(self.julian_centuries(julian_day_ut)),
+            Meeus::MyZmanim => {
+                let julian_centuries = julian_centuries_from_julian_day(julian_day_ut);
+                almanac_declination(julian_centuries, mean_obliquity(julian_centuries))
+            }
         }
     }
 
@@ -245,22 +167,79 @@ impl Meeus {
     /// Julian day `julian_day_ut`.
     ///
     /// The Almanac's low-precision formula counts its days in Universal Time, as published, so it
-    /// is given the day without ΔT. The VSOP87 equation of time adds ΔT when
-    /// [`apply_delta_t`](Self::apply_delta_t) is set.
+    /// is given the day without ΔT. The VSOP87 equation of time adds ΔT when `apply_delta_t` is
+    /// set.
     fn equation_of_time(&self, julian_day_ut: f64) -> f64 {
-        if self.use_almanac_sun {
+        if let Meeus::MyZmanim = self {
             return almanac_equation_of_time(julian_centuries_from_julian_day(julian_day_ut));
         }
         let julian_centuries = self.julian_centuries(julian_day_ut);
         let tau = julian_centuries / 10.0;
         let l0 = sun_mean_longitude(tau);
-        let alpha = self.sun_right_ascension(julian_centuries);
-        let (delta_psi, _) = self.nutation_arcsec(julian_centuries);
-        let epsilon = self.true_obliquity(julian_centuries);
+        let alpha = sun_right_ascension(julian_centuries);
+        let (delta_psi, _) = nutation_arcsec(julian_centuries);
+        let epsilon = true_obliquity(julian_centuries);
         let mut e = l0 - 0.0057183 - alpha + (delta_psi / 3600.0) * cos_degrees(epsilon);
         e = ((e + 180.0) % 360.0 + 360.0) % 360.0 - 180.0;
         e * 4.0
     }
+}
+
+/// Apparent declination of the sun in degrees, from VSOP87.
+fn sun_declination(julian_centuries: f64) -> f64 {
+    let (lambda, beta) = sun_apparent_ecliptic_coordinates(julian_centuries);
+    let epsilon = true_obliquity(julian_centuries);
+    let sin_dec =
+        sin_degrees(beta) * cos_degrees(epsilon) + cos_degrees(beta) * sin_degrees(epsilon) * sin_degrees(lambda);
+    asin_degrees(sin_dec)
+}
+
+/// Apparent geocentric right ascension of the sun in degrees (0–360), from VSOP87.
+fn sun_right_ascension(julian_centuries: f64) -> f64 {
+    let (lambda, beta) = sun_apparent_ecliptic_coordinates(julian_centuries);
+    let epsilon = true_obliquity(julian_centuries);
+    let y = sin_degrees(lambda) * cos_degrees(epsilon) - tan_degrees(beta) * sin_degrees(epsilon);
+    let x = cos_degrees(lambda);
+    let ra = CoreFloat::atan2(y, x).to_degrees();
+    (ra % 360.0 + 360.0) % 360.0
+}
+
+/// Apparent geocentric ecliptic `(longitude λ, latitude β)` of the sun in degrees, from VSOP87.
+fn sun_apparent_ecliptic_coordinates(julian_centuries: f64) -> (f64, f64) {
+    let tau = julian_centuries / 10.0;
+    let earth_l = vsop87::earth_longitude(tau).to_degrees();
+    let earth_b = vsop87::earth_latitude(tau).to_degrees();
+    let earth_r = vsop87::earth_radius(tau);
+
+    // Geocentric position of the sun is diametrically opposite the heliocentric Earth.
+    let mut theta = earth_l + 180.0;
+    let mut beta = -earth_b;
+
+    // FK5 frame correction (Meeus 25.9).
+    let lambda_prime = theta - 1.397 * julian_centuries - 0.00031 * julian_centuries * julian_centuries;
+    let delta_long_fk5 =
+        -0.09033 + 0.03916 * (cos_degrees(lambda_prime) + sin_degrees(lambda_prime)) * tan_degrees(beta);
+    let delta_lat_fk5 = 0.03916 * (cos_degrees(lambda_prime) - sin_degrees(lambda_prime));
+    theta += delta_long_fk5 / 3600.0;
+    beta += delta_lat_fk5 / 3600.0;
+
+    // Nutation in longitude and aberration of light.
+    let (delta_psi, _) = nutation_arcsec(julian_centuries);
+    let aberration = -20.4898 / earth_r;
+    let lambda = theta + delta_psi / 3600.0 + aberration / 3600.0;
+
+    ((lambda % 360.0 + 360.0) % 360.0, beta)
+}
+
+/// Mean obliquity of the ecliptic ε₀ in degrees (Meeus equation 22.2, the IAU 1980 value).
+fn mean_obliquity(julian_centuries: f64) -> f64 {
+    let seconds = 21.448 - julian_centuries * (46.8150 + julian_centuries * (0.00059 - julian_centuries * 0.001813));
+    23.0 + (26.0 + (seconds / 60.0)) / 60.0
+}
+
+/// True obliquity of the ecliptic ε = ε₀ + Δε in degrees.
+fn true_obliquity(julian_centuries: f64) -> f64 {
+    mean_obliquity(julian_centuries) + nutation_arcsec(julian_centuries).1 / 3600.0
 }
 
 /// The sun's ecliptic longitude in degrees from the Astronomical Almanac's "low precision formulas
